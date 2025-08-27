@@ -1,0 +1,98 @@
+{
+  "redstone_broken_blade": {
+    "id": "broken_blade",
+    "type": "tavern",
+    "name": "The Broken Blade Tavern",
+    "parent_location": "redstone_main",
+    
+    "areas": {
+      "main_room": {
+        "name": "Tavern Main Hall",
+        "display_name": "WELCOME TO THE BROKEN BLADE",
+        "description": {
+          "atmosphere": "The tavern bustles with activity. Adventurers gather around tables, sharing tales and seeking companions for dangerous quests.",
+          "subtitle": "Choose your path, adventurer...",
+          "ambient_details": "Smoke drifts from pipes, ale flows freely, and the fire crackles warmly in the hearth.",
+          "patron_selection": {
+            "intro": "You scan the tavern and notice several interesting patrons...",
+            "prompt": "Choose someone to approach:"
+          }
+        },
+        "available_actions": ["talk_patrons", "gamble", "bartender", "leave"],
+        "npcs_present": ["gareth", "elara", "thorman", "lyra", "pete", "server"],
+        "properties": {
+          "lighting": "warm",
+          "noise_level": "moderate",
+          "safety": "safe",
+          "background_image": "tavern"
+        }
+      },
+      
+      "gambling_corner": {
+        "name": "Gambling Corner",
+        "display_name": "GAMES OF CHANCE",
+        "description": {
+          "atmosphere": "A dimly lit corner where fortune seekers test their luck against the dice.",
+          "subtitle": "Will fortune favor you tonight?",
+          "ambient_details": "The soft clatter of dice mingles with whispered curses and triumphant cheers.",
+          "rules_text": "Roll two dice - match or beat the house roll to win!"
+        },
+        "available_actions": ["place_bet", "observe", "leave"],
+        "npcs_present": ["dice_master"],
+        "properties": {
+          "lighting": "dim",
+          "noise_level": "low",
+          "safety": "questionable",
+          "min_bet": 1,
+          "max_bet": 10
+        }
+      },
+      
+      "bar_counter": {
+        "name": "The Bar",
+        "display_name": "GARRICK'S DOMAIN",
+        "description": {
+          "atmosphere": "Garrick polishes glasses behind the sturdy oak bar, bottles of various spirits lined up behind him.",
+          "subtitle": "Information and supplies for the discerning adventurer",
+          "ambient_details": "The scent of ale and roasted meat fills the air, while Garrick's knowing eyes suggest he's seen every type of adventurer.",
+          "merchant_greeting": "What can I get for ye, traveler? Information or supplies - I've got both."
+        },
+        "available_actions": ["talk", "shop", "leave"],
+        "npcs_present": ["bartender"],
+        "properties": {
+          "lighting": "bright",
+          "noise_level": "quiet",
+          "safety": "very_safe",
+          "merchant_type": "tavern_keeper",
+          "has_shop": true
+        }
+      }
+    },
+    
+    "connections": {
+      "exits": {
+        "main_door": {
+          "leads_to": "redstone_main",
+          "description": "Heavy wooden doors leading to the town square"
+        }
+      },
+      "internal": {
+        "gambling_corner": {
+          "from": "main_room",
+          "description": "A shadowy corner filled with the sound of dice"
+        },
+        "bar_counter": {
+          "from": "main_room", 
+          "description": "The polished oak bar where Garrick holds court"
+        }
+      }
+    },
+    
+    "metadata": {
+      "created": "Session 3",
+      "version": "1.0",
+      "author": "Terror in Redstone Development",
+      "notes": "Complete tavern complex with all sub-areas"
+    }
+  }
+}

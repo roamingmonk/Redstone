@@ -1,0 +1,73 @@
+{
+    "id": "pete",
+    "name": "Pete Stumblefoot",
+    "description": "*A disheveled man sways slightly as he clutches his drink, eyes bright with alcohol and mischief.*",
+    "level": 1,
+    "age": 55,
+    "gender": "male",
+    "class": "Local Drunk",
+    "stats": {
+        "strength": 8,
+        "dexterity": 6,
+        "constitution": 15,
+        "intelligence": 9,
+        "wisdom": 7,
+        "charisma": 12
+    },
+    "hp": 8,
+    "ac": 9,
+    "equipment": {
+        "weapon": "Broken Bottle",
+        "armor": "Tattered Clothes",
+        "accessory": "Hip Flask"
+    },
+    "recruitment": {
+        "available": false,
+        "requirements": [],
+        "cost": 0,
+        "failure_reason": "comedy_relief",
+        "success_text": "This should never show up!"
+    },
+    "dialogue": {
+        "initial": [
+            "*hiccups and grins at you with missing teeth*",
+            "Well hello there, good-looking adventurer!",
+            "You look like you could use some... *hic* ...experienced help!",
+            "I may not look like much, but I've got stories to tell!"
+        ],
+        "pre_mayor": [
+            "*waves his drink enthusiastically*",
+            "Adventure calls, and Pete Stumblefoot answers! *hic*",
+            "I don't need no stinking mayor's permission!",
+            "Just say the word and I'll... *stumbles slightly* ...follow you anywhere!"
+        ],
+        "comedy_attempt": [
+            "*tries to stand heroically but stumbles*",
+            "'Fear not, citizens! Pete Stumblefoot is here to save the day!'",
+            "*attempts to draw an imaginary sword, nearly falls over*",
+            "'Together we shall vanquish evil and... and... *hic* ...what were we talking about?'"
+        ],
+        "post_attempt": [
+            "*sits down heavily, grinning*",
+            "Well, that was fun! Always wanted to try the hero thing.",
+            "*takes a long drink*",
+            "But seriously, you don't want me slowing you down.",
+            "I'll just stay here and keep the tavern safe from sobriety!"
+        ],
+        "post_mayor": [
+            "*continues his comedy routine*",
+            "Did I mention I once fought off three bandits with nothing but a chicken?",
+            "*hic* True story! Well, mostly true. The chicken part might be exaggerated.",
+            "But the bandits were definitely... probably... well, they might have been bandits!"
+        ],
+        "party_full": [
+            "*peers at your party with glazed eyes*",
+            "Wow, that's a lot of capable-looking people!",
+            "Probably better than having Pete Stumblefoot stumble around after you.",
+            "I'll just stay here and... *hic* ...provide moral support!"
+        ],
+        "already_recruited": [
+            "*This should never appear since Pete can't be recruited*"
+        ]
+    }
+}

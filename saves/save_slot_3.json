@@ -1,0 +1,121 @@
+{
+  "version": "1.0",
+  "timestamp": "2025-08-26T18:20:00.049874",
+  "save_slot": 3,
+  "player_character": null,
+  "character": {
+    "strength": 14,
+    "dexterity": 10,
+    "constitution": 12,
+    "intelligence": 10,
+    "wisdom": 12,
+    "charisma": 17,
+    "gender": "female",
+    "selected_portrait_file": "player_female_01.jpg",
+    "selected_portrait_gender": "female",
+    "name": "Rhea Ashfall",
+    "gold": 30,
+    "trinket": "Polished obsidian shard",
+    "hit_points": 11
+  },
+  "inventory": {
+    "weapons": [
+      "Longsword"
+    ],
+    "armor": [
+      "Leather Armor",
+      "Shield"
+    ],
+    "items": [
+      "Polished obsidian shard"
+    ],
+    "consumables": []
+  },
+  "current_screen": "tavern_main",
+  "screen_history": [
+    "tavern_main",
+    "bartender",
+    "tavern_conversation",
+    "merchant_shop",
+    "tavern_conversation"
+  ],
+  "previous_screen": "tavern_conversation",
+  "party_members": [],
+  "tavern_visits": 1,
+  "locations_discovered": [],
+  "quest_flags": {},
+  "npc_recruitment_status": {},
+  "conversations_had": [],
+  "mayor_talked": false,
+  "mayor_mentioned": true,
+  "pete_attempted_recruitment": false,
+  "pete_showing_comedy": false,
+  "server_talked": false,
+  "bartender_talked": true,
+  "learned_about_church": false,
+  "learned_about_ruins": true,
+  "quest_active": false,
+  "just_got_quest": false,
+  "quest_system": {
+    "main_story": {
+      "status": "active",
+      "objectives": [
+        {
+          "id": "talk_to_npcs",
+          "completed": false
+        },
+        {
+          "id": "meet_mayor",
+          "completed": false
+        },
+        {
+          "id": "recruit_party",
+          "completed": false
+        },
+        {
+          "id": "explore_ruins",
+          "completed": false
+        },
+        {
+          "id": "explore_church",
+          "completed": false
+        },
+        {
+          "id": "explore_camp",
+          "completed": false
+        },
+        {
+          "id": "solve_mystery",
+          "completed": false
+        }
+      ]
+    },
+    "party_building": {
+      "status": "inactive",
+      "objectives": [
+        {
+          "id": "recruit_warrior",
+          "completed": false
+        },
+        {
+          "id": "recruit_mage",
+          "completed": false
+        },
+        {
+          "id": "recruit_cleric",
+          "completed": false
+        },
+        {
+          "id": "recruit_rogue",
+          "completed": false
+        }
+      ]
+    }
+  },
+  "house_money": 50,
+  "gambling_wins": 0,
+  "gambling_losses": 0,
+  "equipped_weapon": null,
+  "equipped_armor": null,
+  "equipped_shield": null
+}

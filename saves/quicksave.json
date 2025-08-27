@@ -1,0 +1,183 @@
+{
+  "version": "2.0",
+  "timestamp": "2025-08-26T19:37:53.660222",
+  "save_slot": 99,
+  "player_character": {
+    "id": "player",
+    "name": "Player A",
+    "description": "Player A stands ready to prove his worth in the dangerous world of Redstone",
+    "class": "fighter",
+    "stats": {
+      "strength": 14,
+      "dexterity": 12,
+      "constitution": 10,
+      "intelligence": 10,
+      "wisdom": 11,
+      "charisma": 11
+    },
+    "equipment": {
+      "weapon": "Longsword",
+      "armor": "Leather Armor",
+      "shield": "Shield"
+    },
+    "player_data": {
+      "gender": "male",
+      "trinket": "Tarnished silver locket",
+      "creation_date": "2025-08-26T19:37:19.659481",
+      "portraits": {
+        "selected": "PLACEHOLDER_PORTRAIT",
+        "active_path": "assets/portraits/active/player.jpg"
+      }
+    },
+    "progression": {
+      "level": 1,
+      "experience": 0,
+      "hit_points": {
+        "current": 10,
+        "maximum": 10
+      }
+    },
+    "inventory": {
+      "gold": 65,
+      "items": [
+        "Tarnished silver locket"
+      ],
+      "weapons": [
+        "Longsword"
+      ],
+      "armor": [
+        "Leather Armor",
+        "Shield"
+      ],
+      "consumables": []
+    },
+    "dialogue": {
+      "default": [
+        "Ready for adventure!",
+        "Let's see what Redstone has to offer."
+      ]
+    },
+    "recruitment": {
+      "available": false,
+      "requirements": [],
+      "success_text": "The player character",
+      "party_role": "player"
+    }
+  },
+  "character": {
+    "strength": 14,
+    "dexterity": 12,
+    "constitution": 10,
+    "intelligence": 10,
+    "wisdom": 11,
+    "charisma": 11,
+    "gender": "male",
+    "selected_portrait_file": "player_male_05.jpg",
+    "selected_portrait_gender": "male",
+    "name": "Player A",
+    "gold": 65,
+    "trinket": "Tarnished silver locket",
+    "hit_points": 10
+  },
+  "inventory": {
+    "gold": 65,
+    "items": [
+      "Tarnished silver locket"
+    ],
+    "weapons": [
+      "Longsword"
+    ],
+    "armor": [
+      "Leather Armor",
+      "Shield"
+    ],
+    "consumables": []
+  },
+  "current_screen": "tavern_main",
+  "screen_history": [
+    "gold",
+    "trinket",
+    "summary",
+    "welcome",
+    "welcome"
+  ],
+  "previous_screen": "welcome",
+  "party_members": [],
+  "tavern_visits": 1,
+  "locations_discovered": [],
+  "quest_flags": {},
+  "npc_recruitment_status": {},
+  "conversations_had": [],
+  "mayor_talked": false,
+  "mayor_mentioned": false,
+  "pete_attempted_recruitment": false,
+  "pete_showing_comedy": false,
+  "server_talked": false,
+  "bartender_talked": false,
+  "learned_about_church": false,
+  "learned_about_ruins": false,
+  "quest_active": false,
+  "just_got_quest": false,
+  "quest_system": {
+    "main_story": {
+      "status": "active",
+      "objectives": [
+        {
+          "id": "talk_to_npcs",
+          "completed": false
+        },
+        {
+          "id": "meet_mayor",
+          "completed": false
+        },
+        {
+          "id": "recruit_party",
+          "completed": false
+        },
+        {
+          "id": "explore_ruins",
+          "completed": false
+        },
+        {
+          "id": "explore_church",
+          "completed": false
+        },
+        {
+          "id": "explore_camp",
+          "completed": false
+        },
+        {
+          "id": "solve_mystery",
+          "completed": false
+        }
+      ]
+    },
+    "party_building": {
+      "status": "inactive",
+      "objectives": [
+        {
+          "id": "recruit_warrior",
+          "completed": false
+        },
+        {
+          "id": "recruit_mage",
+          "completed": false
+        },
+        {
+          "id": "recruit_cleric",
+          "completed": false
+        },
+        {
+          "id": "recruit_rogue",
+          "completed": false
+        }
+      ]
+    }
+  },
+  "house_money": 50,
+  "gambling_wins": 0,
+  "gambling_losses": 0,
+  "equipped_weapon": null,
+  "equipped_armor": null,
+  "equipped_shield": null
+}

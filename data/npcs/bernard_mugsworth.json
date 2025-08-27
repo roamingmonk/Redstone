@@ -1,0 +1,64 @@
+{
+    "id": "regular",
+    "name": "Bernard Mugsworth",
+    "description": "*An older man sits quietly in the corner, nursing his drink and observing the tavern with surprisingly sharp eyes.*",
+    "level": 1,
+    "age": 60,
+    "gender": "male",
+    "class": "Regular Patron",
+    "stats": {
+        "strength": 9,
+        "dexterity": 8,
+        "constitution": 16,
+        "intelligence": 14,
+        "wisdom": 12,
+        "charisma": 10
+    },
+    "hp": 14,
+    "ac": 9,
+    "equipment": {
+        "weapon": "Walking Stick",
+        "armor": "Worn Clothes",
+        "accessory": "Lucky Mug"
+    },
+    "recruitment": {
+        "available": false,
+        "requirements": [],
+        "cost": 0,
+        "failure_reason": "civilian",
+        "success_text": "Bernard chuckles dryly. 'These old bones have seen enough adventure for one lifetime, thanks.'"
+    },
+    "dialogue": {
+        "initial": [
+            "*looks up from his drink with weary but intelligent eyes*",
+            "Ah, another would-be hero comes to our troubled town.",
+            "I've been watching the comings and goings here for years.",
+            "Seen plenty of brave souls head out... fewer come back."
+        ],
+        "pre_mayor": [
+            "*takes a slow sip of his drink*",
+            "You want advice? Talk to the Mayor first.",
+            "He's been keeping the real details quiet, trying not to panic folks.",
+            "But someone needs to hear the full truth of what's happening."
+        ],
+        "post_mayor": [
+            "*nods gravely*",
+            "So he finally told someone about Martha and little Rosie.",
+            "I've been in this tavern the night each person disappeared.",
+            "There's a pattern, if you know how to look for it.",
+            "The refugees... they all mention the same nightmare before vanishing."
+        ],
+        "return_visits": [
+            "*studies you thoughtfully*",
+            "Still working on the mystery, I see.",
+            "Remember - sometimes the oldest stories hold the newest truths.",
+            "Check the refugees' tales carefully. Truth hides in their fears."
+        ],
+        "party_full": [
+            "*raises his mug in a small salute*",
+            "A proper adventuring party at last.",
+            "You remind me of my old companions, back in better days.",
+            "May your quest end better than most do these days."
+        ]
+    }
+}

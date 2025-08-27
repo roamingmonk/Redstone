@@ -1,0 +1,77 @@
+{
+    "id": "mayor",
+    "name": "Mayor Aldwin Goldenbottom",
+    "description": "*A well-dressed halfling paces nervously behind his ornate desk, worry lines creasing his usually jovial features.*",
+    "level": 1,
+    "age": 50,
+    "gender": "male",
+    "class": "Town Official",
+    "stats": {
+        "strength": 9,
+        "dexterity": 12,
+        "constitution": 11,
+        "intelligence": 16,
+        "wisdom": 14,
+        "charisma": 17
+    },
+    "hp": 12,
+    "ac": 10,
+    "equipment": {
+        "weapon": "Ceremonial Dagger",
+        "armor": "Fine Clothes",
+        "accessory": "Seal of Office"
+    },
+    "recruitment": {
+        "available": false,
+        "requirements": [],
+        "cost": 0,
+        "failure_reason": "town_leader",
+        "success_text": "The Mayor looks startled. 'Me? Oh no, no! I'm needed here to coordinate the town's defenses. But I'll support your mission however I can!'"
+    },
+    "dialogue": {
+        "initial": [
+            "*looks up with desperate hope*",
+            "Thank the gods! You look like someone who can actually DO something!",
+            "I'm Mayor Goldenbottom, and I desperately need help.",
+            "My wife and daughter... they've vanished along with several townspeople."
+        ],
+        "first_meeting": [
+            "*wrings his hands anxiously*",
+            "It started small - a few homeless folks disappeared, people we thought might have just... moved on.",
+            "But then my dear Martha and little Rosie vanished from our own home!",
+            "No signs of struggle, no ransom demands - they're simply gone!"
+        ],
+        "post_initial": [
+            "*paces frantically*",
+            "I've tried everything - town guards, hired investigators, even posted rewards!",
+            "Nothing! It's like they've vanished into thin air!",
+            "Will you help me? I can offer payment, supplies, anything you need!"
+        ],
+        "quest_accepted": [
+            "*tears of gratitude in his eyes*",
+            "Bless you! I'll authorize whatever resources you need!",
+            "Talk to the tavern folks - they hear everything in this town.",
+            "The Refugee Camp, Hill Ruins, and old Swamp Church have all had... incidents recently."
+        ],
+        "return_visits": [
+            "*looks up hopefully each time*",
+            "Any news about Martha and Rosie?",
+            "I've been coordinating with the town guard, but we're spread too thin.",
+            "Please, you're our best hope for bringing them home safely."
+        ],
+        "party_full": [
+            "*observes your party with relief*",
+            "Excellent! A proper rescue team!",
+            "With your combined skills, you might actually succeed where others have failed.",
+            "Bring my family home, and Redstone will be forever in your debt."
+        ]
+    },
+    "quest_data": {
+        "provides_quest": "missing_persons",
+        "locations_revealed": ["refugee_camp", "hill_ruins", "swamp_church"],
+        "rewards": {
+            "completion": 500,
+            "partial": 100
+        }
+    }
+}

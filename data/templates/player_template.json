@@ -1,0 +1,55 @@
+{
+  "id": "player",
+  "name": "PLACEHOLDER_NAME",
+  "description": "A brave adventurer ready to face the dangers of Redstone",
+  "class": "fighter",
+  "stats": {
+    "strength": 10,
+    "dexterity": 10,
+    "constitution": 10,
+    "intelligence": 10,
+    "wisdom": 10,
+    "charisma": 10
+  },
+  "equipment": {
+    "weapon": "Longsword",
+    "armor": "Leather Armor",
+    "shield": "Shield"
+  },
+  "player_data": {
+    "gender": "male",
+    "trinket": "PLACEHOLDER_TRINKET",
+    "creation_date": "PLACEHOLDER_DATE",
+    "portraits": {
+      "selected": "PLACEHOLDER_PORTRAIT",
+      "active_path": "assets/portraits/active/player.jpg"
+    }
+  },
+  "progression": {
+    "level": 1,
+    "experience": 0,
+    "hit_points": {
+      "current": 10,
+      "maximum": 10
+    }
+  },
+  "inventory": {
+    "gold": 50,
+    "items": [],
+    "weapons": ["Longsword"],
+    "armor": ["Leather Armor", "Shield"],
+    "consumables": []
+  },
+  "dialogue": {
+    "default": [
+      "Ready for adventure!",
+      "Let's see what Redstone has to offer."
+    ]
+  },
+  "recruitment": {
+    "available": false,
+    "requirements": [],
+    "success_text": "The player character",
+    "party_role": "player"
+  }
+}

@@ -1,0 +1,72 @@
+{
+    "id": "bartender",
+    "name": "Garrick Ironbrew",
+    "description": "*The tavern's proprietor polishes glasses while keeping a watchful eye on his establishment, ready with advice or supplies.*",
+    "level": 1,
+    "age": 40,
+    "gender": "male",
+    "class": "Information Broker",
+    "stats": {
+        "strength": 12,
+        "dexterity": 14,
+        "constitution": 13,
+        "intelligence": 15,
+        "wisdom": 16,
+        "charisma": 14
+    },
+    "hp": 20,
+    "ac": 12,
+    "equipment": {
+        "weapon": "Club",
+        "armor": "Leather Apron",
+        "tools": "Bartender's Kit"
+    },
+    "recruitment": {
+        "available": false,
+        "requirements": [],
+        "cost": 0,
+        "failure_reason": "business_owner",
+        "success_text": "Garrick chuckles warmly. 'I appreciate the offer, but someone's got to keep this place running while you're off saving the world!'"
+    },
+    "dialogue": {
+        "initial": [
+            "*looks up from cleaning a tankard*",
+            "Welcome to the Broken Blade! You look like you've got adventure in your eyes.",
+            "Things have been... unsettled around here lately.",
+            "If you're looking for information or supplies, you've come to the right place."
+        ],
+        "pre_mayor": [
+            "*leans in conspiratorially*",
+            "Word of advice - talk to Mayor Goldenbottom if you're planning anything official.",
+            "These disappearances have him on edge, and he's coordinating all the responses.",
+            "Those old Hill Ruins north of town have been too quiet as well.",
+            "Need any supplies before you head out? I keep basic gear in stock."
+        ],
+        "post_mayor": [
+            "*nods grimly*",
+            "So you've spoken with the Mayor about the troubles, eh?",
+            "Those Hill Ruins I mentioned - something's definitely not right there.",
+            "I can mark it on your map if you're planning to investigate.",
+            "Need any supplies before you head out? I keep basic gear in stock."
+        ],
+        "post_recruitment": [
+            "*eyes your party approvingly*",
+            "Good to see you're not going alone into danger!",
+            "Your companions look capable - you'll need every advantage.",
+            "Want to stock up on supplies before you venture forth?"
+        ],
+        "return_visits": [
+            "*looks up from cleaning a tankard*",
+            "Need a drink?  I also have basic gear in stock."
+        ],
+        "party_full": [
+            "*nods approvingly at your full party*",
+            "Excellent! A proper adventuring party at last!",
+            "You'll want supplies for the whole group before heading out.",
+            "My shop has everything from rations to rope."
+        ],
+        "already_recruited": [
+            "*This should never appear since bartender can't be recruited*"
+        ]
+    }
+}

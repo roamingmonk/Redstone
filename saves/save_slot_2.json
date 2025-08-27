@@ -1,0 +1,203 @@
+{
+  "version": "2.0",
+  "timestamp": "2025-08-26T19:44:33.830813",
+  "save_slot": 2,
+  "player_character": {
+    "id": "player",
+    "name": "Player B",
+    "description": "Player B stands ready to prove her worth in the dangerous world of Redstone",
+    "class": "fighter",
+    "stats": {
+      "strength": 13,
+      "dexterity": 15,
+      "constitution": 10,
+      "intelligence": 15,
+      "wisdom": 12,
+      "charisma": 9
+    },
+    "equipment": {
+      "weapon": "Longsword",
+      "armor": "Leather Armor",
+      "shield": "Shield"
+    },
+    "player_data": {
+      "gender": "female",
+      "trinket": "Smooth river stone with runes",
+      "creation_date": "2025-08-26T19:38:43.949573",
+      "portraits": {
+        "selected": "PLACEHOLDER_PORTRAIT",
+        "active_path": "assets/portraits/active/player.jpg"
+      }
+    },
+    "progression": {
+      "level": 1,
+      "experience": 0,
+      "hit_points": {
+        "current": 10,
+        "maximum": 10
+      }
+    },
+    "inventory": {
+      "gold": 65,
+      "items": [
+        "Smooth river stone with runes",
+        "Hemp Rope"
+      ],
+      "weapons": [
+        "Longsword"
+      ],
+      "armor": [
+        "Leather Armor",
+        "Shield"
+      ],
+      "consumables": [
+        "Strong Ale",
+        "Strong Ale",
+        "Strong Ale",
+        "Strong Ale",
+        "Strong Ale",
+        "Trail Rations",
+        "Trail Rations",
+        "Trail Rations"
+      ]
+    },
+    "dialogue": {
+      "default": [
+        "Ready for adventure!",
+        "Let's see what Redstone has to offer."
+      ]
+    },
+    "recruitment": {
+      "available": false,
+      "requirements": [],
+      "success_text": "The player character",
+      "party_role": "player"
+    }
+  },
+  "character": {
+    "strength": 13,
+    "dexterity": 15,
+    "constitution": 10,
+    "intelligence": 15,
+    "wisdom": 12,
+    "charisma": 9,
+    "gender": "female",
+    "selected_portrait_file": "player_female_05.jpg",
+    "selected_portrait_gender": "female",
+    "name": "Player B",
+    "gold": 22,
+    "trinket": "Smooth river stone with runes",
+    "hit_points": 10
+  },
+  "inventory": {
+    "gold": 65,
+    "items": [
+      "Smooth river stone with runes",
+      "Hemp Rope"
+    ],
+    "weapons": [
+      "Longsword"
+    ],
+    "armor": [
+      "Leather Armor",
+      "Shield"
+    ],
+    "consumables": [
+      "Strong Ale",
+      "Strong Ale",
+      "Strong Ale",
+      "Strong Ale",
+      "Strong Ale",
+      "Trail Rations",
+      "Trail Rations",
+      "Trail Rations"
+    ]
+  },
+  "current_screen": "tavern_main",
+  "screen_history": [
+    "tavern_main",
+    "bartender",
+    "tavern_conversation",
+    "merchant_shop",
+    "tavern_conversation"
+  ],
+  "previous_screen": "tavern_conversation",
+  "party_members": [],
+  "tavern_visits": 1,
+  "locations_discovered": [],
+  "quest_flags": {},
+  "npc_recruitment_status": {},
+  "conversations_had": [],
+  "mayor_talked": false,
+  "mayor_mentioned": true,
+  "pete_attempted_recruitment": false,
+  "pete_showing_comedy": false,
+  "server_talked": false,
+  "bartender_talked": true,
+  "learned_about_church": false,
+  "learned_about_ruins": true,
+  "quest_active": false,
+  "just_got_quest": false,
+  "quest_system": {
+    "main_story": {
+      "status": "active",
+      "objectives": [
+        {
+          "id": "talk_to_npcs",
+          "completed": false
+        },
+        {
+          "id": "meet_mayor",
+          "completed": false
+        },
+        {
+          "id": "recruit_party",
+          "completed": false
+        },
+        {
+          "id": "explore_ruins",
+          "completed": false
+        },
+        {
+          "id": "explore_church",
+          "completed": false
+        },
+        {
+          "id": "explore_camp",
+          "completed": false
+        },
+        {
+          "id": "solve_mystery",
+          "completed": false
+        }
+      ]
+    },
+    "party_building": {
+      "status": "inactive",
+      "objectives": [
+        {
+          "id": "recruit_warrior",
+          "completed": false
+        },
+        {
+          "id": "recruit_mage",
+          "completed": false
+        },
+        {
+          "id": "recruit_cleric",
+          "completed": false
+        },
+        {
+          "id": "recruit_rogue",
+          "completed": false
+        }
+      ]
+    }
+  },
+  "house_money": 50,
+  "gambling_wins": 0,
+  "gambling_losses": 0,
+  "equipped_weapon": null,
+  "equipped_armor": null,
+  "equipped_shield": null
+}

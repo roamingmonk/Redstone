@@ -1,0 +1,111 @@
+"""
+Terror in Redstone - Overlay Utilities
+Shared functions for popup screens (inventory, quest log, character sheet)
+"""
+
+import pygame
+
+# Colors for popup screens
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GRAY = (170, 170, 170)
+DARK_GRAY = (85, 85, 85)
+BROWN = (101, 67, 33)
+DARK_BROWN = (70, 45, 20)
+YELLOW = (255, 255, 85)
+CYAN = (0, 255, 255)
+BRIGHT_GREEN = (85, 255, 85)
+YELLOW = (255, 255, 85)
+
+# Let's try this color for row highlighting - classic RPG blue
+SELECTION_COLOR = (100, 150, 255)  # Light blue
+
+def draw_popup_background(surface):
+    """Draw the brown background for popup screens"""
+    surface.fill(DARK_BROWN)
+
+def draw_chunky_border(surface, x, y, width, height, thickness=4):
+    """Draw chunky retro borders like Gold Box RPGs"""
+    # Outer white border
+    pygame.draw.rect(surface, WHITE, (x, y, width, height), thickness)
+    # Inner dark border for depth
+    pygame.draw.rect(surface, DARK_GRAY, (x + thickness, y + thickness, 
+                    width - 2*thickness, height - 2*thickness), 2)
+
+def draw_tab_button(surface, x, y, width, height, text, font, active=False):
+    """Draw a folder-style tab (active or inactive)"""
+    if active:
+        # Active tab: lighter color, raised appearance
+        color = (180, 160, 140)  # Light brown
+        text_color = BLACK
+        border_color = WHITE
+        # Draw slightly taller to show it's "in front"
+        tab_height = height + 2
+        tab_y = y - 2
+    else:
+        # Inactive tab: darker, recessed appearance  
+        color = (120, 100, 80)   # Dark brown
+        text_color = (200, 200, 200)  # Light gray text
+        border_color = DARK_GRAY
+        tab_height = height
+        tab_y = y
+    
+    # Draw tab background (rectangular for now, we can make it fancier later)
+    pygame.draw.rect(surface, color, (x, tab_y, width, tab_height))
+    
+    # Draw top and side borders only (no bottom border for folder effect)
+    pygame.draw.line(surface, border_color, (x, tab_y), (x + width, tab_y), 2)  # Top
+    pygame.draw.line(surface, border_color, (x, tab_y), (x, tab_y + tab_height), 2)  # Left
+    pygame.draw.line(surface, border_color, (x + width, tab_y), (x + width, tab_y + tab_height), 2)  # Right
+    
+    # Draw centered text
+    text_surface = font.render(text, True, text_color)
+    text_rect = text_surface.get_rect(center=(x + width//2, tab_y + tab_height//2))
+    surface.blit(text_surface, text_rect)
+    
+    return pygame.Rect(x, tab_y, width, tab_height)
+    
+
+
+def draw_item_row(surface, x, y, width, height, selected=False):
+    """Draw a table row background (selected or normal)"""
+    if selected:
+        pygame.draw.rect(surface, SELECTION_COLOR, (x, y, width, height))
+    else:
+        pygame.draw.rect(surface, WHITE, (x, y, width, height))
+    
+    # Draw row border
+    pygame.draw.rect(surface, DARK_GRAY, (x, y, width, height), 1)
+    
+    return pygame.Rect(x, y, width, height)
+
+def draw_centered_text(surface, text, font, y_position, color=WHITE, screen_width=1024):
+    """Draw text centered horizontally"""
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect(center=(screen_width//2, y_position))
+    surface.blit(text_surface, text_rect)
+    return text_rect
+
+def draw_button(surface, x, y, width, height, text, font, pressed=False, selected=False, enabled=True):
+    """Draw a retro-style button"""
+    if not enabled:
+        color = DARK_GRAY
+        border_color = DARK_GRAY
+        text_color = (60, 60, 60)
+    elif selected:
+        color = YELLOW
+        border_color = WHITE
+        text_color = BLACK
+    else:
+        color = DARK_GRAY if pressed else GRAY
+        border_color = DARK_GRAY if pressed else WHITE
+        text_color = BROWN
+    
+    pygame.draw.rect(surface, color, (x, y, width, height))
+    pygame.draw.rect(surface, border_color, (x, y, width, height), 2)
+    
+    text_surface = font.render(text, True, text_color)
+    text_rect = text_surface.get_rect(center=(x + width//2, y + height//2))
+    surface.blit(text_surface, text_rect)
+    
+    return pygame.Rect(x, y, width, height) if enabled else None

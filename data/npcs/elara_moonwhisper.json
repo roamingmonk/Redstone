@@ -1,0 +1,71 @@
+{
+    "id": "elara",
+    "name": "Elara Moonwhisper",
+    "description": "*A young woman in elegant robes studies a spellbook intently, arcane energy crackling faintly around her fingertips.*",
+    "level": 1,
+    "class": "Mage",
+    "age": 26,
+    "gender": "female",
+    "stats": {
+        "strength": 9,
+        "dexterity": 14,
+        "constitution": 12,
+        "intelligence": 17,
+        "wisdom": 15,
+        "charisma": 13
+    },
+    "hp": 20,
+    "ac": 12,
+    "equipment": {
+        "weapon": "Enchanted Staff",
+        "armor": "Mage Robes",
+        "accessory": "Spell Component Pouch"
+    },
+    "spells": {
+        "level_1": ["Magic Missile", "Sleep", "Shield", "Detect Magic"],
+        "level_2": ["Fireball", "Web", "Mirror Image"]
+    },
+    "recruitment": {
+        "available": true,
+        "requirements": ["mayor_talked"],
+        "cost": 0,
+        "success_text": "Elara closes her spellbook with a determined smile. 'Finally! A chance to put my magical training to good use! Lead the way!'"
+    },
+    "dialogue": {
+        "initial": [
+            "*A young mage looks up from her arcane studies*",
+            "Oh! You have quite the interesting magical aura about you.",
+            "I sense you're involved in something important... and dangerous.",
+            "How fascinating! I do love a good magical mystery!"
+        ],
+        "pre_mayor": [
+            "*adjusts her spell components thoughtfully*",
+            "I'd love to help, but the Mayor has strict rules about magic users.",
+            "Ever since the... incidents... he requires official approval for any expeditions.",
+            "Get his blessing first, then we can discuss proper magical support!"
+        ],
+        "post_mayor": [
+            "*eyes light up with excitement*",
+            "The Mayor told me about the disappearances - definitely magical in nature!",
+            "I've been researching similar cases in my grimoires.",
+            "You'll need a skilled spellcaster to counter whatever dark magic is at work!"
+        ],
+        "post_recruitment": [
+            "*studies your other party members with keen interest*",
+            "What an excellent balance of skills we have!",
+            "With my magic backing your martial prowess, we should succeed.",
+            "I have some new spells I'm eager to test in the field!"
+        ],
+        "party_full": [
+            "*nods approvingly at your full party*",
+            "Four is the perfect number according to adventuring theory!",
+            "Too many causes magical interference, too few lacks tactical options.",
+            "You've chosen your companions wisely!"
+        ],
+        "already_recruited": [
+            "*prepares her spell components carefully*",
+            "My magic is ready to serve our cause!",
+            "Where shall we direct our magical investigations?"
+        ]
+    }
+}

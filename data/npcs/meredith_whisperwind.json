@@ -1,0 +1,64 @@
+{
+    "id": "server",
+    "name": "Meredith Whisperwind",
+    "description": "*A cheerful serving girl moves between tables with practiced grace, always ready with gossip and a warm smile.*",
+    "level": 1,
+    "age": 24,
+    "gender": "female",
+    "class": "Server",
+    "stats": {
+        "strength": 10,
+        "dexterity": 15,
+        "constitution": 12,
+        "intelligence": 13,
+        "wisdom": 14,
+        "charisma": 16
+    },
+    "hp": 12,
+    "ac": 11,
+    "equipment": {
+        "weapon": "Serving Tray",
+        "armor": "Work Dress",
+        "tools": "Quick Wit"
+    },
+    "recruitment": {
+        "available": false,
+        "requirements": [],
+        "cost": 0,
+        "failure_reason": "civilian",
+        "success_text": "Meredith laughs melodiously. 'Oh my! I'm flattered, but I'm much better with serving ale than wielding weapons!'"
+    },
+    "dialogue": {
+        "initial": [
+            "*approaches with a bright smile and knowing eyes*",
+            "Well hello there, stranger! You've got the look of someone with important business.",
+            "I hear all the best gossip working these tables, you know.",
+            "What brings you to our little corner of trouble?"
+        ],
+        "pre_mayor": [
+            "*leans in with conspiratorial excitement*",
+            "Ooh, you're asking the right questions! But...",
+            "The Mayor's been very clear - all official business goes through him first.",
+            "Talk to him about the troubles, then come back for the real stories!"
+        ],
+        "post_mayor": [
+            "*eyes light up with excitement*",
+            "So the Mayor finally told someone about his poor family!",
+            "I've heard whispers about that old Swamp Church to the south.",
+            "Strange lights at night, eerie singing... gives me the shivers!",
+            "The refugees mention it in their nightmares, poor souls."
+        ],
+        "return_visits": [
+            "*wipes down a nearby table while chatting*",
+            "Any luck finding the Mayor's family yet?",
+            "That Swamp Church I mentioned is definitely worth investigating.",
+            "Be careful though - the stories I hear are... unsettling."
+        ],
+        "party_full": [
+            "*admires your assembled party*",
+            "My stars! Look at this impressive group!",
+            "With warriors like these, you might actually solve this mystery.",
+            "I'll keep my ears open for any new gossip while you're gone!"
+        ]
+    }
+}

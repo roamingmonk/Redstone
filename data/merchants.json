@@ -1,0 +1,16 @@
+{
+  "merchants": {
+    "garrick_barkeep": {
+      "name": "Garrick the Barkeep",
+      "greeting": "What can I get for you? I keep basic adventuring gear in stock:",
+      "price_modifier": 1.0,
+      "stock_items": ["strong_ale", "trail_rations", "hemp_rope", "torch"]
+    },
+    "jenna_general_store": {
+      "name": "Jenna Hemperstop",
+      "greeting": "Greetings, traveler. I have a bit of everything to aid in your journey:",
+      "price_modifier": 1.0,
+      "stock_items": ["strong_ale", "trail_rations", "hemp_rope", "torch"]
+    }
+  }
+}
