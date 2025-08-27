@@ -220,7 +220,8 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
     
     # Player gold and cart total
     text_y = LAYOUT_DIALOG_TEXT_Y
-    player_gold = game_state.character.get('gold', 0)
+    from game_logic.player_manager import player_manager
+    player_gold = player_manager.get_player_gold()
     cart_total = game_state.get_cart_total(merchant_data)
     
     draw_centered_text(surface, f"Your Gold: {player_gold} gp", 

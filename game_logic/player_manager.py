@@ -239,27 +239,173 @@ class PlayerManager:
         print("🔄 Game state synchronized with player JSON")
 
     def update_player_gold(self, new_amount):
+        """Update player gold and immediately save to file"""
         if self.player_data:
             self.player_data['inventory']['gold'] = new_amount
             self.save_player()
-
-    def update_player_inventory(self, inventory_changes):
+            print(f"💰 Player gold updated: {new_amount}")
+            return True
+        return False
+    
+    def add_player_gold(self, amount):
+        """Add gold to player's current amount"""
         if self.player_data:
-            self.player_data['inventory'].update(inventory_changes)
+            current_gold = self.player_data['inventory']['gold']
+            new_gold = current_gold + amount
+            return self.update_player_gold(new_gold)
+        return False
+    
+    def subtract_player_gold(self, amount):
+        """Subtract gold from player's current amount"""
+        if self.player_data:
+            current_gold = self.player_data['inventory']['gold']
+            if current_gold >= amount:
+                new_gold = current_gold - amount
+                return self.update_player_gold(new_gold)
+            else:
+                print(f"❌ Insufficient gold: {current_gold} < {amount}")
+                return False
+        return False
+    
+    def update_player_inventory_item(self, category, items_list):
+        """Update a specific inventory category and save immediately"""
+        if self.player_data:
+            valid_categories = ['items', 'weapons', 'armor', 'consumables']
+            if category in valid_categories:
+                self.player_data['inventory'][category] = items_list
+                self.save_player()
+                print(f"📦 Player {category} updated: {len(items_list)} items")
+                return True
+            else:
+                print(f"❌ Invalid inventory category: {category}")
+        return False
+    
+    def add_player_item(self, item_name, category='items'):
+        """Add single item to player inventory"""
+        if self.player_data:
+            if category not in self.player_data['inventory']:
+                self.player_data['inventory'][category] = []
+            
+            self.player_data['inventory'][category].append(item_name)
             self.save_player()
-
-    def add_party_member(self, npc_id):
+            print(f"➕ Added {item_name} to {category}")
+            return True
+        return False
+    
+    def remove_player_item(self, item_name, category='items'):
+        """Remove single item from player inventory"""
         if self.player_data:
-            party_members = self.player_data.get('party_members', [])
+            if category in self.player_data['inventory']:
+                inventory_list = self.player_data['inventory'][category]
+                if item_name in inventory_list:
+                    inventory_list.remove(item_name)
+                    self.save_player()
+                    print(f"➖ Removed {item_name} from {category}")
+                    return True
+                else:
+                    print(f"❌ Item not found: {item_name} in {category}")
+            else:
+                print(f"❌ Category not found: {category}")
+        return False
+    
+    def add_party_member(self, npc_id):
+        """Add NPC to party and save immediately"""
+        if self.player_data:
+            # Initialize party_members if it doesn't exist
+            if 'party_members' not in self.player_data:
+                self.player_data['party_members'] = []
+            
+            party_members = self.player_data['party_members']
             if npc_id not in party_members:
                 party_members.append(npc_id)
-                self.player_data['party_members'] = party_members
                 self.save_player()
-
-    def update_equipment(self, equipment_slot, item_name):
+                print(f"👥 Added {npc_id} to party")
+                return True
+            else:
+                print(f"❌ {npc_id} already in party")
+        return False
+    
+    def remove_party_member(self, npc_id):
+        """Remove NPC from party and save immediately"""
         if self.player_data:
-            self.player_data['equipment'][equipment_slot] = item_name
+            if 'party_members' in self.player_data:
+                party_members = self.player_data['party_members']
+                if npc_id in party_members:
+                    party_members.remove(npc_id)
+                    self.save_player()
+                    print(f"👥 Removed {npc_id} from party")
+                    return True
+                else:
+                    print(f"❌ {npc_id} not in party")
+            else:
+                print("❌ No party members to remove")
+        return False
+    
+    def update_equipment(self, equipment_slot, item_name):
+        """Update equipped item and save immediately"""
+        if self.player_data:
+            valid_slots = ['weapon', 'armor', 'shield']
+            if equipment_slot in valid_slots:
+                self.player_data['equipment'][equipment_slot] = item_name
+                self.save_player()
+                print(f"⚔️ Equipped {item_name} as {equipment_slot}")
+                return True
+            else:
+                print(f"❌ Invalid equipment slot: {equipment_slot}")
+        return False
+    
+    def update_hit_points(self, current_hp, max_hp=None):
+        """Update player hit points and save immediately"""
+        if self.player_data:
+            self.player_data['progression']['hit_points']['current'] = current_hp
+            if max_hp is not None:
+                self.player_data['progression']['hit_points']['maximum'] = max_hp
             self.save_player()
+            print(f"❤️ Hit points updated: {current_hp}")
+            return True
+        return False
+    
+    def get_player_gold(self):
+        """Get current player gold amount"""
+        if self.player_data:
+            return self.player_data['inventory']['gold']
+        return 0
+    
+    def get_party_members(self):
+        """Get current party members list"""
+        if self.player_data:
+            return self.player_data.get('party_members', [])
+        return []
+    
+    def get_player_inventory_category(self, category):
+        """Get items from specific inventory category"""
+        if self.player_data:
+            return self.player_data['inventory'].get(category, [])
+        return []
+    
+    def can_afford(self, amount):
+        """Check if player can afford a purchase"""
+        return self.get_player_gold() >= amount
+
+def test_player_updates():
+    """Test function to verify real-time updates work"""
+    print("Testing player manager updates...")
+    
+    # Test gold update
+    initial_gold = player_manager.get_player_gold()
+    print(f"Initial gold: {initial_gold}")
+    
+    player_manager.subtract_player_gold(10)
+    new_gold = player_manager.get_player_gold()
+    print(f"After spending 10: {new_gold}")
+    
+    # Test adding item
+    player_manager.add_player_item("Test Item", "items")
+    items = player_manager.get_player_inventory_category("items")
+    print(f"Items: {items}")
 
 # Global player manager instance
 player_manager = PlayerManager()
+
+# Uncomment this line to run the test:
+test_player_updates()

@@ -51,5 +51,84 @@
     "requirements": [],
     "success_text": "The player character",
     "party_role": "player"
-  }
+  },
+  "previous_screen": "tavern_conversation",
+  "party_members": [],
+  "tavern_visits": 0,
+  "locations_discovered": [],
+  "quest_flags": {},
+  "npc_recruitment_status": {},
+  "conversations_had": [],
+  "mayor_talked": false,
+  "mayor_mentioned": false,
+  "pete_attempted_recruitment": false,
+  "pete_showing_comedy": false,
+  "server_talked": false,
+  "bartender_talked": false,
+  "learned_about_church": false,
+  "learned_about_ruins": false,
+  "quest_active": false,
+  "just_got_quest": false,
+  "quest_system": {
+    "main_story": {
+      "status": "active",
+      "objectives": [
+        {
+          "id": "talk_to_npcs",
+          "completed": false
+        },
+        {
+          "id": "meet_mayor",
+          "completed": false
+        },
+        {
+          "id": "recruit_party",
+          "completed": false
+        },
+        {
+          "id": "explore_ruins",
+          "completed": false
+        },
+        {
+          "id": "explore_church",
+          "completed": false
+        },
+        {
+          "id": "explore_camp",
+          "completed": false
+        },
+        {
+          "id": "solve_mystery",
+          "completed": false
+        }
+      ]
+    },
+    "party_building": {
+      "status": "inactive",
+      "objectives": [
+        {
+          "id": "recruit_warrior",
+          "completed": false
+        },
+        {
+          "id": "recruit_mage",
+          "completed": false
+        },
+        {
+          "id": "recruit_cleric",
+          "completed": false
+        },
+        {
+          "id": "recruit_rogue",
+          "completed": false
+        }
+      ]
+    }
+  },
+  "house_money": 50,
+  "gambling_wins": 0,
+  "gambling_losses": 0,
+  "equipped_weapon": null,
+  "equipped_armor": null,
+  "equipped_shield": null
 }

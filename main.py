@@ -11,6 +11,7 @@ sys.path.append('.')
 from screens.character_creation import finalize_character_creation
 from game_state import GameState
 from utils.constants import load_fonts, load_images, SCREEN_WIDTH, SCREEN_HEIGHT
+from game_logic.player_manager import player_manager
 from screens.character_creation import (
     draw_splash_screen, draw_stats_screen, draw_gender_screen,
     draw_name_screen, draw_custom_name_screen, draw_name_confirm_screen,
@@ -635,22 +636,24 @@ def handle_mouse_events(mouse_pos, game_state, fonts, images, controller=None):
         
         # Check button clicks
         if buy_button and buy_button.collidepoint(mouse_pos):
-            # Process the entire shopping cart
+            # Process the entire shopping cart using PlayerManager
             merchant_data = game_state.get_garrick_inventory()
             cart_total = game_state.get_cart_total(merchant_data)
             
-            if cart_total <= game_state.character.get('gold', 0):
-                # Player can afford it - process each item in cart
+            if player_manager.can_afford(cart_total):
+                # Deduct total cost once using PlayerManager
+                player_manager.subtract_player_gold(cart_total)
+                
+                # Add all items to inventory using PlayerManager
                 for item_name, quantity in game_state.shopping_cart.items():
                     for item in merchant_data['items']:
                         if item['name'] == item_name:
-                            # Add items to inventory
                             for _ in range(quantity):
-                                game_state.buy_item(item_name, item['cost'], item['type'])
+                                player_manager.add_player_item(item_name, item['type'])
                             break
                 
                 print(f"Purchase complete! Spent {cart_total} gold.")
-                print(f"Remaining gold: {game_state.character.get('gold', 0)}")
+                print(f"Remaining gold: {player_manager.get_player_gold()}")
                 game_state.clear_cart()
             else:
                 print("You cannot afford this purchase!")

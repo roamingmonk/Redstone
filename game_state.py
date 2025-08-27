@@ -390,11 +390,13 @@ class GameState:
         if player_roll > house_roll:
             # Player wins - gets bet back plus winnings
             winnings = bet_amount * 2
-            self.character['gold'] += winnings - bet_amount  # Net gain
+            from game_logic.player_manager import player_manager
+            player_manager.add_player_gold(winnings - bet_amount)  # Net gain
             return True, player_roll, house_roll, winnings
         else:
             # House wins - player loses bet
-            self.character['gold'] -= bet_amount
+            from game_logic.player_manager import player_manager
+            player_manager.subtract_player_gold(bet_amount)
             return False, player_roll, house_roll, 0
 
     # NEW: Redstone Dice Game Methods
@@ -465,7 +467,8 @@ class GameState:
         
         if multiplier == 0:
             # House wins - player loses bet
-            self.character['gold'] -= bet_amount
+            from game_logic.player_manager import player_manager
+            player_manager.subtract_player_gold(bet_amount)
             self.dice_game['house_money'] += bet_amount
             self.dice_game['loss_streak'] += 1
             self.dice_game['win_streak'] = 0
@@ -481,7 +484,8 @@ class GameState:
             description += f" (House limited payout to {net_winnings} gold!)"
         
         # Apply winnings
-        self.character['gold'] += net_winnings
+        from game_logic.player_manager import player_manager
+        player_manager.add_player_gold(net_winnings)
         self.dice_game['house_money'] -= net_winnings
         self.dice_game['win_streak'] += 1
         self.dice_game['loss_streak'] = 0
@@ -541,8 +545,8 @@ class GameState:
         return random.choice(messages)
     
     def can_afford_bet(self, bet_amount):
-        """Check if player can afford the bet"""
-        return self.character.get('gold', 0) >= bet_amount
+        from game_logic.player_manager import player_manager
+        return player_manager.can_afford(bet_amount)
     
     def reset_dice_game(self):
         """Reset dice game for new session"""
@@ -604,6 +608,11 @@ class GameState:
         """Check if player can afford an item"""
         return self.character.get('gold', 0) >= cost
     
+    def get_current_gold(self):
+        """Get current gold from PlayerManager for display purposes"""
+        from game_logic.player_manager import player_manager
+        return player_manager.get_player_gold()
+
     def add_to_cart(self, item_name):
         """Add one of an item to shopping cart"""
         if item_name in self.shopping_cart:
@@ -632,8 +641,6 @@ class GameState:
             self.clear_cart()
             return True
         return False
-
-
 
     def remove_from_cart(self, item_name):
         """Remove one of an item from shopping cart"""
