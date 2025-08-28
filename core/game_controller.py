@@ -8,6 +8,7 @@ import pygame
 import sys
 import json
 import os
+from game_logic.data_manager import get_data_manager, initialize_game_data
 from datetime import datetime
 from typing import Optional, Dict, Any, Callable
 from utils.constants import *
@@ -50,7 +51,10 @@ class GameController:
         # Save/load system state
         self.last_save_time = None
         self.last_load_time = None
-
+        
+        data_init_success = self.initialize_data_systems()
+        if not data_init_success:
+            print("⚠️ GameController: Continuing with limited data functionality")
         print("🎮 Game Controller initialized - Professional infrastructure ready!")
     
     def register_screen(self, screen_name: str, screen_function: Callable):
@@ -147,6 +151,11 @@ class GameController:
                     return True
                 elif event.key == pygame.K_F3:
                     self.screenshot()
+                    return True
+                # F4 - Reload data systems (development shortcut)
+                elif event.key == pygame.K_F4:
+                    print("🔄 F4 pressed - Reloading data systems...")
+                    self.reload_data_systems()
                     return True
 
             # ===== UNIFIED HOTKEY BLOCKING SYSTEM =====
@@ -434,7 +443,7 @@ class GameController:
                 self.screen.blit(surface, (10, y))
                 y += 20
 
-# Add these methods to the GameController class
+
 
     def save_game(self, save_slot=1):
         print(f"🔍 DEBUG: player_manager available: {player_manager}")
@@ -772,6 +781,70 @@ class GameController:
                 return False
             
             return True
+    def initialize_data_systems(self) -> bool:
+        """
+        Initialize all game data management systems
+        Called during GameController startup - Session 4 integration
+        """
+        print("🎮 GameController: Initializing data management systems...")
+        
+        try:
+            # Initialize the master data manager
+            success = initialize_game_data()
+            
+            if success:
+                # Store reference to data manager for easy access
+                self.data_manager = get_data_manager()
+                
+                # Validate all systems loaded correctly
+                if self.data_manager.validate_data_integrity():
+                    print("✅ GameController: All data systems operational!")
+                    
+                    # Optional: Print system status for debugging
+                    status = self.data_manager.get_system_status()
+                    print(f"   📊 Systems loaded: {status['systems_healthy']}/{status['total_systems']}")
+                    print(f"   ⏱️ Load time: {status['load_time']:.3f}s")
+                    
+                    return True
+                else:
+                    print("⚠️ GameController: Data validation warnings - check console output")
+                    # Continue anyway - some warnings are acceptable
+                    self.data_manager = get_data_manager()
+                    return True
+            else:
+                print("❌ GameController: Critical data system failures!")
+                
+                # Emergency fallback - still try to run with minimal data
+                self.data_manager = get_data_manager()
+                fallback_data = self.data_manager.emergency_fallback()
+                print("🆘 GameController: Using emergency fallback data")
+                
+                # Game can still run, but with limited functionality
+                return False
+                
+        except Exception as e:
+            print(f"❌ GameController: Data initialization failed: {e}")
+            self.error_count += 1
+            
+            # Try to continue with no data manager
+            self.data_manager = None
+            return False
+    
+    def get_data_manager(self):
+        """
+        Safe accessor for data manager
+        Returns None if not initialized
+        """
+        return getattr(self, 'data_manager', None)
+    
+    def reload_data_systems(self) -> bool:
+        """
+        Reload all data systems (useful for development)
+        """
+        if hasattr(self, 'data_manager') and self.data_manager:
+            return self.data_manager.reload_all_systems()
+        else:
+            return self.initialize_data_systems()
 
 
 class ScreenRegistry:
