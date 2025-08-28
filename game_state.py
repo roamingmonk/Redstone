@@ -589,20 +589,20 @@ class GameState:
     
         return merchant_inventory
 
-    def buy_item(self, item_name, cost, item_type='items'):
-        """Purchase an item and add to inventory"""
-        if self.can_afford_item(cost):
-            self.character['gold'] -= cost
-            
-            # Add to inventory or increase quantity
-            if item_name in self.inventory[item_type]:
-                # If we already have this item, increase quantity
-                # For now, we'll just add it again (we'll handle quantities later)
-                pass
-            
-            self.inventory[item_type].append(item_name)
-            return True
-        return False
+#    def buy_item(self, item_name, cost, item_type='items'):
+#        """Purchase an item and add to inventory"""
+#        if self.can_afford_item(cost):
+#            self.character['gold'] -= cost
+#            
+#            # Add to inventory or increase quantity
+#            if item_name in self.inventory[item_type]:
+#                # If we already have this item, increase quantity
+#                # For now, we'll just add it again (we'll handle quantities later)
+#                pass
+#            
+#            self.inventory[item_type].append(item_name)
+#            return True
+#        return False
 
     def can_afford_item(self, cost):
         """Check if player can afford an item"""
@@ -613,55 +613,55 @@ class GameState:
         from game_logic.player_manager import player_manager
         return player_manager.get_player_gold()
 
-    def add_to_cart(self, item_name):
-        """Add one of an item to shopping cart"""
-        if item_name in self.shopping_cart:
-            self.shopping_cart[item_name] += 1
-        else:
-            self.shopping_cart[item_name] = 1
+   # def add_to_cart(self, item_name):
+   #     """Add one of an item to shopping cart"""
+   #     if item_name in self.shopping_cart:
+   #         self.shopping_cart[item_name] += 1
+   #     else:
+   #         self.shopping_cart[item_name] = 1
 
-    def process_cart_purchase(self, merchant_data):
-        """Process entire shopping cart as one transaction"""
-        cart_total = self.get_cart_total(merchant_data)
-        
-        if cart_total <= self.character.get('gold', 0):
-            # Deduct total cost once
-            self.character['gold'] -= cart_total
-            
-            # Add all items to inventory
-            for item_name, quantity in self.shopping_cart.items():
-                for item in merchant_data['items']:
-                    if item['name'] == item_name:
-                        # Add correct quantity to appropriate inventory category
-                        for _ in range(quantity):
-                            self.inventory[item['type']].append(item_name)
-                        break
-            
-            # Clear cart after successful purchase
-            self.clear_cart()
-            return True
-        return False
+#    def process_cart_purchase(self, merchant_data):
+#        """Process entire shopping cart as one transaction"""
+#        cart_total = self.get_cart_total(merchant_data)
+#        
+#        if cart_total <= self.character.get('gold', 0):
+#            # Deduct total cost once
+#            self.character['gold'] -= cart_total
+#            
+#            # Add all items to inventory
+#            for item_name, quantity in self.shopping_cart.items():
+#                for item in merchant_data['items']:
+#                    if item['name'] == item_name:
+#                        # Add correct quantity to appropriate inventory category
+#                        for _ in range(quantity):
+#                            self.inventory[item['type']].append(item_name)
+#                        break
+#            
+#            # Clear cart after successful purchase
+#            self.clear_cart()
+#            return True
+#        return False
 
-    def remove_from_cart(self, item_name):
-        """Remove one of an item from shopping cart"""
-        if item_name in self.shopping_cart and self.shopping_cart[item_name] > 0:
-            self.shopping_cart[item_name] -= 1
-            if self.shopping_cart[item_name] == 0:
-                del self.shopping_cart[item_name]
+#    def remove_from_cart(self, item_name):
+#        """Remove one of an item from shopping cart"""
+#        if item_name in self.shopping_cart and self.shopping_cart[item_name] > 0:
+#            self.shopping_cart[item_name] -= 1
+#            if self.shopping_cart[item_name] == 0:
+#                del self.shopping_cart[item_name]
 
-    def clear_cart(self):
-        """Clear the shopping cart"""
-        self.shopping_cart = {}
+#    def clear_cart(self):
+#        """Clear the shopping cart"""
+#        self.shopping_cart = {}
 
-    def get_cart_total(self, merchant_data):
-        """Calculate total cost of items in cart"""
-        total = 0
-        for item_name, quantity in self.shopping_cart.items():
-            for item in merchant_data['items']:
-                if item['name'] == item_name:
-                    total += item['cost'] * quantity
-                    break
-        return total
+#    def get_cart_total(self, merchant_data):
+#        """Calculate total cost of items in cart"""
+#        total = 0
+#        for item_name, quantity in self.shopping_cart.items():
+#            for item in merchant_data['items']:
+#                if item['name'] == item_name:
+#                    total += item['cost'] * quantity
+#                    break
+#        return total
 
     def toggle_inventory(self):
         """Toggle inventory screen open/closed"""

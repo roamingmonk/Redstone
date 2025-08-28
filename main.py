@@ -30,6 +30,7 @@ from screens.quest_log import draw_quest_log_screen
 from screens.character_sheet import draw_character_sheet_screen
 from screens.help_screen import draw_help_screen, handle_help_screen_click
 
+from game_logic.commerce_engine import get_commerce_engine
 from screens.gambling_dice import (
     draw_dice_bet_screen, draw_dice_rolling_screen,
     draw_dice_results_screen, 
@@ -613,59 +614,37 @@ def handle_mouse_events(mouse_pos, game_state, fonts, images, controller=None):
             if controller:
                 controller.transition_to("dice_bet")
             game_state.screen = "dice_bet"
-
+####NEW commerce pull 
     elif game_state.screen == "merchant_shop":
+        # Get the commerce engine to handle all business logic
+        commerce = get_commerce_engine()
+
         temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        merchant_item_rects, buy_button, reset_button, back_button = draw_merchant_screen(temp_surface, game_state, fonts, game_state.get_garrick_inventory(), images)
+        merchant_data = game_state.get_garrick_inventory()
+        merchant_item_rects, buy_button, reset_button, back_button = draw_merchant_screen(temp_surface, game_state, fonts, merchant_data, images)
         
         # Check item clicks (add to cart)
-        merchant_data = game_state.get_garrick_inventory()
         for i, item_rect in enumerate(merchant_item_rects):
             if item_rect and item_rect.collidepoint(mouse_pos):
                 item_name = merchant_data['items'][i]['name']
-                current_in_cart = game_state.shopping_cart.get(item_name, 0)
-                stock_limit = 5  # Each item has 5 in stock
-    
-                if current_in_cart < stock_limit:
-                    game_state.add_to_cart(item_name)
-                    print(f"Added {item_name} to cart! ({current_in_cart + 1}/{stock_limit})")
-                else:
-                    print(f"Cannot add more {item_name} - only {stock_limit} in stock!")
-                print(f"Added {item_name} to cart!")
+                commerce.add_to_cart(item_name) # CORRECTED
                 break
         
         # Check button clicks
         if buy_button and buy_button.collidepoint(mouse_pos):
-            # Process the entire shopping cart using PlayerManager
-            merchant_data = game_state.get_garrick_inventory()
-            cart_total = game_state.get_cart_total(merchant_data)
-            
-            if player_manager.can_afford(cart_total):
-                # Deduct total cost once using PlayerManager
-                player_manager.subtract_player_gold(cart_total)
-                
-                # Add all items to inventory using PlayerManager
-                for item_name, quantity in game_state.shopping_cart.items():
-                    for item in merchant_data['items']:
-                        if item['name'] == item_name:
-                            for _ in range(quantity):
-                                player_manager.add_player_item(item_name, item['type'])
-                            break
-                
-                print(f"Purchase complete! Spent {cart_total} gold.")
-                print(f"Remaining gold: {player_manager.get_player_gold()}")
-                game_state.clear_cart()
-            else:
-                print("You cannot afford this purchase!")
+            # Use the commerce engine's process_purchase method for the entire transaction
+            success, message = commerce.process_purchase() # REFACTORED
+            print(message) # The engine provides a user-friendly message
+
         elif reset_button and reset_button.collidepoint(mouse_pos):
-            game_state.clear_cart()
-            print("Cart cleared!")
+            commerce.clear_cart() # CORRECTED
+            
         elif back_button and back_button.collidepoint(mouse_pos):
-            game_state.clear_cart()  # Clear cart when leaving
+            commerce.clear_cart() # CORRECTED
             if controller:
                 controller.transition_to("tavern_conversation")
             game_state.screen = "tavern_conversation"
-
+####end new commerece pull
 
     # Individual NPC conversation
     elif game_state.screen == "tavern_conversation":

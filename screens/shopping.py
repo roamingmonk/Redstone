@@ -9,7 +9,11 @@ from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT,
                            LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
                            LAYOUT_BUTTON_Y, LAYOUT_DIALOG_TEXT_Y, LAYOUT_BUTTON_CENTER_Y)
 
+
 from game_logic.item_manager import item_manager  
+
+# trying to fix get_cart_total pull 
+from game_logic.commerce_engine import get_commerce_engine
 
 # Colors
 BLACK = (0, 0, 0)
@@ -218,12 +222,21 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
     dialog_height = LAYOUT_DIALOG_HEIGHT
     draw_border(surface, 20, dialog_y, 1024-40, dialog_height)
     
+    # Get the commerce engine to handle business logic
+    commerce = get_commerce_engine() 
+
     # Player gold and cart total
     text_y = LAYOUT_DIALOG_TEXT_Y
     from game_logic.player_manager import player_manager
     player_gold = player_manager.get_player_gold()
-    cart_total = game_state.get_cart_total(merchant_data)
     
+    #old pull from game_state..
+    #cart_total = game_state.get_cart_total(merchant_data)
+    
+    #New pull from Commerce Engine
+    cart_total = commerce.get_cart_total()
+
+
     draw_centered_text(surface, f"Your Gold: {player_gold} gp", 
                       fonts.get('fantasy_medium', fonts['normal']), text_y, BRIGHT_GREEN)
     
