@@ -1,13 +1,13 @@
 # game_logic/inventory_engine.py
 """
-Professional Inventory Engine - Session 5 Implementation
+Professional Inventory Engine - REFACTORED Single Data Authority Pattern
 Handles all inventory business logic separated from UI presentation
 
-This follows industry-standard separation of concerns:
-- UI screens handle presentation and user interaction
-- InventoryEngine handles all business logic and data manipulation
-- ItemManager provides item definitions and templates
-- PlayerManager handles data persistence
+REFACTORED ARCHITECTURE:
+- GameState is the SINGLE source of truth for all data
+- InventoryEngine provides ONLY business logic
+- NO data storage in the engine itself
+- All data operations go through GameState reference
 """
 
 from typing import List, Dict, Optional, Tuple
@@ -21,10 +21,11 @@ class InventoryEngine:
     Integrates with existing ItemManager and PlayerManager systems.
     """
     
-    def __init__(self, data_manager, player_manager):
-        self.data_manager = data_manager
-        self.player_manager = player_manager
-        self.item_manager = data_manager.get_manager('items') if data_manager else None
+    def __init__(self, game_state_ref, item_manager_ref):
+        #self.data_manager = data_manager
+        #self.player_manager = player_manager
+        self.game_state = game_state_ref
+        self.item_manager = item_manager_ref
         
         # Equipment slot configuration (expandable design)
         self.equipment_slots = {
@@ -62,25 +63,23 @@ class InventoryEngine:
             if not category:
                 category = self._determine_item_category(item_template)
             
-            # Get current player data
-            player_data = self.player_manager.get_player()
-            if not player_data or 'inventory' not in player_data:
+           # NEW: Access GameState inventory directly (it's the authority)
+            if not hasattr(self.game_state, 'inventory') or not self.game_state.inventory:
                 print("❌ No player inventory found")
                 return False
+
+            # Add to GameState inventory (the authoritative data)
+            category_key = self.game_state.inventory[category_key] =[]
             
-            # Add to appropriate inventory category
-            inventory = player_data['inventory']
-            category_key = self._get_inventory_category_key(category)
-            
-            if category_key not in inventory:
-                inventory[category_key] = []
+            if category_key not in self.game_state.inventory:
+                self.game_state.inventory[category_key] = []
             
             # Add items (with stacking support)
             for _ in range(quantity):
-                inventory[category_key].append(item_template['name'])
+                self.game_state.inventory[category_key].append(item_template['name'])
             
             # Update player data
-            self.player_manager.update_player_inventory(inventory)
+            #self.player_manager.update_player_inventory(inventory)
             
             item_name = item_template.get('name', item_id)
             qty_text = f"{quantity}x " if quantity > 1 else ""
@@ -533,13 +532,17 @@ def get_inventory_engine():
     """
     return inventory_engine
 
-def initialize_inventory_engine(data_manager, player_manager):
+def initialize_inventory_engine(game_state_ref, item_manager_ref):
     """
-    Initialize the global inventory engine
+    Initialize the global inventory engine - REFACTORED
     Called by DataManager during system initialization
+    
+    Args:
+        game_state_ref: Reference to GameState (the data authority)
+        item_manager_ref: Reference to ItemManager
     """
     global inventory_engine
-    inventory_engine = InventoryEngine(data_manager, player_manager)
+    inventory_engine = InventoryEngine(game_state_ref, item_manager_ref)
     return inventory_engine
 
 

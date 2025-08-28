@@ -800,6 +800,14 @@ class GameController:
                 if self.data_manager.validate_data_integrity():
                     print("✅ GameController: All data systems operational!")
                     
+                    # NEW: Complete engine initialization with GameState reference
+                    engine_success = self.data_manager.initialize_engines_with_gamestate(self.game_state)
+                    if engine_success:
+                        print("✅ GameController: Complete system initialization successful!")
+                        print("   🎯 Single Data Authority pattern active - GameState is the source of truth")
+                    else:
+                        print("⚠️ GameController: Engine initialization had warnings")
+
                     # Optional: Print system status for debugging
                     status = self.data_manager.get_system_status()
                     print(f"   📊 Systems loaded: {status['systems_healthy']}/{status['total_systems']}")
@@ -829,6 +837,18 @@ class GameController:
             # Try to continue with no data manager
             self.data_manager = None
             return False
+    
+    def get_inventory_engine(self):
+        """Get the inventory engine instance from DataManager"""
+        if self.data_manager:
+            return self.data_manager.get_manager('inventory')
+        return None
+
+    def get_commerce_engine(self):
+        """Get the commerce engine instance from DataManager"""  
+        if self.data_manager:
+            return self.data_manager.get_manager('commerce')
+        return None
     
     def get_data_manager(self):
         """

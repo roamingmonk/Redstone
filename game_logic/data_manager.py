@@ -11,6 +11,8 @@ import json
 import os
 from typing import Optional, Dict, Any
 from datetime import datetime
+from game_logic.inventory_engine import initialize_inventory_engine, get_inventory_engine
+from game_logic.commerce_engine import initialize_commerce_engine
 
 class DataManager:
     """
@@ -30,7 +32,8 @@ class DataManager:
             'npcs': False, 
             'locations': False,
             'player_manager': False,
-            'inventory_engine': False
+            'inventory_engine': False,
+            'commerce_engine': False  
         }
         
         # Data manager instances
@@ -41,7 +44,8 @@ class DataManager:
 
         # Game engine instances (Session 5+)
         self.inventory_engine = None
-        
+        self.commerce_engine = None   
+
         print("🏗️ DataManager initialized - Ready to coordinate all data loading")
     
     def initialize_all_systems(self) -> bool:
@@ -53,7 +57,7 @@ class DataManager:
         print("🚀 DataManager: Beginning system initialization...")
         
         success_count = 0
-        total_systems = 5
+        total_systems = 6
         
         # 1. Initialize Item Management System
         success_count += self._initialize_item_system()
@@ -70,6 +74,9 @@ class DataManager:
         # 5. Initialize Inventory Engine (Session 5 addition)
         success_count += self._initialize_inventory_engine()
         
+        # 6. Initialize Commerce Engine (Session 6 - NEW!)
+        success_count += self._initialize_commerce_system()
+
         # Calculate initialization results
         load_time = datetime.now() - self.load_start_time
         success_rate = (success_count / total_systems) * 100
@@ -261,7 +268,8 @@ class DataManager:
             'npcs': self.npc_manager, 
             'locations': self.location_manager,
             'player': self.player_manager,
-            'inventory': self.inventory_engine 
+            'inventory': self.inventory_engine,
+            'commerce': self.commerce_engine
         }
         
         if manager_type not in manager_map:
@@ -311,6 +319,51 @@ class DataManager:
         
         print("⚠️ DataManager: Using emergency fallback data")
         return fallback_data
+
+    def _initialize_commerce_system(self) -> int:
+        """Initialize commerce engine with Single Data Authority pattern"""
+        try:
+            print("🛒 DataManager: Initializing Commerce Engine...")
+            
+            # This is the key: we need GameState reference, not DataManager reference
+            # We'll get this from GameController when it calls us
+            # For now, set up a placeholder that GameController will complete
+            self.commerce_engine_ready = True
+            self.system_health['commerce_engine'] = True
+            
+            print("✅ Commerce Engine preparation complete")
+            return 1
+            
+        except Exception as e:
+            error_msg = f"Commerce Engine initialization failed: {e}"
+            self.load_errors.append(error_msg)
+            print(f"❌ {error_msg}")
+            return 0
+
+    def initialize_engines_with_gamestate(self, game_state):
+        """
+        Complete engine initialization with GameState reference
+        This is called by GameController after DataManager is ready
+        """
+        print("🔧 DataManager: Completing engine initialization with GameState...")
+        
+        try:
+            # Initialize InventoryEngine with GameState reference (Single Data Authority)
+            self.inventory_engine = initialize_inventory_engine(game_state, self.item_manager)
+            if self.inventory_engine:
+                print("✅ InventoryEngine initialized with GameState authority")
+            
+            #Initialize CommerceEngine with GameState reference (Single Data Authority)  
+            self.commerce_engine = initialize_commerce_engine(game_state, self.item_manager)
+            if self.commerce_engine:
+                print("✅ CommerceEngine initialized with GameState authority")
+                
+            return True
+            
+        except Exception as e:
+            print(f"❌ Engine initialization with GameState failed: {e}")
+            return False    
+
 
 
 # Global data manager instance (Singleton pattern)
