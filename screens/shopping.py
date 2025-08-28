@@ -66,6 +66,7 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
     """
     Table-style merchant screen matching the mockup design
     """
+    commerce = get_commerce_engine()
     surface.fill(BLACK)
     
     # Use standardized layout
@@ -146,14 +147,17 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
         # Cost
         cost_surface = item_font.render(str(item['cost']), True, WHITE)
         surface.blit(cost_surface, (cost_x + 10, current_y))
-        
+
+        # Get all stock info from the Commerce Engine
+        stock_info = commerce.get_stock_status(item['name'])
+
         # Available quantity - each item has limited stock (Hardcoded)
-        qty_available = 5
+        qty_available = stock_info['available']
         qty_surface = item_font.render(str(qty_available), True, WHITE)
         surface.blit(qty_surface, (qty_x + 20, current_y))
         
         # Purchase quantity
-        purchase_qty = game_state.shopping_cart.get(item['name'], 0)
+        purchase_qty = stock_info['in_cart']
         purchase_surface = item_font.render(str(purchase_qty), True, BRIGHT_GREEN)
         surface.blit(purchase_surface, (purchase_x + 20, current_y))
         
@@ -260,12 +264,19 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
     start_x = (1024 - total_width) // 2
     
     # Check if player can afford cart
-    can_afford_cart = cart_total <= player_gold and cart_total > 0
+    #can_afford_cart = cart_total <= player_gold and cart_total > 0
+    #has_items_in_cart = cart_total > 0
+
+    # Get cart_total from the engine as you do now
+    cart_total = commerce.get_cart_total()
+
+    # Check if player can afford cart using the engine's logic
+    can_afford = commerce.can_afford_cart()
     has_items_in_cart = cart_total > 0
 
     buy_button = draw_button(surface, start_x, button_y, button_width, button_height,
                             "BUY", fonts.get('fantasy_small', fonts['normal']),
-                            enabled=can_afford_cart)
+                            enabled=can_afford)
 
     reset_button = draw_button(surface, start_x + button_width + button_spacing, button_y, 
                             button_width, button_height, "RESET", 

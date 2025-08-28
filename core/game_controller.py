@@ -56,7 +56,7 @@ class GameController:
         if not data_init_success:
             print("⚠️ GameController: Continuing with limited data functionality")
         print("🎮 Game Controller initialized - Professional infrastructure ready!")
-    
+
     def register_screen(self, screen_name: str, screen_function: Callable):
         """
         Register a screen function with the controller
@@ -837,7 +837,7 @@ class GameController:
             # Try to continue with no data manager
             self.data_manager = None
             return False
-    
+        
     def get_inventory_engine(self):
         """Get the inventory engine instance from DataManager"""
         if self.data_manager:
