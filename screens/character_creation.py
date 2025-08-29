@@ -5,8 +5,6 @@ Contains all the character creation screen drawing functions
 
 import pygame
 import os
-from game_logic.player_manager import player_manager
-
 # Import layout constants for new standardized system  
 from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, 
                            LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
@@ -525,16 +523,13 @@ def finalize_character_creation(game_state):
         game_state.inventory['items'].append(game_state.character['trinket'])
     
     # NEW: Create player JSON file from character data
-    success = player_manager.create_player_from_template(game_state.character, game_state)
+    print("✅ Character creation finalized!")
+    print(f"   🎭 Name: {game_state.character.get('name', 'Unknown')}")
+    print(f"   💰 Gold: {game_state.character.get('gold', 0)}")
+    print(f"   ❤️ Hit Points: {game_state.character.get('hit_points', 10)}")
+    print(f"   🎒 Starting Items: {len(game_state.inventory.get('items', []))} items")
     
-    if success:
-        # NEW: Synchronize game_state with the new JSON structure
-        player_manager.sync_with_game_state(game_state)
-        print("✅ Player character JSON created and synchronized!")
-        return True
-    else:
-        print("❌ Failed to create player character file!")
-        return False
+    return True
 
 def draw_welcome_screen(surface, game_state, fonts, images=None):
     """Draw the welcome to Redstone screen"""

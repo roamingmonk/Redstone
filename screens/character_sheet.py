@@ -140,7 +140,7 @@ def draw_character_sheet_screen(surface, game_state, fonts, images=None):
     current_y += 50
     
     # Gold
-    gold_amount = game_state.get_current_gold()
+    gold_amount = character.get('gold', 0)
     
     gold_label = normal_font.render("Gold:", True, WHITE)
     surface.blit(gold_label, (left_section_x, current_y))

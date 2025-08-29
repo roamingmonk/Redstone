@@ -231,8 +231,9 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
 
     # Player gold and cart total
     text_y = LAYOUT_DIALOG_TEXT_Y
-    from game_logic.player_manager import player_manager
-    player_gold = player_manager.get_player_gold()
+        
+    # Make Game State the One Source of Truth for Gold
+    player_gold = game_state.character.get('gold', 0)
     
     #old pull from game_state..
     #cart_total = game_state.get_cart_total(merchant_data)

@@ -31,7 +31,6 @@ class DataManager:
             'items': False,
             'npcs': False, 
             'locations': False,
-            'player_manager': False,
             'inventory_engine': False,
             'commerce_engine': False  
         }
@@ -40,8 +39,7 @@ class DataManager:
         self.item_manager = None
         self.npc_manager = None
         self.location_manager = None
-        self.player_manager = None
-
+        
         # Game engine instances (Session 5+)
         self.inventory_engine = None
         self.commerce_engine = None   
@@ -57,7 +55,7 @@ class DataManager:
         print("🚀 DataManager: Beginning system initialization...")
         
         success_count = 0
-        total_systems = 6
+        total_systems = 5
         
         # 1. Initialize Item Management System
         success_count += self._initialize_item_system()
@@ -68,13 +66,10 @@ class DataManager:
         # 3. Initialize Location Management System
         success_count += self._initialize_location_system()
         
-        # 4. Initialize Player Management System (your custom addition)
-        success_count += self._initialize_player_system()
-
-        # 5. Initialize Inventory Engine (Session 5 addition)
+        # 4. Initialize Inventory Engine (Session 5 addition)
         success_count += self._initialize_inventory_engine()
         
-        # 6. Initialize Commerce Engine (Session 6 - NEW!)
+        # 5. Initialize Commerce Engine (Session 6 - NEW!)
         success_count += self._initialize_commerce_system()
 
         # Calculate initialization results
@@ -142,37 +137,21 @@ class DataManager:
             self.load_errors.append(error_msg)
             print(f"   ❌ {error_msg}")
             return 0
-    
-    def _initialize_player_system(self) -> int:
-        """Initialize player management system (your custom addition). Returns 1 if successful, 0 if failed."""
-        try:
-            from game_logic.player_manager import PlayerManager
-            self.player_manager = PlayerManager()
-            self.system_health['player_manager'] = True
-            print("   ✅ Player management system loaded")
-            return 1
-        except Exception as e:
-            error_msg = f"Player management system failed: {e}"
-            self.load_errors.append(error_msg)
-            print(f"   ❌ {error_msg}")
-            return 0
 
     def _initialize_inventory_engine(self) -> int:
-        """Initialize inventory engine system. Returns 1 if successful, 0 if failed."""
+        """Initialize inventory engine - REFACTORED for Single Data Authority
+        Returns 1 if successful, 0 if failed."""
         try:
             # Import here to avoid circular import
             from game_logic.inventory_engine import initialize_inventory_engine
             
-            # Inventory engine needs both data_manager and player_manager
-            if not self.player_manager:
-                raise Exception("Player manager required for inventory engine")
+            # NEW: We don't initialize here anymore - GameController does it
+            # with GameState reference in initialize_engines_with_gamestate()
             
-            self.inventory_engine = initialize_inventory_engine(self, self.player_manager)
-            self.system_health['inventory_engine'] = True
-            print("   ✅ Inventory engine loaded")
+            print("   ✅ Inventory engine preparation complete (will initialize with GameState)")
             return 1
         except Exception as e:
-            error_msg = f"Inventory engine failed: {e}"
+            error_msg = f"Inventory engine preparation failed: {e}"
             self.load_errors.append(error_msg)
             print(f"   ❌ {error_msg}")
             return 0
@@ -229,18 +208,7 @@ class DataManager:
             except Exception as e:
                 print(f"❌ NPC validation failed: {e}")
                 validation_passed = False
-        
-        # Validate player manager
-        if self.player_manager and self.system_health['player_manager']:
-            try:
-                # Check if player manager can access current_character.json (in data/player/ folder)
-                player_file_path = os.path.join('data', 'player', 'current_character.json')
-                player_data_exists = os.path.exists(player_file_path)
-                print(f"✅ Player manager validation: current_character.json exists = {player_data_exists}")
-            except Exception as e:
-                print(f"❌ Player manager validation failed: {e}")
-                validation_passed = False
-        
+               
         return validation_passed
     
     def reload_all_systems(self) -> bool:
@@ -267,7 +235,6 @@ class DataManager:
             'items': self.item_manager,
             'npcs': self.npc_manager, 
             'locations': self.location_manager,
-            'player': self.player_manager,
             'inventory': self.inventory_engine,
             'commerce': self.commerce_engine
         }
@@ -349,22 +316,46 @@ class DataManager:
         
         try:
             # Initialize InventoryEngine with GameState reference (Single Data Authority)
+                        
             self.inventory_engine = initialize_inventory_engine(game_state, self.item_manager)
-            if self.inventory_engine:
-                print("✅ InventoryEngine initialized with GameState authority")
             
-            #Initialize CommerceEngine with GameState reference (Single Data Authority)  
+            if self.inventory_engine:
+                print("   ✅ InventoryEngine initialized with GameState authority")
+                self.system_health['inventory_engine'] = True
+            else:
+                print("   ⚠️ InventoryEngine initialization returned None")
+                self.system_health['inventory_engine'] = False
+
+            # Initialize CommerceEngine with GameState reference (already correct)
             self.commerce_engine = initialize_commerce_engine(game_state, self.item_manager)
             if self.commerce_engine:
-                print("✅ CommerceEngine initialized with GameState authority")
-                
-            return True
+                print("   ✅ CommerceEngine initialized with GameState authority")
+                self.system_health['commerce_engine'] = True
+            else:
+                print("   ⚠️ CommerceEngine initialization returned None")
+                self.system_health['commerce_engine'] = False
+
+            # Future engines will follow the same pattern:
+            # self.dialogue_engine = initialize_dialogue_engine(game_state, self.npc_manager)
+            # self.quest_engine = initialize_quest_engine(game_state, self.quest_manager)
             
+            success_count = sum([
+                self.system_health.get('inventory_engine', False),
+                self.system_health.get('commerce_engine', False)
+            ])
+            
+            print(f"🎯 Engine initialization complete: {success_count}/2 engines ready")
+            
+            if success_count == 2:
+                print("✅ All engines successfully initialized with Single Data Authority!")
+                return True
+            else:
+                print("⚠️ Some engines failed to initialize")
+                return False
+                
         except Exception as e:
-            print(f"❌ Engine initialization with GameState failed: {e}")
-            return False    
-
-
+            print(f"❌ Engine initialization failed: {e}")
+            return False
 
 # Global data manager instance (Singleton pattern)
 # This provides easy access throughout the game

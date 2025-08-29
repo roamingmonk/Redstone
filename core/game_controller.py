@@ -12,7 +12,7 @@ from game_logic.data_manager import get_data_manager, initialize_game_data
 from datetime import datetime
 from typing import Optional, Dict, Any, Callable
 from utils.constants import *
-from game_logic.player_manager import player_manager
+
 #from utils.graphics import draw_error_screen   will create later
 
 class GameController:
@@ -446,15 +446,7 @@ class GameController:
 
 
     def save_game(self, save_slot=1):
-        print(f"🔍 DEBUG: player_manager available: {player_manager}")
-        print(f"🔍 DEBUG: player_manager.get_player(): {player_manager.get_player()}")
         
-  
-        # Load current player state if needed
-        if player_manager.get_player() is None:
-            player_manager.load_player()
-        print("🔄 Loaded player data for save")
-
         """
         Save complete game state to JSON file
         save_slot: 1-3 for manual saves, 0 for auto-save
@@ -465,7 +457,7 @@ class GameController:
                 'version': '2.0',
                 'timestamp': datetime.now().isoformat(),
                 'save_slot': save_slot,
-                'player_character': player_manager.get_player(),
+                
 
                 # Character data
                 'character': self.game_state.character,
@@ -497,6 +489,12 @@ class GameController:
                 'just_got_quest': getattr(self.game_state, 'just_got_quest', False),
                 'quest_system': getattr(self.game_state, 'quest_manager', None).get_quest_data_for_save() if hasattr(self.game_state, 'quest_manager') else {},
 
+                # Dice game state
+                'dice_game': getattr(self.game_state, 'dice_game', {}),
+            
+                # Shopping cart state
+                'shopping_cart': getattr(self.game_state, 'shopping_cart', {}),
+                
                 # Gambling and economy
                 'house_money': getattr(self.game_state, 'house_money', 50),
                 'gambling_wins': getattr(self.game_state, 'gambling_wins', 0),
@@ -509,7 +507,7 @@ class GameController:
             }
             
             # Create saves directory if it doesn't exist
-            os.makedirs('saves', exist_ok=True)
+            #os.makedirs('saves', exist_ok=True)
             
             # Determine save file name
             if save_slot == 0:
@@ -527,7 +525,9 @@ class GameController:
                 json.dump(save_data, f, indent=2)
             
             print(f"💾 {save_type} completed: {filename}")
-            
+            print(f"   🎭 Character: {self.game_state.character.get('name', 'Unknown')}")
+            print(f"   💰 Gold: {self.game_state.character.get('gold', 0)}")
+        
             # Update GameController state tracking
             self.last_save_time = datetime.now()
             self.error_count = 0  # Reset error count on successful save
@@ -569,33 +569,16 @@ class GameController:
             print(f"   Saved: {save_data.get('timestamp', 'Unknown time')}")
             print(f"   Version: {save_data.get('version', 'Unknown')}")
             
-            # Restore character data
+             # Restore character data (GameState is the authority!)
             if 'character' in save_data:
                 self.game_state.character = save_data['character']
+                print(f"   🎭 Character: {self.game_state.character.get('name', 'Unknown')}")
             
             if 'inventory' in save_data:
                 self.game_state.inventory = save_data['inventory']
+                print(f"   💰 Gold: {self.game_state.character.get('gold', 0)}")
             
-            # NEW: Restore player character JSON if available
-            player_character_data = save_data.get('player_character')
-            if player_character_data:
-                try:
-                    # Write the loaded player data back to current_character.json
-                    player_file_path = os.path.join('data', 'player', 'current_character.json')
-                    with open(player_file_path, 'w') as f:
-                        json.dump(player_character_data, f, indent=2)
-                    
-                    # Reload player manager with the updated data
-                    player_manager.load_player()
-                    player_manager.sync_with_game_state(self.game_state)
-                    
-                    print(f"✅ Player character file updated and restored: {player_character_data.get('name')}")
-                except Exception as e:
-                    print(f"⚠️ Error restoring player character file: {e}")
-            else:
-                print("ℹ️ No player character data in save file (legacy save)")
-
-            # Restore game progression
+           # Restore game progression
             target_screen = save_data.get('current_screen', 'game_title')
             if target_screen in self.screens:
                 self.current_screen = target_screen
@@ -627,6 +610,10 @@ class GameController:
             if quest_system_data and hasattr(self.game_state, 'quest_manager'):
                 self.game_state.quest_manager.load_from_save_data(quest_system_data)
 
+            # Restore dice game state
+            self.game_state.dice_game = save_data.get('dice_game', {})
+            # Restore shopping cart
+            self.game_state.shopping_cart = save_data.get('shopping_cart', {}),
             # Restore gambling and economy
             self.game_state.house_money = save_data.get('house_money', 50)
             self.game_state.gambling_wins = save_data.get('gambling_wins', 0)
@@ -637,6 +624,31 @@ class GameController:
             self.game_state.equipped_armor = save_data.get('equipped_armor')
             self.game_state.equipped_shield = save_data.get('equipped_shield')
              
+            # Restore shopping cart (with safety check)
+            shopping_cart_data = save_data.get('shopping_cart', {})
+            if isinstance(shopping_cart_data, dict):
+                self.game_state.shopping_cart = shopping_cart_data
+            else:
+                # Safety: Reset corrupted shopping cart data
+                print("⚠️ Shopping cart data corrupted, resetting to empty cart")
+                self.game_state.shopping_cart = {}
+
+            # Also ensure dice game state is properly restored
+            dice_game_data = save_data.get('dice_game', {})
+            if isinstance(dice_game_data, dict):
+                self.game_state.dice_game = dice_game_data
+            else:
+                # Safety: Reset dice game to defaults
+                print("⚠️ Dice game data corrupted, resetting to defaults")
+                self.game_state.dice_game = {
+                    'house_money': 500,
+                    'game_active': True,
+                    'win_streak': 0,
+                    'loss_streak': 0,
+                    'last_roll': [],
+                    'current_bet': 0
+                }
+
 
             print(f"✅ Game loaded successfully from {save_type}")
             print(f"   Character: {self.game_state.character.get('name', 'Unknown')}")
@@ -653,7 +665,8 @@ class GameController:
                     # For future quest items:
                     # Re-populate any quest log entries that should exist
                     # (You might need to call a method to rebuild active quests here)
-
+            
+            print("✅ Game state restored successfully!")
 
             # Update GameController state
             self.last_load_time = datetime.now()

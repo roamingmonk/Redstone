@@ -11,7 +11,6 @@ sys.path.append('.')
 from screens.character_creation import finalize_character_creation
 from game_state import GameState
 from utils.constants import load_fonts, load_images, SCREEN_WIDTH, SCREEN_HEIGHT
-from game_logic.player_manager import player_manager
 from screens.character_creation import (
     draw_splash_screen, draw_stats_screen, draw_gender_screen,
     draw_name_screen, draw_custom_name_screen, draw_name_confirm_screen,

@@ -127,8 +127,8 @@ def draw_dice_bet_screen(surface, game_state, fonts, images=None):
     
     # Player status
     text_y = dialog_y + 25
-    from game_logic.player_manager import player_manager
-    player_gold = player_manager.get_player_gold()
+ 
+    player_gold = game_state.character.get('gold', 0)
     house_money = game_state.dice_game['house_money']
     
     draw_centered_text(surface, f"Your Gold: {player_gold} gp", 
@@ -326,8 +326,8 @@ def draw_dice_results_screen(surface, game_state, fonts, images=None):
     text_y = dialog_y + 25
     
     # Show current status
-    from game_logic.player_manager import player_manager
-    player_gold = player_manager.get_player_gold()
+    
+    player_gold = game_state.character.get('gold', 0)
     house_money = game_state.dice_game['house_money']
     
     draw_centered_text(surface, f"Your Gold: {player_gold} gp  |  House Money: {house_money} gp", 
