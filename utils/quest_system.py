@@ -100,8 +100,8 @@ class QuestManager:
         main_quest = self.quests.get("main_story")
         if main_quest:
             # Information gathering phase
-            if (self.game_state.server_talked and 
-                self.game_state.bartender_talked and
+            if (self.game_state.meredith_talked and 
+                self.game_state.garrick_talked and
                 len(self.game_state.party_members) > 0):
                 self.complete_objective("main_story", "talk_to_npcs")
                 

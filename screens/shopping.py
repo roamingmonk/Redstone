@@ -129,8 +129,6 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
     for i, item in enumerate(merchant_data['items']):
         current_y = item_y + i * line_height
         
-        # Icon placeholder (X for now)
-        # Draw item icon
         # Draw item icon
         if images and 'item_icons' in images and item['name'] in images['item_icons']:
             icon = images['item_icons'][item['name']]

@@ -67,14 +67,6 @@ def draw_party_portrait(surface, x, y, character_name, game_state, fonts, is_pla
     # Draw frame
     pygame.draw.rect(surface, WHITE, (x, y, PORTRAIT_SIZE, PORTRAIT_SIZE), FRAME_THICKNESS)
     
-    #Removing name
-    # # Character name below portrait
-    #name_y = y + PORTRAIT_SIZE + 5
-    #display_name = "You" if is_player else character_name.title()
-    # Draw name manually centered
-    #name_surface = fonts.get('fantasy_tiny', fonts['small']).render(display_name[:8], True, WHITE)
-    #name_x = x + (PORTRAIT_SIZE - name_surface.get_width()) // 2
-    #surface.blit(name_surface, (name_x, name_y))
 
 def draw_empty_portrait_slot(surface, x, y):
     """Draw empty portrait slot"""

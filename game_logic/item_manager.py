@@ -15,15 +15,24 @@ class ItemLoader:
         self.items_data = {}
         self.merchant_data = {}
         self.item_icons = {}
+        #self.load_items()
+        #self.load_merchant_data()
+        #self.load_item_icons()
+        print("DEBUG: ItemLoader initialization complete (Constructor)")
+
+    def load_data(self):
+       #NEW  
+        """
+        Explicitly loads all data into the ItemLoader
+        This method is called by the DataManager
+        """
+        print("DEBUG: ItemLoader loading data...")
+        print("🔄 ItemManager: Loading item data... (CALLED FROM DATA MANAGER)")
         self.load_items()
+        print(f"✅ ItemManager: Loaded {len(getattr(self, 'items_data', {}).get('merchant_items', []))} items")
         self.load_merchant_data()
         self.load_item_icons()
-        print("DEBUG: ItemLoader initialization complete")
-
-        # Initialize NPC manager
-        from game_logic.npc_manager import npc_manager
-        print("DEBUG: NPC system initialized")
-
+        print("DEBUG: ItemLoader initialization complete (load_data)")  
 
     def load_items(self):
         """Load all item definitions from JSON data file"""
@@ -140,6 +149,7 @@ class ItemLoader:
             "emergency": 2.0      # Disaster/siege pricing
         }
         return modifiers.get(merchant_type, 1.0)
+    
     def load_merchant_data(self):
         """Load merchant configurations from JSON"""
         try:
@@ -157,14 +167,14 @@ class ItemLoader:
 
     def get_merchant_inventory(self, merchant_id):
         """Get inventory for a specific merchant"""
-        #print(f"DEBUG: Looking for merchant_id: '{merchant_id}'")
-        #print(f"DEBUG: Available merchants: {list(self.merchant_data.get('merchants', {}).keys())}")
+       # print(f"DEBUG: Looking for merchant_id: '{merchant_id}'")
+       # print(f"DEBUG: Available merchants: {list(self.merchant_data.get('merchants', {}).keys())}")
         
         merchant = self.merchant_data.get('merchants', {}).get(merchant_id)
-        #print(f"DEBUG: Found merchant data: {merchant}")
+       # print(f"DEBUG: Found merchant data: {merchant}")
         
         if not merchant:
-            #print(f"DEBUG: Merchant '{merchant_id}' not found!")
+        #    print(f"DEBUG: Merchant '{merchant_id}' not found!")
             return None
         
         formatted_items = []

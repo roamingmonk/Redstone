@@ -6,7 +6,9 @@ Contains the GameState class and all character data management
 import random
 import pygame
 from utils.quest_system import integrate_quest_system 
-from game_logic.item_manager import item_manager
+#from game_logic.item_manager import item_manager
+from game_logic.data_manager import get_data_manager
+from game_logic.character_engine import get_character_engine
 
 class GameState:
     """
@@ -16,7 +18,11 @@ class GameState:
     def __init__(self):
         # Screen management
         self.screen = "splash"
-        
+
+        # Access the single, shared ItemLoader instance through the DataManager
+        self.data_manager = get_data_manager()
+        self.item_manager = self.data_manager.item_manager
+
         # Character data
         self.character = {}
         self.temp_stats = {}
@@ -56,12 +62,18 @@ class GameState:
         self.refugee_camp_known = False
 
         # NPC interaction tracking
-        self.bartender_talked = False
-        self.server_talked = False
+        self.garrick_talked = False
+        self.meredith_talked = False
         self.drunk_talked = False
         self.pete_attempted_recruitment = False
         self.pete_showing_comedy = False
 
+        # NPC response tracking  (validate this is needed)
+        self.showing_garrick_repsponse = False
+        self.garrick_dialogue_response = []
+        self.showing_meredith_response = False
+        self.meredith_dialogue_response = []
+        
         integrate_quest_system(self)
 
         # Shopping cart for current merchant session
@@ -87,8 +99,8 @@ class GameState:
 
         # Quest progression flags
         self.met_mayor = False           # Has player talked to mayor
-        self.learned_about_refugees = False    # Bartender mentioned refugee camp
-        self.learned_about_church = False      # Server mentioned swamp church  
+        self.learned_about_refugees = False    # Bartender Garrick mentioned refugee camp
+        self.learned_about_church = False      # Server Meredith mentioned swamp church  
         self.learned_about_ruins = False       # Grizzled warrior mentioned hill ruins
         
         # Quest completion flags
@@ -106,6 +118,7 @@ class GameState:
         self.save_screen_open = False
         self.save_selected_slot = None
         self.save_status_message = "Select a slot to save your game"
+
 
         # Enhanced Gambling state for Redstone Dice
         self.gambling_state = {
@@ -130,61 +143,7 @@ class GameState:
             'loss_streak': 0
         }
         
-        #print("DEBUG: GameState with enhanced dice game system initialized!")
-    
-    def roll_3d6(self):
-        """Roll 3 six-sided dice and return the sum, rerolling any 1s once"""
-        dice = []
-    
-        # Roll 3 dice individually
-        for i in range(3):
-            die_roll = random.randint(1, 6)
-        
-            # If we rolled a 1, reroll it once
-            if die_roll == 1:
-                die_roll = random.randint(1, 6)
-            
-            dice.append(die_roll)
-    
-        # Return the sum of all three dice
-        return sum(dice)
-    
-    def roll_stats(self):
-        """Roll all character stats using 3d6"""
-        self.temp_stats = {
-            'strength': self.roll_3d6(),
-            'dexterity': self.roll_3d6(),
-            'constitution': self.roll_3d6(),
-            'intelligence': self.roll_3d6(),
-            'wisdom': self.roll_3d6(),
-            'charisma': self.roll_3d6()
-        }
-        self.stats_rolled = True
-    
-    def get_modifier(self, stat_value):
-        """Calculate D&D style ability modifier"""
-        return (stat_value - 10) // 2
-    
-    def calculate_hp(self):
-        """Calculate hit points: 10 + CON modifier"""
-        con_mod = self.get_modifier(self.character.get('constitution', 10))
-        return 10 + con_mod
-    
-    def roll_starting_gold(self):
-        """Roll 3d6 x 5 for starting gold"""
-        return self.roll_3d6() * 5
-    
-    def get_random_trinket(self):
-        """Get a random trinket from the trinket table"""
-        trinkets = [
-            "Carved bone dice", "Crystal pendant", "Wooden doll with button eyes",
-            "Tarnished silver locket", "Smooth river stone with runes",
-            "Feathered dream catcher", "Iron ring with strange symbols",
-            "Glass vial with swirling mist", "Leather pouch with dried herbs",
-            "Small bronze mirror", "Twisted driftwood wand", "Polished obsidian shard"
-        ]
-        return random.choice(trinkets)
-    
+
     def get_random_names(self, gender):
         """
         Generate 3 random names based on gender
@@ -571,12 +530,26 @@ class GameState:
 
     def get_garrick_inventory(self):
         """Get Garrick's merchant inventory (now fully data-driven!)"""
+        print("🔍 DEBUG: get_garrick_inventory() called")
+        #from game_logic.item_manager import item_manager  
+        from game_logic.data_manager import get_data_manager
+        item_manager = self.item_manager
+
+        #print(f"🔍 DEBUG: item_manager object id: {id(item_manager)}")
+        #print(f"🔍 DEBUG: item_manager.merchant_data keys: {list(item_manager.merchant_data.keys())}")
+        #print(f"🔍 DEBUG: item_manager.merchant_data contents: {item_manager.merchant_data}")
+
+        
+        print(f"🔍 DEBUG: Using DataManager's item_manager")    
         merchant_inventory = item_manager.get_merchant_inventory('garrick_barkeep')
         
+        print("🔍 DEBUG: DataManager or item_manager not available")
+        merchant_inventory = None
+        print(f"🔍 DEBUG: merchant_inventory result: {merchant_inventory}")
+
         # Fallback if merchant data not found
         if merchant_inventory is None:
-            
-    
+            print("🔍 DEBUG: Using fallback - merchant_inventory is None")
             return {
                 'merchant_name': 'Garrick the Barkeep',
                 'greeting': "What can I get for you? I keep basic adventuring gear in stock:",
@@ -591,22 +564,32 @@ class GameState:
         """Toggle inventory screen open/closed"""
         self.inventory_open = not self.inventory_open
         if self.inventory_open:
+            print(f"🔍 DEBUG: toggle -i- button pressed")
             self.inventory_tab = "weapons"  # Always start with weapons
             self.inventory_selected = None  # Clear selection
 
     def toggle_quest_log(self):
             """Toggle the quest log screen open/closed"""
             self.quest_log_open = not self.quest_log_open
+            print(f"🔍 DEBUG: toggle -q- button pressed")
             if not self.quest_log_open:
                 self.selected_quest = None  # Clear selection when closing
 
     def toggle_help(self):
             """Toggle the help screen open/closed"""
+            print(f"🔍 DEBUG: toggle -h- button pressed")
             self.help_screen_open = not self.help_screen_open
+        
 
     def toggle_character_sheet(self):
             """Toggle the character sheet screen open/closed"""
+            print(f"🔍 DEBUG: toggle -c- button pressed")
             self.character_sheet_open = not self.character_sheet_open
+
+    def toggle_character_advancement_open(self):
+                """Toggle the character sheet screen open/closed"""
+                print(f"🔍 DEBUG: toggle -l- button pressed")
+                self.character_advancement_open = not self.character_advanacement_open
 
     def get_items_by_category(self, category):
         """Get all items in a specific category"""

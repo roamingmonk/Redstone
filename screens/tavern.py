@@ -394,17 +394,46 @@ def handle_recruitment_attempt(current_npc, game_state):
         print(f"❌ {failure_reason}")
         return False
 
-def draw_npc_conversation_screen(surface, game_state, fonts, images=None):
+def draw_npc_conversation_screen(surface, game_state, fonts, images, controller = None):
     """Draw individual NPC conversation screen"""
-    surface.fill(BLACK)
+    #surface.fill(BLACK)
     
+    surface.fill((0, 0, 0))
+    # Special handling for bartender dialogue system
+    if game_state.current_npc == 'bartender':
+        # TEMPORARY FALLBACK - Use existing system for now
+        print("🚧 DialogueEngine not ready, using fallback bartender conversation")
+        # Just change the current_npc temporarily to avoid the new system
+        original_npc = game_state.current_npc
+        game_state.current_npc = 'bartender_fallback'
+
+
+
+   # if game_state.current_npc == 'bartender':
+   #     return draw_bartender_dialogue_system(surface, game_state, fonts, images, controller)
+
     # Get current NPC info
     current_npc = game_state.current_npc
     
+    # Load NPC data
+   # from game_logic.data_manager import get_data_manager
+   # data_manager = get_data_manager()
+   # if data_manager:
+   #     npc_manager = data_manager.get_manager('npcs')
+   #     if npc_manager:
+   #         npc_data = npc_manager.get_npc_data(npc_name)
+   #     else:
+   #         npc_data = None
+   # else:
+   #     npc_data = None
+
     # Get NPC data from manager instead of hardcoded dictionary
+    
     npc_display = get_npc_display_data(current_npc, game_state)
     npc = npc_display  # For backwards compatibility with existing code
     
+    npc_name = game_state.current_npc
+
     # Use new standardized 3-zone layout
     image_y = LAYOUT_IMAGE_Y
     image_height = LAYOUT_IMAGE_HEIGHT
@@ -530,9 +559,217 @@ def draw_npc_conversation_screen(surface, game_state, fonts, images=None):
 
     # Return the appropriate button based on NPC type
     if current_npc == 'bartender':
+        # This should never be reached due to early return above, but keep for safety
         return shop_button, back_button
     else:
         return recruit_button, back_button
+
+def draw_bartender_dialogue_system(screen, game_state, fonts, images, controller=None):
+    """Handle bartender conversations using DialogueEngine"""
+    
+    # Check for response display state first
+    if getattr(game_state, 'showing_bartender_response', False):
+        return draw_bartender_response(screen, game_state, fonts)
+    
+    # Get dialogue engine
+    if not controller:
+        return draw_bartender_fallback(screen, game_state, fonts, images)
+    
+    dialogue_engine = controller.get_dialogue_engine()
+    if not dialogue_engine:
+        print("⚠️ DialogueEngine not available, using fallback")
+        return draw_bartender_fallback(screen, game_state, fonts, images)
+    
+    # Get current conversation options from DialogueEngine
+    conversation_data = dialogue_engine.get_conversation_options('tavern_garrick', 'garrick')
+    
+    screen.fill((0, 0, 0))
+    
+    # Draw title
+    title_font = fonts['fantasy_large']
+    title_text = title_font.render(f"TALKING TO {conversation_data['npc_name'].upper()}", True, (0, 255, 0))
+    title_rect = title_text.get_rect(center=(512, 50))
+    screen.blit(title_text, title_rect)
+    
+    # Draw introduction text
+    y_pos = 120
+    for line in conversation_data['introduction']:
+        line_text = fonts['medium'].render(line, True, (255, 255, 255))
+        line_rect = line_text.get_rect(center=(512, y_pos))
+        screen.blit(line_text, line_rect)
+        y_pos += 30
+    
+    # Draw dialogue options
+    option_rects = []
+    y_pos += 40
+    
+    for i, option in enumerate(conversation_data['options']):
+        option_text = f"[{i+1}] {option['text']}"
+        
+        # Highlight if mouse is over this option
+        mouse_pos = pygame.mouse.get_pos()
+        color = (0, 255, 0)  # Default green
+        
+        text_surface = fonts['medium'].render(option_text, True, color)
+        text_rect = text_surface.get_rect(center=(512, y_pos))
+        
+        # Create clickable rect (larger than text for easier clicking)
+        click_rect = pygame.Rect(text_rect.left - 20, text_rect.top - 5, 
+                                text_rect.width + 40, text_rect.height + 10)
+        
+        # Highlight on hover
+        if click_rect.collidepoint(mouse_pos):
+            pygame.draw.rect(screen, (40, 40, 40), click_rect)
+            text_surface = fonts['medium'].render(option_text, True, (255, 255, 0))
+        
+        screen.blit(text_surface, text_rect)
+        option_rects.append(click_rect)
+        y_pos += 40
+    
+    # Draw action buttons (SHOP, FAREWELL)
+    action_rects = {}
+    y_pos += 20
+    
+    for action_name in conversation_data.get('default_actions', []):
+        if action_name == 'shop':
+            button_text = "SHOP"
+        elif action_name == 'goodbye':
+            button_text = "FAREWELL"
+        else:
+            continue
+            
+        button_surface = fonts['medium'].render(button_text, True, (0, 255, 0))
+        button_rect = button_surface.get_rect(center=(512, y_pos))
+        
+        # Create clickable area
+        click_rect = pygame.Rect(button_rect.left - 20, button_rect.top - 5,
+                               button_rect.width + 40, button_rect.height + 10)
+        
+        # Highlight on hover
+        mouse_pos = pygame.mouse.get_pos()
+        if click_rect.collidepoint(mouse_pos):
+            pygame.draw.rect(screen, (40, 40, 40), click_rect)
+            button_surface = fonts['medium'].render(button_text, True, (255, 255, 0))
+        
+        screen.blit(button_surface, button_rect)
+        action_rects[action_name] = click_rect
+        y_pos += 40
+    
+    # Return dialogue interface data for click handling
+    return {
+        "type": "dialogue_system",
+        "option_rects": option_rects,
+        "action_rects": action_rects,
+        "conversation_data": conversation_data
+    }
+
+def draw_bartender_response(screen, game_state, fonts):
+    """Draw the bartender's response to player choice"""
+    
+    screen.fill((0, 0, 0))
+    
+    # Title
+    title_text = fonts['fantasy_large'].render("GARRICK THE BARKEEP RESPONDS", True, (0, 255, 0))
+    title_rect = title_text.get_rect(center=(512, 50))
+    screen.blit(title_text, title_rect)
+    
+    # Response text
+    y_pos = 120
+    for line in game_state.bartender_dialogue_response:
+        line_text = fonts['normal'].render(line, True, (255, 255, 255))
+        line_rect = line_text.get_rect(center=(512, y_pos))
+        screen.blit(line_text, line_rect)
+        y_pos += 30
+    
+    # Continue button
+    y_pos += 40
+    continue_text = fonts['normal'].render("[CONTINUE]", True, (0, 255, 0))
+    continue_rect = continue_text.get_rect(center=(512, y_pos))
+    
+    # Highlight on hover
+    mouse_pos = pygame.mouse.get_pos()
+    click_rect = pygame.Rect(continue_rect.left - 20, continue_rect.top - 5,
+                           continue_rect.width + 40, continue_rect.height + 10)
+    
+    if click_rect.collidepoint(mouse_pos):
+        pygame.draw.rect(screen, (40, 40, 40), click_rect)
+        continue_text = fonts['normal'].render("[CONTINUE]", True, (255, 255, 0))
+    
+    screen.blit(continue_text, continue_rect)
+    
+    return {
+        "type": "dialogue_response",
+        "continue_rect": click_rect
+    }
+
+def draw_bartender_fallback(screen, game_state, fonts, images):
+    """Fallback bartender conversation if DialogueEngine unavailable"""
+    
+    # Use existing hardcoded bartender logic as fallback
+    screen.fill((0, 0, 0))
+    
+    title_text = fonts['fantasy_large'].render("TALKING TO GARRICK THE BARKEEP", True, (0, 255, 0))
+    title_rect = title_text.get_rect(center=(512, 50))
+    screen.blit(title_text, title_rect)
+    
+    # Simple fallback dialogue
+    lines = [
+        "*Garrick looks up from cleaning glasses*",
+        "Welcome to the Broken Blade, traveler.",
+        "What can I do for you?"
+    ]
+    
+    y_pos = 120
+    for line in lines:
+        line_text = fonts['medium'].render(line, True, (255, 255, 255))
+        line_rect = line_text.get_rect(center=(512, y_pos))
+        screen.blit(line_text, line_rect)
+        y_pos += 30
+    
+    # Simple shop and back buttons
+    shop_text = fonts['medium'].render("SHOP", True, (0, 255, 0))
+    shop_rect = shop_text.get_rect(center=(412, 400))
+    screen.blit(shop_text, shop_rect)
+    
+    back_text = fonts['medium'].render("FAREWELL", True, (0, 255, 0))
+    back_rect = back_text.get_rect(center=(612, 400))
+    screen.blit(back_text, back_rect)
+    
+    return shop_rect, back_rect
+
+def process_bartender_dialogue_choice(choice_index, game_state, fonts, controller=None):
+    """Process player's dialogue choice and show response"""
+    
+    if not controller:
+        return None
+    
+    dialogue_engine = controller.get_dialogue_engine()
+    if not dialogue_engine:
+        print("⚠️ DialogueEngine not available")
+        return None
+    
+    conversation_data = dialogue_engine.get_conversation_options('tavern_garrick', 'garrick')
+    
+    if choice_index < len(conversation_data['options']):
+        selected_option = conversation_data['options'][choice_index]
+        choice_id = selected_option['id']
+        
+        # Process the choice through DialogueEngine
+        result = dialogue_engine.process_dialogue_choice('tavern_garrick', 'garrick', choice_id)
+        
+        # Set flags for response display
+        game_state.bartender_dialogue_response = result['response']
+        game_state.bartender_dialogue_actions = result.get('actions_available', [])
+        game_state.showing_bartender_response = True
+        
+        # Mark that we've talked to bartender
+        if not game_state.bartender_talked:
+            game_state.bartender_talked = True
+        
+        return result
+    
+    return None
+
 
 def draw_gambling_selection_screen(surface, game_state, fonts, images=None):
     """Draw the gambling game selection screen"""

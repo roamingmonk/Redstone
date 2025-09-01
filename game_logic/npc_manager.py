@@ -10,8 +10,16 @@ class NPCManager:
     
     def __init__(self):
         self.npcs_data = {}
+   
+    def load_data(self):
+        """
+        Standard interface method for DataManager compatibility
+        Calls the internal load_npcs method
+        """
+        print("🔄 NPCManager: Loading NPC data...")
         self.load_npcs()
-    
+        print(f"✅ NPCManager: Loaded {len(self.npcs_data)} NPCs")
+
     def load_npcs(self):
         """Load all NPC definitions from JSON data files"""
         npcs_dir = os.path.join('data', 'npcs')

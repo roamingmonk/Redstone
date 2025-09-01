@@ -31,7 +31,7 @@ class InventoryEngine:
             item_manager_ref: Reference to ItemManager for item templates
         """
         self.game_state = game_state_ref  # THE single source of truth
-        self.item_manager = item_manager_ref
+        self.item_manager = item_manager_ref #used to store the reference
         
         # Equipment slot configuration (expandable design)
         self.equipment_slots = {

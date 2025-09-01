@@ -512,24 +512,25 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
 
 def finalize_character_creation(game_state):
     """
-    Complete character creation by generating player JSON file
+    Complete character creation by using CharacterEngine
     This replaces the existing finalize_character() call
     """
-    # Calculate final character stats (existing logic)
-    game_state.character['hit_points'] = game_state.calculate_hp()
+    from game_logic.character_engine import get_character_engine
+    engine = get_character_engine()
     
-    # Add starting trinket to inventory (existing logic)
-    if 'trinket' in game_state.character:
-        game_state.inventory['items'].append(game_state.character['trinket'])
-    
-    # NEW: Create player JSON file from character data
-    print("✅ Character creation finalized!")
-    print(f"   🎭 Name: {game_state.character.get('name', 'Unknown')}")
-    print(f"   💰 Gold: {game_state.character.get('gold', 0)}")
-    print(f"   ❤️ Hit Points: {game_state.character.get('hit_points', 10)}")
-    print(f"   🎒 Starting Items: {len(game_state.inventory.get('items', []))} items")
-    
-    return True
+    if engine:
+        # Set character class (fighter for now, expandable later)
+        engine.set_character_class('fighter')
+        
+        # Let engine handle all finalization
+        success = engine.finalize_character_creation()
+        
+        if success:
+            print("✅ Character creation completed via CharacterEngine!")
+        return success
+    else:
+        print("❌ CharacterEngine not available!")
+        return False
 
 def draw_welcome_screen(surface, game_state, fonts, images=None):
     """Draw the welcome to Redstone screen"""

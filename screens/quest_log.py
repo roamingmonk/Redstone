@@ -242,23 +242,23 @@ def get_available_quests(game_state):
         }
         quests.append(main_quest)
     
-    # Sub-quest: Investigate Refugee Camp (available after talking to bartender)
+    # Sub-quest: Investigate Refugee Camp (available after talking to garrick)
     if getattr(game_state, 'learned_about_refugees', False):
         refugee_quest = {
             'id': 'investigate_refugee_camp',
             'title': 'Investigate Refugee Camp',
             'completed': getattr(game_state, 'refugee_camp_complete', False),
-            'description': '''The bartender mentioned a group of refugees who recently arrived from the northern settlements. They've made camp outside town and may have witnessed something unusual during their travels. Speaking with them could provide valuable information about the disappearances.'''
+            'description': '''Garrick, the bartender mentioned a group of refugees who recently arrived from the northern settlements. They've made camp outside town and may have witnessed something unusual during their travels. Speaking with them could provide valuable information about the disappearances.'''
         }
         quests.append(refugee_quest)
     
-    # Sub-quest: Explore Swamp Church (available after talking to server)
+    # Sub-quest: Explore Swamp Church (available after talking to meredith)
     if getattr(game_state, 'learned_about_church', False):
         church_quest = {
             'id': 'explore_swamp_church',
             'title': 'Explore Swamp Church',
             'completed': getattr(game_state, 'swamp_church_complete', False),
-            'description': '''The tavern server whispered about an abandoned church deep in the eastern swamps. Local legend speaks of strange lights and unholy chanting emanating from the ruins during the dark hours. This cursed place may hold clues to the supernatural forces at work.'''
+            'description': '''Meredith, the tavern server whispered about an abandoned church deep in the eastern swamps. Local legend speaks of strange lights and unholy chanting emanating from the ruins during the dark hours. This cursed place may hold clues to the supernatural forces at work.'''
         }
         quests.append(church_quest)
     

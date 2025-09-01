@@ -11,166 +11,149 @@ import json
 import os
 from typing import Optional, Dict, Any
 from datetime import datetime
-from game_logic.inventory_engine import initialize_inventory_engine, get_inventory_engine
+
+# Import core data managers that do not depend on the game engines
+from game_logic.item_manager import ItemLoader
+from game_logic.npc_manager import NPCManager
+from game_logic.location_manager import LocationManager
+from game_logic.character_engine import initialize_character_engine
+from game_logic.inventory_engine import initialize_inventory_engine
 from game_logic.commerce_engine import initialize_commerce_engine
+from game_logic.dialogue_engine import initialize_dialogue_engine
+
+
+# Global data manager instance (Singleton pattern)
+data_manager = None
+
 
 class DataManager:
     """
     Master data loading coordinator for Terror in Redstone
-    
-    Handles initialization and coordination of all data loading systems.
-    Provides centralized error handling, data validation, and performance monitoring.
     """
     
     def __init__(self):
-        # System state tracking
         self.initialized = False
         self.load_start_time = None
         self.load_errors = []
         self.system_health = {
             'items': False,
-            'npcs': False, 
-            'locations': False,
+            'npcs': False,
             'inventory_engine': False,
-            'commerce_engine': False  
+            'commerce_engine': False,
+            'character_engine': False
         }
         
         # Data manager instances
-        self.item_manager = None
-        self.npc_manager = None
-        self.location_manager = None
-        
+        self.item_manager = ItemLoader()
+        self.npc_manager = NPCManager()
+        self.location_manager = LocationManager()
+
         # Game engine instances (Session 5+)
         self.inventory_engine = None
-        self.commerce_engine = None   
-
+        self.commerce_engine = None
+        self.character_engine = None
+        
         print("🏗️ DataManager initialized - Ready to coordinate all data loading")
     
-    def initialize_all_systems(self) -> bool:
+    def load_all_data(self):
         """
-        Initialize all data loading systems with comprehensive error handling
-        Returns True if initialization successful, False if critical errors occurred
+        The NEW single point of truth for all data loading.
+        This method orchestrates all data loading and initialization.
         """
-        self.load_start_time = datetime.now()
-        print("🚀 DataManager: Beginning system initialization...")
-        
-        success_count = 0
-        total_systems = 5
-        
-        # 1. Initialize Item Management System
-        success_count += self._initialize_item_system()
-        
-        # 2. Initialize NPC Management System  
-        success_count += self._initialize_npc_system()
-        
-        # 3. Initialize Location Management System
-        success_count += self._initialize_location_system()
-        
-        # 4. Initialize Inventory Engine (Session 5 addition)
-        success_count += self._initialize_inventory_engine()
-        
-        # 5. Initialize Commerce Engine (Session 6 - NEW!)
-        success_count += self._initialize_commerce_system()
+        self.load_start_time = datetime.now()  
+        print("🔄 DataManager: Starting data loading...")
 
-        # Calculate initialization results
-        load_time = datetime.now() - self.load_start_time
-        success_rate = (success_count / total_systems) * 100
-        
-        print(f"⚡ DataManager initialization complete:")
-        print(f"   ✅ Systems loaded: {success_count}/{total_systems} ({success_rate:.1f}%)")
-        print(f"   ⏱️ Load time: {load_time.total_seconds():.3f} seconds")
-        
-        if self.load_errors:
-            print(f"   ⚠️ Errors encountered: {len(self.load_errors)}")
-            for error in self.load_errors:
-                print(f"      - {error}")
-        
-        # Determine if initialization was successful
-        # Require at least 75% of systems to load for success
-        self.initialized = success_rate >= 75.0
-        
-        if self.initialized:
-            print("✅ DataManager: All critical systems operational!")
+    # Load Item and NPC data first
+    # Check if data is already loaded to avoid duplication
+        if hasattr(self.item_manager, 'items_data') and self.item_manager.items_data:
+            print("ℹ️  Items already loaded, skipping reload...")
         else:
-            print("❌ DataManager: Critical system failures - check data files!")
-            
-        return self.initialized
+           self.item_manager.load_data()
+        if hasattr(self.npc_manager, 'npcs_data') and self.npc_manager.npcs_data:
+            print("ℹ️  NPCs already loaded, skipping reload...")
+        else:
+            self.npc_manager.load_data()
 
-    def _initialize_item_system(self) -> int:
-        """Initialize item management system. Returns 1 if successful, 0 if failed."""
-        try:
-            from game_logic.item_manager import ItemLoader
-            self.item_manager = ItemLoader()
-            self.system_health['items'] = True
-            print("   ✅ Item system loaded")
-            return 1
-        except Exception as e:
-            error_msg = f"Item system failed: {e}"
-            self.load_errors.append(error_msg)
-            print(f"   ❌ {error_msg}")
-            return 0
-    
-    def _initialize_npc_system(self) -> int:
-        """Initialize NPC management system. Returns 1 if successful, 0 if failed."""
-        try:
-            from game_logic.npc_manager import NPCManager
-            self.npc_manager = NPCManager()
-            self.system_health['npcs'] = True
-            print("   ✅ NPC system loaded")
-            return 1
-        except Exception as e:
-            error_msg = f"NPC system failed: {e}"
-            self.load_errors.append(error_msg)
-            print(f"   ❌ {error_msg}")
-            return 0
-    
-    def _initialize_location_system(self) -> int:
-        """Initialize location management system. Returns 1 if successful, 0 if failed.""" 
-        try:
-            from game_logic.location_manager import LocationManager
-            self.location_manager = LocationManager()
-            self.system_health['locations'] = True
-            print("   ✅ Location system loaded")
-            return 1
-        except Exception as e:
-            error_msg = f"Location system failed: {e}"
-            self.load_errors.append(error_msg)
-            print(f"   ❌ {error_msg}")
-            return 0
+        self.system_health['items'] = True
+        self.system_health['npcs'] = True
+        print("✅ Basic systems initialized successfully!")
 
-    def _initialize_inventory_engine(self) -> int:
-        """Initialize inventory engine - REFACTORED for Single Data Authority
-        Returns 1 if successful, 0 if failed."""
-        try:
-            # Import here to avoid circular import
-            from game_logic.inventory_engine import initialize_inventory_engine
+    def initialize_all_engines(self, game_state_ref):
+            """
+            Initializes and links all game engines after data is loaded.
+            """
             
-            # NEW: We don't initialize here anymore - GameController does it
-            # with GameState reference in initialize_engines_with_gamestate()
+            print("🔧 DataManager: Initializing game engines with GameState reference...")
             
-            print("   ✅ Inventory engine preparation complete (will initialize with GameState)")
-            return 1
-        except Exception as e:
-            error_msg = f"Inventory engine preparation failed: {e}"
-            self.load_errors.append(error_msg)
-            print(f"   ❌ {error_msg}")
-            return 0
+            try: 
+                # Centralized initialization for ALL engines
+                self.character_engine = initialize_character_engine(game_state_ref)
+                self.inventory_engine = initialize_inventory_engine(
+                    game_state_ref, self.item_manager
+                )
+                self.commerce_engine = initialize_commerce_engine(
+                    game_state_ref, self.item_manager
+                )
+                self.dialogue_engine = initialize_dialogue_engine(game_state_ref)
+                self.system_health['character_engine'] = True
+                self.system_health['inventory_engine'] = True
+                self.system_health['commerce_engine'] = True
+                self.system_health['dialogue_engine'] = True
+                self.initialized = True
+                print("✅ Engine initialization complete")
+                return True
+                
+            except Exception as e:
+                print(f"❌ Engine initialization failed: {e}")
+                self.load_errors.append(f"Engine initialization: {e}")
+                return False
 
     def get_system_status(self) -> Dict[str, Any]:
         """
         Get comprehensive system status report
         Useful for debugging and system monitoring
         """
-        return {
-            'initialized': self.initialized,
-            'load_time': (datetime.now() - self.load_start_time).total_seconds() if self.load_start_time else None,
-            'systems_healthy': sum(self.system_health.values()),
-            'total_systems': len(self.system_health),
-            'health_details': self.system_health.copy(),
-            'error_count': len(self.load_errors),
-            'errors': self.load_errors.copy()
-        }
-    
+        print("🔍 DEBUG: get_system_status() called")
+        try:
+            print(f"🔍 DEBUG: self.initialized = {getattr(self, 'initialized', 'MISSING')}")
+            print(f"🔍 DEBUG: self.load_start_time = {getattr(self, 'load_start_time', 'MISSING')}")
+            print(f"🔍 DEBUG: self.system_health = {getattr(self, 'system_health', 'MISSING')}")
+            print(f"🔍 DEBUG: self.load_errors = {getattr(self, 'load_errors', 'MISSING')}")
+            
+            # Try each calculation separately
+            systems_healthy = sum(self.system_health.values()) if hasattr(self, 'system_health') else 0
+            total_systems = len(self.system_health) if hasattr(self, 'system_health') else 0
+            
+            print(f"🔍 DEBUG: systems_healthy = {systems_healthy}, total_systems = {total_systems}")
+            
+            #if self.load_start_time is None:
+            #    load_time_calc = None
+            #    print("🔍 DEBUG: load_start_time is None")
+            #else:
+            #    load_time_calc = (datetime.now() - self.load_start_time).total_seconds()
+
+            result = {
+                'initialized': self.initialized,
+                'load_time': None,  #load_time_calc,
+                'systems_healthy': sum(self.system_health.values()),
+                'total_systems': len(self.system_health),
+                'health_details': self.system_health.copy(),
+                'error_count': len(self.load_errors),
+                'errors': self.load_errors.copy()
+            }
+        
+            print(f"🔍 DEBUG: Returning result = {result}")
+            return result
+
+
+        except Exception as e:
+            print(f"❌ ERROR in get_system_status(): {e}")
+            import traceback
+            traceback.print_exc()
+            return None  # This will help us see the actual error
+
+
+
     def validate_data_integrity(self) -> bool:
         """
         Perform data integrity checks across all loaded systems
@@ -213,18 +196,31 @@ class DataManager:
     
     def reload_all_systems(self) -> bool:
         """
-        Reload all data systems (useful for development/debugging)
+        Reloads all game data systems by re-initializing them.
         """
         print("🔄 DataManager: Reloading all systems...")
-        
-        # Reset state
         self.initialized = False
-        self.load_errors.clear()
-        for system in self.system_health:
-            self.system_health[system] = False
-        
-        # Reinitialize
-        return self.initialize_all_systems()
+        self.load_errors = []
+        return initialize_game_data(self.game_state)
+
+    def get_system_status(self) -> Dict[str, Any]:
+        """
+        Get comprehensive system status report
+        Useful for debugging and system monitoring
+        """
+        load_time = None
+        if self.load_start_time:
+            load_time = (datetime.now() - self.load_start_time).total_seconds()
+            
+        return {
+            'initialized': self.initialized,
+            'load_time': load_time,
+            'systems_healthy': sum(self.system_health.values()),
+            'total_systems': len(self.system_health),
+            'health_details': self.system_health.copy(),
+            'error_count': len(self.load_errors),
+            'errors': self.load_errors.copy()
+        }
     
     def get_manager(self, manager_type: str):
         """
@@ -236,7 +232,9 @@ class DataManager:
             'npcs': self.npc_manager, 
             'locations': self.location_manager,
             'inventory': self.inventory_engine,
-            'commerce': self.commerce_engine
+            'commerce': self.commerce_engine,
+            'dialogue': self.dialogue_engine,
+            'character': self.character_engine
         }
         
         if manager_type not in manager_map:
@@ -286,76 +284,7 @@ class DataManager:
         
         print("⚠️ DataManager: Using emergency fallback data")
         return fallback_data
-
-    def _initialize_commerce_system(self) -> int:
-        """Initialize commerce engine with Single Data Authority pattern"""
-        try:
-            print("🛒 DataManager: Initializing Commerce Engine...")
-            
-            # This is the key: we need GameState reference, not DataManager reference
-            # We'll get this from GameController when it calls us
-            # For now, set up a placeholder that GameController will complete
-            self.commerce_engine_ready = True
-            self.system_health['commerce_engine'] = True
-            
-            print("✅ Commerce Engine preparation complete")
-            return 1
-            
-        except Exception as e:
-            error_msg = f"Commerce Engine initialization failed: {e}"
-            self.load_errors.append(error_msg)
-            print(f"❌ {error_msg}")
-            return 0
-
-    def initialize_engines_with_gamestate(self, game_state):
-        """
-        Complete engine initialization with GameState reference
-        This is called by GameController after DataManager is ready
-        """
-        print("🔧 DataManager: Completing engine initialization with GameState...")
-        
-        try:
-            # Initialize InventoryEngine with GameState reference (Single Data Authority)
-                        
-            self.inventory_engine = initialize_inventory_engine(game_state, self.item_manager)
-            
-            if self.inventory_engine:
-                print("   ✅ InventoryEngine initialized with GameState authority")
-                self.system_health['inventory_engine'] = True
-            else:
-                print("   ⚠️ InventoryEngine initialization returned None")
-                self.system_health['inventory_engine'] = False
-
-            # Initialize CommerceEngine with GameState reference (already correct)
-            self.commerce_engine = initialize_commerce_engine(game_state, self.item_manager)
-            if self.commerce_engine:
-                print("   ✅ CommerceEngine initialized with GameState authority")
-                self.system_health['commerce_engine'] = True
-            else:
-                print("   ⚠️ CommerceEngine initialization returned None")
-                self.system_health['commerce_engine'] = False
-
-            # Future engines will follow the same pattern:
-            # self.dialogue_engine = initialize_dialogue_engine(game_state, self.npc_manager)
-            # self.quest_engine = initialize_quest_engine(game_state, self.quest_manager)
-            
-            success_count = sum([
-                self.system_health.get('inventory_engine', False),
-                self.system_health.get('commerce_engine', False)
-            ])
-            
-            print(f"🎯 Engine initialization complete: {success_count}/2 engines ready")
-            
-            if success_count == 2:
-                print("✅ All engines successfully initialized with Single Data Authority!")
-                return True
-            else:
-                print("⚠️ Some engines failed to initialize")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Engine initialization failed: {e}")
-            return False
+    
 
 # Global data manager instance (Singleton pattern)
 # This provides easy access throughout the game
@@ -363,23 +292,27 @@ data_manager = None
 
 def get_data_manager() -> DataManager:
     """
-    Get the global data manager instance
-    Creates one if it doesn't exist (Singleton pattern)
+    Get the global data manager instance.
     """
     global data_manager
     if data_manager is None:
         data_manager = DataManager()
     return data_manager
 
-def initialize_game_data() -> bool:
+def initialize_game_data(game_state_ref, data_manager) -> bool:
     """
-    Convenience function to initialize all game data systems
-    Returns True if successful
+    The new convenience function to trigger all initialization.
+    It takes the DataManager and GameState as arguments.
     """
-    dm = get_data_manager()
-    return dm.initialize_all_systems()
-
-
+    try:
+        data_manager.load_all_data()
+        data_manager.initialize_all_engines(game_state_ref)
+        data_manager.initialized = True
+        return True
+    except Exception as e:
+        print(f"❌ FATAL: Error during data initialization: {e}")
+        return False
+    
 # Development and testing utilities
 if __name__ == "__main__":
     print("🧪 DataManager Development Test")
@@ -405,3 +338,4 @@ if __name__ == "__main__":
     print(f"\nData Validation: {dm.validate_data_integrity()}")
     
     print("\n✅ DataManager test complete!")
+    pass

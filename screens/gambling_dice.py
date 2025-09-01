@@ -89,7 +89,7 @@ def draw_dice(surface, x, y, size, value, rolling=False):
     for dot_x, dot_y in dot_positions[value]:
         pygame.draw.circle(surface, BLACK, (x + dot_x, y + dot_y), dot_size)
 
-def draw_dice_bet_screen(surface, game_state, fonts, images=None):
+def draw_dice_bets_screen(surface, game_state, fonts, images=None):
     """Draw the betting selection screen"""
     surface.fill(BLACK)
     

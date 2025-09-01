@@ -23,6 +23,38 @@ DARK_GRAY = (169, 169, 169)
 DARK_BROWN = (139, 69, 19)
 BROWN = (170, 85, 0)
 
+# === DIALOGUE SYSTEM CONSTANTS ===
+DIALOGUE_PORTRAIT_SIZE = 200
+DIALOGUE_PORTRAIT_X = 50
+DIALOGUE_PORTRAIT_Y = 100
+
+DIALOGUE_AREA_X = 270
+DIALOGUE_AREA_Y = 100
+DIALOGUE_AREA_WIDTH = 700
+DIALOGUE_AREA_HEIGHT = 400
+DIALOGUE_AREA_PADDING = 20
+
+DIALOGUE_TITLE_Y = 120
+DIALOGUE_TEXT_START_Y = 160
+DIALOGUE_TEXT_LINE_HEIGHT = 25
+DIALOGUE_OPTIONS_START_Y_OFFSET = 40
+DIALOGUE_OPTION_HEIGHT = 30
+DIALOGUE_OPTION_PADDING = 5
+
+DIALOGUE_BUTTON_Y = 520
+DIALOGUE_BUTTON_WIDTH = 120
+DIALOGUE_BUTTON_HEIGHT = 35
+DIALOGUE_BUTTON_SPACING = 140
+
+# Dialogue colors
+DIALOGUE_BG_COLOR = (20, 20, 20)
+DIALOGUE_BORDER_COLOR = WHITE
+DIALOGUE_TEXT_COLOR = WHITE
+DIALOGUE_TITLE_COLOR = (0, 255, 0)
+DIALOGUE_OPTION_COLOR = (0, 255, 0)
+DIALOGUE_OPTION_HOVER_COLOR = (255, 255, 0)
+DIALOGUE_OPTION_BG_HOVER = (40, 40, 40)
+
 # === PROFESSIONAL ASSET PATH STRUCTURE ===
 
 # Base paths
@@ -146,6 +178,27 @@ def calculate_button_font(fonts, text, button_width, padding=20):
     available_width = button_width - padding
     return get_fitting_font(fonts, text, available_width)
 
+def wrap_text(text, font, max_width):
+    lines = []
+    if not text:
+        return lines
+    words = text.split(' ')
+    current_line = []
+    for word in words:
+        test_line = ' '.join(current_line + [word])
+        if font.size(test_line)[0] <= max_width:
+            current_line.append(word)
+        else:
+            if current_line:
+                lines.append(' '.join(current_line))
+            current_line = [word]
+    lines.append(' '.join(current_line))
+    
+    # Render each line into a surface
+    rendered_lines = [font.render(line, True, (255, 255, 255)) for line in lines]
+    return rendered_lines
+
+
 # === PROFESSIONAL IMAGE LOADING SYSTEM ===
 
 def load_images():
@@ -233,7 +286,8 @@ def load_images():
         'swamp_church': SWAMP_CHURCH_IMAGE,
         'hill_ruins': HILL_RUINS_IMAGE,
         'refugee_camp': REFUGEE_CAMP_IMAGE,
-        'mayor_office': MAYOR_OFFICE_IMAGE
+        'mayor_office': MAYOR_OFFICE_IMAGE,
+        'broken_blade_main': TAVERN_IMAGE
     }
     
     for key, image_path in location_images.items():
@@ -382,3 +436,17 @@ LAYOUT_BUTTON_SMALL_HEIGHT = 30  # Smaller buttons for multi-row screens
 LAYOUT_BUTTON_ZONE_MULTI = 80    # Taller zone for 2+ rows of buttons
 LAYOUT_BUTTON_MULTI_Y = LAYOUT_DIALOG_Y + LAYOUT_DIALOG_HEIGHT + 1  # 762
 LAYOUT_BUTTON_MULTI_CENTER_Y = LAYOUT_BUTTON_MULTI_Y + 10  # First row positioning
+
+
+def calculate_button_layout(num_buttons, screen_width=1024, button_width=150, spacing=15):
+    """Calculate evenly spaced button positions"""
+    total_width = num_buttons * button_width + (num_buttons - 1) * spacing
+    start_x = (screen_width - total_width) // 2
+    
+    positions = []
+    current_x = start_x
+    for i in range(num_buttons):
+        positions.append(current_x)
+        current_x += button_width + spacing
+    
+    return positions, button_width

@@ -34,7 +34,7 @@ class CommerceEngine:
             item_manager_ref: Reference to ItemManager for item templates
         """
         self.game_state = game_state_ref  # THE single source of truth
-        self.item_manager = item_manager_ref
+        self.item_manager = item_manager_ref # use to store reference
         
         print("🛒 CommerceEngine initialized - Ready for professional shopping!")
         print("   📋 Data Authority: GameState")
