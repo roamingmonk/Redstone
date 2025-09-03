@@ -14,6 +14,13 @@ def draw_standard_dialogue_screen(surface, npc_name, conversation_data, game_sta
     Standardized dialogue screen that works with DialogueEngine data
     This replaces the individual draw_[npc]_dialogue_screen functions
     """
+    #print(f"DEBUG: DUU: DSDS: conversation_data keys = {conversation_data.keys()}")
+    #print(f"DEBUG: DUU: DSDS: default_actions = {conversation_data.get('default_actions', 'NOT FOUND')}")
+    #print(f"DEBUG: DUU: DSDS: actions config = {conversation_data.get('actions', 'NOT FOUND')}")
+
+    response_attr = f'showing_{npc_name}_response'
+    #print(f"DEBUG: DUI: DSDS: {response_attr} = {getattr(game_state, response_attr, False)}")
+
     surface.fill((0, 0, 0))
     
     # Draw NPC portrait using your existing system
@@ -71,17 +78,54 @@ def draw_standard_dialogue_screen(surface, npc_name, conversation_data, game_sta
         option_rects.append(option_rect)
         y_pos += DIALOGUE_OPTION_HEIGHT
     
+    
     # Draw party status using your existing system
     from utils.party_display import draw_party_status_panel
     draw_party_status_panel(surface, game_state, fonts)
     
-    # Standard back button
-    back_button = draw_button(surface, 450, 520, 120, 35, "BACK", fonts.get('fantasy_small', fonts['normal']))
+     # Process default_actions from JSON for immediate action buttons
+    action_rects = {}
+    default_actions = conversation_data.get('default_actions', [])
+    actions_config = conversation_data.get('actions', {})
+    
+    #print(f"DEBUG: DUI: DSDS: Processing {len(default_actions)} dialogue-level action buttons")
+    
+    if default_actions:
+        # Position action buttons below dialogue options
+        action_y = y_pos + 20
+        
+        for action_name in default_actions:
+            # Get button text from actions config or use default mapping
+            if action_name in actions_config:
+                button_text = actions_config[action_name].get('text', action_name.upper())
+            else:
+                # Default text mapping
+                action_text_map = {
+                    'shop': 'SHOP',
+                    'goodbye': 'FAREWELL',
+                    'leave': 'LEAVE',
+                    'back': 'BACK'
+                }
+                button_text = action_text_map.get(action_name, action_name.upper())
+            
+            #print(f"DEBUG: DUI: DSDS: Creating button '{button_text}' for action '{action_name}'")
+            
+            # Create action button
+            action_button = draw_button(surface, 450, action_y, 120, 35, button_text, 
+                                      fonts.get('fantasy_small', fonts['normal']))
+            action_rects[action_name] = action_button
+            action_y += 45  # Space buttons vertically
+    
+    # Keep BACK button as fallback if no actions
+    if not default_actions:
+        back_button = draw_button(surface, 450, 520, 120, 35, "BACK", 
+                                fonts.get('fantasy_small', fonts['normal']))
+        action_rects['back'] = back_button
     
     return {
         "type": "standard_dialogue",
         "option_rects": option_rects,
-        "back_button": back_button,
+        "action_rects": action_rects,
         "conversation_data": conversation_data
     }
 
@@ -129,10 +173,84 @@ def draw_standard_response_screen(surface, npc_name, response_lines, game_state,
     from utils.party_display import draw_party_status_panel
     draw_party_status_panel(surface, game_state, fonts)
     
-    # Standardized continue button (same position as back button in dialogues)
-    continue_button = draw_button(surface, 450, 520, 120, 35, "CONTINUE", fonts.get('fantasy_small', fonts['normal']))
+    # Process response-level actions from DialogueEngine result
+    action_rects = {}
+    
+    # Get actions from the current dialogue choice result stored in game state
+    # This requires getting the actions from the last processed dialogue choice
+    response_actions = []
+    if controller and controller.dialogue_engine:
+        # Get the last dialogue result actions
+        response_attr = f'{npc_name}_dialogue_response_actions'
+        response_actions = getattr(game_state, response_attr, [])
+    
+    response_attr = f'{npc_name}_dialogue_response_actions'
+    response_actions = getattr(game_state, response_attr, [])
+    #print(f"DEBUG: DSRS: Looking for attribute '{response_attr}' on game_state")
+    #print(f"DEBUG: DSRS: Found response_actions = {response_actions}")
+    #print(f"DEBUG: DSRS: All game_state attributes containing '{npc_name}': {[attr for attr in dir(game_state) if npc_name in attr]}")
+
+
+    #print(f"DEBUG: DUI: DSRS: Processing {len(response_actions)} response-level action buttons")
+    
+# Check if dialogue can continue after this response
+    can_continue_dialogue = False
+    if controller and controller.dialogue_engine:
+        dialogue_file_id = f'tavern_{npc_name}'
+        
+        dialogue_data = controller.dialogue_engine.dialogues.get(dialogue_file_id, {})
+        action_definitions = dialogue_data.get('actions', {})
+        
+        # Get current dialogue state after processing the response
+        current_state = controller.dialogue_engine.get_current_dialogue_state(npc_name)
+        conversation_data = controller.dialogue_engine.get_conversation_options(dialogue_file_id, npc_name)
+        
+        # Check if there are dialogue options available (not just terminal actions)
+        available_options = conversation_data.get('options', [])
+        can_continue_dialogue = len(available_options) > 0
+        
+        #print(f"DEBUG: DSRS: Dialogue continuation check - options available: {len(available_options)}")
+        #print(f"DEBUG: DSRS: Current dialogue state: {current_state}")
+    else:
+        action_definitions = {}  # Fallback if no dialogue engine
+
+
+    # Position buttons below response text
+    action_y = y_pos + 20
+
+    if response_actions:
+        # PRIORITY: Always render response actions first
+        print(f"DEBUG: DSRS: Rendering {len(response_actions)} action buttons")
+        #print(f"DEBUG: DSRS: response_actions = {response_actions}")
+    for action_name in response_actions:
+        action_def = action_definitions.get(action_name, {})
+        action_type = action_def.get('type', 'button')
+        
+        #print(f"DEBUG: DSRS: Action '{action_name}' has type '{action_type}'")
+        
+        # INDUSTRY STANDARD: Button text comes directly from JSON
+        button_text = action_def.get('text', action_name.replace('_', ' ').title())
+        
+        # Professional fallback only for missing/malformed data
+        if not button_text or not button_text.strip():
+            button_text = action_name.replace('_', ' ').title()
+            
+        #print(f"DEBUG: DSRS: Creating button '{button_text}' for action '{action_name}' at position y={action_y}")
+        
+        # Create action button
+        action_button = draw_button(surface, 450, action_y, 200, 35, button_text, 
+                                fonts.get('fantasy_small', fonts['normal']))
+        action_rects[action_name] = action_button
+        action_y += 45  # Space buttons vertically
+
+   # Fallback if no actions processed
+    if not action_rects:
+        continue_button = draw_button(surface, 450, action_y, 120, 35, "CONTINUE", 
+                                    fonts.get('fantasy_small', fonts['normal']))
+        action_rects['continue'] = continue_button
+        #print(f"DEBUG: DSRS: Added fallback CONTINUE button")
     
     return {
         "type": "standard_response",
-        "continue_button": continue_button
+        "action_rects": action_rects
     }

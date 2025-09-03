@@ -71,17 +71,20 @@ class DialogueEngine:
     def get_current_dialogue_state(self, npc_id: str) -> str:
         """
         Determine current conversation state for NPC based on game progression
-        
-        Args:
-            npc_id: NPC identifier (e.g., 'garrick')
-            
-        Returns:
-            str: Current dialogue state key
+        Enhanced to support dynamic state transitions from JSON
         """
-        # This method analyzes GameState to determine conversation state
+        
+        # Check if NPC has a stored dialogue state from previous transitions
+        state_attr = f'{npc_id}_dialogue_state'
+        stored_state = getattr(self.game_state, state_attr, None)
+        
+        if stored_state:
+            #print(f"DEBUG: DE: Using stored state for {npc_id}: {stored_state}")
+            return stored_state
+        
+        # Original state logic as fallback
         if npc_id == 'garrick':
-            # Garrick's conversation states based on quest progression
-            if not self.game_state.garrick_talked:
+            if not getattr(self.game_state, 'garrick_talked', False):
                 return 'first_meeting'
             elif not getattr(self.game_state, 'mayor_talked', False):
                 return 'after_first_talk'  
@@ -97,8 +100,6 @@ class DialogueEngine:
                 return 'post_mayor'
             else:
                 return 'return_visits'
-
-
 
         # Default to first meeting for other NPCs
         return 'first_meeting'
@@ -172,13 +173,42 @@ class DialogueEngine:
         if not selected_choice:
             return {'response': ["I don't understand."], 'effects': []}
         
-        # Process the choice effects
+       # Process the choice effects
         effects = []
         for effect in selected_choice.get('effects', []):
             effect_result = self._apply_dialogue_effect(effect)
             if effect_result:
                 effects.append(effect_result)
-        
+
+        # Check if any actions are dialogue branches that should trigger state transitions
+        dialogue_actions = dialogue_tree.get('actions', {})
+
+        for action in selected_choice.get('actions', []):
+            action_def = dialogue_actions.get(action, {})
+            if action_def.get('type') == 'dialogue_branch':
+                target_state = action_def.get('target_state')
+                target_option = action_def.get('target_option')
+                
+                if target_state:
+                    # Set the new dialogue state for this NPC
+                    state_attr = f'{npc_id}_dialogue_state'
+                    setattr(self.game_state, state_attr, target_state)
+                    #print(f"DEBUG: DE: State transition triggered: {npc_id} -> {target_state}")
+                    
+                    # CRITICAL FIX: Don't immediately process target_option!
+                    # Just set the state and return the current response
+                    # Let the UI handle the state transition naturally
+                    
+                    return {
+                        'response': selected_choice.get('response', ["..."]),
+                        'effects': effects,
+                        'actions_available': selected_choice.get('actions', []),
+                        'state_transitioned': True,
+                        'target_state': target_state,
+                        'target_option': target_option  # Pass this for UI to handle
+                    }
+
+        # Normal response handling (no state transitions)
         return {
             'response': selected_choice.get('response', ["..."]),
             'effects': effects,
