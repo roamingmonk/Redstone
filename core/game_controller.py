@@ -13,6 +13,7 @@ from game_logic.character_engine import initialize_character_engine
 from game_logic.inventory_engine import initialize_inventory_engine 
 from game_logic.commerce_engine import initialize_commerce_engine 
 from game_logic.dialogue_engine import initialize_dialogue_engine
+from game_logic.event_manager import initialize_event_manager, get_event_manager
 from datetime import datetime
 from typing import Optional, Dict, Any, Callable
 from utils.constants import *
@@ -24,15 +25,14 @@ class GameController:
     Master game controller handling screen management, transitions, and universal input
     This is the 'conductor' that orchestrates all game systems
     """
-    
     def __init__(self, screen: pygame.Surface, game_state, fonts: Dict, images: Dict, data_manager):
         self.screen = screen
         self.game_state = game_state
         self.data_manager = data_manager
-        #self.data_manager = None
         self.fonts = fonts
         self.images = images
-        
+        self.event_manager = None
+
         # Screen registry - maps screen names to their functions
         self.screens: Dict[str, Callable] = {}
         
@@ -69,26 +69,102 @@ class GameController:
         Called during GameController startup
         """
         print("🎮 GameController: Initializing data management systems...")
-       
+    
         try:
-            print("🔄 GameController: Beginning core system initialization...")
+            print("📊 GameController: Beginning core system initialization...")
+            
+            # Step 1: Load all data first
             self.data_manager.load_all_data()
-            self.data_manager.initialize_all_engines(self.game_state)
-            print("✅ GameController: Allsystems Intialized successfully!")
-
-            # Validate system health
-            status = self.data_manager.get_system_status()
-            if status and status.get('systems_healthy', 0) > 0:
-                print("✅ GameController: Data system validation passed!")
-                return True
-            else:
-                print("❌ GameController: Data system validation failed!")
-                return False
+            
+            # Step 2: Initialize all engines directly in GameController
+            self.character_engine = initialize_character_engine(self.game_state)
+            self.inventory_engine = initialize_inventory_engine(self.game_state, self.data_manager.item_manager)
+            self.commerce_engine = initialize_commerce_engine(self.game_state, self.data_manager.item_manager) 
+            self.dialogue_engine = initialize_dialogue_engine(self.game_state)
+                        
+            self.data_manager.dialogue_engine = self.dialogue_engine
+            
+            # Step 3: Initialize EventManager directly
+            self.event_manager = initialize_event_manager()
+            
+            # Step 4: Set up event listeners now that everything exists
+            self.setup_event_listeners()
+            
+            print("✅ GameController: All systems initialized successfully!")
+            return True
             
         except Exception as e:
             print(f"❌ GameController: Data initialization failed: {e}")
             self.error_count += 1
             return False
+
+
+    def setup_event_listeners(self):
+        """Initialize all event listeners for professional event-driven architecture"""
+        print("🎯 GC Setting up event listeners...")
+        
+        # Use the event manager we initialized directly in GameController
+        event_manager = self.event_manager  # Direct access, no DataManager needed
+        print(f"DEBUG: GC event_manager = {event_manager}")  # Add this line
+        # Register NPC click handler
+        event_manager.register("NPC_CLICKED", self.handle_npc_clicked)
+        
+        # Register screen change handler
+        event_manager.register("SCREEN_CHANGE", self.handle_screen_change)
+        
+        # Initialize Screen Manager
+        from ui.screen_manager import ScreenManager
+        from ui.screen_handlers import handle_broken_blade_clicks
+        #from ui.generic_dialogue_handler import register_npc_dialogue_screen
+        #register_npc_dialogue_screen(self.screen_manager, 'garrick')
+        
+        self.screen_manager = ScreenManager(event_manager)
+        print(f"DEBUG: GC screen_manager created with {self.screen_manager.event_manager}")
+        self.screen_manager.register_screen("broken_blade_main", handle_broken_blade_clicks)
+        
+        print("✅ Event listeners registered successfully!")
+
+    def handle_npc_clicked(self, event_data): #data: Dict[str, Any]): 
+        """
+        Handle NPC click events - replacement for hardcoded click detection
+        
+        Args:
+            event_data: Dictionary with npc_id, location, and other context
+        """
+        npc_id = event_data.get("npc_id")
+        location = event_data.get("location")
+
+        print(f"🎭 EVENT: NPC '{npc_id}' clicked at '{location}'")
+        
+        # Use screen manager events instead of direct transition_to calls
+        screen_name = f"{npc_id}_dialogue"
+        self.event_manager.emit("SCREEN_CHANGE", {
+            "target_screen": screen_name,
+            "source_screen": self.game_state.screen
+        })
+
+
+    def handle_screen_change(self, event_data):
+        """Handle screen transition events - SCREEN MANAGER ONLY"""
+        target_screen = event_data.get("target_screen")
+        source_screen = event_data.get("source_screen")
+        
+        print(f"🔄 SCREEN_CHANGE: {source_screen} -> {target_screen}")
+        
+        if target_screen:
+            if hasattr(self, 'screen_manager') and target_screen in self.screen_manager.get_registered_screens():
+                # Update game state - screen manager will handle drawing
+                self.game_state.screen = target_screen
+                print(f"✅ Screen registered: {target_screen}")
+            else:
+                # FORCE the issue - no fallback
+                print(f"❌ UNREGISTERED SCREEN: {target_screen}")
+                print(f"   Available screens: {self.screen_manager.get_registered_screens()}")
+                print("   This screen needs to be registered with the screen manager!")
+                # Stay on current screen instead of crashing
+                return
+        else:
+            print("⚠️ SCREEN_CHANGE event without target_screen")
 
     def is_text_input_active(self) -> bool:
         """NEW METHOD - Check if we're in text input mode"""
@@ -734,93 +810,32 @@ class GameController:
 
         # Broken Blade Main Screen NEW 
 
-        elif self.game_state.screen == "broken_blade_main":
-            temp_surface = pygame.Surface((1024, 768))
-            from screens.broken_blade import draw_broken_blade_main_screen
-            bartender_btn, server_btn, patrons_btn, gamble_btn, leave_btn = draw_broken_blade_main_screen(
-                temp_surface, self.game_state, self.fonts, self.images, controller=self)  # Pass controller
-            
-            # ADD THIS DEBUG LINE:
-            print(f"DEBUG: Mouse click at {mouse_pos}, checking buttons...")
+        #where old button clicks lived broken_blade
 
-            if bartender_btn.collidepoint(mouse_pos):
-                print("DEBUG: Garrick button clicked!")
-                self.transition_to("garrick_dialogue")
-            elif server_btn.collidepoint(mouse_pos):
-                print("DEBUG: Server button clicked!")
-                self.transition_to("meredith_dialogue")  
-            elif patrons_btn.collidepoint(mouse_pos):
-                print("DEBUG: Patrons button clicked!")
-                self.transition_to("tavern_npcs")  # Reuse existing NPC selection
-            elif gamble_btn.collidepoint(mouse_pos):
-                print("DEBUG: Gamble button clicked!")
-                self.transition_to("dice_bets")
-            elif leave_btn.collidepoint(mouse_pos):
-                print("Leave tavern - future content")
+  
+        elif self.game_state.screen == "broken_blade_main":
+            # Use generic screen manager instead of hardcoded logic
+            handled = self.screen_manager.handle_screen_click(
+                "broken_blade_main", mouse_pos, self
+            )
+            if handled:
+                return True
 
         elif self.game_state.screen == "garrick_dialogue":
-            temp_surface = pygame.Surface((1024, 768))
-            from screens.broken_blade import draw_garrick_dialogue_screen, process_garrick_dialogue_choice
-            result = draw_garrick_dialogue_screen(temp_surface, self.game_state, self.fonts, self.images, controller=self)
-            
-            if result["type"] == "garrick_dialogue":
-                # Handle dialogue option clicks
-                for i, option_rect in enumerate(result["option_rects"]):
-                    if option_rect.collidepoint(mouse_pos):
-                        process_garrick_dialogue_choice(i, self.game_state, self)
-                        return True
-                
-                # Handle action buttons
-                for action_name, action_rect in result["action_rects"].items():
-                    if action_rect.collidepoint(mouse_pos):
-                        if action_name == "shop":
-                            self.transition_to("garrick_shop")
-                        elif action_name == "goodbye":
-                            self.transition_to("broken_blade_main")
-                        return True
-            
-            elif result["type"] == "garrick_response":
-                if result["continue_button"].collidepoint(mouse_pos):
-                    self.game_state.showing_garrick_response = False
-                    self.game_state.garrick_dialogue_response = []
-            
-            elif result["type"] == "fallback":
-                if result["shop_button"].collidepoint(mouse_pos):
-                    self.transition_to("garrick_shop")
-                elif result["back_button"].collidepoint(mouse_pos):
-                    self.transition_to("broken_blade_main")
+            handled = self.screen_manager.handle_screen_click("garrick_dialogue", mouse_pos, self)
+            if handled:
+                return True
 
         elif self.game_state.screen == "meredith_dialogue":
-            temp_surface = pygame.Surface((1024, 768))
-            from screens.broken_blade import draw_meredith_dialogue_screen
-            
-            # Check if we're showing a response first
-            if getattr(self.game_state, 'showing_meredith_response', False):
-                from screens.broken_blade import draw_meredith_response_screen
-                result = draw_meredith_response_screen(temp_surface, self.game_state, self.fonts)
-                
-                if result["continue_button"].collidepoint(mouse_pos):
-                    self.game_state.showing_meredith_response = False
-                    self.game_state.meredith_dialogue_response = []
+            handled = self.screen_manager.handle_screen_click("meredith_dialogue", mouse_pos, self)
+            if handled:
                 return True
-            
-            # Normal dialogue handling using standardized system
-            from screens.broken_blade import process_meredith_dialogue_choice
-            result = draw_meredith_dialogue_screen(temp_surface, self.game_state, self.fonts, self.images, controller=self)
-            
-            if result["type"] == "standard_dialogue":  # Simple, consistent
-                # Handle dialogue option clicks
-                for i, option_rect in enumerate(result["option_rects"]):
-                    if option_rect.collidepoint(mouse_pos):
-                        process_meredith_dialogue_choice(i, self.game_state, self)
-                        return True
-                
-                # Handle back button
-                if result["back_button"].collidepoint(mouse_pos):
-                    self.transition_to("broken_blade_main")
-                    return True
 
+        
         return True
+
+
+
 
     def run_current_screen(self):
         """
@@ -869,8 +884,8 @@ class GameController:
         )
 
         from screens.broken_blade import draw_broken_blade_main_screen
-        from screens.broken_blade import draw_garrick_dialogue_screen
-        from screens.broken_blade import draw_meredith_dialogue_screen
+        #from screens.broken_blade import draw_garrick_dialogue_screen
+        #from screens.broken_blade import draw_meredith_dialogue_screen
         
         # Main screen drawing logic
         screen = self.screen
@@ -878,7 +893,7 @@ class GameController:
         fonts = self.fonts
         images = self.images
         controller = self
-        
+    
         # All the screen drawing logic from main.py draw_current_screen()
         if game_state.screen == "game_title":
             draw_title_screen(screen, game_state, fonts, images)
@@ -924,13 +939,24 @@ class GameController:
             draw_merchant_screen(screen, game_state, fonts, game_state.get_garrick_inventory(), images)
         elif game_state.screen == "broken_blade_main":
             draw_broken_blade_main_screen(screen, game_state, fonts, images, controller)
-        elif game_state.screen == "garrick_dialogue":
-            draw_garrick_dialogue_screen(screen, game_state, fonts, images, controller)
-        elif game_state.screen == "meredith_dialogue":
-            draw_meredith_dialogue_screen(screen, game_state, fonts, images, controller)
+       # elif game_state.screen == "meredith_dialogue":
+       #     draw_meredith_dialogue_screen(screen, game_state, fonts, images, controller)
 
-        #elif game_state.screen == "merchant_shop":
-           # draw_merchant_screen(screen, game_state, fonts, game_state.get_garrick_inventory(), images)
+#        elif game_state.screen == "garrick_dialogue":
+#            draw_garrick_dialogue_screen(screen, game_state, fonts, images, controller)
+
+        elif game_state.screen == "garrick_dialogue":
+            from ui.generic_dialogue_handler import draw_generic_dialogue_screen
+            draw_generic_dialogue_screen(screen, 'garrick', game_state, fonts, images, controller=self)
+
+        elif game_state.screen == "meredith_dialogue":
+            from ui.generic_dialogue_handler import draw_generic_dialogue_screen
+            draw_generic_dialogue_screen(screen, 'meredith', game_state, fonts, images, controller=self)
+
+
+
+        elif game_state.screen == "merchant_shop":
+            draw_merchant_screen(screen, game_state, fonts, game_state.get_garrick_inventory(), images)
         
         # Draw character sheet overlay if open
         if game_state.character_sheet_open:
@@ -1920,11 +1946,8 @@ class ScreenRegistry:
 
         # Register Broken Blade
         try:
-            from screens.broken_blade import draw_broken_blade_main_screen, draw_garrick_dialogue_screen, draw_meredith_dialogue_screen
+            from screens.broken_blade import draw_broken_blade_main_screen 
             controller.register_screen("broken_blade_main", draw_broken_blade_main_screen)
-            controller.register_screen("garrick_dialogue", draw_garrick_dialogue_screen)
-            controller.register_screen("meredith_dialogue", draw_meredith_dialogue_screen)
-            controller.register_screen("server_dialogue", draw_meredith_dialogue_screen)
             print("✅ Broken Blade screens registered!")
         except ImportError as e:
             print(f"⚠️ Broken Blade screens not available: {e}")
@@ -1959,7 +1982,9 @@ class ScreenRegistry:
         except ImportError as e:
             print(f"⚠️ Save/Load screens not available: {e}")
 
-
+        from ui.generic_dialogue_handler import register_npc_dialogue_screen
+        register_npc_dialogue_screen(controller.screen_manager, 'garrick')
+        register_npc_dialogue_screen(controller.screen_manager, 'meredith')
 
         # Future screens will be registered here
         # controller.register_screen("general_store", general_store_screen)
