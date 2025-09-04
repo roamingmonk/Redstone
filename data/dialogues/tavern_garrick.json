@@ -1,7 +1,6 @@
 {
   "dialogue_id": "tavern_garrick",
-  "npc_name": "Garrick",
-  "full_name": "Garrick Ironbrew",
+  "npc_name": "Garrick the Barkeep",
   "description": "A weathered tavern keeper with knowing eyes and extensive local knowledge",
   
   "states": {
@@ -20,28 +19,16 @@
             "*Garrick's expression darkens as he leans closer*",
             "Folk have been disappearing. Started with the homeless and beggars.",
             "Then the Mayor's own wife and daughter vanished without a trace.",
-            "Strange happenings up at the old Hill Ruins too - lights where there shouldn't be any.",
-            "If you're thinking of investigating, you'll want to talk to the Mayor first.",
-            "He's desperate for help, and I reckon you've got the look of someone who could provide it."
+            "But there's more to it than just disappearances..."
           ],
           "effects": [
             {
               "type": "set_flag",
-              "flag": "learned_about_ruins",
+              "flag": "learned_basic_troubles",
               "value": true
-            },
-            {
-              "type": "add_location", 
-              "location": "Hill Ruins"
-            },
-            {
-              "type": "quest_trigger",
-              "quest_id": "main_storyline",
-              "trigger_type": "location_discovered",
-              "data": {"location": "Hill Ruins", "source": "garrick"}
             }
           ],
-          "actions": ["shop", "goodbye"]
+          "actions": ["investigate_deeper", "ask_about_ruins", "change_subject"]
         },
         {
           "id": "just_drink",
@@ -49,10 +36,7 @@
           "response": [
             "*Garrick nods understandingly*",
             "Aye, sometimes a traveler just needs rest and refreshment.",
-            "I've got Strong Ale that'll warm your bones, and Trail Rations for the road.",
-            "Though if you change your mind about those troubles...",
-            "*He gives you a meaningful look*",
-            "Well, the Mayor could use someone with your... capabilities."
+            "Though if you change your mind about helping our town..."
           ],
           "effects": [
             {
@@ -61,7 +45,7 @@
               "value": true
             }
           ],
-          "actions": ["shop", "ask_troubles_delayed", "goodbye"]
+          "actions": ["ask_troubles_delayed", "shop", "goodbye"]
         },
         {
           "id": "offer_help",
@@ -69,259 +53,265 @@
           "response": [
             "*Garrick's eyes light up with hope*",
             "Now that's what I was hoping to hear!",
-            "The disappearances started small - beggars and vagrants vanishing in the night.",
-            "But then the Mayor's family... that changed everything.",
-            "There's something unnatural about it all. The Hill Ruins have been showing strange lights.",
-            "You'll want to speak with Mayor Aldwin first - he's got the authority to make this official.",
-            "And I'll tell you what - you're the kind of customer I want to keep happy."
+            "But this isn't a simple problem, stranger.",
+            "There are... layers to what's happening here."
           ],
           "effects": [
             {
               "type": "set_flag",
-              "flag": "learned_about_ruins", 
+              "flag": "offered_help",
+              "value": true
+            }
+          ],
+          "actions": ["press_for_details", "ask_about_layers", "suggest_mayor"]
+        }
+      ],
+      "default_actions": ["shop", "goodbye"]
+    },
+
+    "investigating_troubles": {
+      "introduction": [
+        "*Garrick glances around the tavern, then leans in closer*",
+        "Since you seem genuinely interested in helping...",
+        "There are things the Mayor doesn't know. Things I've kept to myself."
+      ],
+      "options": [
+        {
+          "id": "press_secrets",
+          "text": "What kind of secrets?",
+          "response": [
+            "*Garrick's voice drops to almost a whisper*",
+            "I've seen things. Shadows moving where they shouldn't.",
+            "And there's a pattern to the disappearances - they're not random.",
+            "Someone's been watching, selecting specific people."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "learned_selection_pattern",
+              "value": true
+            }
+          ],
+          "actions": ["ask_about_watcher", "investigate_pattern", "request_proof"]
+        },
+        {
+          "id": "ask_witnesses",
+          "text": "Who else has seen these strange things?",
+          "response": [
+            "*Garrick considers carefully*",
+            "Old Henrik the fisherman mentioned seeing lights near the ruins.",
+            "And Meredith - our serving girl - she's heard whispers.",
+            "But most folk are too scared to talk openly."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "learned_about_witnesses",
+              "value": true
+            }
+          ],
+          "actions": ["talk_to_meredith", "seek_henrik", "investigate_alone"]
+        },
+        {
+          "id": "timeline_questions",
+          "text": "When did all this start exactly?",
+          "response": [
+            "*Garrick counts on his fingers*",
+            "First disappearance was about three months ago.",
+            "But the strange lights... those started appearing about a week before.",
+            "Almost like something was... preparing."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "learned_timeline",
+              "value": true
+            }
+          ],
+          "actions": ["investigate_preparation", "ask_about_lights", "connect_events"]
+        }
+      ],
+      "default_actions": ["return_to_basics", "shop", "goodbye"]
+    },
+
+    "deep_investigation": {
+      "introduction": [
+        "*Garrick's hands shake slightly as he pours himself a drink*",
+        "You want the whole truth? Fine.",
+        "But once you know this, there's no going back to ignorance."
+      ],
+      "options": [
+        {
+          "id": "demand_truth",
+          "text": "Tell me everything. I can handle it.",
+          "response": [
+            "*Garrick takes a long drink, then meets your eyes*",
+            "The thing taking people... it's not human.",
+            "I saw it once, three nights ago. Tall, wrong somehow.",
+            "It was watching the tavern. Watching the people inside.",
+            "I think... I think it knows we're talking about it."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "learned_creature_truth",
               "value": true
             },
             {
+              "type": "quest_trigger",
+              "quest_id": "main_storyline",
+              "trigger_type": "major_revelation",
+              "data": {"revelation": "creature_confirmed", "source": "garrick"}
+            }
+          ],
+          "actions": ["plan_confrontation", "seek_protection", "warn_others"]
+        },
+        {
+          "id": "ask_location",
+          "text": "Where exactly did you see this thing?",
+          "response": [
+            "*Garrick points toward the window*",
+            "Right outside, in the alley between here and the bakery.",
+            "It was just... standing there. For hours.",
+            "When dawn came, it melted away like morning mist."
+          ],
+          "effects": [
+            {
               "type": "set_flag",
-              "flag": "offered_help_to_garrick",
+              "flag": "learned_creature_location",
               "value": true
             },
             {
               "type": "add_location",
-              "location": "Hill Ruins"
-            },
-            {
-              "type": "quest_trigger",
-              "quest_id": "main_storyline", 
-              "trigger_type": "hero_volunteer",
-              "data": {"npc": "garrick", "enthusiasm": "high"}
+              "location": "Tavern Alley"
             }
           ],
-          "actions": ["shop", "goodbye"]
+          "actions": ["investigate_alley", "set_trap", "organize_watch"]
+        },
+        {
+          "id": "protective_measures",
+          "text": "How have you been protecting yourself?",
+          "response": [
+            "*Garrick reaches under the bar and produces a small iron charm*",
+            "Cold iron. My grandmother swore by it for warding off... unnatural things.",
+            "I've got a few more pieces. You'll need them if you're going after this creature."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "learned_about_iron",
+              "value": true
+            }
+          ],
+          "actions": ["request_iron_charm", "ask_about_grandmother", "learn_more_wards"]
         }
       ],
-      "default_actions": ["shop", "goodbye"]
-    },
-    
-    "after_first_talk": {
-      "introduction": [
-        "*Garrick looks up as you approach the bar*",
-        "Back again, I see. Have you given thought to what we discussed?",
-        "The Mayor's still looking for help, and those troubles aren't getting any smaller."
-      ],
-      "options": [
-        {
-          "id": "mayor_question",
-          "text": "Tell me more about the Mayor. Can he be trusted?",
-          "response": [
-            "*Garrick strokes his beard thoughtfully*",
-            "Aldwin Goldenbottom? He's a good man, if overwhelmed.",
-            "Been mayor for eight years, won his position fair and square.",
-            "The disappearances have him nearly beside himself - especially losing his family.",
-            "He's offering substantial reward for their safe return.",
-            "If anyone in this town deserves help, it's him."
-          ],
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "garrick_vouched_for_mayor",
-              "value": true
-            }
-          ],
-          "actions": ["shop", "goodbye"]
-        },
-        {
-          "id": "ruins_details", 
-          "text": "What can you tell me about the Hill Ruins?",
-          "response": [
-            "*Garrick leans in conspiratorially*",
-            "Old place, that. Predates the town by centuries, they say.",
-            "Used to be just crumbling stone and overgrown weeds.",
-            "But lately... lights moving about at night. Unnatural-like.",
-            "Some folk claim they've heard chanting carried on the wind.",
-            "Whatever's happening there, it started around the same time as the disappearances.",
-            "Coincidence? I think not."
-          ],
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "learned_ruins_details",
-              "value": true
-            }
-          ],
-          "actions": ["shop", "goodbye"]
-        },
-        {
-          "id": "need_supplies",
-          "text": "I'll need supplies if I'm going to investigate.",
-          "response": [
-            "*Garrick grins and gestures to his stock*",
-            "Now you're thinking like a proper adventurer!",
-            "I keep basic supplies - rope, rations, torches.",
-            "Nothing fancy, mind you, but reliable gear that's saved many a life.",
-            "And for someone willing to help our town...",
-            "*He winks*",
-            "I might be persuaded to offer fair prices."
-          ],
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "garrick_merchant_friendly",
-              "value": true
-            }
-          ],
-          "actions": ["shop", "goodbye"]
-        }
-      ],
-      "default_actions": ["shop", "goodbye"]
-    },
-    
-    "post_mayor": {
-      "introduction": [
-        "*Garrick nods approvingly as you approach*",
-        "I hear you've spoken with the Mayor. Good.",
-        "That man needs all the help he can get.",
-        "What's your plan for investigating these disappearances?"
-      ],
-      "options": [
-        {
-          "id": "plan_ruins",
-          "text": "I'm thinking of checking out the Hill Ruins first.",
-          "response": [
-            "*Garrick nods grimly*",
-            "Smart choice. That's where the strange lights have been seen.",
-            "Take rope - those old ruins have plenty of holes to fall into.",
-            "And don't go alone if you can help it. Recruit some of the adventurers here.",
-            "That warrior Gareth knows his business, and Elara's magic might come in handy.",
-            "Be careful out there. Whatever's taken our people, it's not natural."
-          ],
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "garrick_ruins_advice_given",
-              "value": true
-            }
-          ],
-          "actions": ["shop", "recruit_advice", "goodbye"]
-        },
-        {
-          "id": "need_party",
-          "text": "I should recruit some companions before I start.",
-          "response": [
-            "*Garrick gestures around the tavern*",
-            "Wise thinking. This place attracts capable folk looking for work.",
-            "Gareth there - the weathered soldier - he's got twenty years of fighting experience.",
-            "Elara the mage knows her spells, though she's a bit... eccentric.",
-            "And if you need healing, that dwarf cleric Thorina serves Thor himself.",
-            "Build yourself a proper party before you tackle anything dangerous."
-          ],
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "garrick_party_advice_given",
-              "value": true
-            }
-          ],
-          "actions": ["shop", "goodbye"]
-        },
-        {
-          "id": "other_leads",
-          "text": "Are there any other leads I should follow?",
-          "response": [
-            "*Garrick thinks for a moment*",
-            "Well, Meredith - our serving girl - she hears all the gossip.",
-            "Might be worth talking to her about what the townsfolk are saying.",
-            "And the Mayor himself might have more details he didn't share initially.",
-            "Sometimes folk hold back information until they trust you properly."
-          ],
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "garrick_suggested_meredith",
-              "value": true
-            }
-          ],
-          "actions": ["shop", "goodbye"]
-        }
-      ],
-      "default_actions": ["shop", "goodbye"]
-    },
-    
-    "quest_active": {
-      "introduction": [
-        "*Garrick looks at you with mixture of hope and concern*",
-        "How goes the investigation? Any word on the missing folk?",
-        "The whole town's watching, hoping you'll succeed where others have failed."
-      ],
-      "options": [
-        {
-          "id": "progress_report",
-          "text": "I'm making progress, but it's slow going.",
-          "response": [
-            "*Garrick nods understandingly*",
-            "These things take time. Better to be thorough than hasty.",
-            "The Mayor's holding up well enough, considering.",
-            "Just... don't take too long. Every day that passes...",
-            "*He trails off, worry creasing his features*"
-          ],
-          "effects": [],
-          "actions": ["shop", "goodbye"]
-        },
-        {
-          "id": "need_supplies",
-          "text": "I need to resupply before continuing.",
-          "response": [
-            "*Garrick immediately becomes businesslike*",
-            "Of course! Can't have our town's hero running short of essentials.",
-            "Take what you need. The town's counting on you.",
-            "And if there's anything special you need that I don't stock,",
-            "Try Jenna at the General Store - she might have it."
-          ],
-          "effects": [],
-          "actions": ["shop", "goodbye"]
-        },
-        {
-          "id": "ask_advice",
-          "text": "Any advice for dealing with whatever's behind this?",
-          "response": [
-            "*Garrick leans in seriously*",
-            "Trust your instincts. If something feels wrong, it probably is.",
-            "Whatever's taking people, it's not working alone.",
-            "Be ready for anything - natural or otherwise.",
-            "And remember, you've got the whole town's hopes riding with you."
-          ],
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "garrick_final_advice_given",
-              "value": true
-            }
-          ],
-          "actions": ["shop", "goodbye"]
-        }
-      ],
-      "default_actions": ["shop", "goodbye"]
+      "default_actions": ["step_back", "shop", "goodbye"]
     }
   },
   
   "actions": {
+    "investigate_deeper": {
+      "text": "There's more? Tell me everything.",
+      "description": "Press Garrick for deeper information",
+      "type": "dialogue_branch",
+      "target_state": "investigating_troubles",
+      "target_option": "press_secrets"
+    },
+    
+    "ask_about_ruins": {
+      "text": "What about these ruins you mentioned?",
+      "description": "Focus on the Hill Ruins connection",
+      "type": "dialogue_branch", 
+      "target_state": "investigating_troubles",
+      "target_option": "timeline_questions"
+    },
+    
+    "change_subject": {
+      "text": "Perhaps we should discuss something else.",
+      "description": "Avoid the topic for now",
+      "type": "dialogue_branch",
+      "target_state": "first_meeting",
+      "target_option": "just_drink"
+    },
+    
+    "press_for_details": {
+      "text": "What do you mean by 'layers'?",
+      "description": "Investigate the complexity of the situation", 
+      "type": "dialogue_branch",
+      "target_state": "investigating_troubles",
+      "target_option": "press_secrets"
+    },
+    
+    "ask_about_layers": {
+      "text": "Tell me about these layers of the problem.",
+      "description": "Explore the deeper mystery",
+      "type": "dialogue_branch",
+      "target_state": "investigating_troubles", 
+      "target_option": "timeline_questions"
+    },
+    
+    "suggest_mayor": {
+      "text": "Should I speak with the Mayor first?",
+      "description": "Seek official guidance",
+      "type": "information"
+    },
+    
+    "ask_about_watcher": {
+      "text": "Who do you think is doing the watching?",
+      "description": "Investigate the mysterious observer",
+      "type": "dialogue_branch",
+      "target_state": "deep_investigation",
+      "target_option": "demand_truth"
+    },
+    
+    "investigate_pattern": {
+      "text": "What's the pattern to these disappearances?", 
+      "description": "Analyze the selection criteria",
+      "type": "dialogue_branch",
+      "target_state": "deep_investigation",
+      "target_option": "ask_location"
+    },
+    
+    "request_proof": {
+      "text": "Do you have any proof of what you're saying?",
+      "description": "Demand evidence",
+      "type": "dialogue_branch",
+      "target_state": "deep_investigation", 
+      "target_option": "protective_measures"
+    },
+    
+    "return_to_basics": {
+      "text": "Let's go back to the basic facts.",
+      "description": "Return to simpler discussion",
+      "type": "dialogue_branch",
+      "target_state": "first_meeting",
+      "target_option": "ask_troubles"
+    },
+    
+    "step_back": {
+      "text": "This is getting too intense. Let's talk about something else.",
+      "description": "Retreat from deep investigation", 
+      "type": "dialogue_branch",
+      "target_state": "investigating_troubles",
+      "target_option": "timeline_questions"
+    },
+    
     "shop": {
       "text": "SHOP",
       "description": "Browse Garrick's supplies", 
       "type": "merchant",
       "merchant_id": "garrick_barkeep"
     },
-    "recruit_advice": {
-      "text": "ASK ABOUT RECRUITS",
-      "description": "Get advice on tavern patrons",
-      "type": "information"
-    },
+    
     "ask_troubles_delayed": {
       "text": "ABOUT THOSE TROUBLES...",
       "description": "Ask about the town's problems",
       "type": "dialogue_branch",
+      "target_state": "first_meeting",
       "target_option": "ask_troubles"
     },
+    
     "goodbye": {
       "text": "FAREWELL",
       "description": "End conversation",
@@ -330,9 +320,9 @@
   },
   
   "metadata": {
-    "created": "Session 8",
-    "version": "1.0", 
+    "created": "Session 8 - Enhanced", 
+    "version": "2.0",
     "author": "Terror in Redstone Development",
-    "notes": "Complete Garrick dialogue system with Baldur's Gate style choices and quest integration hooks"
+    "notes": "Deep branching dialogue system with 3 conversation states and sophisticated flow control"
   }
 }

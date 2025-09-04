@@ -102,27 +102,37 @@ class GameController:
     def setup_event_listeners(self):
         """Initialize all event listeners for professional event-driven architecture"""
         print("🎯 GC Setting up event listeners...")
+        try:
+            # Use the event manager we initialized directly in GameController
+            event_manager = self.event_manager  # Direct access, no DataManager needed
+            print(f"DEBUG: GC event_manager = {event_manager}")  # Add this line
+            # Register NPC click handler
+            event_manager.register("NPC_CLICKED", self.handle_npc_clicked)
+            
+            # Register screen change handler
+            event_manager.register("SCREEN_CHANGE", self.handle_screen_change)
+            
+            # Initialize Screen Manager
+            from ui.screen_manager import ScreenManager
+            from ui.screen_handlers import handle_broken_blade_clicks, handle_patron_selection_clicks
+            #from ui.generic_dialogue_handler import register_npc_dialogue_screen
+            #register_npc_dialogue_screen(self.screen_manager, 'garrick')
+            
+            self.screen_manager = ScreenManager(event_manager)
+            print(f"DEBUG: GC screen_manager created with {self.screen_manager.event_manager}")
+            self.screen_manager.register_screen("broken_blade_main", handle_broken_blade_clicks)
+            self.screen_manager.register_screen("patron_selection", handle_patron_selection_clicks)  
+
+            from ui.generic_dialogue_handler import register_npc_dialogue_screen
+            register_npc_dialogue_screen(self.screen_manager, 'garrick')
+            register_npc_dialogue_screen(self.screen_manager, 'meredith')
+            register_npc_dialogue_screen(self.screen_manager, 'gareth')
         
-        # Use the event manager we initialized directly in GameController
-        event_manager = self.event_manager  # Direct access, no DataManager needed
-        print(f"DEBUG: GC event_manager = {event_manager}")  # Add this line
-        # Register NPC click handler
-        event_manager.register("NPC_CLICKED", self.handle_npc_clicked)
-        
-        # Register screen change handler
-        event_manager.register("SCREEN_CHANGE", self.handle_screen_change)
-        
-        # Initialize Screen Manager
-        from ui.screen_manager import ScreenManager
-        from ui.screen_handlers import handle_broken_blade_clicks
-        #from ui.generic_dialogue_handler import register_npc_dialogue_screen
-        #register_npc_dialogue_screen(self.screen_manager, 'garrick')
-        
-        self.screen_manager = ScreenManager(event_manager)
-        print(f"DEBUG: GC screen_manager created with {self.screen_manager.event_manager}")
-        self.screen_manager.register_screen("broken_blade_main", handle_broken_blade_clicks)
-        
-        print("✅ Event listeners registered successfully!")
+            print("✅ Event listeners registered successfully!")
+        except Exception as e:
+            print(f"❌ ERROR in setup_event_listeners: {e}")
+            import traceback
+            traceback.print_exc()
 
     def handle_npc_clicked(self, event_data): #data: Dict[str, Any]): 
         """
@@ -700,8 +710,12 @@ class GameController:
                     if npc_key == 'back':
                             self.transition_to("tavern_main")
                     else:
-                        self.game_state.current_npc = npc_key
-                        self.transition_to("tavern_conversation")
+                        if npc_key in ['gareth', 'elara', 'thorman', 'lyra', 'pete']:
+                            self.transition_to(f"{npc_key}_dialogue")
+                        else:
+                            # Fallback for other NPCs
+                            self.game_state.current_npc = npc_key
+                            self.transition_to("tavern_conversation")
                     break
         # Tavern conversation screen  
         elif self.game_state.screen == "tavern_conversation":
@@ -815,11 +829,21 @@ class GameController:
   
         elif self.game_state.screen == "broken_blade_main":
             # Use generic screen manager instead of hardcoded logic
-            handled = self.screen_manager.handle_screen_click(
-                "broken_blade_main", mouse_pos, self
-            )
-            if handled:
-                return True
+            if hasattr(self, 'screen_manager') and self.screen_manager:
+                handled = self.screen_manager.handle_screen_click(
+                    "broken_blade_main", mouse_pos, self
+                )
+                if handled:
+                    return True
+            else:
+                print("ERROR: screen_manager not initialized yet")
+                return False
+            
+        elif self.game_state.screen == "patron_selection":
+                    handled = self.screen_manager.handle_screen_click("patron_selection", mouse_pos, self)
+                    if handled:
+                        return True
+
 
         elif self.game_state.screen == "garrick_dialogue":
             handled = self.screen_manager.handle_screen_click("garrick_dialogue", mouse_pos, self)
@@ -831,6 +855,10 @@ class GameController:
             if handled:
                 return True
 
+        elif self.game_state.screen == "gareth_dialogue":
+            handled = self.screen_manager.handle_screen_click("gareth_dialogue", mouse_pos, self)
+            if handled:
+                return True
         
         return True
 
@@ -953,6 +981,15 @@ class GameController:
             from ui.generic_dialogue_handler import draw_generic_dialogue_screen
             draw_generic_dialogue_screen(screen, 'meredith', game_state, fonts, images, controller=self)
 
+        elif game_state.screen == "gareth_dialogue":
+            from ui.generic_dialogue_handler import draw_generic_dialogue_screen
+            draw_generic_dialogue_screen(screen, 'gareth', game_state, fonts, images, controller=self)
+
+
+        # ADD THIS NEW SECTION:
+        elif game_state.screen == "patron_selection":
+            from screens.patron_selection import draw_patron_selection_screen
+            draw_patron_selection_screen(screen, game_state, fonts, images, controller=self)
 
 
         elif game_state.screen == "merchant_shop":
@@ -1947,7 +1984,9 @@ class ScreenRegistry:
         # Register Broken Blade
         try:
             from screens.broken_blade import draw_broken_blade_main_screen 
+            from screens.patron_selection import draw_patron_selection_screen  
             controller.register_screen("broken_blade_main", draw_broken_blade_main_screen)
+            controller.register_screen("patron_selection", draw_patron_selection_screen)
             print("✅ Broken Blade screens registered!")
         except ImportError as e:
             print(f"⚠️ Broken Blade screens not available: {e}")
@@ -1982,10 +2021,12 @@ class ScreenRegistry:
         except ImportError as e:
             print(f"⚠️ Save/Load screens not available: {e}")
 
-        from ui.generic_dialogue_handler import register_npc_dialogue_screen
-        register_npc_dialogue_screen(controller.screen_manager, 'garrick')
-        register_npc_dialogue_screen(controller.screen_manager, 'meredith')
-
+        
+        #register_npc_dialogue_screen(controller.screen_manager, 'elara') 
+        #register_npc_dialogue_screen(controller.screen_manager, 'thorman')
+        #register_npc_dialogue_screen(controller.screen_manager, 'lyra')
+        #register_npc_dialogue_screen(controller.screen_manager, 'pete')
+        
         # Future screens will be registered here
         # controller.register_screen("general_store", general_store_screen)
         # controller.register_screen("combat", combat_screen)
