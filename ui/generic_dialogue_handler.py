@@ -38,26 +38,35 @@ def draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, con
     3. Handles all dialogue UI through standardized system
     4. Works identically for any NPC without code changes
     """
-    
-    # Check for response display state first
-    response_attr = f'showing_{npc_id}_response'
-    if getattr(game_state, response_attr, False):
-        return draw_generic_response_screen(surface, npc_id, game_state, fonts)
-    
-    # Get dialogue engine from controller
-    if not controller:
-        return draw_generic_fallback_screen(surface, npc_id, game_state, fonts)
-    
-    dialogue_engine = controller.dialogue_engine
-    if not dialogue_engine:
-        return draw_generic_fallback_screen(surface, npc_id, game_state, fonts)
-    
-    # Automatically determine dialogue file based on NPC ID
-    dialogue_file_id = f'tavern_{npc_id}'
-    
-    # Get current conversation options from DialogueEngine
-    conversation_data = dialogue_engine.get_conversation_options(dialogue_file_id, npc_id)
-    #print(f"DEBUG: GDH: conversation_data = {conversation_data}")
+    try: 
+        # Check for response display state first
+        response_attr = f'showing_{npc_id}_response'
+        if getattr(game_state, response_attr, False):
+            #print(f"DEBUG: GDH: Showing response for {npc_id}")
+            return draw_generic_response_screen(surface, npc_id, game_state, fonts)
+        
+        # Get dialogue engine from controller
+        if not controller:
+            #print(f"DEBUG: GDH: No controller provided")
+            return draw_generic_fallback_screen(surface, npc_id, game_state, fonts)
+        
+        dialogue_engine = controller.dialogue_engine
+        if not dialogue_engine:
+            #print(f"DEBUG: GDH: No dialogue engine")
+            return draw_generic_fallback_screen(surface, npc_id, game_state, fonts)
+        
+        # Automatically determine dialogue file based on NPC ID
+        dialogue_file_id = f'tavern_{npc_id}'
+        #print(f"DEBUG: GDH: Getting conversation options for {dialogue_file_id}")
+        # Get current conversation options from DialogueEngine
+        conversation_data = dialogue_engine.get_conversation_options(dialogue_file_id, npc_id)
+        #print(f"DEBUG: GDH: conversation_data = {conversation_data}")
+    except Exception as e:
+            print(f"ERROR in draw_generic_dialogue_screen: {e}")
+            import traceback
+            traceback.print_exc()
+            return draw_generic_fallback_screen(surface, npc_id, game_state, fonts)
+
 
     # Use standardized dialogue UI system (same as Meredith)
     try:
@@ -145,33 +154,6 @@ def process_generic_dialogue_choice(npc_id, choice_index, game_state, controller
         # Process the choice through DialogueEngine
         result = dialogue_engine.process_dialogue_choice(dialogue_file_id, npc_id, choice_id)
 
-        # Check if any of the result actions are dialogue branches
-        branch_actions = []
-        if 'actions_available' in result:
-            # Get action definitions to check for branches
-            dialogue_data = dialogue_engine.dialogues.get(dialogue_file_id, {})
-            action_definitions = dialogue_data.get('actions', {})
-            
-            for action in result['actions_available']:
-                action_def = action_definitions.get(action, {})
-                if action_def.get('type') == 'dialogue_branch':
-                    branch_actions.append(action_def)
-
-        # If we have dialogue branches, process them instead of showing response
-        if branch_actions:
-            # For now, process the first branch (could be enhanced for multiple branches)
-            branch = branch_actions[0]
-            target_option = branch.get('target_option')
-            print(f"DEBUG: Processing dialogue branch to '{target_option}'")
-            
-            # Trigger the branch by processing the target option
-            if target_option:
-                branch_result = dialogue_engine.process_dialogue_choice(dialogue_file_id, npc_id, target_option)
-                setattr(game_state, f'{npc_id}_dialogue_response', branch_result['response'])
-                setattr(game_state, f'showing_{npc_id}_response', True)
-                setattr(game_state, f'{npc_id}_dialogue_response_actions', branch_result.get('actions_available', []))
-            return result
-
         # Normal response handling
         response_attr = f'{npc_id}_dialogue_response'
         showing_attr = f'showing_{npc_id}_response'
@@ -252,7 +234,38 @@ def process_response_action(npc_id, action_name, game_state, controller):
                 setattr(game_state, showing_attr, True)
                 
             return True
-            
+    
+    elif action_type == 'quest_update':
+        # Handle quest progression
+        quest_id = action_def.get('quest_id')
+        step = action_def.get('step')
+        print(f"DEBUG: Quest update - {quest_id}: {step}")
+        
+        # Set quest flag in game state
+        if quest_id and step:
+            setattr(game_state, f'quest_{quest_id}_{step}', True)
+        
+        # Clear response state and continue dialogue
+        setattr(game_state, f'showing_{npc_id}_response', False)
+        setattr(game_state, f'{npc_id}_dialogue_response', [])
+        return True
+        
+    elif action_type == 'recruit_npc':
+        # Handle NPC recruitment  
+        npc_id_to_recruit = action_def.get('npc_id')
+        print(f"DEBUG: Recruiting NPC: {npc_id_to_recruit}")
+        
+        # Add to party
+        if not hasattr(game_state, 'party_members'):
+            game_state.party_members = []
+        if npc_id_to_recruit and npc_id_to_recruit not in game_state.party_members:
+            game_state.party_members.append(npc_id_to_recruit)
+        
+        # Clear response state and continue dialogue
+        setattr(game_state, f'showing_{npc_id}_response', False)
+        setattr(game_state, f'{npc_id}_dialogue_response', [])
+        return True        
+  
     elif action_type == 'merchant':
         # Clear response state and go to shop
         setattr(game_state, f'showing_{npc_id}_response', False)
@@ -334,8 +347,15 @@ def register_npc_dialogue_screen(screen_manager, npc_id):
                                     "source_screen": f"{npc_id}_dialogue"
                                 })
                             elif result == "back":
+                                # Use event manager to track where we came from
+                                # The screen manager should track the previous screen
+                                if hasattr(game_controller, 'screen_manager') and hasattr(game_controller.screen_manager, 'previous_screen'):
+                                    target_screen = game_controller.screen_manager.previous_screen
+                                else:
+                                    target_screen = "patron_selection"  # Sensible default
+                                    
                                 event_manager.emit("SCREEN_CHANGE", {
-                                    "target_screen": "broken_blade_main",
+                                    "target_screen": target_screen,
                                     "source_screen": f"{npc_id}_dialogue"
                                 })
                             elif result:
@@ -348,18 +368,24 @@ def register_npc_dialogue_screen(screen_manager, npc_id):
         temp_surface = pygame.Surface((1024, 768))
         result = draw_generic_dialogue_screen(temp_surface, npc_id, game_controller.game_state, 
                                             game_controller.fonts, game_controller.images, controller=game_controller)
-        
+        print(f"DEBUG: Dialogue result type: {result.get('type')}")
+        print(f"DEBUG: Has back_button: {result.get('back_button') is not None}")
+
+
         if result.get("type") == "standard_dialogue":
+            print(f"DEBUG: Processing standard dialogue")
             # Handle dialogue option clicks
             for i, option_rect in enumerate(result.get("option_rects", [])):
                 if option_rect.collidepoint(mouse_pos):
                     process_generic_dialogue_choice(npc_id, i, game_controller.game_state, game_controller)
                     return True
             
-            # Handle back button
-            if result.get("back_button") and result["back_button"].collidepoint(mouse_pos):
+            # Handle back button (check both possible locations)
+            back_button = result.get("back_button") or result.get("action_rects", {}).get("back")
+            if back_button and back_button.collidepoint(mouse_pos):
+                print(f"DEBUG: Back button clicked for {npc_id}")
                 event_manager.emit("SCREEN_CHANGE", {
-                    "target_screen": "broken_blade_main",
+                    "target_screen": "patron_selection",
                     "source_screen": f"{npc_id}_dialogue"
                 })
                 return True
@@ -378,7 +404,18 @@ def register_npc_dialogue_screen(screen_manager, npc_id):
                             "source_screen": f"{npc_id}_dialogue"
                         })
                     return True
-                
+
+        else:
+            print(f"DEBUG: Non-standard dialogue type, checking for back button anyway")
+            # Add fallback back button handling here:
+            if result.get("back_button") and result["back_button"].collidepoint(mouse_pos):
+                print(f"DEBUG: Back button clicked in non-standard dialogue")
+                event_manager.emit("SCREEN_CHANGE", {
+                    "target_screen": "patron_selection",
+                    "source_screen": f"{npc_id}_dialogue"
+                })
+                return True 
+
        
         return False
     

@@ -152,93 +152,117 @@ class DialogueEngine:
         Returns:
             Dict containing NPC response and any triggered effects
         """
-        if dialogue_id not in self.dialogues:
-            return {'response': ["I don't understand."], 'effects': []}
         
-        dialogue_tree = self.dialogues[dialogue_id]
-        current_state = self.get_current_dialogue_state(npc_id)
+        print(f"DEBUG: DE: Processing choice {choice_id} for {npc_id}")
         
-        if current_state not in dialogue_tree.get('states', {}):
-            return {'response': ["I don't understand."], 'effects': []}
-        
-        state_data = dialogue_tree['states'][current_state]
-        
-        # Find the selected choice
-        selected_choice = None
-        for option in state_data.get('options', []):
-            if option.get('id') == choice_id:
-                selected_choice = option
-                break
-        
-        if not selected_choice:
-            return {'response': ["I don't understand."], 'effects': []}
-        
-       # Process the choice effects
-        effects = []
-        for effect in selected_choice.get('effects', []):
-            effect_result = self._apply_dialogue_effect(effect)
-            if effect_result:
-                effects.append(effect_result)
+        try:
+            if dialogue_id not in self.dialogues:
+                return {'response': ["I don't understand."], 'effects': []}
+            
+            dialogue_tree = self.dialogues[dialogue_id]
+            current_state = self.get_current_dialogue_state(npc_id)
+            
+            print(f"DEBUG: DE: Current state = {current_state}")
 
-        # Check if any actions are dialogue branches that should trigger state transitions
-        dialogue_actions = dialogue_tree.get('actions', {})
+            if current_state not in dialogue_tree.get('states', {}):
+                return {'response': ["I don't understand."], 'effects': []}
+            
+            state_data = dialogue_tree['states'][current_state]
+            
+            # Find the selected choice
+            selected_choice = None
+            for option in state_data.get('options', []):
+                if option.get('id') == choice_id:
+                    selected_choice = option
+                    break
+            
+            if not selected_choice:
+                return {'response': ["I don't understand."], 'effects': []}
+            
+            print(f"DEBUG: DE: Selected choice = {selected_choice}")
 
-        for action in selected_choice.get('actions', []):
-            action_def = dialogue_actions.get(action, {})
-            if action_def.get('type') == 'dialogue_branch':
-                target_state = action_def.get('target_state')
-                target_option = action_def.get('target_option')
-                
-                if target_state:
-                    # Set the new dialogue state for this NPC
-                    state_attr = f'{npc_id}_dialogue_state'
-                    setattr(self.game_state, state_attr, target_state)
-                    #print(f"DEBUG: DE: State transition triggered: {npc_id} -> {target_state}")
+            # Process the choice effects
+            effects = []
+            for effect in selected_choice.get('effects', []):
+                effect_result = self._apply_dialogue_effect(effect)
+                if effect_result:
+                    effects.append(effect_result)
+
+            # Check if any actions are dialogue branches that should trigger state transitions
+            dialogue_actions = dialogue_tree.get('actions', {})
+
+            for action in selected_choice.get('actions', []):
+                action_def = dialogue_actions.get(action, {})
+                if action_def.get('type') == 'dialogue_branch':
+                    target_state = action_def.get('target_state')
+                    target_option = action_def.get('target_option')
                     
-                    # CRITICAL FIX: Don't immediately process target_option!
-                    # Just set the state and return the current response
-                    # Let the UI handle the state transition naturally
-                    
-                    return {
-                        'response': selected_choice.get('response', ["..."]),
-                        'effects': effects,
-                        'actions_available': selected_choice.get('actions', []),
-                        'state_transitioned': True,
-                        'target_state': target_state,
-                        'target_option': target_option  # Pass this for UI to handle
-                    }
+                    if target_state:
+                        # Set the new dialogue state for this NPC
+                        state_attr = f'{npc_id}_dialogue_state'
+                        setattr(self.game_state, state_attr, target_state)
+                        #print(f"DEBUG: DE: State transition triggered: {npc_id} -> {target_state}")
+                        
+                        # CRITICAL FIX: Don't immediately process target_option!
+                        # Just set the state and return the current response
+                        # Let the UI handle the state transition naturally
+                        
+                        return {
+                            'response': selected_choice.get('response', ["..."]),
+                            'effects': effects,
+                            'actions_available': selected_choice.get('actions', []),
+                            'state_transitioned': True,
+                            'target_state': target_state,
+                            'target_option': target_option  # Pass this for UI to handle
+                        }
 
-        # Normal response handling (no state transitions)
-        return {
-            'response': selected_choice.get('response', ["..."]),
-            'effects': effects,
-            'next_state': selected_choice.get('next_state'),
-            'actions_available': selected_choice.get('actions', [])
-        }
+            # Normal response handling (no state transitions)
+            return {
+                'response': selected_choice.get('response', ["..."]),
+                'effects': effects,
+                'next_state': selected_choice.get('next_state'),
+                'actions_available': selected_choice.get('actions', [])
+            }
+        except Exception as e:
+            print(f"DE: ERROR in process_dialogue_choice: {e}")
+            import traceback
+            traceback.print_exc()
+            return {'response': ["Something went wrong."], 'effects': []}
     
     def _check_option_requirements(self, option: Dict[str, Any]) -> bool:
         """Check if dialogue option requirements are met"""
-        requirements = option.get('requirements', [])
+        requirements = option.get('requirements', {})
         
-        for req in requirements:
-            if req.startswith('!'):
-                # Negative requirement - flag should be False
-                flag_name = req[1:]
-                if getattr(self.game_state, flag_name, False):
-                    return False
-            else:
-                # Positive requirement - flag should be True
-                if not getattr(self.game_state, flag_name, False):
-                    return False
+        # Check flag requirements
+        flag_requirements = requirements.get('flags', {})
+        for flag_name, required_value in flag_requirements.items():
+            current_value = getattr(self.game_state, flag_name, False)
+            if current_value != required_value:
+                return False
         
+        # Add other requirement types here as needed
         return True
     
     def _apply_dialogue_effect(self, effect: Dict[str, Any]) -> Optional[str]:
-        """Apply dialogue choice effects to GameState"""
+        """Apply dialogue choice effects to GameState with robust error handling"""
+        
+        # Add defensive checks at the start
+        if not effect or not isinstance(effect, dict):
+            print(f"WARNING: Invalid effect data: {effect}")
+            return None
+            
         effect_type = effect.get('type')
+        if not effect_type:
+            print(f"WARNING: Effect missing type: {effect}")
+            return None
         
         if effect_type == 'set_flag':
             flag_name = effect.get('flag')
+            # ADD THIS CHECK:
+            if not flag_name:
+                print(f"WARNING: set_flag effect missing flag name: {effect}")
+                return None
+                
             value = effect.get('value', True)
             setattr(self.game_state, flag_name, value)
             return f"Set {flag_name} = {value}"
