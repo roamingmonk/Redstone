@@ -220,8 +220,6 @@ class SaveManager:
                     'last_roll': [],
                     'current_bet': 0
                 }
-
-
             print(f"✅ Game loaded successfully from {save_type}")
             print(f"   Character: {self.game_state.character.get('name', 'Unknown')}")
             print(f"   Current screen: {self.game_state.screen}")
@@ -276,6 +274,8 @@ class SaveManager:
             
             with open(filename, 'r') as f:
                 save_data = json.load(f)
+            print(f"DEBUG: SM: Successfully loaded save data for slot {save_slot}")
+            print(f"DEBUG: SM: Character name: {save_data.get('character', {}).get('name', 'NOT FOUND')}")
             
             return {
                 'character_name': save_data.get('character', {}).get('name', 'Unknown'),

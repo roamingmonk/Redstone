@@ -321,6 +321,9 @@ class InputHandler:
         if getattr(game_state, 'load_screen_open', False):
             from screens.load_game import draw_load_game_screen, handle_load_game_click
             temp_surface = pygame.Surface((1024, 768))
+            print(f"DEBUG: IH: save_manager = {self.game_controller.save_manager}")
+            print(f"DEBUG: IH: save_manager type = {type(self.game_controller.save_manager)}")
+            
             result = draw_load_game_screen(temp_surface, game_state, 
                                         self.game_controller.fonts, 
                                         self.game_controller.images, 

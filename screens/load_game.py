@@ -49,14 +49,15 @@ def draw_load_game_screen(surface, game_state, fonts, images, controller=None):
     
     # Get save information for each slot
     for slot_num, slot_name in slots_to_check:
+        save_info = None
         if controller:
-            #print(f"DEBUG: Checking slot {slot_num} ({slot_name})")
-            save_info = controller.get_save_info(slot_num)
-            #print(f"DEBUG: Save info result: {save_info}")
-        else:
-            #print("DEBUG: No controller available")
-            save_info = None
-            
+            try:
+                save_info = controller.get_save_info(slot_num)
+                print(f"DEBUG: Retrieved save_info for slot {slot_num}: {save_info}")
+            except Exception as e:
+                print(f"DEBUG: Error getting save info for slot {slot_num}: {e}")
+                save_info = None
+        
         save_slots.append({
             'slot_num': slot_num,
             'slot_name': slot_name,
@@ -87,8 +88,11 @@ def draw_load_game_screen(surface, game_state, fonts, images, controller=None):
         slot_name_y = slot_rect.y + 12
         slot_surface = fonts.get('fantasy_medium', fonts['normal']).render(
             slot_data['slot_name'], True, YELLOW)
+        print(f"DEBUG: Slot name '{slot_data['slot_name']}' at position ({slot_name_x}, {slot_name_y})")
         surface.blit(slot_surface, (slot_name_x, slot_name_y))
-        
+
+# TODO: Fix display issue - shows "[Empty Slot]" instead of character names
+# 
         # Save information
         if slot_data['save_info']:
             # Character name
