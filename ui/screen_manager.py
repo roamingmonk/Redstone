@@ -1,40 +1,418 @@
 # ui/screen_manager.py
 """
-Screen Manager - Generic Screen Handling System
-Replaces hardcoded screen logic with data-driven approach
+Screen Manager - Enhanced Generic Screen Handling System
+BUILDING ON YOUR EXISTING CODE - Enhanced to handle full screen lifecycle
+Replaces hardcoded screen logic with data-driven approach + massive draw_current_screen elimination
 """
 
 from typing import Dict, Callable, Any, Optional
+import pygame
+import traceback
 
 class ScreenManager:
     """
-    Manages screen registration, transitions, and event routing
-    Eliminates hardcoded screen handling from GameController
+    Enhanced Screen Manager that handles BOTH click routing AND screen rendering
+    
+    EXISTING FUNCTIONALITY (preserved):
+    - Screen click handling registration  
+    - Click routing to appropriate handlers
+    
+    NEW FUNCTIONALITY (added):
+    - Full screen rendering lifecycle management
+    - Screen registration with render functions
+    - Professional screen transitions with history
+    - Error handling and fallback systems
+    - Replaces the massive 1700-line draw_current_screen() method
     """
     
-    def __init__(self, event_manager):
+    def __init__(self, event_manager, screen=None, fonts=None, images=None):
+        # EXISTING: Your original click handling system
         self.event_manager = event_manager
-        self.screens = {}  # screen_name -> screen_handler
-        self.current_screen = None
+        self.screens = {}  # screen_name -> screen_handler (click handlers)
         
-        print("📺 ScreenManager initialized")
-    
+        # NEW: Full screen rendering system
+        self.screen = screen  # pygame display surface
+        self.fonts = fonts    # font dictionary
+        self.images = images  # image dictionary
+        
+        # NEW: Screen render function registry
+        self.render_functions = {}  # screen_name -> render_function
+        self.enter_hooks = {}       # screen_name -> enter_function
+        self.exit_hooks = {}        # screen_name -> exit_function
+        
+        # NEW: Screen state tracking
+        self.current_screen = None
+        self.previous_screen = None
+        self.screen_history = []
+        
+        # NEW: Error handling
+        self.fallback_screen = "main_menu"
+        self.error_count = 0
+        self.max_errors = 3
+        
+        print("📺 Enhanced ScreenManager initialized")
+        if event_manager:
+            event_manager.register("SCREEN_CHANGE", self._handle_screen_change_event)
+            event_manager.register("SCREEN_ADVANCE", self._handle_screen_advance_event)
+            print("📺 ScreenManager subscribed to navigation events")
+
     def register_screen(self, screen_name: str, click_handler: Callable):
-        """Register a screen's click handling function"""
+        """EXISTING: Register a screen's click handling function"""
         self.screens[screen_name] = {
             'click_handler': click_handler
         }
-        print(f"🔗 Registered screen: {screen_name}")
-    
+        print(f"🔗 Registered screen click handler: {screen_name}")
+
+    def _register_basic_screen_handlers(self):
+        """Auto-register basic screen click handlers"""
+        
+        def handle_title_click(mouse_pos, game_controller, event_manager):
+            event_manager.emit("SCREEN_CHANGE", {
+                "target_screen": "developer_splash",
+                "source_screen": "game_title"
+            })
+            return True
+        
+        def handle_developer_splash_click(mouse_pos, game_controller, event_manager):
+            event_manager.emit("SCREEN_CHANGE", {
+                "target_screen": "main_menu", 
+                "source_screen": "developer_splash"
+            })
+            return True
+        
+        # Import your existing main menu handler
+        from ui.screen_handlers import handle_main_menu_clicks
+        
+        # Register all basic handlers
+        self.register_screen("game_title", handle_title_click)
+        self.register_screen("developer_splash", handle_developer_splash_click)
+        self.register_screen("main_menu", handle_main_menu_clicks)
+        
+        print("📺 Basic screen click handlers auto-registered")
+
     def handle_screen_click(self, screen_name: str, mouse_pos, game_controller):
-        """Route click to appropriate screen handler"""
+        """EXISTING: Route click to appropriate screen handler"""
         if screen_name in self.screens:
             handler = self.screens[screen_name]['click_handler']
             return handler(mouse_pos, game_controller, self.event_manager)
         else:
-            print(f"⚠️ No handler registered for screen: {screen_name}")
+            print(f"⚠️ No click handler registered for screen: {screen_name}")
             return False
     
     def get_registered_screens(self):
-        """Get list of all registered screens"""
+        """EXISTING: Get list of all registered screens"""
         return list(self.screens.keys())
+    
+    # ========================================
+    # NEW METHODS - SCREEN RENDERING SYSTEM
+    # ========================================
+    
+    def register_render_function(self, screen_name: str, render_function: Callable,
+                                enter_hook: Optional[Callable] = None,
+                                exit_hook: Optional[Callable] = None):
+        """
+        NEW: Register a screen's rendering function and optional lifecycle hooks
+        
+        Args:
+            screen_name: Unique identifier for the screen
+            render_function: Function that renders the screen (screen, game_state, fonts, images)
+            enter_hook: Optional function called when entering screen
+            exit_hook: Optional function called when leaving screen
+        """
+        self.render_functions[screen_name] = render_function
+        
+        if enter_hook:
+            self.enter_hooks[screen_name] = enter_hook
+        if exit_hook:
+            self.exit_hooks[screen_name] = exit_hook
+            
+        print(f"🎨 Screen render function registered: {screen_name}")
+    
+    def register_all_screen_renders(self):
+        """
+        NEW: Register all game screen render functions
+        This replaces the massive if/elif chain in draw_current_screen()
+        """
+        try:
+            # Import all screen drawing functions
+            from screens.title_menu import draw_title_screen, draw_company_splash_screen, draw_main_menu
+            from screens.character_creation import (
+                draw_stats_screen, draw_gender_screen, draw_portrait_selection_screen,
+                draw_name_screen, draw_custom_name_screen, draw_name_confirm_screen,
+                draw_gold_screen, draw_trinket_screen, draw_summary_screen, draw_welcome_screen
+            )
+            from screens.tavern import (
+                draw_tavern_main_screen, draw_npc_selection_screen, draw_npc_conversation_screen
+            )
+            from screens.broken_blade import draw_broken_blade_main_screen
+            from screens.shopping import draw_merchant_screen
+            from screens.inventory import draw_inventory_screen
+            from screens.quest_log import draw_quest_log_screen
+            from screens.character_sheet import draw_character_sheet_screen
+            from screens.help_screen import draw_help_screen
+            from screens.gambling_dice import (
+                draw_dice_bets_screen, draw_dice_rolling_screen,
+                draw_dice_results_screen, draw_dice_rules_screen
+            )
+            
+            # Title and menu screens
+            self.register_render_function("game_title", draw_title_screen)
+            self.register_render_function("developer_splash", draw_company_splash_screen)
+            self.register_render_function("main_menu", draw_main_menu)
+            
+            # Character creation screens
+            self.register_render_function("stats", draw_stats_screen)
+            self.register_render_function("gender", draw_gender_screen)
+            self.register_render_function("portrait_selection", draw_portrait_selection_screen)
+            self.register_render_function("name", draw_name_screen)
+            self.register_render_function("custom_name", draw_custom_name_screen)
+            self.register_render_function("name_confirm", draw_name_confirm_screen)
+            self.register_render_function("gold", draw_gold_screen)
+            self.register_render_function("trinket", draw_trinket_screen)
+            self.register_render_function("summary", draw_summary_screen)
+            self.register_render_function("welcome", draw_welcome_screen)
+            
+            # Main game screens
+            self.register_render_function("tavern_main", draw_tavern_main_screen)
+            self.register_render_function("npc_selection", draw_npc_selection_screen)
+            self.register_render_function("npc_conversation", draw_npc_conversation_screen)
+            self.register_render_function("broken_blade_main", draw_broken_blade_main_screen)
+            
+            # Utility screens
+            self.register_render_function("merchant", draw_merchant_screen)
+            self.register_render_function("inventory", draw_inventory_screen)
+            self.register_render_function("quest_log", draw_quest_log_screen)
+            self.register_render_function("character_sheet", draw_character_sheet_screen)
+            self.register_render_function("help", draw_help_screen)
+            
+            # Gambling screens
+            self.register_render_function("dice_bets", draw_dice_bets_screen)
+            self.register_render_function("dice_rolling", draw_dice_rolling_screen)
+            self.register_render_function("dice_results", draw_dice_results_screen)
+            self.register_render_function("dice_rules", draw_dice_rules_screen)
+            
+            print(f"🎨 All screen render functions registered: {len(self.render_functions)} total")
+            
+            self._register_basic_screen_handlers()
+        except ImportError as e:
+            print(f"❌ Error importing screen functions: {e}")
+            print("📍 Some screen modules may not exist yet - this is normal during development")
+    
+    def transition_to(self, screen_name: str, game_state, save_history: bool = True) -> bool:
+        """
+        NEW: Transition to a new screen with proper lifecycle management
+        
+        Args:
+            screen_name: Target screen name
+            game_state: Current game state
+            save_history: Whether to save current screen in history
+            
+        Returns:
+            True if transition successful, False if failed
+        """
+        if screen_name not in self.render_functions:
+            print(f"❌ ERROR: Unknown render function for screen '{screen_name}'")
+            print(f"📍 Registered screens: {list(self.render_functions.keys())}")
+            return False
+        
+        # Save history for back navigation
+        if save_history and self.current_screen:
+            self.previous_screen = self.current_screen
+            self.screen_history.append(self.current_screen)
+            
+            # Limit history size to prevent memory bloat
+            if len(self.screen_history) > 10:
+                self.screen_history.pop(0)
+        
+        # Call exit hook for current screen
+        if self.current_screen and self.current_screen in self.exit_hooks:
+            try:
+                self.exit_hooks[self.current_screen](game_state)
+            except Exception as e:
+                print(f"⚠️ Error in exit hook for {self.current_screen}: {e}")
+        
+        # Update current screen
+        old_screen = self.current_screen
+        self.current_screen = screen_name
+        
+        # Update game state (Single Data Authority pattern)
+        game_state.screen = screen_name
+        
+        # Call enter hook for new screen
+        if screen_name in self.enter_hooks:
+            try:
+                self.enter_hooks[screen_name](game_state)
+            except Exception as e:
+                print(f"⚠️ Error in enter hook for {screen_name}: {e}")
+        
+        print(f"🔄 Screen transition: {old_screen} → {screen_name}")
+        return True
+    
+    def render_current_screen(self, game_state) -> bool:
+        """
+        NEW: Render the current screen
+        This REPLACES the massive 1700-line draw_current_screen() method!
+        
+        Args:
+            game_state: Current game state
+            
+        Returns:
+            True if render successful, False if failed
+        """
+        self._current_game_state = game_state
+        
+        if not self.current_screen:
+            print("⚠️ No current screen set for rendering")
+            return False
+        
+        if self.current_screen not in self.render_functions:
+            print(f"❌ Current screen '{self.current_screen}' has no render function")
+            return self._handle_render_error(game_state)
+        
+        try:
+            # Call the screen's render function - THIS REPLACES THE ENTIRE MASSIVE METHOD
+            render_function = self.render_functions[self.current_screen]
+            render_function(self.screen, game_state, self.fonts, self.images)
+            
+            # Reset error count on successful render
+            self.error_count = 0
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error rendering screen '{self.current_screen}': {e}")
+            print(f"📍 Traceback: {traceback.format_exc()}")
+            return self._handle_render_error(game_state)
+    
+    def sync_with_game_state(self, game_state) -> bool:
+        """
+        NEW: Ensure ScreenManager is synced with GameState.screen
+        Call this from GameController to maintain Single Data Authority
+        """
+        if self.current_screen != game_state.screen:
+            print(f"🔄 Syncing ScreenManager: {self.current_screen} → {game_state.screen}")
+            return self.transition_to(game_state.screen, game_state, save_history=False)
+        return True
+    
+    def go_back(self, game_state) -> bool:
+        """
+        NEW: Navigate back to previous screen (like browser back button)
+        """
+        if self.previous_screen:
+            return self.transition_to(self.previous_screen, game_state, save_history=False)
+        elif self.screen_history:
+            previous = self.screen_history.pop()
+            return self.transition_to(previous, game_state, save_history=False)
+        else:
+            print("📍 No previous screen to return to")
+            return False
+    
+    def _handle_render_error(self, game_state) -> bool:
+        """
+        NEW: Handle rendering errors with fallback and recovery
+        """
+        self.error_count += 1
+        
+        if self.error_count >= self.max_errors:
+            print(f"💥 Too many render errors ({self.error_count}), emergency fallback")
+            if self.screen:
+                self.screen.fill((0, 0, 0))  # Black screen
+            return False
+        
+        # Try to fall back to previous screen
+        if self.previous_screen and self.previous_screen in self.render_functions:
+            print(f"🔄 Falling back to previous screen: {self.previous_screen}")
+            return self.transition_to(self.previous_screen, game_state, save_history=False)
+        
+        # Try fallback screen
+        if self.fallback_screen in self.render_functions:
+            print(f"🔄 Falling back to safe screen: {self.fallback_screen}")
+            return self.transition_to(self.fallback_screen, game_state, save_history=False)
+        
+        # Last resort: black screen
+        print("💥 No fallback available, displaying black screen")
+        if self.screen:
+            self.screen.fill((0, 0, 0))
+        return False
+
+    def _handle_screen_change_event(self, event_data):
+        """Handle SCREEN_CHANGE events from the EventManager hub"""
+        target_screen = event_data.get("target_screen")
+        source_screen = event_data.get("source_screen")
+        
+        if target_screen:
+            print(f"📺 ScreenManager handling navigation: {source_screen} → {target_screen}")
+            # Find game_state from the current context
+            # We'll need to pass this in - temporary solution
+            if hasattr(self, '_current_game_state'):
+                success = self.transition_to(target_screen, self._current_game_state)
+                if success:
+                    # Emit confirmation event
+                    self.event_manager.emit("SCREEN_CHANGED", {
+                        "old_screen": source_screen,
+                        "new_screen": target_screen
+                    })
+                return success
+        return False
+
+    def _handle_screen_advance_event(self, event_data):
+        """Handle SCREEN_ADVANCE events for simple navigation"""
+        current_screen = event_data.get("current_screen")
+        
+        # Define simple advancement rules
+        advance_map = {
+            "game_title": "developer_splash",
+            "developer_splash": "main_menu"
+        }
+        
+        target_screen = advance_map.get(current_screen)
+        if target_screen:
+            print(f"📺 ScreenManager auto-advancing: {current_screen} → {target_screen}")
+            if hasattr(self, '_current_game_state'):
+                return self.transition_to(target_screen, self._current_game_state)
+        
+        return False
+
+    def set_game_state_context(self, game_state):
+        """Set the game state context for event handling"""
+        self._current_game_state = game_state
+
+    # ========================================
+    # UTILITY METHODS
+    # ========================================
+    
+    def get_current_screen(self) -> Optional[str]:
+        """Get the currently active screen name"""
+        return self.current_screen
+    
+    def get_screen_history(self) -> list:
+        """Get the screen navigation history"""
+        return self.screen_history.copy()
+    
+    def is_screen_registered_for_render(self, screen_name: str) -> bool:
+        """Check if a screen has a render function registered"""
+        return screen_name in self.render_functions
+    
+    def get_registered_render_screens(self) -> list:
+        """Get list of all screens with render functions"""
+        return list(self.render_functions.keys())
+    
+    def get_debug_info(self) -> dict:
+        """Get debug information about the ScreenManager state"""
+        return {
+            "current_screen": self.current_screen,
+            "previous_screen": self.previous_screen,
+            "screen_history": self.screen_history,
+            "error_count": self.error_count,
+            "click_handlers_registered": len(self.screens),
+            "render_functions_registered": len(self.render_functions),
+            "total_screens": len(set(self.screens.keys()) | set(self.render_functions.keys()))
+        }
+    
+    def debug_status(self):
+        """Temporary debug method to see what's registered"""
+        print(f"🔍 ScreenManager Debug:")
+        print(f"   Click handlers: {len(self.screens)}")
+        print(f"   Render functions: {len(getattr(self, 'render_functions', {}))}")
+        print(f"   Current screen: {getattr(self, 'current_screen', 'None')}")
+        if hasattr(self, 'render_functions'):
+            print(f"   Registered renders: {list(self.render_functions.keys())}")

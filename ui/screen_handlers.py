@@ -129,5 +129,25 @@ def handle_patron_selection_clicks(mouse_pos, game_controller, event_manager):
 
 def handle_main_menu_clicks(mouse_pos, game_controller, event_manager):
     """Handle main menu clicks using events"""
-    # We can implement this next
-    return False
+    # For now, any click starts new game
+    event_manager.emit("SCREEN_CHANGE", {
+        "target_screen": "stats",
+        "source_screen": "main_menu"
+    })
+    return True
+
+def handle_title_screen_clicks(mouse_pos, game_controller, event_manager):
+    """Handle title screen clicks - advance to developer splash"""
+    event_manager.emit("SCREEN_CHANGE", {
+        "target_screen": "developer_splash", 
+        "source_screen": "game_title"
+    })
+    return True
+
+def handle_developer_splash_clicks(mouse_pos, game_controller, event_manager):
+    """Handle developer splash clicks - advance to main menu"""
+    event_manager.emit("SCREEN_CHANGE", {
+        "target_screen": "main_menu",
+        "source_screen": "developer_splash" 
+    })
+    return True

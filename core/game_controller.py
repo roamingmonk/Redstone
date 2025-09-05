@@ -19,6 +19,7 @@ from typing import Optional, Dict, Any, Callable
 from utils.constants import *
 from input_handler import InputHandler
 
+
 #from utils.graphics import draw_error_screen   will create later
 
 class GameController:
@@ -38,6 +39,16 @@ class GameController:
         # Screen registry - maps screen names to their functions
         self.screens: Dict[str, Callable] = {}
         
+        # ADD THIS: Initialize ScreenManager
+        from ui.screen_manager import ScreenManager
+        self.screen_manager = ScreenManager(
+            event_manager=None,  # Will be set later
+            screen=screen,       # Pass screen as named parameter
+            fonts=fonts,
+            images=images
+        )
+        print("🖥️ ScreenManager initialized")
+
         # Current screen state
         self.previous_screen = None
         self.screen_history = []
@@ -107,11 +118,27 @@ class GameController:
             self.input_handler.enable_debug_input(True)
             print("✅ InputHandler initialized early!") 
            
+
+            self.screen_manager.transition_to(self.game_state.screen, self.game_state, save_history=False)
+            print(f"ScreenManager initialized with starting screen: {self.game_state.screen}")
+
+            self.screen_manager.event_manager = self.event_manager
+            
+            # Subscribe ScreenManager to navigation events
+            self.event_manager.register("SCREEN_CHANGE", self.screen_manager._handle_screen_change_event)
+            self.event_manager.register("SCREEN_ADVANCE", self.screen_manager._handle_screen_advance_event)
+            print("📺 ScreenManager subscribed to navigation events")
+            
+            # Connect InputHandler to ScreenManager for delegation
+            self.input_handler.screen_manager = self.screen_manager
+            self.input_handler.game_controller = self
+            print("🔗 InputHandler connected to ScreenManager for click delegation")
+
             # Step 3: Register InputHandler events
             self.event_manager.register("OVERLAY_TOGGLE", self.handle_overlay_toggle)
             self.event_manager.register("SCREEN_ADVANCE", self.handle_screen_advance)
             self.data_manager.load_all_data()
-            
+
             # Step : Initialize all engines directly in GameController
             self.character_engine = initialize_character_engine(self.game_state)
             self.inventory_engine = initialize_inventory_engine(self.game_state, self.data_manager.item_manager)
@@ -119,8 +146,11 @@ class GameController:
             self.dialogue_engine = initialize_dialogue_engine(self.game_state)
             self.data_manager.dialogue_engine = self.dialogue_engine
 
-            # Step : Set up event listeners now that everything exists
             self.setup_event_listeners()
+            #Register all screens with ScreenManager AFTER engines are ready
+            self.screen_manager.register_all_screen_renders()
+            print("📺 GC: All screens render functions registered ")
+                       
             self.event_manager.register('START_GAME', self.handle_start_game)
             self.event_manager.register('CONTINUE', self.handle_continue)
             self.event_manager.register('NEW_GAME', self.handle_new_game)
@@ -161,30 +191,7 @@ class GameController:
             # Use the event manager we initialized directly in GameController
             event_manager = self.event_manager  # Direct access, no DataManager needed
             print(f"DEBUG: GC event_manager = {event_manager}")  # Add this line
-            # Register NPC click handler
             event_manager.register("NPC_CLICKED", self.handle_npc_clicked)
-            
-            # Register screen change handler
-            event_manager.register("SCREEN_CHANGE", self.handle_screen_change)
-            
-            # Initialize Screen Manager
-            from ui.screen_manager import ScreenManager
-            from ui.screen_handlers import handle_broken_blade_clicks, handle_patron_selection_clicks
-            #from ui.generic_dialogue_handler import register_npc_dialogue_screen
-            #register_npc_dialogue_screen(self.screen_manager, 'garrick')
-            
-            self.screen_manager = ScreenManager(event_manager)
-            print(f"DEBUG: GC screen_manager created with {self.screen_manager.event_manager}")
-            self.screen_manager.register_screen("broken_blade_main", handle_broken_blade_clicks)
-            self.screen_manager.register_screen("patron_selection", handle_patron_selection_clicks)  
-            
-
-            from ui.generic_dialogue_handler import register_npc_dialogue_screen
-            register_npc_dialogue_screen(self.screen_manager, 'garrick')
-            register_npc_dialogue_screen(self.screen_manager, 'meredith')
-            register_npc_dialogue_screen(self.screen_manager, 'gareth')
-            
-            #self.register_screen_clickables()
   
             print("✅ Event listeners registered successfully!")
         except Exception as e:
@@ -648,191 +655,34 @@ class GameController:
 
     def run_current_screen(self):
         """
-        TEMPORARY - Handle current screen rendering
-        This will call your existing draw_current_screen method
+        CLEAN VERSION - Delegates to ScreenManager instead of massive if/elif chain
+        This replaces the entire 1700+ line draw_current_screen() method
         """
         try:
-            # Call your existing massive draw_current_screen method
-            self.draw_current_screen()
-            self.frame_count += 1
+            # Ensure screen manager is synced with game state
+            if self.screen_manager.get_current_screen() != self.game_state.screen:
+                # Sync ScreenManager with GameState (Single Data Authority)
+                success = self.screen_manager.transition_to(
+                    self.game_state.screen, 
+                    self.game_state, 
+                    save_history=False
+                )
+                if not success:
+                    print(f"⚠️ Failed to sync screen: {self.game_state.screen}")
+                    return False
+            
+            # Render current screen - this replaces the ENTIRE massive method
+            success = self.screen_manager.render_current_screen(self.game_state)
+            
+            if success:
+                self.frame_count += 1
+            
+            return success
             
         except Exception as e:
             print(f"❌ Error in run_current_screen: {e}")
-            # Fallback to prevent crashes
-            self.screen.fill((0, 0, 0))  # Black screen
-
-    def draw_current_screen(self):
-        """
-        NEW METHOD - Complete screen drawing system (from main.py)
-        This contains all the screen rendering logic
-        """
-        
-        # All the imports and screen drawing logic from main.py goes here
-        # (This is the massive screen rendering function from main.py)
-        
-        # Import all screen drawing functions
-        from screens.character_creation import (
-            draw_stats_screen, draw_gender_screen,
-            draw_name_screen, draw_custom_name_screen, draw_name_confirm_screen,
-            draw_gold_screen, draw_trinket_screen, draw_summary_screen,
-            draw_welcome_screen, draw_portrait_selection_screen
-        )
-                       # ... all other imports from main.py ...
-        from screens.character_creation import finalize_character_creation
-        from screens.title_menu import draw_title_screen, draw_company_splash_screen, draw_main_menu
-        from screens.tavern import (
-            draw_tavern_main_screen, draw_npc_selection_screen,
-            draw_npc_conversation_screen
-        )
-        from screens.shopping import draw_merchant_screen
-        from screens.inventory import draw_inventory_screen
-        from screens.quest_log import draw_quest_log_screen
-        from screens.character_sheet import draw_character_sheet_screen
-        from screens.help_screen import draw_help_screen, handle_help_screen_click
-        from screens.gambling_dice import (
-            draw_dice_bets_screen, draw_dice_rolling_screen,
-            draw_dice_results_screen, 
-            draw_dice_rules_screen
-        )
-
-        from screens.broken_blade import draw_broken_blade_main_screen
-        #from screens.broken_blade import draw_garrick_dialogue_screen
-        #from screens.broken_blade import draw_meredith_dialogue_screen
-        
-        # Main screen drawing logic
-        screen = self.screen
-        game_state = self.game_state
-        fonts = self.fonts
-        images = self.images
-        controller = self
-    
-        # All the screen drawing logic from main.py draw_current_screen()
-        if game_state.screen == "game_title":
-            draw_title_screen(screen, game_state, fonts, images)
-            # NEW: Only register if not already registered for this screen
-            if "game_title" not in self.input_handler.clickable_regions:
-                from screens.title_menu import get_game_title_interactables
-                self.input_handler.set_interactables("game_title", get_game_title_interactables())
-        elif game_state.screen == "developer_splash":
-            draw_company_splash_screen(screen, game_state, fonts, images) 
-            # NEW: Register clickable regions after drawing
-            from screens.title_menu import get_developer_splash_interactables
-            self.input_handler.set_interactables("developer_splash", get_developer_splash_interactables())
-        elif game_state.screen == "main_menu":
-            draw_main_menu(screen, game_state, fonts, images)
-            # NEW: Register clickable regions after drawing
-            from screens.title_menu import get_main_menu_interactables
-            self.input_handler.set_interactables("main_menu", get_main_menu_interactables())
-        elif game_state.screen == "stats":
-            draw_stats_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "gender":
-            draw_gender_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "portrait_selection":
-            draw_portrait_selection_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "name":
-            draw_name_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "custom_name":
-            draw_custom_name_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "name_confirm":
-            draw_name_confirm_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "gold":
-            draw_gold_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "trinket":
-            draw_trinket_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "summary":
-            draw_summary_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "welcome":
-            draw_welcome_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "tavern_main":
-            draw_tavern_main_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "tavern_npcs":
-            draw_npc_selection_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "tavern_conversation":
-            draw_npc_conversation_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "dice_bets":
-            draw_dice_bets_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "dice_rolling":
-            draw_dice_rolling_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "dice_results":
-            draw_dice_results_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "dice_rules":
-            draw_dice_rules_screen(screen, game_state, fonts, images)
-        elif game_state.screen == "merchant_shop":
-            draw_merchant_screen(screen, game_state, fonts, game_state.get_garrick_inventory(), images)
-        elif game_state.screen == "broken_blade_main":
-            draw_broken_blade_main_screen(screen, game_state, fonts, images, controller)
-       # elif game_state.screen == "meredith_dialogue":
-       #     draw_meredith_dialogue_screen(screen, game_state, fonts, images, controller)
-
-#        elif game_state.screen == "garrick_dialogue":
-#            draw_garrick_dialogue_screen(screen, game_state, fonts, images, controller)
-
-        elif game_state.screen == "garrick_dialogue":
-            from ui.generic_dialogue_handler import draw_generic_dialogue_screen
-            draw_generic_dialogue_screen(screen, 'garrick', game_state, fonts, images, controller=self)
-
-        elif game_state.screen == "meredith_dialogue":
-            from ui.generic_dialogue_handler import draw_generic_dialogue_screen
-            draw_generic_dialogue_screen(screen, 'meredith', game_state, fonts, images, controller=self)
-
-        elif game_state.screen == "gareth_dialogue":
-            from ui.generic_dialogue_handler import draw_generic_dialogue_screen
-            draw_generic_dialogue_screen(screen, 'gareth', game_state, fonts, images, controller=self)
-
-
-        # ADD THIS NEW SECTION:
-        elif game_state.screen == "patron_selection":
-            from screens.patron_selection import draw_patron_selection_screen
-            draw_patron_selection_screen(screen, game_state, fonts, images, controller=self)
-
-        elif game_state.screen == "garrick_shop":
-            # Get merchant data and render shop
-            data_manager = self.get_data_manager()
-            if data_manager:
-                item_manager = data_manager.get_manager('items')
-                if item_manager:
-                    merchant_data = item_manager.get_merchant_inventory('garrick_barkeep')
-                    if merchant_data:
-                        draw_merchant_screen(screen, game_state, fonts, merchant_data, images)
-
-
-
-        elif game_state.screen == "merchant_shop":
-            draw_merchant_screen(screen, game_state, fonts, game_state.get_garrick_inventory(), images)
-        
-        # Draw character sheet overlay if open
-        if game_state.character_sheet_open:
-            #print("DEBUG: Drawing character sheet overlay")
-            draw_character_sheet_screen(screen, game_state, fonts, images)
-
-        # Draw quest log overlay if open 
-        if game_state.quest_log_open:
-            draw_quest_log_screen(screen, game_state, fonts, images)
-        
-        # Draw inventory overlay if open 
-        if game_state.inventory_open:
-            #print("DEBUG: Drawing inventory overlay")
-            draw_inventory_screen(screen, game_state, fonts, images)
-        
-        # Draw help screen overlay if open
-        if game_state.help_screen_open:
-            #print("DEBUG: Drawing help screen overlay")
-            draw_help_screen(screen, game_state, fonts, images)
-
-        # Draw load screen overlay if open
-        if game_state.load_screen_open:
-            from screens.load_game import draw_load_game_screen
-            draw_load_game_screen(screen, game_state, fonts, images, controller=controller)   
-
-        # Draw save screen overlay if open
-        if game_state.save_screen_open:
-            from screens.save_game import draw_save_game_screen
-            draw_save_game_screen(screen, game_state, fonts, images, controller)
-        
-        #Draw Character advancement overlay
-        if getattr(game_state, 'character_advancement_open', False):
-                from screens.character_advancement import draw_character_advancement
-                draw_character_advancement(screen, game_state, fonts, controller)
+            # ScreenManager handles its own fallback logic
+            return False
 
     def register_screen(self, screen_name: str, screen_function: Callable):
         """
@@ -844,45 +694,23 @@ class GameController:
     
     def transition_to(self, new_screen: str, save_history: bool = True) -> bool:
         """
-        Professional screen transition with error handling and history tracking
-        Returns True if transition successful, False if failed
+        Professional screen transition using ScreenManager
+        This replaces manual game_state.screen assignments
         """
-        if new_screen not in self.screens:
-            print(f"❌ ERROR: Unknown screen '{new_screen}'")
-            return False
+        success = self.screen_manager.transition_to(new_screen, self.game_state, save_history)
         
-        # Save previous screen for back navigation
-        if save_history and self.game_state.screen:
-            self.previous_screen = self.game_state.screen
-            self.screen_history.append(self.game_state.screen)
-            
-            # Limit history size to prevent memory bloat
-            if len(self.screen_history) > 10:
-                self.screen_history.pop(0)
+        if success:
+            self.last_known_good_screen = new_screen
+            # Update universal key state based on new screen
+            self._update_universal_keys_state()
         
-        # SINGLE DATA AUTHORITY: Only update GameState.screen
-        old_screen = self.game_state.screen
-        self.game_state.screen = new_screen
-        self.last_known_good_screen = new_screen
-        
-        # Update universal key state based on new screen
-        self._update_universal_keys_state()
-
-        print(f"🔄 Screen transition: {old_screen} → {new_screen}")
-        return True
+        return success
     
     def go_back(self) -> bool:
         """
-        Navigate back to previous screen (like browser back button)
+        Navigate back to previous screen using ScreenManager
         """
-        if self.previous_screen:
-            return self.transition_to(self.previous_screen, save_history=False)
-        elif self.screen_history:
-            previous = self.screen_history.pop()
-            return self.transition_to(previous, save_history=False)
-        else:
-            print("📍 No previous screen to return to")
-            return False
+        return self.screen_manager.go_back(self.game_state)
 
     def handle_mouse_click(self, mouse_pos):
         #old
@@ -1088,7 +916,30 @@ class GameController:
         """
         self.debug_mode = not self.debug_mode
         print(f"🐛 Debug mode: {'ON' if self.debug_mode else 'OFF'}")
-    
+
+    def handle_event_screen_change(self, event_data):
+            """
+            Handle SCREEN_CHANGE events from EventManager/InputHandler
+            This integrates ScreenManager with your existing event system
+            """
+            target_screen = event_data.get("target_screen")
+            source_screen = event_data.get("source_screen")
+            
+            if target_screen:
+                print(f"🎯 Event-driven screen change: {source_screen} → {target_screen}")
+                success = self.transition_to(target_screen)
+                
+                if success:
+                    # Emit screen changed event for other systems
+                    self.event_manager.emit("SCREEN_CHANGED", {
+                        "old_screen": source_screen,
+                        "new_screen": target_screen
+                    })
+                
+                return success
+            return False
+
+
     def print_game_state(self):
         """
         Debug function to print current game state

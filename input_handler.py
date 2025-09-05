@@ -82,7 +82,7 @@ class InputHandler:
         ]
         """
         
-        print(f"🔍 IH: InputHandler EventManager ID: {id(self.event_manager)}")
+        #print(f"🔍 IH: InputHandler EventManager ID: {id(self.event_manager)}")
         # Clear existing clickables for this screen
         self.clear_clickables(screen_name)
         
@@ -113,8 +113,8 @@ class InputHandler:
             background_rect = pygame.Rect(0, 0, 1024, 768)
             self.register_clickable(screen_name, background_rect, background_action, {}, -100)
         
-        if self.debug_input:
-            print(f"🎯 Semantic registration complete for {screen_name}: {len(regions)} regions")
+        #if self.debug_input:
+        #    print(f"🎯 IH: Semantic registration complete for {screen_name}: {len(regions)} regions")
 
     def register_clickable(self, screen_name: str, rect: pygame.Rect, 
                           event_type: str, event_data: Dict[str, Any], 
@@ -138,15 +138,15 @@ class InputHandler:
         # Sort by priority (highest first)
         self.clickable_regions[screen_name].sort(key=lambda x: x.priority, reverse=True)
         
-        if self.debug_input:
-            print(f"🎯 Registered clickable: {screen_name} -> {event_type}")
+        #if self.debug_input:
+        #    print(f"🎯 IH: Registered clickable: {screen_name} -> {event_type}")
     
     def clear_clickables(self, screen_name: str) -> None:
         """Clear all clickable regions for a screen"""
         if screen_name in self.clickable_regions:
             del self.clickable_regions[screen_name]
-            if self.debug_input:
-                print(f"🧹 Cleared clickables for screen: {screen_name}")
+            #if self.debug_input:
+                #print(f"🧹 Cleared clickables for screen: {screen_name}")
     
     def clear_all_clickables(self) -> None:
         """Clear all clickable regions (useful for cleanup)"""
@@ -209,8 +209,25 @@ class InputHandler:
         else:
             if self.debug_input:
                 print(f"⚠️  No clickable regions registered for screen: {current_screen}")
+        if hasattr(self, 'screen_manager') and self.screen_manager:
+            if self.debug_input:
+                print(f"🔄 Delegating to ScreenManager for screen: {current_screen}")
+            
+            # Try ScreenManager's click handling
+            if self.screen_manager.handle_screen_click(current_screen, mouse_pos, self.game_controller):
+                return True
         
-        return False
+        # NEW: Add simple screen advance for basic title screen flow
+        if current_screen in ["game_title", "developer_splash"]:
+            if self.debug_input:
+                print(f"⚡ Auto-advancing from {current_screen}")
+            self.event_manager.emit("SCREEN_ADVANCE", {"current_screen": current_screen})
+            return True
+        
+        # If all else fails, return False (was causing program exit)
+        if self.debug_input:
+            print(f"🚫 No handler found for click on {current_screen}")
+        return False  # This should not cause program exit now
     
     def process_keyboard_input(self, event: pygame.event.Event, 
                               game_state) -> bool:

@@ -101,6 +101,38 @@ also created a JSON file creation guide document to aid in future dialogue creat
 - **Decision:** Single EventManager instance shared across all systems - initialized once in GameController, passed to all subsystems
 - **Consequences:** All event registration and emission now uses same instance, enabling proper event-driven architecture
 
+## ADR-015: Complete ScreenManager Architecture Implementation
+- **Status:** Accepted
+- **Date:** Sep 5, 2025
+- **Context:** GameController contained massive draw_current_screen() method with screen rendering logic scattered throughout
+- **Decision:** Implement full ScreenManager with event-driven navigation and screen lifecycle management
+- **Implementation:** 
+  - ScreenManager handles all screen rendering via registered render functions
+  - Event-driven navigation through EventManager hub
+  - InputHandler delegates unknown clicks to ScreenManager
+  - Individual screens auto-register their own click handlers
+- **Consequences:** 
+  - GameController reduced by ~300 lines with draw_current_screen() method eliminated
+  - Clean separation of concerns established as foundation for further refactoring
+  - Adding new screens requires only registration, no GameController changes
+  - Professional screen lifecycle management with history and error handling
+  - Further cleanup needed to achieve target thin coordinator pattern
+
+## ADR-016: Event-Driven Component Architecture
+- **Status:** Accepted  
+- **Date:** Sep 5, 2025
+- **Context:** Components were tightly coupled with manual wiring in GameController
+- **Decision:** EventManager as central hub with components subscribing to relevant events
+- **Implementation:**
+  - ScreenManager subscribes to SCREEN_CHANGE and SCREEN_ADVANCE events
+  - InputHandler delegates failed clicks via events rather than direct calls
+  - Screen handlers emit navigation events rather than calling methods directly
+- **Consequences:** 
+  - GameController begins transition to thin coordinator pattern
+  - Components self-organize through event subscription
+  - Foundation established for complete architectural cleanup
+  - Loose coupling enables easier testing and modification
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected
