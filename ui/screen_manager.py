@@ -276,7 +276,9 @@ class ScreenManager:
             
             # Reset error count on successful render
             self.error_count = 0
-            return True
+
+            # NEW: Render overlays on top of main screen
+            self._render_overlays(game_state)
             
         except Exception as e:
             print(f"❌ Error rendering screen '{self.current_screen}': {e}")
@@ -416,3 +418,15 @@ class ScreenManager:
         print(f"   Current screen: {getattr(self, 'current_screen', 'None')}")
         if hasattr(self, 'render_functions'):
             print(f"   Registered renders: {list(self.render_functions.keys())}")
+
+    def _render_overlays(self, game_state):
+        """Render any active overlays on top of the main screen"""
+        # Load screen overlay
+        if getattr(game_state, 'load_screen_open', False):
+            from screens.load_game import draw_load_game_screen
+            draw_load_game_screen(self.screen, game_state, self.fonts, self.images)
+        
+        # Add other overlays here as needed
+        # if getattr(game_state, 'inventory_open', False):
+        #     from screens.inventory import draw_inventory_screen
+        #     draw_inventory_screen(self.screen, game_state, self.fonts, self.images)

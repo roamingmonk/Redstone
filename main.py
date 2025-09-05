@@ -39,8 +39,16 @@ def main():
     # Create the game controller - this handles EVERYTHING now
     controller = GameController(screen, game_state, fonts, images, data_manager)
 
+    def handle_quit_event(event_data):
+        global running
+        print("🎮 QUIT_GAME: Exiting application")
+        controller.quit_game()
+        running = False
+
     # NEW: Centralize all data loading here!
     controller.initialize_data_systems()
+
+    controller.event_manager.register('QUIT_GAME', handle_quit_event)
     
     # Apply configuration and register all screens
     GameConfig.apply_to_controller(controller)

@@ -14,6 +14,7 @@ from game_logic.inventory_engine import initialize_inventory_engine
 from game_logic.commerce_engine import initialize_commerce_engine 
 from game_logic.dialogue_engine import initialize_dialogue_engine
 from game_logic.event_manager import initialize_event_manager, get_event_manager
+from game_logic.save_manager import SaveManager
 from datetime import datetime
 from typing import Optional, Dict, Any, Callable
 from utils.constants import *
@@ -73,6 +74,7 @@ class GameController:
         self.last_fps_time = pygame.time.get_ticks()
         
         # Save/load system state
+        self.save_manager = SaveManager(self.game_state)
         self.last_save_time = None
         self.last_load_time = None
 
@@ -146,6 +148,8 @@ class GameController:
             self.dialogue_engine = initialize_dialogue_engine(self.game_state)
             self.data_manager.dialogue_engine = self.dialogue_engine
 
+            self.save_manager = SaveManager(self.game_state)
+
             self.setup_event_listeners()
             #Register all screens with ScreenManager AFTER engines are ready
             self.screen_manager.register_all_screen_renders()
@@ -155,15 +159,11 @@ class GameController:
             self.event_manager.register('CONTINUE', self.handle_continue)
             self.event_manager.register('NEW_GAME', self.handle_new_game)
             self.event_manager.register('LOAD_GAME', self.handle_load_game)
-            self.event_manager.register('QUIT_GAME', self.handle_quit_game)
             
             print(f"🔍 DEBUG: GC: EventManager has {self.event_manager.get_listener_count('START_GAME')} listeners for START_GAME")
             print(f"🔍 DEBUG: GC: All registered events: {list(self.event_manager.listeners.keys())}")
             print(f"🔍 DEBUG: GC: EventManager ID: {id(self.event_manager)}")
-            #self.event_manager.register("SAVE_REQUESTED", self.handle_save_requested)
-            #self.event_manager.register("SCREENSHOT_REQUESTED", self.handle_screenshot_requested)
-            #self.event_manager.register("DEBUG_TOGGLE", self.handle_debug_toggle)
-            #self.event_manager.register("TEXT_INPUT", self.handle_text_input_event)
+            
             # Register semantic action event listeners
         
             print("✅ GC:InputHandler initialized and integrated!")
@@ -315,10 +315,6 @@ class GameController:
         
         # Handle mouse clicks safely
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            # First check overlays
-            if self.handle_overlay_mouse_clicks(event.pos):
-                return True
-            
             # Try InputHandler mouse processing, but catch errors
             try:
                 return self.input_handler.process_mouse_click(event.pos, self.game_state.screen)
@@ -408,178 +404,178 @@ class GameController:
 
         return True
 
-    def handle_overlay_mouse_clicks(self, mouse_pos) -> bool:
-        """NEW METHOD - All overlay click handling (from main.py)"""
+    # def handle_overlay_mouse_clicks(self, mouse_pos) -> bool:
+    #     """NEW METHOD - All overlay click handling (from main.py)"""
         
        
-        # Help screen overlay
-        if self.game_state.help_screen_open:
-            temp_surface = pygame.Surface((1024, 768))
-            from screens.help_screen import draw_help_screen
-            result = draw_help_screen(temp_surface, self.game_state, self.fonts, self.images)
+    #     # Help screen overlay
+    #     if self.game_state.help_screen_open:
+    #         temp_surface = pygame.Surface((1024, 768))
+    #         from screens.help_screen import draw_help_screen
+    #         result = draw_help_screen(temp_surface, self.game_state, self.fonts, self.images)
             
-            if result:
-                return_rect = result
-                if return_rect and return_rect.collidepoint(mouse_pos):
-                    self.game_state.help_screen_open = False
+    #         if result:
+    #             return_rect = result
+    #             if return_rect and return_rect.collidepoint(mouse_pos):
+    #                 self.game_state.help_screen_open = False
             
-            return True  # Block other clicks
+    #         return True  # Block other clicks
 
-        # Character sheet screen overlay
-        if self.game_state.character_sheet_open:
-            temp_surface = pygame.Surface((1024, 768))
-            from screens.character_sheet import draw_character_sheet_screen
-            result = draw_character_sheet_screen(temp_surface, self.game_state, self.fonts, self.images)
+    #     # Character sheet screen overlay
+    #     if self.game_state.character_sheet_open:
+    #         temp_surface = pygame.Surface((1024, 768))
+    #         from screens.character_sheet import draw_character_sheet_screen
+    #         result = draw_character_sheet_screen(temp_surface, self.game_state, self.fonts, self.images)
             
-            if result:
-                return_rect = result
-                if return_rect and return_rect.collidepoint(mouse_pos):
-                    self.game_state.character_sheet_open = False
+    #         if result:
+    #             return_rect = result
+    #             if return_rect and return_rect.collidepoint(mouse_pos):
+    #                 self.game_state.character_sheet_open = False
             
-            return True  # Block other clicks
+    #         return True  # Block other clicks
   
-        # Quest log Screen overlay
-        if self.game_state.quest_log_open:
-            temp_surface = pygame.Surface((1024, 768))
-            from screens.quest_log import draw_quest_log_screen
-            result = draw_quest_log_screen(temp_surface, self.game_state, self.fonts, self.images)
+    #     # Quest log Screen overlay
+    #     if self.game_state.quest_log_open:
+    #         temp_surface = pygame.Surface((1024, 768))
+    #         from screens.quest_log import draw_quest_log_screen
+    #         result = draw_quest_log_screen(temp_surface, self.game_state, self.fonts, self.images)
             
-            if result and len(result) == 2:
-                quest_rects, return_rect = result
+    #         if result and len(result) == 2:
+    #             quest_rects, return_rect = result
                 
-                # Handle quest selection clicks
-                for i, quest_rect in enumerate(quest_rects):
-                    if quest_rect.collidepoint(mouse_pos):
-                        # Handle quest selection clicks
-                        for i, quest_rect in enumerate(quest_rects):
-                            if quest_rect.collidepoint(mouse_pos):
-                                # Get the quest ID from the available quests
-                                from screens.quest_log import get_available_quests
-                                quests = get_available_quests(self.game_state)
-                                if i < len(quests):
-                                    selected_quest_id = quests[i]['id']
-                                    # Toggle selection
-                                    if self.game_state.selected_quest == selected_quest_id:
-                                        self.game_state.selected_quest = None
-                                    else:
-                                        self.game_state.selected_quest = selected_quest_id
-                                break
+    #             # Handle quest selection clicks
+    #             for i, quest_rect in enumerate(quest_rects):
+    #                 if quest_rect.collidepoint(mouse_pos):
+    #                     # Handle quest selection clicks
+    #                     for i, quest_rect in enumerate(quest_rects):
+    #                         if quest_rect.collidepoint(mouse_pos):
+    #                             # Get the quest ID from the available quests
+    #                             from screens.quest_log import get_available_quests
+    #                             quests = get_available_quests(self.game_state)
+    #                             if i < len(quests):
+    #                                 selected_quest_id = quests[i]['id']
+    #                                 # Toggle selection
+    #                                 if self.game_state.selected_quest == selected_quest_id:
+    #                                     self.game_state.selected_quest = None
+    #                                 else:
+    #                                     self.game_state.selected_quest = selected_quest_id
+    #                             break
                 
-                # Handle close button
-                if return_rect and return_rect.collidepoint(mouse_pos):
-                    self.game_state.quest_log_open = False
-                    self.game_state.selected_quest = None
-            return True  # Block other clicks
+    #             # Handle close button
+    #             if return_rect and return_rect.collidepoint(mouse_pos):
+    #                 self.game_state.quest_log_open = False
+    #                 self.game_state.selected_quest = None
+    #         return True  # Block other clicks
 
-        # Inventory screen overlay
-        if self.game_state.inventory_open:
-            temp_surface = pygame.Surface((1024, 768))
-            from screens.inventory import draw_inventory_screen
-            result = draw_inventory_screen(temp_surface, self.game_state, self.fonts, self.images)
+    #     # Inventory screen overlay
+    #     if self.game_state.inventory_open:
+    #         temp_surface = pygame.Surface((1024, 768))
+    #         from screens.inventory import draw_inventory_screen
+    #         result = draw_inventory_screen(temp_surface, self.game_state, self.fonts, self.images)
 
-            if result and len(result) == 4:
-                tab_rects, button_rects, item_rects, item_names_in_order = result
-                weapons_tab, armor_tab, items_tab, consumables_tab = tab_rects
+    #         if result and len(result) == 4:
+    #             tab_rects, button_rects, item_rects, item_names_in_order = result
+    #             weapons_tab, armor_tab, items_tab, consumables_tab = tab_rects
                 
-                # Handle tab clicks
-                if weapons_tab.collidepoint(mouse_pos):
-                    self.game_state.inventory_tab = "weapons"
-                    self.game_state.inventory_selected = None
-                elif armor_tab.collidepoint(mouse_pos):
-                    self.game_state.inventory_tab = "armor"
-                    self.game_state.inventory_selected = None
-                elif items_tab.collidepoint(mouse_pos):
-                    self.game_state.inventory_tab = "items"
-                    self.game_state.inventory_selected = None
-                elif consumables_tab.collidepoint(mouse_pos):
-                    self.game_state.inventory_tab = "consumables"
-                    self.game_state.inventory_selected = None
+    #             # Handle tab clicks
+    #             if weapons_tab.collidepoint(mouse_pos):
+    #                 self.game_state.inventory_tab = "weapons"
+    #                 self.game_state.inventory_selected = None
+    #             elif armor_tab.collidepoint(mouse_pos):
+    #                 self.game_state.inventory_tab = "armor"
+    #                 self.game_state.inventory_selected = None
+    #             elif items_tab.collidepoint(mouse_pos):
+    #                 self.game_state.inventory_tab = "items"
+    #                 self.game_state.inventory_selected = None
+    #             elif consumables_tab.collidepoint(mouse_pos):
+    #                 self.game_state.inventory_tab = "consumables"
+    #                 self.game_state.inventory_selected = None
                 
-                # Handle item selection clicks
-                else:
-                    for i, item_rect in enumerate(item_rects):
-                        if item_rect.collidepoint(mouse_pos):
-                            if i < len(item_names_in_order):
-                                selected_item = item_names_in_order[i]
-                                # Toggle selection
-                                if self.game_state.inventory_selected == selected_item:
-                                    self.game_state.inventory_selected = None
-                                else:
-                                    self.game_state.inventory_selected = selected_item
-                                break
+    #             # Handle item selection clicks
+    #             else:
+    #                 for i, item_rect in enumerate(item_rects):
+    #                     if item_rect.collidepoint(mouse_pos):
+    #                         if i < len(item_names_in_order):
+    #                             selected_item = item_names_in_order[i]
+    #                             # Toggle selection
+    #                             if self.game_state.inventory_selected == selected_item:
+    #                                 self.game_state.inventory_selected = None
+    #                             else:
+    #                                 self.game_state.inventory_selected = selected_item
+    #                             break
 
-                # Handle button clicks
-                if self.game_state.inventory_tab in ["weapons", "armor"]:
-                    equip_btn, unequip_btn, discard_btn, return_btn = button_rects
+    #             # Handle button clicks
+    #             if self.game_state.inventory_tab in ["weapons", "armor"]:
+    #                 equip_btn, unequip_btn, discard_btn, return_btn = button_rects
                     
-                    if return_btn and return_btn.collidepoint(mouse_pos):
-                        self.game_state.inventory_open = False
-                    elif equip_btn and equip_btn.collidepoint(mouse_pos):
-                        if self.game_state.inventory_selected:
-                            self.game_state.equip_item(self.game_state.inventory_selected, self.game_state.inventory_tab)
-                            self.game_state.inventory_selected = None  # Clear selection after equipping
-                    elif unequip_btn and unequip_btn.collidepoint(mouse_pos):
-                        if self.game_state.inventory_selected:
-                            self.game_state.unequip_item(self.game_state.inventory_selected)
-                            self.game_state.inventory_selected = None  # Clear selection after unequipping
-                    elif discard_btn and discard_btn.collidepoint(mouse_pos):
-                        if self.game_state.inventory_selected:
-                            self.game_state.discard_item(self.game_state.inventory_selected)
-                            self.game_state.inventory_selected = None
-                            return True # exit immediately after discard to prevent invalid button usage.
+    #                 if return_btn and return_btn.collidepoint(mouse_pos):
+    #                     self.game_state.inventory_open = False
+    #                 elif equip_btn and equip_btn.collidepoint(mouse_pos):
+    #                     if self.game_state.inventory_selected:
+    #                         self.game_state.equip_item(self.game_state.inventory_selected, self.game_state.inventory_tab)
+    #                         self.game_state.inventory_selected = None  # Clear selection after equipping
+    #                 elif unequip_btn and unequip_btn.collidepoint(mouse_pos):
+    #                     if self.game_state.inventory_selected:
+    #                         self.game_state.unequip_item(self.game_state.inventory_selected)
+    #                         self.game_state.inventory_selected = None  # Clear selection after unequipping
+    #                 elif discard_btn and discard_btn.collidepoint(mouse_pos):
+    #                     if self.game_state.inventory_selected:
+    #                         self.game_state.discard_item(self.game_state.inventory_selected)
+    #                         self.game_state.inventory_selected = None
+    #                         return True # exit immediately after discard to prevent invalid button usage.
                         
-                elif self.game_state.inventory_tab == "consumables":
-                    consume_btn, discard_btn, return_btn, _ = button_rects
+    #             elif self.game_state.inventory_tab == "consumables":
+    #                 consume_btn, discard_btn, return_btn, _ = button_rects
                     
-                    if return_btn and return_btn.collidepoint(mouse_pos):
-                        self.game_state.inventory_open = False
-                    elif consume_btn and consume_btn.collidepoint(mouse_pos):
-                        if self.game_state.inventory_selected:
-                            self.game_state.consume_item(self.game_state.inventory_selected)
-                            self.game_state.inventory_selected = None
-                    elif discard_btn and discard_btn.collidepoint(mouse_pos):
-                        if self.game_state.inventory_selected:
-                            self.game_state.discard_item(self.game_state.inventory_selected)
-                            self.game_state.inventory_selected = None
-                            return True
+    #                 if return_btn and return_btn.collidepoint(mouse_pos):
+    #                     self.game_state.inventory_open = False
+    #                 elif consume_btn and consume_btn.collidepoint(mouse_pos):
+    #                     if self.game_state.inventory_selected:
+    #                         self.game_state.consume_item(self.game_state.inventory_selected)
+    #                         self.game_state.inventory_selected = None
+    #                 elif discard_btn and discard_btn.collidepoint(mouse_pos):
+    #                     if self.game_state.inventory_selected:
+    #                         self.game_state.discard_item(self.game_state.inventory_selected)
+    #                         self.game_state.inventory_selected = None
+    #                         return True
 
-                else:  # items tab
-                    discard_btn, return_btn, _, _ = button_rects
+    #             else:  # items tab
+    #                 discard_btn, return_btn, _, _ = button_rects
                     
-                    if return_btn and return_btn.collidepoint(mouse_pos):
-                        self.game_state.inventory_open = False
-                    elif discard_btn and discard_btn.collidepoint(mouse_pos):
-                        if self.game_state.inventory_selected:
-                            self.game_state.discard_item(self.game_state.inventory_selected)
-                            self.game_state.inventory_selected = None
+    #                 if return_btn and return_btn.collidepoint(mouse_pos):
+    #                     self.game_state.inventory_open = False
+    #                 elif discard_btn and discard_btn.collidepoint(mouse_pos):
+    #                     if self.game_state.inventory_selected:
+    #                         self.game_state.discard_item(self.game_state.inventory_selected)
+    #                         self.game_state.inventory_selected = None
                         
-            return True  # Don't process other clicks when inventory is open
+    #         return True  # Don't process other clicks when inventory is open
 
-        # Load screen handling overlay
-        if self.game_state.load_screen_open:
-            from screens.load_game import draw_load_game_screen, handle_load_game_click
-            temp_surface = pygame.Surface((1024, 768))
-            result = draw_load_game_screen(temp_surface, self.game_state, self.fonts, self.images, controller=self)
-            handle_load_game_click(mouse_pos, self.game_state, result, controller=self)
-            return True
+    #     # Load screen handling overlay
+    #     if self.game_state.load_screen_open:
+    #         from screens.load_game import draw_load_game_screen, handle_load_game_click
+    #         temp_surface = pygame.Surface((1024, 768))
+    #         result = draw_load_game_screen(temp_surface, self.game_state, self.fonts, self.images, controller=self)
+    #         handle_load_game_click(mouse_pos, self.game_state, result, controller=self)
+    #         return True
 
-        # Save screen handling overlay
-        if self.game_state.save_screen_open:
-            from screens.save_game import draw_save_game_screen, handle_save_game_click
-            temp_surface = pygame.Surface((1024, 768))
-            result = draw_save_game_screen(temp_surface, self.game_state, self.fonts, self.images, controller=self)
-            handle_save_game_click(mouse_pos, self.game_state, result, controller=self)
-            return True
+    #     # Save screen handling overlay
+    #     if self.game_state.save_screen_open:
+    #         from screens.save_game import draw_save_game_screen, handle_save_game_click
+    #         temp_surface = pygame.Surface((1024, 768))
+    #         result = draw_save_game_screen(temp_surface, self.game_state, self.fonts, self.images, controller=self)
+    #         handle_save_game_click(mouse_pos, self.game_state, result, controller=self)
+    #         return True
 
-        # Character advancement overlay handling 
-        if getattr(self.game_state, 'character_advancement_open', False):
-            from screens.character_advancement import draw_character_advancement, handle_character_advancement_click
-            temp_surface = pygame.Surface((1024, 768))
-            result = draw_character_advancement(temp_surface, self.game_state, self.fonts, controller=self)
-            if handle_character_advancement_click(mouse_pos, result, self.game_state, controller=self):
-                return True
+    #     # Character advancement overlay handling 
+    #     if getattr(self.game_state, 'character_advancement_open', False):
+    #         from screens.character_advancement import draw_character_advancement, handle_character_advancement_click
+    #         temp_surface = pygame.Surface((1024, 768))
+    #         result = draw_character_advancement(temp_surface, self.game_state, self.fonts, controller=self)
+    #         if handle_character_advancement_click(mouse_pos, result, self.game_state, controller=self):
+    #             return True
 
-        return False  # No overlays handled
+    #     return False  # No overlays handled
 ###############temp to get mouse clicks working##############
     def handle_start_game(self, event_data):
         """Handle START_GAME semantic action"""
@@ -604,12 +600,7 @@ class GameController:
         print("🎮 LOAD_GAME: Opening load screen")
         self.game_state.load_screen_open = True
 
-    def handle_quit_game(self, event_data):
-        """Handle QUIT_GAME semantic action"""
-        print("🎮 QUIT_GAME: Exiting game")
-        return False  # This should trigger game exit
 ##################end temp to get mouse clicks working##############
-
     def register_screen_clickables(self):
         #####################this should eventually move to screen handler###########
         """Register all screen clickable regions with InputHandler"""
@@ -652,7 +643,6 @@ class GameController:
         )
         
         print("🎯 Screen clickables registered with InputHandler")
-
     def run_current_screen(self):
         """
         CLEAN VERSION - Delegates to ScreenManager instead of massive if/elif chain
@@ -683,7 +673,6 @@ class GameController:
             print(f"❌ Error in run_current_screen: {e}")
             # ScreenManager handles its own fallback logic
             return False
-
     def register_screen(self, screen_name: str, screen_function: Callable):
         """
         Register a screen function with the controller
@@ -784,14 +773,14 @@ class GameController:
         
         if slot == "quick_save":
             # Use slot 1 for quick save
-            success = self.save_game(1)
+            success = self.save_manager.save_game(1)  # Changed from self.save_game
             if success:
                 print("💾 Quick save successful!")
             else:
                 print("❌ Quick save failed!")
         else:
             # Direct slot save
-            self.save_game(slot)
+            success = self.save_manager.save_game(slot)  # Changed from self.save_game
 
     def handle_screenshot_requested(self, event_data):
         """Handle screenshot requests from InputHandler"""
@@ -896,8 +885,7 @@ class GameController:
             # Emergency fallback to splash screen
         #    print("🆘 Emergency fallback to splash screen")
         #    self.transition_to("splash")
-        #    self.error_count = 0
-    
+        #    self.error_count = 0 
     def quit_game(self):
         """
         Clean game shutdown with state saving opportunities
@@ -980,7 +968,7 @@ class GameController:
         # 1. Auto-save current progress (you have this!)
         if hasattr(self, 'save_game'):
             print("💾 Auto-saving progress...")
-            self.save_game(save_slot=0)  # Auto-save slot
+            self.save_manager.save_game(save_slot=0)  # Auto-save slot
 
         # 2. Clear active game state
         if hasattr(self.game_state, 'clear_active_portrait'):
@@ -1034,376 +1022,7 @@ class GameController:
                 surface = self.fonts['fantasy_tiny'].render(text, True, BRIGHT_GREEN)
                 self.screen.blit(surface, (10, y))
                 y += 20
-
-    def save_game(self, save_slot=1):
-        
-        """
-        Save complete game state to JSON file
-        save_slot: 1-3 for manual saves, 0 for auto-save
-        """
-        try:
-            # Collect all game state data
-            save_data = {
-                'version': '2.0',
-                'timestamp': datetime.now().isoformat(),
-                'save_slot': save_slot,
-                
-
-                # Character data
-                'character': self.game_state.character,
-                'inventory': self.game_state.inventory,
-                
-                # Game progression
-                'current_screen': self.game_state.screen,
-                'screen_history': self.screen_history[-5:],  # Keep last 5 screens
-                'previous_screen': self.previous_screen,
-                
-                # World state
-                'party_members': getattr(self.game_state, 'party_members', []),
-                'tavern_visits': getattr(self.game_state, 'tavern_visits', 0),
-                'locations_discovered': getattr(self.game_state, 'locations_discovered', []),
-                
-                # Quest and NPC states
-                'quest_flags': getattr(self.game_state, 'quest_flags', {}),
-                'npc_recruitment_status': getattr(self.game_state, 'npc_recruitment_status', {}),
-                'conversations_had': getattr(self.game_state, 'conversations_had', []),
-                'mayor_talked': getattr(self.game_state, 'mayor_talked', False),
-                'mayor_mentioned': getattr(self.game_state, 'mayor_mentioned', False),
-                'pete_attempted_recruitment': getattr(self.game_state, 'pete_attempted_recruitment', False),
-                'pete_showing_comedy': getattr(self.game_state, 'pete_showing_comedy', False),
-                'meredith_talked': getattr(self.game_state, 'meredith_talked', False),
-                'garrick_talked': getattr(self.game_state, 'garrick_talked', False),
-                'learned_about_church': getattr(self.game_state, 'learned_about_church', False),
-                'learned_about_ruins': getattr(self.game_state, 'learned_about_ruins', False),
-                'quest_active': getattr(self.game_state, 'quest_active', False),
-                'just_got_quest': getattr(self.game_state, 'just_got_quest', False),
-                'quest_system': getattr(self.game_state, 'quest_manager', None).get_quest_data_for_save() if hasattr(self.game_state, 'quest_manager') else {},
-                'showing_meredith_response':getattr(self.game_state, 'showing_meredith_response', False),
-                'showing_garrick_response':getattr(self.game_state, 'showing_garrick_response', False),
-
-                # Dice game state
-                'dice_game': getattr(self.game_state, 'dice_game', {}),
-            
-                # Shopping cart state
-                'shopping_cart': getattr(self.game_state, 'shopping_cart', {}),
-                
-                # Gambling and economy
-                'house_money': getattr(self.game_state, 'house_money', 50),
-                'gambling_wins': getattr(self.game_state, 'gambling_wins', 0),
-                'gambling_losses': getattr(self.game_state, 'gambling_losses', 0),
-                
-                # Equipment state
-                'equipped_weapon': getattr(self.game_state, 'equipped_weapon', None),
-                'equipped_armor': getattr(self.game_state, 'equipped_armor', None),
-                'equipped_shield': getattr(self.game_state, 'equipped_shield', None),
-            }
-            
-            # Create saves directory if it doesn't exist
-            #os.makedirs('saves', exist_ok=True)
-            
-            # Determine save file name
-            if save_slot == 0:
-                filename = 'saves/autosave.json'
-                save_type = "Auto-save"
-            elif save_slot == 99:
-                filename = 'saves/quicksave.json'
-                save_type = "Quick save"
-            else:
-                filename = f'saves/save_slot_{save_slot}.json'
-                save_type = f"Manual save (Slot {save_slot})"
-            
-            # Write save file
-            with open(filename, 'w') as f:
-                json.dump(save_data, f, indent=2)
-            
-            print(f"💾 {save_type} completed: {filename}")
-            print(f"   🎭 Character: {self.game_state.character.get('name', 'Unknown')}")
-            print(f"   💰 Gold: {self.game_state.character.get('gold', 0)}")
-        
-            # Update GameController state tracking
-            self.last_save_time = datetime.now()
-            self.error_count = 0  # Reset error count on successful save
-            
-            return True
-            
-        except Exception as e:
-            print(f"❌ Save failed: {e}")
-            self.error_count += 1
-            return False
-
-    def load_game(self, save_slot=1):
-        """
-        Load game state from JSON file and restore game to saved state
-        save_slot: 1-3 for manual saves, 0 for auto-save
-        """
-        try:
-            # Determine save file name
-            if save_slot == 0:
-                filename = 'saves/autosave.json'
-                save_type = "Auto-save"
-            elif save_slot == 99:
-                filename = 'saves/quicksave.json'
-                save_type = 'Quick Save'
-            else:
-                filename = f'saves/save_slot_{save_slot}.json'
-                save_type = f"Save slot {save_slot}"
-            
-            # Check if save file exists
-            if not os.path.exists(filename):
-                print(f"❌ No save file found: {filename}")
-                return False
-            
-            # Load save data
-            with open(filename, 'r') as f:
-                save_data = json.load(f)
-            
-            print(f"📁 Loading {save_type}...")
-            print(f"   Saved: {save_data.get('timestamp', 'Unknown time')}")
-            print(f"   Version: {save_data.get('version', 'Unknown')}")
-            
-             # Restore character data (GameState is the authority!)
-            if 'character' in save_data:
-                self.game_state.character = save_data['character']
-                print(f"   🎭 Character: {self.game_state.character.get('name', 'Unknown')}")
-            
-            if 'inventory' in save_data:
-                self.game_state.inventory = save_data['inventory']
-                print(f"   💰 Gold: {self.game_state.character.get('gold', 0)}")
-            
-           # Restore game progression
-            target_screen = save_data.get('current_screen', 'game_title')
-            if target_screen in self.screens:
-                self.game_state.screen = target_screen
-                self.previous_screen = save_data.get('previous_screen')
-                self.screen_history = save_data.get('screen_history', [])
-                self.game_state.screen = target_screen
-            else:
-                print(f"⚠️ Saved screen '{target_screen}' not available, staying on current screen")
-            
-            # Restore world state
-            self.game_state.party_members = save_data.get('party_members', [])
-            self.game_state.tavern_visits = save_data.get('tavern_visits', 0)
-            self.game_state.locations_discovered = save_data.get('locations_discovered', [])
-            
-            # Restore quest and NPC states
-            self.game_state.quest_flags = save_data.get('quest_flags', {})
-            self.game_state.npc_recruitment_status = save_data.get('npc_recruitment_status', {})
-            self.game_state.conversations_had = save_data.get('conversations_had', [])
-            self.game_state.mayor_talked = save_data.get('mayor_talked', False)
-            self.game_state.meredith_talked = save_data.get('meredith_talked', False)
-            self.game_state.garrick_talked = save_data.get('garrick_talked', False)  
-            self.game_state.learned_about_church = save_data.get('learned_about_church', False)
-            self.game_state.learned_about_ruins = save_data.get('learned_about_ruins', False)
-            self.game_state.quest_active = save_data.get('quest_active', False)
-            self.game_state.mayor_mentioned = save_data.get('mayor_mentioned', False)
-            self.game_state.pete_attempted_recruitment = save_data.get('pete_attempted_recruitment', False)
-            self.game_state.pete_showing_comedy = save_data.get('pete_showing_comedy', False)
-            self.game_state.showing_meredith_response = save_data.get('showing_meredith_response', False)
-            self.game_state.showing_garrick_response = save_data.get('showing_garrick_response', False)
-
-            quest_system_data = save_data.get('quest_system', {})
-            if quest_system_data and hasattr(self.game_state, 'quest_manager'):
-                self.game_state.quest_manager.load_from_save_data(quest_system_data)
-
-            # Restore dice game state
-            self.game_state.dice_game = save_data.get('dice_game', {})
-            # Restore shopping cart
-            self.game_state.shopping_cart = save_data.get('shopping_cart', {}),
-            # Restore gambling and economy
-            self.game_state.house_money = save_data.get('house_money', 50)
-            self.game_state.gambling_wins = save_data.get('gambling_wins', 0)
-            self.game_state.gambling_losses = save_data.get('gambling_losses', 0)
-            
-            # Restore equipment state
-            self.game_state.equipped_weapon = save_data.get('equipped_weapon')
-            self.game_state.equipped_armor = save_data.get('equipped_armor')
-            self.game_state.equipped_shield = save_data.get('equipped_shield')
-             
-            # Restore shopping cart (with safety check)
-            shopping_cart_data = save_data.get('shopping_cart', {})
-            if isinstance(shopping_cart_data, dict):
-                self.game_state.shopping_cart = shopping_cart_data
-            else:
-                # Safety: Reset corrupted shopping cart data
-                print("⚠️ Shopping cart data corrupted, resetting to empty cart")
-                self.game_state.shopping_cart = {}
-
-            # Also ensure dice game state is properly restored
-            dice_game_data = save_data.get('dice_game', {})
-            if isinstance(dice_game_data, dict):
-                self.game_state.dice_game = dice_game_data
-            else:
-                # Safety: Reset dice game to defaults
-                print("⚠️ Dice game data corrupted, resetting to defaults")
-                self.game_state.dice_game = {
-                    'house_money': 500,
-                    'game_active': True,
-                    'win_streak': 0,
-                    'loss_streak': 0,
-                    'last_roll': [],
-                    'current_bet': 0
-                }
-
-
-            print(f"✅ Game loaded successfully from {save_type}")
-            print(f"   Character: {self.game_state.character.get('name', 'Unknown')}")
-            print(f"   Current screen: {self.game_state.screen}")
-            
-            #Activate character portrait after loading
-            self.game_state.activate_character_portrait()
-
-            # After loading all the flags, populate quest system if mayor was already talked to
-            if self.game_state.mayor_talked and self.game_state.quest_active:
-                # Ensure mayor is mentioned so button appears
-                self.game_state.mayor_mentioned = True
-
-                    # For future quest items:
-                    # Re-populate any quest log entries that should exist
-                    # (You might need to call a method to rebuild active quests here)
-            
-            print("✅ Game state restored successfully!")
-
-            # Update GameController state
-            self.last_load_time = datetime.now()
-            self.error_count = 0  # Reset error count on successful load
-            
-            return True
-            
-        except json.JSONDecodeError as e:
-            print(f"❌ Save file corrupted: {e}")
-            return False
-        except Exception as e:
-            print(f"❌ Load failed: {e}")
-            self.error_count += 1
-            return False
-
-    def get_save_info(self, save_slot=1):
-        """
-        Get information about a save file without loading it
-        Returns dict with save info or None if no save exists
-        """
-        try:
-            if save_slot == 0:
-                filename = 'saves/autosave.json'
-                save_type = "Auto-save"
-            elif save_slot == 99:
-                filename = 'saves/quicksave.json'
-                save_type = "Quick save"
-            else:
-                filename = f'saves/save_slot_{save_slot}.json'
-                save_type = f"Save_slot {save_slot}"
-
-           
-            if not os.path.exists(filename):
-                return None
-            
-            with open(filename, 'r') as f:
-                save_data = json.load(f)
-            
-            return {
-                'character_name': save_data.get('character', {}).get('name', 'Unknown'),
-                'timestamp': save_data.get('timestamp', 'Unknown'),
-                'current_screen': save_data.get('current_screen', 'Unknown'),
-                'party_size': len(save_data.get('party_members', [])) + 1,
-                'gold': save_data.get('character', {}).get('gold', 0),
-                'version': save_data.get('version', 'Unknown')
-            }
-            
-        except Exception as e:
-            print(f"❌ Error reading save info: {e}")
-            return None
-
-    def auto_save(self):
-        """
-        Perform automatic save (shorthand for save_game(0))
-        """
-        return self.save_game(save_slot=0)
-
-    def delete_save(self, save_slot):
-        """
-        Delete a save file
-        """
-        try:
-            if save_slot == 0:
-                filename = 'saves/autosave.json'
-            elif save_slot == 99:
-                filename = 'saves/quicksave.json'
-            else:
-                filename = f'saves/save_slot_{save_slot}.json'
-            
-            if os.path.exists(filename):
-                os.remove(filename)
-                print(f"🗑️ Deleted save slot {save_slot}")
-                return True
-            else:
-                print(f"❌ Save slot {save_slot} does not exist")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Error deleting save: {e}")
-            return False
-
-    def can_save_load(self) -> bool:
-            """
-            Determine if save/load operations are allowed on current screen
-            Returns False for transient/temporary screens where saving would cause issues
-            """
-            # UNIFIED: Use same screen names as hotkey blocking system
-            restricted_screens = {
-            'game_title',           # Title screen 
-            'developer_splash',     # Company splash screen
-            'main_menu',            # Main menu
-            
-            # Character Creation Screens  
-            'stats', 
-            'gender', 
-            'name', 
-            'portrait_selection',
-            'custom_name',
-            'name_confirm', 
-            'gold', 
-            'trinket', 
-            'summary', 
-            'welcome',
-            
-            # Gambling screens (from original logic)
-            'dice_bets',        # Dice betting screen
-            'dice_rolling',     # Dice rolling animation
-            'dice_results',     # Dice results display
-            'dice_rules',       # Dice rules explanation
-            
-            # Shopping screens (from original logic)
-            'merchant_shop'     # Shop
-            }
-
-            # Check if the current screen is in the disabled list
-            is_disabled_screen = self.game_state.screen in restricted_screens
-            
-            # Update the flag
-            self.universal_keys_enabled = not is_disabled_screen
-            
-            # Provide debug feedback
-            if is_disabled_screen:
-                print(f"🚫 Universal keys disabled on screen: {self.game_state.screen}")
-            else:
-                print(f"✅ Universal keys enabled on screen: {self.game_state.screen}")
-            
-            print(f"🔧 DEBUG: universal_keys_enabled = {self.universal_keys_enabled}")
-
-            # Check if current screen is restricted
-            if self.game_state.screen in restricted_screens:
-                print(f"🚫 Save/Load disabled on screen: {self.game_state.screen}")
-                return False
-            
-            # Check if any overlay screens are open that should block save/load
-            if hasattr(self.game_state, 'save_screen_open') and self.game_state.save_screen_open:
-                return False
-            
-            if hasattr(self.game_state, 'load_screen_open') and self.game_state.load_screen_open:
-                return False
-            
-            return True
-            
+         
     def get_inventory_engine(self):
         """Get the inventory engine instance from DataManager"""
         if self.data_manager:
@@ -1439,7 +1058,6 @@ class GameController:
            # If the data manager doesn't exist, initialize it properly
             print("⚠️ Data manager not found. Initializing all systems instead of reloading.")
             return initialize_game_data(self.game_state)
-
 
 class ScreenRegistry:
     """

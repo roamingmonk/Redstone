@@ -2,6 +2,7 @@
 """
 Generic Screen Handlers - Replace hardcoded click detection
 """
+import pygame
 
 def handle_broken_blade_clicks(mouse_pos, game_controller, event_manager):
     """Handle broken blade tavern clicks using events"""
@@ -128,13 +129,27 @@ def handle_patron_selection_clicks(mouse_pos, game_controller, event_manager):
     return False  # No click handled
 
 def handle_main_menu_clicks(mouse_pos, game_controller, event_manager):
-    """Handle main menu clicks using events"""
-    # For now, any click starts new game
-    event_manager.emit("SCREEN_CHANGE", {
-        "target_screen": "stats",
-        "source_screen": "main_menu"
-    })
-    return True
+    """Handle main menu clicks using actual button coordinates"""
+    
+    # Get the real button rectangles from the drawing function
+    from screens.title_menu import draw_main_menu
+    temp_surface = pygame.Surface((1024, 768))
+    new_game_button, load_game_button, quit_button = draw_main_menu(
+        temp_surface, game_controller.game_state, game_controller.fonts
+    )
+    
+    # Check which button was clicked
+    if new_game_button and new_game_button.collidepoint(mouse_pos):
+        event_manager.emit("NEW_GAME", {"target_screen": "stats"})
+        return True
+    elif load_game_button and load_game_button.collidepoint(mouse_pos):
+        event_manager.emit("LOAD_GAME", {})
+        return True
+    elif quit_button and quit_button.collidepoint(mouse_pos):
+        event_manager.emit("QUIT_GAME", {})
+        return True
+    
+    return True  
 
 def handle_title_screen_clicks(mouse_pos, game_controller, event_manager):
     """Handle title screen clicks - advance to developer splash"""

@@ -209,6 +209,10 @@ class InputHandler:
         else:
             if self.debug_input:
                 print(f"⚠️  No clickable regions registered for screen: {current_screen}")
+        
+        if self._handle_overlay_clicks(mouse_pos, current_screen):
+                return True       
+        
         if hasattr(self, 'screen_manager') and self.screen_manager:
             if self.debug_input:
                 print(f"🔄 Delegating to ScreenManager for screen: {current_screen}")
@@ -308,7 +312,24 @@ class InputHandler:
         
         # No overlays were open
         return False
-    
+
+    def _handle_overlay_clicks(self, mouse_pos, current_screen):
+        """Handle clicks on active overlays"""
+        game_state = self.game_controller.game_state
+        
+        # Load screen overlay
+        if getattr(game_state, 'load_screen_open', False):
+            from screens.load_game import draw_load_game_screen, handle_load_game_click
+            temp_surface = pygame.Surface((1024, 768))
+            result = draw_load_game_screen(temp_surface, game_state, 
+                                        self.game_controller.fonts, 
+                                        self.game_controller.images, 
+                                        controller=self.game_controller.save_manager)
+            if handle_load_game_click(mouse_pos, game_state, result, controller=self.game_controller):
+                return True
+        
+        return False
+
     def set_text_input_mode(self, active: bool, callback: Optional[Callable] = None) -> None:
         """
         Enable/disable text input mode
@@ -341,8 +362,6 @@ class InputHandler:
         self.debug_input = enabled
         status = "enabled" if enabled else "disabled"
         print(f"🔍 Input debug logging {status}")
-
-
 
 # ==========================================
 # HELPER FUNCTIONS FOR SCREEN REGISTRATION
