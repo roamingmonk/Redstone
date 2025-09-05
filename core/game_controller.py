@@ -89,9 +89,7 @@ class GameController:
         """Register a screen with its drawing function"""
         self.screens[screen_name] = draw_function
         print(f"📋 Registered screen: {screen_name}")
-
-
-    
+   
     def initialize_data_systems(self) -> bool:
         """
         Initializes and loads all game data and engines.
@@ -101,7 +99,6 @@ class GameController:
     
         try:
             print("📊 GameController: Beginning core system initialization...")
-            
             # Step 1: Initialize EventManager first
             self.event_manager = initialize_event_manager()
         
@@ -113,7 +110,6 @@ class GameController:
             # Step 3: Register InputHandler events
             self.event_manager.register("OVERLAY_TOGGLE", self.handle_overlay_toggle)
             self.event_manager.register("SCREEN_ADVANCE", self.handle_screen_advance)
-
             self.data_manager.load_all_data()
             
             # Step : Initialize all engines directly in GameController
@@ -121,24 +117,27 @@ class GameController:
             self.inventory_engine = initialize_inventory_engine(self.game_state, self.data_manager.item_manager)
             self.commerce_engine = initialize_commerce_engine(self.game_state, self.data_manager.item_manager) 
             self.dialogue_engine = initialize_dialogue_engine(self.game_state)
-                        
             self.data_manager.dialogue_engine = self.dialogue_engine
-            
-            # Step : Initialize EventManager directly
-            self.event_manager = initialize_event_manager()
-            
-            
 
             # Step : Set up event listeners now that everything exists
             self.setup_event_listeners()
+            self.event_manager.register('START_GAME', self.handle_start_game)
+            self.event_manager.register('CONTINUE', self.handle_continue)
+            self.event_manager.register('NEW_GAME', self.handle_new_game)
+            self.event_manager.register('LOAD_GAME', self.handle_load_game)
+            self.event_manager.register('QUIT_GAME', self.handle_quit_game)
+            
+            print(f"🔍 DEBUG: GC: EventManager has {self.event_manager.get_listener_count('START_GAME')} listeners for START_GAME")
+            print(f"🔍 DEBUG: GC: All registered events: {list(self.event_manager.listeners.keys())}")
+            print(f"🔍 DEBUG: GC: EventManager ID: {id(self.event_manager)}")
             #self.event_manager.register("SAVE_REQUESTED", self.handle_save_requested)
             #self.event_manager.register("SCREENSHOT_REQUESTED", self.handle_screenshot_requested)
             #self.event_manager.register("DEBUG_TOGGLE", self.handle_debug_toggle)
             #self.event_manager.register("TEXT_INPUT", self.handle_text_input_event)
-            
+            # Register semantic action event listeners
         
-            print("✅ InputHandler initialized and integrated!")
-            print("✅ GameController: All systems initialized successfully!")
+            print("✅ GC:InputHandler initialized and integrated!")
+            print("✅ GC: GameController: All systems initialized successfully!")
             return True
             
         except Exception as e:
@@ -155,7 +154,6 @@ class GameController:
         elif current_screen == "developer_splash":
             self.game_state.screen = "main_menu"
     
-
     def setup_event_listeners(self):
         """Initialize all event listeners for professional event-driven architecture"""
         print("🎯 GC Setting up event listeners...")
@@ -193,10 +191,7 @@ class GameController:
             print(f"❌ ERROR in setup_event_listeners: {e}")
             import traceback
             traceback.print_exc()
-
-    
-    
-    
+ 
     def handle_npc_clicked(self, event_data): #data: Dict[str, Any]): 
         """
         Handle NPC click events - replacement for hardcoded click detection
@@ -215,7 +210,6 @@ class GameController:
             "target_screen": screen_name,
             "source_screen": self.game_state.screen
         })
-
 
     def handle_screen_change(self, event_data):
         """Handle screen transition events - UNIFIED SYSTEM"""
@@ -297,7 +291,6 @@ class GameController:
         print(f"DEBUG: ESC on screen: {self.game_state.screen}")
         return True
 
-
     def handle_input(self, event) -> bool:
         """Safe version with better mouse handling"""
         if event.type == pygame.QUIT:
@@ -329,6 +322,7 @@ class GameController:
                 return True
         
         return True
+    
     def handle_text_input(self, event) -> bool:
         """NEW METHOD - Handle custom name text input (from main.py)"""
         if self.game_state.screen == "custom_name" and self.game_state.custom_name_active:
@@ -579,6 +573,35 @@ class GameController:
                 return True
 
         return False  # No overlays handled
+###############temp to get mouse clicks working##############
+    def handle_start_game(self, event_data):
+        """Handle START_GAME semantic action"""
+        target_screen = event_data.get('target_screen', 'developer_splash')
+        print(f"🎮 START_GAME: Transitioning to {target_screen}")
+        self.transition_to(target_screen)
+
+    def handle_continue(self, event_data):
+        """Handle CONTINUE semantic action"""
+        target_screen = event_data.get('target_screen', 'main_menu')
+        print(f"🎮 CONTINUE: Transitioning to {target_screen}")
+        self.transition_to(target_screen)
+
+    def handle_new_game(self, event_data):
+        """Handle NEW_GAME semantic action"""
+        print("🎮 NEW_GAME: Starting character creation")
+        self.game_state.activate_character_portrait()
+        self.transition_to("stats")
+
+    def handle_load_game(self, event_data):
+        """Handle LOAD_GAME semantic action"""
+        print("🎮 LOAD_GAME: Opening load screen")
+        self.game_state.load_screen_open = True
+
+    def handle_quit_game(self, event_data):
+        """Handle QUIT_GAME semantic action"""
+        print("🎮 QUIT_GAME: Exiting game")
+        return False  # This should trigger game exit
+##################end temp to get mouse clicks working##############
 
     def register_screen_clickables(self):
         #####################this should eventually move to screen handler###########
@@ -622,8 +645,6 @@ class GameController:
         )
         
         print("🎯 Screen clickables registered with InputHandler")
-
-
 
     def run_current_screen(self):
         """
@@ -688,10 +709,20 @@ class GameController:
         # All the screen drawing logic from main.py draw_current_screen()
         if game_state.screen == "game_title":
             draw_title_screen(screen, game_state, fonts, images)
+            # NEW: Only register if not already registered for this screen
+            if "game_title" not in self.input_handler.clickable_regions:
+                from screens.title_menu import get_game_title_interactables
+                self.input_handler.set_interactables("game_title", get_game_title_interactables())
         elif game_state.screen == "developer_splash":
             draw_company_splash_screen(screen, game_state, fonts, images) 
+            # NEW: Register clickable regions after drawing
+            from screens.title_menu import get_developer_splash_interactables
+            self.input_handler.set_interactables("developer_splash", get_developer_splash_interactables())
         elif game_state.screen == "main_menu":
             draw_main_menu(screen, game_state, fonts, images)
+            # NEW: Register clickable regions after drawing
+            from screens.title_menu import get_main_menu_interactables
+            self.input_handler.set_interactables("main_menu", get_main_menu_interactables())
         elif game_state.screen == "stats":
             draw_stats_screen(screen, game_state, fonts, images)
         elif game_state.screen == "gender":
@@ -853,7 +884,6 @@ class GameController:
             print("📍 No previous screen to return to")
             return False
 
-   
     def handle_mouse_click(self, mouse_pos):
         #old
         """
@@ -888,7 +918,6 @@ class GameController:
 
         # Note: If the screen handler needs more than just mouse_pos, you can adjust
         # this call accordingly (e.g., current_screen_handler.handle_mouse_click(mouse_pos, self.game_state, ...))
-
 #####
     def handle_overlay_toggle(self, event_data):
         """Handle overlay toggle events from InputHandler"""

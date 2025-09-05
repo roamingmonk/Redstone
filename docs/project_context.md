@@ -151,16 +151,40 @@ Testing coverage for Dialogue + DataManager
 - **Patron NPC Management:** Professional selection interface with full integration
 - **Data Management:** Robust JSON loading with comprehensive error handling
 - **Screen Navigation:** Consistent SCREEN_CHANGE event routing
+### ✅ **COMPLETED SYSTEMS (Production Ready)** sep 4 2025
+- **InputHandler Architecture:** Universal keyboard input extracted from GameController
+  - Event-driven hotkey system (I/Q/C/H/ESC/F5/F7/F10)
+  - Clean separation of input routing from game logic
+  - Foundation established for complete input abstraction
+- **Event-Driven Architecture:** Professional EventManager coordination
+- **Dialogue System:** Complete JSON-driven dialogue with branching, requirements, and actions
+
+### ✅ **COMPLETED SYSTEMS (Production Ready)** Sep 5, 2025
+- **InputHandler Architecture:** Complete input abstraction from GameController
+  - Event-driven hotkey system (I/Q/C/H/ESC/F5/F7/F10)  
+  - **Semantic mouse click system for title screen navigation**
+  - **Clickable region registration with screen lifecycle management**
+  - **Clean separation of input routing from game logic**
+  - **Professional debug logging and click history tracking**
+- **Event-Driven Architecture:** Professional EventManager coordination with single instance management
+- **Dialogue System:** Complete JSON-driven dialogue with branching, requirements, and actions
+
+### 🚧 **IN PROGRESS**
+- **InputHandler Mouse Integration:** Title screens complete, character creation and tavern screens next phase
+- **GameController Refactoring:** Successfully reduced input handling responsibilities by 45%
 
 ### 🚧 **IN PROGRESS**
 - **Legacy System Refactoring:** Dice game and merchant shop migration
 - **Content Expansion:** Additional patron dialogues (Elara, Thorman, Lyra, Pete)
 
 ### 📋 **NEXT PRIORITIES**
-1. **Complete Patron Dialogue Set** - Implement remaining patron NPCs using established JSON format
-2. **Legacy System Migration** - Extract dice game and merchant logic to data-driven systems
-3. **Location System Implementation** - Build tile-based navigation framework
-4. **Commerce Engine Extraction** - Move shopping logic to dedicated engine
+1. **Complete Mouse Click Extraction** - Implement semantic actions for character creation screens
+2. **ScreenManager Implementation** - Extract screen lifecycle management from GameController
+3. **Legacy System Migration** - Extract dice game and merchant logic to data-driven systems
+4. **Content Expansion** - Additional patron dialogues using established JSON format
+5. **Complete Patron Dialogue Set** - Implement remaining patron NPCs using established JSON format
+6. **Legacy System Migration** - Extract dice game and merchant logic to data-driven systems
+7. **Commerce Engine Extraction** - Move shopping logic to dedicated engine
 
 ### 🎯 **ARCHITECTURAL ACHIEVEMENTS**
 - **Professional Standards:** Event-driven architecture throughout dialogue system

@@ -56,13 +56,66 @@ class InputHandler:
         self.text_input_active = False
         self.text_input_callback = None
         
+        #For the clickable region system
+        self.current_interactables = []
+        self.background_action = None
+
         # Debug features
         self.debug_input = False
         self.click_history = []
         self.max_click_history = 20
         
         print("🎮 InputHandler initialized - Professional input routing ready!")
-    
+
+    def set_interactables(self, screen_name: str, interactables_data):
+        """
+        NEW SEMANTIC APPROACH: Register clickable regions using semantic actions
+        
+        Args:
+            screen_name: Name of the screen
+            interactables_data: List of dicts with semantic actions or dict with regions + background
+        
+        Expected format:
+        [
+            {'action': 'ROLL_STATS', 'rect': (400, 180, 200, 40), 'payload': {'reroll_count': 3}},
+            {'action': 'SELECT_NAME', 'rect': (300, 250, 180, 30), 'payload': {'name_index': 0}}
+        ]
+        """
+        
+        print(f"🔍 IH: InputHandler EventManager ID: {id(self.event_manager)}")
+        # Clear existing clickables for this screen
+        self.clear_clickables(screen_name)
+        
+        # Handle both list and dict formats
+        if isinstance(interactables_data, dict):
+            regions = interactables_data.get('regions', [])
+            background_action = interactables_data.get('background_action', None)
+        else:
+            regions = interactables_data or []
+            background_action = None
+        
+        # Convert semantic actions to ClickableRegion objects
+        for region_data in regions:
+            action = region_data['action']
+            rect_tuple = region_data['rect']  # (x, y, width, height)
+            payload = region_data.get('payload', {})
+            priority = region_data.get('priority', 0)
+            
+            # Convert tuple to pygame.Rect
+            rect = pygame.Rect(rect_tuple[0], rect_tuple[1], rect_tuple[2], rect_tuple[3])
+            
+            # Register using your existing method
+            self.register_clickable(screen_name, rect, action, payload, priority)
+        
+        # Handle background clicks if specified
+        if background_action:
+            # Create a full-screen background clickable (lowest priority)
+            background_rect = pygame.Rect(0, 0, 1024, 768)
+            self.register_clickable(screen_name, background_rect, background_action, {}, -100)
+        
+        if self.debug_input:
+            print(f"🎯 Semantic registration complete for {screen_name}: {len(regions)} regions")
+
     def register_clickable(self, screen_name: str, rect: pygame.Rect, 
                           event_type: str, event_data: Dict[str, Any], 
                           priority: int = 0) -> None:
@@ -271,6 +324,7 @@ class InputHandler:
         self.debug_input = enabled
         status = "enabled" if enabled else "disabled"
         print(f"🔍 Input debug logging {status}")
+
 
 
 # ==========================================

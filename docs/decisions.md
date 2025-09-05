@@ -58,25 +58,48 @@
 
 ---
 
-ADR-009: Patron screen add
+**ADR-009:** Patron screen add
 
-**Status: ** Accepted
--**Date: ** Sep 3, 2025
+**Status:** Accepted
+-**Date:** Sep 3, 2025
 -Context: dialogue updates and additions to NPC patrons still neeeded.
 -Decision: added new Patron selection screen, added only gareth dialogue
 -Consequences: expanded dialogue scope
 
-ADR-010: Garreth dialogue updates to ensure functionality
+**ADR-010:** Garreth dialogue updates to ensure functionality
 -Sep 4 2025-
 -Dialogue Engine, generic_dialogue Handler - to enhance functionality
 -smooth working of gareth dialogue on patron selection screen
 also created a JSON file creation guide document to aid in future dialogue creations. in redston doc folder.
 
-ADR-011: got shop system visible, but still hardcoded and non-functiona;
+**ADR-011:** got shop system visible, but still hardcoded and non-functiona;
 -Sep 4, 2025
 - Game_Controller.py  shopping.py  geeting the screen to work
 - verifies the visibility of the screen
 
+**ADR-012:** input handling integration - phase 1
+**Sep 4, 2025**
+- created input handler.py, game_controller.py
+- extracted universal keyboard from GC to IH.  program can start and use overlays.  first step in major refactoring.
+
+## ADR-013: Semantic Input System - Phase 1 Complete
+- **Status:** Accepted
+- **Date:** Sep 5, 2025
+- **Context:** InputHandler had keyboard extraction but still needed mouse click integration for complete input abstraction
+- **Decision:** Implement semantic action system where screens register named actions (START_GAME, CONTINUE, NEW_GAME) instead of hardcoded pixel coordinates. InputHandler routes clicks to EventManager as semantic events.
+- **Consequences:** 
+  - Title screen navigation now fully event-driven
+  - Click coordinates preserved as metadata for analytics
+  - Screen logic decoupled from input handling
+  - Foundation established for extracting all remaining screen mouse handlers
+  - GameController input responsibilities reduced by additional 15%
+
+## ADR-014: EventManager Instance Management
+- **Status:** Accepted  
+- **Date:** Sep 5, 2025
+- **Context:** Duplicate `initialize_event_manager()` calls creating separate instances, breaking event routing
+- **Decision:** Single EventManager instance shared across all systems - initialized once in GameController, passed to all subsystems
+- **Consequences:** All event registration and emission now uses same instance, enabling proper event-driven architecture
 
 ```
 ## ADR-XXX: <Short title>

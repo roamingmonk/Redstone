@@ -142,3 +142,66 @@ def draw_main_menu(surface, game_state, fonts, images=None):
                              "QUIT", fonts.get('fantasy_medium', fonts['normal']))
     
     return new_game_button, load_game_button, quit_button
+
+
+
+def get_game_title_interactables():
+    """
+    Semantic clickable regions for the game title screen
+    Click anywhere to advance to developer splash
+    """
+    return [
+        {
+            'action': 'START_GAME',
+            'rect': (0, 0, 1024, 768),  # Full screen clickable
+            'payload': {'target_screen': 'developer_splash'},
+            'priority': 0
+        }
+    ]
+
+def get_developer_splash_interactables():
+    """
+    Semantic clickable regions for the developer splash screen
+    Click anywhere to advance to main menu
+    """
+    return [
+        {
+            'action': 'CONTINUE',
+            'rect': (0, 0, 1024, 768),  # Full screen clickable
+            'payload': {'target_screen': 'main_menu'},
+            'priority': 0
+        }
+    ]
+
+def get_main_menu_interactables():
+    """
+    Semantic clickable regions for the main menu
+    Returns regions for the three buttons
+    """
+    # Button layout (matching draw_main_menu)
+    button_y = 300
+    button_width = 200
+    button_height = 60
+    button_spacing = 80
+    start_x = (1024 - button_width) // 2
+    
+    return [
+        {
+            'action': 'NEW_GAME',
+            'rect': (start_x, button_y, button_width, button_height),
+            'payload': {'target_screen': 'stats'},
+            'priority': 1
+        },
+        {
+            'action': 'LOAD_GAME', 
+            'rect': (start_x, button_y + button_spacing, button_width, button_height),
+            'payload': {'open_load_screen': True},
+            'priority': 1
+        },
+        {
+            'action': 'QUIT_GAME',
+            'rect': (start_x, button_y + (button_spacing * 2), button_width, button_height),
+            'payload': {'quit': True},
+            'priority': 1
+        }
+    ]
