@@ -298,3 +298,65 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
     surface.blit(help_surface, (help_x, help_y))
     
     return merchant_item_rects, buy_button, reset_button, back_button
+
+
+# ==========================================
+# SCREEN REGISTRATION FUNCTIONS (NEW ARCHITECTURE)
+# ==========================================
+
+def register_shop_screens(controller):
+    """
+    Register all shop-related screens with the controller.
+    This keeps shop screen management in the shopping module where it belongs.
+    """
+    print("🏪 Registering shop screens...")
+    
+    # Register generic merchant screen
+    controller.register_screen("merchant_shop", render_merchant_shop)
+    
+    # Register specific merchant screens  
+    merchants = ['garrick', 'elara', 'blacksmith', 'apothecary']
+    for merchant_id in merchants:
+        screen_name = f"{merchant_id}_shop"
+        controller.register_screen(screen_name, render_merchant_shop)
+        print(f"  ✅ Registered: {screen_name}")
+    
+    print("🏪 Shop screens registered!")
+
+def render_merchant_shop(surface, game_state, fonts, images, controller):
+    """
+    Render function for merchant shops - handles all the data loading logic.
+    This keeps merchant-specific logic in the shopping module.
+    """
+    # Extract merchant ID from current screen name
+    screen_name = game_state.screen
+    if screen_name.endswith('_shop'):
+        merchant_id = screen_name.replace('_shop', '') + '_barkeep'
+    else:
+        merchant_id = 'garrick_barkeep'  # Default fallback
+    
+    print(f"🏪 Rendering shop for merchant_id: {merchant_id}")
+    
+    # Get merchant data through proper chain
+    data_manager = controller.get_data_manager()
+    if data_manager:
+        item_manager = data_manager.get_manager('items')
+        if item_manager:
+            merchant_data = item_manager.get_merchant_inventory(merchant_id)
+            if merchant_data:
+                # Use existing draw function
+                draw_merchant_screen(surface, game_state, fonts, merchant_data, images)
+                return True
+            else:
+                print(f"❌ No merchant data found for {merchant_id}")
+        else:
+            print("❌ No item_manager found")
+    else:
+        print("❌ No data_manager found")
+    
+    # Fallback error display
+    surface.fill((0, 0, 0))
+    font = fonts.get('normal', fonts['normal'])
+    text = font.render(f"Shop Error: {merchant_id}", True, (255, 255, 255))
+    surface.blit(text, (100, 100))
+    return False

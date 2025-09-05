@@ -58,7 +58,26 @@
 
 ---
 
-### ADR Template
+ADR-009: Patron screen add
+
+**Status: ** Accepted
+-**Date: ** Sep 3, 2025
+-Context: dialogue updates and additions to NPC patrons still neeeded.
+-Decision: added new Patron selection screen, added only gareth dialogue
+-Consequences: expanded dialogue scope
+
+ADR-010: Garreth dialogue updates to ensure functionality
+-Sep 4 2025-
+-Dialogue Engine, generic_dialogue Handler - to enhance functionality
+-smooth working of gareth dialogue on patron selection screen
+also created a JSON file creation guide document to aid in future dialogue creations. in redston doc folder.
+
+ADR-011: got shop system visible, but still hardcoded and non-functiona;
+-Sep 4, 2025
+- Game_Controller.py  shopping.py  geeting the screen to work
+- verifies the visibility of the screen
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

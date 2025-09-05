@@ -128,6 +128,8 @@ class GameController:
             register_npc_dialogue_screen(self.screen_manager, 'meredith')
             register_npc_dialogue_screen(self.screen_manager, 'gareth')
         
+  
+
             print("✅ Event listeners registered successfully!")
         except Exception as e:
             print(f"❌ ERROR in setup_event_listeners: {e}")
@@ -155,22 +157,27 @@ class GameController:
 
 
     def handle_screen_change(self, event_data):
-        """Handle screen transition events - SCREEN MANAGER ONLY"""
+        """Handle screen transition events - UNIFIED SYSTEM"""
         target_screen = event_data.get("target_screen")
         source_screen = event_data.get("source_screen")
         
         print(f"🔄 SCREEN_CHANGE: {source_screen} -> {target_screen}")
         
         if target_screen:
-            if hasattr(self, 'screen_manager') and target_screen in self.screen_manager.get_registered_screens():
-                # Update game state - screen manager will handle drawing
+            # Check BOTH screen systems for registration
+            registered_in_controller = target_screen in self.screens
+            registered_in_screen_manager = (hasattr(self, 'screen_manager') and 
+                                        target_screen in self.screen_manager.get_registered_screens())
+            
+            if registered_in_controller or registered_in_screen_manager:
                 self.game_state.screen = target_screen
-                print(f"✅ Screen registered: {target_screen}")
+                print(f"✅ Screen transition successful: {target_screen}")
             else:
-                # FORCE the issue - no fallback
                 print(f"❌ UNREGISTERED SCREEN: {target_screen}")
-                print(f"   Available screens: {self.screen_manager.get_registered_screens()}")
-                print("   This screen needs to be registered with the screen manager!")
+                print(f"   Controller screens: {list(self.screens.keys())}")
+                if hasattr(self, 'screen_manager'):
+                    print(f"   ScreenManager screens: {self.screen_manager.get_registered_screens()}")
+                print("   This screen needs to be registered!")
                 # Stay on current screen instead of crashing
                 return
         else:
@@ -867,15 +874,13 @@ class GameController:
 
     def run_current_screen(self):
         """
-        NEW METHOD - Master screen renderer (from main.py draw_current_screen)
-        This is the missing piece your GameController needs
+        TEMPORARY: Use old system while we plan proper refactoring
         """
         try:
             self.draw_current_screen()
             self.frame_count += 1
-            
         except Exception as e:
-            self.handle_screen_error(e)  # Use your existing error handling!
+            self.handle_screen_error(e)
 
     def draw_current_screen(self):
         """
@@ -990,6 +995,17 @@ class GameController:
         elif game_state.screen == "patron_selection":
             from screens.patron_selection import draw_patron_selection_screen
             draw_patron_selection_screen(screen, game_state, fonts, images, controller=self)
+
+        elif game_state.screen == "garrick_shop":
+            # Get merchant data and render shop
+            data_manager = self.get_data_manager()
+            if data_manager:
+                item_manager = data_manager.get_manager('items')
+                if item_manager:
+                    merchant_data = item_manager.get_merchant_inventory('garrick_barkeep')
+                    if merchant_data:
+                        draw_merchant_screen(screen, game_state, fonts, merchant_data, images)
+
 
 
         elif game_state.screen == "merchant_shop":
@@ -2003,13 +2019,13 @@ class ScreenRegistry:
         except ImportError as e:
             print(f"⚠️ Gambling screens not available: {e}")
         
-        # Register shopping screen
+        # Register shopping screens (NEW ARCHITECTURE)
         try:
-            from screens.shopping import draw_merchant_screen
-            controller.register_screen("merchant_shop", draw_merchant_screen)
-            print("✅ Shopping screen registered!")
+            from screens.shopping import register_shop_screens
+            register_shop_screens(controller)
+            print("✅ Shopping screens registered via shopping module!")
         except ImportError as e:
-            print(f"⚠️ Shopping screen not available: {e}")
+            print(f"⚠️ Shopping screens not available: {e}")
 
         # Register save/load screens
         try:

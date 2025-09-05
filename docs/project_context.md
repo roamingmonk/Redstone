@@ -13,10 +13,11 @@
 - **Player-facing:** Tavern-centered narrative, branching dialogue, inventory/party management.
 - **Dev-facing:** New content (NPCs, locations, quests) created with JSON only; minimal code changes.
 - **Success criteria:**
-  - ✅ Event-driven coordination via EventManager【150†source】
-  - ✅ Dialogue system fully JSON-driven with 3+ conversation states【151†source】【160†source】
-  - ✅ Engines are stateless, using GameState as the Single Data Authority【149†source】【164†source】
-  - ✅ Shrink game_controller from 1000+ LOC to ~200 LOC【152†source】【162†source】
+  - ✅ Event-driven coordination via EventManager
+  - ✅ Dialogue system fully JSON-driven with 3+ conversation states and branching
+  - ✅ **Professional patron NPC system with event-driven architecture**
+  - ✅ Engines are stateless, using GameState as the Single Data Authority
+  - ✅ Shrink game_controller from 1000+ LOC to ~200 LOC
 
 ## 3) Non-Goals (current milestone)
 - Multiplayer networking
@@ -31,7 +32,7 @@
 
 ## 5) Architecture Overview
 
-### 5.1 Core Layers【159†source】
+### 5.1 Core Layers
 - **Data Authority:** `game_state.py`, plus external JSONs under `/data`
 - **Engines:** Pure business logic (`inventory_engine.py`, `dialogue_engine.py`, etc.)
 - **Presentation:** Screens and UI components, pure rendering only
@@ -46,19 +47,24 @@ project_root/
     event_manager.py              # ✅ implemented
     inventory_engine.py           # ✅ refactored (stateless)
     data_manager.py               # ✅ loader/coordinator
-    dialogue_engine.py            # enhanced for branching
+    dialogue_engine.py            # ✅ enhanced for branching + requirements
     commerce_engine.py            # shop transactions
     character_engine.py           # stats & party
     content_loader.py             # (planned) config-driven loading
   ui/
     screen_manager.py             # (planned)
     input_handler.py              # (planned)
+    screen_handlers.py            # ✅ patron selection click handling
+    generic_dialogue_handler.py   # ✅ quest_update + recruit_npc actions
     screens/
+      patron_selection.py         # ✅ NEW - professional patron selection
       generic_dialogue.py         # (planned replacement)
       generic_location.py         # (planned)
   data/
-    dialogues/tavern_garrick.json # ✅ 3-state branching【151†source】
-    npcs/*.json                   # ✅ NPCs extracted【165†source】
+    dialogues/
+      tavern_garrick.json         # ✅ 3-state branching
+      tavern_[patron].json        # ✅ NEW - JSON-driven patron dialogues
+    npcs/*.json                   # ✅ NPCs extracted
     items.json
     content_config.json           # (future)
   utils/
@@ -72,6 +78,7 @@ project_root/
   docs/
     project_context.md
     decisions.md
+    dialogue_json_guide.md        # ✅ NEW - comprehensive dialogue creation guide
 ```
 
 ### 5.3 Event Flow (simplified)
@@ -86,20 +93,24 @@ flowchart TD
   A --> H[ScreenManager]
   H --> I[Screens/UI]
   I --> A
+  
+  J[broken_blade_main] --> K[patron_selection]
+  K --> L[NPC_dialogue]
+  L --> M[quest_update/recruit_npc]
 ```
 
 ## 6) Data & Assets
-- **Dialogue:** Stored in JSON under `/data/dialogues`, deep branching supported【151†source】
-- **NPCs:** Standardized JSON schema (`id`, `name`, `description`, `level`, etc.)【165†source】
-- **Locations:** Moving toward config-driven definitions in `content_config.json`【162†source】
+- **Dialogue:** Stored in JSON under `/data/dialogues`, deep branching supported with requirements system
+- **NPCs:** Standardized JSON schema (`id`, `name`, `description`, `level`, etc.)
+- **Locations:** Moving toward config-driven definitions in `content_config.json`
 - **Assets:** Referenced by logical IDs; loaded by `AssetManager` (planned)
 
 ## 7) Event Catalog (current)
 - `NPC_CLICKED`
 - `DIALOGUE_STARTED`, `DIALOGUE_CHOICE`, `DIALOGUE_ENDED`
 - `ITEM_PURCHASED`, `ITEM_SOLD`, `INVENTORY_CHANGED`
-- `SCREEN_CHANGE`
-- `SAVE_REQUESTED`, `LOAD_REQUESTED`【150†source】
+- `SCREEN_CHANGE` **✅ Enhanced for patron navigation**
+- `SAVE_REQUESTED`, `LOAD_REQUESTED`
 
 ## 8) Build, Run, Test
 - **Install:** `pip install -r requirements.txt`
@@ -108,17 +119,83 @@ flowchart TD
 - **Package:** PyInstaller (planned)
 
 ## 9) Observability
-- EventManager keeps history of last 50 events【150†source】
+- EventManager keeps history of last 50 events
 - Debug logging toggleable; add structured trace output (planned)
+- **✅ Comprehensive dialogue debugging and error reporting**
 
 ## 10) Risks & Open Questions
-- Ongoing `game_controller.py` refactor to cut duplication
-- Robustness of JSON schema validation
-- Testing coverage for Dialogue + DataManager
-- Future expansion: QuestEngine, CombatEngine【156†source】
+- ongoing 'game_controller.py' refactor to cut duplication **improved but more assessment neeeded**
+- ~~Robustness of JSON schema validation~~ **✅ ENHANCED with comprehensive error handling**
+Testing coverage for Dialogue + DataManager
+- **Legacy systems refactoring** (dice game, merchant shop)
+- Future expansion: QuestEngine, CombatEngine
 
 ## 11) Changelog
-- **Aug 25:** NPC extraction complete【165†source】
-- **Sep 1:** Architecture roadmap revised【163†source】
-- **Sep 3:** Garrick branching dialogue tested and validated【160†source】
-- **Sep 3:** EventManager fully integrated【150†source】
+- **Aug 25:** NPC extraction complete
+- **Sep 1:** Architecture roadmap revised
+- **Sep 3:** Garrick branching dialogue tested and validated
+- **Sep 3:** EventManager fully integrated
+- **Sep 4:** **🎉 PATRON NPC SYSTEM COMPLETE - Professional event-driven dialogue architecture**
+  - ✅ **Professional patron selection screen** (screens/patron_selection.py)
+  - ✅ **Enhanced dialogue engine** with requirements system and error handling
+  - ✅ **Complete action system** (quest_update, recruit_npc, dialogue_branch, exit)
+  - ✅ **Legacy tavern.py migration** to event-driven architecture
+  - ✅ **Comprehensive documentation** (dialogue_json_guide.md)
+  - ✅ **Simplified content creation workflow** - new NPCs require only JSON files
+
+## 12) Current Development Status
+
+### ✅ **COMPLETED SYSTEMS (Production Ready)**
+- **Event-Driven Architecture:** Professional EventManager coordination
+- **Dialogue System:** Complete JSON-driven dialogue with branching, requirements, and actions
+- **Patron NPC Management:** Professional selection interface with full integration
+- **Data Management:** Robust JSON loading with comprehensive error handling
+- **Screen Navigation:** Consistent SCREEN_CHANGE event routing
+
+### 🚧 **IN PROGRESS**
+- **Legacy System Refactoring:** Dice game and merchant shop migration
+- **Content Expansion:** Additional patron dialogues (Elara, Thorman, Lyra, Pete)
+
+### 📋 **NEXT PRIORITIES**
+1. **Complete Patron Dialogue Set** - Implement remaining patron NPCs using established JSON format
+2. **Legacy System Migration** - Extract dice game and merchant logic to data-driven systems
+3. **Location System Implementation** - Build tile-based navigation framework
+4. **Commerce Engine Extraction** - Move shopping logic to dedicated engine
+
+### 🎯 **ARCHITECTURAL ACHIEVEMENTS**
+- **Professional Standards:** Event-driven architecture throughout dialogue system
+- **Content Creation Simplified:** New NPCs require only JSON files, no code changes
+- **Error Resilience:** Comprehensive validation and fallback systems
+- **Documentation Complete:** Full dialogue creation guide and testing procedures
+- **Developer Experience:** Clear separation of content (JSON) and code (Python)
+
+## 13) Development Workflow
+
+### **Adding New Patron NPCs (Current Process)**
+1. Create `data/dialogues/tavern_[npc_name].json` file
+2. Add NPC to patron selection button list
+3. Register with `register_npc_dialogue_screen()`
+
+**No Code Changes Needed For:**
+- Basic dialogue functionality
+- Standard action types (quest_update, recruit_npc, dialogue_branch, exit)
+- Navigation and screen management
+- Error handling and validation
+
+### **Supported Dialogue Actions**
+- **exit:** Return to previous screen
+- **dialogue_branch:** Change conversation state for complex trees
+- **quest_update:** Set quest flags in game state
+- **recruit_npc:** Add NPCs to party with validation
+
+### **Requirements System**
+- Conditional dialogue options based on game state flags
+- Support for boolean flag requirements (true/false)
+- Clean integration with existing quest and progress systems
+- Extensible for future requirement types
+
+---
+
+*Last Updated: September 4, 2025*  
+*Status: Patron NPC System Complete - Professional Event-Driven Architecture*  
+*Next Session Focus: Additional patron dialogue implementation and legacy system refactoring*
