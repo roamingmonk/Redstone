@@ -17,6 +17,7 @@ from game_logic.event_manager import initialize_event_manager, get_event_manager
 from datetime import datetime
 from typing import Optional, Dict, Any, Callable
 from utils.constants import *
+from input_handler import InputHandler
 
 #from utils.graphics import draw_error_screen   will create later
 
@@ -32,6 +33,7 @@ class GameController:
         self.fonts = fonts
         self.images = images
         self.event_manager = None
+        self.input_handler = None
 
         # Screen registry - maps screen names to their functions
         self.screens: Dict[str, Callable] = {}
@@ -63,6 +65,33 @@ class GameController:
         self.last_save_time = None
         self.last_load_time = None
 
+    def _update_universal_keys_state(self):
+        """Update universal keys state based on current screen"""
+        # Simple implementation for now
+        if self.game_state.screen in ["custom_name"]:
+            self.universal_keys_enabled = False
+        else:
+            self.universal_keys_enabled = True
+    
+    def register_screen_clickables(self):
+        """TEMPORARY - Register screen clickable regions with InputHandler"""
+        if not self.input_handler:
+            print("🎯 Screen clickables registration skipped (no InputHandler)")
+            return
+        
+        # Only run InputHandler code if it exists
+        self.input_handler.clear_all_clickables()
+        
+        # Rest of the clickable registration code...
+        print("🎯 Screen clickables registered with InputHandler")
+
+    def register_screen(self, screen_name: str, draw_function):
+        """Register a screen with its drawing function"""
+        self.screens[screen_name] = draw_function
+        print(f"📋 Registered screen: {screen_name}")
+
+
+    
     def initialize_data_systems(self) -> bool:
         """
         Initializes and loads all game data and engines.
@@ -73,10 +102,21 @@ class GameController:
         try:
             print("📊 GameController: Beginning core system initialization...")
             
-            # Step 1: Load all data first
+            # Step 1: Initialize EventManager first
+            self.event_manager = initialize_event_manager()
+        
+            # Step 2: Initialize InputHandler immediately after EventManager
+            self.input_handler = InputHandler(self.event_manager)
+            self.input_handler.enable_debug_input(True)
+            print("✅ InputHandler initialized early!") 
+           
+            # Step 3: Register InputHandler events
+            self.event_manager.register("OVERLAY_TOGGLE", self.handle_overlay_toggle)
+            self.event_manager.register("SCREEN_ADVANCE", self.handle_screen_advance)
+
             self.data_manager.load_all_data()
             
-            # Step 2: Initialize all engines directly in GameController
+            # Step : Initialize all engines directly in GameController
             self.character_engine = initialize_character_engine(self.game_state)
             self.inventory_engine = initialize_inventory_engine(self.game_state, self.data_manager.item_manager)
             self.commerce_engine = initialize_commerce_engine(self.game_state, self.data_manager.item_manager) 
@@ -84,12 +124,20 @@ class GameController:
                         
             self.data_manager.dialogue_engine = self.dialogue_engine
             
-            # Step 3: Initialize EventManager directly
+            # Step : Initialize EventManager directly
             self.event_manager = initialize_event_manager()
             
-            # Step 4: Set up event listeners now that everything exists
-            self.setup_event_listeners()
             
+
+            # Step : Set up event listeners now that everything exists
+            self.setup_event_listeners()
+            #self.event_manager.register("SAVE_REQUESTED", self.handle_save_requested)
+            #self.event_manager.register("SCREENSHOT_REQUESTED", self.handle_screenshot_requested)
+            #self.event_manager.register("DEBUG_TOGGLE", self.handle_debug_toggle)
+            #self.event_manager.register("TEXT_INPUT", self.handle_text_input_event)
+            
+        
+            print("✅ InputHandler initialized and integrated!")
             print("✅ GameController: All systems initialized successfully!")
             return True
             
@@ -97,7 +145,16 @@ class GameController:
             print(f"❌ GameController: Data initialization failed: {e}")
             self.error_count += 1
             return False
-
+    
+    def handle_screen_advance(self, event_data):
+        """Handle screen advance events from InputHandler"""
+        current_screen = event_data.get("current_screen", self.game_state.screen)
+        
+        if current_screen == "game_title":
+            self.game_state.screen = "developer_splash"
+        elif current_screen == "developer_splash":
+            self.game_state.screen = "main_menu"
+    
 
     def setup_event_listeners(self):
         """Initialize all event listeners for professional event-driven architecture"""
@@ -122,20 +179,24 @@ class GameController:
             print(f"DEBUG: GC screen_manager created with {self.screen_manager.event_manager}")
             self.screen_manager.register_screen("broken_blade_main", handle_broken_blade_clicks)
             self.screen_manager.register_screen("patron_selection", handle_patron_selection_clicks)  
+            
 
             from ui.generic_dialogue_handler import register_npc_dialogue_screen
             register_npc_dialogue_screen(self.screen_manager, 'garrick')
             register_npc_dialogue_screen(self.screen_manager, 'meredith')
             register_npc_dialogue_screen(self.screen_manager, 'gareth')
-        
+            
+            #self.register_screen_clickables()
   
-
             print("✅ Event listeners registered successfully!")
         except Exception as e:
             print(f"❌ ERROR in setup_event_listeners: {e}")
             import traceback
             traceback.print_exc()
 
+    
+    
+    
     def handle_npc_clicked(self, event_data): #data: Dict[str, Any]): 
         """
         Handle NPC click events - replacement for hardcoded click detection
@@ -189,22 +250,85 @@ class GameController:
                 hasattr(self.game_state, 'custom_name_active') and 
                 self.game_state.custom_name_active)
 
-    def handle_input(self, event) -> bool:
-            """
-            ENHANCED VERSION - Master input handler 
-            This replaces your current incomplete version
-            """
-            if event.type == pygame.QUIT:
-                return False
+    def handle_universal_input(self, event) -> bool:
+        """Debug version to see what's happening"""
+        print(f"DEBUG: handle_universal_input called with event type: {event.type}")
+        
+        if event.type == pygame.KEYDOWN:
+            key_name = pygame.key.name(event.key)
+            print(f"DEBUG: Processing key: {key_name} (code: {event.key})")
             
-            if event.type == pygame.KEYDOWN:
-                return self.handle_keyboard_input_enhanced(event)  # Pass full event
-            
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                return self.handle_mouse_input_enhanced(event.pos)  # Enhanced mouse handling
-            
-            return True
+            # Test with a simple key first
+            if event.key == pygame.K_SPACE:
+                print("DEBUG: SPACE key detected - advancing screen")
+                # Try to advance to next screen
+                if self.game_state.screen == "game_title":
+                    self.game_state.screen = "developer_splash"
+                    print("DEBUG: Changed to developer_splash")
+                elif self.game_state.screen == "developer_splash":
+                    self.game_state.screen = "main_menu"
+                    print("DEBUG: Changed to main_menu")
+                return True
+                
+            # Test ESC key
+            elif event.key == pygame.K_ESCAPE:
+                print("DEBUG: ESC key detected")
+                return True
+                
+            print(f"DEBUG: Key {key_name} not handled")
+        
+        return True
 
+    def _handle_escape_key(self) -> bool:
+        """Handle ESC key - close overlays or advance screens"""
+        # Check if any overlays are open
+        overlay_attrs = [
+            'help_screen_open', 'inventory_open', 'quest_log_open', 
+            'character_sheet_open', 'load_screen_open', 'save_screen_open'
+        ]
+        
+        for attr in overlay_attrs:
+            if hasattr(self.game_state, attr) and getattr(self.game_state, attr):
+                setattr(self.game_state, attr, False)
+                print(f"DEBUG: ESC closed overlay: {attr}")
+                return True
+        
+        # No overlays open - handle screen-specific ESC behavior
+        print(f"DEBUG: ESC on screen: {self.game_state.screen}")
+        return True
+
+
+    def handle_input(self, event) -> bool:
+        """Safe version with better mouse handling"""
+        if event.type == pygame.QUIT:
+            return False
+        
+        # Check if InputHandler is initialized
+        if not self.input_handler:
+            if event.type == pygame.KEYDOWN:
+                return self.handle_universal_input(event)
+            return True
+        
+        # Let InputHandler process keyboard input
+        if event.type == pygame.KEYDOWN:
+            return self.input_handler.process_keyboard_input(event, self.game_state)
+        
+        # Handle mouse clicks safely
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            # First check overlays
+            if self.handle_overlay_mouse_clicks(event.pos):
+                return True
+            
+            # Try InputHandler mouse processing, but catch errors
+            try:
+                return self.input_handler.process_mouse_click(event.pos, self.game_state.screen)
+            except Exception as e:
+                print(f"DEBUG: InputHandler mouse click failed: {e}")
+                print(f"DEBUG: Falling back to old mouse handling for {self.game_state.screen}")
+                # Fall back to your existing screen-specific mouse handling
+                return True
+        
+        return True
     def handle_text_input(self, event) -> bool:
         """NEW METHOD - Handle custom name text input (from main.py)"""
         if self.game_state.screen == "custom_name" and self.game_state.custom_name_active:
@@ -456,431 +580,65 @@ class GameController:
 
         return False  # No overlays handled
 
-    def handle_screen_mouse_clicks(self, mouse_pos) -> bool:
-        """NEW METHOD - Screen-specific mouse handling framework"""
-        # This is where screen-specific mouse logic goes
-
-        # GAME TITLE - click to go to developer splash
-        if self.game_state.screen == "game_title":
-            self.transition_to("developer_splash")
-            return True
-
-        # DEVELOPER SPLASH - click to go to main menu
-        elif self.game_state.screen == "developer_splash":
-            self.transition_to("main_menu")
-            return True
-    
-        # Main menu
-        elif self.game_state.screen == "main_menu":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.title_menu import draw_main_menu
-            new_game_btn, load_game_btn, quit_btn = draw_main_menu(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if new_game_btn.collidepoint(mouse_pos):
-                self.game_state.activate_character_portrait()
-                self.transition_to("stats")  # Start character creation
-
-            elif load_game_btn.collidepoint(mouse_pos):
-                 self.game_state.load_screen_open = True
-                
-            elif quit_btn.collidepoint(mouse_pos):
-                return False  # Quit game
-
-        # Stats screen
-        elif self.game_state.screen == "stats":
-            # We need to call the draw function to get button positions
-            # This is a bit of a hack, but it works for our simple system
-            pygame.Surface((1, 1))  # Dummy surface
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.character_creation import draw_stats_screen
-            roll_button, keep_button = draw_stats_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if roll_button.collidepoint(mouse_pos):
-                from game_logic.character_engine import get_character_engine
-                engine = get_character_engine()
-                if engine:
-                    engine.roll_stats(reroll_ones=True)
-                    # Copy engine results to temp_stats for UI display
-                    self.game_state.temp_stats = {
-                        'strength': self.game_state.character.get('strength', 0),
-                        'dexterity': self.game_state.character.get('dexterity', 0), 
-                        'constitution': self.game_state.character.get('constitution', 0),
-                        'intelligence': self.game_state.character.get('intelligence', 0),
-                        'wisdom': self.game_state.character.get('wisdom', 0),
-                        'charisma': self.game_state.character.get('charisma', 0)
-                    }
-                    self.game_state.stats_rolled = True
-            
-            if keep_button and keep_button.collidepoint(mouse_pos):
-                self.game_state.character.update(self.game_state.temp_stats)
-                self.transition_to("gender")
+    def register_screen_clickables(self):
+        #####################this should eventually move to screen handler###########
+        """Register all screen clickable regions with InputHandler"""
+        # This will replace your massive handle_screen_mouse_clicks method
         
-        # Gender screen
-        elif self.game_state.screen == "gender":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.character_creation import draw_gender_screen
-            male_button, female_button = draw_gender_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if male_button.collidepoint(mouse_pos):
-                self.game_state.character['gender'] = 'male'
-                self.game_state.current_names = self.game_state.get_random_names('male')
-                self.transition_to("portrait_selection")
-            
-            if female_button.collidepoint(mouse_pos):
-                self.game_state.character['gender'] = 'female'
-                self.game_state.current_names = self.game_state.get_random_names('female')
-                self.transition_to("portrait_selection")
+        # Clear any existing clickables
+        if self.input_handler:
+            self.input_handler.clear_all_clickables()
         
-        # Portrait selection screen
-        elif self.game_state.screen == "portrait_selection":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.character_creation import draw_portrait_selection_screen
-            portrait_buttons, back_button, continue_button = draw_portrait_selection_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            # Check portrait selection
-            for i, portrait_rect in enumerate(portrait_buttons):
-                if portrait_rect.collidepoint(mouse_pos):
-                    self.game_state.selected_portrait_index = i
-            
-            # Back to gender selection
-            if back_button.collidepoint(mouse_pos):
-                self.transition_to("gender")
-            
-            # Continue to name (only if portrait selected)
-            elif continue_button.collidepoint(mouse_pos):
-                if hasattr(self.game_state, 'selected_portrait_index'):
-                    # Store selection in game state for save/load persistence
-                    gender = self.game_state.character.get('gender', 'male')
-                    self.game_state.set_selected_portrait(gender, self.game_state.selected_portrait_index)
-                    
-                    # Ensure active portrait file is current
-                    self.game_state.ensure_active_portrait()
-                    
-                # DEBUG: Print to verify this is working
-                    print(f"DEBUG: Portrait data stored: {self.game_state.character.get('selected_portrait_file', 'MISSING')}")
-                    self.transition_to("name")
-                    
-
-        # Name screen
-        elif self.game_state.screen == "name":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.character_creation import draw_name_screen
-            name_buttons, new_names_button, custom_name_button = draw_name_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if new_names_button.collidepoint(mouse_pos):
-                self.game_state.current_names = self.game_state.get_random_names(self.game_state.character['gender'])
-            
-            if custom_name_button.collidepoint(mouse_pos):
-                self.game_state.custom_name_text = ""
-                self.game_state.custom_name_active = True
-                self.transition_to("custom_name")
-            
-            # Check if any name button was clicked
-            for i, button in enumerate(name_buttons):
-                if button.collidepoint(mouse_pos):
-                    self.game_state.selected_name = self.game_state.current_names[i]
-                    self.transition_to("name_confirm")
-                    
-                    break
+        # Title screen - any click advances
+        title_rect = pygame.Rect(0, 0, 1024, 768)  # Full screen clickable
+        self.input_handler.register_clickable(
+            "game_title", title_rect, "SCREEN_CHANGE", 
+            {"target_screen": "developer_splash", "source_screen": "game_title"}
+        )
         
-        # Custom name screen
-        elif self.game_state.screen == "custom_name":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.character_creation import draw_custom_name_screen
-            input_box_rect, confirm_button, back_button = draw_custom_name_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if input_box_rect.collidepoint(mouse_pos):
-                self.game_state.custom_name_active = True
-            else:
-                self.game_state.custom_name_active = False
-            
-            if confirm_button and confirm_button.collidepoint(mouse_pos):
-                self.game_state.selected_name = self.game_state.custom_name_text.strip()
-                self.transition_to("name_confirm")
-            
-            if back_button.collidepoint(mouse_pos):
-                self.transition_to("name")
-                self.game_state.custom_name_active = False
+        # Developer splash - any click advances  
+        dev_rect = pygame.Rect(0, 0, 1024, 768)
+        self.input_handler.register_clickable(
+            "developer_splash", dev_rect, "SCREEN_CHANGE",
+            {"target_screen": "main_menu", "source_screen": "developer_splash"}
+        )
         
-        # Name confirmation screen
-        elif self.game_state.screen == "name_confirm":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.character_creation import draw_name_confirm_screen
-            confirm_button, back_button = draw_name_confirm_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if confirm_button.collidepoint(mouse_pos):
-                self.game_state.character['name'] = self.game_state.selected_name
-                self.transition_to("gold")
-
-            
-            if back_button.collidepoint(mouse_pos):
-                if self.game_state.custom_name_text:
-                    self.transition_to("custom_name")
-                else:
-                    self.game_state.screen = "name"
+        # Main menu buttons (you'll need to get actual button rects)
+        # For now, placeholder rects - we'll replace with real ones from screen drawing
+        new_game_rect = pygame.Rect(400, 300, 200, 50)
+        self.input_handler.register_clickable(
+            "main_menu", new_game_rect, "SCREEN_CHANGE",
+            {"target_screen": "stats", "source_screen": "main_menu"}
+        )
         
-        # Gold screen
-        elif self.game_state.screen == "gold":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.character_creation import draw_gold_screen
-            roll_button = draw_gold_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if roll_button.collidepoint(mouse_pos):
-                if 'gold' not in self.game_state.character:
-                    character_engine = self.data_manager.character_engine
-                    if character_engine:
-                        character_engine.roll_starting_gold()
-                else:
-                        self.transition_to("trinket")
-
+        load_game_rect = pygame.Rect(400, 370, 200, 50)
+        self.input_handler.register_clickable(
+            "main_menu", load_game_rect, "OVERLAY_TOGGLE", {"overlay_id": "load_game"}
+        )
         
-        # Trinket screen
-        elif self.game_state.screen == "trinket":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.character_creation import draw_trinket_screen
-            roll_button = draw_trinket_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if roll_button.collidepoint(mouse_pos):
-                if 'trinket' not in self.game_state.character:
-
-                    character_engine = self.data_manager.character_engine
-                    if character_engine:
-                        character_engine.roll_trinket()
-                else:
-                    # Calculate final character stats via engine
-                    character_engine = self.data_manager.character_engine
-                    if character_engine:
-                        character_engine.calculate_hp()
-                    self.transition_to("summary")
-           
-        # Summary screen
-        elif self.game_state.screen == "summary":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.character_creation import draw_summary_screen
-            start_button = draw_summary_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if start_button.collidepoint(mouse_pos):
-                
-                # Use CharacterEngine for finalization
-                from game_logic.character_engine import get_character_engine
-                engine = get_character_engine()
-                if engine:
-                    engine.set_character_class('fighter')  # Set class before finalization
-                    success = engine.finalize_character_creation()
-                else:
-                    success = False
-                
-                if success:
-                            self.transition_to("welcome")
-                else:
-                    print("❌ Character creation failed - staying on summary screen")
-                self.transition_to("welcome")
+        quit_rect = pygame.Rect(400, 440, 200, 50)
+        self.input_handler.register_clickable(
+            "main_menu", quit_rect, "QUIT_GAME", {}
+        )
         
-        # Welcome screen
-        elif self.game_state.screen == "welcome":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.character_creation import draw_welcome_screen
-            continue_button = draw_welcome_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if continue_button.collidepoint(mouse_pos):
-                #self.transition_to("tavern_main")
-                self.transition_to("broken_blade_main")
-        
-        # Tavern main screen
-        elif self.game_state.screen == "tavern_main":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.tavern import draw_tavern_main_screen
-            talk_button, gamble_button, bartender_button, leave_button = draw_tavern_main_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if talk_button.collidepoint(mouse_pos):
-                self.transition_to("tavern_npcs")
-                
-            elif gamble_button.collidepoint(mouse_pos):
-                self.transition_to("dice_bets")
-
-            elif bartender_button.collidepoint(mouse_pos):
-                self.game_state.current_npc = "bartender"
-                self.transition_to("tavern_conversation")
-
-            elif leave_button.collidepoint(mouse_pos):
-                print("Leaving tavern - town exploration coming soon!")
-        
-        # NPC selection screen
-        elif self.game_state.screen == "tavern_npcs":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.tavern import draw_npc_selection_screen
-            npc_buttons = draw_npc_selection_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            # Generic click handler - no hardcoded NPC names
-            for npc_key, button in npc_buttons.items():
-                if button and button.collidepoint(mouse_pos):
-                    if npc_key == 'back':
-                            self.transition_to("tavern_main")
-                    else:
-                        if npc_key in ['gareth', 'elara', 'thorman', 'lyra', 'pete']:
-                            self.transition_to(f"{npc_key}_dialogue")
-                        else:
-                            # Fallback for other NPCs
-                            self.game_state.current_npc = npc_key
-                            self.transition_to("tavern_conversation")
-                    break
-        # Tavern conversation screen  
-        elif self.game_state.screen == "tavern_conversation":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.tavern import draw_npc_conversation_screen
-            action_button, back_button = draw_npc_conversation_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if action_button and action_button.collidepoint(mouse_pos):
-                if self.game_state.current_npc == 'bartender':
-                    # Go to shop screen
-                    self.transition_to("merchant_shop")
-                elif self.game_state.current_npc == 'pete':
-                    # Pete's comedy sequence
-                    self.game_state.pete_showing_comedy = True
-                elif not self.game_state.is_party_full():
-                    # Normal recruitment
-                    success = self.game_state.recruit_npc(self.game_state.current_npc)
-                    if success:
-                        print(f"Recruited {self.game_state.current_npc}! Party size: {self.game_state.get_party_size()}")
-                        self.transition_to("tavern_npcs")
-                    else:
-                        print(f"{self.game_state.current_npc} is already in your party!")
-                else:
-                    print("Your party is full!")
-                    
-            elif back_button and back_button.collidepoint(mouse_pos):
-                # Handle different back destinations based on NPC
-                if self.game_state.current_npc == 'bartender':
-                    self.transition_to("broken_blade_main")  # Bartender goes back to main tavern
-                else:
-                    self.transition_to("tavern_npcs")  # Other NPCs go back to NPC selection
-       
-        #Dice betting screen
-        elif self.game_state.screen == "dice_bets":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.gambling_dice import draw_dice_bets_screen
-            bet_5_button, bet_10_button, bet_25_button, rules_button, back_button = draw_dice_bets_screen(
-                temp_surface, self.game_state, self.fonts, self.images)
-            
-            if bet_5_button and bet_5_button.collidepoint(mouse_pos):
-                self.game_state.dice_game['current_bet'] = 5
-                self.game_state.roll_redstone_dice()
-                self.transition_to("dice_rolling")
-            elif bet_10_button and bet_10_button.collidepoint(mouse_pos):
-                self.game_state.dice_game['current_bet'] = 10
-                self.game_state.roll_redstone_dice()
-                self.transition_to("dice_rolling")
-            elif bet_25_button and bet_25_button.collidepoint(mouse_pos):
-                self.game_state.dice_game['current_bet'] = 25
-                self.game_state.roll_redstone_dice()
-                self.transition_to("dice_rolling")
-            elif rules_button and rules_button.collidepoint(mouse_pos):
-                self.transition_to("dice_rules")
-            elif back_button and back_button.collidepoint(mouse_pos):
-                self.transition_to("broken_blade_main")
-                
-        # Dice rolling screen
-        elif self.game_state.screen == "dice_rolling":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.gambling_dice import draw_dice_rolling_screen
-            skip_area = draw_dice_rolling_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if skip_area and skip_area.collidepoint(mouse_pos):
-                # Check if we're in animation phase or done
-                current_time = pygame.time.get_ticks()
-                roll_start_time = self.game_state.dice_game.get('roll_start_time', 0)
-                if (current_time - roll_start_time) < 2000:  # Still in animation
-                    # Skip animation
-                    self.game_state.dice_game['animation_skipped'] = True
-                
-                # Always calculate results before transitioning
-                bet_amount = self.game_state.dice_game['current_bet']
-                dice = self.game_state.dice_game['last_roll']
-                payout, combination, description, continues = self.game_state.calculate_dice_payout(bet_amount, dice)
-                
-                # Store results for display - THIS IS THE MISSING PIECE!
-                self.game_state.dice_game['last_result'] = {
-                    'combination': combination,
-                    'payout': payout,
-                    'description': description
-                }
-                
-                # Reset animation state
-                self.game_state.dice_game['animation_skipped'] = False
-                self.transition_to("dice_results")
-                
-        # Dice results screen  
-        elif self.game_state.screen == "dice_results":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.gambling_dice import draw_dice_results_screen
-            continue_button, back_button = draw_dice_results_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if continue_button and continue_button.collidepoint(mouse_pos):
-                self.transition_to("dice_bets")
-            elif back_button and back_button.collidepoint(mouse_pos):
-                self.transition_to("broken_blade_main")
-                
-        # Dice rules screen
-        elif self.game_state.screen == "dice_rules":
-            temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            from screens.gambling_dice import draw_dice_rules_screen
-            back_button = draw_dice_rules_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-            if back_button and back_button.collidepoint(mouse_pos):
-                self.transition_to("dice_bets")
-
-        # Broken Blade Main Screen NEW 
-
-        #where old button clicks lived broken_blade
-
-  
-        elif self.game_state.screen == "broken_blade_main":
-            # Use generic screen manager instead of hardcoded logic
-            if hasattr(self, 'screen_manager') and self.screen_manager:
-                handled = self.screen_manager.handle_screen_click(
-                    "broken_blade_main", mouse_pos, self
-                )
-                if handled:
-                    return True
-            else:
-                print("ERROR: screen_manager not initialized yet")
-                return False
-            
-        elif self.game_state.screen == "patron_selection":
-                    handled = self.screen_manager.handle_screen_click("patron_selection", mouse_pos, self)
-                    if handled:
-                        return True
-
-
-        elif self.game_state.screen == "garrick_dialogue":
-            handled = self.screen_manager.handle_screen_click("garrick_dialogue", mouse_pos, self)
-            if handled:
-                return True
-
-        elif self.game_state.screen == "meredith_dialogue":
-            handled = self.screen_manager.handle_screen_click("meredith_dialogue", mouse_pos, self)
-            if handled:
-                return True
-
-        elif self.game_state.screen == "gareth_dialogue":
-            handled = self.screen_manager.handle_screen_click("gareth_dialogue", mouse_pos, self)
-            if handled:
-                return True
-        
-        return True
-
+        print("🎯 Screen clickables registered with InputHandler")
 
 
 
     def run_current_screen(self):
         """
-        TEMPORARY: Use old system while we plan proper refactoring
+        TEMPORARY - Handle current screen rendering
+        This will call your existing draw_current_screen method
         """
         try:
+            # Call your existing massive draw_current_screen method
             self.draw_current_screen()
             self.frame_count += 1
+            
         except Exception as e:
-            self.handle_screen_error(e)
+            print(f"❌ Error in run_current_screen: {e}")
+            # Fallback to prevent crashes
+            self.screen.fill((0, 0, 0))  # Black screen
 
     def draw_current_screen(self):
         """
@@ -1095,90 +853,7 @@ class GameController:
             print("📍 No previous screen to return to")
             return False
 
-    def handle_keyboard_input_enhanced(self, event) -> bool:
-        """
-        Enhanced keyboard handling - preserves existing logic + adds main.py functionality
-        This replaces your current handle_keyboard_input(key) method
-        """
-        
-        # PRIORITY 1: Text input gets absolute priority (NEW - from main.py)
-        # This MUST come first to prevent hotkey conflicts during typing
-        if self.is_text_input_active():
-            return self.handle_text_input(event)
-        
-        # PRIORITY 2: Universal hotkeys (PRESERVE your existing system)
-        # Your existing handle_universal_input() already handles I/Q/C/H/F7/F10/ESC
-        if self.handle_universal_input(event):
-            return True
-        
-        # PRIORITY 3: Screen-specific keyboard input (NEW - from main.py)
-        # This handles Enter key on title screen, developer splash progression, etc.
-        if self.handle_screen_specific_input(event):
-            return True
-        
-        # PRIORITY 4: Screen handler delegation (PRESERVE your existing logic)
-        # Keep your existing screen delegation system for individual screen handlers
-        current_screen_handler = self.screens.get(self.game_state.screen)
-        if current_screen_handler and hasattr(current_screen_handler, 'handle_keyboard_input'):
-            # Note: This might need adjustment if screen handlers expect different parameters
-            current_screen_handler.handle_keyboard_input(event.key)  # or event, depending on implementation
-    
-        return True
-
-    def handle_keyboard_input(self, key):
-        """
-        Handles keyboard events delegated from the main game loop.
-        All universal hotkey logic is contained here.
-        """
-        # Universal keys (always checked regardless of screen)
-        if self.universal_keys_enabled:
-            if key == pygame.K_h:
-                # Toggle the help screen
-                if self.is_overlay_active('help_overlay'):
-                    self.hide_overlay('help_overlay')
-                else:
-                    self.show_overlay('help_overlay', 'help_screen')
-            
-            # All other overlay toggles
-            elif key == pygame.K_F1:  # Inventory
-                self.toggle_overlay('inventory_overlay', 'inventory_screen')
-            elif key == pygame.K_F2:  # Character sheet
-                self.toggle_overlay('character_sheet_overlay', 'character_sheet_screen')
-            elif key == pygame.K_F3:  # Quest log
-                self.toggle_overlay('quest_log_overlay', 'quest_log_screen')
-            elif key == pygame.K_F4:  # Map
-                self.toggle_overlay('map_overlay', 'world_map_screen')
-            elif key == pygame.K_F5:  # Options
-                self.toggle_overlay('options_overlay', 'options_screen')
-            elif key == pygame.K_F6:  # Lore book
-                self.toggle_overlay('lore_book_overlay', 'lore_book_screen')
-
-            # Save/load hotkeys
-            elif key == pygame.K_F7:  # Save
-                self.save_game()
-            elif key == pygame.K_F10:  # Load
-                self.load_game()
-
-        # Delegate event to the current screen's handler
-        current_screen_handler = self.screens.get(self.current_screen)
-        if current_screen_handler and hasattr(current_screen_handler, 'handle_keyboard_input'):
-            current_screen_handler.handle_keyboard_input(key)
-        
-        return True
-
-    def handle_mouse_input_enhanced(self, mouse_pos) -> bool:
-        """
-        ENHANCED VERSION - Complete mouse handling with all overlay logic
-        This enhances your current handle_mouse_click method
-        """
-        
-        # Use the complete overlay mouse handling from main.py
-        if self.handle_overlay_mouse_clicks(mouse_pos):
-            return True
-        
-        # Delegate to screen-specific handlers
-        return self.handle_screen_mouse_clicks(mouse_pos)
-
+   
     def handle_mouse_click(self, mouse_pos):
         #old
         """
@@ -1214,133 +889,94 @@ class GameController:
         # Note: If the screen handler needs more than just mouse_pos, you can adjust
         # this call accordingly (e.g., current_screen_handler.handle_mouse_click(mouse_pos, self.game_state, ...))
 
-    def handle_universal_input(self, event: pygame.event.Event) -> bool:
-        """
-        Handle universal keyboard shortcuts that work across all screens
-        Returns True if event was consumed, False if screen should handle it
-        """
-        #if not self.universal_keys_enabled:
-        #    return False
+#####
+    def handle_overlay_toggle(self, event_data):
+        """Handle overlay toggle events from InputHandler"""
+        overlay_id = event_data.get("overlay_id")
         
-        if event.type == pygame.KEYDOWN:
-            print(f"🔍 DEBUG: Controller screen={self.game_state.screen}, Key pressed={pygame.key.name(event.key)}")
-            print(f"🔍 DEBUG: universal_keys_enabled = {self.universal_keys_enabled}")
-
-            # ===== HELP KEY - ALWAYS WORKS (except during text input) =====
-            if event.key == pygame.K_h:
-                is_text_input_active = (self.game_state.screen == 'custom_name' and 
-                                    getattr(self.game_state, 'custom_name_active', False))
-                if not is_text_input_active:
-                    if not self.game_state.help_screen_open:
-                        self.close_all_overlays()
-                    self.game_state.toggle_help()
-                    print(f"✅ Help screen toggled: {self.game_state.help_screen_open}")
-                    return True
-
-            # ESC key - close overlays first, never exit game
-            if event.key == pygame.K_ESCAPE:
-                # Check if any overlays are open and close them
-                if (self.game_state.help_screen_open or 
-                    self.game_state.inventory_open or 
-                    self.game_state.quest_log_open or 
-                    self.game_state.character_sheet_open or
-                    getattr(self.game_state, 'character_advancement_open', False) or
-                    getattr(self.game_state, 'save_screen_open', False) or
-                    getattr(self.game_state, 'load_screen_open', False)):
-                    
-                    self.close_all_overlays()
-                    if hasattr(self.game_state, 'save_screen_open'):
-                        self.game_state.save_screen_open = False
-                    if hasattr(self.game_state, 'load_screen_open'):
-                        self.game_state.load_screen_open = False
-                    print("🔄 ESC: Closed all overlays")
-                    return True
-                else:
-                    # No overlays open - ESC does nothing (could add main menu logic here later)
-                    print("🔄 ESC: No overlays to close")
-                    return True
-            
-            # F1 always works (to toggle debug on/off)
-            if event.key == pygame.K_F1:
-                self.toggle_debug_info()
-                return True
-
-            # Other debug shortcuts (only in debug mode)
-            if self.debug_mode:
-                if event.key == pygame.K_F2:
-                    self.print_game_state()
-                    return True
-                elif event.key == pygame.K_F3:
-                    self.screenshot()
-                    return True
-                # F4 - Reload data systems (development shortcut)
-                elif event.key == pygame.K_F4:
-                    print("🔄 F4 pressed - Reloading data systems...")
-                    self.reload_data_systems()
-                    return True
-
-            # ===== CHECK FOR BLOCKED SCREENS =====
-            
-            if not self.universal_keys_enabled:
-                print(f"🚫 Universal keys disabled, skipping key: {pygame.key.name(event.key)}")
-                return False
-
-            # ===== KEYS THAT CAN BE BLOCKED =====
-            
-            #  SAVE/LOAD KEYS 
-            if event.key in [pygame.K_F5, pygame.K_F7, pygame.K_F10]:
-                if not self.can_save_load():
-                    print(f"🚫 Save/Load operations disabled on screen: {self.game_state.screen}")
-                    return True
-                
-                # Process save/load if allowed
-                if event.key == pygame.K_F5:
-                    self.save_game(save_slot=99)
-                    return True
-                elif event.key == pygame.K_F7:
-                    print("DEBUG: F7 key detected - opening save screen")
-                    self.game_state.save_screen_open = True
-                    print(f"DEBUG: save_screen_open set to {self.game_state.save_screen_open}")    
-                    return True
-                elif event.key == pygame.K_F10:
-                    self.game_state.load_screen_open = True
-                    return True
-
-            # ===== OVERLAY HOTKEYS - Only work on gameplay screens =====
-            # I for Inventory
-            if event.key == pygame.K_i:
-                if not self.game_state.inventory_open:
-                    self.close_all_overlays()
-                self.game_state.toggle_inventory()
-                print(f"Inventory open: {self.game_state.inventory_open}")
-                return True
-            
-            # Q for quest
-            elif event.key == pygame.K_q:
-                if not self.game_state.quest_log_open:
-                    self.close_all_overlays()
-                self.game_state.toggle_quest_log()
-                print(f"Quest log open: {self.game_state.quest_log_open}")
-                return True
-            
-            # C for character sheet
-            elif event.key == pygame.K_c:
-                if not self.game_state.character_sheet_open:
-                    self.close_all_overlays()
-                self.game_state.toggle_character_sheet()
-                print(f"DEBUG: Set character_sheet_open = {self.game_state.character_sheet_open}")
-                print(f"DEBUG: Verify game_state.character_sheet_open = {getattr(self.game_state, 'character_sheet_open', 'MISSING')}")
-                return True
-
-            # L for character sheet
-            elif event.key == pygame.K_l:
+        if overlay_id == "inventory":
+            if not self.game_state.inventory_open:
                 self.close_all_overlays()
-                self.game_state.toggle_character_advancement_open()
-                print("⭐ Character advancement toggled")
-                return True
+            self.game_state.toggle_inventory()
+            
+        elif overlay_id == "quest_log":
+            if not self.game_state.quest_log_open:
+                self.close_all_overlays()
+            self.game_state.toggle_quest_log()
+            
+        elif overlay_id == "character_sheet":
+            if not self.game_state.character_sheet_open:
+                self.close_all_overlays()
+            self.game_state.toggle_character_sheet()
+            
+        elif overlay_id == "help":
+            if not self.game_state.help_screen_open:
+                self.close_all_overlays()
+            self.game_state.toggle_help()
+            
+        elif overlay_id == "load_game":
+            if not getattr(self.game_state, 'load_screen_open', False):
+                self.close_all_overlays()
+            self.game_state.load_screen_open = not getattr(self.game_state, 'load_screen_open', False)
+        
+        print(f"🎛️  Overlay toggled: {overlay_id}")
 
-        return False
+    def handle_save_requested(self, event_data):
+        """Handle save requests from InputHandler"""
+        slot = event_data.get("slot", "quick_save")
+        
+        if slot == "quick_save":
+            # Use slot 1 for quick save
+            success = self.save_game(1)
+            if success:
+                print("💾 Quick save successful!")
+            else:
+                print("❌ Quick save failed!")
+        else:
+            # Direct slot save
+            self.save_game(slot)
 
+    def handle_screenshot_requested(self, event_data):
+        """Handle screenshot requests from InputHandler"""
+        try:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"screenshot_{timestamp}.png"
+            pygame.image.save(self.screen, filename)
+            print(f"📸 Screenshot saved: {filename}")
+        except Exception as e:
+            print(f"❌ Screenshot failed: {e}")
+
+    def handle_debug_toggle(self, event_data):
+        """Handle debug toggle from InputHandler"""
+        self.debug_mode = not self.debug_mode
+        print(f"🔧 Debug mode: {'ON' if self.debug_mode else 'OFF'}")
+
+    def handle_text_input_event(self, event_data):
+        """Handle text input events from InputHandler"""
+        event = event_data.get("event")
+        screen = event_data.get("screen")
+        
+        if screen == "custom_name" and hasattr(self.game_state, 'custom_name_active'):
+            if event.key == pygame.K_RETURN:
+                if self.game_state.custom_name_text.strip():
+                    self.game_state.selected_name = self.game_state.custom_name_text.strip()
+                    self.transition_to("name_confirm")
+                    
+            elif event.key == pygame.K_BACKSPACE:
+                self.game_state.custom_name_text = self.game_state.custom_name_text[:-1]
+                
+            elif len(self.game_state.custom_name_text) < 30 and event.unicode.isprintable():
+                self.game_state.custom_name_text += event.unicode
+
+    def handle_screen_advance(self, event_data):
+        """Handle screen advance events from InputHandler"""
+        current_screen = event_data.get("current_screen")
+        
+        if current_screen == "game_title":
+            self.transition_to("developer_splash")
+        elif current_screen == "developer_splash":
+            self.transition_to("main_menu")
+########
     def _update_universal_keys_state(self):
         """
         Updates the state of universal keys based on the current screen.
