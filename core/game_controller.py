@@ -166,12 +166,7 @@ class GameController:
             #Register all screens with ScreenManager AFTER engines are ready
             self.screen_manager.register_all_screen_renders()
             print("📺 GC: All screens render functions registered ")
-
-            self.event_manager.register('START_GAME', self.handle_start_game)
-            self.event_manager.register('CONTINUE', self.handle_continue)
-            
-            self.event_manager.register('LOAD_GAME', self.handle_load_game)
-            
+                        
             print(f"🔍 DEBUG: GC: EventManager has {self.event_manager.get_listener_count('START_GAME')} listeners for START_GAME")
             print(f"🔍 DEBUG: GC: All registered events: {list(self.event_manager.listeners.keys())}")
             print(f"🔍 DEBUG: GC: EventManager ID: {id(self.event_manager)}")
@@ -416,25 +411,6 @@ class GameController:
 
         return True
 
-###############temp to get mouse clicks working##############
-    def handle_start_game(self, event_data):
-        """Handle START_GAME semantic action"""
-        target_screen = event_data.get('target_screen', 'developer_splash')
-        print(f"🎮 START_GAME: Transitioning to {target_screen}")
-        self.transition_to(target_screen)
-
-    def handle_continue(self, event_data):
-        """Handle CONTINUE semantic action"""
-        target_screen = event_data.get('target_screen', 'main_menu')
-        print(f"🎮 CONTINUE: Transitioning to {target_screen}")
-        self.transition_to(target_screen)
-
-    def handle_load_game(self, event_data):
-        """Handle LOAD_GAME semantic action"""
-        print("🎮 LOAD_GAME: Opening load screen")
-        self.game_state.load_screen_open = True
-
-##################end temp to get mouse clicks working##############
     def register_screen_clickables(self):
         #####################this should eventually move to screen handler###########
         """Register all screen clickable regions with InputHandler"""
@@ -906,15 +882,15 @@ class ScreenRegistry:
         # Import screen modules (we'll add these as we create them)
         
          # Register title/menu screens
-        try:
-            from screens.title_menu import draw_title_screen, draw_company_splash_screen, draw_main_menu
-            controller.register_screen("game_title", draw_title_screen)           # Initial title
-            controller.register_screen("developer_splash", draw_company_splash_screen)  # Company screen
-            controller.register_screen("main_menu", draw_main_menu)               # Main menu
-            print("✅ Title/menu screens registered!")
-        except ImportError as e:
-            print(f"❌ IMPORT ERROR: {e}")
-            print(f"⚠️ Title/menu screens not available: {e}")
+        #try:
+        #    from screens.title_menu import draw_title_screen, draw_company_splash_screen, draw_main_menu
+        #    controller.register_screen("game_title", draw_title_screen)           # Initial title
+        #    controller.register_screen("developer_splash", draw_company_splash_screen)  # Company screen
+        #    controller.register_screen("main_menu", draw_main_menu)               # Main menu
+        #    print("✅ Title/menu screens registered!")
+        #except ImportError as e:
+        #    print(f"❌ IMPORT ERROR: {e}")
+        #    print(f"⚠️ Title/menu screens not available: {e}")
 
         # Register character advancement screen
         try:

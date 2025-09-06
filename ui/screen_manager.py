@@ -45,15 +45,28 @@ class ScreenManager:
         self.previous_screen = None
         self.screen_history = []
         
-        # NEW: Error handling
+        #Error handling
         self.fallback_screen = "main_menu"
         self.error_count = 0
         self.max_errors = 3
-        
+                
+        # Navigation route map for simple transitions
+        self.navigation_routes = {
+            'START_GAME': 'developer_splash',
+            'CONTINUE': 'main_menu',
+            # Future routes can be added here
+        }
+
         print("📺 Enhanced ScreenManager initialized")
         if event_manager:
             event_manager.register("SCREEN_CHANGE", self._handle_screen_change_event)
             event_manager.register("SCREEN_ADVANCE", self._handle_screen_advance_event)
+            # Register direct navigation events
+            # This direct system is simple and not the same input system as subsequent screens
+            # Plan to use the screen manager route map for more complex flows
+            event_manager.register("START_GAME", self._handle_direct_navigation)
+            event_manager.register("CONTINUE", self._handle_direct_navigation)
+            event_manager.register("LOAD_GAME", self._handle_load_game)
             print("📺 ScreenManager subscribed to navigation events")
 
     def register_screen(self, screen_name: str, click_handler: Callable):
@@ -62,6 +75,25 @@ class ScreenManager:
             'click_handler': click_handler
         }
         print(f"🔗 Registered screen click handler: {screen_name}")
+
+    def _handle_direct_navigation(self, event_data):
+        """Handle navigation events that just emit SCREEN_CHANGE"""
+        target_screen = event_data.get('target_screen')
+        source_screen = event_data.get('source_screen', 'unknown')
+        
+        if target_screen:
+            # Emit the SCREEN_CHANGE event that we already handle
+            self.event_manager.emit('SCREEN_CHANGE', {
+                'target_screen': target_screen,
+                'source_screen': source_screen
+            })
+
+    def _handle_load_game(self, event_data):
+        """Handle LOAD_GAME - open load overlay"""
+        print("📂 ScreenManager: Opening load screen")
+        if hasattr(self, '_current_game_state'):
+            self._current_game_state.load_screen_open = True
+
 
     def _register_basic_screen_handlers(self):
         """Auto-register basic screen click handlers"""
@@ -175,10 +207,9 @@ class ScreenManager:
                 draw_name_screen, draw_custom_name_screen, draw_name_confirm_screen,
                 draw_gold_screen, draw_trinket_screen, draw_summary_screen, draw_welcome_screen
             )
-            from screens.tavern import (
-                draw_tavern_main_screen, draw_npc_selection_screen, draw_npc_conversation_screen
-            )
+            
             from screens.broken_blade import draw_broken_blade_main_screen
+            from screens.patron_selection import draw_patron_selection_screen  
             from screens.shopping import draw_merchant_screen
             from screens.inventory import draw_inventory_screen
             from screens.quest_log import draw_quest_log_screen
@@ -199,22 +230,19 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_stats_screen_clickables())
             self.register_render_function("gender", draw_gender_screen,
                 enter_hook=lambda _: self.register_gender_screen_clickables())
-            self.register_render_function("gender", draw_gender_screen)
-            self.register_render_function("portrait_selection", draw_portrait_selection_screen)
             self.register_render_function("name", draw_name_screen)
             self.register_render_function("custom_name", draw_custom_name_screen)
             self.register_render_function("name_confirm", draw_name_confirm_screen)
+            self.register_render_function("portrait_selection", draw_portrait_selection_screen)
             self.register_render_function("gold", draw_gold_screen)
             self.register_render_function("trinket", draw_trinket_screen)
             self.register_render_function("summary", draw_summary_screen)
             self.register_render_function("welcome", draw_welcome_screen)
-            
-            # Main game screens
-            self.register_render_function("tavern_main", draw_tavern_main_screen)
-            self.register_render_function("npc_selection", draw_npc_selection_screen)
-            self.register_render_function("npc_conversation", draw_npc_conversation_screen)
+
+            #Broken Blade Tavern
             self.register_render_function("broken_blade_main", draw_broken_blade_main_screen)
-            
+            self.register_render_function("patron_selection", draw_patron_selection_screen)
+
             # Utility screens
             self.register_render_function("merchant", draw_merchant_screen)
             self.register_render_function("inventory", draw_inventory_screen)
@@ -222,7 +250,7 @@ class ScreenManager:
             self.register_render_function("character_sheet", draw_character_sheet_screen)
             self.register_render_function("help", draw_help_screen)
             
-            # Gambling screens
+            # Gambling mini-game screens
             self.register_render_function("dice_bets", draw_dice_bets_screen)
             self.register_render_function("dice_rolling", draw_dice_rolling_screen)
             self.register_render_function("dice_results", draw_dice_results_screen)
