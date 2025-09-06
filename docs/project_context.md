@@ -183,7 +183,7 @@ Testing coverage for Dialogue + DataManager
   - **300+ lines removed** with draw_current_screen() method eliminated
   - **Event-driven screen transitions** replacing direct method calls
   - **Professional separation of concerns** architecture established
-
+- **Gender Selection Screen:** Professional semantic action   implementation (SELECT_MALE, SELECT_FEMALE)
 
 ### 🚧 **IN PROGRESS**
 - **InputHandler Mouse Integration:** Title screens complete, character creation and tavern screens next phase

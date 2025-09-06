@@ -68,14 +68,14 @@ class CharacterEngine:
         
         print(f"🎲 Character stats rolled: {stats}")
         return stats
-    def register_stat_events(self, event_manager):
-        """Register this engine for stat-related events"""
-        self.event_manager = event_manager
+    # def register_stat_events(self, event_manager):
+    #     """Register this engine for stat-related events"""
+    #     self.event_manager = event_manager
         
-        # Wire events directly to existing methods
-        event_manager.register('REROLL_STATS', self._handle_reroll_stats)
-        event_manager.register('KEEP_STATS', self._handle_keep_stats)
-        print("📝 CharacterEngine registered for stat events")
+    #     # Wire events directly to existing methods
+    #     event_manager.register('REROLL_STATS', self._handle_reroll_stats)
+    #     event_manager.register('KEEP_STATS', self._handle_keep_stats)
+    #     print("📝 CharacterEngine registered for stat events")
 
     def _handle_reroll_stats(self, event_data):
         """Event wrapper for roll_stats - just adds logging"""
@@ -90,7 +90,42 @@ class CharacterEngine:
         if self.event_manager:
             self.event_manager.emit('SCREEN_CHANGE', {'target': 'gender'})
 
-    
+    def register_character_creation_events(self, event_manager):
+        """Register this engine for all character creation events"""
+        self.event_manager = event_manager
+        
+        # Stat events (existing)
+        event_manager.register('REROLL_STATS', self._handle_reroll_stats)
+        event_manager.register('KEEP_STATS', self._handle_keep_stats)
+        
+        # Gender events (new)
+        event_manager.register('SELECT_MALE', self._handle_select_male)
+        event_manager.register('SELECT_FEMALE', self._handle_select_female)
+        
+        print("🎯 CharacterEngine registered for all character creation events")
+
+    def _handle_select_male(self, event_data):
+        """Handle SELECT_MALE - set gender and navigate"""
+        print("🚹 CharacterEngine: SELECT_MALE event received")
+        
+        # Update GameState directly (Single Data Authority)
+        self.game_state.character['gender'] = 'male'
+        
+        # Emit navigation event to next screen
+        if self.event_manager:
+            self.event_manager.emit('SCREEN_CHANGE', {'target': 'portrait_selection'})
+
+    def _handle_select_female(self, event_data):
+        """Handle SELECT_FEMALE - set gender and navigate"""
+        print("🚺 CharacterEngine: SELECT_FEMALE event received")
+        
+        # Update GameState directly (Single Data Authority)
+        self.game_state.character['gender'] = 'female'
+        
+        # Emit navigation event to next screen
+        if self.event_manager:
+            self.event_manager.emit('SCREEN_CHANGE', {'target': 'portrait_selection'})
+
     def calculate_hp(self, constitution_score=None, character_class=None):
         """
         Calculate hit points based on constitution score and class
@@ -612,8 +647,8 @@ def initialize_character_engine(game_state_ref, event_manager=None):
     
     # Register for stat events if event manager provided
     if event_manager:
-        character_engine.register_stat_events(event_manager)
-        print("📝 CharacterEngine registered for stat events")
+        character_engine.register_character_creation_events(event_manager)
+        print("📝 CharacterEngine registered for character creation events")
     else:
         print("⚠️ No EventManager provided to CharacterEngine")
     

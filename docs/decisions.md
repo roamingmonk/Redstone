@@ -206,6 +206,27 @@ Clean separation: UI → Events → Engine → GameState
 Foundation established for remaining character creation screens
 GameController input responsibilities reduced by additional 10%
 **Files Modified:** screen_manager.py, character_engine.py, game_controller.py, character_creation.py
+
+## ADR-022: Gender Screen Input Modernization Complete
+- **Status:** Accepted
+- **Date:** Sep 5, 2025
+- **Context:** Gender screen used legacy manual click handling instead of semantic action system
+- **Decision:** Implement semantic actions (SELECT_MALE, SELECT_FEMALE) with CharacterEngine event handling
+- **Implementation:**
+  - ScreenManager registers gender screen clickables via enter hooks
+  - InputHandler routes clicks to EventManager as semantic events
+  - CharacterEngine handles gender events and business logic directly
+  - Used same pattern as stats screen for consistency
+- **Consequences:** 
+  - Gender screen now uses professional event-driven architecture
+  - Clean separation: UI → Events → Engine → GameState
+  - Foundation extended for remaining character creation screens
+  - GameController input responsibilities reduced by additional 5%
+- **Files Modified:** screen_manager.py, character_engine.py
+
+
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

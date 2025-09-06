@@ -124,6 +124,23 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for stats screen registration")
 
+    def register_gender_screen_clickables(self):
+        """Register gender screen clickables when entering gender screen"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            
+            # MALE button (exact coordinates from draw_gender_screen)
+            male_rect = pygame.Rect(340, 280, 160, 70)
+            self.input_handler.register_clickable('gender', male_rect, 'SELECT_MALE', {})
+            
+            # FEMALE button (exact coordinates from draw_gender_screen)  
+            female_rect = pygame.Rect(560, 280, 160, 70)
+            self.input_handler.register_clickable('gender', female_rect, 'SELECT_FEMALE', {})
+            
+            print("🚹🚺 Gender screen clickables registered")
+        else:
+            print("⚠️ No InputHandler available for gender screen registration")
+
+
     def register_render_function(self, screen_name: str, render_function: Callable,
                                 enter_hook: Optional[Callable] = None,
                                 exit_hook: Optional[Callable] = None):
@@ -178,7 +195,10 @@ class ScreenManager:
             self.register_render_function("main_menu", draw_main_menu)
             
             # Character creation screens
-            self.register_render_function("stats", draw_stats_screen)
+            self.register_render_function("stats", draw_stats_screen,
+                enter_hook=lambda _: self.register_stats_screen_clickables())
+            self.register_render_function("gender", draw_gender_screen,
+                enter_hook=lambda _: self.register_gender_screen_clickables())
             self.register_render_function("gender", draw_gender_screen)
             self.register_render_function("portrait_selection", draw_portrait_selection_screen)
             self.register_render_function("name", draw_name_screen)
@@ -231,9 +251,6 @@ class ScreenManager:
             print(f"❌ ERROR: Unknown render function for screen '{screen_name}'")
             print(f"📍 Registered screens: {list(self.render_functions.keys())}")
             return False
-        
-        if screen_name == "stats":
-            self.register_stats_screen_clickables()
 
         # Save history for back navigation
         if save_history and self.current_screen:
