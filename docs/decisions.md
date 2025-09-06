@@ -261,7 +261,7 @@ GameController input responsibilities reduced by additional 10%
   - Foundation established for systematic navigation management
 - **Files Modified:** screen_manager.py (added handlers), game_controller.py (removed temporary code)
 
-## ADR-023: Name Selection Screen Input 
+## ADR-025: Name Selection Screen Input 
 **Status:** Accepted
 **Date:** Sep 6, 2025
 **Context:** Name selection screens used legacy manual click handling and inconsistent text input architecture instead of unified event-driven system

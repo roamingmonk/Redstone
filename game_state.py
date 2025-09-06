@@ -42,7 +42,6 @@ class GameState:
         
         # UI state
         self.stats_rolled = False
-        self.custom_name_input = False
         self.custom_name_text = ""
         self.custom_name_active = False
         
@@ -144,57 +143,6 @@ class GameState:
         }
         
 
-    def get_random_names(self, gender):
-        """
-        Generate 3 random names based on gender
-        
-        Args:
-            gender: 'male' or 'female'
-            
-        Returns:
-            list: 3 unique name combinations
-        """
-        male_first = ["Garlen", "Theron", "Bjorn", "Marcus", "Aldric", "Grim", 
-                     "Roderick", "Tormund", "Cedric", "Bronn", "Garrett", "Willem"]
-        male_last = ["Sliverblade", "Ironwill", "Stormhammer", "Battleborn", "Steelhand", 
-                    "Ironforge", "Valorheart", "Ashblade", "Strongarm", "Warwick", 
-                    "Blackstone", "Goldbeard", "Flameheart", "Ironshield"]
-        
-        female_first = ["Kala", "Gina", "Sera", "Thessa", "Mira", "Brenna",
-                       "Cordelia", "Vera", "Dara", "Elara", "Rhea", "Zara"]
-        female_last = ["Stormborn", "Brightblade", "Ironheart", "Battlewise", "Steelstrike",
-                      "Stormwind", "Ashfall", "Strongwill", "Valorborn", "Moonwhisper",
-                      "Starfire", "Swiftarrow", "Nightblade", "Goldweaver"]
-        
-        names = []
-        
-        # For males, always include Garlen Sliverblade as an option if not used
-        if gender == 'male' and "Garlen Sliverblade" not in self.used_names:
-            names.append("Garlen Sliverblade")
-            self.used_names.add("Garlen Sliverblade")
-        
-        # Generate random combinations
-        first_names = male_first if gender == 'male' else female_first
-        last_names = male_last if gender == 'male' else female_last
-        
-        attempts = 0
-        while len(names) < 3 and attempts < 50:  # Prevent infinite loop
-            first = random.choice(first_names)
-            last = random.choice(last_names)
-            full_name = f"{first} {last}"
-            if full_name not in self.used_names:
-                names.append(full_name)
-                self.used_names.add(full_name)
-            attempts += 1
-        
-        # Fill remaining slots if needed (fallback safety)
-        while len(names) < 3:
-            first = random.choice(first_names)
-            last = random.choice(last_names)
-            full_name = f"{first} {last}"
-            names.append(full_name)
-        
-        return names
     
     def set_selected_portrait(self, gender, portrait_index):
         """Store portrait selection using actual filename"""
