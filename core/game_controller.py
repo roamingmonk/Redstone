@@ -169,7 +169,7 @@ class GameController:
 
             self.event_manager.register('START_GAME', self.handle_start_game)
             self.event_manager.register('CONTINUE', self.handle_continue)
-            self.event_manager.register('NEW_GAME', self.handle_new_game)
+            
             self.event_manager.register('LOAD_GAME', self.handle_load_game)
             
             print(f"🔍 DEBUG: GC: EventManager has {self.event_manager.get_listener_count('START_GAME')} listeners for START_GAME")
@@ -416,178 +416,6 @@ class GameController:
 
         return True
 
-    # def handle_overlay_mouse_clicks(self, mouse_pos) -> bool:
-    #     """NEW METHOD - All overlay click handling (from main.py)"""
-        
-       
-    #     # Help screen overlay
-    #     if self.game_state.help_screen_open:
-    #         temp_surface = pygame.Surface((1024, 768))
-    #         from screens.help_screen import draw_help_screen
-    #         result = draw_help_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-    #         if result:
-    #             return_rect = result
-    #             if return_rect and return_rect.collidepoint(mouse_pos):
-    #                 self.game_state.help_screen_open = False
-            
-    #         return True  # Block other clicks
-
-    #     # Character sheet screen overlay
-    #     if self.game_state.character_sheet_open:
-    #         temp_surface = pygame.Surface((1024, 768))
-    #         from screens.character_sheet import draw_character_sheet_screen
-    #         result = draw_character_sheet_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-    #         if result:
-    #             return_rect = result
-    #             if return_rect and return_rect.collidepoint(mouse_pos):
-    #                 self.game_state.character_sheet_open = False
-            
-    #         return True  # Block other clicks
-  
-    #     # Quest log Screen overlay
-    #     if self.game_state.quest_log_open:
-    #         temp_surface = pygame.Surface((1024, 768))
-    #         from screens.quest_log import draw_quest_log_screen
-    #         result = draw_quest_log_screen(temp_surface, self.game_state, self.fonts, self.images)
-            
-    #         if result and len(result) == 2:
-    #             quest_rects, return_rect = result
-                
-    #             # Handle quest selection clicks
-    #             for i, quest_rect in enumerate(quest_rects):
-    #                 if quest_rect.collidepoint(mouse_pos):
-    #                     # Handle quest selection clicks
-    #                     for i, quest_rect in enumerate(quest_rects):
-    #                         if quest_rect.collidepoint(mouse_pos):
-    #                             # Get the quest ID from the available quests
-    #                             from screens.quest_log import get_available_quests
-    #                             quests = get_available_quests(self.game_state)
-    #                             if i < len(quests):
-    #                                 selected_quest_id = quests[i]['id']
-    #                                 # Toggle selection
-    #                                 if self.game_state.selected_quest == selected_quest_id:
-    #                                     self.game_state.selected_quest = None
-    #                                 else:
-    #                                     self.game_state.selected_quest = selected_quest_id
-    #                             break
-                
-    #             # Handle close button
-    #             if return_rect and return_rect.collidepoint(mouse_pos):
-    #                 self.game_state.quest_log_open = False
-    #                 self.game_state.selected_quest = None
-    #         return True  # Block other clicks
-
-    #     # Inventory screen overlay
-    #     if self.game_state.inventory_open:
-    #         temp_surface = pygame.Surface((1024, 768))
-    #         from screens.inventory import draw_inventory_screen
-    #         result = draw_inventory_screen(temp_surface, self.game_state, self.fonts, self.images)
-
-    #         if result and len(result) == 4:
-    #             tab_rects, button_rects, item_rects, item_names_in_order = result
-    #             weapons_tab, armor_tab, items_tab, consumables_tab = tab_rects
-                
-    #             # Handle tab clicks
-    #             if weapons_tab.collidepoint(mouse_pos):
-    #                 self.game_state.inventory_tab = "weapons"
-    #                 self.game_state.inventory_selected = None
-    #             elif armor_tab.collidepoint(mouse_pos):
-    #                 self.game_state.inventory_tab = "armor"
-    #                 self.game_state.inventory_selected = None
-    #             elif items_tab.collidepoint(mouse_pos):
-    #                 self.game_state.inventory_tab = "items"
-    #                 self.game_state.inventory_selected = None
-    #             elif consumables_tab.collidepoint(mouse_pos):
-    #                 self.game_state.inventory_tab = "consumables"
-    #                 self.game_state.inventory_selected = None
-                
-    #             # Handle item selection clicks
-    #             else:
-    #                 for i, item_rect in enumerate(item_rects):
-    #                     if item_rect.collidepoint(mouse_pos):
-    #                         if i < len(item_names_in_order):
-    #                             selected_item = item_names_in_order[i]
-    #                             # Toggle selection
-    #                             if self.game_state.inventory_selected == selected_item:
-    #                                 self.game_state.inventory_selected = None
-    #                             else:
-    #                                 self.game_state.inventory_selected = selected_item
-    #                             break
-
-    #             # Handle button clicks
-    #             if self.game_state.inventory_tab in ["weapons", "armor"]:
-    #                 equip_btn, unequip_btn, discard_btn, return_btn = button_rects
-                    
-    #                 if return_btn and return_btn.collidepoint(mouse_pos):
-    #                     self.game_state.inventory_open = False
-    #                 elif equip_btn and equip_btn.collidepoint(mouse_pos):
-    #                     if self.game_state.inventory_selected:
-    #                         self.game_state.equip_item(self.game_state.inventory_selected, self.game_state.inventory_tab)
-    #                         self.game_state.inventory_selected = None  # Clear selection after equipping
-    #                 elif unequip_btn and unequip_btn.collidepoint(mouse_pos):
-    #                     if self.game_state.inventory_selected:
-    #                         self.game_state.unequip_item(self.game_state.inventory_selected)
-    #                         self.game_state.inventory_selected = None  # Clear selection after unequipping
-    #                 elif discard_btn and discard_btn.collidepoint(mouse_pos):
-    #                     if self.game_state.inventory_selected:
-    #                         self.game_state.discard_item(self.game_state.inventory_selected)
-    #                         self.game_state.inventory_selected = None
-    #                         return True # exit immediately after discard to prevent invalid button usage.
-                        
-    #             elif self.game_state.inventory_tab == "consumables":
-    #                 consume_btn, discard_btn, return_btn, _ = button_rects
-                    
-    #                 if return_btn and return_btn.collidepoint(mouse_pos):
-    #                     self.game_state.inventory_open = False
-    #                 elif consume_btn and consume_btn.collidepoint(mouse_pos):
-    #                     if self.game_state.inventory_selected:
-    #                         self.game_state.consume_item(self.game_state.inventory_selected)
-    #                         self.game_state.inventory_selected = None
-    #                 elif discard_btn and discard_btn.collidepoint(mouse_pos):
-    #                     if self.game_state.inventory_selected:
-    #                         self.game_state.discard_item(self.game_state.inventory_selected)
-    #                         self.game_state.inventory_selected = None
-    #                         return True
-
-    #             else:  # items tab
-    #                 discard_btn, return_btn, _, _ = button_rects
-                    
-    #                 if return_btn and return_btn.collidepoint(mouse_pos):
-    #                     self.game_state.inventory_open = False
-    #                 elif discard_btn and discard_btn.collidepoint(mouse_pos):
-    #                     if self.game_state.inventory_selected:
-    #                         self.game_state.discard_item(self.game_state.inventory_selected)
-    #                         self.game_state.inventory_selected = None
-                        
-    #         return True  # Don't process other clicks when inventory is open
-
-    #     # Load screen handling overlay
-    #     if self.game_state.load_screen_open:
-    #         from screens.load_game import draw_load_game_screen, handle_load_game_click
-    #         temp_surface = pygame.Surface((1024, 768))
-    #         result = draw_load_game_screen(temp_surface, self.game_state, self.fonts, self.images, controller=self)
-    #         handle_load_game_click(mouse_pos, self.game_state, result, controller=self)
-    #         return True
-
-    #     # Save screen handling overlay
-    #     if self.game_state.save_screen_open:
-    #         from screens.save_game import draw_save_game_screen, handle_save_game_click
-    #         temp_surface = pygame.Surface((1024, 768))
-    #         result = draw_save_game_screen(temp_surface, self.game_state, self.fonts, self.images, controller=self)
-    #         handle_save_game_click(mouse_pos, self.game_state, result, controller=self)
-    #         return True
-
-    #     # Character advancement overlay handling 
-    #     if getattr(self.game_state, 'character_advancement_open', False):
-    #         from screens.character_advancement import draw_character_advancement, handle_character_advancement_click
-    #         temp_surface = pygame.Surface((1024, 768))
-    #         result = draw_character_advancement(temp_surface, self.game_state, self.fonts, controller=self)
-    #         if handle_character_advancement_click(mouse_pos, result, self.game_state, controller=self):
-    #             return True
-
-    #     return False  # No overlays handled
 ###############temp to get mouse clicks working##############
     def handle_start_game(self, event_data):
         """Handle START_GAME semantic action"""
@@ -600,12 +428,6 @@ class GameController:
         target_screen = event_data.get('target_screen', 'main_menu')
         print(f"🎮 CONTINUE: Transitioning to {target_screen}")
         self.transition_to(target_screen)
-
-    def handle_new_game(self, event_data):
-        """Handle NEW_GAME semantic action"""
-        print("🎮 NEW_GAME: Starting character creation")
-        self.game_state.activate_character_portrait()
-        self.transition_to("stats")
 
     def handle_load_game(self, event_data):
         """Handle LOAD_GAME semantic action"""
@@ -904,9 +726,6 @@ class GameController:
         """
         print("👋 Game Controller shutting down...")
         
-        # Future: Save game state here
-        # self.game_state.save_to_file("autosave.dat")
-        
         pygame.quit()
         sys.exit()
     
@@ -1085,33 +904,6 @@ class ScreenRegistry:
         """
         
         # Import screen modules (we'll add these as we create them)
-        try:
-            from screens.character_creation import (
-                draw_stats_screen, draw_gender_screen,
-                draw_name_screen, draw_custom_name_screen, draw_name_confirm_screen,
-                draw_gold_screen, draw_trinket_screen, draw_summary_screen,
-                draw_welcome_screen, draw_portrait_selection_screen
-            )
-            print("🔍 Attempting to import character creation screens...")
-            print("✅ Character creation screens imported successfully!")
-            
-            # Register character creation screens  
-            controller.register_screen("stats", draw_stats_screen)
-            controller.register_screen("gender", draw_gender_screen)
-            controller.register_screen("name", draw_name_screen)
-            controller.register_screen("portrait_selection", draw_portrait_selection_screen)
-            controller.register_screen("custom_name", draw_custom_name_screen)
-            controller.register_screen("name_confirm", draw_name_confirm_screen)
-            controller.register_screen("gold", draw_gold_screen)
-            controller.register_screen("trinket", draw_trinket_screen)
-            controller.register_screen("summary", draw_summary_screen)
-            controller.register_screen("welcome", draw_welcome_screen)
-            
-            print("✅ Character creation screens registered!")
-
-        except ImportError as e:
-            print(f"❌ IMPORT ERROR: {e}")
-            print(f"⚠️ Character creation screens not available: {e}")
         
          # Register title/menu screens
         try:
@@ -1133,25 +925,25 @@ class ScreenRegistry:
             print(f"⚠️ Character advancement screen not available: {e}")
 
         # Register tavern screens
-        try:
-            from screens.tavern import draw_tavern_main_screen, draw_npc_selection_screen, draw_npc_conversation_screen
-            controller.register_screen("tavern_main", draw_tavern_main_screen)
-            controller.register_screen("tavern_npcs", draw_npc_selection_screen)
-            controller.register_screen("tavern_conversation", draw_npc_conversation_screen)
-            controller.register_screen("bartender", draw_tavern_main_screen)  # If bartender uses same screen
-            print("✅ Tavern screens registered!")
-        except ImportError as e:
-            print(f"⚠️ Tavern screens not available: {e}")
+        #try:
+        #    from screens.tavern import draw_tavern_main_screen, draw_npc_selection_screen, draw_npc_conversation_screen
+        #    controller.register_screen("tavern_main", draw_tavern_main_screen)
+        #    controller.register_screen("tavern_npcs", draw_npc_selection_screen)
+        #    controller.register_screen("tavern_conversation", draw_npc_conversation_screen)
+        #    controller.register_screen("bartender", draw_tavern_main_screen)  # If bartender uses same screen
+        #    print("✅ Tavern screens registered!")
+        #except ImportError as e:
+        #    print(f"⚠️ Tavern screens not available: {e}")
 
         # Register Broken Blade
-        try:
-            from screens.broken_blade import draw_broken_blade_main_screen 
-            from screens.patron_selection import draw_patron_selection_screen  
-            controller.register_screen("broken_blade_main", draw_broken_blade_main_screen)
-            controller.register_screen("patron_selection", draw_patron_selection_screen)
-            print("✅ Broken Blade screens registered!")
-        except ImportError as e:
-            print(f"⚠️ Broken Blade screens not available: {e}")
+        #try:
+        #    from screens.broken_blade import draw_broken_blade_main_screen 
+        #    from screens.patron_selection import draw_patron_selection_screen  
+        #    controller.register_screen("broken_blade_main", draw_broken_blade_main_screen)
+        #    controller.register_screen("patron_selection", draw_patron_selection_screen)
+        #    print("✅ Broken Blade screens registered!")
+        #except ImportError as e:
+        #    print(f"⚠️ Broken Blade screens not available: {e}")
         
         # Register gambling screens  
         try:
@@ -1166,34 +958,24 @@ class ScreenRegistry:
             print(f"⚠️ Gambling screens not available: {e}")
         
         # Register shopping screens (NEW ARCHITECTURE)
-        try:
-            from screens.shopping import register_shop_screens
-            register_shop_screens(controller)
-            print("✅ Shopping screens registered via shopping module!")
-        except ImportError as e:
-            print(f"⚠️ Shopping screens not available: {e}")
+        #try:
+        #    from screens.shopping import register_shop_screens
+        #    register_shop_screens(controller)
+        #    print("✅ Shopping screens registered via shopping module!")
+        #except ImportError as e:
+        #    print(f"⚠️ Shopping screens not available: {e}")
 
         # Register save/load screens
-        try:
-            from screens.load_game import draw_load_game_screen
-            from screens.save_game import draw_save_game_screen
-            controller.register_screen("load_screen", draw_load_game_screen)
-            controller.register_screen("save_screen", draw_save_game_screen)
-            print("✅ Save/Load screens registered!")
-        except ImportError as e:
-            print(f"⚠️ Save/Load screens not available: {e}")
+        #try:
+        #    from screens.load_game import draw_load_game_screen
+        #    from screens.save_game import draw_save_game_screen
+        #    controller.register_screen("load_screen", draw_load_game_screen)
+        #    controller.register_screen("save_screen", draw_save_game_screen)
+        #    print("✅ Save/Load screens registered!")
+        #except ImportError as e:
+        #    print(f"⚠️ Save/Load screens not available: {e}")
 
-        
-        #register_npc_dialogue_screen(controller.screen_manager, 'elara') 
-        #register_npc_dialogue_screen(controller.screen_manager, 'thorman')
-        #register_npc_dialogue_screen(controller.screen_manager, 'lyra')
-        #register_npc_dialogue_screen(controller.screen_manager, 'pete')
-        
-        # Future screens will be registered here
-        # controller.register_screen("general_store", general_store_screen)
-        # controller.register_screen("combat", combat_screen)
-        # controller.register_screen("world_map", world_map_screen)
-        
+
         print("✅ Screen registration complete!")
 
 

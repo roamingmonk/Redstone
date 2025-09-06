@@ -36,7 +36,16 @@ class CharacterEngine:
     # ==========================================
     # CHARACTER CREATION OPERATIONS
     # ==========================================
-    
+    def _handle_new_game(self, event_data):
+        """Handle starting character creation flow"""
+        print("🎮 CharacterEngine: Starting character creation")
+        self.game_state.activate_character_portrait()
+        
+        # Emit navigation to first character creation screen
+        if self.event_manager:
+            self.event_manager.emit('SCREEN_CHANGE', {'target': 'stats'})
+
+
     def roll_stats(self, reroll_ones=True):
         """
         Roll character stats with optional reroll-ones mechanism
@@ -93,6 +102,9 @@ class CharacterEngine:
     def register_character_creation_events(self, event_manager):
         """Register this engine for all character creation events"""
         self.event_manager = event_manager
+        
+        # Game flow events
+        event_manager.register('NEW_GAME', self._handle_new_game)
         
         # Stat events (existing)
         event_manager.register('REROLL_STATS', self._handle_reroll_stats)

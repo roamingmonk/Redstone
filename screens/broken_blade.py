@@ -12,7 +12,6 @@ from utils.party_display import draw_party_status_panel
 from utils.dialogue_ui_utils import draw_standard_dialogue_screen
 from utils.dialogue_ui_utils import draw_standard_response_screen
 
-
 def draw_broken_blade_main_screen(surface, game_state, fonts, images, controller=None):
     """
     Main Broken Blade tavern screen - Clean implementation with LocationManager integration
@@ -20,7 +19,6 @@ def draw_broken_blade_main_screen(surface, game_state, fonts, images, controller
     """
     surface.fill((0, 0, 0))
     
-
     # Get location data from LocationManager
     location_data = None
     area_data = None
