@@ -326,6 +326,10 @@ game_state.py - Removed portrait business logic methods (cleanup)
 - updated gold calcualation so it refers to character class json .
 -   can be used for future expansion and HP calculations.
 
+## ADR-031: update display to highlight primary attritbutes
+- character creation.py
+- adds more data for the stats screen for players to know what to focus on for their attributes.  allows for expansion to using json when allowing player to pick class
+
 
 ```
 ## ADR-XXX: <Short title>

@@ -153,6 +153,34 @@ def draw_stats_screen(surface, game_state, fonts, images=None):
     draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, BRIGHT_GREEN)
     draw_centered_text(surface, "ROLL STATS", fonts.get('fantasy_medium', fonts['normal']), 120, YELLOW)
     
+    # Load class information from JSON
+    import json
+    import os
+
+    class_file = os.path.join("data", "player", "character_classes.json")
+    try:
+        with open(class_file, 'r') as f:
+            class_data = json.load(f)
+        
+        # Get current character class (defaults to fighter for now)
+        current_class = game_state.character.get('class', 'fighter')
+        class_info = class_data["character_classes"].get(current_class, {})
+        
+        class_name = class_info.get("name", "Fighter")
+        primary_abilities = class_info.get("primary_abilities", ["strength", "constitution"])
+        
+    except (FileNotFoundError, KeyError, json.JSONDecodeError):
+        # Fallback if JSON file is missing or corrupted
+        class_name = "Fighter"
+        primary_abilities = ["strength", "constitution"]
+
+    # Display class information
+    draw_centered_text(surface, class_name.upper(), fonts.get('fantasy_medium', fonts['normal']), 160, BRIGHT_GREEN)
+
+    # Format primary abilities for display
+    primary_text = "Primary Attributes: " + ", ".join([ability.title() for ability in primary_abilities])
+    draw_centered_text(surface, primary_text, fonts.get('fantasy_small', fonts['normal']), 185, YELLOW)
+
     # Stats display
     stats_y = 200
     stats = [
@@ -164,12 +192,25 @@ def draw_stats_screen(surface, game_state, fonts, images=None):
         f"CHA: {game_state.character.get('charisma', '--'):2}"
     ]
     
-    # Center the stats grid
+    # Store primary abilities for highlighting (use the variables from the JSON loading above)
+    primary_stat_prefixes = [ability[:3].lower() for ability in primary_abilities]  # ["str", "con"]
+
+    # Center the stats grid with highlighting
     start_x = 350
     for i, stat in enumerate(stats):
+        stat_name = stat.split(':')[0].lower()  # "STR: 15" -> "str"
+        
+        # Choose color and prefix based on whether it's a primary ability
+        if stat_name in primary_stat_prefixes:
+            color = BRIGHT_GREEN  # Highlight primary stats
+            display_stat = f"*{stat}"  # Add asterisk
+        else:
+            color = WHITE
+            display_stat = f" {stat}"  # Space for alignment
+        
         x = start_x + (i % 3) * 140
         y = stats_y + (i // 3) * 50
-        stat_surface = fonts.get('fantasy_medium', fonts['normal']).render(stat, True, BRIGHT_GREEN)
+        stat_surface = fonts.get('fantasy_medium', fonts['normal']).render(display_stat, True, color)
         surface.blit(stat_surface, (x, y))
     
     # Buttons
@@ -185,6 +226,8 @@ def draw_stats_screen(surface, game_state, fonts, images=None):
     # Instructions
     draw_centered_text(surface, "Roll your character's base attributes", 
                       fonts.get('tnr_small', fonts['small']), 435, WHITE)
+    draw_centered_text(surface, "Green stats with * are most important for your class", 
+                  fonts.get('tnr_small', fonts['small']), 415, WHITE)
     
     return roll_button, keep_button
 
