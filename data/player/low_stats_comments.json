@@ -1,0 +1,84 @@
+{
+  "low_stats_comments": {
+    "fighter": {
+      "primary_abilities": ["strength", "constitution"],
+      "proceed_messages": [
+        {
+          "title": "WELL, ALRIGHT THEN...",
+          "main_text": "Most fighters prefer being strong AND tough.",
+          "sub_text": "But hey, maybe you'll intimidate enemies with your... charm?"
+        },
+        {
+          "title": "BOLD STRATEGY!",
+          "main_text": "Weak and frail fighters are certainly... unique.",
+          "sub_text": "The goblins will appreciate the easy target practice."
+        },
+        {
+          "title": "UNCONVENTIONAL WARRIOR!",
+          "main_text": "Who needs muscles when you have... determination?",
+          "sub_text": "Let's hope determination blocks sword swings."
+        }
+      ]
+    },
+    "wizard": {
+      "primary_abilities": ["intelligence"],
+      "proceed_messages": [
+        {
+          "title": "INTERESTING CHOICE...",
+          "main_text": "Most wizards prefer being, you know, intelligent.",
+          "sub_text": "But perhaps you'll discover magic through sheer luck?"
+        },
+        {
+          "title": "UNCONVENTIONAL SCHOLAR!",
+          "main_text": "Book learning is overrated anyway, right?",
+          "sub_text": "Your spells might be... creative, if they work at all."
+        },
+        {
+          "title": "BOLD ACADEMIC APPROACH!",
+          "main_text": "Who needs brains when you have confidence?",
+          "sub_text": "The magical academy will be... surprised by your application."
+        }
+      ]
+    },
+    "rogue": {
+      "primary_abilities": ["dexterity"],
+      "proceed_messages": [
+        {
+          "title": "CLUMSY THIEF AHEAD!",
+          "main_text": "Most rogues prefer being nimble and quick.",
+          "sub_text": "Your lockpicking might sound like a blacksmith at work."
+        },
+        {
+          "title": "INTERESTING HEIST STRATEGY!",
+          "main_text": "Stealth is overrated when you're this... obvious.",
+          "sub_text": "The guards will hear you coming from three towns away."
+        },
+        {
+          "title": "UNCONVENTIONAL CRIMINAL!",
+          "main_text": "Who needs agility when you have... enthusiasm?",
+          "sub_text": "Your victims might die laughing instead of fear."
+        }
+      ]
+    },
+    "cleric": {
+      "primary_abilities": ["wisdom"],
+      "proceed_messages": [
+        {
+          "title": "DIVINE COMEDY AHEAD!",
+          "main_text": "Most clerics prefer being wise and perceptive.",
+          "sub_text": "Your deity might be... confused by your prayers."
+        },
+        {
+          "title": "FAITHFUL BUT FOOLISH!",
+          "main_text": "Wisdom is just a suggestion anyway, right?",
+          "sub_text": "Your healing spells might need some divine intervention."
+        },
+        {
+          "title": "BLESSED SIMPLICITY!",
+          "main_text": "Sometimes the gods work in mysterious ways.",
+          "sub_text": "This might be one of those very mysterious times."
+        }
+      ]
+    }
+  }
+}

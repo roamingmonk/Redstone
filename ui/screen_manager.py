@@ -67,8 +67,28 @@ class ScreenManager:
             event_manager.register("START_GAME", self._handle_direct_navigation)
             event_manager.register("CONTINUE", self._handle_direct_navigation)
             event_manager.register("LOAD_GAME", self._handle_load_game)
+            event_manager.register("REGISTER_FULL_SCREEN_CLICK", self._handle_full_screen_registration)
             print("📺 ScreenManager subscribed to navigation events")
 
+    def _handle_full_screen_registration(self, event_data):
+        """Handle dynamic full-screen clickable registration"""
+        screen = event_data.get("screen")
+        event_type = event_data.get("event_type")
+        if screen and event_type:
+            self.register_full_screen_clickable(screen, event_type)
+    
+    def register_full_screen_clickable(self, screen_name, event_type):
+        """Dynamically register full-screen clickable"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            # Clear existing clickables for this screen
+            self.input_handler.clear_clickables(screen_name)
+            
+            # Register full-screen clickable
+            full_screen_rect = pygame.Rect(0, 0, 1024, 768)
+            self.input_handler.register_clickable(screen_name, full_screen_rect, event_type, {})
+            
+            print(f"🖱️ Full-screen clickable registered for {screen_name}")
+    
     def register_screen(self, screen_name: str, click_handler: Callable):
         """EXISTING: Register a screen's click handling function"""
         self.screens[screen_name] = {
@@ -321,7 +341,18 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for trinket screen registration")
 
-
+    def register_stats_confirm_low_clickables(self):
+        """Register low stats confirmation clickables"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            
+            # Only register normal warning screen buttons
+            reroll_rect = pygame.Rect(300, 280, 160, 50)
+            self.input_handler.register_clickable('stats_confirm_low', reroll_rect, 'REROLL_FROM_CONFIRM', {})
+            
+            proceed_rect = pygame.Rect(500, 280, 160, 50)
+            self.input_handler.register_clickable('stats_confirm_low', proceed_rect, 'PROCEED_WITH_LOW_STATS', {})
+            
+            print("⚠️ Low stats confirmation clickables registered")
 
     def register_render_function(self, screen_name: str, render_function: Callable,
                                 enter_hook: Optional[Callable] = None,
@@ -355,7 +386,8 @@ class ScreenManager:
             from screens.character_creation import (
                 draw_stats_screen, draw_gender_screen, draw_portrait_selection_screen,
                 draw_name_screen, draw_custom_name_screen, draw_name_confirm_screen,
-                draw_gold_screen, draw_trinket_screen, draw_summary_screen, draw_welcome_screen
+                draw_gold_screen, draw_trinket_screen, draw_summary_screen, draw_welcome_screen,
+                draw_stats_confirm_low_screen
             )
             
             from screens.broken_blade import draw_broken_blade_main_screen
@@ -392,6 +424,8 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_gold_screen_clickables())
             self.register_render_function("trinket", draw_trinket_screen,
                 enter_hook=lambda _: self.register_trinket_screen_clickables())
+            self.register_render_function("stats_confirm_low", draw_stats_confirm_low_screen,
+                enter_hook=lambda _: self.register_stats_confirm_low_clickables())
             
             self.register_render_function("summary", draw_summary_screen)
             self.register_render_function("welcome", draw_welcome_screen)

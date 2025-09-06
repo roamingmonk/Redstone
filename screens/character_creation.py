@@ -231,6 +231,61 @@ def draw_stats_screen(surface, game_state, fonts, images=None):
     
     return roll_button, keep_button
 
+def draw_stats_confirm_low_screen(surface, game_state, fonts, images=None):
+    """Draw confirmation screen for low primary stats"""
+    surface.fill(BLACK)
+    
+    # Draw character creation table image at bottom
+    if images and images.get('character_table'):
+        image_height = images['character_table'].get_height()
+        surface.blit(images['character_table'], (0, 768 - image_height))
+    
+    # Draw border box above image
+    border_height = 768 - (images['character_table'].get_height() if images and images.get('character_table') else 100) - 40
+    draw_border(surface, 30, 30, 1024-60, border_height)
+    # Check if we're showing snarky comment or initial warning
+    if game_state.temp_data.get("showing_snarky_comment", False):
+        # Load snarky comment from temp_data
+        comment = game_state.temp_data.get("snarky_comment", {})
+        
+        title = comment.get("title", "WELL, ALRIGHT THEN...")
+        main_text = comment.get("main_text", "You're brave, I'll give you that!")
+        sub_text = comment.get("sub_text", "Good luck in combat with those stats.")
+        
+        # Display snarky comment
+        draw_centered_text(surface, title, fonts.get('fantasy_large', fonts['header']), 120, YELLOW)
+        draw_centered_text(surface, main_text, fonts.get('fantasy_medium', fonts['normal']), 180, WHITE)
+        draw_centered_text(surface, sub_text, fonts.get('fantasy_small', fonts['normal']), 220, WHITE)
+        draw_centered_text(surface, "Click anywhere to continue...", 
+                  fonts.get('fantasy_small', fonts['normal']), 260, BRIGHT_GREEN)
+        
+        # No buttons during snarky comment display
+        return None, None
+    else:
+        # Title
+        draw_centered_text(surface, "ARE YOU SURE?", fonts.get('fantasy_large', fonts['header']), 120, RED)
+        
+        # Warning message
+        low_abilities = game_state.temp_data.get("low_primaries", ["Primary Abilities"])
+        abilities_text = ", ".join(low_abilities)
+        
+        draw_centered_text(surface, f"Your {abilities_text} scores are quite low!", 
+                        fonts.get('fantasy_medium', fonts['normal']), 180, YELLOW)
+        draw_centered_text(surface, "This will make your Fighter less effective in combat.", 
+                        fonts.get('fantasy_small', fonts['normal']), 210, WHITE)
+        draw_centered_text(surface, "Consider rerolling for better primary abilities.", 
+                        fonts.get('fantasy_small', fonts['normal']), 235, WHITE)
+        
+        # Buttons
+        button_y = 280
+        reroll_button = draw_button(surface, 300, button_y, 160, 50, "REROLL", 
+                                fonts.get('fantasy_small', fonts['normal']))
+        
+        proceed_button = draw_button(surface, 500, button_y, 160, 50, "PROCEED", 
+                                    fonts.get('fantasy_small', fonts['normal']))
+        
+        return reroll_button, proceed_button
+
 def draw_gender_screen(surface, game_state, fonts, images=None):
     """Draw the gender selection screen"""
     surface.fill(BLACK)

@@ -101,7 +101,11 @@ class CharacterEngine:
         
         # Stat events 
         event_manager.register('REROLL_STATS', self._handle_reroll_stats)
-        event_manager.register('KEEP_STATS', self._handle_keep_stats)
+        event_manager.register('KEEP_STATS', self.handle_keep_stats)
+        # In register_character_creation_events():
+        event_manager.register('REROLL_FROM_CONFIRM', self.handle_reroll_from_confirm)
+        event_manager.register('PROCEED_WITH_LOW_STATS', self.handle_proceed_with_low_stats)
+        event_manager.register('ADVANCE_FROM_SNARKY', self.handle_advance_from_snarky)
         
         # Gender events 
         event_manager.register('SELECT_MALE', self._handle_select_male)
@@ -143,6 +147,11 @@ class CharacterEngine:
         event_manager.register('TRINKET_BUTTON_CLICK', self.handle_trinket_button_click)
 
         print("🎯 CharacterEngine registered for all character creation events")
+
+    def handle_advance_from_snarky(self, event_data):
+        """Handle click to advance from snarky comment"""
+        self.game_state.temp_data = {}  # Clear temp data
+        self.event_manager.emit("SCREEN_CHANGE", {"target": "gender"})
 
     def _handle_select_male(self, event_data):
         """Handle SELECT_MALE - set gender and navigate to name selection"""
@@ -342,6 +351,65 @@ class CharacterEngine:
         if self.event_manager:
             self.event_manager.emit('SCREEN_CHANGE', {'target': 'name_confirm'})
 
+    def handle_reroll_from_confirm(self, event_data):
+        """Handle reroll from low stats confirmation"""
+        print("🎲 Player chose to reroll low stats")
+        self.event_manager.emit("SCREEN_CHANGE", {"target": "stats"})
+
+    def handle_proceed_with_low_stats(self, event_data):
+        """Handle proceeding with low stats - show class-specific snarky comment"""
+        import json
+        import os
+        import random
+        
+        # Get current character class
+        character_class = self.game_state.character.get('class', 'fighter').lower()
+        
+        # Load class-specific snarky comments from JSON
+        comments_file = os.path.join("data", "player", "low_stats_comments.json")
+        try:
+            with open(comments_file, 'r') as f:
+                comments_data = json.load(f)
+            
+            # Get class-specific comments
+            class_comments = comments_data["low_stats_comments"].get(character_class, 
+                                        comments_data["low_stats_comments"]["fighter"])
+            
+            # Get random comment for this class
+            proceed_messages = class_comments["proceed_messages"]
+            selected_comment = random.choice(proceed_messages)
+            
+        except (FileNotFoundError, KeyError, json.JSONDecodeError):
+            # Fallback comment
+            selected_comment = {
+                "title": "WELL, ALRIGHT THEN...",
+                "main_text": "You're brave, I'll give you that!",
+                "sub_text": "Good luck in combat with those stats."
+            }
+        
+        print(f"{character_class.title()} with low primary abilities: {selected_comment['main_text']}")
+        
+        # Store the selected comment and switch to display mode
+        self.game_state.temp_data["showing_snarky_comment"] = True
+        self.game_state.temp_data["snarky_comment"] = selected_comment
+        
+        # Dynamically register full-screen clickable for snarky comment
+        if hasattr(self, 'event_manager') and self.event_manager:
+            # Clear existing clickables and register full-screen click
+            from input_handler import InputHandler
+            import pygame
+            
+            # Get reference to input handler (assuming it's accessible)
+            # This is a bit of a hack - we need to access the input handler
+            # You might need to pass the input handler reference to CharacterEngine
+            
+            # For now, emit an event to register the full-screen clickable
+            self.event_manager.emit("REGISTER_FULL_SCREEN_CLICK", {
+                "screen": "stats_confirm_low", 
+                "event_type": "ADVANCE_FROM_SNARKY"
+            })
+            
+        
 
     def ensure_active_portrait(self, game_state):
         """Ensure active portrait file exists, recreate if missing"""
@@ -445,6 +513,50 @@ class CharacterEngine:
             trinket = self.roll_trinket()
             print(f"🔍 DEBUG: Character data after trinket roll: {self.game_state.character}")
             # Stay on trinket screen so button changes to "CONTINUE"
+
+    def handle_keep_stats(self, event_data):
+        """Handle keeping stats - check for low primary abilities first"""
+        print(f"DEBUG: CE: Starting KEEP_STATS check")
+        
+        # Get primary abilities for current class
+        primary_abilities = self._get_primary_abilities()
+        print(f"DEBUG: CE: Primary abilities: {primary_abilities}")
+
+        # Check if any primary abilities are below 10
+        low_primaries = []
+        for ability in primary_abilities:
+            current_value = self.game_state.character.get(ability, 10)
+            print(f"DEBUG: {ability} = {current_value}")
+            if current_value < 12:
+                low_primaries.append(ability.title())
+        
+        print(f"DEBUG: Low primaries found: {low_primaries}")
+        
+        if low_primaries:
+           
+            # Store the low abilities and trigger confirmation screen
+            self.game_state.temp_data = {"low_primaries": low_primaries}
+            print(f"DEBUG: CE: About to emit SCREEN_CHANGE to stats_confirm_low")
+            self.event_manager.emit("SCREEN_CHANGE", {"target": "stats_confirm_low"})
+        else:
+            print(f"DEBUG: CE: No low primaries, proceeding to gender")
+            # Stats are good, proceed normally
+            print("✅ Primary abilities are adequate, proceeding to gender")
+            self.event_manager.emit("SCREEN_CHANGE", {"target": "gender"})
+
+    def _get_primary_abilities(self):
+        """Get primary abilities from JSON for current class"""
+        import json
+        import os
+        
+        class_file = os.path.join("data", "player", "character_classes.json")
+        try:
+            with open(class_file, 'r') as f:
+                class_data = json.load(f)
+            current_class = self.game_state.character.get('class', 'fighter')
+            return class_data["character_classes"][current_class]["primary_abilities"]
+        except:
+            return ["strength", "constitution"]  # fallback
 
 
 
