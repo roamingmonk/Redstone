@@ -132,7 +132,80 @@ also created a JSON file creation guide document to aid in future dialogue creat
   - Components self-organize through event subscription
   - Foundation established for complete architectural cleanup
   - Loose coupling enables easier testing and modification
+  
+## ADR-017: Complete Application Lifecycle Architecture
+- **Status:** Accepted
+- **Date:** Sep 5, 2025
+- **Context:** Quit button emitted QUIT_GAME events but GameController handled application lifecycle management, violating separation of concerns
+- **Decision:** Extract application lifecycle to main.py with event-driven quit handling
+- **Implementation:**
+  - Main game loop registers for QUIT_GAME events directly
+  - GameController.handle_quit_game() method removed
+  - GameController.quit_game() retained for system cleanup coordination
+  - Clean separation: main.py manages application lifecycle, GameController coordinates shutdown
+- **Consequences:** 
+  - Application lifecycle management extracted from GameController
+  - Quit button works with proper event flow
+  - GameController responsibility reduced by removing application state management
 
+## ADR-018: SaveManager Architecture Implementation  
+- **Status:** Accepted
+- **Date:** Sep 5, 2025
+- **Context:** GameController contained 6 save/load methods (save_game, load_game, get_save_info, auto_save, delete_save, can_save_load) violating Single Responsibility Principle
+- **Decision:** Extract all save/load operations to dedicated SaveManager class
+- **Implementation:**
+  - Created game_logic/save_manager.py with SaveManager class
+  - Moved all 6 save/load methods from GameController to SaveManager
+  - GameController retains event routing (handle_save_requested) but delegates to SaveManager
+  - SaveManager handles all file I/O and save data operations
+- **Consequences:**
+  - GameController reduced by 6 major methods (~200 lines)
+  - Clean separation: GameController routes save events, SaveManager handles file operations
+  - Foundation established for professional save/load architecture
+  - Load screen architecture prepared for SaveManager integration
+
+## ADR-019: InputHandler Overlay Architecture Completion
+- **Status:** Accepted  
+- **Date:** Sep 5, 2025
+- **Context:** Load game overlay rendered but click handling was disconnected, overlays managed in multiple places
+- **Decision:** Complete overlay architecture with InputHandler managing both rendering coordination and click handling
+- **Implementation:**
+  - ScreenManager._render_overlays() handles overlay rendering on top of main screens
+  - InputHandler._handle_overlay_clicks() processes overlay button interactions
+  - GameController legacy overlay handling removed
+  - Clean division: InputHandler (overlay state + clicks), ScreenManager (overlay rendering), GameController (thin coordination)
+- **Consequences:**
+  - Load game overlay fully functional with proper button handling
+  - Overlay architecture follows established separation of concerns
+  - Foundation complete for adding additional overlays without GameController changes
+  - Professional overlay lifecycle management established
+## ADR-020: Load Game Display Bug - DEFERRED
+Date: September 5, 2025
+**Issue**- Load screen shows "[Empty Slot]" instead of character names despite SaveManager returning correct data.
+Investigation
+SaveManager works correctly (returns valid character data)
+Display rendering logic fails for unknown reason
+Multiple debugging attempts unsuccessful
+**Decision DEFERRED** - Non-critical cosmetic issue. Reverted code to working state.
+**Rationale**  Functionality > cosmetics
+Time investment vs. benefit
+Maintains development momentum
+**Status** Core save system questionable. Visual display bug documented for future UI polish phase.
+## ADR-021: Stats Screen Input Modernization Complete
+Status: Accepted
+**Date: Sep 5, 2025**
+**Context:** Stats screen used legacy manual click handling instead of semantic action system
+**Decision:** Implement semantic actions (REROLL_STATS, KEEP_STATS) with CharacterEngine event handling
+**Implementation:**
+ScreenManager registers stats screen clickables on transition
+InputHandler routes clicks to EventManager as semantic events
+CharacterEngine handles stat events and business logic directly
+Fixed event format compatibility between components
+**Consequences:**Stats screen now uses professional event-driven architecture
+Clean separation: UI → Events → Engine → GameState
+Foundation established for remaining character creation screens
+GameController input responsibilities reduced by additional 10%
+**Files Modified:** screen_manager.py, character_engine.py, game_controller.py, character_creation.py
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

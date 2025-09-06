@@ -366,9 +366,42 @@ class InputHandler:
         status = "enabled" if enabled else "disabled"
         print(f"🔍 Input debug logging {status}")
 
+def register_stats_screen_actions(self):
+    """Register clickable regions for the stats screen"""
+    
+    clickable_regions = [
+        {
+            'action': 'REROLL_STATS',
+            'coords': (350, 350, 160, 50),  # Based on your ROLL STATS button
+            'description': 'Reroll character statistics'
+        }
+        # We'll add ACCEPT_STATS once we see what happens after rolling
+    ]
+    
+    self.register_screen_clickables('stats', clickable_regions)
+    print("📊 Stats screen clickable regions registered")
 # ==========================================
 # HELPER FUNCTIONS FOR SCREEN REGISTRATION
 # ==========================================
+
+def register_stats_screen_actions(self):
+    """Register clickable regions for the stats screen"""
+    
+    clickable_regions = [
+        {
+            'action': 'REROLL_STATS',
+            'coords': (350, 320, 160, 50),  # ROLL STATS button coordinates
+            'description': 'Reroll character statistics'
+        },
+        {
+            'action': 'KEEP_STATS',
+            'coords': (550, 320, 160, 50),  # KEEP STATS button coordinates  
+            'description': 'Accept current stats and continue to gender selection'
+        }
+    ]
+    
+    self.register_screen_clickables('stats', clickable_regions)
+    print("📊 Stats screen clickable regions registered")
 
 def register_simple_click(input_handler, screen_name: str, rect: pygame.Rect, 
                          event_type: str, **event_data) -> None:

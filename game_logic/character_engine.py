@@ -68,6 +68,28 @@ class CharacterEngine:
         
         print(f"🎲 Character stats rolled: {stats}")
         return stats
+    def register_stat_events(self, event_manager):
+        """Register this engine for stat-related events"""
+        self.event_manager = event_manager
+        
+        # Wire events directly to existing methods
+        event_manager.register('REROLL_STATS', self._handle_reroll_stats)
+        event_manager.register('KEEP_STATS', self._handle_keep_stats)
+        print("📝 CharacterEngine registered for stat events")
+
+    def _handle_reroll_stats(self, event_data):
+        """Event wrapper for roll_stats - just adds logging"""
+        print("🎲 CharacterEngine: REROLL_STATS event received")
+        self.roll_stats(reroll_ones=True)  # Use existing method!
+        self.game_state.stats_rolled = True
+
+    def _handle_keep_stats(self, event_data):
+        """Handle KEEP_STATS - finalize and navigate"""
+        print("✅ CharacterEngine: KEEP_STATS event received")
+        # Emit navigation event
+        if self.event_manager:
+            self.event_manager.emit('SCREEN_CHANGE', {'target': 'gender'})
+
     
     def calculate_hp(self, constitution_score=None, character_class=None):
         """
@@ -581,17 +603,21 @@ def get_character_engine():
     """
     return character_engine
 
-def initialize_character_engine(game_state_ref):
+def initialize_character_engine(game_state_ref, event_manager=None):
     """
-    Initialize the global character engine with Single Data Authority pattern
-    Called by DataManager during system initialization
-    
-    Args:
-        game_state_ref: Reference to GameState (the data authority)
+    Initialize the global character engine with event management
     """
     global character_engine
     character_engine = CharacterEngine(game_state_ref)
-    print("🔧 Initialized CharacterEngine with Single Data Authority pattern")
+    
+    # Register for stat events if event manager provided
+    if event_manager:
+        character_engine.register_stat_events(event_manager)
+        print("📝 CharacterEngine registered for stat events")
+    else:
+        print("⚠️ No EventManager provided to CharacterEngine")
+    
+    print("🔧 Initialized CharacterEngine")
     return character_engine
 
 

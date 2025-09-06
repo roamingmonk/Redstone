@@ -106,7 +106,24 @@ class ScreenManager:
     # ========================================
     # NEW METHODS - SCREEN RENDERING SYSTEM
     # ========================================
-    
+
+    def register_stats_screen_clickables(self):
+        """Register stats screen clickables when entering stats screen"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            # For each clickable region, call register_clickable individually
+            
+            # ROLL STATS button
+            roll_rect = pygame.Rect(350, 320, 160, 50)
+            self.input_handler.register_clickable('stats', roll_rect, 'REROLL_STATS', {})
+            
+            # KEEP STATS button  
+            keep_rect = pygame.Rect(550, 320, 160, 50)
+            self.input_handler.register_clickable('stats', keep_rect, 'KEEP_STATS', {})
+            
+            print("📊 Stats screen clickables registered")
+        else:
+            print("⚠️ No InputHandler available for stats screen registration")
+
     def register_render_function(self, screen_name: str, render_function: Callable,
                                 enter_hook: Optional[Callable] = None,
                                 exit_hook: Optional[Callable] = None):
@@ -215,6 +232,9 @@ class ScreenManager:
             print(f"📍 Registered screens: {list(self.render_functions.keys())}")
             return False
         
+        if screen_name == "stats":
+            self.register_stats_screen_clickables()
+
         # Save history for back navigation
         if save_history and self.current_screen:
             self.previous_screen = self.current_screen
@@ -338,22 +358,26 @@ class ScreenManager:
 
     def _handle_screen_change_event(self, event_data):
         """Handle SCREEN_CHANGE events from the EventManager hub"""
-        target_screen = event_data.get("target_screen")
-        source_screen = event_data.get("source_screen")
+        print(f"🔄 ScreenManager: Received SCREEN_CHANGE event: {event_data}")
+        
+        # Support both 'target' and 'target_screen' for compatibility
+        target_screen = event_data.get("target_screen") or event_data.get("target")
+        source_screen = event_data.get("source_screen") or event_data.get("source")
+        
+        print(f"🔄 ScreenManager: Attempting transition to '{target_screen}'")
         
         if target_screen:
             print(f"📺 ScreenManager handling navigation: {source_screen} → {target_screen}")
-            # Find game_state from the current context
-            # We'll need to pass this in - temporary solution
             if hasattr(self, '_current_game_state'):
                 success = self.transition_to(target_screen, self._current_game_state)
                 if success:
-                    # Emit confirmation event
                     self.event_manager.emit("SCREEN_CHANGED", {
                         "old_screen": source_screen,
                         "new_screen": target_screen
                     })
                 return success
+        
+        print(f"🔄 ScreenManager: Transition completed")
         return False
 
     def _handle_screen_advance_event(self, event_data):

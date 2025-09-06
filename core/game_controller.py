@@ -15,6 +15,7 @@ from game_logic.commerce_engine import initialize_commerce_engine
 from game_logic.dialogue_engine import initialize_dialogue_engine
 from game_logic.event_manager import initialize_event_manager, get_event_manager
 from game_logic.save_manager import SaveManager
+from ui.screen_manager import ScreenManager
 from datetime import datetime
 from typing import Optional, Dict, Any, Callable
 from utils.constants import *
@@ -43,7 +44,7 @@ class GameController:
         # ADD THIS: Initialize ScreenManager
         from ui.screen_manager import ScreenManager
         self.screen_manager = ScreenManager(
-            event_manager=None,  # Will be set later
+            event_manager=self.event_manager,
             screen=screen,       # Pass screen as named parameter
             fonts=fonts,
             images=images
@@ -73,6 +74,8 @@ class GameController:
         self.frame_count = 0
         self.last_fps_time = pygame.time.get_ticks()
         
+        
+
         # Save/load system state
         self.save_manager = SaveManager(self.game_state)
         self.last_save_time = None
@@ -120,6 +123,15 @@ class GameController:
             self.input_handler.enable_debug_input(True)
             print("✅ InputHandler initialized early!") 
            
+            # Step 3: NOW create ScreenManager with EventManager
+            self.screen_manager = ScreenManager(
+                event_manager=self.event_manager,
+                screen=self.screen,
+                fonts=self.fonts,
+                images=self.images
+            )
+
+            self.screen_manager.input_handler = self.input_handler
 
             self.screen_manager.transition_to(self.game_state.screen, self.game_state, save_history=False)
             print(f"ScreenManager initialized with starting screen: {self.game_state.screen}")
@@ -142,7 +154,7 @@ class GameController:
             self.data_manager.load_all_data()
 
             # Step : Initialize all engines directly in GameController
-            self.character_engine = initialize_character_engine(self.game_state)
+            self.character_engine = initialize_character_engine(self.game_state, self.event_manager)
             self.inventory_engine = initialize_inventory_engine(self.game_state, self.data_manager.item_manager)
             self.commerce_engine = initialize_commerce_engine(self.game_state, self.data_manager.item_manager) 
             self.dialogue_engine = initialize_dialogue_engine(self.game_state)
@@ -154,7 +166,7 @@ class GameController:
             #Register all screens with ScreenManager AFTER engines are ready
             self.screen_manager.register_all_screen_renders()
             print("📺 GC: All screens render functions registered ")
-                       
+
             self.event_manager.register('START_GAME', self.handle_start_game)
             self.event_manager.register('CONTINUE', self.handle_continue)
             self.event_manager.register('NEW_GAME', self.handle_new_game)

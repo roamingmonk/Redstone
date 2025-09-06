@@ -135,6 +135,9 @@ def draw_splash_screen(surface, fonts, images=None):
 
 def draw_stats_screen(surface, game_state, fonts, images=None):
     """Draw the stat rolling screen"""
+    # SELF-REGISTRATION: Register this screen's clickable regions
+    # This ensures InputHandler knows about our buttons
+    
     surface.fill(BLACK)
     
     # Draw character creation table image at bottom
@@ -153,12 +156,12 @@ def draw_stats_screen(surface, game_state, fonts, images=None):
     # Stats display
     stats_y = 200
     stats = [
-        f"STR: {game_state.temp_stats.get('strength', '--'):2}",
-        f"DEX: {game_state.temp_stats.get('dexterity', '--'):2}",
-        f"CON: {game_state.temp_stats.get('constitution', '--'):2}",
-        f"INT: {game_state.temp_stats.get('intelligence', '--'):2}",
-        f"WIS: {game_state.temp_stats.get('wisdom', '--'):2}",
-        f"CHA: {game_state.temp_stats.get('charisma', '--'):2}"
+        f"STR: {game_state.character.get('strength', '--'):2}",
+        f"DEX: {game_state.character.get('dexterity', '--'):2}",
+        f"CON: {game_state.character.get('constitution', '--'):2}",
+        f"INT: {game_state.character.get('intelligence', '--'):2}",
+        f"WIS: {game_state.character.get('wisdom', '--'):2}",
+        f"CHA: {game_state.character.get('charisma', '--'):2}"
     ]
     
     # Center the stats grid
