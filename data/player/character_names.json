@@ -1,0 +1,32 @@
+{
+  "male_names": {
+    "first": [
+      "Garlen", "Theron", "Bjorn", "Marcus", "Aldric", "Grim",
+      "Roderick", "Tormund", "Cedric", "Bronn", "Garrett", "Willem",
+      "Ragnar", "Erik", "Magnus", "Gunnar", "Sven", "Leif"
+    ],
+    "last": [
+      "Sliverblade", "Ironwill", "Stormhammer", "Battleborn", "Steelhand",
+      "Ironforge", "Valorheart", "Ashblade", "Strongarm", "Warwick",
+      "Blackstone", "Goldbeard", "Flameheart", "Ironshield", "Stormwind",
+      "Dragonbane", "Frostborn", "Shadowblade"
+    ]
+  },
+  "female_names": {
+    "first": [
+      "Kala", "Gina", "Sera", "Thessa", "Mira", "Brenna",
+      "Cordelia", "Vera", "Dara", "Elara", "Rhea", "Zara",
+      "Astrid", "Freydis", "Sigrid", "Ingrid", "Valka", "Thyra"
+    ],
+    "last": [
+      "Stormborn", "Brightblade", "Ironheart", "Battlewise", "Steelstrike",
+      "Stormwind", "Ashfall", "Strongwill", "Valorborn", "Moonwhisper",
+      "Starfire", "Swiftarrow", "Nightblade", "Goldweaver", "Frostborn",
+      "Dragonheart", "Shadowstrike", "Windrider"
+    ]
+  },
+  "special_names": {
+    "male_guaranteed": "Garlen Sliverblade",
+    "description": "Special names that should always appear as options"
+  }
+}

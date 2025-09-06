@@ -224,7 +224,56 @@ GameController input responsibilities reduced by additional 10%
   - GameController input responsibilities reduced by additional 5%
 - **Files Modified:** screen_manager.py, character_engine.py
 
+## ADR-023: NEW_GAME Event Handler Architecture Cleanup
+- **Status:** Accepted
+- **Date:** Sep 5, 2025
+- **Context:** NEW_GAME event handling was temporarily placed in GameController with business logic mixed into coordination layer, violating separation of concerns
+- **Decision:** Move NEW_GAME event handling from GameController to CharacterEngine where character creation flow logic properly belongs
+- **Implementation:**
+  - Added NEW_GAME event registration to `register_character_creation_events()` method
+  - Created `_handle_new_game()` method in CharacterEngine to handle character creation flow
+  - Removed temporary `handle_new_game()` method from GameController
+  - CharacterEngine now owns complete character creation sequence logic
+- **Consequences:**
+  - Supports GameController as pure coordinator without business logic
+  - support Character creation flow decisions centralized in appropriate engine
+  - Clean separation: GameController coordinates, CharacterEngine decides flow
+  - Need to review and adjust other methods for centralizing all character creation sequence logic
+  - Architecture follows Single Responsibility Principle
+- **Files Modified:** character_engine.py (added handler), game_controller.py (removed temporary code)
 
+## ADR-024: Navigation Event Handler Architecture Cleanup
+- **Status:** Accepted
+- **Date:** Sep 5, 2025
+- **Context:** START_GAME, CONTINUE, and LOAD_GAME event handlers were temporarily placed in GameController, mixing navigation logic with coordination responsibilities
+- **Decision:** Move navigation event handling from GameController to ScreenManager where UI state management belongs
+- **Implementation:**
+  - Added navigation route map to ScreenManager for configurable screen transitions
+  - Created `_handle_direct_navigation()` method for START_GAME/CONTINUE events
+  - Created `_handle_load_game()` method for load overlay state management
+  - Removed three temporary methods from GameController
+  - Fixed event registration timing to occur after ScreenManager initialization
+- **Consequences:**
+  - ScreenManager owns all navigation and UI state management
+  - GameController reduced by three more methods (continuing the diet)
+  - Navigation routes centralized and easily configurable
+  - Clean separation: GameController coordinates, ScreenManager handles UI flow
+  - Foundation established for systematic navigation management
+- **Files Modified:** screen_manager.py (added handlers), game_controller.py (removed temporary code)
+
+## ADR-023: Name Selection Screen Input 
+**Status:** Accepted
+**Date:** Sep 6, 2025
+**Context:** Name selection screens used legacy manual click handling and inconsistent text input architecture instead of unified event-driven system
+**Decision:** Implement complete semantic action system for all three name screens (selection, custom input, confirmation) with unified InputHandler text processing
+**Implementation:**ScreenManager registers all name screen clickables via enter hooks with dynamic positioning, InputHandler processes ALL input through EventManager, CharacterEngine handles complete name selection business logic and navigation, Migrated legacy GameController text input to InputHandler for architectural consistency
+JSON-based name data storage in data/player/character_names.json for easy content updates
+**Consequences:** All three name screens now use professional event-driven architecture
+Unified input processing eliminates dual input pathways, Complete text input migration achieves architectural consistency, JSON name data enables content updates without code changes, Clean UX with text clearing on back navigation
+Foundation established for remaining character creation screens
+GameController input responsibilities reduced by additional 15%
+**Files Modified:** screen_manager.py, character_engine.py, input_handler.py, game_controller.py
+**Files Created:** data/player/character_names.json
 
 
 ```

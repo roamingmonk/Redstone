@@ -172,6 +172,86 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for gender screen registration")
 
+    def register_name_screen_clickables(self):
+        """Register name screen clickables when entering name screen"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            
+            # Use the same dynamic layout logic as draw_name_screen
+            button_width = 220
+            button_height = 50
+            button_y = 200
+            
+            # Calculate starting position to center all three buttons (from the draw function)
+            total_width = 3 * button_width + 2 * 20  # 20px spacing between buttons
+            start_x = (1024 - total_width) // 2
+            
+            # Register the three name option buttons
+            for i in range(3):
+                x = start_x + i * (button_width + 20)
+                name_rect = pygame.Rect(x, button_y, button_width, button_height)
+                action_name = f'SELECT_NAME_{i+1}'
+                self.input_handler.register_clickable('name', name_rect, action_name, {'action': action_name})
+            
+            # Action buttons (exact coordinates from draw_name_screen)
+            action_button_y = 280
+            
+            # NEW NAMES button (350, 280, 160, 50)
+            new_names_rect = pygame.Rect(350, action_button_y, 160, 50)
+            self.input_handler.register_clickable('name', new_names_rect, 'REROLL_NAMES', {'action': 'REROLL_NAMES'})
+            
+            # CUSTOM NAME button (550, 280, 180, 50) 
+            custom_rect = pygame.Rect(550, action_button_y, 180, 50)
+            self.input_handler.register_clickable('name', custom_rect, 'CUSTOM_NAME', {'action': 'CUSTOM_NAME'})
+            
+            print("📝 Name selection screen clickables registered (dynamic layout)")
+        else:
+            print("⚠️ No InputHandler available for name screen registration")
+
+    def register_custom_name_screen_clickables(self):
+        """Register custom name screen clickables when entering custom name screen"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            
+            # Button coordinates from draw_custom_name_screen
+            button_y = 320
+            
+            # CONFIRM button (350, 320, 160, 50) - always register, engine will handle logic
+            confirm_rect = pygame.Rect(350, button_y, 160, 50)
+            self.input_handler.register_clickable('custom_name', confirm_rect, 'CONFIRM_CUSTOM_NAME', {'action': 'CONFIRM_CUSTOM_NAME'})
+            
+            # BACK button (550, 320, 160, 50)
+            back_rect = pygame.Rect(550, button_y, 160, 50)
+            self.input_handler.register_clickable('custom_name', back_rect, 'BACK_TO_NAME', {'action': 'BACK_TO_NAME'})
+            
+            # Input box clickable area for activating text input
+            input_box_width = 400
+            input_box_height = 50
+            input_box_x = (1024 - input_box_width) // 2
+            input_box_y = 220
+            input_rect = pygame.Rect(input_box_x, input_box_y, input_box_width, input_box_height)
+            self.input_handler.register_clickable('custom_name', input_rect, 'ACTIVATE_TEXT_INPUT', {'action': 'ACTIVATE_TEXT_INPUT'})
+            
+            print("✏️ Custom name screen clickables registered")
+        else:
+            print("⚠️ No InputHandler available for custom name screen registration")
+
+    def register_name_confirm_screen_clickables(self):
+        """Register name confirm screen clickables when entering name confirm screen"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            
+            # Button coordinates from draw_name_confirm_screen  
+            button_y = 280
+            
+            # CONFIRM button (350, 280, 160, 50)
+            confirm_rect = pygame.Rect(350, button_y, 160, 50)
+            self.input_handler.register_clickable('name_confirm', confirm_rect, 'ACCEPT_NAME', {'action': 'ACCEPT_NAME'})
+            
+            # BACK button (550, 280, 160, 50)
+            back_rect = pygame.Rect(550, button_y, 160, 50)
+            self.input_handler.register_clickable('name_confirm', back_rect, 'BACK_TO_NAME_SELECTION', {'action': 'BACK_TO_NAME_SELECTION'})
+            
+            print("✅ Name confirm screen clickables registered")
+        else:
+            print("⚠️ No InputHandler available for name confirm screen registration")
 
     def register_render_function(self, screen_name: str, render_function: Callable,
                                 enter_hook: Optional[Callable] = None,
@@ -230,9 +310,14 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_stats_screen_clickables())
             self.register_render_function("gender", draw_gender_screen,
                 enter_hook=lambda _: self.register_gender_screen_clickables())
-            self.register_render_function("name", draw_name_screen)
-            self.register_render_function("custom_name", draw_custom_name_screen)
-            self.register_render_function("name_confirm", draw_name_confirm_screen)
+            self.register_render_function("name", draw_name_screen,
+                enter_hook=lambda _: self.register_name_screen_clickables())
+            self.register_render_function("custom_name", draw_custom_name_screen,
+                enter_hook=lambda _: self.register_custom_name_screen_clickables())  
+            self.register_render_function("name_confirm", draw_name_confirm_screen,
+                enter_hook=lambda _: self.register_name_confirm_screen_clickables()) 
+            
+            
             self.register_render_function("portrait_selection", draw_portrait_selection_screen)
             self.register_render_function("gold", draw_gold_screen)
             self.register_render_function("trinket", draw_trinket_screen)

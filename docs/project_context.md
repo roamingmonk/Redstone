@@ -17,7 +17,7 @@
   - ✅ Dialogue system fully JSON-driven with 3+ conversation states and branching
   - ✅ **Professional patron NPC system with event-driven architecture**
   - ✅ Engines are stateless, using GameState as the Single Data Authority
-  - ✅ Shrink game_controller from 1000+ LOC to ~200 LOC
+  - 🚧 Shrink game_controller from 1000+ LOC to ~200 LOC (significant progress)
 
 ## 3) Non-Goals (current milestone)
 - Multiplayer networking
@@ -34,14 +34,27 @@
 
 ### 5.1 Core Layers
 - **Data Authority:** `game_state.py`, plus external JSONs under `/data`
-- **Engines:** Pure business logic (`inventory_engine.py`, `dialogue_engine.py`, etc.)
+- **Engines:** Pure business logic (`inventory_engine.py`, `dialogue_engine.py`, `character_engine.py`)
 - **Presentation:** Screens and UI components, pure rendering only
 - **Coordination:** `game_controller.py` orchestrates, `event_manager.py` routes
 
-### 5.2 Module Map (current + planned)
+### 5.2 Component Responsibility Boundaries (Established Sep 2025)
+**Engines vs. ScreenManager Distinction:**
+- **Engines:** Domain/business logic only (Character, Inventory, Commerce, Dialogue)
+- **ScreenManager:** Navigation flow and UI state management 
+- **GameController:** Pure coordination without business logic
+
+**Event Routing Patterns:**
+- **Domain Events → Engines:** NEW_GAME, REROLL_STATS, SELECT_MALE/FEMALE → CharacterEngine
+- **Navigation Events → ScreenManager:** START_GAME, CONTINUE, LOAD_GAME → ScreenManager
+- **Decision Framework:** Business logic → Engine; Navigation → ScreenManager; GameController coordinates only
+
+**Key Principle:** Don't create engines for UI concerns (avoid MenuEngine/NavigationEngine that duplicate ScreenManager)
+
+### 5.3 Module Map (current + planned)
 ```
 project_root/
-  game_controller.py              # coordinator (shrinking)
+  game_controller.py              # coordinator (shrinking - diet successful)
   game_state.py                   # single source of truth
   game_logic/
     event_manager.py              # ✅ implemented
@@ -49,11 +62,11 @@ project_root/
     data_manager.py               # ✅ loader/coordinator
     dialogue_engine.py            # ✅ enhanced for branching + requirements
     commerce_engine.py            # shop transactions
-    character_engine.py           # stats & party
+    character_engine.py           # ✅ stats & party + character creation flow
     content_loader.py             # (planned) config-driven loading
   ui/
-    screen_manager.py             # (planned)
-    input_handler.py              # (planned)
+    screen_manager.py             # ✅ screen lifecycle & navigation
+    input_handler.py              # ✅ semantic action system
     screen_handlers.py            # ✅ patron selection click handling
     generic_dialogue_handler.py   # ✅ quest_update + recruit_npc actions
     screens/
@@ -81,7 +94,17 @@ project_root/
     dialogue_json_guide.md        # ✅ NEW - comprehensive dialogue creation guide
 ```
 
-### 5.3 Event Flow (simplified)
+### 5.4 Enter Hooks Pattern (Established)
+**Professional Screen Registration:**
+```python
+screen_manager.register_render_function("stats", draw_stats_screen,
+    enter_hook=lambda _: self.register_stats_screen_clickables())
+```
+- Screens self-register clickable regions on entry
+- ScreenManager stays generic (no hardcoded screen names)
+- Follows Open/Closed Principle
+
+### 5.5 Event Flow (simplified)
 ```mermaid
 flowchart TD
   A[GameController] --> B[EventManager]
@@ -102,124 +125,45 @@ flowchart TD
 ## 6) Data & Assets
 - **Dialogue:** Stored in JSON under `/data/dialogues`, deep branching supported with requirements system
 - **NPCs:** Standardized JSON schema (`id`, `name`, `description`, `level`, etc.)
-- **Locations:** Moving toward config-driven definitions in `content_config.json`
-- **Assets:** Referenced by logical IDs; loaded by `AssetManager` (planned)
 
-## 7) Event Catalog (current)
-- `NPC_CLICKED`
-- `DIALOGUE_STARTED`, `DIALOGUE_CHOICE`, `DIALOGUE_ENDED`
-- `ITEM_PURCHASED`, `ITEM_SOLD`, `INVENTORY_CHANGED`
-- `SCREEN_CHANGE` **✅ Enhanced for patron navigation**
-- `SAVE_REQUESTED`, `LOAD_REQUESTED`
+## 11) Screen Architecture (Enhanced)
 
-## 8) Build, Run, Test
-- **Install:** `pip install -r requirements.txt`
-- **Run:** `python game_controller.py`
-- **Test:** `pytest`
-- **Package:** PyInstaller (planned)
+### **Character Creation Modernization (New)**
+- **Stats Screen:** Semantic actions (REROLL_STATS, KEEP_STATS) with CharacterEngine event handling
+- **Gender Screen:** Semantic actions (SELECT_MALE, SELECT_FEMALE) with proper navigation flow
+- **Input System:** Two-tier architecture - semantic actions for complex screens, direct events for simple navigation
 
-## 9) Observability
-- EventManager keeps history of last 50 events
-- Debug logging toggleable; add structured trace output (planned)
-- **✅ Comprehensive dialogue debugging and error reporting**
-
-## 10) Risks & Open Questions
-- ongoing 'game_controller.py' refactor to cut duplication **improved but more assessment neeeded**
-- ~~Robustness of JSON schema validation~~ **✅ ENHANCED with comprehensive error handling**
-Testing coverage for Dialogue + DataManager
-- **Legacy systems refactoring** (dice game, merchant shop)
-- Future expansion: QuestEngine, CombatEngine
-
-## 11) Changelog
-- **Aug 25:** NPC extraction complete
-- **Sep 1:** Architecture roadmap revised
-- **Sep 3:** Garrick branching dialogue tested and validated
-- **Sep 3:** EventManager fully integrated
-- **Sep 4:** **🎉 PATRON NPC SYSTEM COMPLETE - Professional event-driven dialogue architecture**
-  - ✅ **Professional patron selection screen** (screens/patron_selection.py)
-  - ✅ **Enhanced dialogue engine** with requirements system and error handling
-  - ✅ **Complete action system** (quest_update, recruit_npc, dialogue_branch, exit)
-  - ✅ **Legacy tavern.py migration** to event-driven architecture
-  - ✅ **Comprehensive documentation** (dialogue_json_guide.md)
-  - ✅ **Simplified content creation workflow** - new NPCs require only JSON files
+### **Professional Dialogue System (Enhanced)**
+- **Patron NPC Management:** Professional selection interface with full integration
+- **JSON-Driven Content:** NPCs require only JSON files, no code changes
+- **Branching Support:** Multi-state conversations with requirements system
+- **Event-Driven Architecture:** Complete separation of content (JSON) and code (Python)
 
 ## 12) Current Development Status
 
-### ✅ **COMPLETED SYSTEMS (Production Ready)**
-- **Event-Driven Architecture:** Professional EventManager coordination
-- **Dialogue System:** Complete JSON-driven dialogue with branching, requirements, and actions
-- **Patron NPC Management:** Professional selection interface with full integration
-- **Data Management:** Robust JSON loading with comprehensive error handling
-- **Screen Navigation:** Consistent SCREEN_CHANGE event routing
-### ✅ **COMPLETED SYSTEMS (Production Ready)** sep 4 2025
-- **InputHandler Architecture:** Universal keyboard input extracted from GameController
-  - Event-driven hotkey system (I/Q/C/H/ESC/F5/F7/F10)
-  - Clean separation of input routing from game logic
-  - Foundation established for complete input abstraction
-- **Event-Driven Architecture:** Professional EventManager coordination
-- **Dialogue System:** Complete JSON-driven dialogue with branching, requirements, and actions
-
 ### ✅ **COMPLETED SYSTEMS (Production Ready)** Sep 5, 2025
-- **InputHandler Architecture:**  input abstraction from GameController
-  - Event-driven hotkey system (I/Q/C/H/ESC/F5/F7/F10)  
-  - **Semantic mouse click system for title screen navigation**
-  - **Clickable region registration with screen lifecycle management**
-  - **Clean separation of input routing from game logic**
-  - **Professional debug logging and click history tracking**
 - **Event-Driven Architecture:** Professional EventManager coordination with single instance management
-- **Dialogue System:** Complete JSON-driven dialogue with branching, requirements, and actions
-### ✅ **COMPLETED SYSTEMS (Production Ready)** Sep 5, 2025
-- **Professional ScreenManager Architecture:** Complete screen lifecycle management
-  - **Event-driven navigation system** eliminating massive draw_current_screen() method
-  - **Professional screen rendering** with registered render functions (26 screens)
-  - **Error handling and fallback systems** with graceful degradation
-  - **Navigation history and back button support** for professional UX
-  - **Screen lifecycle hooks** for enter/exit state management
-- **Pure Event-Driven Architecture:** EventManager as central coordination hub
-  - **ScreenManager subscribes to navigation events** (SCREEN_CHANGE, SCREEN_ADVANCE)
-  - **InputHandler delegates to ScreenManager** for unknown click handling
-  - **Components self-organize** through event subscription patterns
-- **GameController Refactoring Foundation:** Initial cleanup phase complete
-  - **300+ lines removed** with draw_current_screen() method eliminated
-  - **Event-driven screen transitions** replacing direct method calls
-  - **Professional separation of concerns** architecture established
-- **Gender Selection Screen:** Professional semantic action   implementation (SELECT_MALE, SELECT_FEMALE)
+- **Character Creation Modernization:** Stats and gender screens use semantic action system
+- **Navigation Architecture:** START_GAME/CONTINUE/LOAD_GAME properly moved to ScreenManager
+- **Input Handler Architecture:** Semantic mouse click system with clickable region registration
+- **Screen Management:** Enter hooks pattern with professional lifecycle management
+- **GameController Diet:** Significant progress removing business logic (7+ methods eliminated)
 
 ### 🚧 **IN PROGRESS**
-- **InputHandler Mouse Integration:** Title screens complete, character creation and tavern screens next phase
-- **GameController Refactoring:** Successfully reduced input handling responsibilities by 45%
-
-### 🚧 **IN PROGRESS**
-- **Legacy System Refactoring:** Dice game and merchant shop migration
-- **Content Expansion:** Additional patron dialogues (Elara, Thorman, Lyra, Pete)
+- **Character Creation Screens:** Portrait and name selection modernization next
+- **GameController Refactoring:** Continue extracting remaining business logic to appropriate engines
 
 ### 📋 **NEXT PRIORITIES**
-1. **Complete GameController Diet** - Continue removing remaining business logic to achieve thin coordinator pattern
-2. **Complete Input Handler Integration** - Migrate remaining manual click regions to event system
-3. **Screen Self-Registration** - Individual screen modules register their own clickable regions
+1. **Complete Character Creation Modernization** - Apply semantic action pattern to remaining screens
+2. **Professional Debug Tools** - Implement F2 GameState inspection system
+3. **Screen Self-Registration** - Continue eliminating hardcoded screen logic
 4. **Component Testing** - Add unit tests for ScreenManager and event-driven components
-5. **Complete Mouse Click Extraction** - Implement semantic actions for character creation screens
 
-6. **Legacy System Migration** - Extract dice game and merchant logic to data-driven systems
-7. **Content Expansion** - Additional patron dialogues using established JSON format
-8. **Complete Patron Dialogue Set** - Implement remaining patron NPCs using established JSON format
-9. **Legacy System Migration** - Extract dice game and merchant logic to data-driven systems
-10. **Commerce Engine Extraction** - Move shopping logic to dedicated engine
-
-### 🏗️ **ARCHITECTURAL ACHIEVEMENTS**
-- **Professional Standards:** Event-driven architecture throughout dialogue system
-- **Content Creation Simplified:** New NPCs require only JSON files, no code changes
-- **Error Resilience:** Comprehensive validation and fallback systems
-- **Documentation Complete:** Full dialogue creation guide and testing procedures
-- **Developer Experience:** Clear separation of content (JSON) and code (Python)
-
-- **Screen Management:** Complete extraction of rendering logic to dedicated ScreenManager
-- **Event-Driven Coordination:** All component communication via EventManager hub
-- **Self-Registering Components:** Screens and handlers register themselves automatically
-- **Professional Error Handling:** Graceful fallback systems prevent crashes
-- **Foundation for Thin Controller:** Architecture established for continued GameController cleanup
-
-
+### 🗽 **ARCHITECTURAL ACHIEVEMENTS**
+- **Professional Standards:** Event-driven architecture with clear component boundaries
+- **Separation of Concerns:** UI, business logic, and coordination properly separated
+- **Extensible Patterns:** Enter hooks and semantic actions established for consistent screen handling
+- **Clean Architecture:** Components self-organize through events rather than direct coupling
 
 ## 13) Development Workflow
 
@@ -233,6 +177,12 @@ Testing coverage for Dialogue + DataManager
 - Standard action types (quest_update, recruit_npc, dialogue_branch, exit)
 - Navigation and screen management
 - Error handling and validation
+
+### **Character Creation Screen Modernization (Established Pattern)**
+1. Add event handlers to CharacterEngine `register_character_creation_events()`
+2. Add clickable registration method to ScreenManager
+3. Update screen registration to use enter hooks
+4. Test semantic action flow
 
 ### **Supported Dialogue Actions**
 - **exit:** Return to previous screen
@@ -248,6 +198,6 @@ Testing coverage for Dialogue + DataManager
 
 ---
 
-*Last Updated: September 4, 2025*  
-*Status: Patron NPC System Complete - Professional Event-Driven Architecture*  
-*Next Session Focus: Additional patron dialogue implementation and legacy system refactoring*
+*Last Updated: September 5, 2025*  
+*Status: Character Creation Modernization Phase - Professional Event-Driven Architecture*  
+*Next Session Focus: Portrait/name screen modernization and continued GameController cleanup*

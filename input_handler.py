@@ -248,9 +248,25 @@ class InputHandler:
         # PRIORITY 1: Text input gets absolute priority
         if hasattr(game_state, 'custom_name_active') and game_state.custom_name_active:
             if self.debug_input:
-                print("📝 Text input mode active - bypassing universal hotkeys")
-            # Emit text input event instead of handling here
-            self.event_manager.emit("TEXT_INPUT", {"event": event, "screen": game_state.screen})
+                print("📝 Text input mode active - processing text input events")
+            
+            # Handle text input through event system
+            if event.key == pygame.K_RETURN:
+                self.event_manager.emit("CONFIRM_CUSTOM_NAME", {})
+            
+                return True
+                
+            elif event.key == pygame.K_BACKSPACE:
+                self.event_manager.emit("TEXT_BACKSPACE", {})
+                return True
+                
+            elif event.unicode.isprintable() and len(getattr(game_state, 'custom_name_text', '')) < 30:
+                self.event_manager.emit("TEXT_INPUT", {
+                    "character": event.unicode
+                })
+                return True
+            
+            # Any other key in text mode is handled but ignored
             return True
         
         # PRIORITY 2: Handle universal hotkeys

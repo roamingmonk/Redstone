@@ -106,37 +106,277 @@ class CharacterEngine:
         # Game flow events
         event_manager.register('NEW_GAME', self._handle_new_game)
         
-        # Stat events (existing)
+        # Stat events 
         event_manager.register('REROLL_STATS', self._handle_reroll_stats)
         event_manager.register('KEEP_STATS', self._handle_keep_stats)
         
-        # Gender events (new)
+        # Gender events 
         event_manager.register('SELECT_MALE', self._handle_select_male)
         event_manager.register('SELECT_FEMALE', self._handle_select_female)
         
+        # Name selection events
+        event_manager.register('SELECT_NAME_1', self._handle_select_name)
+        event_manager.register('SELECT_NAME_2', self._handle_select_name)
+        event_manager.register('SELECT_NAME_3', self._handle_select_name)
+        event_manager.register('REROLL_NAMES', self._handle_reroll_names)
+        event_manager.register('CUSTOM_NAME', self._handle_custom_name)
+        
+        # Custom name events
+        event_manager.register('CONFIRM_CUSTOM_NAME', self._handle_confirm_custom_name)
+        event_manager.register('BACK_TO_NAME', self._handle_back_to_name)
+        event_manager.register('ACTIVATE_TEXT_INPUT', self._handle_activate_text_input)
+
+        # Text input events
+        event_manager.register('TEXT_INPUT', self._handle_text_input)
+        event_manager.register('TEXT_BACKSPACE', self._handle_text_backspace)
+
+        # Name confirm events
+        event_manager.register('ACCEPT_NAME', self._handle_accept_name)
+        event_manager.register('BACK_TO_NAME_SELECTION', self._handle_back_to_name_selection)
+
         print("🎯 CharacterEngine registered for all character creation events")
 
     def _handle_select_male(self, event_data):
-        """Handle SELECT_MALE - set gender and navigate"""
+        """Handle SELECT_MALE - set gender and navigate to name selection"""
         print("🚹 CharacterEngine: SELECT_MALE event received")
         
         # Update GameState directly (Single Data Authority)
         self.game_state.character['gender'] = 'male'
         
-        # Emit navigation event to next screen
+        # Generate name options using our new method
+        self.generate_name_options('male')
+        
+        # Emit navigation event to name selection screen (CORRECTED!)
         if self.event_manager:
-            self.event_manager.emit('SCREEN_CHANGE', {'target': 'portrait_selection'})
+            self.event_manager.emit('SCREEN_CHANGE', {'target': 'name'})
 
     def _handle_select_female(self, event_data):
-        """Handle SELECT_FEMALE - set gender and navigate"""
+        """Handle SELECT_FEMALE - set gender and navigate to name selection"""
         print("🚺 CharacterEngine: SELECT_FEMALE event received")
         
         # Update GameState directly (Single Data Authority)
         self.game_state.character['gender'] = 'female'
         
-        # Emit navigation event to next screen
+        # Generate name options using our new method
+        self.generate_name_options('female')
+        
+        # Emit navigation event to name selection screen (CORRECTED!)
         if self.event_manager:
-            self.event_manager.emit('SCREEN_CHANGE', {'target': 'portrait_selection'})
+            self.event_manager.emit('SCREEN_CHANGE', {'target': 'name'})
+
+    def _handle_reroll_names(self, event_data):
+        """Handle rerolling name options"""
+        print("🎲 CharacterEngine: REROLL_NAMES event received")
+        
+        gender = self.game_state.character.get('gender', 'male')
+        self.generate_name_options(gender)
+        # Stay on same screen - just regenerate the names
+
+    def _handle_select_name(self, event_data):
+        """Handle name selection from generated options"""
+        print("✨ CharacterEngine: Name selection event received")
+        
+        # Extract which name was selected (SELECT_NAME_1 -> index 0, etc.)
+        event_type = event_data.get('action', 'SELECT_NAME_1')
+        name_index = int(event_type.split('_')[-1]) - 1
+        
+        current_names = getattr(self.game_state, 'current_names', [])
+        if 0 <= name_index < len(current_names):
+            selected_name = current_names[name_index]
+            self.game_state.selected_name = selected_name
+            self.game_state.character['name'] = selected_name
+            print(f"✅ Selected name #{name_index + 1}: {selected_name}")
+            
+            # FIXED: Navigate to name confirmation screen
+            if self.event_manager:
+                self.event_manager.emit('SCREEN_CHANGE', {'target': 'name_confirm'})
+        else:
+            print(f"❌ Invalid name selection index {name_index}")
+
+    def _handle_custom_name(self, event_data):
+        """Handle custom name entry request"""
+        print("✏️ CharacterEngine: Custom name requested")
+        
+        # Navigate to custom name entry screen
+        if self.event_manager:
+            self.event_manager.emit('SCREEN_CHANGE', {'target': 'custom_name'})
+
+    def _handle_text_input(self, event_data):
+        """Handle TEXT_INPUT - add character to custom name"""
+        character = event_data.get('character', '')
+        
+        if not hasattr(self.game_state, 'custom_name_text'):
+            self.game_state.custom_name_text = ''
+        
+        if character and len(self.game_state.custom_name_text) < 30:
+            self.game_state.custom_name_text += character
+            print(f"📝 CharacterEngine: Added '{character}' to name: '{self.game_state.custom_name_text}'")
+
+    def _handle_text_backspace(self, event_data):
+        """Handle TEXT_BACKSPACE - remove character from custom name"""
+        if hasattr(self.game_state, 'custom_name_text') and self.game_state.custom_name_text:
+            self.game_state.custom_name_text = self.game_state.custom_name_text[:-1]
+            print(f"📝 CharacterEngine: Backspace - name now: '{self.game_state.custom_name_text}'")
+
+    def _handle_confirm_custom_name(self, event_data):
+        """Handle CONFIRM_CUSTOM_NAME - validate and proceed"""
+        print("✅ CharacterEngine: CONFIRM_CUSTOM_NAME event received")
+        
+        text = getattr(self.game_state, 'custom_name_text', '').strip()
+        if text:
+            self.game_state.selected_name = text
+            self.game_state.character['name'] = text
+            self.game_state.custom_name_active = False  # Disable text input mode
+            print(f"✅ Custom name confirmed: {text}")
+            
+            # Navigate to name confirmation
+            if self.event_manager:
+                self.event_manager.emit('SCREEN_CHANGE', {'target': 'name_confirm'})
+        else:
+            print("❌ No custom name text to confirm")
+
+    def _handle_back_to_name(self, event_data):
+        """Handle BACK_TO_NAME - return to name selection and clear custom text"""
+        print("⬅️ CharacterEngine: BACK_TO_NAME event received")
+        
+        # Clear custom name text for fresh start
+        if hasattr(self.game_state, 'custom_name_text'):
+            self.game_state.custom_name_text = ""
+        
+        # Disable text input mode
+        if hasattr(self.game_state, 'custom_name_active'):
+            self.game_state.custom_name_active = False
+        
+        if self.event_manager:
+            self.event_manager.emit('SCREEN_CHANGE', {'target': 'name'})
+
+    def _handle_activate_text_input(self, event_data):
+        """Handle ACTIVATE_TEXT_INPUT - enable custom name input"""
+        print("📝 CharacterEngine: ACTIVATE_TEXT_INPUT event received")
+        
+        # Activate text input mode
+        self.game_state.custom_name_active = True
+        if not hasattr(self.game_state, 'custom_name_text'):
+            self.game_state.custom_name_text = ""
+
+    def _handle_accept_name(self, event_data):
+        """Handle ACCEPT_NAME - finalize name and proceed to portrait selection"""
+        print("🎉 CharacterEngine: ACCEPT_NAME event received")
+        
+        if hasattr(self.game_state, 'selected_name'):
+            self.game_state.character['name'] = self.game_state.selected_name
+            print(f"🎉 Final name accepted: {self.game_state.selected_name}")
+            
+            # Navigate to portrait selection
+            if self.event_manager:
+                self.event_manager.emit('SCREEN_CHANGE', {'target': 'portrait_selection'})
+        else:
+            print("❌ No selected name to accept")
+
+    def _handle_back_to_name_selection(self, event_data):
+        """Handle BACK_TO_NAME_SELECTION - return to name selection from confirmation"""
+        print("⬅️ CharacterEngine: BACK_TO_NAME_SELECTION event received")
+        
+        # Clear custom name text for fresh start (same as back from custom name screen)
+        if hasattr(self.game_state, 'custom_name_text'):
+            self.game_state.custom_name_text = ""
+        
+        # Disable text input mode
+        if hasattr(self.game_state, 'custom_name_active'):
+            self.game_state.custom_name_active = False
+        
+        if self.event_manager:
+            self.event_manager.emit('SCREEN_CHANGE', {'target': 'name'})
+
+
+    def load_name_data(self):
+        """Load character names from JSON file"""
+        try:
+            import json
+            import os
+            
+            # Get the data file path
+            data_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'player', 'character_names.json')
+            
+            with open(data_path, 'r') as f:
+                self.name_data = json.load(f)
+            
+            print("📚 Character names loaded from JSON")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Failed to load character names: {e}")
+            # Fallback to hardcoded names
+            self.name_data = {
+                "male_names": {
+                    "first": ["Garlen", "Theron", "Bjorn", "Marcus", "Aldric"],
+                    "last": ["Sliverblade", "Ironwill", "Stormhammer", "Battleborn", "Steelhand"]
+                },
+                "female_names": {
+                    "first": ["Kala", "Gina", "Sera", "Thessa", "Mira"],
+                    "last": ["Stormborn", "Brightblade", "Ironheart", "Battlewise", "Steelstrike"]
+                }
+            }
+            return False
+    
+    def generate_name_options(self, gender):
+        """
+        Generate 3 random name combinations for the specified gender
+        Moved from GameState to CharacterEngine for proper separation of concerns
+        
+        Args:
+            gender: 'male' or 'female'
+            
+        Returns:
+            list: 3 unique name combinations
+        """
+        import random
+        
+        # Load names if not already loaded
+        if not hasattr(self, 'name_data'):
+            self.load_name_data()
+        
+        gender_key = f"{gender}_names"
+        if gender_key not in self.name_data:
+            print(f"❌ No name data for gender: {gender}")
+            return ["Hero One", "Hero Two", "Hero Three"]
+        
+        first_names = self.name_data[gender_key]["first"]
+        last_names = self.name_data[gender_key]["last"]
+        
+        names = []
+        used_names = getattr(self.game_state, 'used_names', set())
+        
+        # For males, always include Garlen Sliverblade as option 1 if not used
+        if gender == 'male' and "Garlen Sliverblade" not in used_names:
+            names.append("Garlen Sliverblade")
+            used_names.add("Garlen Sliverblade")
+        
+        # Generate random combinations for remaining slots
+        attempts = 0
+        while len(names) < 3 and attempts < 50:  # Prevent infinite loop
+            first = random.choice(first_names)
+            last = random.choice(last_names)
+            full_name = f"{first} {last}"
+            
+            if full_name not in used_names:
+                names.append(full_name)
+                used_names.add(full_name)
+            attempts += 1
+        
+        # Fill remaining slots if needed (fallback safety)
+        while len(names) < 3:
+            first = random.choice(first_names)
+            last = random.choice(last_names)
+            full_name = f"{first} {last}"
+            names.append(full_name)
+        
+        # Store used names and current options in GameState
+        self.game_state.used_names = used_names
+        self.game_state.current_names = names
+        
+        print(f"🎭 Generated {len(names)} {gender} names: {names}")
+        return names
 
     def calculate_hp(self, constitution_score=None, character_class=None):
         """

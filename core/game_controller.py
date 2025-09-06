@@ -252,12 +252,6 @@ class GameController:
         else:
             print("⚠️ SCREEN_CHANGE event without target_screen")
 
-    def is_text_input_active(self) -> bool:
-        """NEW METHOD - Check if we're in text input mode"""
-        return (self.game_state.screen == "custom_name" and 
-                hasattr(self.game_state, 'custom_name_active') and 
-                self.game_state.custom_name_active)
-
     def handle_universal_input(self, event) -> bool:
         """Debug version to see what's happening"""
         print(f"DEBUG: handle_universal_input called with event type: {event.type}")
@@ -332,26 +326,6 @@ class GameController:
                 return True
         
         return True
-    
-    def handle_text_input(self, event) -> bool:
-        """NEW METHOD - Handle custom name text input (from main.py)"""
-        if self.game_state.screen == "custom_name" and self.game_state.custom_name_active:
-            if event.key == pygame.K_RETURN:
-                if self.game_state.custom_name_text.strip():
-                    self.game_state.selected_name = self.game_state.custom_name_text.strip()
-                    self.transition_to("name_confirm")  # Use your existing transition_to!
-                return True
-                
-            elif event.key == pygame.K_BACKSPACE:
-                self.game_state.custom_name_text = self.game_state.custom_name_text[:-1]
-                return True
-                
-            else:
-                if len(self.game_state.custom_name_text) < 30 and event.unicode.isprintable():
-                    self.game_state.custom_name_text += event.unicode
-                return True
-        
-        return True
  
     def handle_screen_specific_input(self, event) -> bool:
         """NEW METHOD - Handle screen-specific keyboard input (from main.py)"""
@@ -365,32 +339,6 @@ class GameController:
         elif self.game_state.screen == "developer_splash":
             self.transition_to("main_menu")  # Use your existing transition_to!
             return True
-        
-        return True
-
-    def is_text_input_active(self) -> bool:
-        """NEW METHOD - Check if we're in text input mode"""
-        return (self.game_state.screen == "custom_name" and 
-                hasattr(self.game_state, 'custom_name_active') and 
-                self.game_state.custom_name_active)
-
-    def handle_text_input(self, event) -> bool:
-        """NEW METHOD - Handle custom name text input (from main.py)"""
-        if self.game_state.screen == "custom_name" and self.game_state.custom_name_active:
-            if event.key == pygame.K_RETURN:
-                if self.game_state.custom_name_text.strip():
-                    self.game_state.selected_name = self.game_state.custom_name_text.strip()
-                    self.transition_to("name_confirm")  # Use your existing transition_to!
-                return True
-                
-            elif event.key == pygame.K_BACKSPACE:
-                self.game_state.custom_name_text = self.game_state.custom_name_text[:-1]
-                return True
-                
-            else:
-                if len(self.game_state.custom_name_text) < 30 and event.unicode.isprintable():
-                    self.game_state.custom_name_text += event.unicode
-                return True
         
         return True
 
@@ -606,23 +554,6 @@ class GameController:
         """Handle debug toggle from InputHandler"""
         self.debug_mode = not self.debug_mode
         print(f"🔧 Debug mode: {'ON' if self.debug_mode else 'OFF'}")
-
-    def handle_text_input_event(self, event_data):
-        """Handle text input events from InputHandler"""
-        event = event_data.get("event")
-        screen = event_data.get("screen")
-        
-        if screen == "custom_name" and hasattr(self.game_state, 'custom_name_active'):
-            if event.key == pygame.K_RETURN:
-                if self.game_state.custom_name_text.strip():
-                    self.game_state.selected_name = self.game_state.custom_name_text.strip()
-                    self.transition_to("name_confirm")
-                    
-            elif event.key == pygame.K_BACKSPACE:
-                self.game_state.custom_name_text = self.game_state.custom_name_text[:-1]
-                
-            elif len(self.game_state.custom_name_text) < 30 and event.unicode.isprintable():
-                self.game_state.custom_name_text += event.unicode
 
     def handle_screen_advance(self, event_data):
         """Handle screen advance events from InputHandler"""
