@@ -312,6 +312,16 @@ save_manager.py - Updated constructor for proper dependency injection
 game_controller.py - Updated SaveManager instantiation and shutdown process
 game_state.py - Removed portrait business logic methods (cleanup)
 
+## ADR-028: Added Gold screen and ignore empty clicks
+- input handler, character classes (for future), character engine, screen manager
+- got gold screen working, applied fix for empty clicks to avoid program shutdown
+
+## ADR-029: added trinket screen to refactor
+
+- character engine, screen manager, trinkets.json
+- trinket screen works and pulls from trinket json file no longer hardcoded.
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

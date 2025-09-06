@@ -307,6 +307,19 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for gold screen registration")
 
+    def register_trinket_screen_clickables(self):
+        """Register trinket screen clickables when entering trinket screen"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            
+            # Button coordinates from draw_trinket_screen (450, 280, 160, 50 - same as gold)
+            button_rect = pygame.Rect(450, 280, 160, 50)
+            
+            # Register the button - CharacterEngine will determine if it's ROLL or CONTINUE
+            self.input_handler.register_clickable('trinket', button_rect, 'TRINKET_BUTTON_CLICK', {'action': 'TRINKET_BUTTON_CLICK'})
+            
+            print("🎭 Trinket screen clickables registered")
+        else:
+            print("⚠️ No InputHandler available for trinket screen registration")
 
 
 
@@ -377,9 +390,9 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_portrait_screen_clickables())
             self.register_render_function("gold", draw_gold_screen,
                 enter_hook=lambda _: self.register_gold_screen_clickables())
-
+            self.register_render_function("trinket", draw_trinket_screen,
+                enter_hook=lambda _: self.register_trinket_screen_clickables())
             
-            self.register_render_function("trinket", draw_trinket_screen)
             self.register_render_function("summary", draw_summary_screen)
             self.register_render_function("welcome", draw_welcome_screen)
 

@@ -139,6 +139,8 @@ class CharacterEngine:
         #Gold selection events
         event_manager.register("GOLD_BUTTON_CLICK", self.handle_gold_button_click)
 
+        # Trinket screen events
+        event_manager.register('TRINKET_BUTTON_CLICK', self.handle_trinket_button_click)
 
         print("🎯 CharacterEngine registered for all character creation events")
 
@@ -431,7 +433,20 @@ class CharacterEngine:
             print(f"🪙 Rolled {roll} gold pieces!")
             # Stay on gold screen so button changes to "CONTINUE"
 
-
+    def handle_trinket_button_click(self, event_data):
+        """Handle trinket button click - either roll trinket or continue to summary screen"""
+        
+        # Check if trinket already exists
+        if 'trinket' in self.game_state.character:
+            # Trinket already rolled, advance to summary screen
+            print("✨ Trinket confirmed, advancing to summary screen")
+            print(f"🔍 DEBUG: Current character data: {self.game_state.character}")
+            self.event_manager.emit("SCREEN_CHANGE", {"target": "summary"})
+        else:
+            # Roll for trinket using the updated JSON-based method
+            trinket = self.roll_trinket()
+            print(f"🔍 DEBUG: Character data after trinket roll: {self.game_state.character}")
+            # Stay on trinket screen so button changes to "CONTINUE"
 
 
 
@@ -598,23 +613,29 @@ class CharacterEngine:
     def roll_trinket(self):
         """
         Roll for a mysterious starting trinket
-        Classic D&D-style random trinket table
+        Classic D&D-style random trinket table loaded from JSON
         
         Returns:
             str: Description of the rolled trinket
         """
-        trinket_table = [
-            "A small brass key with no lock in sight",
-            "Smooth river stone with ancient runes carved deep",
-            "Tiny glass vial filled with swirling purple mist",
-            "Silver coin from a kingdom that no longer exists",
-            "Wooden dice that always show the same number",
-            "Fragment of a star map drawn on worn parchment",
-            "Iron ring that grows cold near undead creatures",
-            "Pressed flower from your childhood home",
-            "Small leather pouch that jingles but appears empty",
-            "Broken compass that points toward magic instead of north"
-        ]
+        import json
+        import os
+        import random
+        
+        # Load trinket data from JSON file
+        trinket_file = os.path.join("data", "player", "trinkets.json")
+        try:
+            with open(trinket_file, 'r') as f:
+                trinket_data = json.load(f)
+            trinket_table = trinket_data["trinket_table"]
+        except FileNotFoundError:
+            print("⚠️ Trinket data file not found, using fallback")
+            # Fallback trinket table if JSON file missing
+            trinket_table = [
+                "A small brass key with no lock in sight",
+                "Smooth river stone with ancient runes carved deep",
+                "Tiny glass vial filled with swirling purple mist"
+            ]
         
         trinket = random.choice(trinket_table)
         
