@@ -321,6 +321,11 @@ game_state.py - Removed portrait business logic methods (cleanup)
 - character engine, screen manager, trinkets.json
 - trinket screen works and pulls from trinket json file no longer hardcoded.
 
+## ADR-030: updated to add character class JSON
+
+- updated gold calcualation so it refers to character class json .
+-   can be used for future expansion and HP calculations.
+
 
 ```
 ## ADR-XXX: <Short title>

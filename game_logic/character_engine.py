@@ -416,21 +416,19 @@ class CharacterEngine:
             self.inventory['items'].append(self.character['trinket'])
 
 
-
     def handle_gold_button_click(self, event_data):
         """Handle gold button click - either roll gold or continue to trinket screen"""
-        import random
         
         # Check if gold already exists
         if 'gold' in self.game_state.character:
             # Gold already rolled, advance to trinket screen
-            print("🪙 Gold confirmed, advancing to trinket screen")
+            print("Gold confirmed, advancing to trinket screen")
+            print(f"DEBUG: Current character data: {self.game_state.character}")
             self.event_manager.emit("SCREEN_CHANGE", {"target": "trinket"})
         else:
-            # Roll 3d6 x 5 for starting gold (classic D&D style!)
-            roll = sum(random.randint(1, 6) for _ in range(3)) * 5
-            self.game_state.character['gold'] = roll
-            print(f"🪙 Rolled {roll} gold pieces!")
+            # Use the sophisticated JSON-based class system
+            self.roll_starting_gold()  # Updates GameState directly
+            print(f"DEBUG: Character data after gold roll: {self.game_state.character}")
             # Stay on gold screen so button changes to "CONTINUE"
 
     def handle_trinket_button_click(self, event_data):
@@ -576,7 +574,7 @@ class CharacterEngine:
     
     def roll_starting_gold(self, character_class=None):
         """
-        Roll starting gold based on character class
+        Roll starting gold based on character class using JSON data
         
         Args:
             character_class: Optional override, uses GameState if not provided
@@ -584,31 +582,132 @@ class CharacterEngine:
         Returns:
             int: Starting gold amount
         """
+        import json
+        import os
+        import random
+        
+        # Load class data from JSON file
+        class_file = os.path.join("data", "player", "character_classes.json")
+        try:
+            with open(class_file, 'r') as f:
+                class_data = json.load(f)
+        except FileNotFoundError:
+            print("⚠️ Character class data file not found, using fallback")
+            # Fallback for missing JSON file
+            return self._fallback_gold_roll(character_class)
+        
+        # Determine character class
         if character_class is None:
             character_class = self.game_state.character.get('class', 'fighter')
         
-        class_data = self._get_class_data(character_class)
-        if class_data and 'starting_gold' in class_data:
-            gold_data = class_data['starting_gold']
-            base_dice = gold_data.get('base', 5)
-            multiplier = gold_data.get('multiplier', 5)
-            
-            # Roll base dice and multiply
-            roll_total = 0
-            for _ in range(base_dice):
-                roll_total += random.randint(1, 6)
-            
-            starting_gold = roll_total * multiplier
-        else:
-            # Fallback: 5d6 * 5 (fighter default)
-            roll_total = sum(random.randint(1, 6) for _ in range(5))
-            starting_gold = roll_total * 5
+        # Get class-specific gold configuration
+        classes = class_data.get("character_classes", {})
+        class_info = classes.get(character_class.lower(), classes.get('fighter', {}))
+        
+        if not class_info:
+            print(f"⚠️ Class '{character_class}' not found, using fighter defaults")
+            class_info = classes.get('fighter', {})
+        
+        # Extract gold rolling parameters
+        gold_config = class_info.get("starting_gold", {
+            "dice": 5, "sides": 6, "multiplier": 10, "description": "5d6 × 10 gold pieces"
+        })
+        
+        dice_count = gold_config.get("dice", 5)
+        die_sides = gold_config.get("sides", 6)
+        multiplier = gold_config.get("multiplier", 10)
+        description = gold_config.get("description", f"{dice_count}d{die_sides} × {multiplier}")
+        
+        # Roll the dice
+        individual_rolls = []
+        for _ in range(dice_count):
+            roll = random.randint(1, die_sides)
+            individual_rolls.append(roll)
+        
+        dice_total = sum(individual_rolls)
+        starting_gold = dice_total * multiplier
         
         # Update GameState directly (Single Data Authority)
         self.game_state.character['gold'] = starting_gold
         
-        print(f"💰 Starting gold: {starting_gold} gp")
+        # Enhanced logging for debugging and player feedback
+        roll_details = " + ".join(map(str, individual_rolls))
+        print(f"🏛️ {class_info.get('name', character_class.title())} Starting Gold:")
+        print(f"💰 Formula: {description}")
+        print(f"🎲 Rolled: [{roll_details}] = {dice_total}")
+        print(f"💰 Total: {dice_total} × {multiplier} = {starting_gold} gold pieces")
+        
         return starting_gold
+
+    def _fallback_gold_roll(self, character_class=None):
+        """
+        Fallback gold rolling when JSON file is unavailable
+        
+        Args:
+            character_class: Character class (ignored in fallback)
+            
+        Returns:
+            int: Starting gold amount using default fighter formula
+        """
+        import random
+        
+        # Default to fighter formula: 5d6 × 10
+        dice_total = sum(random.randint(1, 6) for _ in range(5))
+        starting_gold = dice_total * 10
+        
+        self.game_state.character['gold'] = starting_gold
+        
+        print(f"💰 Fallback Gold Roll: 5d6 × 10 = {starting_gold} gold pieces")
+        return starting_gold
+
+    def apply_class_stat_adjustments(self, character_class=None):
+        """
+        Apply class-specific stat adjustments from JSON data
+        
+        Args:
+            character_class: Optional override, uses GameState if not provided
+            
+        Returns:
+            dict: Applied adjustments
+        """
+        import json
+        import os
+        
+        # Load class data from JSON file
+        class_file = os.path.join("data", "player", "character_classes.json")
+        try:
+            with open(class_file, 'r') as f:
+                class_data = json.load(f)
+        except FileNotFoundError:
+            print("⚠️ Character class data file not found, no stat adjustments applied")
+            return {}
+        
+        # Determine character class
+        if character_class is None:
+            character_class = self.game_state.character.get('class', 'fighter')
+        
+        # Get class-specific stat adjustments
+        classes = class_data.get("character_classes", {})
+        class_info = classes.get(character_class.lower(), {})
+        stat_adjustments = class_info.get("stat_adjustments", {})
+        
+        applied_adjustments = {}
+        
+        # Apply each stat adjustment
+        for stat, adjustment in stat_adjustments.items():
+            if stat in self.game_state.character:
+                old_value = self.game_state.character[stat]
+                new_value = old_value + adjustment
+                # Cap at 18 (D&D maximum for starting characters)
+                new_value = min(new_value, 18)
+                self.game_state.character[stat] = new_value
+                applied_adjustments[stat] = adjustment
+                print(f"📈 {stat.title()}: {old_value} + {adjustment} = {new_value}")
+        
+        if applied_adjustments:
+            print(f"⚡ {class_info.get('name', character_class.title())} class bonuses applied!")
+        
+        return applied_adjustments
     
     def roll_trinket(self):
         """
