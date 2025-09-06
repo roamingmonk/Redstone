@@ -221,17 +221,17 @@ class InputHandler:
             if self.screen_manager.handle_screen_click(current_screen, mouse_pos, self.game_controller):
                 return True
         
-        # NEW: Add simple screen advance for basic title screen flow
+        # Handle special cases that advance on any click
         if current_screen in ["game_title", "developer_splash"]:
             if self.debug_input:
                 print(f"⚡ Auto-advancing from {current_screen}")
             self.event_manager.emit("SCREEN_ADVANCE", {"current_screen": current_screen})
             return True
-        
-        # If all else fails, return False (was causing program exit)
+
+        # DEFAULT: Ignore empty space clicks (safe for all other screens)
         if self.debug_input:
-            print(f"🚫 No handler found for click on {current_screen}")
-        return False  # This should not cause program exit now
+            print(f"🚫 Ignoring empty space click on {current_screen}")
+        return True
     
     def process_keyboard_input(self, event: pygame.event.Event, 
                               game_state) -> bool:

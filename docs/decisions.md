@@ -275,6 +275,42 @@ GameController input responsibilities reduced by additional 15%
 **Files Modified:** screen_manager.py, character_engine.py, input_handler.py, game_controller.py
 **Files Created:** data/player/character_names.json
 
+## ADR-026: clean up Gamestate removed redundant code from ADR 025
+gamestate.py removed redundant randomn name genreatione code and hardcoded names
+moved to character engine and new json file
+data/player/character_names.json
+
+## ADR-027 Portrait Selection Screen Modernization Complete
+Status: Accepted
+**Date:** Sep 6, 2025
+**Context:** Portrait selection screen used legacy hardcoded mouse handling instead of event-driven semantic action system, with business logic scattered between GameState and GameController
+Decision: Complete modernization using established semantic action pattern with architectural cleanup and proper dependency injection
+**Implementation:**  CharacterEngine Events: Added SELECT_PORTRAIT_1-5, CONFIRM_PORTRAIT, BACK_FROM_PORTRAIT with proper business logic handling
+ScreenManager Integration: Dynamic clickable registration using enter hooks with exact coordinate mapping from draw function
+InputHandler Integration: All portrait clicks converted to semantic events through EventManager
+Architectural Refactoring: Moved portrait business logic methods (ensure_active_portrait, activate_character_portrait, clear_active_portrait, finalize_character) from GameState to CharacterEngine
+**Dependency Injection:** Updated SaveManager constructor to receive CharacterEngine instance instead of using imports
+**UI Enhancement:** Dynamic character name display ("Choose [Name]'s appearance") positioned above portrait grid
+**Consequences:**
+Portrait selection now uses professional event-driven architecture matching other modernized screens
+Clean separation: UI rendering, semantic events, business logic, and data storage properly divided
+Eliminated hardcoded mouse coordinate detection in favor of calculated clickable regions
+SaveManager follows proper dependency injection pattern rather than tight coupling through imports
+Foundation established for Gold and Trinket screen modernization using identical pattern
+GameController portrait responsibilities eliminated, continuing thin coordinator pattern
+**Technical Achievements:**
+5-portrait horizontal grid with yellow selection highlighting
+Portrait file discovery system (player_male_01.jpg to player_male_05.jpg format)
+Proper navigation flow: portrait selection → confirmation → gold screen
+Complete removal of legacy portrait methods from GameState
+Professional shutdown process updated to use CharacterEngine methods
+**Files Modified:**
+character_engine.py - Added portrait event handlers and business logic methods
+screen_manager.py - Added portrait clickable registration with enter hooks
+screens/character_creation.py - Enhanced draw function with dynamic character name
+save_manager.py - Updated constructor for proper dependency injection
+game_controller.py - Updated SaveManager instantiation and shutdown process
+game_state.py - Removed portrait business logic methods (cleanup)
 
 ```
 ## ADR-XXX: <Short title>

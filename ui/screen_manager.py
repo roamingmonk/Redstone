@@ -290,6 +290,26 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for portrait screen registration")
 
+
+
+
+    def register_gold_screen_clickables(self):
+        """Register gold screen clickables when entering gold screen"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            
+            # Button coordinates from draw_gold_screen (450, 280, 160, 50)
+            button_rect = pygame.Rect(450, 280, 160, 50)
+            
+            # Register the single button - logic will be handled by CharacterEngine
+            self.input_handler.register_clickable('gold', button_rect, 'GOLD_BUTTON_CLICK', {'action': 'GOLD_BUTTON_CLICK'})
+            
+            print("🪙 Gold screen clickables registered")
+        else:
+            print("⚠️ No InputHandler available for gold screen registration")
+
+
+
+
     def register_render_function(self, screen_name: str, render_function: Callable,
                                 enter_hook: Optional[Callable] = None,
                                 exit_hook: Optional[Callable] = None):
@@ -355,9 +375,10 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_name_confirm_screen_clickables()) 
             self.register_render_function("portrait_selection", draw_portrait_selection_screen,
                 enter_hook=lambda _: self.register_portrait_screen_clickables())
-            
+            self.register_render_function("gold", draw_gold_screen,
+                enter_hook=lambda _: self.register_gold_screen_clickables())
 
-            self.register_render_function("gold", draw_gold_screen)
+            
             self.register_render_function("trinket", draw_trinket_screen)
             self.register_render_function("summary", draw_summary_screen)
             self.register_render_function("welcome", draw_welcome_screen)

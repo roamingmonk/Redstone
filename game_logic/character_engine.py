@@ -136,6 +136,10 @@ class CharacterEngine:
         event_manager.register('CONFIRM_PORTRAIT', self._handle_confirm_portrait)
         event_manager.register('BACK_FROM_PORTRAIT', self._handle_back_from_portrait)
 
+        #Gold selection events
+        event_manager.register("GOLD_BUTTON_CLICK", self.handle_gold_button_click)
+
+
         print("🎯 CharacterEngine registered for all character creation events")
 
     def _handle_select_male(self, event_data):
@@ -408,6 +412,27 @@ class CharacterEngine:
         # Add starting trinket to inventory
         if 'trinket' in self.character:
             self.inventory['items'].append(self.character['trinket'])
+
+
+
+    def handle_gold_button_click(self, event_data):
+        """Handle gold button click - either roll gold or continue to trinket screen"""
+        import random
+        
+        # Check if gold already exists
+        if 'gold' in self.game_state.character:
+            # Gold already rolled, advance to trinket screen
+            print("🪙 Gold confirmed, advancing to trinket screen")
+            self.event_manager.emit("SCREEN_CHANGE", {"target": "trinket"})
+        else:
+            # Roll 3d6 x 5 for starting gold (classic D&D style!)
+            roll = sum(random.randint(1, 6) for _ in range(3)) * 5
+            self.game_state.character['gold'] = roll
+            print(f"🪙 Rolled {roll} gold pieces!")
+            # Stay on gold screen so button changes to "CONTINUE"
+
+
+
 
 
     def load_name_data(self):
