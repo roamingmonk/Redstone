@@ -526,7 +526,7 @@ def finalize_character_creation(game_state):
         engine.set_character_class('fighter')
         
         # Let engine handle all finalization
-        success = engine.finalize_character_creation()
+        success = engine.finalize_character(game_state)
         
         if success:
             print("✅ Character creation completed via CharacterEngine!")
@@ -619,8 +619,11 @@ def draw_portrait_selection_screen(surface, game_state, fonts, images=None):
     # Instructions
     from utils.graphics import draw_centered_text
     text_y = dialog_y + 20
-    draw_centered_text(surface, "Choose your character's appearance:", 
-                      fonts.get('fantasy_medium', fonts['normal']), text_y, WHITE)
+    # Get character name for dynamic text
+    character_name = game_state.character.get('name', 'your character')
+    title_y = image_y + 20
+    draw_centered_text(surface, f"Choose {character_name}'s appearance:", 
+                    fonts.get('fantasy_medium', fonts['normal']), title_y, WHITE)
     
     desc_y = text_y + 30
     draw_centered_text(surface, "Click a portrait to select, then click CONTINUE", 
@@ -630,7 +633,7 @@ def draw_portrait_selection_screen(surface, game_state, fonts, images=None):
     portrait_size = 110
     total_width = 5 * portrait_size + 4 * 20  # 5 portraits + 4 gaps of 20px
     start_x = (1024 - total_width) // 2  # Center the row
-    portrait_y = image_y + 100  # Position in image area
+    portrait_y = image_y + 120  # Position in image area
 
     portrait_buttons = []
     gender = game_state.character.get('gender', 'male')

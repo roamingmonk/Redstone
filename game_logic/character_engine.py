@@ -39,7 +39,7 @@ class CharacterEngine:
     def _handle_new_game(self, event_data):
         """Handle starting character creation flow"""
         print("🎮 CharacterEngine: Starting character creation")
-        self.game_state.activate_character_portrait()
+        self.activate_character_portrait(self.game_state)
         
         # Emit navigation to first character creation screen
         if self.event_manager:
@@ -77,14 +77,7 @@ class CharacterEngine:
         
         print(f"🎲 Character stats rolled: {stats}")
         return stats
-    # def register_stat_events(self, event_manager):
-    #     """Register this engine for stat-related events"""
-    #     self.event_manager = event_manager
-        
-    #     # Wire events directly to existing methods
-    #     event_manager.register('REROLL_STATS', self._handle_reroll_stats)
-    #     event_manager.register('KEEP_STATS', self._handle_keep_stats)
-    #     print("📝 CharacterEngine registered for stat events")
+
 
     def _handle_reroll_stats(self, event_data):
         """Event wrapper for roll_stats - just adds logging"""
@@ -133,6 +126,15 @@ class CharacterEngine:
         # Name confirm events
         event_manager.register('ACCEPT_NAME', self._handle_accept_name)
         event_manager.register('BACK_TO_NAME_SELECTION', self._handle_back_to_name_selection)
+
+        # Portrait selection events
+        event_manager.register('SELECT_PORTRAIT_1', self._handle_select_portrait)
+        event_manager.register('SELECT_PORTRAIT_2', self._handle_select_portrait)
+        event_manager.register('SELECT_PORTRAIT_3', self._handle_select_portrait)
+        event_manager.register('SELECT_PORTRAIT_4', self._handle_select_portrait)
+        event_manager.register('SELECT_PORTRAIT_5', self._handle_select_portrait)
+        event_manager.register('CONFIRM_PORTRAIT', self._handle_confirm_portrait)
+        event_manager.register('BACK_FROM_PORTRAIT', self._handle_back_from_portrait)
 
         print("🎯 CharacterEngine registered for all character creation events")
 
@@ -287,6 +289,125 @@ class CharacterEngine:
         
         if self.event_manager:
             self.event_manager.emit('SCREEN_CHANGE', {'target': 'name'})
+
+    def _handle_select_portrait(self, event_data):
+        """Handle portrait selection from grid"""
+        print("🖼️ CharacterEngine: Portrait selection event received")
+        
+        # Extract portrait index from action (SELECT_PORTRAIT_1 -> index 0, etc.)
+        action = event_data.get('action', '')
+        if action.startswith('SELECT_PORTRAIT_'):
+            # Convert 1-5 to 0-4 for internal indexing
+            portrait_index = int(action.split('_')[-1]) - 1
+            
+            # Get current gender
+            gender = self.game_state.character.get('gender', 'male')
+            
+            # Store the selected portrait index for UI highlighting (0-4)
+            self.game_state.selected_portrait_index = portrait_index
+            
+            # Use existing GameState method (Single Data Authority)
+            self.game_state.set_selected_portrait(gender, portrait_index)
+            
+            print(f"🎭 Portrait {portrait_index + 1} selected for {gender} (internal index: {portrait_index})")
+
+    def _handle_confirm_portrait(self, event_data):
+        """Handle CONFIRM_PORTRAIT - finalize selection and navigate to gold screen"""
+        print("✅ CharacterEngine: CONFIRM_PORTRAIT event received")
+        
+        if hasattr(self.game_state, 'selected_portrait_index') and self.game_state.selected_portrait_index is not None:
+            print(f"🎉 Portrait selection confirmed: {self.game_state.selected_portrait_index + 1}")
+            
+            # Navigate to next step (gold screen)
+            if self.event_manager:
+                self.event_manager.emit('SCREEN_CHANGE', {'target': 'gold'})
+        else:
+            print("⚠️ No portrait selected to confirm")
+
+    def _handle_back_from_portrait(self, event_data):
+        """Handle BACK_FROM_PORTRAIT - return to name confirmation screen"""
+        print("⬅️ CharacterEngine: BACK_FROM_PORTRAIT event received")
+        
+        # Clear portrait selection
+        if hasattr(self.game_state, 'selected_portrait_index'):
+            self.game_state.selected_portrait_index = None
+        
+        # Navigate back to name confirmation
+        if self.event_manager:
+            self.event_manager.emit('SCREEN_CHANGE', {'target': 'name_confirm'})
+
+
+    def ensure_active_portrait(self, game_state):
+        """Ensure active portrait file exists, recreate if missing"""
+        import os
+        import shutil
+        
+        filename, gender = self.get_portrait_selection()
+        
+        if not filename:
+            print("No portrait file specified in save data")
+            return False
+        
+        # Build source path
+        if gender == 'male':
+            from utils.constants import MALE_PORTRAITS_PATH
+            source_dir = MALE_PORTRAITS_PATH
+        else:
+            from utils.constants import FEMALE_PORTRAITS_PATH
+            source_dir = FEMALE_PORTRAITS_PATH
+        
+        source_path = os.path.join(source_dir, filename)
+        
+        # Build active path
+        active_dir = os.path.join(os.path.dirname(source_dir), "active")
+        os.makedirs(active_dir, exist_ok=True)
+        active_path = os.path.join(active_dir, "player.jpg")
+        
+        # Copy if source exists
+        if os.path.exists(source_path):
+            try:
+                shutil.copy2(source_path, active_path)
+                print(f"Active portrait updated: {filename}")
+                return True
+            except Exception as e:
+                print(f"Error updating active portrait: {e}")
+                return False
+        else:
+            print(f"Warning: Source portrait not found: {filename}")
+        return False
+
+    def activate_character_portrait(self, game_state):
+        """Ensure correct portrait is active for current character"""
+        if hasattr(self, 'character') and 'selected_portrait_gender' in self.character:
+            # Character has portrait selection data - ensure active portrait matches
+            self.ensure_active_portrait(game_state)
+        else:
+            # No portrait selection data - clear any existing active portrait
+            self.clear_active_portrait(game_state)
+
+    def clear_active_portrait(self, game_state):
+        """Remove active portrait file"""
+        import os
+        try:
+            from utils.constants import MALE_PORTRAITS_PATH
+            active_dir = os.path.join(os.path.dirname(MALE_PORTRAITS_PATH), "active")
+            active_path = os.path.join(active_dir, "player.jpg")
+            
+            if os.path.exists(active_path):
+                os.remove(active_path)
+                print("Active portrait cleared")
+        except Exception as e:
+            print(f"Error clearing active portrait: {e}")
+
+    def finalize_character(self, game_state):
+        """
+        Complete character creation by calculating final stats
+        """
+        self.character['hit_points'] = self.calculate_hp()
+    
+        # Add starting trinket to inventory
+        if 'trinket' in self.character:
+            self.inventory['items'].append(self.character['trinket'])
 
 
     def load_name_data(self):

@@ -8,10 +8,11 @@ class SaveManager:
     Handles all save/load operations for Terror in Redstone
     Extracted from GameController to follow Single Responsibility Principle
     """
-    def __init__(self, game_state):
+    def __init__(self, game_state, character_engine=None):
         self.game_state = game_state
+        self.character_engine = character_engine
         print("💾 SaveManager initialized - Professional save/load system ready!")
-
+        
     def save_game(self, save_slot=1):
         
         """
@@ -24,7 +25,6 @@ class SaveManager:
                 'version': '2.0',
                 'timestamp': datetime.now().isoformat(),
                 'save_slot': save_slot,
-                
 
                 # Character data
                 'character': self.game_state.character,
@@ -224,8 +224,11 @@ class SaveManager:
             print(f"   Character: {self.game_state.character.get('name', 'Unknown')}")
             print(f"   Current screen: {self.game_state.screen}")
             
+            
             #Activate character portrait after loading
-            self.game_state.activate_character_portrait()
+            
+            if self.char_engine:
+                self.character_engine.activate_character_portrait(self.game_state)
 
             # After loading all the flags, populate quest system if mayor was already talked to
             if self.game_state.mayor_talked and self.game_state.quest_active:

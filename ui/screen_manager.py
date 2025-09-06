@@ -252,6 +252,43 @@ class ScreenManager:
             print("✅ Name confirm screen clickables registered")
         else:
             print("⚠️ No InputHandler available for name confirm screen registration")
+    
+    def register_portrait_screen_clickables(self):
+        """Register portrait screen clickables when entering portrait screen"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            
+            # Use exact coordinates from draw_portrait_selection_screen
+            from utils.constants import LAYOUT_IMAGE_Y, LAYOUT_BUTTON_CENTER_Y
+            
+            portrait_size = 110
+            total_width = 5 * portrait_size + 4 * 20  # 5 portraits + 4 gaps of 20px
+            start_x = (1024 - total_width) // 2  # Center the row
+            portrait_y = LAYOUT_IMAGE_Y + 100  # Same as draw function
+            
+            # Register each portrait clickable (1-5)
+            for i in range(5):
+                portrait_x = start_x + i * (portrait_size + 20)
+                portrait_rect = pygame.Rect(portrait_x, portrait_y, portrait_size, portrait_size)
+                action_name = f'SELECT_PORTRAIT_{i+1}'  # 1-5 for semantic actions
+                self.input_handler.register_clickable('portrait_selection', portrait_rect, 
+                                                    action_name, {'action': action_name})
+            
+            # Register button clickables
+            button_y = LAYOUT_BUTTON_CENTER_Y
+            
+            # BACK button (300, button_y, 120, 40)
+            back_rect = pygame.Rect(300, button_y, 120, 40)
+            self.input_handler.register_clickable('portrait_selection', back_rect, 
+                                                'BACK_FROM_PORTRAIT', {'action': 'BACK_FROM_PORTRAIT'})
+            
+            # CONTINUE button (600, button_y, 120, 40)
+            continue_rect = pygame.Rect(600, button_y, 120, 40)
+            self.input_handler.register_clickable('portrait_selection', continue_rect, 
+                                                'CONFIRM_PORTRAIT', {'action': 'CONFIRM_PORTRAIT'})
+            
+            print("🖼️ Portrait selection screen clickables registered (5 portraits + 2 buttons)")
+        else:
+            print("⚠️ No InputHandler available for portrait screen registration")
 
     def register_render_function(self, screen_name: str, render_function: Callable,
                                 enter_hook: Optional[Callable] = None,
@@ -316,9 +353,10 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_custom_name_screen_clickables())  
             self.register_render_function("name_confirm", draw_name_confirm_screen,
                 enter_hook=lambda _: self.register_name_confirm_screen_clickables()) 
+            self.register_render_function("portrait_selection", draw_portrait_selection_screen,
+                enter_hook=lambda _: self.register_portrait_screen_clickables())
             
-            
-            self.register_render_function("portrait_selection", draw_portrait_selection_screen)
+
             self.register_render_function("gold", draw_gold_screen)
             self.register_render_function("trinket", draw_trinket_screen)
             self.register_render_function("summary", draw_summary_screen)

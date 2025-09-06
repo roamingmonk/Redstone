@@ -160,13 +160,14 @@ class GameController:
             self.dialogue_engine = initialize_dialogue_engine(self.game_state)
             self.data_manager.dialogue_engine = self.dialogue_engine
 
-            self.save_manager = SaveManager(self.game_state)
-
+            self.save_manager = SaveManager(self.game_state, self.character_engine)
+            
             self.setup_event_listeners()
             #Register all screens with ScreenManager AFTER engines are ready
             self.screen_manager.register_all_screen_renders()
-            print("📺 GC: All screens render functions registered ")
-                        
+            
+            
+            print("📺 GC: All screens render functions registered ")           
             print(f"🔍 DEBUG: GC: EventManager has {self.event_manager.get_listener_count('START_GAME')} listeners for START_GAME")
             print(f"🔍 DEBUG: GC: All registered events: {list(self.event_manager.listeners.keys())}")
             print(f"🔍 DEBUG: GC: EventManager ID: {id(self.event_manager)}")
@@ -709,8 +710,8 @@ class GameController:
             self.save_manager.save_game(save_slot=0)  # Auto-save slot
 
         # 2. Clear active game state
-        if hasattr(self.game_state, 'clear_active_portrait'):
-            self.game_state.clear_active_portrait()
+        if hasattr(self.character_engine, 'clear_active_portrait'):
+            self.character_engine.clear_active_portrait(self.game_state)
             print("🖼️ Portrait resources cleared")
 
         # 3. Close all overlay states cleanly
