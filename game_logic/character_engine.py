@@ -146,6 +146,9 @@ class CharacterEngine:
         # Trinket screen events
         event_manager.register('TRINKET_BUTTON_CLICK', self.handle_trinket_button_click)
 
+        # Summary screen events
+        event_manager.register('START_GAME', self.handle_start_game)
+
         print("🎯 CharacterEngine registered for all character creation events")
 
     def handle_advance_from_snarky(self, event_data):
@@ -333,6 +336,9 @@ class CharacterEngine:
         if hasattr(self.game_state, 'selected_portrait_index') and self.game_state.selected_portrait_index is not None:
             print(f"🎉 Portrait selection confirmed: {self.game_state.selected_portrait_index + 1}")
             
+            # Copy selected portrait to active location
+            self.ensure_active_portrait(self.game_state)
+
             # Navigate to next step (gold screen)
             if self.event_manager:
                 self.event_manager.emit('SCREEN_CHANGE', {'target': 'gold'})
@@ -416,8 +422,15 @@ class CharacterEngine:
         import os
         import shutil
         
-        filename, gender = self.get_portrait_selection()
-        
+        # Get portrait data from game_state instead
+        selected_portrait = getattr(self.game_state, 'selected_portrait_index', None)
+        gender = self.game_state.character.get('gender', 'male')
+
+        if selected_portrait is not None:
+            filename = f"player_{gender}_{selected_portrait + 1:02d}.jpg"
+        else:
+            filename = None
+                
         if not filename:
             print("No portrait file specified in save data")
             return False
@@ -483,7 +496,6 @@ class CharacterEngine:
         if 'trinket' in self.character:
             self.inventory['items'].append(self.character['trinket'])
 
-
     def handle_gold_button_click(self, event_data):
         """Handle gold button click - either roll gold or continue to trinket screen"""
         
@@ -514,6 +526,30 @@ class CharacterEngine:
             print(f"🔍 DEBUG: Character data after trinket roll: {self.game_state.character}")
             # Stay on trinket screen so button changes to "CONTINUE"
 
+    def handle_start_game(self, event_data):
+        """
+        Handle START GAME button click from summary screen
+        Finalize character and transition to welcome screen
+        """
+        print("🎮 START GAME button clicked - finalizing character")
+        
+        # Use existing finalize_character_creation method
+        self.finalize_character_creation()
+        
+        # Validate character data
+        if self.validate_character():
+            character_name = self.game_state.character.get('name', 'Unknown')
+            character_class = self.game_state.character.get('class', 'fighter').title()
+            hp = self.game_state.character.get('hit_points', 8)
+            
+            print(f"✨ Character creation complete: {character_name} the {character_class} (HP: {hp})")
+            
+            # Transition to welcome screen
+            self.event_manager.emit("SCREEN_CHANGE", {"target": "welcome"})
+        else:
+            print("❌ Character validation failed!")
+
+
     def handle_keep_stats(self, event_data):
         """Handle keeping stats - check for low primary abilities first"""
         print(f"DEBUG: CE: Starting KEEP_STATS check")
@@ -532,6 +568,10 @@ class CharacterEngine:
         
         print(f"DEBUG: Low primaries found: {low_primaries}")
         
+        # Calculate HP immediately when stats are finalized
+        hp = self.calculate_hp()
+        print(f"💚 HP calculated with stats: {hp}")
+
         if low_primaries:
            
             # Store the low abilities and trigger confirmation screen
@@ -557,8 +597,6 @@ class CharacterEngine:
             return class_data["character_classes"][current_class]["primary_abilities"]
         except:
             return ["strength", "constitution"]  # fallback
-
-
 
     def load_name_data(self):
         """Load character names from JSON file"""

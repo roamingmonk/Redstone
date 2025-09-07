@@ -310,9 +310,6 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for portrait screen registration")
 
-
-
-
     def register_gold_screen_clickables(self):
         """Register gold screen clickables when entering gold screen"""
         if hasattr(self, 'input_handler') and self.input_handler:
@@ -340,6 +337,34 @@ class ScreenManager:
             print("🎭 Trinket screen clickables registered")
         else:
             print("⚠️ No InputHandler available for trinket screen registration")
+
+    def register_summary_screen_clickables(self, game_state):
+        """Register clickable regions for summary screen using semantic actions"""
+        print("🎯 Registering summary screen clickables")
+        
+       # Get the START GAME button coordinates from the draw function
+        temp_surface = pygame.Surface((1024, 768))
+        from screens.character_creation import draw_summary_screen
+        
+        start_button = draw_summary_screen(
+            temp_surface, 
+            game_state, 
+            self.fonts, 
+            self.images
+        )
+        
+        if start_button:
+            # Register the START GAME button with semantic action
+            self.input_handler.register_clickable(
+                "summary", 
+                start_button, 
+                "START_GAME", 
+                {}
+            )
+            print(f"✅ START GAME button registered at {start_button}")
+        else:
+            print("⚠️ Could not get START GAME button coordinates")
+        
 
     def register_stats_confirm_low_clickables(self):
         """Register low stats confirmation clickables"""
@@ -426,8 +451,9 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_trinket_screen_clickables())
             self.register_render_function("stats_confirm_low", draw_stats_confirm_low_screen,
                 enter_hook=lambda _: self.register_stats_confirm_low_clickables())
+            self.register_render_function("summary", draw_summary_screen,
+                enter_hook=lambda game_state: self.register_summary_screen_clickables(game_state))
             
-            self.register_render_function("summary", draw_summary_screen)
             self.register_render_function("welcome", draw_welcome_screen)
 
             #Broken Blade Tavern

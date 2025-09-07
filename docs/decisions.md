@@ -330,6 +330,23 @@ game_state.py - Removed portrait business logic methods (cleanup)
 - character creation.py
 - adds more data for the stats screen for players to know what to focus on for their attributes.  allows for expansion to using json when allowing player to pick class
 
+## ADR-032: Low Stats Warning System with Class-Specific Comments 
+**Status: Accepted**
+**Date: Sep 6, 2025**
+Decision: Implement comprehensive low stats detection with class-aware JSON-driven snarky comment system
+**Implementation:**JSON-based class information display on stats screen with primary ability highlighting
+Class-specific snarky comment system loaded from low_stats_comments.json
+Two-phase confirmation flow: Warning → Class-specific comment → Manual advance
+Dynamic clickable registration for different screen states
+**Technical Achievements:**JSON-driven character class system in character_classes.json with hit dice, primary abilities, and class data
+Enhanced stats screen with Fighter class display and primary ability highlighting (green + asterisk)
+Educational UX warning players about combat effectiveness while respecting choice
+Class-specific humor system expandable for future class selection screen
+**Files Modified:**
+character_creation.py - Enhanced stats screen with JSON class display and confirmation screen
+character_engine.py - Added low stats detection, class-specific comment loading, and dynamic registration
+screen_manager.py - Added confirmation screen registration and dynamic clickable management
+Files Created: character_classes.json, low_stats_comments.json
 
 ```
 ## ADR-XXX: <Short title>

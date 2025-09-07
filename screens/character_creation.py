@@ -577,8 +577,8 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
     y_pos += line_height * 2 + 15
     
     # Combat stats
-    hp_surface = fonts.get('fantasy_medium', fonts['normal']).render(
-        f"Hit Points: {game_state.character['hit_points']}", True, RED)
+    hit_points = game_state.character.get('hit_points', 'Calculating...')
+    hp_surface = fonts.get('fantasy_medium', fonts['normal']).render(f"Hit Points: {hit_points}", True, RED)
     surface.blit(hp_surface, (80, y_pos))
     y_pos += line_height
     
@@ -603,13 +603,46 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
         item_surface = fonts.get('fantasy_tiny', fonts['small']).render(f"• {item}", True, WHITE)
         surface.blit(item_surface, (80, y_pos))
         y_pos += line_height - 2
-      
-    # Button positioned with safe margin (original dynamic system)
-    button_y = min(y_pos + 25, border_height - 65)
-    start_button = draw_button(surface, 600, button_y, 160, 50, "START GAME", 
-                              fonts.get('fantasy_small', fonts['normal']))
+
+    portrait_x = 650
+    portrait_y = 150
+    portrait_size = 150
     
-    return start_button
+    pygame.draw.rect(surface, (60, 80, 120), 
+                    (portrait_x, portrait_y, portrait_size, portrait_size))
+    pygame.draw.rect(surface, WHITE, 
+                    (portrait_x, portrait_y, portrait_size, portrait_size), 2)
+    
+    # Load the active player portrait using same logic as party_display.py
+    try:
+        from utils.constants import MALE_PORTRAITS_PATH
+        import os
+        
+        active_dir = os.path.join(os.path.dirname(MALE_PORTRAITS_PATH), "active")
+        active_path = os.path.join(active_dir, "player.jpg")
+        
+        if os.path.exists(active_path):
+            player_portrait = pygame.image.load(active_path)
+            player_portrait = pygame.transform.scale(player_portrait, (portrait_size, portrait_size))
+            surface.blit(player_portrait, (portrait_x, portrait_y))
+        else:
+            # Fallback: bright green square for player
+            pygame.draw.rect(surface, BRIGHT_GREEN, 
+                            (portrait_x, portrait_y, portrait_size, portrait_size))
+            print(f"Warning: Active player portrait missing at {active_path}")
+
+        # Button positioned with safe margin (original dynamic system)
+        button_y = min(y_pos + 25, border_height - 65)
+        start_button = draw_button(surface, 600, button_y, 160, 50, "START GAME", 
+                                fonts.get('fantasy_small', fonts['normal']))
+                    
+    except Exception as e:
+        print(f"Error loading player portrait for character sheet: {e}")
+        # Fallback: bright green square for player
+        pygame.draw.rect(surface, BRIGHT_GREEN, 
+                        (portrait_x, portrait_y, portrait_size, portrait_size))
+        
+        return start_button
 
 def finalize_character_creation(game_state):
     """
