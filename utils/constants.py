@@ -450,3 +450,32 @@ def calculate_button_layout(num_buttons, screen_width=1024, button_width=150, sp
         current_x += button_width + spacing
     
     return positions, button_width
+
+
+# === INTRO SEQUENCE LAYOUT CONSTANTS ===
+# Full-screen cinematic layout for narrative sequences
+
+INTRO_TITLE_Y = 80
+INTRO_TITLE_DECORATION_OFFSET = 50
+INTRO_CONTENT_START_Y = 180
+INTRO_CONTENT_LINE_SPACING = 25
+INTRO_CONTENT_PARAGRAPH_SPACING = 15
+INTRO_CONTENT_MAX_WIDTH = 800
+INTRO_BUTTON_Y = 600
+INTRO_BUTTON_WIDTH = 160
+INTRO_BUTTON_HEIGHT = 50
+INTRO_BUTTON_SPACING = 80
+
+# Atmospheric background constants
+INTRO_OVERLAY_ALPHA = 180  # Semi-transparent overlay for text readability
+INTRO_MOUNTAIN_HEIGHT_RATIO = 0.5  # Mountains take up 50% of screen height
+INTRO_TOWN_Y_OFFSET = 80  # Town positioned below center
+INTRO_BUILDING_WIDTH_RATIO = 0.1  # Building width as ratio of screen width
+
+# Color variations for atmospheric backgrounds (brighter for visibility)
+INTRO_SKY_DUSK = (60, 50, 80)  # Much lighter blue-purple
+INTRO_SKY_NIGHT = (40, 35, 65)  # Lighter night scenes  
+INTRO_MOUNTAIN_SILHOUETTE = (80, 70, 90)  # Much lighter mountains
+INTRO_BUILDING_SILHOUETTE = (70, 60, 85)  # Lighter buildings
+INTRO_WARM_LIGHT = (255, 200, 120)  # Brighter warm light
+INTRO_DISTANT_LIGHT = (255, 255, 180)  # Brighter distant lights

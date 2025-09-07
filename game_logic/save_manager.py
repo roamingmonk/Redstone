@@ -32,8 +32,8 @@ class SaveManager:
                 
                 # Game progression
                 'current_screen': self.game_state.screen,
-                'screen_history': self.screen_history[-5:],  # Keep last 5 screens
-                'previous_screen': self.previous_screen,
+                'screen_history': [],  # Screen history not tracked by SaveManager
+                'previous_screen': getattr(self.game_state, 'previous_screen', None),
                 
                 # World state
                 'party_members': getattr(self.game_state, 'party_members', []),
@@ -99,13 +99,12 @@ class SaveManager:
         
             # Update GameController state tracking
             self.last_save_time = datetime.now()
-            self.error_count = 0  # Reset error count on successful save
-            
+                        
             return True
             
         except Exception as e:
             print(f"❌ Save failed: {e}")
-            self.error_count += 1
+            
             return False
 
     def load_game(self, save_slot=1):

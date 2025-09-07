@@ -529,25 +529,16 @@ class CharacterEngine:
     def handle_start_game(self, event_data):
         """
         Handle START GAME button click from summary screen
-        Finalize character and transition to welcome screen
+        Finalize character and transition to intro sequence with auto-save
         """
         print("🎮 START GAME button clicked - finalizing character")
         
         # Use existing finalize_character_creation method
         self.finalize_character_creation()
         
-        # Validate character data
-        if self.validate_character():
-            character_name = self.game_state.character.get('name', 'Unknown')
-            character_class = self.game_state.character.get('class', 'fighter').title()
-            hp = self.game_state.character.get('hit_points', 8)
-            
-            print(f"✨ Character creation complete: {character_name} the {character_class} (HP: {hp})")
-            
-            # Transition to welcome screen
-            self.event_manager.emit("SCREEN_CHANGE", {"target": "welcome"})
-        else:
-            print("❌ Character validation failed!")
+        # Trigger intro sequence start (which handles auto-save)
+        print("🎬 Triggering intro sequence with auto-save...")
+        self.event_manager.emit("INTRO_START", {})
 
 
     def handle_keep_stats(self, event_data):

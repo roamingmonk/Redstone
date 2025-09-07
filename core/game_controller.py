@@ -15,6 +15,7 @@ from game_logic.commerce_engine import initialize_commerce_engine
 from game_logic.dialogue_engine import initialize_dialogue_engine
 from game_logic.event_manager import initialize_event_manager, get_event_manager
 from game_logic.save_manager import SaveManager
+from screens.intro_scenes import IntroSequenceManager
 from ui.screen_manager import ScreenManager
 from datetime import datetime
 from typing import Optional, Dict, Any, Callable
@@ -162,6 +163,10 @@ class GameController:
 
             self.save_manager = SaveManager(self.game_state, self.character_engine)
             
+            # Initialize IntroSequenceManager with SaveManager reference  
+            self.intro_sequence_manager = IntroSequenceManager(self.event_manager, self.save_manager)
+            print("🎬 IntroSequenceManager initialized with auto-save support")
+
             self.setup_event_listeners()
             #Register all screens with ScreenManager AFTER engines are ready
             self.screen_manager.register_all_screen_renders()

@@ -348,6 +348,32 @@ character_engine.py - Added low stats detection, class-specific comment loading,
 screen_manager.py - Added confirmation screen registration and dynamic clickable management
 Files Created: character_classes.json, low_stats_comments.json
 
+## ADR-033: Summary Screen Modernization Complete
+**Status:** Accepted  
+**Date:** Sep 7, 2025  
+**Context:** Summary screen used legacy hardcoded display and lacked semantic action integration for START GAME button, with HP calculation timing issues and missing character portrait integration
+**Decision:** Complete modernization using established event-driven architecture with JSON-based HP calculation and professional portrait display system
+**Implementation:**
+- **CharacterEngine Events:** Added handle_start_game() method with proper character finalization and validation
+- **HP Calculation Integration:** Moved HP calculation to handle_keep_stats() for immediate availability throughout character creation
+- **Portrait System Integration:** Added ensure_active_portrait() call during portrait confirmation to copy selected portrait to active folder
+- **ScreenManager Integration:** Added register_summary_screen_clickables() with enter hooks for START GAME button registration
+- **Professional Portrait Display:** Integrated character portrait on right side of summary screen using active portrait system
+- **Graceful Error Handling:** Added fallback portrait selection for robust error recovery
+**Technical Achievements:**
+- JSON-based HP calculation using Fighter d10 + CON modifier from character_classes.json
+- Portrait file copying architecture ensures consistent loading across all game screens
+- Complete character data display: stats, class, HP, gold, equipment, trinket, and portrait
+- Event-driven START GAME navigation with character validation and finalization
+**Consequences:**
+- Summary screen now follows professional semantic action pattern matching other modernized screens
+- Character HP displays immediately upon entering summary (no more "Calculating..." placeholder)
+- Selected character portrait appears correctly on summary screen via active portrait system
+- Foundation established for START GAME transition to welcome screen with fully validated character
+- Complete separation: UI rendering, event handling, business logic, and data storage properly divided
+**Files Modified:** character_engine.py, screen_manager.py, character_creation.py
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

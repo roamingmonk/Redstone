@@ -364,7 +364,53 @@ class ScreenManager:
             print(f"✅ START GAME button registered at {start_button}")
         else:
             print("⚠️ Could not get START GAME button coordinates")
-        
+            
+    def register_intro_scene_clickables(self, scene_id):
+        """
+        Register clickables for intro scene using the established pattern
+        This follows your proven semantic action architecture
+        """
+        if hasattr(self, 'input_handler') and self.input_handler:
+            # Get button coordinates by rendering the scene
+            temp_surface = pygame.Surface((1024, 768))
+            
+            # Call the actual registered scene function, not the generic one
+            if scene_id == "intro_scene_1":
+                from screens.intro_scenes import draw_intro_scene_1
+                scene_result = draw_intro_scene_1(temp_surface, None, self.fonts, self.images)
+            elif scene_id == "intro_scene_2":
+                from screens.intro_scenes import draw_intro_scene_2
+                scene_result = draw_intro_scene_2(temp_surface, None, self.fonts, self.images)
+            elif scene_id == "intro_scene_3":
+                from screens.intro_scenes import draw_intro_scene_3
+                scene_result = draw_intro_scene_3(temp_surface, None, self.fonts, self.images)
+            else:
+                print(f"⚠️ Unknown scene_id: {scene_id}")
+                return
+            
+            if scene_result:
+                # Register CONTINUE button
+                self.input_handler.register_clickable(
+                    scene_id, 
+                    scene_result["continue_button"], 
+                    "INTRO_NEXT", 
+                    {}
+                )
+                
+                # Register SKIP button
+                self.input_handler.register_clickable(
+                    scene_id, 
+                    scene_result["skip_button"], 
+                    "INTRO_SKIP", 
+                    {}
+                )
+                
+                print(f"🎬 Intro scene clickables registered: {scene_id}")
+            else:
+                print(f"⚠️ Could not register clickables for {scene_id}")
+        else:
+            print("⚠️ No InputHandler available for intro scene registration")
+
 
     def register_stats_confirm_low_clickables(self):
         """Register low stats confirmation clickables"""
@@ -405,16 +451,21 @@ class ScreenManager:
         NEW: Register all game screen render functions
         This replaces the massive if/elif chain in draw_current_screen()
         """
+        
         try:
             # Import all screen drawing functions
             from screens.title_menu import draw_title_screen, draw_company_splash_screen, draw_main_menu
             from screens.character_creation import (
                 draw_stats_screen, draw_gender_screen, draw_portrait_selection_screen,
                 draw_name_screen, draw_custom_name_screen, draw_name_confirm_screen,
-                draw_gold_screen, draw_trinket_screen, draw_summary_screen, draw_welcome_screen,
+                draw_gold_screen, draw_trinket_screen, draw_summary_screen, 
                 draw_stats_confirm_low_screen
             )
             
+            from screens.intro_scenes import (
+                draw_intro_scene_1, draw_intro_scene_2, draw_intro_scene_3
+            )
+
             from screens.broken_blade import draw_broken_blade_main_screen
             from screens.patron_selection import draw_patron_selection_screen  
             from screens.shopping import draw_merchant_screen
@@ -453,8 +504,16 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_stats_confirm_low_clickables())
             self.register_render_function("summary", draw_summary_screen,
                 enter_hook=lambda game_state: self.register_summary_screen_clickables(game_state))
+            self.register_render_function("intro_scene_1", draw_intro_scene_1,
+                enter_hook=lambda _: self.register_intro_scene_clickables("intro_scene_1"))
+            self.register_render_function("intro_scene_2", draw_intro_scene_2,
+                enter_hook=lambda _: self.register_intro_scene_clickables("intro_scene_2"))
+            self.register_render_function("intro_scene_3", draw_intro_scene_3,
+                enter_hook=lambda _: self.register_intro_scene_clickables("intro_scene_3"))
+
+
+
             
-            self.register_render_function("welcome", draw_welcome_screen)
 
             #Broken Blade Tavern
             self.register_render_function("broken_blade_main", draw_broken_blade_main_screen)

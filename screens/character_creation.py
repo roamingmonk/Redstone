@@ -642,7 +642,7 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
         pygame.draw.rect(surface, BRIGHT_GREEN, 
                         (portrait_x, portrait_y, portrait_size, portrait_size))
         
-        return start_button
+    return start_button
 
 def finalize_character_creation(game_state):
     """

@@ -1,0 +1,44 @@
+{
+  "intro_sequence": {
+    "title": "Terror in Redstone - Prologue",
+    "scenes": [
+      {
+        "id": "intro_scene_1",
+        "title": "The Road to Redstone",
+        "content": [
+          "You have walked the trade roads long enough to hear the name Redstone. A mining town carved into the valley's edge, known for its iron veins and crimson-hued stone. Once prosperous, now whispered about in markets and along campfires. Merchants speak of goods arriving late, caravans avoiding the valley, and travelers vanishing on the roads. Still, coin is coin, and Redstone needs hands—steady ones, brave ones, foolish ones."
+        ],
+        "next_scene": "intro_scene_2",
+        "background_style": "road_dusk"
+      },
+      {
+        "id": "intro_scene_2", 
+        "title": "Shadows on the Edge of Town",
+        "content": [
+          "The settlement lies before you: timber homes, smoke rising from chimneys, the outline of a crooked church in the distant swamp. Lanterns flicker faintly in the streets, but there's an unease in the air. The people you pass avert their eyes, doors shut quickly at dusk, and guards look stretched thin. Redstone feels lived-in, yet hollow—like laughter was chased away seasons ago."
+        ],
+        "next_scene": "intro_scene_3",
+        "background_style": "town_overlook"
+      },
+      {
+        "id": "intro_scene_3",
+        "title": "Arrival at the Tavern", 
+        "content": [
+          "Every town has a heart, and Redstone's beats within the Broken Blade Tavern. Music once spilled from its door, but tonight the sound is muted—just hushed voices, the clink of mugs, and the watchful eyes of patrons sizing you up. This is where adventurers make their start. If Redstone has secrets, the Broken Blade will whisper them first."
+        ],
+        "next_scene": "broken_blade_main",
+        "background_style": "tavern_approach"
+      }
+    ],
+    "ui_config": {
+      "continue_button_text": "CONTINUE",
+      "skip_button_text": "SKIP INTRO",
+      "title_color": "YELLOW",
+      "text_color": "WHITE",
+      "background_color": "BLACK",
+      "line_spacing": 25,
+      "content_start_y": 200,
+      "max_content_width": 800
+    }
+  }
+}
