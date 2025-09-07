@@ -373,6 +373,45 @@ Files Created: character_classes.json, low_stats_comments.json
 - Complete separation: UI rendering, event handling, business logic, and data storage properly divided
 **Files Modified:** character_engine.py, screen_manager.py, character_creation.py
 
+## ADR-034: Cinematic Intro Sequence Implementation
+**Status: Accepted**
+**Date: Sep 7, 2025**
+**Context:** Required three narrative intro scenes between character creation and tavern entry to enhance story immersion.
+Decision: Implement JSON-driven cinematic intro sequence system using established architectural patterns with atmospheric pygame backgrounds.
+**Implementation:** Data Structure: data/narrative/intro_sequence.json with three-scene narrative
+Visual System: Pygame-generated atmospheric backgrounds using new intro constants
+Integration: Character name insertion, event-driven navigation (INTRO_START/NEXT/SKIP)
+Auto-Save: Checkpoint after intro completion (slot 0) with correct screen state
+**Technical Changes:**
+Created screens/intro_scenes.py with IntroSequenceManager and scene renderers
+Added intro layout constants to utils/constants.py
+Updated CharacterEngine START_GAME to trigger intro sequence
+Integrated with ScreenManager using enter hooks for clickable registration
+**Consequences:**
+Establishes reusable narrative architecture for future Acts
+Character creation flows through story introduction before main game, Auto-save ensures proper resume point at tavern entrance
+Foundation for JSON-driven content expansion
+Files Modified: character_engine.py, screen_manager.py, game_controller.py, character_creation.py, constants.py
+**Files Created:** intro_scenes.py, narrative/intro_sequence.json
+
+## ADR-035: Bulletproof Initialization System Architecture
+**Status: Accepted**
+**Date: Sep 7, 2025**
+**Context:** GameController had dual initialization anti-pattern - SaveManager created twice, causing fragile timing issues and architectural problems.
+**Decision:** Implement 3-phase initialization with dependency injection following professional game engine patterns.
+**Implementation:**
+Phase 1: Infrastructure (EventManager, GameState, ScreenManager)
+Phase 2: Core Dependencies (SaveManager, DataManager with proper injection)
+Phase 3: System Integration (event handlers, cross-connections)
+
+**Consequences:**
+GameController: 800 lines → 400 lines (50% reduction)
+Eliminates dual initialization bugs - each system created exactly once
+Professional architecture following Unity/Unreal patterns
+Foundation for load screen fix (architecture now supports proper event-driven SaveManager)
+Future-proof - new systems follow established dependency injection patterns
+
+**Files Modified:** game_controller.py (complete rewrite), save_manager.py, data_manager.py, main.py, event_manager.py
 
 ```
 ## ADR-XXX: <Short title>

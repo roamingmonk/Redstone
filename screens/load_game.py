@@ -47,16 +47,27 @@ def draw_load_game_screen(surface, game_state, fonts, images, controller=None):
         (0, "Auto-Save")
     ]
     
-    # Get save information for each slot
+    # Get save information for each slot using event-driven architecture
+    save_info_cache = {}
+    
+    # Create callback function to collect save info responses
+    def collect_save_info(slot_num, save_info):
+        save_info_cache[slot_num] = save_info
+        print(f"📡 Load Screen: Received save info for slot {slot_num}")
+    
+    # Request save info for all slots via events
+    if controller and hasattr(controller, 'event_manager'):
+        for slot_num, slot_name in slots_to_check:
+            print(f"📡 Load Screen: Requesting info for slot {slot_num}")
+            controller.event_manager.emit("SAVE_INFO_REQUESTED", {
+                'save_slot': slot_num,
+                'callback': collect_save_info
+            })
+    
+    # Build save slots list using event responses
     for slot_num, slot_name in slots_to_check:
-        save_info = None
-        if controller:
-            try:
-                save_info = controller.get_save_info(slot_num)
-                print(f"DEBUG: Retrieved save_info for slot {slot_num}: {save_info}")
-            except Exception as e:
-                print(f"DEBUG: Error getting save info for slot {slot_num}: {e}")
-                save_info = None
+        save_info = save_info_cache.get(slot_num, None)
+        print(f"DEBUG: Using save_info for slot {slot_num}: {save_info}")
         
         save_slots.append({
             'slot_num': slot_num,
@@ -230,9 +241,8 @@ def handle_load_game_click(mouse_pos, game_state, result, controller=None):
     
     # Handle button clicks
     if result['load_button'] and result['load_button'].collidepoint(mouse_pos):
-        # Load selected save
         if controller and hasattr(game_state, 'load_selected_slot'):
-            success = controller.load_game(game_state.load_selected_slot)
+            success = controller.save_manager.load_game(game_state.load_selected_slot)
             if success:
                 # Close load screen and return to game
                 game_state.load_screen_open = False
@@ -242,9 +252,8 @@ def handle_load_game_click(mouse_pos, game_state, result, controller=None):
         return True
     
     if result['delete_button'] and result['delete_button'].collidepoint(mouse_pos):
-        # Delete selected save
         if controller and hasattr(game_state, 'load_selected_slot'):
-            success = controller.delete_save(game_state.load_selected_slot)
+            success = controller.save_manager.delete_save(game_state.load_selected_slot)
             if success:
                 game_state.load_status_message = "Save file deleted"
                 game_state.load_selected_slot = None

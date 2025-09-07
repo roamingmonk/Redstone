@@ -226,6 +226,7 @@ class EventTypes:
     # Game State Events
     SAVE_REQUESTED = "save_requested"
     LOAD_REQUESTED = "load_requested"
+    SAVE_INFO_REQUESTED = "save_info_requested"
     GAME_SAVED = "game_saved"
     GAME_LOADED = "game_loaded"
     

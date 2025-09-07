@@ -8,9 +8,18 @@ class SaveManager:
     Handles all save/load operations for Terror in Redstone
     Extracted from GameController to follow Single Responsibility Principle
     """
-    def __init__(self, game_state, character_engine=None):
+    def __init__(self, game_state, character_engine=None, event_manager=None):
         self.game_state = game_state
         self.character_engine = character_engine
+        self.event_manager = event_manager
+        
+        # Register for save info events
+        if event_manager:
+            event_manager.register("SAVE_INFO_REQUESTED", self.handle_save_info_request)
+            print("📡 SaveManager registered for SAVE_INFO_REQUESTED events")
+        else:
+            print("❌ SaveManager: No event_manager provided - event registration skipped!")  
+        
         print("💾 SaveManager initialized - Professional save/load system ready!")
         
     def save_game(self, save_slot=1):
@@ -291,6 +300,25 @@ class SaveManager:
         except Exception as e:
             print(f"❌ Error reading save info: {e}")
             return None
+
+    def handle_save_info_request(self, event_data):
+        """
+        Handle SAVE_INFO_REQUESTED events
+        Responds with save info via callback function
+        """
+        save_slot = event_data.get('save_slot', 1)
+        callback = event_data.get('callback')
+        
+        print(f"SaveManager: Processing save info request for slot {save_slot}")
+        
+        # Get the save info using existing method
+        save_info = self.get_save_info(save_slot)
+        print(f"SaveManager: get_save_info({save_slot}) returned: {save_info}")
+        
+        # Call the callback with the result
+        if callback:
+            callback(save_slot, save_info)
+            print(f"SaveManager: Sent save info response for slot {save_slot}")
 
     def auto_save(self):
         """

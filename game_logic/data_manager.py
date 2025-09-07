@@ -47,31 +47,19 @@ class DataManager:
         self.npc_manager = NPCManager()
         self.location_manager = LocationManager()
 
-        # Game engine instances (Session 5+)
-        self.inventory_engine = None
-        self.commerce_engine = None
-        self.character_engine = None
-
-        #to temp fix        
-        self.dialogue_engine = None
-        self.commerce_engine = None
-        self.inventory_engine = None
-
-        self.dialogue_engine = None
-
         print("🏗️ DataManager initialized - Ready to coordinate all data loading")
 
- #In DataManager.initialize_all_engines() - restore this method
-    def initialize_all_engines(self, game_state_ref):
-        self.dialogue_engine = initialize_dialogue_engine(game_state_ref)
-        self.commerce_engine = initialize_commerce_engine(game_state_ref, self.item_manager)
+    #In DataManager.initialize_all_engines() - restore this method
+    def initialize_all_engines(self, game_state_ref, event_manager=None):
+        """Initialize all game engines with proper dependencies"""
+        print("DataManager: Initializing all game engines...")
+        
+        self.character_engine = initialize_character_engine(game_state_ref, event_manager)  # Fixed typo
         self.inventory_engine = initialize_inventory_engine(game_state_ref, self.item_manager)
-        self.characeter_engine = initialize_character_engine(game_state_ref)
-
-        self.sub_managers['character_engine'] = self.character_engine
-        self.sub_managers['inventory_engine'] = self.inventory_engine
-        self.sub_managers['commerce_engine'] = self.commerce_engine
-        self.sub_managers['dialogue_engine'] = self.dialogue_engine
+        self.commerce_engine = initialize_commerce_engine(game_state_ref, self.item_manager) 
+        self.dialogue_engine = initialize_dialogue_engine(game_state_ref)
+        
+        print("DataManager: All engines initialized successfully")
 
 
     def load_all_data(self):

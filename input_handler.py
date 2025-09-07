@@ -382,6 +382,38 @@ class InputHandler:
         status = "enabled" if enabled else "disabled"
         print(f"🔍 Input debug logging {status}")
 
+    def handle_input(self, event: pygame.event.Event) -> bool:
+        """
+        Main event handler - routes events to appropriate processing methods
+        
+        Args:
+            event: pygame event to process
+            
+        Returns:
+            bool: True if event was handled, False if game should quit
+        """
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # Handle mouse clicks
+            mouse_pos = pygame.mouse.get_pos()
+            # Get current screen from game_controller reference (set by GameController)
+            current_screen = getattr(self, 'current_screen', 'unknown')
+            if hasattr(self, 'game_controller') and self.game_controller:
+                current_screen = getattr(self.game_controller.game_state, 'screen', current_screen)
+            return self.process_mouse_click(mouse_pos, current_screen)
+            
+        elif event.type == pygame.KEYDOWN:
+            # Handle keyboard input
+            game_state = None
+            if hasattr(self, 'game_controller') and self.game_controller:
+                game_state = self.game_controller.game_state
+            return self.process_keyboard_input(event, game_state)
+        
+        # Other event types are ignored but considered "handled"
+        return True
+
+
+
+
 def register_stats_screen_actions(self):
     """Register clickable regions for the stats screen"""
     

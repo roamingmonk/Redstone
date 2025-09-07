@@ -17,7 +17,7 @@ class GameState:
     
     def __init__(self):
         # Screen management
-        self.screen = "splash"
+        self.screen = "game_title"
 
         # Access the single, shared ItemLoader instance through the DataManager
         self.data_manager = get_data_manager()

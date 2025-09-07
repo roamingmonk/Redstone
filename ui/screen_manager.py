@@ -620,7 +620,9 @@ class ScreenManager:
 
             # NEW: Render overlays on top of main screen
             self._render_overlays(game_state)
-            
+
+            return True
+                    
         except Exception as e:
             print(f"❌ Error rendering screen '{self.current_screen}': {e}")
             print(f"📍 Traceback: {traceback.format_exc()}")

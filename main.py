@@ -5,6 +5,7 @@ Pure GameController bootstrap - all logic moved to appropriate modules
 
 import pygame
 import sys
+import traceback
 sys.path.append('.')
 
 # Essential imports for bootstrap only
@@ -36,17 +37,52 @@ def main():
     data_manager = get_data_manager()
     game_state = GameState()
     
-    # Create the game controller - this handles EVERYTHING now
+    # Create GameController (Phase 1: Infrastructure only)
     controller = GameController(screen, game_state, fonts, images, data_manager)
+    print("GameController created (Phase 1: Infrastructure)")
+
+    # Initialize all systems with bulletproof architecture (Phases 2-4)
+    try:
+        init_result = controller.initialize_all_systems()
+
+        # Check initialization result
+        if not init_result.success:
+            print(f"❌ GameController initialization failed!")
+            print(f"   Phase reached: {init_result.phase_reached}")
+            print(f"   Systems created: {init_result.systems_created}")
+            print(f"   Errors: {init_result.errors}")
+            print(f"   Total time: {init_result.total_time:.2f}s")
+            
+            # Log detailed error information
+            for error in init_result.errors:
+                print(f"   ERROR: {error}")
+            
+            pygame.quit()
+            sys.exit(1)
+
+        # Success! Log initialization details
+        print(f"✅ GameController fully initialized!")
+        print(f"   Phase: {init_result.phase_reached}")
+        print(f"   Systems: {len(init_result.systems_created)}")
+        print(f"   Time: {init_result.total_time:.2f}s")
+        print(f"   Validations: {sum(init_result.validation_results.values())}/{len(init_result.validation_results)} passed")
+
+        # Log any validation failures (non-fatal)
+        failed_validations = [k for k, v in init_result.validation_results.items() if not v]
+        if failed_validations:
+            print(f"⚠️ Validation warnings: {failed_validations}")
+
+    except Exception as e:
+        print(f"❌ Fatal initialization error: {e}")
+        traceback.print_exc()
+        pygame.quit()
+        sys.exit(1)
 
     def handle_quit_event(event_data):
         global running
         print("🎮 QUIT_GAME: Exiting application")
         controller.quit_game()
         running = False
-
-    # NEW: Centralize all data loading here!
-    controller.initialize_data_systems()
 
     controller.event_manager.register('QUIT_GAME', handle_quit_event)
     
@@ -71,16 +107,16 @@ def main():
     while running:
         # Pass ALL events to controller - single entry point
         for event in pygame.event.get():
-            # Controller returns False if we should quit
-            if not controller.handle_input(event):
+            if event.type == pygame.QUIT:
                 running = False
                 break
+            
+            # Delegate events to InputHandler
+            if controller.input_handler:
+                controller.input_handler.handle_input(event)
         
         # Controller handles all screen rendering
         controller.run_current_screen()
-        
-        # Draw debug overlay
-        controller.draw_debug_overlay()
 
         # Standard pygame housekeeping
         pygame.display.flip()
