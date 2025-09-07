@@ -70,7 +70,6 @@ def draw_load_game_screen(surface, game_state, fonts, images, save_manager=None)
         # Draw selection highlight
         if selected:
             pygame.draw.rect(surface, BLUE, slot_rect)
-            print(f"🔵 LG: Drawing blue highlight for slot {slot_data['slot_num']}")
         else:
             pygame.draw.rect(surface, (40, 40, 40), slot_rect)
         
@@ -85,8 +84,6 @@ def draw_load_game_screen(surface, game_state, fonts, images, save_manager=None)
        #### print(f"DEBUG: Slot name '{slot_data['slot_name']}' at position ({slot_name_x}, {slot_name_y})")
         surface.blit(slot_surface, (slot_name_x, slot_name_y))
 
-# TODO: Fix display issue - shows "[Empty Slot]" instead of character names
-# 
         # Save information
         if slot_data['save_info']:
             # Character name

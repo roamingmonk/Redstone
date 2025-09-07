@@ -247,9 +247,6 @@ class GameController:
         
         self.event_manager.register("SCREEN_ADVANCE", self.handle_screen_advance)
         
-        # Register SaveManager load screen events
-        self.save_manager.register_load_screen_events()
-
         # Set up ScreenManager screen registry
         self.screen_manager.register_all_screen_renders()
 

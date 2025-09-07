@@ -438,6 +438,38 @@ Template established for modernizing remaining overlays (inventory, quest log, c
 **Files Modified:** game_controller.py, screen_manager.py, save_manager.py, input_handler.py, load_game.py, event_manager.py
 Next Phase: Apply identical pattern to save_game.py and remaining overlay systems using established template.
 
+## ADR-037: Load Screen Blue Line Display & Duplicate Event Handler Resolution
+## Status: Accepted
+## Date: Sep 7, 2025
+**Context:** Load screen blue line highlighting not working and load functionality failing due to architectural issues in event-driven system.
+**Problem Analysis:**
+Blue line highlighting failed to appear when selecting save slots
+Load functionality crashed with AttributeError exceptions
+Root cause: Duplicate event handler registration causing toggle conflicts
+Secondary issues: SaveManager retained GameController attribute references
+**Investigation Process:**
+Initial hypothesis focused on game_state reference mismatches
+Comprehensive code analysis revealed dual registration in SaveManager.init() and GameController._initialize_system_integration()
+Debug output showed 2 listeners for LOAD_SLOT_SELECTED events
+SaveManager's toggle logic: first call sets selection, second call clears it
+Additional issues: self.error_count, self.last_load_time, self.screens attribute errors
+**Solution Implemented:** Removed duplicate event registration from GameController._initialize_system_integration()
+Cleaned SaveManager.load_game() method of GameController dependencies
+Implemented direct portrait restoration using save file data instead of character engine, Fixed Python scoping issues with import statements
+**Technical Changes:**
+GameController: Removed duplicate self.save_manager.register_load_screen_events() call, SaveManager: Removed self.error_count, self.last_load_time, self.screens references
+**SaveManager:** Added direct portrait activation using saved portrait_file and portrait_gender data
+Portrait System: Bypassed character engine complexity for reliable save/load portrait restoration
+**Validation Results:**
+Blue line highlighting working correctly
+Load functionality completely operational
+Portrait restoration working seamlessly
+Clean error-free operation with proper debug output
+**Consequences:**Load screen fully modernized following event-driven architecture patterns, Template established for remaining overlay modernizations (save, inventory, quest log, character sheet, help)
+Separation of concerns properly maintained: InputHandler → EventManager → SaveManager
+
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

@@ -860,11 +860,7 @@ class ScreenManager:
             if hasattr(self, '_current_game_controller') and self._current_game_controller:
                 save_manager = getattr(self._current_game_controller, 'save_manager', None)
             
-            # Use SaveManager's GameState (the one that actually gets updated)
-            if save_manager:
-                draw_load_game_screen(self.screen, save_manager.game_state, self.fonts, self.images, save_manager)
-            else:
-                draw_load_game_screen(self.screen, game_state, self.fonts, self.images, save_manager)
+            draw_load_game_screen(self.screen, game_state, self.fonts, self.images, save_manager)
         # Add other overlays here as needed
         # if getattr(game_state, 'inventory_open', False):
         #     from screens.inventory import draw_inventory_screen

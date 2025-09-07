@@ -124,6 +124,11 @@ class SaveManager:
         Load game state from JSON file and restore game to saved state
         save_slot: 1-3 for manual saves, 0 for auto-save
         """
+        import os
+        import shutil
+        import json
+        from datetime import datetime
+
         try:
             # Determine save file name
             if save_slot == 0:
@@ -159,14 +164,7 @@ class SaveManager:
                 print(f"   💰 Gold: {self.game_state.character.get('gold', 0)}")
             
             # Restore game progression
-            target_screen = save_data.get('current_screen', 'game_title')
-            if target_screen in self.screens:
-                self.game_state.screen = target_screen
-                self.previous_screen = save_data.get('previous_screen')
-                self.screen_history = save_data.get('screen_history', [])
-                self.game_state.screen = target_screen
-            else:
-                print(f"⚠️ Saved screen '{target_screen}' not available, staying on current screen")
+            self.game_state.screen = save_data.get('current_screen', 'broken_blade_main')
             
             # Restore world state
             self.game_state.party_members = save_data.get('party_members', [])
@@ -236,11 +234,43 @@ class SaveManager:
             print(f"   Current screen: {self.game_state.screen}")
             
             
-            #Activate character portrait after loading
+            # Activate character portrait if character engine available  
+            if self.character_engine and self.game_state.character.get('name'):
+                # Restore portrait data from save file to game_state
+                portrait_file = save_data.get('character', {}).get('selected_portrait_file')
+                portrait_gender = save_data.get('character', {}).get('selected_portrait_gender')
+                
+                if portrait_file and portrait_gender:
+                    # Manually copy the portrait to active folder
+                
+                    # Build source path based on save data
+                    from utils.constants import MALE_PORTRAITS_PATH, FEMALE_PORTRAITS_PATH
+                    if portrait_gender == 'male':
+                        source_dir = MALE_PORTRAITS_PATH
+                    else:
+                        source_dir = FEMALE_PORTRAITS_PATH
+                    
+                    source_path = os.path.join(source_dir, portrait_file)
+                    
+                    # Build active path
+                    active_dir = os.path.join(os.path.dirname(source_dir), "active")
+                    os.makedirs(active_dir, exist_ok=True)
+                    active_path = os.path.join(active_dir, "player.jpg")
+                    
+                    # Copy portrait to active folder
+                    if os.path.exists(source_path):
+                        try:
+                            shutil.copy2(source_path, active_path)
+                            print(f"✅ Activated portrait: {portrait_file} for {self.game_state.character['name']}")
+                        except Exception as e:
+                            print(f"❌ Error activating portrait: {e}")
+                    else:
+                        print(f"⚠️ Portrait file not found: {source_path}")
+                else:
+                    print("⚠️ No portrait data in save file")
+            else:
+                print("⚠️ Character engine not available for portrait activation")
             
-            if self.char_engine:
-                self.character_engine.activate_character_portrait(self.game_state)
-
             # After loading all the flags, populate quest system if mayor was already talked to
             if self.game_state.mayor_talked and self.game_state.quest_active:
                 # Ensure mayor is mentioned so button appears
@@ -250,11 +280,10 @@ class SaveManager:
                     # Re-populate any quest log entries that should exist
                     # (You might need to call a method to rebuild active quests here)
             
-            print("✅ Game state restored successfully!")
-
-            # Update GameController state
-            self.last_load_time = datetime.now()
-            self.error_count = 0  # Reset error count on successful load
+            print(f"✅ {save_type} loaded successfully!")
+            print(f"   Character: {self.game_state.character.get('name', 'Unknown')}")
+            print(f"   Location: {self.game_state.screen}")
+            print(f"   Party size: {len(self.game_state.party_members) + 1}")
             
             return True
             
@@ -263,7 +292,7 @@ class SaveManager:
             return False
         except Exception as e:
             print(f"❌ Load failed: {e}")
-            self.error_count += 1
+            
             return False
 
     def get_save_info(self, save_slot=1):
