@@ -413,6 +413,31 @@ Future-proof - new systems follow established dependency injection patterns
 
 **Files Modified:** game_controller.py (complete rewrite), save_manager.py, data_manager.py, main.py, event_manager.py
 
+## ADR-036: Load Screen Event-Driven Architecture Modernization Complete
+**Status: Accepted**
+**Date: Sep 7, 2025**
+**Context:** Load screen used legacy dual-path architecture with broken async events and GameController overlay management, violating separation of concerns established in bulletproof initialization.
+**Decision:** Modernize load screen to follow character creation event-driven patterns with ScreenManager overlay ownership and SaveManager business logic.
+**Implementation:** Moved overlay management from GameController to ScreenManager via OVERLAY_TOGGLE events
+Fixed save data display - SaveManager.populate_save_slot_cache() now properly called
+Implemented semantic actions - LOAD_SLOT_SELECTED, LOAD_GAME_CONFIRM, DELETE_SAVE_CONFIRM
+Hybrid clickable registration - buttons always registered, state validation in SaveManager
+Event-driven architecture - InputHandler → EventManager → SaveManager flow
+**Technical Changes:**
+GameController: Removed handle_overlay_toggle method, reduced coordination role
+ScreenManager: Added overlay lifecycle management and clickable registration
+SaveManager: Added load screen event handlers with state validation
+InputHandler: Updated to use registered clickables instead of manual handlers
+load_game.py: Modernized to use SaveManager data instead of broken async events
+**Consequences:**
+Load screen displays save data correctly - character names, locations, timestamps
+All buttons functional - load, delete, cancel operations working
+Professional event flow - follows established character creation patterns
+GameController diet continues - overlay responsibilities moved to appropriate systems
+Template established for modernizing remaining overlays (inventory, quest log, character sheet, help)
+**Files Modified:** game_controller.py, screen_manager.py, save_manager.py, input_handler.py, load_game.py, event_manager.py
+Next Phase: Apply identical pattern to save_game.py and remaining overlay systems using established template.
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

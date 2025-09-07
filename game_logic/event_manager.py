@@ -223,13 +223,37 @@ class EventTypes:
     SHOPPING_CART_UPDATED = "shopping_cart_updated"
     INVENTORY_CHANGED = "inventory_changed"
     
-    # Game State Events
-    SAVE_REQUESTED = "save_requested"
-    LOAD_REQUESTED = "load_requested"
-    SAVE_INFO_REQUESTED = "save_info_requested"
-    GAME_SAVED = "game_saved"
-    GAME_LOADED = "game_loaded"
+    # ==========================================
+    # SAVE/LOAD SYSTEM EVENTS
+    # ==========================================
     
+    # Save Screen Events (Semantic Actions)
+    SAVE_SLOT_SELECTED = "SAVE_SLOT_SELECTED"         # User clicks a save slot
+    SAVE_GAME_CONFIRM = "SAVE_GAME_CONFIRM"           # User clicks SAVE button
+    SAVE_SCREEN_CANCEL = "SAVE_SCREEN_CANCEL"         # User clicks CANCEL button
+    
+    # Load Screen Events (Semantic Actions)  
+    LOAD_SLOT_SELECTED = "LOAD_SLOT_SELECTED"         # User clicks a load slot
+    LOAD_GAME_CONFIRM = "LOAD_GAME_CONFIRM"           # User clicks LOAD button
+    DELETE_SAVE_CONFIRM = "DELETE_SAVE_CONFIRM"       # User clicks DELETE button
+    LOAD_SCREEN_CANCEL = "LOAD_SCREEN_CANCEL"         # User clicks CANCEL button
+    
+    # SaveManager Internal Events
+    SAVE_INFO_REQUESTED = "SAVE_INFO_REQUESTED"       # Request save slot information
+    SAVE_INFO_RESPONSE = "SAVE_INFO_RESPONSE"         # SaveManager responds with save info
+    
+    # Game State Lifecycle Events (Notifications)
+    GAME_SAVED = "GAME_SAVED"                         # Successful save completion
+    GAME_LOADED = "GAME_LOADED"                       # Successful load completion
+    SAVE_FAILED = "SAVE_FAILED"                       # Save operation failed
+    LOAD_FAILED = "LOAD_FAILED"                       # Load operation failed
+    SAVE_DELETED = "SAVE_DELETED"                     # Save file successfully deleted
+    DELETE_FAILED = "DELETE_FAILED"                   # Delete operation failed
+    
+    # Universal Overlay Events
+    OVERLAY_TOGGLE = "OVERLAY_TOGGLE"                 # Generic overlay toggle
+    ESCAPE_PRESSED = "ESCAPE_PRESSED"                 # ESC key pressed
+
     # Character Events
     CHARACTER_CREATED = "character_created"
     CHARACTER_STATS_CHANGED = "character_stats_changed"

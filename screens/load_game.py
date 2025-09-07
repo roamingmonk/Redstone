@@ -7,7 +7,7 @@ import pygame
 from utils.constants import *
 from utils.graphics import draw_border, draw_button, draw_centered_text
 
-def draw_load_game_screen(surface, game_state, fonts, images, controller=None):
+def draw_load_game_screen(surface, game_state, fonts, images, save_manager=None):
     """
     Draw the load game screen with save slot selection
     Returns button rectangles and selected save info
@@ -47,39 +47,21 @@ def draw_load_game_screen(surface, game_state, fonts, images, controller=None):
         (0, "Auto-Save")
     ]
     
-    # Get save information for each slot using event-driven architecture
-    save_info_cache = {}
+    # Get save slots data from SaveManager
+    save_slots = []
+    if save_manager:
+        save_slots = save_manager.populate_save_slot_cache()
+    else:
+        # Fallback - empty slots
+        save_slots = [{'slot_num': slot_num, 'slot_name': slot_name, 'save_info': None} 
+                     for slot_num, slot_name in slots_to_check]
     
-    # Create callback function to collect save info responses
-    def collect_save_info(slot_num, save_info):
-        save_info_cache[slot_num] = save_info
-        print(f"📡 Load Screen: Received save info for slot {slot_num}")
-    
-    # Request save info for all slots via events
-    if controller and hasattr(controller, 'event_manager'):
-        for slot_num, slot_name in slots_to_check:
-            print(f"📡 Load Screen: Requesting info for slot {slot_num}")
-            controller.event_manager.emit("SAVE_INFO_REQUESTED", {
-                'save_slot': slot_num,
-                'callback': collect_save_info
-            })
-    
-    # Build save slots list using event responses
-    for slot_num, slot_name in slots_to_check:
-        save_info = save_info_cache.get(slot_num, None)
-        print(f"DEBUG: Using save_info for slot {slot_num}: {save_info}")
-        
-        save_slots.append({
-            'slot_num': slot_num,
-            'slot_name': slot_name,
-            'save_info': save_info
-        })
     
     # Draw save slots
     for i, slot_data in enumerate(save_slots):
         slot_y = slot_start_y + (i * (slot_height + slot_spacing))
         slot_rect = pygame.Rect(80, slot_y, 864, slot_height)
-        slot_rects.append(slot_rect)
+        slot_rects.append((slot_rect, slot_data['slot_num'])) 
         
         # Check if this slot is selected
         selected = (hasattr(game_state, 'load_selected_slot') and 
@@ -88,6 +70,7 @@ def draw_load_game_screen(surface, game_state, fonts, images, controller=None):
         # Draw selection highlight
         if selected:
             pygame.draw.rect(surface, BLUE, slot_rect)
+            print(f"🔵 LG: Drawing blue highlight for slot {slot_data['slot_num']}")
         else:
             pygame.draw.rect(surface, (40, 40, 40), slot_rect)
         
@@ -99,7 +82,7 @@ def draw_load_game_screen(surface, game_state, fonts, images, controller=None):
         slot_name_y = slot_rect.y + 12
         slot_surface = fonts.get('fantasy_medium', fonts['normal']).render(
             slot_data['slot_name'], True, YELLOW)
-        print(f"DEBUG: Slot name '{slot_data['slot_name']}' at position ({slot_name_x}, {slot_name_y})")
+       #### print(f"DEBUG: Slot name '{slot_data['slot_name']}' at position ({slot_name_x}, {slot_name_y})")
         surface.blit(slot_surface, (slot_name_x, slot_name_y))
 
 # TODO: Fix display issue - shows "[Empty Slot]" instead of character names
@@ -211,62 +194,32 @@ def draw_load_game_screen(surface, game_state, fonts, images, controller=None):
         'cancel_button': cancel_button
     }
 
-def handle_load_game_click(mouse_pos, game_state, result, controller=None):
+def handle_load_game_click(mouse_pos, game_state, result, event_manager=None):
     """
     Handle mouse clicks on the load game screen
     Returns True if click was handled, False otherwise
     """
+    print(f"🖱️ LOAD CLICK DEBUG: mouse_pos={mouse_pos}, event_manager={event_manager is not None}")
     if not result:
         return False
     
-    # Handle slot selection
-    for i, slot_rect in enumerate(result['slot_rects']):
+   # Handle slot selection clicks
+    for slot_rect, slot_num in result['slot_rects']:
         if slot_rect.collidepoint(mouse_pos):
-            slot_data = result['save_slots'][i]
-            
-            # Toggle selection
-            if (hasattr(game_state, 'load_selected_slot') and 
-                game_state.load_selected_slot == slot_data['slot_num']):
-                # Deselect if clicking same slot
-                game_state.load_selected_slot = None
-            else:
-                # Select this slot
-                game_state.load_selected_slot = slot_data['slot_num']
-            
-            # Clear any status messages
-            if hasattr(game_state, 'load_status_message'):
-                game_state.load_status_message = "Select a save file to load or delete"
-            
+            event_manager.emit("LOAD_SLOT_SELECTED", {'slot_num': slot_num})
             return True
     
     # Handle button clicks
     if result['load_button'] and result['load_button'].collidepoint(mouse_pos):
-        if controller and hasattr(game_state, 'load_selected_slot'):
-            success = controller.save_manager.load_game(game_state.load_selected_slot)
-            if success:
-                # Close load screen and return to game
-                game_state.load_screen_open = False
-                game_state.load_selected_slot = None
-            else:
-                game_state.load_status_message = "Failed to load save file"
+        event_manager.emit("LOAD_GAME_CONFIRM", {})
         return True
     
     if result['delete_button'] and result['delete_button'].collidepoint(mouse_pos):
-        if controller and hasattr(game_state, 'load_selected_slot'):
-            success = controller.save_manager.delete_save(game_state.load_selected_slot)
-            if success:
-                game_state.load_status_message = "Save file deleted"
-                game_state.load_selected_slot = None
-            else:
-                game_state.load_status_message = "Failed to delete save file"
+        event_manager.emit("DELETE_SAVE_CONFIRM", {})
         return True
     
     if result['cancel_button'] and result['cancel_button'].collidepoint(mouse_pos):
-        # Close load screen
-        game_state.load_screen_open = False
-        game_state.load_selected_slot = None
-        if hasattr(game_state, 'load_status_message'):
-            delattr(game_state, 'load_status_message')
+        event_manager.emit("LOAD_SCREEN_CANCEL", {})
         return True
     
     return False

@@ -109,10 +109,12 @@ class ScreenManager:
             })
 
     def _handle_load_game(self, event_data):
-        """Handle LOAD_GAME - open load overlay"""
+        """Handle LOAD_GAME - open load overlay and register clickables"""
         print("📂 ScreenManager: Opening load screen")
         if hasattr(self, '_current_game_state'):
             self._current_game_state.load_screen_open = True
+            # Register clickables when opening
+            self.register_load_screen_clickables()
 
 
     def _register_basic_screen_handlers(self):
@@ -411,6 +413,64 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for intro scene registration")
 
+    def register_load_screen_clickables(self):
+        """Register load screen clickables when load overlay opens"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            
+            # Get button coordinates from the draw function
+            temp_surface = pygame.Surface((1024, 768))
+            from screens.load_game import draw_load_game_screen
+            
+            # Get save_manager from game_controller
+            save_manager = None
+            if hasattr(self, '_current_game_controller') and self._current_game_controller:
+                save_manager = getattr(self._current_game_controller, 'save_manager', None)
+            
+            print(f"🔍 DEBUG: save_manager = {save_manager}")
+            print(f"🔍 DEBUG: _current_game_controller = {getattr(self, '_current_game_controller', 'NOT SET')}")
+
+            result = draw_load_game_screen(
+                temp_surface, 
+                self._current_game_state, 
+                self.fonts, 
+                self.images,
+                save_manager
+            )
+           
+            if result:
+                # Register slot selection areas
+                for slot_rect, slot_num in result['slot_rects']:
+                    self.input_handler.register_clickable(
+                        'load_overlay', 
+                        slot_rect, 
+                        'LOAD_SLOT_SELECTED', 
+                        {'slot_num': slot_num}
+            )
+                      
+            # Register buttons at fixed positions - always register, check state in handlers
+            button_y = 650
+            button_width = 120
+            button_height = 50
+            button_spacing = 40
+            total_button_width = (3 * button_width) + (2 * button_spacing)
+            start_x = (1024 - total_button_width) // 2
+
+            # Always register all three buttons
+            buttons = [
+                (start_x, 'LOAD_GAME_CONFIRM'),
+                (start_x + button_width + button_spacing, 'DELETE_SAVE_CONFIRM'), 
+                (start_x + 2 * (button_width + button_spacing), 'LOAD_SCREEN_CANCEL')
+            ]
+
+            for button_x, event_type in buttons:
+                button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
+                self.input_handler.register_clickable('load_overlay', button_rect, event_type, {})
+                
+                print("🔍 Load screen clickables registered")
+            else:
+                print("⚠️ Could not get load screen button coordinates")
+        else:
+            print("⚠️ No InputHandler available for load screen registration")
 
     def register_stats_confirm_low_clickables(self):
         """Register low stats confirmation clickables"""
@@ -766,13 +826,45 @@ class ScreenManager:
         if hasattr(self, 'render_functions'):
             print(f"   Registered renders: {list(self.render_functions.keys())}")
 
+    def register_overlay_events(self):
+        """Register ScreenManager as the proper overlay coordinator"""
+        if self.event_manager:
+            self.event_manager.register("OVERLAY_TOGGLE", self._handle_overlay_toggle)
+            print("📺 ScreenManager registered for overlay management")
+
+    def _handle_overlay_toggle(self, event_data):
+        """Handle overlay toggle - ScreenManager owns overlay lifecycle"""
+        overlay_id = event_data.get("overlay_id")
+        
+        if overlay_id == "load_game":
+            # Toggle load screen state
+            current_state = getattr(self._current_game_state, 'load_screen_open', False)
+            self._current_game_state.load_screen_open = not current_state
+            
+            # Register clickables when opening
+            if self._current_game_state.load_screen_open:
+                self.register_load_screen_clickables()
+            
+            print(f"📂 ScreenManager: Load screen {'opened' if self._current_game_state.load_screen_open else 'closed'}")
+        
+        # TODO: Add other overlays (inventory, quest_log, etc.) here as we modernize them
+
     def _render_overlays(self, game_state):
         """Render any active overlays on top of the main screen"""
         # Load screen overlay
         if getattr(game_state, 'load_screen_open', False):
             from screens.load_game import draw_load_game_screen
-            draw_load_game_screen(self.screen, game_state, self.fonts, self.images)
-        
+            
+            # Get save_manager from game_controller
+            save_manager = None
+            if hasattr(self, '_current_game_controller') and self._current_game_controller:
+                save_manager = getattr(self._current_game_controller, 'save_manager', None)
+            
+            # Use SaveManager's GameState (the one that actually gets updated)
+            if save_manager:
+                draw_load_game_screen(self.screen, save_manager.game_state, self.fonts, self.images, save_manager)
+            else:
+                draw_load_game_screen(self.screen, game_state, self.fonts, self.images, save_manager)
         # Add other overlays here as needed
         # if getattr(game_state, 'inventory_open', False):
         #     from screens.inventory import draw_inventory_screen

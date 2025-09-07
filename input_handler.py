@@ -333,20 +333,20 @@ class InputHandler:
         """Handle clicks on active overlays"""
         game_state = self.game_controller.game_state
         
-        # Load screen overlay
+      # Load screen overlay - use registered clickables with correct attributes
         if getattr(game_state, 'load_screen_open', False):
-            from screens.load_game import draw_load_game_screen, handle_load_game_click
-            temp_surface = pygame.Surface((1024, 768))
-            print(f"DEBUG: IH: save_manager = {self.game_controller.save_manager}")
-            print(f"DEBUG: IH: save_manager type = {type(self.game_controller.save_manager)}")
+            clickables = self.clickable_regions.get('load_overlay', [])
             
-            result = draw_load_game_screen(temp_surface, game_state, 
-                                        self.game_controller.fonts, 
-                                        self.game_controller.images, 
-                                        controller=self.game_controller.save_manager)
-            if handle_load_game_click(mouse_pos, game_state, result, controller=self.game_controller):
-                return True
-        
+            for clickable in clickables:
+                if clickable.rect.collidepoint(mouse_pos):
+                    print(f"🎯 Load overlay clickable hit: {clickable.event_type}")
+                    self.event_manager.emit(clickable.event_type, clickable.event_data)
+                    return True
+            
+            # If no clickable hit, still consume the click to prevent fall-through
+            return True
+            
+                
         return False
 
     def set_text_input_mode(self, active: bool, callback: Optional[Callable] = None) -> None:

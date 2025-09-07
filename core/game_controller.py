@@ -237,17 +237,24 @@ class GameController:
         # Connect ScreenManager to other systems
         self.screen_manager.input_handler = self.input_handler
         self.screen_manager.event_manager = self.event_manager
-        
+        self.screen_manager._current_game_controller = self  # Give ScreenManager access to GameController
+
         # Register screen transition handlers
         self.event_manager.register("SCREEN_CHANGE", self.screen_manager._handle_screen_change_event)
         self.event_manager.register("SCREEN_ADVANCE", self.screen_manager._handle_screen_advance_event)
         
         # Register input event handlers
-        self.event_manager.register("OVERLAY_TOGGLE", self.handle_overlay_toggle)
+        
         self.event_manager.register("SCREEN_ADVANCE", self.handle_screen_advance)
         
+        # Register SaveManager load screen events
+        self.save_manager.register_load_screen_events()
+
         # Set up ScreenManager screen registry
         self.screen_manager.register_all_screen_renders()
+
+        # Register ScreenManager overlay events
+        self.screen_manager.register_overlay_events()
         
         # Sync ScreenManager with current game state
         self.screen_manager.transition_to(self.game_state.screen, self.game_state, save_history=False)
@@ -336,37 +343,7 @@ class GameController:
             }
         }
     
-    # Keep existing methods for overlay handling, screen management, etc.
-    def handle_overlay_toggle(self, event_data):
-        """Handle overlay toggle events from InputHandler"""
-        overlay_id = event_data.get("overlay_id")
-        
-        if overlay_id == "inventory":
-            if not self.game_state.inventory_open:
-                self.close_all_overlays()
-            self.game_state.toggle_inventory()
-            
-        elif overlay_id == "quest_log":
-            if not self.game_state.quest_log_open:
-                self.close_all_overlays()
-            self.game_state.toggle_quest_log()
-            
-        elif overlay_id == "character_sheet":
-            if not self.game_state.character_sheet_open:
-                self.close_all_overlays()
-            self.game_state.toggle_character_sheet()
-            
-        elif overlay_id == "help":
-            if not self.game_state.help_screen_open:
-                self.close_all_overlays()
-            self.game_state.toggle_help()
-            
-        elif overlay_id == "load_game":
-            if not getattr(self.game_state, 'load_screen_open', False):
-                self.close_all_overlays()
-            self.game_state.load_screen_open = not getattr(self.game_state, 'load_screen_open', False)
-        
-        print(f"🎛️ Overlay toggled: {overlay_id}")
+
     
     def handle_screen_advance(self, event_data):
         """Handle screen advance events from InputHandler"""
