@@ -410,6 +410,63 @@ class GameController:
             print(f"❌ Error in run_current_screen: {e}")
             self.error_count += 1
             return False
+        
+    def shutdown(self):
+        """
+        Professional shutdown coordination with complete resource cleanup
+        Coordinates autosave, UI cleanup, and system shutdown across all engines
+        """
+        print("🏰 Terror in Redstone shutting down...")
+        
+        # Step 1: Auto-save current progress (if in saveable state)
+        if hasattr(self, 'save_manager') and self.save_manager:
+            try:
+                if self.save_manager.can_save_load():
+                    print("💾 Auto-saving progress before shutdown...")
+                    success = self.save_manager.save_game(save_slot=0)  # Auto-save slot
+                    if success:
+                        print("✅ Auto-save completed successfully")
+                    else:
+                        print("⚠️ Auto-save failed, but continuing shutdown")
+                else:
+                    print("ℹ️ Game not in saveable state - skipping auto-save")
+            except Exception as e:
+                print(f"⚠️ Auto-save error during shutdown: {e}, continuing...")
+        
+        # Step 2: Clear active portrait resources
+        if hasattr(self, 'character_engine') and self.character_engine:
+            try:
+                self.character_engine.clear_active_portrait(self.game_state)
+                print("🖼️ Portrait resources cleared")
+            except Exception as e:
+                print(f"⚠️ Portrait cleanup error: {e}, continuing...")
+        
+        # Step 3: Close all overlay states cleanly
+        try:
+            self.close_all_overlays()
+            print("🗂️ All overlays closed")
+        except Exception as e:
+            print(f"⚠️ Overlay cleanup error: {e}, continuing...")
+        
+        # Step 4: Audio cleanup (future-proofing)
+        try:
+            pygame.mixer.quit()
+            print("🔊 Audio resources released")
+        except Exception as e:
+            # Audio might not be initialized, or pygame.mixer might not exist
+            print(f"ℹ️ Audio cleanup skipped: {e}")
+        
+        # Step 5: Clean pygame shutdown
+        try:
+            pygame.quit()
+            print("🎮 Pygame resources released")
+        except Exception as e:
+            print(f"⚠️ Pygame cleanup error: {e}, continuing...")
+        
+        # Step 6: Final system exit
+        print("⚔️ Farewell, brave adventurer!")
+        import sys
+        sys.exit()
 
 class ScreenRegistry:
     """
