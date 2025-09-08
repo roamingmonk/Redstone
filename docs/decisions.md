@@ -496,6 +496,27 @@ Clean separation: InputHandler → EventManager → SaveManager → ScreenManage
 F7 save menu shows only manual slots (1-3), maintaining clean save architecture (F5=quick, F7=manual, auto=system)
 **Files Modified:** save_manager.py, screen_manager.py, input_handler.py, save_game.py
 
+# ADR-040: Broken Blade Main Screen Button Registration & Overlay Rendering Fix
+**IMPLEMENTED** - September 7, 2025
+## Context
+The Broken Blade main screen buttons (TALK TO BARTENDER, TALK TO SERVER) were non-functional due to missing event-driven button registration. Additionally, overlay screens (I/Q/C/H hotkeys) were toggling state correctly but not rendering visually.
+## Problem Analysis
+1. **Missing Enter Hook:** `broken_blade_main` screen lacked enter hook for clickable registration
+2. **No Event Listeners:** `NPC_CLICKED` events had 0 listeners registered
+3. **Commented Overlay Rendering:** Overlay state management worked, but visual rendering was disabled in `_render_overlays` method
+## Decision
+Applied proven overlay modernization template using event-driven architecture:
+### Button Registration Fix
+- Added `enter_hook` to `broken_blade_main` registration
+- Created `register_broken_blade_main_clickables()` method in ScreenManager
+- Registered `NPC_CLICKED` event handler: `_handle_npc_clicked()` in ScreenManager
+- Used ScreenManager for NPC dialogue screen registration (avoiding GameController dependency)
+### Overlay Rendering Fix
+- Completed `_handle_overlay_toggle()` method for all overlay types (inventory, quest_log, character_sheet, help)
+- Uncommented and completed `_render_overlays()` method with all overlay drawing calls
+- Maintained separation: ScreenManager handles overlay state, overlays render on top of main screens
+- still a lot of work left on functionality of these screens but they are now visible
+
 
 ```
 ## ADR-XXX: <Short title>

@@ -68,7 +68,9 @@ class ScreenManager:
             event_manager.register("CONTINUE", self._handle_direct_navigation)
             event_manager.register("LOAD_GAME", self._handle_load_game)
             event_manager.register("SAVE_GAME", self._handle_save_game)
+            event_manager.register("NPC_CLICKED", self._handle_npc_clicked)
             event_manager.register("REGISTER_FULL_SCREEN_CLICK", self._handle_full_screen_registration)
+            
             print("📺 ScreenManager subscribed to navigation events")
 
     def _handle_full_screen_registration(self, event_data):
@@ -227,6 +229,24 @@ class ScreenManager:
     # ========================================
     # NEW METHODS - SCREEN RENDERING SYSTEM
     # ========================================
+
+    def _handle_npc_clicked(self, event_data):
+        """Handle NPC_CLICKED events by navigating to dialogue screen"""
+        npc_id = event_data.get('npc_id')
+        location = event_data.get('location')
+        
+        if npc_id:
+            # Navigate to the NPC's dialogue screen
+            dialogue_screen = f"{npc_id}_dialogue"
+            print(f"🗣️ ScreenManager: NPC clicked: {npc_id}, navigating to {dialogue_screen}")
+            
+            # Use our existing transition method
+            if hasattr(self, '_current_game_state'):
+                self.transition_to(dialogue_screen, self._current_game_state)
+            else:
+                print("⚠️ ScreenManager: No game state context available for NPC transition")
+        else:
+            print(f"⚠️ ScreenManager: NPC_CLICKED event missing npc_id: {event_data}")
 
     def register_stats_screen_clickables(self):
         """Register stats screen clickables when entering stats screen"""
@@ -552,6 +572,76 @@ class ScreenManager:
             
             print("⚠️ Low stats confirmation clickables registered")
 
+    def register_broken_blade_main_clickables(self):
+        """Register clickable areas for broken blade main screen using established pattern"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+           
+            from screens.broken_blade import draw_broken_blade_main_screen
+        
+            # Clear existing clickables for this screen
+            self.input_handler.clear_clickables('broken_blade_main')
+            
+            # Create temporary surface to get button positions from draw function
+            temp_surface = pygame.Surface((1024, 768))
+            bartender_btn, server_btn, patrons_btn, gamble_btn, leave_btn = draw_broken_blade_main_screen(
+                temp_surface, self._current_game_controller.game_state, 
+                self._current_game_controller.fonts, self._current_game_controller.images, 
+                controller=self._current_game_controller
+            )
+            
+            # Register each button using the events that screen_handlers.py expects
+            self.input_handler.register_clickable('broken_blade_main', bartender_btn, 'NPC_CLICKED', 
+                                                {'npc_id': 'garrick', 'location': 'broken_blade_tavern'})
+            self.input_handler.register_clickable('broken_blade_main', server_btn, 'NPC_CLICKED',
+                                                {'npc_id': 'meredith', 'location': 'broken_blade_tavern'})
+            self.input_handler.register_clickable('broken_blade_main', patrons_btn, 'SCREEN_CHANGE',
+                                                {'target_screen': 'patron_selection', 'source_screen': 'broken_blade_main'})
+            self.input_handler.register_clickable('broken_blade_main', gamble_btn, 'SCREEN_CHANGE',
+                                                {'target_screen': 'dice_bets', 'source_screen': 'broken_blade_main'})
+            self.input_handler.register_clickable('broken_blade_main', leave_btn, 'SCREEN_CHANGE',
+                                                {'target_screen': 'town_square', 'source_screen': 'broken_blade_main'})
+            
+            print("✅ Broken Blade main screen clickables registered")
+        else:
+            print("⚠️ No InputHandler available for broken blade registration")
+
+    def register_inventory_screen_clickables(self):
+        """Register clickable areas for inventory screen"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            self.input_handler.clear_clickables('inventory')
+            # For now, just register ESC to close - you can add specific inventory buttons later
+            print("📦 Inventory screen clickables registered")
+        else:
+            print("⚠️ No InputHandler available for inventory screen")
+
+    def register_quest_log_screen_clickables(self):
+        """Register clickable areas for quest log screen"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            self.input_handler.clear_clickables('quest_log')
+            # For now, just register ESC to close - you can add specific quest buttons later
+            print("📋 Quest log screen clickables registered")
+        else:
+            print("⚠️ No InputHandler available for quest log screen")
+
+    def register_character_sheet_screen_clickables(self):
+        """Register clickable areas for character sheet screen"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            self.input_handler.clear_clickables('character_sheet')
+            # For now, just register ESC to close - you can add specific character sheet buttons later
+            print("👤 Character sheet screen clickables registered")
+        else:
+            print("⚠️ No InputHandler available for character sheet screen")
+
+    def register_help_screen_clickables(self):
+        """Register clickable areas for help screen"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            self.input_handler.clear_clickables('help')
+            # For now, just register ESC to close - you can add specific help buttons later
+            print("❓ Help screen clickables registered")
+        else:
+            print("⚠️ No InputHandler available for help screen")
+
+
     def register_render_function(self, screen_name: str, render_function: Callable,
                                 enter_hook: Optional[Callable] = None,
                                 exit_hook: Optional[Callable] = None):
@@ -592,7 +682,6 @@ class ScreenManager:
             from screens.intro_scenes import (
                 draw_intro_scene_1, draw_intro_scene_2, draw_intro_scene_3
             )
-
             from screens.broken_blade import draw_broken_blade_main_screen
             from screens.patron_selection import draw_patron_selection_screen  
             from screens.shopping import draw_merchant_screen
@@ -638,21 +727,23 @@ class ScreenManager:
             self.register_render_function("intro_scene_3", draw_intro_scene_3,
                 enter_hook=lambda _: self.register_intro_scene_clickables("intro_scene_3"))
 
-
-
-            
-
             #Broken Blade Tavern
-            self.register_render_function("broken_blade_main", draw_broken_blade_main_screen)
+            self.register_render_function("broken_blade_main", draw_broken_blade_main_screen,
+                enter_hook=lambda _: self.register_broken_blade_main_clickables())
+            #TODO
             self.register_render_function("patron_selection", draw_patron_selection_screen)
 
             # Utility screens
-            self.register_render_function("merchant", draw_merchant_screen)
-            self.register_render_function("inventory", draw_inventory_screen)
-            self.register_render_function("quest_log", draw_quest_log_screen)
-            self.register_render_function("character_sheet", draw_character_sheet_screen)
-            self.register_render_function("help", draw_help_screen)
-            
+            self.register_render_function("inventory", draw_inventory_screen,
+                enter_hook=lambda _: self.register_inventory_screen_clickables())
+            self.register_render_function("quest_log", draw_quest_log_screen,
+                enter_hook=lambda _: self.register_quest_log_screen_clickables())
+            self.register_render_function("character_sheet", draw_character_sheet_screen,
+                enter_hook=lambda _: self.register_character_sheet_screen_clickables())
+            self.register_render_function("help", draw_help_screen,
+                enter_hook=lambda _: self.register_help_screen_clickables())
+            self._register_npc_dialogue_screens()
+
             # Gambling mini-game screens
             self.register_render_function("dice_bets", draw_dice_bets_screen)
             self.register_render_function("dice_rolling", draw_dice_rolling_screen)
@@ -848,6 +939,30 @@ class ScreenManager:
         
         return False
 
+    def _register_npc_dialogue_screens(self):
+        """Register NPC dialogue screens directly - no GameController dependency"""
+        from ui.generic_dialogue_handler import draw_generic_dialogue_screen
+        
+        # List of NPCs that need dialogue screens
+        npc_list = ['garrick', 'meredith', 'gareth', 'elara', 'thorman']
+        
+        for npc_id in npc_list:
+            screen_name = f"{npc_id}_dialogue"
+            
+            # Create a render function for this NPC using the generic handler
+            def create_npc_render_function(npc_id):
+                def render_npc_dialogue(surface, game_state, fonts, images, controller=None):
+                    return draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, controller)
+                return render_npc_dialogue
+            
+            # Register the screen with its render function
+            npc_render_func = create_npc_render_function(npc_id)
+            self.register_render_function(screen_name, npc_render_func)
+            
+            print(f"✅ Registered NPC dialogue screen: {screen_name}")
+        
+        print(f"✅ {len(npc_list)} NPC dialogue screens registered by ScreenManager")
+
     def set_game_state_context(self, game_state):
         """Set the game state context for event handling"""
         self._current_game_state = game_state
@@ -914,7 +1029,26 @@ class ScreenManager:
             
             print(f"📂 ScreenManager: Load screen {'opened' if self._current_game_state.load_screen_open else 'closed'}")
         
-        # TODO: Add other overlays (inventory, quest_log, etc.) here as we modernize them
+        elif overlay_id == "inventory":
+            current_state = getattr(self._current_game_state, 'inventory_open', False)
+            self._current_game_state.inventory_open = not current_state
+            print(f"📦 ScreenManager: Inventory {'opened' if self._current_game_state.inventory_open else 'closed'}")
+        
+        elif overlay_id == "quest_log":
+            current_state = getattr(self._current_game_state, 'quest_log_open', False)
+            self._current_game_state.quest_log_open = not current_state
+            print(f"📋 ScreenManager: Quest log {'opened' if self._current_game_state.quest_log_open else 'closed'}")
+        
+        elif overlay_id == "character_sheet":
+            current_state = getattr(self._current_game_state, 'character_sheet_open', False)
+            self._current_game_state.character_sheet_open = not current_state
+            print(f"👤 ScreenManager: Character sheet {'opened' if self._current_game_state.character_sheet_open else 'closed'}")
+        
+        elif overlay_id == "help":
+            current_state = getattr(self._current_game_state, 'help_screen_open', False)
+            self._current_game_state.help_screen_open = not current_state
+            print(f"❓ ScreenManager: Help screen {'opened' if self._current_game_state.help_screen_open else 'closed'}")
+
 
     def _render_overlays(self, game_state):
         """Render any active overlays on top of the main screen"""
@@ -939,14 +1073,19 @@ class ScreenManager:
                 save_manager = getattr(self._current_game_controller, 'save_manager', None)
             
             draw_save_game_screen(self.screen, game_state, self.fonts, self.images, save_manager)
+
+        if getattr(game_state, 'inventory_open', False):
+            from screens.inventory import draw_inventory_screen
+            draw_inventory_screen(self.screen, game_state, self.fonts, self.images)
         
+        if getattr(game_state, 'quest_log_open', False):
+            from screens.quest_log import draw_quest_log_screen
+            draw_quest_log_screen(self.screen, game_state, self.fonts, self.images)
         
+        if getattr(game_state, 'character_sheet_open', False):
+            from screens.character_sheet import draw_character_sheet_screen
+            draw_character_sheet_screen(self.screen, game_state, self.fonts, self.images)
         
-        
-        
-        
-        
-        # Add other overlays here as needed
-        # if getattr(game_state, 'inventory_open', False):
-        #     from screens.inventory import draw_inventory_screen
-        #     draw_inventory_screen(self.screen, game_state, self.fonts, self.images)
+        if getattr(game_state, 'help_screen_open', False):
+            from screens.help_screen import draw_help_screen
+            draw_help_screen(self.screen, game_state, self.fonts, self.images)
