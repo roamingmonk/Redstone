@@ -23,6 +23,9 @@ class SaveManager:
         # Register load screen events  
         self.register_load_screen_events()
 
+        # Register save screen events
+        self.register_save_screen_events()
+
         print("💾 SaveManager initialized - Professional save/load system ready!")
         
     def save_game(self, save_slot=1):
@@ -456,6 +459,17 @@ class SaveManager:
 
             print("🔍 SaveManager registered for load screen events")
 
+    def register_save_screen_events(self):
+        """Register event handlers for save screen operations"""
+        if self.event_manager:
+            # Register the new save screen events
+            self.event_manager.register("SAVE_SLOT_SELECTED", self._handle_save_slot_selection)
+            self.event_manager.register("SAVE_GAME_CONFIRM", self._handle_save_confirm)
+            self.event_manager.register("SAVE_SCREEN_CANCEL", self._handle_save_cancel)
+            self.event_manager.register("SCREEN_REFRESH_REQUESTED", self._handle_screen_refresh)
+
+            print("💾 SaveManager registered for save screen events")
+
     def _handle_screen_refresh(self, event_data):
         """Handle screen refresh requests - forces overlay re-render"""
         # The next render cycle will pick up the new selection state
@@ -548,3 +562,49 @@ class SaveManager:
         self.game_state.load_screen_open = False
         self.game_state.load_selected_slot = None
         print("❌ SaveManager: Load screen cancelled")
+
+    def _handle_save_slot_selection(self, event_data):
+        """Handle SAVE_SLOT_SELECTED events"""
+        slot_num = event_data.get('slot_num')
+        
+        if slot_num is not None:
+            # Toggle selection
+            if (hasattr(self.game_state, 'save_selected_slot') and 
+                self.game_state.save_selected_slot == slot_num):
+                # Deselect if clicking same slot
+                self.game_state.save_selected_slot = None
+            else:
+                # Select this slot
+                self.game_state.save_selected_slot = slot_num
+            print(f"💾 SaveManager set save_selected_slot to: {getattr(self.game_state, 'save_selected_slot', 'MISSING')}")
+            # Force screen refresh to show selection highlight
+            if self.event_manager:
+                self.event_manager.emit("SCREEN_REFRESH_REQUESTED", {})
+
+            print(f"🎯 SaveManager: Save slot {slot_num} selection toggled")
+
+    def _handle_save_confirm(self, event_data):
+        """Handle SAVE_GAME_CONFIRM events"""
+        if not hasattr(self.game_state, 'save_selected_slot') or self.game_state.save_selected_slot is None:
+            print("No slot selected for saving")
+            return
+        success = self.save_game(self.game_state.save_selected_slot)  # Use existing method!
+        if success:
+            # Close save screen and emit success event
+            self.game_state.save_screen_open = False
+            self.game_state.save_selected_slot = None
+            if self.event_manager:
+                self.event_manager.emit("GAME_SAVED", {
+                    'slot_num': self.game_state.save_selected_slot
+                })
+            print("✅ SaveManager: Game saved successfully")
+        else:
+            if self.event_manager:
+                self.event_manager.emit("SAVE_FAILED", {})
+            print("❌ SaveManager: Save failed")
+
+    def _handle_save_cancel(self, event_data):
+        """Handle SAVE_SCREEN_CANCEL events"""
+        self.game_state.save_screen_open = False
+        self.game_state.save_selected_slot = None
+        print("❌ SaveManager: Save screen cancelled")

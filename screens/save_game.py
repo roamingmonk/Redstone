@@ -7,7 +7,7 @@ import pygame
 from utils.constants import *
 from utils.graphics import draw_border, draw_button, draw_centered_text
 
-def draw_save_game_screen(surface, game_state, fonts, images, controller=None):
+def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None):
     """
     Draw the save game screen with save slot selection
     Returns button rectangles and selected save info
@@ -35,50 +35,79 @@ def draw_save_game_screen(surface, game_state, fonts, images, controller=None):
     slot_height = 40
     slot_spacing = 20
     
+    # Get save slots data from SaveManager (same as load_game.py)
     save_slots = []
+    if save_manager:
+        all_slots = save_manager.populate_save_slot_cache()
+        # Filter to only show manual save slots (1, 2, 3)
+        save_slots = [slot for slot in all_slots if slot['slot_num'] in [1, 2, 3]]
+    else:
+        # Fallback - empty slots
+        slots_to_check = [
+            (1, "Slot 1"),
+            (2, "Slot 2"), 
+            (3, "Slot 3"),
+        ]
+        save_slots = [{'slot_num': slot_num, 'slot_name': slot_name, 'save_info': None} 
+                     for slot_num, slot_name in slots_to_check]
+    
+    # Draw save slots (same pattern as load_game.py)
     slot_rects = []
-    
-    # Define save slots to check
-    slots_to_check = [
-        (1, "Slot 1"),
-        (2, "Slot 2"), 
-        (3, "Slot 3"),
-    ]
-    
-    # Get save information for each slot
-    for slot_num, slot_name in slots_to_check:
-        if controller:
-            #print(f"DEBUG: Checking slot {slot_num} ({slot_name})")
-            save_info = controller.get_save_info(slot_num)
-            #print(f"DEBUG: Save info result: {save_info}")
-        else:
-            #print("DEBUG: No controller available")
-            save_info = None
-            
-        save_slots.append({
-            'slot_num': slot_num,
-            'slot_name': slot_name,
-            'save_info': save_info
-        })
-    
-    # Draw save slots
     for i, slot_data in enumerate(save_slots):
         slot_y = slot_start_y + (i * (slot_height + slot_spacing))
         slot_rect = pygame.Rect(80, slot_y, 864, slot_height)
-        slot_rects.append(slot_rect)
+        slot_rects.append((slot_rect, slot_data['slot_num']))  # Format for ScreenManager
         
         # Check if this slot is selected
         selected = (hasattr(game_state, 'save_selected_slot') and 
                    game_state.save_selected_slot == slot_data['slot_num'])
         
-        # Draw selection highlight
+        # Draw slot background with selection highlighting
         if selected:
-            pygame.draw.rect(surface, BLUE, slot_rect)
+            pygame.draw.rect(surface, BLUE, slot_rect)  # Blue highlight
         else:
-            pygame.draw.rect(surface, (40, 40, 40), slot_rect)
+            pygame.draw.rect(surface, DARK_GRAY, slot_rect)
         
         # Draw slot border
         pygame.draw.rect(surface, WHITE, slot_rect, 2)
+        
+        # Slot name (left aligned)
+        slot_name_x = slot_rect.x + 20
+        slot_name_y = slot_rect.y + 12
+        slot_surface = fonts.get('fantasy_medium', fonts['normal']).render(
+            slot_data['slot_name'], True, YELLOW)
+        surface.blit(slot_surface, (slot_name_x, slot_name_y))
+        
+        # Save information
+        if slot_data['save_info']:
+            # Character name
+            char_name = slot_data['save_info']['character_name']
+            char_x = slot_rect.x + 120
+            char_surface = fonts.get('fantasy_small', fonts['normal']).render(
+                char_name, True, WHITE)
+            surface.blit(char_surface, (char_x, slot_name_y))
+            
+            # Location (make it readable)
+            location = slot_data['save_info']['current_screen']
+            location_readable = location.replace('_', ' ').title()
+            if location == 'tavern_main':
+                location_readable = 'Tavern'
+            elif location == 'welcome':
+                location_readable = 'Town'
+            elif location == 'summary':
+                location_readable = 'Character Summary'
+                
+            location_x = char_x + 300
+            location_surface = fonts.get('fantasy_small', fonts['normal']).render(
+                location_readable, True, WHITE)
+            surface.blit(location_surface, (location_x, slot_name_y))
+            
+        else:
+            # Empty slot
+            empty_x = slot_rect.x + 200
+            empty_surface = fonts.get('fantasy_small', fonts['normal']).render(
+                "[Empty Slot]", True, (128, 128, 128))
+            surface.blit(empty_surface, (empty_x, slot_name_y))
         
         # Slot name (left aligned)
         slot_name_x = slot_rect.x + 20
@@ -135,14 +164,9 @@ def draw_save_game_screen(surface, game_state, fonts, images, controller=None):
                 "[Empty Slot]", True, (128, 128, 128))
             surface.blit(empty_surface, (empty_x, slot_name_y))
     
-    # Status message area
-    status_y = slot_start_y + (len(save_slots) * (slot_height + slot_spacing)) + 40
-    status_text = "Select a slot  to save your game"
-    
-    # Check for status messages in game_state
-    if hasattr(game_state, 'save_status_message'):
-        status_text = game_state.save_status_message
-    
+      # Status message
+    status_y = slot_start_y + (len(save_slots) * (slot_height + slot_spacing)) + 20
+    status_text = getattr(game_state, 'save_status_message', "Select a slot to save your game")
     draw_centered_text(surface, status_text,
                       fonts.get('fantasy_small', fonts['normal']),
                       status_y, WHITE)
@@ -154,28 +178,25 @@ def draw_save_game_screen(surface, game_state, fonts, images, controller=None):
     button_spacing = 40
     
     # Calculate button positions (centered)
-    total_button_width = (3 * button_width) + (2 * button_spacing)
+    total_button_width = (2 * button_width) + button_spacing  # Only Save and Cancel
     start_x = (1024 - total_button_width) // 2
     
     # Determine button states
     has_selection = (hasattr(game_state, 'save_selected_slot') and 
                     game_state.save_selected_slot is not None)
     
-    selected_slot_info = None
+    # Save button (only enabled if slot selected)
+    save_button = None
     if has_selection:
-        for slot_data in save_slots:
-            if slot_data['slot_num'] == game_state.save_selected_slot:
-                selected_slot_info = slot_data['save_info']
-                break
+        save_button = draw_button(surface, start_x, button_y, button_width, button_height,
+                                 "SAVE", fonts.get('fantasy_small', fonts['normal']),
+                                 pressed=False, selected=True)
+    else:
+        # Draw disabled save button
+        draw_button(surface, start_x, button_y, button_width, button_height,
+                   "SAVE", fonts.get('fantasy_small', fonts['normal']),
+                   pressed=False, selected=False)
     
-    can_save = has_selection 
-    
-    # Save button
-    save_button = draw_button(surface, start_x, button_y, button_width, button_height,
-                             "SAVE", fonts.get('fantasy_small', fonts['normal']),
-                             pressed=False, selected=can_save)
-    
-      
     # Cancel button
     cancel_x = start_x + button_width + button_spacing
     cancel_button = draw_button(surface, cancel_x, button_y, button_width, button_height,
@@ -184,58 +205,6 @@ def draw_save_game_screen(surface, game_state, fonts, images, controller=None):
     return {
         'slot_rects': slot_rects,
         'save_slots': save_slots,
-        'save_button': save_button if can_save else None,
+        'save_button': save_button,  # Only returns if enabled
         'cancel_button': cancel_button
     }
-
-def handle_save_game_click(mouse_pos, game_state, result, controller=None):
-    """
-    Handle mouse clicks on the save game screen
-    Returns True if click was handled, False otherwise
-    """
-    if not result:
-        return False
-    
-    # Handle slot selection
-    for i, slot_rect in enumerate(result['slot_rects']):
-        if slot_rect.collidepoint(mouse_pos):
-            slot_data = result['save_slots'][i]
-            
-            # Toggle selection
-            if (hasattr(game_state, 'save_selected_slot') and 
-                game_state.save_selected_slot == slot_data['slot_num']):
-                # Deselect if clicking same slot
-                game_state.save_selected_slot = None
-            else:
-                # Select this slot
-                game_state.save_selected_slot = slot_data['slot_num']
-            
-            # Clear any status messages
-            if hasattr(game_state, 'save_status_message'):
-                game_state.save_status_message = "Select a slot to save your game"
-            
-            return True
-    
-    # Handle button clicks
-    if result['save_button'] and result['save_button'].collidepoint(mouse_pos):
-        # save selected slot
-        if controller and hasattr(game_state, 'save_selected_slot'):
-            success = controller.save_game(game_state.save_selected_slot)
-            if success:
-                # Close save screen and return to game
-                game_state.save_screen_open = False
-                game_state.save_selected_slot = None
-            else:
-                game_state.save_status_message = "Failed to save game"
-        return True
-    
-        
-    if result['cancel_button'] and result['cancel_button'].collidepoint(mouse_pos):
-        # Close save screen
-        game_state.save_screen_open = False
-        game_state.save_selected_slot = None
-        if hasattr(game_state, 'save_status_message'):
-            delattr(game_state, 'save_status_message')
-        return True
-    
-    return False

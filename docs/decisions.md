@@ -468,6 +468,33 @@ Clean error-free operation with proper debug output
 **Consequences:**Load screen fully modernized following event-driven architecture patterns, Template established for remaining overlay modernizations (save, inventory, quest log, character sheet, help)
 Separation of concerns properly maintained: InputHandler → EventManager → SaveManager
 
+## ADR-038: Added shutdown and autosave method
+-added to gamecontroller based on research and coordiantor responsibilities
+- safely closes and autosave according to the save parameters.
+## ADR-039: Save Game Overlay Event-Driven Architecture Modernization CompleteStatus: Accepted
+## Date: Sep 7, 2025
+**Context:** Save game overlay used legacy direct click handling instead of event-driven semantic action system established in load game modernization, violating architectural consistency and separation of concerns.Problem Analysis:
+Save overlay opened with F7 but buttons failed to register clicks properly
+Legacy handle_save_game_click() function bypassed modern event system
+Inconsistent text rendering caused display corruption
+Button registration used unreliable dynamic detection instead of fixed positioning
+Decision: Modernize save game overlay to match load game event-driven architecture exactly, establishing consistent overlay modernization template.Implementation:
+**SaveManager Events:** Added register_save_screen_events() with handlers for SAVE_SLOT_SELECTED, SAVE_GAME_CONFIRM, SAVE_SCREEN_CANCEL
+ScreenManager Integration: Added save overlay lifecycle management and fixed-position clickable registration
+InputHandler Updates: Added save overlay click handling section matching load overlay pattern
+UI Improvements: Filtered save slots to manual saves only (slots 1-3), fixed text rendering to multi-column format
+Architecture Cleanup: Removed legacy handle_save_game_click() function, moved all event handlers to SaveManager
+**Technical Changes:**
+save_manager.py: Added save screen event handlers with proper state validation
+screen_manager.py: Added register_save_screen_clickables() with fixed button positioning
+input_handler.py: Added save overlay click processing section
+save_game.py: Updated text rendering, removed legacy click handler, filtered to manual save slots only
+input_handler.py: Fixed F7 hotkey mapping from SCREENSHOT_REQUESTED to SAVE_GAME
+**Consequences:** Save overlay fully functional with professional event-driven architecture
+Template established for remaining overlay modernizations (inventory, quest log, character sheet, help)
+Clean separation: InputHandler → EventManager → SaveManager → ScreenManager
+F7 save menu shows only manual slots (1-3), maintaining clean save architecture (F5=quick, F7=manual, auto=system)
+**Files Modified:** save_manager.py, screen_manager.py, input_handler.py, save_game.py
 
 
 ```

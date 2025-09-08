@@ -94,7 +94,7 @@ class GameState:
         self.character_sheet_open = False  # Is character sheet screen open
         
         # Help Screen
-        self.help_screen_open = False
+        self._screen_open = False
 
         # Quest progression flags
         self.met_mayor = False           # Has player talked to mayor

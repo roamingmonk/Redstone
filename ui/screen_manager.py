@@ -67,6 +67,7 @@ class ScreenManager:
             event_manager.register("START_GAME", self._handle_direct_navigation)
             event_manager.register("CONTINUE", self._handle_direct_navigation)
             event_manager.register("LOAD_GAME", self._handle_load_game)
+            event_manager.register("SAVE_GAME", self._handle_save_game)
             event_manager.register("REGISTER_FULL_SCREEN_CLICK", self._handle_full_screen_registration)
             print("📺 ScreenManager subscribed to navigation events")
 
@@ -115,6 +116,72 @@ class ScreenManager:
             self._current_game_state.load_screen_open = True
             # Register clickables when opening
             self.register_load_screen_clickables()
+
+    def _handle_save_game(self, event_data):
+        """Handle SAVE_GAME - open save overlay and register clickables"""
+        print("💾 ScreenManager: Opening save screen")
+        if hasattr(self, '_current_game_state'):
+            self._current_game_state.save_screen_open = True
+            # Register clickables when opening
+            self.register_save_screen_clickables()
+
+    def register_save_screen_clickables(self):
+        """Register save screen clickables when save overlay opens"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            
+            # Get button coordinates from the draw function
+            temp_surface = pygame.Surface((1024, 768))
+            from screens.save_game import draw_save_game_screen
+            
+            # Get save_manager from game_controller
+            save_manager = None
+            if hasattr(self, '_current_game_controller') and self._current_game_controller:
+                save_manager = getattr(self._current_game_controller, 'save_manager', None)
+            
+            print(f"💾 DEBUG: save_manager = {save_manager}")
+            print(f"💾 DEBUG: _current_game_controller = {getattr(self, '_current_game_controller', 'NOT SET')}")
+
+            result = draw_save_game_screen(
+                temp_surface, 
+                self._current_game_state, 
+                self.fonts, 
+                self.images,
+                save_manager
+            )
+        
+            if result:
+                # Register slot selection areas
+                for slot_rect, slot_num in result['slot_rects']:
+                    self.input_handler.register_clickable(
+                        'save_overlay', 
+                        slot_rect, 
+                        'SAVE_SLOT_SELECTED', 
+                        {'slot_num': slot_num}
+                    )
+                    
+                # Register buttons at fixed positions - always register, check state in handlers
+                button_y = 650
+                button_width = 120
+                button_height = 50
+                button_spacing = 40
+                total_button_width = (2 * button_width) + button_spacing  # Only Save and Cancel
+                start_x = (1024 - total_button_width) // 2
+
+                # Always register both buttons (Save and Cancel)
+                buttons = [
+                    (start_x, 'SAVE_GAME_CONFIRM'),
+                    (start_x + button_width + button_spacing, 'SAVE_SCREEN_CANCEL')
+                ]
+
+                for button_x, event_type in buttons:
+                    button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
+                    self.input_handler.register_clickable('save_overlay', button_rect, event_type, {})
+                    
+                print(f"💾 Save screen clickables registered: {len(result['slot_rects'])} slots + buttons")
+            else:
+                print("⚠️ Could not get save screen button coordinates")
+        else:
+            print("⚠️ No InputHandler available for save screen registration")
 
 
     def _register_basic_screen_handlers(self):
@@ -861,6 +928,24 @@ class ScreenManager:
                 save_manager = getattr(self._current_game_controller, 'save_manager', None)
             
             draw_load_game_screen(self.screen, game_state, self.fonts, self.images, save_manager)
+        
+        # Save screen overlay
+        if getattr(game_state, 'save_screen_open', False):
+            from screens.save_game import draw_save_game_screen
+            
+            # Get save_manager from game_controller
+            save_manager = None
+            if hasattr(self, '_current_game_controller') and self._current_game_controller:
+                save_manager = getattr(self._current_game_controller, 'save_manager', None)
+            
+            draw_save_game_screen(self.screen, game_state, self.fonts, self.images, save_manager)
+        
+        
+        
+        
+        
+        
+        
         # Add other overlays here as needed
         # if getattr(game_state, 'inventory_open', False):
         #     from screens.inventory import draw_inventory_screen

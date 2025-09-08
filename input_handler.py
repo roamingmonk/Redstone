@@ -45,10 +45,16 @@ class InputHandler:
             pygame.K_q: ("OVERLAY_TOGGLE", {"overlay_id": "quest_log"}),
             pygame.K_c: ("OVERLAY_TOGGLE", {"overlay_id": "character_sheet"}),
             pygame.K_h: ("OVERLAY_TOGGLE", {"overlay_id": "help"}),
-            pygame.K_l: ("OVERLAY_TOGGLE", {"overlay_id": "load_game"}),
+            pygame.K_p: ("OVERLAY_TOGGLE", {"overlay_id": "party"}),
+            
+            # Game controls (corrected)
+            pygame.K_F1: ("DEBUG_TOGGLE", {}),
+            pygame.K_F2: ("DEBUG_PERFORMANCE", {}),  # New debug key
+            pygame.K_F3: ("DEBUG_SAVE_STATE", {}),   # New debug key
             pygame.K_F5: ("SAVE_REQUESTED", {"slot": "quick_save"}),
-            pygame.K_F7: ("SCREENSHOT_REQUESTED", {}),
-            pygame.K_F10: ("DEBUG_TOGGLE", {}),
+            pygame.K_F7: ("SAVE_GAME", {}),          # Fixed: Opens save overlay
+            pygame.K_F10: ("LOAD_GAME", {}),         # Fixed: Opens load overlay
+            
             pygame.K_ESCAPE: ("ESCAPE_PRESSED", {})
         }
         
@@ -345,7 +351,19 @@ class InputHandler:
             
             # If no clickable hit, still consume the click to prevent fall-through
             return True
+    
+        # Save screen overlay - use registered clickables  
+        if getattr(game_state, 'save_screen_open', False):
+            clickables = self.clickable_regions.get('save_overlay', [])
             
+            for clickable in clickables:
+                if clickable.rect.collidepoint(mouse_pos):
+                    print(f"💾 Save overlay clickable hit: {clickable.event_type}")
+                    self.event_manager.emit(clickable.event_type, clickable.event_data)
+                    return True
+            
+            # If no clickable hit, still consume the click to prevent fall-through
+            return True
                 
         return False
 
