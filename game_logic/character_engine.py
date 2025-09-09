@@ -151,6 +151,16 @@ class CharacterEngine:
 
         print("🎯 CharacterEngine registered for all character creation events")
 
+    def register_quest_events(self, event_manager):
+        """Register for quest completion events - matches character creation pattern"""
+        self.event_manager = event_manager  # Store reference
+        
+        event_manager.register("QUEST_COMPLETED", self._handle_quest_completion)
+        event_manager.register("INFORMATION_DISCOVERED", self._handle_information_discovery)
+        print("🎯 CharacterEngine registered for quest events")
+
+
+
     def handle_advance_from_snarky(self, event_data):
         """Handle click to advance from snarky comment"""
         self.game_state.temp_data = {}  # Clear temp data
@@ -1119,11 +1129,22 @@ class CharacterEngine:
         total_xp = base_xp * enemy_count
         return self.award_experience(total_xp, f"defeated {enemy_count} enemies")
     
-    def award_quest_xp(self, quest_difficulty='normal'):
-        """Award XP for quest completion"""
-        xp_values = {'easy': 150, 'normal': 300, 'hard': 500, 'epic': 1000}
-        xp = xp_values.get(quest_difficulty, 300)
-        return self.award_experience(xp, f"completed {quest_difficulty} quest")
+    # ENHANCED VERSION - More precise than legacy, less specific than quest_engine
+    def award_quest_xp(self, quest_type="normal", custom_amount=None):
+        """Award XP for quest completion with flexible options"""
+        if custom_amount:
+            return self.award_experience(custom_amount, f"Quest: custom")
+    
+        # Fallback XP values for generic quest types
+        xp_values = {
+            'easy': 100, 
+            'normal': 200, 
+            'hard': 400, 
+            'epic': 800,
+            'main_story': 1000
+        }
+        xp = xp_values.get(quest_type, 200)
+        return self.award_experience(xp, f"Quest: {quest_type}")
     
     def award_skill_xp(self, skill_success=True):
         """Award XP for successful skill achievements"""
@@ -1138,6 +1159,205 @@ class CharacterEngine:
             return self.award_experience(xp, f"gambling streak of {streak_length}")
         return 0
     
+    def register_quest_events(self, event_manager):
+        """Register for quest completion events - follows character creation pattern"""
+        self.event_manager = event_manager
+        
+        # Quest completion events
+        event_manager.register("QUEST_COMPLETED", self._handle_quest_completion)
+        event_manager.register("INFORMATION_DISCOVERED", self._handle_information_discovery)
+        
+        print("🎯 CharacterEngine registered for quest events")
+    
+    def _handle_quest_completion(self, event_data):
+        """Handle quest completion XP awards"""
+        quest_id = event_data.get("quest_id")
+        quest_title = event_data.get("quest_title", "Unknown Quest")
+        xp_reward = event_data.get("xp_reward", 0)
+        completion_type = event_data.get("completion_type", "quest")
+        
+        print(f"🏆 Quest completed: {quest_title}")
+        
+        # Award XP to all party members
+        affected_members = self.award_party_xp(xp_reward, f"Quest: {quest_title}")
+        
+        # Check for level ups
+        level_up_members = self.check_party_level_ups()
+        
+        # If anyone leveled up, trigger character sheet notification
+        if level_up_members:
+            self.event_manager.emit("LEVEL_UP_AVAILABLE", {
+                "characters": level_up_members,
+                "source": quest_id
+            })
+            print(f"🎊 Level up available for: {', '.join(level_up_members)}")
+    
+    def _handle_information_discovery(self, event_data):
+        """Handle information discovery XP awards"""
+        info_type = event_data.get("info_type")
+        xp_reward = event_data.get("xp_reward", 0)
+        
+        # Award discovery XP to all party members
+        self.award_party_xp(xp_reward, f"Discovery: {info_type}")
+
+    # ==========================================
+    # PARTY XP TRACKING METHODS
+    # ==========================================
+    
+    def award_party_xp(self, xp_amount, reason=""):
+        """Award XP to all current party members"""
+        affected_members = []
+        
+        # Check if we're in combat state
+        if getattr(self.game_state, 'in_combat', False):
+            # Store for later processing
+            if 'pending_xp' not in self.game_state.__dict__:
+                self.game_state.pending_xp = []
+            self.game_state.pending_xp.append({'amount': xp_amount, 'reason': reason})
+            print(f"⏳ XP deferred (combat): {xp_amount} - {reason}")
+            return []
+        
+        # Award to player character
+        old_xp = self.game_state.character.get('experience', 0)
+        self.award_experience(xp_amount, reason)
+        affected_members.append("player")
+        
+        # Award to all party members
+        for member_id in self.game_state.party_members:
+            self.award_party_member_xp(member_id, xp_amount, reason)
+            affected_members.append(member_id)
+        
+        print(f"⭐ Party XP awarded: {xp_amount} to {len(affected_members)} members - {reason}")
+        return affected_members
+    
+    def award_party_member_xp(self, member_id, xp_amount, reason=""):
+        """Award XP to specific party member"""
+        # Initialize party XP tracking if needed
+        if 'party_xp' not in self.game_state.__dict__:
+            self.game_state.party_xp = {}
+        
+        if member_id not in self.game_state.party_xp:
+            self.game_state.party_xp[member_id] = {
+                'experience': 0, 
+                'level': 1,
+                'hit_points': self._get_party_member_starting_hp(member_id)
+            }
+        
+        # Award XP
+        current_xp = self.game_state.party_xp[member_id]['experience']
+        new_xp = current_xp + xp_amount
+        self.game_state.party_xp[member_id]['experience'] = new_xp
+        
+        print(f"⭐ {member_id.title()} gained {xp_amount} XP! (Total: {new_xp}) - {reason}")
+    
+    def _get_party_member_starting_hp(self, member_id):
+        """Get starting HP for party member based on their class"""
+        # This would normally come from NPC data files
+        hp_values = {
+            "gareth": 15,    # Fighter
+            "elara": 8,      # Wizard  
+            "thorman": 12,   # Cleric
+            "lyra": 10       # Rogue
+        }
+        return hp_values.get(member_id, 10)
+    
+    def check_party_level_ups(self):
+        """Check which party members can level up"""
+        level_up_candidates = []
+        
+        # Check player character
+        if self.can_level_up():
+            level_up_candidates.append("player")
+        
+        # Check party members
+        for member_id in self.game_state.party_members:
+            if self.can_party_member_level_up(member_id):
+                level_up_candidates.append(member_id)
+        
+        return level_up_candidates
+    
+    def can_party_member_level_up(self, member_id):
+        """Check if party member has enough XP to level up"""
+        if 'party_xp' not in self.game_state.__dict__:
+            return False
+        
+        if member_id not in self.game_state.party_xp:
+            return False
+        
+        member_data = self.game_state.party_xp[member_id]
+        current_level = member_data.get('level', 1)
+        current_xp = member_data.get('experience', 0)
+        
+        # Use same XP table as player
+        xp_requirements = {1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500}
+        
+        next_level = current_level + 1
+        if next_level <= 5 and current_xp >= xp_requirements.get(next_level, 999999):
+            return True
+        
+        return False
+    
+    def level_up_party_member(self, member_id):
+        """Level up a specific party member"""
+        if not self.can_party_member_level_up(member_id):
+            print(f"❌ {member_id} cannot level up yet")
+            return None
+        
+        member_data = self.game_state.party_xp[member_id]
+        current_level = member_data.get('level', 1)
+        new_level = current_level + 1
+        
+        # Get class-specific HP gain (simplified)
+        hp_gain_by_class = {
+            "gareth": 8,     # Fighter - d10 average
+            "elara": 4,      # Wizard - d6 average  
+            "thorman": 6,    # Cleric - d8 average
+            "lyra": 5        # Rogue - d6+1 average
+        }
+        
+        hp_gain = hp_gain_by_class.get(member_id, 5)
+        
+        # Update party member stats
+        member_data['level'] = new_level
+        current_hp = member_data.get('hit_points', 10)
+        member_data['hit_points'] = current_hp + hp_gain
+        
+        print(f"🎊 {member_id.title()} leveled up! Now level {new_level}, gained {hp_gain} HP")
+        
+        return {
+            'member_id': member_id,
+            'new_level': new_level,
+            'hp_gain': hp_gain,
+            'new_total_hp': member_data['hit_points']
+        }
+    
+    def get_party_member_info(self, member_id):
+        """Get complete info for a party member"""
+        if 'party_xp' not in self.game_state.__dict__:
+            return None
+        
+        if member_id not in self.game_state.party_xp:
+            return None
+        
+        member_data = self.game_state.party_xp[member_id]
+        
+        # Calculate XP to next level
+        current_level = member_data.get('level', 1)
+        current_xp = member_data.get('experience', 0)
+        xp_requirements = {1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500}
+        
+        next_level_xp = xp_requirements.get(current_level + 1, 999999)
+        xp_to_next = max(0, next_level_xp - current_xp)
+        
+        return {
+            'id': member_id,
+            'level': current_level,
+            'experience': current_xp,
+            'hit_points': member_data.get('hit_points', 10),
+            'xp_to_next_level': xp_to_next,
+            'can_level_up': self.can_party_member_level_up(member_id)
+        }
+
     # ==========================================
     # CHARACTER VALIDATION & UTILITY
     # ==========================================
@@ -1308,6 +1528,9 @@ def initialize_character_engine(game_state_ref, event_manager=None):
     if event_manager:
         character_engine.register_character_creation_events(event_manager)
         print("📝 CharacterEngine registered for character creation events")
+        character_engine.register_quest_events(event_manager)
+        print("🎯 CharacterEngine registered for quest events")
+        
     else:
         print("⚠️ No EventManager provided to CharacterEngine")
     

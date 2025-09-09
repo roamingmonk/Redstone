@@ -479,3 +479,31 @@ INTRO_MOUNTAIN_SILHOUETTE = (80, 70, 90)  # Much lighter mountains
 INTRO_BUILDING_SILHOUETTE = (70, 60, 85)  # Lighter buildings
 INTRO_WARM_LIGHT = (255, 200, 120)  # Brighter warm light
 INTRO_DISTANT_LIGHT = (255, 255, 180)  # Brighter distant lights
+
+
+# Screen exclusion lists - centralized for maintainability
+# Overlay exclusion - screens where overlays should not appear
+OVERLAY_RESTRICTED_SCREENS = {
+    'game_title', 'developer_splash',  # Remove main_menu from here
+    'stats', 'gender', 'name', 'portrait_selection', 'custom_name', 
+    'name_confirm', 'gold', 'trinket', 'summary', 'welcome',
+    'dice_bets', 'dice_rolling', 'dice_results', 'dice_rules', 'merchant_shop'
+}
+
+# Save/Load exclusion - screens where save/load operations don't make sense
+SAVE_LOAD_RESTRICTED_SCREENS = {
+    'game_title', 'developer_splash', 'main_menu',  # Keep main_menu here
+    'stats', 'gender', 'name', 'portrait_selection', 'custom_name', 
+    'name_confirm', 'gold', 'trinket', 'summary', 'welcome',
+    'dice_bets', 'dice_rolling', 'dice_results', 'dice_rules', 'merchant_shop'
+}
+
+# Overlay access control - centralized configuration
+MAIN_MENU_ALLOWED_OVERLAYS = ['load_screen_open']
+
+# All overlay attributes for checking (maintain this list as overlays are added)
+ALL_OVERLAY_ATTRIBUTES = [
+    'inventory_open', 'quest_log_open', 'character_sheet_open', 
+    'help_screen_open', 'save_screen_open', 'load_screen_open'
+    # Add new overlay attributes here as they're created
+]

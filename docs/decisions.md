@@ -516,6 +516,80 @@ Applied proven overlay modernization template using event-driven architecture:
 - Uncommented and completed `_render_overlays()` method with all overlay drawing calls
 - Maintained separation: ScreenManager handles overlay state, overlays render on top of main screens
 - still a lot of work left on functionality of these screens but they are now visible
+## ADR-041: BaseTabbedOverlay System Foundation Implementation - 
+**Status:** Accepted - 
+**Date:** Sep 8, 2025 - 
+**Context:** ScreenManager contained 20+ specialized overlay registration methods (`register_help_screen_clickables()`, `register_inventory_screen_clickables()`, etc.) causing code bloat and maintenance overhead. Adding new overlays required extensive ScreenManager modifications. - 
+**Decision:** Implement professional tabbed overlay architecture using `BaseTabbedOverlay` base class with reusable tab management, keyboard navigation, and standardized lifecycle hooks. - 
+**Implementation:** - Created `utils/tabbed_overlay_utils.py` with `BaseTabbedOverlay` foundation class - Implemented tab navigation via mouse clicks, number keys (1-9), and arrow keys - Added overlay management ensuring only one overlay active at a time - Converted help screen as proof of concept maintaining exact visual compatibility - Eliminated `register_help_screen_clickables()` method from ScreenManager - 
+**Technical Features:** - Consistent header/footer rendering across all overlays - Professional tab button styling with active/inactive states - Keyboard shortcut indicators (number badges on tabs) - Standardized content area management with proper spacing - Error handling and graceful fallbacks - 
+**Consequences:** - **Positive:** Foundation established for 60-70% reduction in ScreenManager overlay methods. Framework ready for rapid overlay development. Help screen conversion proves concept works without breaking existing functionality. - 
+**Future Impact:** Remaining overlays (inventory, quest log, character sheet) can now be converted using established pattern. Adding new overlays becomes configuration rather than coding. - 
+**Code Quality:** Professional separation of concerns - base class handles framework, subclasses handle content. - 
+**Files Created:** `utils/tabbed_overlay_utils.py`, `screens/help_overlay.py` - **Files Modified:** `ui/screen_manager.py` (import change), `screens/help_screen.py` (replaced) - constants.py - new data added.
+**Next Phase:** Session 2 - Convert character sheet overlay using established pattern
+
+
+## ADR-042: Character Overlay Tabbed System Implementation
+- **Status:** Accepted
+- **Date:** Sep 8, 2025  
+- **Context:** ScreenManager character sheet used basic registration method with no tabbed functionality. Session 2 of overlay refactoring roadmap targeted character sheet conversion to prove multi-tab concept.
+- **Decision:** Convert character sheet to 2-tab overlay (Player Stats | Party Members) using established BaseTabbedOverlay pattern from Session 1.
+- **Implementation:**
+  - Created `screens/character_overlay.py` with CharacterOverlay class extending BaseTabbedOverlay
+  - Player Stats tab: Preserved all existing character sheet functionality (stats, equipment, portrait, gold)
+  - Party Members tab: New functionality displaying recruited NPCs with portraits and basic info
+  - Added keyboard input routing in InputHandler for overlay tab navigation
+  - Implemented mouse click routing for tab selection
+  - Created centralized screen restriction system using constants for maintainability
+- **Technical Features:**
+  - Full keyboard navigation: 1/2 keys for direct tab access, arrow keys for navigation
+  - Mouse tab clicking with visual feedback and hover states
+  - Portrait integration using existing party_display.py system
+  - Selective overlay restrictions: main menu allows load screen, blocks others
+  - Professional error handling and debug output
+- **Consequences:**
+  - **Positive:** Multi-tab overlay concept proven successful. Character sheet maintains exact functionality while gaining tabbed interface. Foundation established for party management system. Screen restriction architecture centralized and maintainable.
+  - **Architecture:** Eliminated register_character_sheet_screen_clickables() method. Professional separation of Player vs Party information. Template confirmed for remaining overlay conversions.
+  - **User Experience:** Seamless tab navigation, preserved character data display, foundation for party member management
+- **Files Created:** `screens/character_overlay.py`
+- **Files Modified:** `ui/screen_manager.py` (import changes), `input_handler.py` (overlay routing), `utils/constants.py` (screen restrictions)
+- **Next Phase:** Session 3 - Quest Log overlay conversion (2 tabs: Active Quests | Completed Quests)
+
+
+## ADR-043: Professional Quest System Integration Complete
+**Status:** Accepted  
+**Date:** Sep 8, 2025  
+**Context:** Game lacked integrated quest progression system connecting dialogue, party recruitment, XP awards, and character progression. Quest tracking was hardcoded in quest_log.py without connection to game events.  
+**Decision:** Implement comprehensive event-driven quest system with professional XP progression and party tracking following established engine architecture patterns.  
+**Implementation:**  
+- Created `game_logic/quest_engine.py` - Event-driven wrapper around enhanced quest system
+- Enhanced `utils/quest_system.py` - 5 quests (1 primary: Terror in Redstone, 4 secondary: Party Building, 3 Location Investigations)  
+- Extended CharacterEngine with party XP tracking, quest event handlers, and level-up detection
+- Integrated quest completion → XP awards → level progression → character sheet notifications
+- Dynamic quest unlocking capability (rat basement quest unlocks when party assembled)
+**Technical Architecture:**  
+- **Event Flow:** Quest Completion → EventManager → CharacterEngine → XP Distribution → Level Up Detection
+- **Party XP System:** All party members gain XP independently with levels 1-5 exponential progression  
+- **Quest Structure:** Primary quest (main story) + Secondary quests (locations, party building, special unlocks)
+- **Integration Points:** Dialogue triggers, party recruitment events, information discovery XP
+**XP System Features:**  
+- Exponential progression: Level 1 (0 XP) → Level 5 (6500 XP) capping at appropriate scope
+- Party member XP tracking with individual progression and level-up capabilities
+- Combat state awareness (XP deferred during combat, processed afterward)
+- Quest-specific XP rewards: Main story (1000), Locations (400), Side quests (200), Discovery (50)
+**Quest Event Integration:**  
+- **QUEST_COMPLETED:** Awards XP to all party members, triggers level-up notifications
+- **INFORMATION_DISCOVERED:** Awards discovery XP for learning locations/secrets  
+- **PARTY_MEMBER_RECRUITED:** Progresses party building and main story objectives
+- **DIALOGUE_QUEST_TRIGGER:** Activates quests and completes objectives from NPC conversations
+**Consequences:**  
+- **Positive:** Professional RPG progression system ready for content expansion. Quest completion provides meaningful character advancement. Event-driven architecture eliminates hardcoded dependencies.
+- **Foundation Established:** Ready for quest overlay conversion, dynamic quest unlocking (rat basement), and future location/combat integration
+- **Scalable Design:** Adding new quests becomes configuration rather than coding
+**Files Created:** `game_logic/quest_engine.py`  
+**Files Enhanced:** `utils/quest_system.py`, `game_logic/character_engine.py`, `core/game_controller.py`  
+**Next Phase:** Convert quest_log.py to professional 2-tab overlay using quest system data, eliminate hardcoded quest functions
 
 
 ```

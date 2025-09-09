@@ -216,8 +216,18 @@ class InputHandler:
             if self.debug_input:
                 print(f"⚠️  No clickable regions registered for screen: {current_screen}")
         
+        # Character sheet overlay mouse handling - PRIORITY FIRST
+        if getattr(self.game_controller.game_state, 'character_sheet_open', False):
+            from screens.character_overlay import handle_character_sheet_click
+            if self.debug_input:
+                print(f"🎯 Routing mouse click to character overlay: {mouse_pos}")
+            if handle_character_sheet_click(mouse_pos, None):
+                if self.debug_input:
+                    print(f"✅ Character overlay handled mouse click")
+                return True
+
         if self._handle_overlay_clicks(mouse_pos, current_screen):
-                return True       
+            return True       
         
         if hasattr(self, 'screen_manager') and self.screen_manager:
             if self.debug_input:
@@ -275,7 +285,23 @@ class InputHandler:
             # Any other key in text mode is handled but ignored
             return True
         
-        # PRIORITY 2: Handle universal hotkeys
+         # PRIORITY 2: Route keyboard events to active overlays
+        if event.type == pygame.KEYDOWN:
+            key = event.key
+            
+            # Check for active overlays and route keyboard input
+            if getattr(game_state, 'character_sheet_open', False):
+                from screens.character_overlay import handle_character_keyboard_input
+                if handle_character_keyboard_input(key, game_state):
+                    return True
+            
+            if getattr(game_state, 'help_screen_open', False):
+                from screens.help_overlay import handle_help_keyboard_input
+                if handle_help_keyboard_input(key, game_state):
+                    return True
+        
+        
+        # PRIORITY 3: Handle universal hotkeys
         if event.type == pygame.KEYDOWN:
             key = event.key
             

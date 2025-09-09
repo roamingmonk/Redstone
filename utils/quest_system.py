@@ -53,31 +53,62 @@ class QuestManager:
         self._initialize_game_quests()
         
     def _initialize_game_quests(self):
-        """Set up all quests for Terror in Redstone"""
+        """Set up all quests for Terror in Redstone with enhanced quest structure"""
         
-        # Main storyline quest
+        # PRIMARY QUEST: Main storyline
         main_quest = Quest("main_story", "Terror in Redstone", 
                           "Investigate the mysterious disappearances plaguing Redstone")
         
         main_quest.add_objective("talk_to_npcs", "Gather information from tavern patrons")
         main_quest.add_objective("meet_mayor", "Speak with Mayor Aldwin about the crisis")
         main_quest.add_objective("recruit_party", "Recruit at least one companion")
-        main_quest.add_objective("explore_ruins", "Investigate the Hill Ruins")
-        main_quest.add_objective("explore_church", "Search the Swamp Church")
-        main_quest.add_objective("explore_camp", "Visit the Refugee Camp")
+        main_quest.add_objective("investigate_locations", "Investigate the three key locations")
         main_quest.add_objective("solve_mystery", "Uncover the truth behind the disappearances")
         
         self.quests["main_story"] = main_quest
         
-        # Side quest examples
-        recruitment_quest = Quest("party_building", "Assembling Heroes",
-                                "Build a capable adventuring party")
-        recruitment_quest.add_objective("recruit_warrior", "Recruit a warrior")
-        recruitment_quest.add_objective("recruit_mage", "Recruit a mage")  
-        recruitment_quest.add_objective("recruit_cleric", "Recruit a cleric")
-        recruitment_quest.add_objective("recruit_rogue", "Recruit a rogue")
+        # SECONDARY QUEST: Party Building  
+        recruitment_quest = Quest("party_building", "Assemble Your Party",
+                                "Build a capable adventuring party for dangerous missions")
+        recruitment_quest.add_objective("recruit_warrior", "Recruit a warrior (Gareth)")
+        recruitment_quest.add_objective("recruit_mage", "Recruit a mage (Elara)")  
+        recruitment_quest.add_objective("recruit_cleric", "Recruit a cleric (Thorman)")
+        recruitment_quest.add_objective("recruit_rogue", "Recruit a rogue (Lyra)")
         
         self.quests["party_building"] = recruitment_quest
+        
+        # SECONDARY QUEST: Location Investigations
+        hill_ruins_quest = Quest("investigate_hill_ruins", "Investigate the Hill Ruins",
+                               "Explore the ancient mining ruins north of town")
+        hill_ruins_quest.add_objective("learn_location", "Learn about the Hill Ruins from Garrick")
+        hill_ruins_quest.add_objective("travel_to_ruins", "Travel to the Hill Ruins")
+        hill_ruins_quest.add_objective("explore_ruins", "Search the ruins for clues")
+        hill_ruins_quest.add_objective("find_evidence", "Discover what happened here")
+        
+        self.quests["investigate_hill_ruins"] = hill_ruins_quest
+        
+        swamp_church_quest = Quest("explore_swamp_church", "Explore the Swamp Church", 
+                                 "Investigate the old shrine in the wetlands")
+        swamp_church_quest.add_objective("learn_location", "Learn about the Swamp Church from Meredith")
+        swamp_church_quest.add_objective("travel_to_church", "Travel to the Swamp Church")
+        swamp_church_quest.add_objective("explore_church", "Search the church for clues")
+        swamp_church_quest.add_objective("find_evidence", "Discover what happened here")
+        
+        self.quests["explore_swamp_church"] = swamp_church_quest
+        
+        refugee_camp_quest = Quest("find_refugee_camp", "Find the Refugee Camp",
+                                 "Locate and investigate the refugee settlement")
+        refugee_camp_quest.add_objective("learn_location", "Learn about the refugees from the Mayor")
+        refugee_camp_quest.add_objective("travel_to_camp", "Travel to the Refugee Camp")
+        refugee_camp_quest.add_objective("talk_to_refugees", "Speak with the refugee leaders")
+        refugee_camp_quest.add_objective("gather_information", "Learn what the refugees witnessed")
+        
+        self.quests["find_refugee_camp"] = refugee_camp_quest
+        
+        print("🎯 Enhanced quest system initialized with 5 quests")
+        print("📋 Primary: Terror in Redstone (main story)")
+        print("📋 Secondary: Party Building, Hill Ruins, Swamp Church, Refugee Camp")
+        print("🐀 Rat Basement quest will be unlocked dynamically")
         
     def activate_quest(self, quest_id):
         """Activate a quest and make it trackable"""
@@ -177,6 +208,43 @@ class QuestManager:
                 # Update active quest set
                 if quest.status == "active":
                     self.active_quest_ids.add(quest_id)
+
+###### New Quest system methods ############
+    def get_completed_quests(self):
+        """Return list of completed quests for display"""
+        completed_quests = []
+        for quest in self.quests.values():
+            if quest.status == "completed":
+                completed_quests.append(quest)
+        return completed_quests
+    
+    def is_quest_complete(self, quest_id):
+        """Check if a specific quest is completed"""
+        quest = self.quests.get(quest_id)
+        return quest.status == "completed" if quest else False
+    
+    def get_quest_progress(self, quest_id):
+        """Get progress for a specific quest"""
+        quest = self.quests.get(quest_id)
+        if quest:
+            completed, total = quest.get_progress()
+            return {
+                'completed_objectives': completed,
+                'total_objectives': total,
+                'progress_percent': int((completed / total) * 100) if total > 0 else 0
+            }
+        return None
+    
+    def add_dynamic_quest(self, quest_id, title, description):
+        """Add a quest dynamically (for special unlocks like rat basement)"""
+        if quest_id not in self.quests:
+            new_quest = Quest(quest_id, title, description)
+            self.quests[quest_id] = new_quest
+            print(f"➕ Dynamic quest added: {title}")
+            return new_quest
+        return None
+
+###### New Quest system methods ############
 
 # Integration with existing GameState class
 def integrate_quest_system(game_state):

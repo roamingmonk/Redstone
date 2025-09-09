@@ -19,6 +19,7 @@ from game_logic.character_engine import initialize_character_engine
 from game_logic.inventory_engine import initialize_inventory_engine
 from game_logic.commerce_engine import initialize_commerce_engine
 from game_logic.dialogue_engine import initialize_dialogue_engine
+from game_logic.quest_engine import initialize_quest_engine
 from ui.screen_manager import ScreenManager
 from input_handler import InputHandler
 from screens.intro_scenes import IntroSequenceManager
@@ -194,11 +195,13 @@ class GameController:
         self.inventory_engine = initialize_inventory_engine(self.game_state, self.data_manager.item_manager)
         self.commerce_engine = initialize_commerce_engine(self.game_state, self.data_manager.item_manager)
         self.dialogue_engine = initialize_dialogue_engine(self.game_state)
-        
+        self.quest_engine = initialize_quest_engine(self.game_state, self.event_manager)
+
         self._mark_system_created("character_engine")
         self._mark_system_created("inventory_engine")
         self._mark_system_created("commerce_engine")
         self._mark_system_created("dialogue_engine")
+        self._mark_system_created("quest_engine")
         
         # Step 6: SaveManager (requires: GameState, CharacterEngine, EventManager)
         self._validate_dependency("character_engine", self.character_engine)
@@ -480,19 +483,6 @@ class ScreenRegistry:
         Register all game screens with the controller
         This is where we'll add each screen as we create them
         """
-        
-        # Import screen modules (we'll add these as we create them)
-        
-         # Register title/menu screens
-        #try:
-        #    from screens.title_menu import draw_title_screen, draw_company_splash_screen, draw_main_menu
-        #    controller.register_screen("game_title", draw_title_screen)           # Initial title
-        #    controller.register_screen("developer_splash", draw_company_splash_screen)  # Company screen
-        #    controller.register_screen("main_menu", draw_main_menu)               # Main menu
-        #    print("✅ Title/menu screens registered!")
-        #except ImportError as e:
-        #    print(f"❌ IMPORT ERROR: {e}")
-        #    print(f"⚠️ Title/menu screens not available: {e}")
 
         # Register character advancement screen
         try:
@@ -502,27 +492,6 @@ class ScreenRegistry:
         except ImportError as e:
             print(f"⚠️ Character advancement screen not available: {e}")
 
-        # Register tavern screens
-        #try:
-        #    from screens.tavern import draw_tavern_main_screen, draw_npc_selection_screen, draw_npc_conversation_screen
-        #    controller.register_screen("tavern_main", draw_tavern_main_screen)
-        #    controller.register_screen("tavern_npcs", draw_npc_selection_screen)
-        #    controller.register_screen("tavern_conversation", draw_npc_conversation_screen)
-        #    controller.register_screen("bartender", draw_tavern_main_screen)  # If bartender uses same screen
-        #    print("✅ Tavern screens registered!")
-        #except ImportError as e:
-        #    print(f"⚠️ Tavern screens not available: {e}")
-
-        # Register Broken Blade
-        #try:
-        #    from screens.broken_blade import draw_broken_blade_main_screen 
-        #    from screens.patron_selection import draw_patron_selection_screen  
-        #    controller.register_screen("broken_blade_main", draw_broken_blade_main_screen)
-        #    controller.register_screen("patron_selection", draw_patron_selection_screen)
-        #    print("✅ Broken Blade screens registered!")
-        #except ImportError as e:
-        #    print(f"⚠️ Broken Blade screens not available: {e}")
-        
         # Register gambling screens  
         try:
             from screens.gambling_dice import draw_dice_bets_screen, draw_dice_rolling_screen, draw_dice_results_screen, draw_dice_rules_screen
@@ -535,24 +504,6 @@ class ScreenRegistry:
         except ImportError as e:
             print(f"⚠️ Gambling screens not available: {e}")
         
-        # Register shopping screens (NEW ARCHITECTURE)
-        #try:
-        #    from screens.shopping import register_shop_screens
-        #    register_shop_screens(controller)
-        #    print("✅ Shopping screens registered via shopping module!")
-        #except ImportError as e:
-        #    print(f"⚠️ Shopping screens not available: {e}")
-
-        # Register save/load screens
-        #try:
-        #    from screens.load_game import draw_load_game_screen
-        #    from screens.save_game import draw_save_game_screen
-        #    controller.register_screen("load_screen", draw_load_game_screen)
-        #    controller.register_screen("save_screen", draw_save_game_screen)
-        #    print("✅ Save/Load screens registered!")
-        #except ImportError as e:
-        #    print(f"⚠️ Save/Load screens not available: {e}")
-
 
         print("✅ Screen registration complete!")
 

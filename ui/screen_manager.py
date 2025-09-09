@@ -8,6 +8,7 @@ Replaces hardcoded screen logic with data-driven approach + massive draw_current
 from typing import Dict, Callable, Any, Optional
 import pygame
 import traceback
+from utils.constants import OVERLAY_RESTRICTED_SCREENS, MAIN_MENU_ALLOWED_OVERLAYS, ALL_OVERLAY_ATTRIBUTES
 
 class ScreenManager:
     """
@@ -185,7 +186,6 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for save screen registration")
 
-
     def _register_basic_screen_handlers(self):
         """Auto-register basic screen click handlers"""
         
@@ -225,10 +225,6 @@ class ScreenManager:
     def get_registered_screens(self):
         """EXISTING: Get list of all registered screens"""
         return list(self.screens.keys())
-    
-    # ========================================
-    # NEW METHODS - SCREEN RENDERING SYSTEM
-    # ========================================
 
     def _handle_npc_clicked(self, event_data):
         """Handle NPC_CLICKED events by navigating to dialogue screen"""
@@ -641,7 +637,6 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for help screen")
 
-
     def register_render_function(self, screen_name: str, render_function: Callable,
                                 enter_hook: Optional[Callable] = None,
                                 exit_hook: Optional[Callable] = None):
@@ -687,8 +682,8 @@ class ScreenManager:
             from screens.shopping import draw_merchant_screen
             from screens.inventory import draw_inventory_screen
             from screens.quest_log import draw_quest_log_screen
-            from screens.character_sheet import draw_character_sheet_screen
-            from screens.help_screen import draw_help_screen
+            from screens.character_overlay import draw_character_sheet_screen
+            from screens.help_overlay import draw_help_screen
             from screens.gambling_dice import (
                 draw_dice_bets_screen, draw_dice_rolling_screen,
                 draw_dice_results_screen, draw_dice_rules_screen
@@ -967,9 +962,7 @@ class ScreenManager:
         """Set the game state context for event handling"""
         self._current_game_state = game_state
 
-    # ========================================
     # UTILITY METHODS
-    # ========================================
     
     def get_current_screen(self) -> Optional[str]:
         """Get the currently active screen name"""
@@ -1049,9 +1042,23 @@ class ScreenManager:
             self._current_game_state.help_screen_open = not current_state
             print(f"❓ ScreenManager: Help screen {'opened' if self._current_game_state.help_screen_open else 'closed'}")
 
-
     def _render_overlays(self, game_state):
         """Render any active overlays on top of the main screen"""
+         # SELECTIVE OVERLAY RESTRICTIONS  
+        if game_state.screen == 'main_menu':
+            # Main menu: ONLY allow specific overlays
+            for overlay_attr in ALL_OVERLAY_ATTRIBUTES:
+                if getattr(game_state, overlay_attr, False):
+                    if overlay_attr not in MAIN_MENU_ALLOWED_OVERLAYS:
+                        #print(f"🚫 Overlay {overlay_attr} blocked on main menu (not in allowlist)")
+                        return
+                        
+        elif game_state.screen in OVERLAY_RESTRICTED_SCREENS:
+            # All other restricted screens: Block ALL overlays
+            #print(f"🚫 All overlays blocked on restricted screen: {game_state.screen}")
+            return
+        
+        
         # Load screen overlay
         if getattr(game_state, 'load_screen_open', False):
             from screens.load_game import draw_load_game_screen
@@ -1083,9 +1090,9 @@ class ScreenManager:
             draw_quest_log_screen(self.screen, game_state, self.fonts, self.images)
         
         if getattr(game_state, 'character_sheet_open', False):
-            from screens.character_sheet import draw_character_sheet_screen
+            from screens.character_overlay import draw_character_sheet_screen
             draw_character_sheet_screen(self.screen, game_state, self.fonts, self.images)
         
         if getattr(game_state, 'help_screen_open', False):
-            from screens.help_screen import draw_help_screen
+            from screens.help_overlay import draw_help_screen
             draw_help_screen(self.screen, game_state, self.fonts, self.images)

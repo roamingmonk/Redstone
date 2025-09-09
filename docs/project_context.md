@@ -1,100 +1,107 @@
-# project_context.md
+# Terror in Redstone - Project Context
 
 ## 1) Project Snapshot
 - **Name:** Terror in Redstone
-- **One-liner:** Professional-grade 2D RPG framework refactored from a monolithic Pygame prototype.
+- **One-liner:** Professional-grade 2D RPG framework evolved from monolithic Pygame prototype to event-driven architecture
 - **Primary language / runtime:** Python 3.11+
 - **Main framework/libs:** Pygame (rendering & input), JSON (data), custom EventManager
 - **Dev environment:** VS Code + Git (repo private by default)
-- **Repo:** TODO (GitHub URL)
+- **Current Status:** Production-ready character creation, tavern system, and overlay infrastructure
 
 ## 2) Purpose & Goals
-- **Motivation:** Clean up a working prototype into a professional, extensible RPG framework.
-- **Player-facing:** Tavern-centered narrative, branching dialogue, inventory/party management.
-- **Dev-facing:** New content (NPCs, locations, quests) created with JSON only; minimal code changes.
+- **Motivation:** Transform working prototype into professional, extensible RPG framework ready for rapid content expansion
+- **Player-facing:** Tavern-centered narrative, branching dialogue, inventory/party management, quest tracking
+- **Dev-facing:** New content (NPCs, locations, quests) created with JSON only; minimal code changes required
 - **Success criteria:**
-  - ✅ Event-driven coordination via EventManager
-  - ✅ Dialogue system fully JSON-driven with 3+ conversation states and branching
-  - ✅ **Professional patron NPC system with event-driven architecture**
-  - ✅ Engines are stateless, using GameState as the Single Data Authority
-  - 🚧 Shrink game_controller from 1000+ LOC to ~200 LOC (significant progress)
+  - ✅ **Event-driven coordination via EventManager** (Complete - Sep 2025)
+  - ✅ **Dialogue system fully JSON-driven** with 3+ conversation states and branching (Complete)
+  - ✅ **Professional patron NPC system** with event-driven architecture (Complete)
+  - ✅ **Engines are stateless**, using GameState as Single Data Authority (Complete)
+  - ✅ **Character creation modernization** with semantic action architecture (Complete - Sep 2025)
+  - ✅ **Save/Load system modernization** with event-driven overlay management (Complete - Sep 2025)
+  - 🎯 **ScreenManager refactoring** from 1000+ lines to modular overlay architecture (In Progress)
 
-## 3) Non-Goals (current milestone)
+## 3) Current Development Phase
+**Active Focus:** Screen Architecture Refactoring (Phase 1 of 3)
+- **Immediate Goal:** Replace bloated ScreenManager with professional tabbed overlay system
+- **Timeline:** 8-10 sessions across 3 phases
+- **Expected Outcome:** 60-70% code reduction in screen management with standardized patterns
+
+### Non-Goals (current milestone)
 - Multiplayer networking
-- Combat engine (planned Session 7)
-- World navigation system (planned Session 8)
+- Combat engine (planned for future phases)
+- World navigation system (planned for future phases)
 
 ## 4) Constraints & Assumptions
 - **OS:** Windows, macOS, Linux
-- **Input:** Keyboard/mouse (controller deferred)
+- **Input:** Keyboard/mouse (controller support deferred)
 - **Resolution policy:** Pixel-art scaling, fixed logical sizes for UI buttons (200px width standard)
-- **Services:** Local-only, no network or backend
+- **Services:** Local-only, no network or backend dependencies
 
 ## 5) Architecture Overview
 
-### 5.1 Core Layers
-- **Data Authority:** `game_state.py`, plus external JSONs under `/data`
-- **Engines:** Pure business logic (`inventory_engine.py`, `dialogue_engine.py`, `character_engine.py`)
+### 5.1 Core Layers (Established Architecture)
+- **Data Authority:** `game_state.py` as single source of truth, plus external JSONs under `/data`
+- **Engines:** Pure business logic (`inventory_engine.py`, `dialogue_engine.py`, `character_engine.py`, `save_manager.py`)
 - **Presentation:** Screens and UI components, pure rendering only
-- **Coordination:** `game_controller.py` orchestrates, `event_manager.py` routes
+- **Coordination:** `game_controller.py` orchestrates, `event_manager.py` routes events
+- **Input Management:** `input_handler.py` provides semantic action abstraction
 
-### 5.2 Component Responsibility Boundaries (Established Sep 2025)
-**Engines vs. ScreenManager Distinction:**
-- **Engines:** Domain/business logic only (Character, Inventory, Commerce, Dialogue)
+### 5.2 Component Responsibility Boundaries (Professional Standards)
+**Clear Separation of Concerns:**
+- **Engines:** Domain/business logic only (Character, Inventory, Commerce, Dialogue, SaveManager)
 - **ScreenManager:** Navigation flow and UI state management 
-- **GameController:** Pure coordination without business logic
+- **GameController:** Pure coordination without business logic (50% reduction achieved)
+- **InputHandler:** Semantic action system replacing hardcoded click handling
 
 **Event Routing Patterns:**
-- **Domain Events → Engines:** NEW_GAME, REROLL_STATS, SELECT_MALE/FEMALE → CharacterEngine
-- **Navigation Events → ScreenManager:** START_GAME, CONTINUE, LOAD_GAME → ScreenManager
-- **Decision Framework:** Business logic → Engine; Navigation → ScreenManager; GameController coordinates only
+- **Domain Events → Engines:** Business logic processing
+- **UI Events → ScreenManager:** Navigation and display state
+- **Cross-cutting → EventManager:** Centralized event hub
 
-**Key Principle:** Don't create engines for UI concerns (avoid MenuEngine/NavigationEngine that duplicate ScreenManager)
-
-### 5.3 Module Map (current + planned)
+### 5.3 File Structure (Current - Production Ready)
 ```
-project_root/
-  game_controller.py              # coordinator (shrinking - diet successful)
-  game_state.py                   # single source of truth
-  game_logic/
-    event_manager.py              # ✅ implemented
-    inventory_engine.py           # ✅ refactored (stateless)
-    data_manager.py               # ✅ loader/coordinator
-    dialogue_engine.py            # ✅ enhanced for branching + requirements
-    commerce_engine.py            # shop transactions
-    character_engine.py           # ✅ stats & party + character creation flow
-    content_loader.py             # (planned) config-driven loading
-  ui/
-    screen_manager.py             # ✅ screen lifecycle & navigation
-    input_handler.py              # ✅ semantic action system
-    screen_handlers.py            # ✅ patron selection click handling
-    generic_dialogue_handler.py   # ✅ quest_update + recruit_npc actions
-    screens/
-      patron_selection.py         # ✅ NEW - professional patron selection
-      generic_dialogue.py         # (planned replacement)
-      generic_location.py         # (planned)
-  data/
-    dialogues/
-      tavern_garrick.json         # ✅ 3-state branching
-      tavern_[patron].json        # ✅ NEW - JSON-driven patron dialogues
-    npcs/*.json                   # ✅ NPCs extracted
-    items.json
-    content_config.json           # (future)
-  utils/
-    constants.py
-    graphics.py
-    overlay_utils.py
-    dialogue_ui_utils.py
-  tests/
-    test_dialogue_engine.py
-    test_inventory_engine.py
-  docs/
-    project_context.md
-    decisions.md
-    dialogue_json_guide.md        # ✅ NEW - comprehensive dialogue creation guide
+Terror in Redstone/
+├── main.py                     # Clean entry point with application lifecycle
+├── game_state.py              # Single data authority with comprehensive state
+├── core/
+│   ├── game_controller.py     # Thin coordinator (reduced from 1000+ to ~400 lines)
+│   ├── event_manager.py       # Professional event hub
+│   ├── input_handler.py       # Semantic action system
+│   └── save_manager.py        # Complete save/load business logic
+├── screens/                   # Event-driven screen modules
+│   ├── character_creation.py  # Fully modernized with semantic actions
+│   ├── title_menu.py         # Professional title and menu system
+│   ├── tavern.py             # Complete tavern with NPC recruitment
+│   ├── inventory.py          # Professional overlay (target for refactoring)
+│   ├── quest_log.py          # Quest tracking overlay (target for refactoring)
+│   ├── character_sheet.py    # Character display overlay (target for refactoring)
+│   ├── help_screen.py        # Help system overlay (target for refactoring)
+│   ├── save_game.py          # Modernized save overlay
+│   ├── load_game.py          # Modernized load overlay
+│   └── shopping.py           # Professional merchant system
+├── ui/
+│   ├── screen_manager.py     # Screen lifecycle and overlay management (target for refactoring)
+│   ├── generic_dialogue_handler.py  # Universal NPC conversation system
+│   └── screen_handlers.py    # Click handling registration
+├── data/
+│   ├── dialogues/            # JSON-driven conversation trees
+│   │   ├── tavern_garrick.json
+│   │   └── tavern_[patron].json
+│   ├── player/
+│   │   ├── character_names.json    # Dynamic name generation
+│   │   └── character_classes.json  # Class definitions and mechanics
+│   └── npcs/                 # NPC data definitions
+├── utils/
+│   ├── constants.py          # Game constants and configuration
+│   ├── graphics.py           # Reusable drawing utilities
+│   └── overlay_utils.py      # Shared overlay functionality
+└── assets/
+    ├── fonts/                # MedievalSharp with fallback protection
+    └── images/               # Standardized artwork pipeline
 ```
 
-### 5.4 Enter Hooks Pattern (Established)
+### 5.4 Event-Driven Architecture (Established Patterns)
 **Professional Screen Registration:**
 ```python
 screen_manager.register_render_function("stats", draw_stats_screen,
@@ -102,175 +109,115 @@ screen_manager.register_render_function("stats", draw_stats_screen,
 ```
 - Screens self-register clickable regions on entry
 - ScreenManager stays generic (no hardcoded screen names)
-- Follows Open/Closed Principle
+- Follows Open/Closed Principle for extensibility
 
-### 5.5 Event Flow (simplified)
-```mermaid
-flowchart TD
-  A[GameController] --> B[EventManager]
-  B --> C[DialogueEngine]
-  B --> D[InventoryEngine]
-  B --> E[CommerceEngine]
-  B --> F[CharacterEngine]
-  C & D & E & F --> G[GameState]
-  A --> H[ScreenManager]
-  H --> I[Screens/UI]
-  I --> A
-  
-  J[broken_blade_main] --> K[patron_selection]
-  K --> L[NPC_dialogue]
-  L --> M[quest_update/recruit_npc]
+**Semantic Action System:**
+```python
+# Instead of hardcoded coordinates
+input_handler.register_semantic_action("START_GAME", start_button_rect)
+# Routes to
+event_manager.emit("START_GAME", {"source": "main_menu"})
 ```
 
-## 6) Data & Assets
-- **Dialogue:** Stored in JSON under `/data/dialogues`, deep branching supported with requirements system
-- **NPCs:** Standardized JSON schema (`id`, `name`, `description`, `level`, etc.)
+### 5.5 Current Event Flow
+```mermaid
+flowchart TD
+  A[main.py] --> B[GameController]
+  B --> C[EventManager]
+  C --> D[DialogueEngine]
+  C --> E[InventoryEngine] 
+  C --> F[CommerceEngine]
+  C --> G[CharacterEngine]
+  C --> H[SaveManager]
+  D & E & F & G & H --> I[GameState]
+  B --> J[ScreenManager]
+  B --> K[InputHandler]
+  J --> L[Screens/UI]
+  K --> C
+  L --> K
+```
 
-## 11) Screen Architecture (Enhanced)
+## 6) Data & Content Management
+- **Dialogue:** Comprehensive JSON system under `/data/dialogues` with deep branching and requirements
+- **NPCs:** Standardized JSON schema with `id`, `name`, `description`, `level`, recruitment status
+- **Character Classes:** JSON-driven class system with abilities, comments, and educational features
+- **Save System:** Professional file management with metadata, character portraits, and state persistence
+- **Items:** Structured item data with categories, icons, and equipment mechanics
 
-### **Character Creation Modernization (New)**
-- **Stats Screen:** Semantic actions (REROLL_STATS, KEEP_STATS) with CharacterEngine event handling
-- **Gender Screen:** Semantic actions (SELECT_MALE, SELECT_FEMALE) with proper navigation flow
-- **Input System:** Two-tier architecture - semantic actions for complex screens, direct events for simple navigation
+## 7) Recent Major Achievements (Sep 2025)
 
-### **Professional Dialogue System (Enhanced)**
-- **Patron NPC Management:** Professional selection interface with full integration
-- **JSON-Driven Content:** NPCs require only JSON files, no code changes
-- **Branching Support:** Multi-state conversations with requirements system
-- **Event-Driven Architecture:** Complete separation of content (JSON) and code (Python)
+### Architecture Modernization Complete
+- **Character Creation System:** Full modernization with semantic action architecture across 8 screens
+- **Save/Load Systems:** Event-driven overlay management with proper business logic separation  
+- **Input System:** Professional semantic action system replacing hardcoded click handling
+- **Event Architecture:** Comprehensive EventManager hub with proper component decoupling
 
-## 12) Current Development Status
+### Code Quality Improvements
+- **GameController Reduction:** 1000+ lines → ~400 lines (60% reduction achieved)
+- **Dependency Injection:** Professional 3-phase initialization following game engine patterns
+- **Separation of Concerns:** Clean boundaries between engines, presentation, and coordination
+- **Error Handling:** Comprehensive safety nets and graceful degradation
 
-### ✅ **COMPLETED SYSTEMS (Production Ready)** Sep 5, 2025
-- **Event-Driven Architecture:** Professional EventManager coordination with single instance management
-- **Character Creation Modernization:** Stats and gender screens use semantic action system
-- **Navigation Architecture:** START_GAME/CONTINUE/LOAD_GAME properly moved to ScreenManager
-- **Input Handler Architecture:** Semantic mouse click system with clickable region registration
-- **Screen Management:** Enter hooks pattern with professional lifecycle management
-- **GameController Diet:** Significant progress removing business logic (7+ methods eliminated)
+### User Experience Enhancements
+- **Context-Sensitive Input:** Intelligent hotkey blocking preventing UI conflicts
+- **Professional Overlays:** Consistent save/load experience with proper state management
+- **Educational Systems:** Class-aware character creation with guidance and warnings
+- **Robust Save System:** Complete character data persistence with portraits and metadata
 
-## ✅ COMPLETED SYSTEMS (Production Ready) Sep 6, 2025
-**Complete Name Selection Architecture:** Professional three-screen workflow modernization
-Dynamic name generation from JSON data with gender-specific options
-Event-driven name selection with semantic actions (SELECT_NAME_1, SELECT_NAME_2, SELECT_NAME_3)
-Unified text input processing through InputHandler for custom name entry
-Professional screen lifecycle with enter hooks and clickable region registration
-Clean state management with text clearing on back navigation
+## 8) Active Development: Screen Architecture Refactoring
 
-**Unified Input Architecture:** Complete migration to single input processing pathway
-InputHandler processes ALL input (mouse clicks and keyboard text) through EventManager
-Eliminated dual input pathways by migrating legacy GameController text input
-Consistent event format with action field standardization across all screens
-Professional text input handling with character limits and validation
-**JSON-Based Content Management:** Data-driven name generation system
-Expandable name database in data/player/character_names.json
-Gender-specific name pools with configurable first/last name combinations
-Special name guarantees (Garlen Sliverblade for male characters)
-Content updates without code changes for easy expansion
+### Current Challenge
+**ScreenManager Bloat:** 1000+ lines with 20+ specialized registration methods
+- Multiple `register_*_clickables()` methods for each screen type
+- Inconsistent overlay management patterns
+- Difficult maintenance and extension
 
-✅ **COMPLETED SYSTEMS (Production Ready) Sep 6, 2025**
-Portrait Selection Architecture Complete: Professional event-driven portrait selection with semantic actions (SELECT_PORTRAIT_1-5, CONFIRM_PORTRAIT, BACK_FROM_PORTRAIT). Dynamic 5-portrait grid with yellow selection highlighting and personalized character name display. Complete business logic migration from GameState to CharacterEngine with proper dependency injection patterns.
-Character Creation Modernization Status: Stats, Gender, Name workflow (3 screens), and Portrait selection fully modernized using event-driven architecture. Gold and Trinket screens remain for completion using established semantic action pattern.
-Architectural Cleanup Progress: Portrait business logic methods moved from GameState to CharacterEngine. SaveManager updated with proper dependency injection instead of tight import coupling. GameController diet continued with portrait method elimination (~4 methods removed).
-Professional Standards Achieved: Complete separation of UI rendering, event handling, business logic, and data storage. InputHandler processes all input through EventManager to appropriate engines. ScreenManager handles lifecycle with enter hooks for automatic clickable registration.
+### Solution: Professional Tabbed Overlay System
+**3-Phase Refactoring Roadmap:**
 
-**Completed Screens:** Stats (with class awareness), Gender, Name workflow (3 screens), Portrait selection, Gold, and Trinket screens fully modernized using event-driven architecture
-Latest Achievement: Advanced educational low stats warning system with class-specific personality elements. Stats screen now displays class information dynamically from JSON data with primary ability highlighting to guide player decisions.
-Architectural Patterns Established
+**Phase 1: Tabbed Overlay Foundation (Sessions 1-5)**
+- Create `BaseTabbedOverlay` class with keyboard navigation
+- Convert Help (1 tab), Character (2 tabs), Quest (2 tabs), Inventory (4 tabs)
+- **Target:** 75% reduction in overlay registration methods
 
-**Class-Aware Character Creation:** JSON-driven character class system supporting future expansion
-**Educational UX Design:** Warning systems that teach game mechanics while respecting player choice
-Dynamic Content Management: Class-specific comments and data loaded from JSON for easy content updates
-Multi-State Screen Flow: Complex confirmation workflows with conditional clickable registration
-Professional Event Architecture: Sophisticated state management for educational feedback systems
-🔄 NEXT SESSION PRIORITIES
-GameController Diet Completion - Continue extracting business logic to appropriate engines
-Component Testing - Add unit tests for event-driven character creation components
+**Phase 2: Modal Dialog System (Sessions 6-7)**  
+- Standardize confirmation and file dialogs
+- Separate modal behavior from content overlays
+- **Target:** Consistent dialog patterns across system
 
-**Latest Achievement:** Summary Screen Modernization Complete - Final character creation screen now displays JSON-calculated HP, character portrait, and complete character data with event-driven START GAME navigation. Character creation modernization project complete with all screens using professional semantic action architecture.
+**Phase 3: Location Screen System (Sessions 8-10)**
+- Create `BaseLocation` class for tavern-style interactions
+- Data-driven location configuration
+- **Target:** Template system for rapid location creation
 
-**Completed Screens:** Stats (with class awareness), Gender, Name workflow (3 screens), Portrait selection, Gold, Trinket, and Summary screens fully modernized using event-driven architecture
+### Expected Outcomes
+- **Code Reduction:** ScreenManager 1000+ lines → ~300-400 lines (60-70% reduction)
+- **Maintainability:** Adding overlays becomes configuration, not coding
+- **Consistency:** All overlays follow identical interaction patterns
+- **Scalability:** Framework ready for rapid content expansion
 
-Sep 7 Session Achievement: Save Game Overlay Modernization Complete
-Architecture Status: Professional event-driven overlay system established
-Technical Accomplishments
-Save System Modernization: Complete migration from legacy click handling to event-driven architecture following load game template. All save overlay operations now use semantic events (SAVE_SLOT_SELECTED, SAVE_GAME_CONFIRM, SAVE_SCREEN_CANCEL) with proper business logic separation.
-Input System Standardization: Fixed hotkey mappings to restore original design (F5=quick save, F7=save menu, F10=load menu). Save overlay properly integrated with universal input system and overlay lifecycle management.
-UI Architecture Consistency: Save overlay now matches load overlay patterns exactly - ScreenManager handles lifecycle, InputHandler routes clicks, SaveManager processes business logic. Fixed-position button registration ensures reliable click handling.
-Current System Status
-Completed Overlays: Load game (F10) and save game (F7) fully modernized with event-driven architecture
-Remaining Modernization: Inventory (I), quest log (Q), character sheet (C), help (H) overlays using established template
-Next Priority: Button issues in broken_blade_main screen requiring investigation and modernization
+## 9) Success Metrics & Current Status
 
-## 🔄 ARCHITECTURAL ACHIEVEMENTS
-Character Creation Screen Modernization: Stats, Gender, and complete Name workflow using event-driven architecture
-Input Processing Unification: Single responsibility pathway through InputHandler for all user input
-Event-Driven Component Communication: EventManager hub coordination with semantic action routing
-JSON Content Management: Data separation enabling non-programmer content updates
-Professional UX Patterns: Consistent state management and navigation flow
+### Technical Excellence (Achieved)
+- ✅ **Modular Architecture:** Clean separation across 15+ modules
+- ✅ **Event-Driven Design:** Professional EventManager coordination
+- ✅ **Code Quality:** Industry-standard patterns and error handling
+- ✅ **Performance:** Consistent 60 FPS with efficient rendering
+- ✅ **Beginner-Friendly:** Clear structure for learning and modification
 
-## 📋 NEXT PRIORITIES
-Portrait Selection Screen Modernization - Apply proven semantic action pattern to character portrait selection
-Remaining Character Creation Screens - Gold, Trinket, Summary screens using established pattern
-Complete GameController Diet - Continue removing business logic to achieve thin coordinator pattern
-Component Testing - Add unit tests for event-driven character creation components
-Content Expansion - Additional name options and portrait assets using JSON-driven approach
+### Framework Maturity (In Progress)
+- ✅ **Data-Driven Content:** JSON-based NPCs, dialogue, and character classes
+- ✅ **Professional Save System:** Complete state persistence with metadata
+- ✅ **Semantic Input:** Universal action system for all user interactions
+- 🎯 **Overlay Standardization:** Target of current refactoring phase
+- 📋 **Location Templates:** Planned for Phase 3
 
-## Pattern Established for Character Creation Screens:
-ScreenManager registers clickables using enter hooks with exact coordinates from draw functions
-InputHandler converts all input (mouse/keyboard) to semantic events with consistent data format
-CharacterEngine handles business logic and navigation through EventManager
-GameState serves as single data authority
-JSON files enable content updates without code modifications
-
-### 🚧 **IN PROGRESS**
-- **GameController Refactoring:** Continue extracting remaining business logic to appropriate engines
-
-### 📋 **NEXT PRIORITIES**
-1. **Complete Character Creation Modernization** - Apply semantic action pattern to remaining screens
-2. **Professional Debug Tools** - Implement F2 GameState inspection system
-3. **Screen Self-Registration** - Continue eliminating hardcoded screen logic
-4. **Component Testing** - Add unit tests for ScreenManager and event-driven components
-
-### 🗽 **ARCHITECTURAL ACHIEVEMENTS**
-- **Professional Standards:** Event-driven architecture with clear component boundaries
-- **Separation of Concerns:** UI, business logic, and coordination properly separated
-- **Extensible Patterns:** Enter hooks and semantic actions established for consistent screen handling
-- **Clean Architecture:** Components self-organize through events rather than direct coupling
-
-## 13) Development Workflow
-
-### **Adding New Patron NPCs (Current Process)**
-1. Create `data/dialogues/tavern_[npc_name].json` file
-2. Add NPC to patron selection button list
-3. Register with `register_npc_dialogue_screen()`
-
-**No Code Changes Needed For:**
-- Basic dialogue functionality
-- Standard action types (quest_update, recruit_npc, dialogue_branch, exit)
-- Navigation and screen management
-- Error handling and validation
-
-### **Character Creation Screen Modernization (Established Pattern)**
-1. Add event handlers to CharacterEngine `register_character_creation_events()`
-2. Add clickable registration method to ScreenManager
-3. Update screen registration to use enter hooks
-4. Test semantic action flow
-
-### **Supported Dialogue Actions**
-- **exit:** Return to previous screen
-- **dialogue_branch:** Change conversation state for complex trees
-- **quest_update:** Set quest flags in game state
-- **recruit_npc:** Add NPCs to party with validation
-
-### **Requirements System**
-- Conditional dialogue options based on game state flags
-- Support for boolean flag requirements (true/false)
-- Clean integration with existing quest and progress systems
-- Extensible for future requirement types
+### Development Velocity (Target)
+- 🎯 **New NPCs:** JSON file creation only (no code changes)
+- 🎯 **New Locations:** Configuration-based setup
+- 🎯 **New Overlays:** Base class extension with minimal custom code
+- 🎯 **Content Expansion:** Framework supports rapid iteration
 
 ---
 
-*Last Updated: September 5, 2025*  
-*Status: Character Creation Modernization Phase - Professional Event-Driven Architecture*  
-*Next Session Focus: Portrait/name screen modernization and continued GameController cleanup*
+*This document reflects the current state as of September 2025, with active development focused on completing the screen architecture refactoring initiative. The project has successfully transitioned from prototype to professional framework status, with robust foundations ready for content expansion.*

@@ -2,6 +2,7 @@
 import json
 import os
 from datetime import datetime
+from utils.constants import SAVE_LOAD_RESTRICTED_SCREENS
 
 class SaveManager:
     """
@@ -391,36 +392,13 @@ class SaveManager:
         Determine if save/load operations are allowed on current screen
         Returns False for transient/temporary screens where saving would cause issues
         """
-        # UNIFIED: Use same screen names as hotkey blocking system
-        restricted_screens = {
-        'game_title',           # Title screen 
-        'developer_splash',     # Company splash screen
-        'main_menu',            # Main menu
-        
-        # Character Creation Screens  
-        'stats', 
-        'gender', 
-        'name', 
-        'portrait_selection',
-        'custom_name',
-        'name_confirm', 
-        'gold', 
-        'trinket', 
-        'summary', 
-        'welcome',
-        
-        # Gambling screens (from original logic)
-        'dice_bets',        # Dice betting screen
-        'dice_rolling',     # Dice rolling animation
-        'dice_results',     # Dice results display
-        'dice_rules',       # Dice rules explanation
-        
-        # Shopping screens (from original logic)
-        'merchant_shop'     # Shop
-        }
+        """Check if current screen allows save/load operations"""
+        if self.game_state.screen in SAVE_LOAD_RESTRICTED_SCREENS:
+            print(f"🚫 Save/Load disabled on screen: {self.game_state.screen}")
+            return False
 
         # Check if the current screen is in the disabled list
-        is_disabled_screen = self.game_state.screen in restricted_screens
+        is_disabled_screen = self.game_state.screen in SAVE_LOAD_RESTRICTED_SCREENS
         
         # Update the flag
         self.universal_keys_enabled = not is_disabled_screen
@@ -434,7 +412,7 @@ class SaveManager:
         print(f"🔧 DEBUG: universal_keys_enabled = {self.universal_keys_enabled}")
 
         # Check if current screen is restricted
-        if self.game_state.screen in restricted_screens:
+        if self.game_state.screen in SAVE_LOAD_RESTRICTED_SCREENS:
             print(f"🚫 Save/Load disabled on screen: {self.game_state.screen}")
             return False
         
