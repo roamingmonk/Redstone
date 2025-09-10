@@ -1,0 +1,54 @@
+{
+  "patron_selection": {
+    "location_id": "patron_selection",
+    "name": "Tavern Patrons",
+    "type": "npc_selection",
+    "areas": {
+      "main_area": {
+        "type": "npc_selection",
+        "title": "TAVERN PATRONS",
+        "description": {
+          "prompt": "Choose someone to approach:",
+          "intro": "You scan the tavern and notice several interesting patrons..."
+        },
+       "npcs": [
+        {
+            "id": "gareth",
+            "name": "Warrior",
+            "dialogue_file": "tavern_gareth"
+        },
+        {
+            "id": "elara", 
+            "name": "Mage",
+            "dialogue_file": "tavern_elara"
+        },
+        {
+            "id": "thorman",
+            "name": "Dwarf",
+            "dialogue_file": "tavern_thorman"
+        },
+        {
+            "id": "lyra",
+            "name": "Rogue",
+            "dialogue_file": "tavern_lyra"
+        },
+        {
+            "id": "pete",
+            "name": "Pete",
+            "dialogue_file": "tavern_pete"
+        },
+        {
+            "id": "mayor",
+            "name": "Mayor",
+            "dialogue_file": "tavern_mayor"
+        }
+        ],
+        "parent": "broken_blade_main",
+        "properties": {
+          "background_color": [40, 20, 10],
+          "lighting": "warm"
+        }
+      }
+    }
+  }
+}

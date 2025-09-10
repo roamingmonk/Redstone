@@ -685,8 +685,93 @@ Implement complete event-driven inventory action system with proper architectura
 - ✅ Item consumption properly decreases quantities and clears selection
 - ✅ ESC key closes overlays consistently across inventory and character sheet
 - ✅ Event listeners properly registered (console shows "Listeners: 1" instead of "Listeners: 0")
+# ADR-045: BaseLocation Architecture Foundation - Session 8 Planning Complete
+# Status: Accepted
+# Date: Sep 10, 2025
+**Context:** Game requires standardized location system to replace individual location screens with unified, JSON-driven architecture. Current approach requires code changes for each new location (inn, general store, hill ruins, refugee camp). Screen manager refactoring roadmap identified Session 8 as foundation for location standardization before continuing with modal dialog sessions 6-7.
+Decision: Implement comprehensive BaseLocation architecture with hierarchical class system and unified JSON configuration schema. Replace individual location screens with data-driven system enabling pure JSON workflow for content creation.
+**Architecture Design:**
+BaseLocation Hierarchy: ActionHubLocation, NPCSelectionLocation, DialogueLocation, ShoppingLocation, CombatLocation
+Unified JSON Schema: Single configuration file per location with nested areas support
+Multi-Area Locations: Complex locations like Hill Ruins support entrance → ground_level → dungeon_level1 transitions
+Action Routing System: Navigate, dialogue, shopping, combat, quest_board, loot_check action types
+Shopping Integration: Convert shopping.py to ShoppingLocation inheriting BaseTabbedOverlay for consistency
 
+**Implementation Phases:**
+Session 8A: DialogueEngine ScreenManager integration fixes, patron_selection clickable registration
+Session 8B: Core BaseLocation infrastructure, JSON schema implementation, area navigation system
+Session 8C: Shopping standardization, Broken Blade tavern conversion, complete integration testing
+**JSON Configuration Examples:**
+Simple Location: General Store with shop/talk/notice_board/leave actions
+Complex Location: Hill Ruins with entrance/ground_level/dungeon areas and combat integration
+Action Types: Navigate between areas, trigger dialogues, initiate shopping, start combat encounters
+**Integration Strategy:**
+Backward Compatibility: All existing dialogue, shopping, NPC systems preserved exactly
+ScreenManager Integration: BaseLocation instances replace individual screen registration
+DialogueEngine Integration: No changes required to existing dialogue JSON files
+Shopping Modernization: Inherit BaseTabbedOverlay for Buy/Sell/Info tabs, maintain identical functionality
+**Content Creation Workflow:**
+New Simple Location: Create JSON configuration file only, zero code changes
+New Complex Location: Design area flow, create comprehensive JSON with transitions and encounters
+Quest Integration: Dialogue choices trigger combat, location unlocking through action definitions
+**Technical Benefits:**
+Content Velocity: New locations become pure configuration tasks
+Consistency: All locations follow identical interaction patterns
+Scalability: Multi-area locations supported with area.location navigation
+Maintainability: Centralized location logic with data-driven configuration
+Extensibility: Framework ready for combat, quests, world map expansion
 
+**Migration Strategy:**
+Phase 1: Core infrastructure and JSON schema
+Phase 2: Broken Blade conversion as proof of concept
+Phase 3: Gradual migration of remaining locations
+Phase 4: Pure BaseLocation workflow for new content
+
+**Success Criteria:**
+Zero code changes required for new simple locations
+JSON-only workflow for complex multi-area locations
+Complete backward compatibility with existing tavern functionality
+Performance maintained at 60 FPS during location transitions
+Professional architecture ready for rapid content expansion
+
+Next Phase: Session 8A implementation - DialogueEngine modernization and ScreenManager integration fixes
+Strategic Impact: This architecture foundation enables rapid story expansion and establishes professional location system ready for Terror in Redstone's complete storyline implementation through pure JSON configuration.
+
+# ADR-046: BaseLocation Architecture Core Implementation Complete
+**Status:** Accepted  
+**Date:** Sep 10, 2025  
+**Context:** Session 8B implementation of BaseLocation architecture to replace hardcoded screen logic with JSON-driven configuration system, enabling rapid location development without code changes.
+
+## Decision
+Implemented complete BaseLocation architecture with ActionHubLocation and NPCSelectionLocation classes, JSON configuration system, and event-driven action processing through LOCATION_ACTION events.
+
+## Implementation
+**Core Architecture:** Created BaseLocation abstract base class with ActionHubLocation and NPCSelectionLocation subclasses supporting flexible button creation and area navigation
+**JSON Configuration:** Implemented location_loader.py with LocationManager for caching and validating location data from broken_blade.json
+**Event Integration:** LOCATION_ACTION events route through InputHandler → EventManager → ScreenManager with thin coordination layer translating JSON actions to semantic events
+**ScreenManager Integration:** Added _register_base_location_screen method with proper controller resolution for BaseLocation rendering
+**Button System:** Dynamic button creation with flexible widths, centered positioning, and automatic LOCATION_ACTION event registration
+
+## Technical Resolution
+**Controller Resolution Fix:** Resolved black screen issue by accessing controller through ScreenManager._current_game_controller when not passed as parameter
+**Mixed Deployment Support:** BaseLocation system coexists with legacy screens during architectural transition
+**JSON-Driven Actions:** Complete action type support (navigate, dialogue, shopping) with extensible framework for combat, quest_board, loot_check
+
+## Consequences
+**Positive:** New locations can be added with JSON-only configuration, maintaining architectural consistency and enabling rapid content expansion
+**Architecture Validated:** Thin coordination layer successfully translates JSON to events while preserving existing system integration
+**Foundation Complete:** Core BaseLocation system ready for Session 8C shopping conversion and additional location types
+
+## Files Modified
+- ui/base_location.py (created complete architecture)
+- ui/screen_manager.py (added BaseLocation registration)
+- input_handler.py (added LOCATION_ACTION processing)
+- data/locations/broken_blade.json (functional configuration)
+- utils/location_loader.py (JSON loading and validation)
+
+## Status
+**Core Implementation:** ✅ Complete and functional
+**Next Phase:** Session 8C - Shopping system conversion to ShoppingLocation
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

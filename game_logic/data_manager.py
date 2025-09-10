@@ -15,7 +15,7 @@ from datetime import datetime
 # Import core data managers that do not depend on the game engines
 from game_logic.item_manager import ItemLoader
 from game_logic.npc_manager import NPCManager
-from game_logic.location_manager import LocationManager
+from utils.location_loader import LocationManager
 from game_logic.character_engine import initialize_character_engine
 from game_logic.inventory_engine import initialize_inventory_engine
 from game_logic.commerce_engine import initialize_commerce_engine

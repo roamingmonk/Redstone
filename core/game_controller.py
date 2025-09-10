@@ -248,10 +248,13 @@ class GameController:
         self.event_manager.register("SCREEN_CHANGE", self.screen_manager._handle_screen_change_event)
         self.event_manager.register("SCREEN_ADVANCE", self.screen_manager._handle_screen_advance_event)
         
-        # Register input event handlers
-        
+        # Register input event handlers        
         self.event_manager.register("SCREEN_ADVANCE", self.handle_screen_advance)
-        
+       
+        # Register BaseLocation event handling
+        if hasattr(self.screen_manager, 'register_location_action_handler'):
+            self.screen_manager.register_location_action_handler(self.event_manager)
+
         # Set up ScreenManager screen registry
         self.screen_manager.register_all_screen_renders()
 

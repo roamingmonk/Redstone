@@ -149,7 +149,25 @@ class InputHandler:
         
         #if self.debug_input:
         #    print(f"🎯 IH: Registered clickable: {screen_name} -> {event_type}")
-    
+
+    def _handle_location_action_events(self, mouse_pos, current_screen):
+        """Handle LOCATION_ACTION events from BaseLocation screens"""
+        
+        # Check clickable regions for LOCATION_ACTION events
+        if current_screen in self.clickable_regions:
+            regions = self.clickable_regions[current_screen]
+            
+            for region in regions:
+                if region.rect.collidepoint(mouse_pos) and region.event_type == "LOCATION_ACTION":
+                    if self.debug_input:
+                        print(f"🎯 BaseLocation action clicked: {region.event_data}")
+                    
+                    # Emit the LOCATION_ACTION event
+                    self.event_manager.emit("LOCATION_ACTION", region.event_data)
+                    return True
+        
+        return False
+
     def clear_clickables(self, screen_name: str) -> None:
         """Clear all clickable regions for a screen"""
         if screen_name in self.clickable_regions:
@@ -188,6 +206,9 @@ class InputHandler:
         if self.debug_input:
             print(f"🖱️  Mouse click at {mouse_pos} on screen '{current_screen}'")
         
+        if self._handle_location_action_events(mouse_pos, current_screen):
+            return True
+
         # Check clickable regions for current screen
         if current_screen in self.clickable_regions:
             regions = self.clickable_regions[current_screen]

@@ -74,6 +74,53 @@ class ScreenManager:
             
             print("📺 ScreenManager subscribed to navigation events")
 
+    def register_location_action_handler(self, event_manager):
+        """Register LOCATION_ACTION event handler with EventManager"""
+        
+        def handle_location_action(event_data):
+            """Process LOCATION_ACTION events from BaseLocation"""
+            
+            action = event_data.get('action')
+            location_id = event_data.get('location_id') 
+            area_id = event_data.get('area_id')
+            action_data_from_json = event_data.get('action_data', {})
+            
+            print(f"🗺️ Processing location action: {action} at {location_id}.{area_id}")
+            
+            # Get the BaseLocation instance
+            if hasattr(self, '_current_game_controller'):
+                game_controller = self._current_game_controller
+                
+                if hasattr(game_controller, 'data_manager'):
+                    location_manager = game_controller.data_manager.location_manager
+                    location_instance = location_manager.get_location_instance(location_id)
+                    
+                    if location_instance:
+                        # Let BaseLocation handle the action (thin coordination)
+                        result = location_instance.handle_action(
+                            action_data_from_json if action_data_from_json else {'action_name': action}, 
+                            game_controller.game_state, 
+                            self.event_manager
+                        )
+                        
+                        if result:
+                            print(f"✅ Action {action} processed successfully")
+                        else:
+                            print(f"⚠️ Action {action} processing failed")
+                            
+                    else:
+                        print(f"❌ Location instance not found: {location_id}")
+                else:
+                    print(f"❌ DataManager not available")
+            else:
+                print(f"❌ GameController not available")
+        
+        # Register the handler using your EventManager's register method
+        event_manager.register("LOCATION_ACTION", handle_location_action)
+        print("🎯 Registered LOCATION_ACTION event handler")
+
+
+
     def _handle_full_screen_registration(self, event_data):
         """Handle dynamic full-screen clickable registration"""
         screen = event_data.get("screen")
@@ -568,38 +615,38 @@ class ScreenManager:
             
             print("⚠️ Low stats confirmation clickables registered")
 
-    def register_broken_blade_main_clickables(self):
-        """Register clickable areas for broken blade main screen using established pattern"""
-        if hasattr(self, 'input_handler') and self.input_handler:
+    # def register_broken_blade_main_clickables(self):
+    #     """Register clickable areas for broken blade main screen using established pattern"""
+    #     if hasattr(self, 'input_handler') and self.input_handler:
            
-            from screens.broken_blade import draw_broken_blade_main_screen
+    #         from screens.broken_blade import draw_broken_blade_main_screen
         
-            # Clear existing clickables for this screen
-            self.input_handler.clear_clickables('broken_blade_main')
+    #         # Clear existing clickables for this screen
+    #         self.input_handler.clear_clickables('broken_blade_main')
             
-            # Create temporary surface to get button positions from draw function
-            temp_surface = pygame.Surface((1024, 768))
-            bartender_btn, server_btn, patrons_btn, gamble_btn, leave_btn = draw_broken_blade_main_screen(
-                temp_surface, self._current_game_controller.game_state, 
-                self._current_game_controller.fonts, self._current_game_controller.images, 
-                controller=self._current_game_controller
-            )
+    #         # Create temporary surface to get button positions from draw function
+    #         temp_surface = pygame.Surface((1024, 768))
+    #         bartender_btn, server_btn, patrons_btn, gamble_btn, leave_btn = draw_broken_blade_main_screen(
+    #             temp_surface, self._current_game_controller.game_state, 
+    #             self._current_game_controller.fonts, self._current_game_controller.images, 
+    #             controller=self._current_game_controller
+    #         )
             
-            # Register each button using the events that screen_handlers.py expects
-            self.input_handler.register_clickable('broken_blade_main', bartender_btn, 'NPC_CLICKED', 
-                                                {'npc_id': 'garrick', 'location': 'broken_blade_tavern'})
-            self.input_handler.register_clickable('broken_blade_main', server_btn, 'NPC_CLICKED',
-                                                {'npc_id': 'meredith', 'location': 'broken_blade_tavern'})
-            self.input_handler.register_clickable('broken_blade_main', patrons_btn, 'SCREEN_CHANGE',
-                                                {'target_screen': 'patron_selection', 'source_screen': 'broken_blade_main'})
-            self.input_handler.register_clickable('broken_blade_main', gamble_btn, 'SCREEN_CHANGE',
-                                                {'target_screen': 'dice_bets', 'source_screen': 'broken_blade_main'})
-            self.input_handler.register_clickable('broken_blade_main', leave_btn, 'SCREEN_CHANGE',
-                                                {'target_screen': 'town_square', 'source_screen': 'broken_blade_main'})
+    #         # Register each button using the events that screen_handlers.py expects
+    #         self.input_handler.register_clickable('broken_blade_main', bartender_btn, 'NPC_CLICKED', 
+    #                                             {'npc_id': 'garrick', 'location': 'broken_blade_tavern'})
+    #         self.input_handler.register_clickable('broken_blade_main', server_btn, 'NPC_CLICKED',
+    #                                             {'npc_id': 'meredith', 'location': 'broken_blade_tavern'})
+    #         self.input_handler.register_clickable('broken_blade_main', patrons_btn, 'SCREEN_CHANGE',
+    #                                             {'target_screen': 'patron_selection', 'source_screen': 'broken_blade_main'})
+    #         self.input_handler.register_clickable('broken_blade_main', gamble_btn, 'SCREEN_CHANGE',
+    #                                             {'target_screen': 'dice_bets', 'source_screen': 'broken_blade_main'})
+    #         self.input_handler.register_clickable('broken_blade_main', leave_btn, 'SCREEN_CHANGE',
+    #                                             {'target_screen': 'town_square', 'source_screen': 'broken_blade_main'})
             
-            print("✅ Broken Blade main screen clickables registered")
-        else:
-            print("⚠️ No InputHandler available for broken blade registration")
+    #         print("✅ Broken Blade main screen clickables registered")
+    #     else:
+    #         print("⚠️ No InputHandler available for broken blade registration")
 
     def register_inventory_screen_clickables(self):
         """Register clickable areas for inventory screen"""
@@ -686,9 +733,9 @@ class ScreenManager:
             from screens.intro_scenes import (
                 draw_intro_scene_1, draw_intro_scene_2, draw_intro_scene_3
             )
-            from screens.broken_blade import draw_broken_blade_main_screen
-            from screens.patron_selection import draw_patron_selection_screen  
-            from screens.shopping import draw_merchant_screen
+            #from screens.broken_blade import draw_broken_blade_main_screen
+            #from screens.patron_selection import draw_patron_selection_screen  
+            #from screens.shopping import draw_merchant_screen
             from screens.inventory_overlay import draw_inventory_screen
             from screens.quest_overlay import draw_quest_overlay
             from screens.character_overlay import draw_character_sheet_screen
@@ -731,11 +778,9 @@ class ScreenManager:
             self.register_render_function("intro_scene_3", draw_intro_scene_3,
                 enter_hook=lambda _: self.register_intro_scene_clickables("intro_scene_3"))
 
-            #Broken Blade Tavern
-            self.register_render_function("broken_blade_main", draw_broken_blade_main_screen,
-                enter_hook=lambda _: self.register_broken_blade_main_clickables())
-            #TODO
-            self.register_render_function("patron_selection", draw_patron_selection_screen)
+           # Broken Blade Tavern - BaseLocation System
+            self._register_base_location_screen("broken_blade_main", "broken_blade", "main_room")
+            self._register_base_location_screen("patron_selection", "patron_selection", "main_area")
 
             # Utility screens
             self.register_render_function("inventory", draw_inventory_screen,
@@ -811,6 +856,45 @@ class ScreenManager:
         print(f"🔄 Screen transition: {old_screen} → {screen_name}")
         return True
     
+
+    def _register_base_location_screen(self, screen_name: str, location_id: str, area_id: str):
+        """Register a BaseLocation screen with proper event integration"""
+        
+        def location_render_function(surface, game_state, fonts, images, controller=None):
+            """BaseLocation rendering function"""
+            # Get controller from ScreenManager since it's not passed as parameter
+            if not controller:
+                controller = getattr(self, '_current_game_controller', None)
+                                    
+            if controller and hasattr(controller, 'data_manager'):
+                location_manager = controller.data_manager.location_manager
+                location_instance = location_manager.get_location_instance(location_id)
+                
+                if location_instance:
+                    location_instance.navigate_to_area(area_id)
+                    return location_instance.render(surface, game_state, fonts, images, controller)
+            
+            print(f"❌ FALLBACK: Using black screen because controller check failed")
+            # Fallback
+            surface.fill((0, 0, 0))
+            return {}
+                
+        def location_enter_hook(game_state):
+            """Register BaseLocation buttons when entering screen"""
+            if hasattr(self, '_current_game_controller'):
+                controller = self._current_game_controller
+                if controller and hasattr(controller, 'data_manager'):
+                    location_manager = controller.data_manager.location_manager
+                    location_instance = location_manager.get_location_instance(location_id)
+                    
+                    if location_instance:
+                        location_instance.navigate_to_area(area_id)
+                        location_instance.register_with_input_handler(self, screen_name)
+        
+        # Register with ScreenManager
+        self.register_render_function(screen_name, location_render_function, enter_hook=location_enter_hook)
+        print(f"🗺️ BaseLocation screen registered: {screen_name} -> {location_id}.{area_id}")
+
     def render_current_screen(self, game_state) -> bool:
         """
         NEW: Render the current screen

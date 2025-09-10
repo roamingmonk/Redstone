@@ -1,0 +1,51 @@
+{
+  "broken_blade": {
+    "location_id": "broken_blade",
+    "name": "The Broken Blade Tavern",
+    "type": "action_hub",
+    "areas": {
+      "main_room": {
+        "type": "action_hub",
+        "title": "THE BROKEN BLADE TAVERN",
+        "description": {
+          "subtitle": "Choose your path, adventurer...",
+          "atmosphere": "The tavern bustles with activity. Adventurers gather around tables, sharing tales and seeking companions for dangerous quests.",
+          "ambient_details": "Smoke drifts from pipes, ale flows freely, and the fire crackles warmly in the hearth."
+        },
+        "actions": {
+            "talk_patrons": {
+                "type": "navigate",
+                "target": "patron_selection",
+                "label": "talk patrons"
+            },
+            "gamble": {
+                "type": "navigate", 
+                "target": "dice_bets",
+                "label": "gamble"
+            },
+            "bartender": {
+                "type": "dialogue",
+                "npc_id": "garrick",
+                "label": "bartender"
+            },
+            "server": {
+                "type": "dialogue",
+                "npc_id": "meredith",
+                "label": "server"
+            },
+            "leave": {
+                "type": "navigate",
+                "target": "redstone_town",
+                "label": "leave"
+            }
+            },
+        "properties": {
+        "background_image": "tavern_interior",
+        "background_color": [40, 20, 10],
+        "lighting": "warm", 
+        "safety": "safe"
+        }
+      }
+    }
+  }
+}
