@@ -88,6 +88,7 @@ class GameController:
         self.inventory_engine = None
         self.commerce_engine = None
         self.dialogue_engine = None
+        self.quest_engine = None
         self.intro_sequence_manager = None
         
         # Navigation state
@@ -192,7 +193,7 @@ class GameController:
         self._validate_dependency("data_manager", self.data_manager)
         
         self.character_engine = initialize_character_engine(self.game_state, self.event_manager)
-        self.inventory_engine = initialize_inventory_engine(self.game_state, self.data_manager.item_manager)
+        self.inventory_engine = initialize_inventory_engine(self.game_state, self.data_manager.item_manager, self.event_manager)
         self.commerce_engine = initialize_commerce_engine(self.game_state, self.data_manager.item_manager)
         self.dialogue_engine = initialize_dialogue_engine(self.game_state)
         self.quest_engine = initialize_quest_engine(self.game_state, self.event_manager)
@@ -210,7 +211,8 @@ class GameController:
         self.save_manager = SaveManager(
             game_state=self.game_state,
             character_engine=self.character_engine,
-            event_manager=self.event_manager
+            event_manager=self.event_manager,
+            quest_engine=self.quest_engine
         )
         self._mark_system_created("save_manager")
         
@@ -290,6 +292,7 @@ class GameController:
         validation_results["inventory_engine"] = self.inventory_engine is not None
         validation_results["commerce_engine"] = self.commerce_engine is not None
         validation_results["dialogue_engine"] = self.dialogue_engine is not None
+        validation_results["quest_engine"] = self.quest_engine is not None
         
         # Integration validation
         validation_results["input_screen_connection"] = (
@@ -338,12 +341,11 @@ class GameController:
                     "character": self.character_engine is not None,
                     "inventory": self.inventory_engine is not None,
                     "commerce": self.commerce_engine is not None,
+                    "quest_engine": self.quest_engine is not None,
                     "dialogue": self.dialogue_engine is not None
                 }
             }
         }
-    
-
     
     def handle_screen_advance(self, event_data):
         """Handle screen advance events from InputHandler"""
@@ -374,8 +376,7 @@ class GameController:
             print(f"Screen registered via ScreenManager: {screen_name}")
         else:
             print(f"Warning: Cannot register screen {screen_name} - ScreenManager not available")
-
-    
+ 
     def run_current_screen(self):
         """
         CLEAN VERSION - Delegates to ScreenManager instead of massive if/elif chain

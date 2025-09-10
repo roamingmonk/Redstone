@@ -69,33 +69,43 @@ Terror in Redstone/
 │   ├── event_manager.py       # Professional event hub
 │   ├── input_handler.py       # Semantic action system
 │   └── save_manager.py        # Complete save/load business logic
+├── game_logic/                # Professional engine architecture
+│   ├── quest_engine.py        # ✅ NEW: Event-driven quest management with XP integration
+│   ├── character_engine.py    # ✅ ENHANCED: Party XP tracking and quest event handling
+│   ├── inventory_engine.py    # Pure business logic for item management
+│   ├── commerce_engine.py     # Shopping and merchant logic
+│   ├── dialogue_engine.py     # JSON-driven conversation system
+│   └── data_manager.py        # Centralized data loading coordination
 ├── screens/                   # Event-driven screen modules
 │   ├── character_creation.py  # Fully modernized with semantic actions
 │   ├── title_menu.py         # Professional title and menu system
 │   ├── tavern.py             # Complete tavern with NPC recruitment
-│   ├── inventory.py          # Professional overlay (target for refactoring)
-│   ├── quest_log.py          # Quest tracking overlay (target for refactoring)
-│   ├── character_sheet.py    # Character display overlay (target for refactoring)
-│   ├── help_screen.py        # Help system overlay (target for refactoring)
+│   ├── quest_overlay.py      # ✅ NEW: Professional 2-tab quest interface
+│   ├── inventory.py          # Professional overlay (refactoring target)
+│   ├── quest_log.py          # Legacy quest display (being replaced)
+│   ├── character_sheet.py    # Character display overlay (refactoring target)
+│   ├── help_screen.py        # Help system overlay (refactoring target)
 │   ├── save_game.py          # Modernized save overlay
 │   ├── load_game.py          # Modernized load overlay
 │   └── shopping.py           # Professional merchant system
 ├── ui/
-│   ├── screen_manager.py     # Screen lifecycle and overlay management (target for refactoring)
+│   ├── screen_manager.py     # Screen lifecycle and overlay management (refactoring target)
+│   ├── tabbed_overlay_utils.py # ✅ Professional overlay base classes
 │   ├── generic_dialogue_handler.py  # Universal NPC conversation system
 │   └── screen_handlers.py    # Click handling registration
+├── utils/
+│   ├── quest_system.py       # ✅ ENHANCED: Core quest logic with 5-quest structure
+│   ├── constants.py          # Game constants and configuration
+│   ├── graphics.py           # Reusable drawing utilities
+│   └── overlay_utils.py      # Shared overlay functionality
 ├── data/
-│   ├── dialogues/            # JSON-driven conversation trees
-│   │   ├── tavern_garrick.json
+│   ├── dialogues/            # JSON-driven conversation trees with quest triggers
+│   │   ├── tavern_garrick.json # ✅ ENHANCED: Quest triggers and rat basement unlock
 │   │   └── tavern_[patron].json
 │   ├── player/
 │   │   ├── character_names.json    # Dynamic name generation
 │   │   └── character_classes.json  # Class definitions and mechanics
 │   └── npcs/                 # NPC data definitions
-├── utils/
-│   ├── constants.py          # Game constants and configuration
-│   ├── graphics.py           # Reusable drawing utilities
-│   └── overlay_utils.py      # Shared overlay functionality
 └── assets/
     ├── fonts/                # MedievalSharp with fallback protection
     └── images/               # Standardized artwork pipeline
@@ -118,30 +128,40 @@ input_handler.register_semantic_action("START_GAME", start_button_rect)
 # Routes to
 event_manager.emit("START_GAME", {"source": "main_menu"})
 ```
+**Quest System Event Flow:**
+```python
+# Quest Completion → XP Distribution → Level Up Detection
+quest_engine.emit("QUEST_COMPLETED", {"xp_reward": 200})
+character_engine.handle_quest_completion(event_data)
+character_engine.emit("LEVEL_UP_AVAILABLE", {"characters": ["player", "gareth"]})
+```
+
 
 ### 5.5 Current Event Flow
 ```mermaid
 flowchart TD
   A[main.py] --> B[GameController]
   B --> C[EventManager]
-  C --> D[DialogueEngine]
-  C --> E[InventoryEngine] 
-  C --> F[CommerceEngine]
-  C --> G[CharacterEngine]
-  C --> H[SaveManager]
-  D & E & F & G & H --> I[GameState]
-  B --> J[ScreenManager]
-  B --> K[InputHandler]
-  J --> L[Screens/UI]
-  K --> C
-  L --> K
+  C --> D[QuestEngine]
+  C --> E[CharacterEngine] 
+  C --> F[DialogueEngine]
+  C --> G[InventoryEngine]
+  C --> H[CommerceEngine]
+  C --> I[SaveManager]
+  D & E & F & G & H & I --> J[GameState]
+  B --> K[ScreenManager]
+  B --> L[InputHandler]
+  K --> M[Screens/UI]
+  L --> C
+  M --> L
 ```
 
 ## 6) Data & Content Management
-- **Dialogue:** Comprehensive JSON system under `/data/dialogues` with deep branching and requirements
-- **NPCs:** Standardized JSON schema with `id`, `name`, `description`, `level`, recruitment status
-- **Character Classes:** JSON-driven class system with abilities, comments, and educational features
-- **Save System:** Professional file management with metadata, character portraits, and state persistence
+- **Dialogue:** Comprehensive JSON system with quest triggers, information discovery XP, and dynamic unlocks
+- **Quests:** 5-quest structure (1 primary: Terror in Redstone, 4 secondary: Party Building + 3 Locations)
+- **NPCs:** Standardized JSON schema with dialogue integration and recruitment mechanics
+- **Character Classes:** JSON-driven progression with XP tables and ability unlocks
+- **Save System:** Professional file management with quest state persistence and party XP tracking
 - **Items:** Structured item data with categories, icons, and equipment mechanics
 
 ## 7) Recent Major Achievements (Sep 2025)
@@ -151,6 +171,12 @@ flowchart TD
 - **Save/Load Systems:** Event-driven overlay management with proper business logic separation  
 - **Input System:** Professional semantic action system replacing hardcoded click handling
 - **Event Architecture:** Comprehensive EventManager hub with proper component decoupling
+
+### Quest System Integration Complete
+- **Professional Quest Engine:** Event-driven quest management with XP integration and party tracking
+- **Character Progression:** Party XP distribution, level-up detection, exponential progression (levels 1-5)
+- **Quest Structure:** Primary quest (main story) + Secondary quests (locations, party building, special unlocks)
+- **Dynamic Content:** Rat basement quest unlocks when party assembled, information discovery XP
 
 ### Code Quality Improvements
 - **GameController Reduction:** 1000+ lines → ~400 lines (60% reduction achieved)
@@ -196,6 +222,36 @@ flowchart TD
 - **Consistency:** All overlays follow identical interaction patterns
 - **Scalability:** Framework ready for rapid content expansion
 
+**Completed Integration:**
+- ✅ **QuestEngine:** Event-driven quest management with 5-quest structure
+- ✅ **Character XP System:** Party tracking, level progression, quest completion rewards
+- ✅ **Event Flow:** Quest completion → XP distribution → level-up detection → character sheet notifications
+- ✅ **Quest Overlay Creation:** Professional 2-tab interface (Active | Completed)
+
+**In Progress:**
+- 🎯 **ScreenManager Integration:** Replace legacy quest_log.py with quest_overlay.py
+- 🎯 **Hardcoded Quest Cleanup:** Remove orphaned quest functions and legacy data structures
+- 🎯 **Testing & Validation:** Ensure quest progression works through real gameplay
+
+### Remaining Overlay Refactoring Roadmap
+
+**Phase 2: Quest Overlay Completion (Current Session)**
+- Convert quest log to professional 2-tab overlay with real quest data
+- Eliminate legacy hardcoded quest functions
+- Test complete quest progression workflow
+
+**Phase 3: Character Sheet Enhancement (Next Session)**
+- Add level-up notifications and progression indicators
+- Implement level-up button for character advancement
+- Integrate party member progression display
+
+**Phase 4: Inventory Overlay Conversion (Future Session)**
+- Convert inventory to 4-tab overlay (Weapons | Armor | Items | Consumables)
+- Preserve all existing functionality with improved organization
+- Complete ScreenManager bloat reduction (target: 60-70% code reduction)
+
+
+
 ## 9) Success Metrics & Current Status
 
 ### Technical Excellence (Achieved)
@@ -206,6 +262,7 @@ flowchart TD
 - ✅ **Beginner-Friendly:** Clear structure for learning and modification
 
 ### Framework Maturity (In Progress)
+**Quest System Integration:** Complete event-driven quest management with character progression
 - ✅ **Data-Driven Content:** JSON-based NPCs, dialogue, and character classes
 - ✅ **Professional Save System:** Complete state persistence with metadata
 - ✅ **Semantic Input:** Universal action system for all user interactions
@@ -217,6 +274,14 @@ flowchart TD
 - 🎯 **New Locations:** Configuration-based setup
 - 🎯 **New Overlays:** Base class extension with minimal custom code
 - 🎯 **Content Expansion:** Framework supports rapid iteration
+
+### Quest System Features (Complete)
+- ✅ **5-Quest Structure:** 1 primary (Terror in Redstone) + 4 secondary quests
+- ✅ **XP Integration:** Quest completion → XP rewards → character progression
+- ✅ **Party Tracking:** Individual XP progression for all recruited party members
+- ✅ **Dynamic Unlocks:** Rat basement quest appears when party assembled
+- ✅ **Information Discovery:** XP rewards for learning locations and secrets from NPCs
+- ✅ **Event-Driven:** Complete integration with dialogue, recruitment, and progression systems
 
 ---
 

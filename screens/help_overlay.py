@@ -24,7 +24,7 @@ class HelpOverlay(BaseTabbedOverlay):
     """
     
     def __init__(self, screen_manager=None):
-        super().__init__("help", "KEYBOARD SHORTCUTS", screen_manager)
+        super().__init__("help_key", "KEYBOARD SHORTCUTS", screen_manager)
         
         # Add single tab for help content
         self.add_tab("help_main", "Help", pygame.K_h)
@@ -111,19 +111,25 @@ def get_help_overlay():
 def draw_help_screen(surface, game_state, fonts, images=None):
     """
     REPLACEMENT for old help_screen.py - EXACT SAME FUNCTION SIGNATURE
-    
-    This maintains compatibility with your existing ScreenManager while
-    internally using the new BaseTabbedOverlay system.
-    
-    NO CHANGES needed to your ScreenManager integration!
     """
-
-    #print("🆕 NEW TABBED HELP OVERLAY RUNNING!")
     
     overlay = get_help_overlay()
-    clickable_tabs = overlay.render(surface, game_state, fonts, images)
     
-    # Return None to match original function signature
+    # Register with input handler on first render if not already registered  
+    if not getattr(overlay, '_input_registered', False):
+        try:
+            import inspect
+            frame = inspect.currentframe().f_back
+            if frame and 'self' in frame.f_locals:
+                screen_manager = frame.f_locals['self']
+                if hasattr(screen_manager, 'input_handler'):
+                    overlay.screen_manager = screen_manager
+                    overlay._register_with_input_handler()
+                    overlay._input_registered = True
+        except:
+            overlay._input_registered = True
+    
+    overlay.render(surface, game_state, fonts, images)
     return None
 
 def handle_help_screen_click(mouse_pos, result):

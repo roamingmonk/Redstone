@@ -109,3 +109,63 @@ def draw_button(surface, x, y, width, height, text, font, pressed=False, selecte
     surface.blit(text_surface, text_rect)
     
     return pygame.Rect(x, y, width, height) if enabled else None
+
+# ========================================
+# CENTRALIZED OVERLAY STATE MANAGEMENT
+# ========================================
+
+class OverlayState:
+    """
+    Centralized overlay state manager
+    
+    Enforces single overlay behavior by design and provides
+    extensible state management for overlay-specific data.
+    """
+    
+    def __init__(self):
+        self.active_overlay = None  # Only one overlay active at a time
+        self.overlay_data = {}      # Per-overlay state data (tabs, selections, etc.)
+    
+    def open_overlay(self, overlay_id):
+        """Open an overlay (closes any other overlay automatically)"""
+        self.active_overlay = overlay_id
+        
+        # Initialize overlay data if not exists
+        if overlay_id not in self.overlay_data:
+            self.overlay_data[overlay_id] = {}
+    
+    def close_overlay(self):
+        """Close the currently active overlay"""
+        self.active_overlay = None
+    
+    def close_specific_overlay(self, overlay_id):
+        """Close a specific overlay if it's active"""
+        if self.active_overlay == overlay_id:
+            self.active_overlay = None
+    
+    def is_open(self, overlay_id):
+        """Check if a specific overlay is open"""
+        return self.active_overlay == overlay_id
+    
+    def get_active_overlay(self):
+        """Get the currently active overlay ID"""
+        return self.active_overlay
+    
+    def has_any_overlay_open(self):
+        """Check if any overlay is currently open"""
+        return self.active_overlay is not None
+    
+    def get_overlay_data(self, overlay_id):
+        """Get state data for a specific overlay"""
+        return self.overlay_data.get(overlay_id, {})
+    
+    def set_overlay_data(self, overlay_id, key, value):
+        """Set state data for a specific overlay"""
+        if overlay_id not in self.overlay_data:
+            self.overlay_data[overlay_id] = {}
+        self.overlay_data[overlay_id][key] = value
+    
+    def clear_overlay_data(self, overlay_id):
+        """Clear all state data for a specific overlay"""
+        if overlay_id in self.overlay_data:
+            del self.overlay_data[overlay_id]

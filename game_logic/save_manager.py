@@ -9,10 +9,11 @@ class SaveManager:
     Handles all save/load operations for Terror in Redstone
     Extracted from GameController to follow Single Responsibility Principle
     """
-    def __init__(self, game_state, character_engine=None, event_manager=None):
+    def __init__(self, game_state, character_engine=None, event_manager=None, quest_engine=None):
         self.game_state = game_state
         self.character_engine = character_engine
         self.event_manager = event_manager
+        self.quest_engine = quest_engine
         
         # Register for save info events
         if event_manager:
@@ -35,6 +36,11 @@ class SaveManager:
         Save complete game state to JSON file
         save_slot: 1-3 for manual saves, 0 for auto-save
         """
+       # Quest system data 
+        quest_system_data = {}
+        if hasattr(self.game_state, 'quest_manager') and self.game_state.quest_manager:
+            quest_system_data = self.game_state.quest_manager.get_quest_data_for_save()
+            
         try:
             # Collect all game state data
             save_data = {
@@ -46,6 +52,9 @@ class SaveManager:
                 'character': self.game_state.character,
                 'inventory': self.game_state.inventory,
                 
+                # Quest system data (ADD THIS LINE)
+                'quest_system': quest_system_data,
+
                 # Game progression
                 'current_screen': self.game_state.screen,
                 'screen_history': [],  # Screen history not tracked by SaveManager
@@ -69,8 +78,8 @@ class SaveManager:
                 'learned_about_church': getattr(self.game_state, 'learned_about_church', False),
                 'learned_about_ruins': getattr(self.game_state, 'learned_about_ruins', False),
                 'quest_active': getattr(self.game_state, 'quest_active', False),
-                'just_got_quest': getattr(self.game_state, 'just_got_quest', False),
-                'quest_system': getattr(self.game_state, 'quest_manager', None).get_quest_data_for_save() if hasattr(self.game_state, 'quest_manager') else {},
+               'just_got_quest': getattr(self.game_state, 'just_got_quest', False),
+                'quest_system': self.game_state.quest_manager.get_quest_data_for_save() if hasattr(self.game_state, 'quest_manager') and self.game_state.quest_manager else {},
                 'showing_meredith_response':getattr(self.game_state, 'showing_meredith_response', False),
                 'showing_garrick_response':getattr(self.game_state, 'showing_garrick_response', False),
 

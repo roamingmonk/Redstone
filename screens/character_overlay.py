@@ -30,7 +30,7 @@ class CharacterOverlay(BaseTabbedOverlay):
     """
     
     def __init__(self, screen_manager=None):
-        super().__init__("character", "CHARACTER INFO", screen_manager)
+        super().__init__("character_key", "CHARACTER INFO", screen_manager)
         
         # Add two tabs following roadmap specification
         self.add_tab("player_stats", "Player", pygame.K_1)
@@ -384,9 +384,25 @@ def draw_character_sheet_screen(surface, game_state, fonts, images=None):
     """
     
     overlay = get_character_overlay()
-    clickable_tabs = overlay.render(surface, game_state, fonts, images)
     
-    # Return None to match original function signature
+    # Register with input handler on first render if not already registered
+    if not getattr(overlay, '_input_registered', False):
+        # Try to find screen_manager from the rendering context
+        try:
+            # Get screen_manager from the call - it should be available as 'self' in caller
+            import inspect
+            frame = inspect.currentframe().f_back
+            if frame and 'self' in frame.f_locals:
+                screen_manager = frame.f_locals['self']
+                if hasattr(screen_manager, 'input_handler'):
+                    overlay.screen_manager = screen_manager
+                    overlay._register_with_input_handler()
+                    overlay._input_registered = True
+        except:
+            # If registration fails, mark as attempted to avoid repeated tries
+            overlay._input_registered = True
+    
+    overlay.render(surface, game_state, fonts, images)
     return None
 
 def handle_character_sheet_click(mouse_pos, result):

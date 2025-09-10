@@ -44,10 +44,21 @@ class InventoryEngine:
         print("   📋 Data Authority: GameState")
         print("   🏪 Item Source: ItemManager")
     
+        if hasattr(game_state_ref, 'event_manager'):
+            self._register_inventory_events(game_state_ref.event_manager)
+
     # ==========================================
     # CORE INVENTORY OPERATIONS
     # ==========================================
     
+    def _register_inventory_events(self, event_manager):
+        """Self-register inventory events with EventManager"""
+        event_manager.register("INVENTORY_EQUIP_ITEM", self.handle_inventory_equip_event)
+        event_manager.register("INVENTORY_UNEQUIP_ITEM", self.handle_inventory_unequip_event)
+        event_manager.register("INVENTORY_CONSUME_ITEM", self.handle_inventory_consume_event)
+        event_manager.register("INVENTORY_DISCARD_ITEM", self.handle_inventory_discard_event)
+        print("✅ InventoryEngine self-registered for inventory action events")
+
     def add_item(self, item_id: str, quantity: int = 1, category: Optional[str] = None) -> bool:
         """
         Add item(s) to player inventory with automatic categorization
@@ -134,6 +145,58 @@ class InventoryEngine:
         except Exception as e:
             print(f"❌ Error removing item {item_name}: {e}")
             return False
+    
+    def handle_inventory_equip_event(self, event_data):
+        """Handle INVENTORY_EQUIP_ITEM event"""
+        selected_item = getattr(self.game_state, 'inventory_selected', None)
+        if selected_item:
+            # Simple category determination based on current inventory tab
+            current_tab = getattr(self.game_state, 'inventory_tab', 'weapons')
+            
+            # Map tab to category for GameState.equip_item()
+            category_map = {
+                'weapons': 'weapons',
+                'armor': 'armor',
+                'items': 'items',
+                'consumables': 'consumables'
+            }
+            category = category_map.get(current_tab, 'weapons')
+            
+            self.game_state.equip_item(selected_item, category)
+            print(f"⚔️ Successfully equipped {selected_item}")
+    
+    def handle_inventory_unequip_event(self, event_data):
+        """Handle INVENTORY_UNEQUIP_ITEM event"""
+        selected_item = getattr(self.game_state, 'inventory_selected', None)
+        if selected_item:
+            self.game_state.unequip_item(selected_item)
+            print(f"🛡️ Successfully unequipped {selected_item}")
+
+    def handle_inventory_consume_event(self, event_data):
+        """Handle INVENTORY_CONSUME_ITEM event"""
+        selected_item = getattr(self.game_state, 'inventory_selected', None)
+        if selected_item:
+            success = self.game_state.consume_item(selected_item)
+            if success:
+                print(f"🍺 Successfully consumed {selected_item}")
+                # Clear selection if no more of that item
+                current_items = self.game_state.get_items_by_category('consumables')
+                if selected_item not in current_items:
+                    self.game_state.inventory_selected = None
+            else:
+                print(f"⚠️ Could not consume {selected_item}")
+
+    def handle_inventory_discard_event(self, event_data):
+        """Handle INVENTORY_DISCARD_ITEM event"""
+        selected_item = getattr(self.game_state, 'inventory_selected', None)
+        if selected_item:
+            success = self.game_state.discard_item(selected_item)
+            if success:
+                print(f"🗑️ Successfully discarded {selected_item}")
+                # Clear selection since item is gone
+                self.game_state.inventory_selected = None
+            else:
+                print(f"⚠️ Could not discard {selected_item}")
     
     # ==========================================
     # INVENTORY QUERIES (PURE READ OPERATIONS)
@@ -259,7 +322,7 @@ def get_inventory_engine():
     """
     return inventory_engine
 
-def initialize_inventory_engine(game_state_ref, item_manager_ref):
+def initialize_inventory_engine(game_state_ref, item_manager_ref, event_manager_ref=None):
     """
     Initialize the global inventory engine with Single Data Authority pattern
     Called by DataManager during system initialization
@@ -267,9 +330,18 @@ def initialize_inventory_engine(game_state_ref, item_manager_ref):
     Args:
         game_state_ref: Reference to GameState (the data authority)
         item_manager_ref: Reference to ItemManager
+        event_manager_ref: Reference to EventManager for event registration
     """
     global inventory_engine
     inventory_engine = InventoryEngine(game_state_ref, item_manager_ref)
+    
+    # Register inventory events if EventManager is provided
+    if event_manager_ref:
+        inventory_engine._register_inventory_events(event_manager_ref)
+        print("✅ InventoryEngine events registered with EventManager")
+    else:
+        print("⚠️ InventoryEngine initialized without EventManager - events not registered")
+    
     print("🔧 Initialized InventoryEngine with Single Data Authority pattern")
     return inventory_engine
 

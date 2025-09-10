@@ -33,6 +33,7 @@ class CharacterEngine:
         self.game_state = game_state_ref
         print("🏗️ CharacterEngine initialized with Single Data Authority pattern")
     
+
     # ==========================================
     # CHARACTER CREATION OPERATIONS
     # ==========================================
@@ -44,7 +45,6 @@ class CharacterEngine:
         # Emit navigation to first character creation screen
         if self.event_manager:
             self.event_manager.emit('SCREEN_CHANGE', {'target': 'stats'})
-
 
     def roll_stats(self, reroll_ones=True):
         """

@@ -17,6 +17,19 @@ from utils.overlay_utils import *
 from utils.constants import SPACING
 from utils.constants import DARK_GRAY
 
+# ========================================
+# STANDARD OVERLAY BUTTON ACTIONS
+# ========================================
+
+OVERLAY_BUTTON_ACTIONS = {
+    'inventory': {
+        'equip': 'INVENTORY_EQUIP_ITEM',
+        'unequip': 'INVENTORY_UNEQUIP_ITEM', 
+        'consume': 'INVENTORY_CONSUME_ITEM',
+        'discard': 'INVENTORY_DISCARD_ITEM'
+    }
+    # Future overlays add their patterns here
+}
 
 class TabDefinition:
     """Defines a single tab in a tabbed overlay"""
@@ -52,6 +65,9 @@ class BaseTabbedOverlay:
         self.tabs: List[TabDefinition] = []
         self.active_tab_index = 0
         
+        # Self-register with input system if available
+        self._register_with_input_handler()
+
         # Layout constants
         self.popup_width = 800
         self.popup_height = 600
@@ -143,6 +159,29 @@ class BaseTabbedOverlay:
                 return self.switch_to_tab(tab_index)
         return False
     
+    def register_standard_buttons(self, button_rects, overlay_type):
+        """Auto-register overlay buttons with InputHandler using standard events"""
+        print(f"🔍 Registering buttons: {list(button_rects.keys())}")
+        
+        if (self.screen_manager and 
+            hasattr(self.screen_manager, 'input_handler') and 
+            overlay_type in OVERLAY_BUTTON_ACTIONS):
+            
+            actions = OVERLAY_BUTTON_ACTIONS[overlay_type]
+            print(f"🔍 Available actions: {list(actions.keys())}")
+            
+            for button_name, button_rect in button_rects.items():
+                if button_name in actions and button_rect:
+                    event_type = actions[button_name]
+                    print(f"🔘 Registering {button_name} -> {event_type}")
+                    # Register with InputHandler as clickable
+                    self.screen_manager.input_handler.register_clickable(
+                        screen_name=f"{self.overlay_id}_buttons",
+                        rect=button_rect,
+                        event_type=event_type,
+                        event_data={'button': button_name, 'overlay_type': overlay_type}
+                    )
+        
     def render(self, surface: pygame.Surface, game_state, fonts: Dict, images: Dict) -> List[Tuple[pygame.Rect, int]]:
         """
         Render the complete tabbed overlay
@@ -275,6 +314,55 @@ class BaseTabbedOverlay:
         instruction_text = " | ".join(instructions)
         draw_centered_text(surface, instruction_text, footer_font, popup_y + 20, GRAY, popup_width)
     
+    def _register_with_input_handler(self):
+        """Register this overlay with the InputHandler for automatic input routing"""
+        try:
+            if (self.screen_manager and 
+                hasattr(self.screen_manager, 'input_handler') and 
+                self.screen_manager.input_handler):
+                
+                # Generate state flag from overlay_id
+                state_flag = f"{self.overlay_id}_open" if not self.overlay_id.endswith('_open') else self.overlay_id
+                
+                # Handle special cases for naming consistency
+                if self.overlay_id == "quest":
+                    state_flag = "quest_log_open"
+                elif self.overlay_id == "character":
+                    state_flag = "character_sheet_open"
+                elif self.overlay_id == "help":
+                    state_flag = "help_screen_open"
+                
+                success = self.screen_manager.input_handler.register_overlay(self, state_flag)
+                if success:
+                    print(f"✅ Self-registered overlay: {self.overlay_id} -> {state_flag}")
+                else:
+                    print(f"⚠️ Failed to self-register overlay: {self.overlay_id}")
+                    
+        except Exception as e:
+            print(f"⚠️ Overlay self-registration error for {self.overlay_id}: {e}")
+            print("   Overlay will function but input routing may not work")
+
+    def _unregister_from_input_handler(self):
+        """Unregister this overlay from InputHandler"""
+        try:
+            if (self.screen_manager and 
+                hasattr(self.screen_manager, 'input_handler') and 
+                self.screen_manager.input_handler):
+                
+                # Use same state flag logic as registration
+                state_flag = f"{self.overlay_id}_open" if not self.overlay_id.endswith('_open') else self.overlay_id
+                if self.overlay_id == "quest":
+                    state_flag = "quest_log_open"
+                elif self.overlay_id == "character":
+                    state_flag = "character_sheet_open"
+                elif self.overlay_id == "help":
+                    state_flag = "help_screen_open"
+                    
+                self.screen_manager.input_handler.unregister_overlay(state_flag)
+                
+        except Exception as e:
+            print(f"⚠️ Overlay unregistration error for {self.overlay_id}: {e}")
+
     # ========================================
     # SUBCLASS HOOKS
     # ========================================

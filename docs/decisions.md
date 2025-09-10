@@ -591,6 +591,101 @@ Applied proven overlay modernization template using event-driven architecture:
 **Files Enhanced:** `utils/quest_system.py`, `game_logic/character_engine.py`, `core/game_controller.py`  
 **Next Phase:** Convert quest_log.py to professional 2-tab overlay using quest system data, eliminate hardcoded quest functions
 
+# ADR-044: Universal Self-Registering Overlay System
+**Date:** 2025-09-09  
+**Status:** Accepted  
+**Supersedes:** Individual overlay management patterns  
+## Context
+Terror in Redstone initially implemented overlays using individual hardcoded patterns. Each new overlay required modifications to InputHandler, ScreenManager, and GameState with overlay-specific boolean flags. This led to code duplication, maintenance overhead, inconsistent behavior, and input routing conflicts.
+## Decision
+Implement a **Universal Self-Registering Overlay System** with:
+1. **Centralized State Management**: Replace boolean flags with `OverlayState` class enforcing single overlay behavior
+2. **Self-Registration**: Overlays automatically register with InputHandler when first rendered
+3. **Universal Input Routing**: Dynamic overlay discovery through registry lookup
+4. **Standardized Framework**: All overlays extend `BaseTabbedOverlay` with consistent interface
+5. **Naming Convention**: Use "_key" suffix for overlay IDs (e.g., "character_key")
+## Consequences
+### Positive
+- **Zero-maintenance expansion**: New overlays require no core system modifications
+- **Professional architecture**: Matches industry UI overlay management standards
+- **Consistent behavior**: Universal tab navigation and input handling
+- **Performance**: Single overlay behavior eliminates state conflicts
+### Negative
+- **Migration overhead**: Required updating existing overlay implementations
+- **Learning curve**: Developers must understand self-registration pattern
+- **Debugging complexity**: Dynamic registration can obscure initialization issues
+### Neutral
+- **Rendering hardcoding**: ScreenManager retains explicit overlay rendering cases (acceptable tradeoff for reliability)
+## Implementation Requirements
+- All overlays must call `super().handle_mouse_click()` first
+- Registration must happen during first render
+- Overlay IDs must use "_key" suffix convention
+- Graceful degradation when registration fails
+## Alternatives Considered
+- **Continue individual patterns**: Rejected due to poor scalability
+- **Complex dynamic discovery**: Rejected as over-engineered
+- **Event-based communication**: Rejected for added complexity
+- **Complete dynamic rendering**: Rejected due to debugging difficulty
+## References
+- Universal Overlay Creation Template
+- `utils/overlay_utils.py` (OverlayState class)
+- `utils/tabbed_overlay_utils.py` (BaseTabbedOverlay framework)
+
+# ADR-045: Inventory Overlay Action Button System Integration Complete
+**Date:** 2025-09-09  
+**Status:** Accepted  
+
+## Context
+Inventory overlay buttons (EQUIP, UNEQUIP, CONSUME, DISCARD) were rendering correctly but not executing actions. Event pipeline was broken at multiple points: missing event registration, incorrect method calls, and ESC key routing conflicts.
+
+## Problem Analysis
+1. **Missing Event Registration**: `initialize_inventory_engine()` lacked EventManager parameter, preventing event handler registration
+2. **Method Signature Mismatch**: Event handlers called non-existent methods (`self.equip_item()`) instead of working GameState methods
+3. **ESC Key Architecture Conflict**: Universal ESC handler used legacy boolean flags while new overlay system uses centralized `overlay_state`
+
+## Decision
+Implement complete event-driven inventory action system with proper architectural integration:
+
+### Technical Implementation
+**InventoryEngine Integration:**
+- Modified `initialize_inventory_engine(game_state_ref, item_manager_ref, event_manager_ref)` signature
+- Added automatic event handler registration during initialization
+- Updated GameController to pass EventManager reference during engine creation
+
+**Event Handler Architecture:**
+- Simplified event handlers to use existing GameState methods (`equip_item()`, `unequip_item()`, `consume_item()`, `discard_item()`)
+- Eliminated dependency on incomplete InventoryEngine business logic methods
+- Maintained hybrid approach: UI in overlay, business logic in GameState
+
+**ESC Key System Modernization:**
+- Updated `_handle_escape_key()` method to use centralized `overlay_state.close_overlay()`
+- Removed legacy boolean flag checking for modern overlays
+- Maintained fallback support for legacy overlay types
+
+## Consequences
+### Positive
+- **Full Functionality**: All inventory actions (equip/unequip/consume/discard) working correctly
+- **Professional Architecture**: Proper event-driven communication between overlay and business logic
+- **Universal ESC Behavior**: Consistent overlay closing behavior across all overlay types
+- **Equipment Persistence**: GameState correctly tracks and persists equipment changes
+
+### Technical Achievements
+- **Event Pipeline Integrity**: Complete InputHandler → EventManager → InventoryEngine → GameState flow
+- **Method Signature Consistency**: All overlay methods use correct parameter patterns
+- **State Management**: Centralized overlay state management eliminates architectural conflicts
+
+## Files Modified
+- `game_logic/inventory_engine.py` - Added event_manager parameter and simplified event handlers
+- `core/game_controller.py` - Updated inventory engine initialization call
+- `input_handler.py` - Modernized ESC key handling for centralized overlay system
+- `screens/inventory_overlay.py` - Fixed close_overlay() method call signature
+
+## Validation Results
+- ✅ Equipment changes reflected in both inventory UI and character sheet
+- ✅ Item consumption properly decreases quantities and clears selection
+- ✅ ESC key closes overlays consistently across inventory and character sheet
+- ✅ Event listeners properly registered (console shows "Listeners: 1" instead of "Listeners: 0")
+
 
 ```
 ## ADR-XXX: <Short title>

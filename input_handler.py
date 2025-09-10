@@ -39,13 +39,16 @@ class InputHandler:
         # Clickable regions per screen
         self.clickable_regions: Dict[str, List[ClickableRegion]] = {}
         
+        # Overlay registry for self-registering overlays
+        self.overlay_registry: Dict[str, Any] = {}  # state_flag -> overlay_instance
+
         # Universal hotkey mappings
         self.universal_hotkeys = {
-            pygame.K_i: ("OVERLAY_TOGGLE", {"overlay_id": "inventory"}),
-            pygame.K_q: ("OVERLAY_TOGGLE", {"overlay_id": "quest_log"}),
-            pygame.K_c: ("OVERLAY_TOGGLE", {"overlay_id": "character_sheet"}),
-            pygame.K_h: ("OVERLAY_TOGGLE", {"overlay_id": "help"}),
-            pygame.K_p: ("OVERLAY_TOGGLE", {"overlay_id": "party"}),
+            pygame.K_i: ("OVERLAY_TOGGLE", {"overlay_id": "inventory_key"}),
+            pygame.K_q: ("OVERLAY_TOGGLE", {"overlay_id": "quest_key"}),
+            pygame.K_c: ("OVERLAY_TOGGLE", {"overlay_id": "character_key"}),
+            pygame.K_h: ("OVERLAY_TOGGLE", {"overlay_id": "help_key"}),
+            pygame.K_p: ("OVERLAY_TOGGLE", {"overlay_id": "party_key"}),
             
             # Game controls (corrected)
             pygame.K_F1: ("DEBUG_TOGGLE", {}),
@@ -216,16 +219,10 @@ class InputHandler:
             if self.debug_input:
                 print(f"⚠️  No clickable regions registered for screen: {current_screen}")
         
-        # Character sheet overlay mouse handling - PRIORITY FIRST
-        if getattr(self.game_controller.game_state, 'character_sheet_open', False):
-            from screens.character_overlay import handle_character_sheet_click
-            if self.debug_input:
-                print(f"🎯 Routing mouse click to character overlay: {mouse_pos}")
-            if handle_character_sheet_click(mouse_pos, None):
-                if self.debug_input:
-                    print(f"✅ Character overlay handled mouse click")
-                return True
-
+        # Universal overlay input handling 
+        if self._handle_registered_overlay_input(mouse_pos):
+            return True
+        
         if self._handle_overlay_clicks(mouse_pos, current_screen):
             return True       
         
@@ -248,7 +245,67 @@ class InputHandler:
         if self.debug_input:
             print(f"🚫 Ignoring empty space click on {current_screen}")
         return True
-    
+
+    def _handle_registered_overlay_keyboard_input(self, key) -> bool:
+        """Handle keyboard input for all registered overlays"""
+        if not hasattr(self, 'game_controller') or not self.game_controller:
+            return False
+            
+        game_state = self.game_controller.game_state
+        
+        # Check centralized overlay state
+        if hasattr(game_state, 'overlay_state') and game_state.overlay_state.has_any_overlay_open():
+            active_overlay_id = game_state.overlay_state.get_active_overlay()
+            
+            # Find the matching overlay instance in registry
+            for state_flag, overlay_instance in self.overlay_registry.items():
+                if overlay_instance.overlay_id == active_overlay_id:
+                    try:
+                        if self.debug_input:
+                            print(f"⌨️ Routing keyboard to registered overlay: {active_overlay_id}")
+                        
+                        # Try keyboard input
+                        if overlay_instance.handle_keyboard_input(key):
+                            if self.debug_input:
+                                print(f"✅ Overlay {active_overlay_id} handled keyboard input")
+                            return True
+                            
+                    except Exception as e:
+                        print(f"❌ Error in overlay {active_overlay_id} keyboard handling: {e}")
+                        break
+        
+        return False
+
+    def _handle_registered_overlay_input(self, mouse_pos) -> bool:
+        """Handle input for all registered overlays"""
+        if not hasattr(self, 'game_controller') or not self.game_controller:
+            return False
+            
+        game_state = self.game_controller.game_state
+        
+        # Check centralized overlay state
+        if hasattr(game_state, 'overlay_state') and game_state.overlay_state.has_any_overlay_open():
+            active_overlay_id = game_state.overlay_state.get_active_overlay()
+            
+            # Find the matching overlay instance in registry
+            for state_flag, overlay_instance in self.overlay_registry.items():
+                if overlay_instance.overlay_id == active_overlay_id:
+                    try:
+                        if self.debug_input:
+                            print(f"🎯 Routing input to registered overlay: {active_overlay_id}")
+                        
+                        # Try mouse click
+                        if overlay_instance.handle_mouse_click(mouse_pos):
+                            if self.debug_input:
+                                print(f"✅ Overlay {active_overlay_id} handled mouse click")
+                            return True
+                            
+                    except Exception as e:
+                        print(f"❌ Error in overlay {active_overlay_id} input handling: {e}")
+                        break
+        
+        return False
+
     def process_keyboard_input(self, event: pygame.event.Event, 
                               game_state) -> bool:
         """
@@ -285,23 +342,8 @@ class InputHandler:
             # Any other key in text mode is handled but ignored
             return True
         
-         # PRIORITY 2: Route keyboard events to active overlays
-        if event.type == pygame.KEYDOWN:
-            key = event.key
-            
-            # Check for active overlays and route keyboard input
-            if getattr(game_state, 'character_sheet_open', False):
-                from screens.character_overlay import handle_character_keyboard_input
-                if handle_character_keyboard_input(key, game_state):
-                    return True
-            
-            if getattr(game_state, 'help_screen_open', False):
-                from screens.help_overlay import handle_help_keyboard_input
-                if handle_help_keyboard_input(key, game_state):
-                    return True
-        
-        
-        # PRIORITY 3: Handle universal hotkeys
+       
+        # PRIORITY 2: Handle universal hotkeys
         if event.type == pygame.KEYDOWN:
             key = event.key
             
@@ -331,31 +373,43 @@ class InputHandler:
                 
                 return True
         
+        #Prioirty 3: Route keyboard input to registered overlays
+        if self._handle_registered_overlay_keyboard_input(event.key):
+            return True
+
         return True  # Continue running
     
     def _handle_escape_key(self, game_state) -> bool:
         """
-        Handle ESC key - close overlays in priority order
+        Handle ESC key - close overlays using centralized overlay state
         
         Returns:
             bool: True if an overlay was closed, False if no overlays open
         """
-        # Priority order for closing overlays
-        overlay_attrs = [
+        # Check if any overlay is open using the centralized system
+        if hasattr(game_state, 'overlay_state') and game_state.overlay_state.has_any_overlay_open():
+            # Get the active overlay for debug purposes
+            active_overlay_id = game_state.overlay_state.get_active_overlay()
+            
+            # Close the active overlay (no parameters needed)
+            game_state.overlay_state.close_overlay()
+            
+            if self.debug_input:
+                print(f"🔙 ESC closed overlay: {active_overlay_id}")
+            return True
+        
+        # Fallback: Check old-style boolean flags for legacy overlays
+        legacy_overlay_attrs = [
             'character_advancement_open',
             'save_screen_open', 
-            'load_screen_open',
-            'inventory_open',
-            'quest_log_open', 
-            'character_sheet_open',
-            'help_screen_open'
+            'load_screen_open'
         ]
         
-        for attr in overlay_attrs:
+        for attr in legacy_overlay_attrs:
             if hasattr(game_state, attr) and getattr(game_state, attr):
                 setattr(game_state, attr, False)
                 if self.debug_input:
-                    print(f"🔙 ESC closed overlay: {attr}")
+                    print(f"🔙 ESC closed legacy overlay: {attr}")
                 return True
         
         # No overlays were open
@@ -392,6 +446,53 @@ class InputHandler:
             return True
                 
         return False
+
+    def register_overlay(self, overlay_instance, state_flag: str) -> bool:
+        """
+        Register an overlay for automatic input routing
+        
+        Args:
+            overlay_instance: The overlay object (must have handle_mouse_click method)
+            state_flag: GameState attribute name (e.g., 'quest_log_open')
+            
+        Returns:
+            bool: True if registration successful, False otherwise
+        """
+        try:
+            # Validate overlay has required methods
+            if not hasattr(overlay_instance, 'handle_mouse_click'):
+                print(f"⚠️ Overlay registration failed: {overlay_instance} missing handle_mouse_click method")
+                return False
+                
+            if not hasattr(overlay_instance, 'handle_keyboard_input'):
+                print(f"⚠️ Overlay registration failed: {overlay_instance} missing handle_keyboard_input method")
+                return False
+            
+            # Register the overlay
+            self.overlay_registry[state_flag] = overlay_instance
+            
+            if self.debug_input:
+                print(f"✅ Overlay registered: {state_flag} -> {overlay_instance.overlay_id}")
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Overlay registration error for {state_flag}: {e}")
+            return False
+
+    def unregister_overlay(self, state_flag: str) -> bool:
+        """Unregister an overlay from input routing"""
+        if state_flag in self.overlay_registry:
+            del self.overlay_registry[state_flag]
+            if self.debug_input:
+                print(f"🗑️ Overlay unregistered: {state_flag}")
+            return True
+        return False
+
+    def get_registered_overlays(self) -> Dict[str, str]:
+        """Get debug info about registered overlays"""
+        return {state_flag: getattr(overlay, 'overlay_id', 'unknown') 
+                for state_flag, overlay in self.overlay_registry.items()}
 
     def set_text_input_mode(self, active: bool, callback: Optional[Callable] = None) -> None:
         """

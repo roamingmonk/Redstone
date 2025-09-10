@@ -619,6 +619,15 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for quest log screen")
 
+    def register_quest_overlay_clickables(self):
+        """Register clickable areas for quest overlay"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            self.input_handler.clear_clickables('quest_log')
+            print("📋 Quest overlay clickables registered")
+        else:
+            print("⚠️ No InputHandler available for quest overlay")
+
+
     def register_character_sheet_screen_clickables(self):
         """Register clickable areas for character sheet screen"""
         if hasattr(self, 'input_handler') and self.input_handler:
@@ -680,8 +689,8 @@ class ScreenManager:
             from screens.broken_blade import draw_broken_blade_main_screen
             from screens.patron_selection import draw_patron_selection_screen  
             from screens.shopping import draw_merchant_screen
-            from screens.inventory import draw_inventory_screen
-            from screens.quest_log import draw_quest_log_screen
+            from screens.inventory_overlay import draw_inventory_screen
+            from screens.quest_overlay import draw_quest_overlay
             from screens.character_overlay import draw_character_sheet_screen
             from screens.help_overlay import draw_help_screen
             from screens.gambling_dice import (
@@ -731,8 +740,8 @@ class ScreenManager:
             # Utility screens
             self.register_render_function("inventory", draw_inventory_screen,
                 enter_hook=lambda _: self.register_inventory_screen_clickables())
-            self.register_render_function("quest_log", draw_quest_log_screen,
-                enter_hook=lambda _: self.register_quest_log_screen_clickables())
+            self.register_render_function("quest_log", draw_quest_overlay,
+                enter_hook=lambda _: self.register_quest_overlay_clickables())
             self.register_render_function("character_sheet", draw_character_sheet_screen,
                 enter_hook=lambda _: self.register_character_sheet_screen_clickables())
             self.register_render_function("help", draw_help_screen,
@@ -1008,39 +1017,41 @@ class ScreenManager:
             print("📺 ScreenManager registered for overlay management")
 
     def _handle_overlay_toggle(self, event_data):
-        """Handle overlay toggle - ScreenManager owns overlay lifecycle"""
+        """Handle overlay toggle - Centralized state management"""
         overlay_id = event_data.get("overlay_id")
         
+        # Initialize overlay state if not exists
+        if not hasattr(self._current_game_state, 'overlay_state'):
+            from utils.overlay_utils import OverlayState
+            self._current_game_state.overlay_state = OverlayState()
+        
+        overlay_state = self._current_game_state.overlay_state
+        
+        # Special handling for load/save screens (different rendering system)
         if overlay_id == "load_game":
-            # Toggle load screen state
             current_state = getattr(self._current_game_state, 'load_screen_open', False)
-            self._current_game_state.load_screen_open = not current_state
             
-            # Register clickables when opening
-            if self._current_game_state.load_screen_open:
-                self.register_load_screen_clickables()
-            
-            print(f"📂 ScreenManager: Load screen {'opened' if self._current_game_state.load_screen_open else 'closed'}")
+            if current_state:
+                self._current_game_state.load_screen_open = False
+                overlay_state.close_overlay()  # Sync with centralized state
+                print(f"📂 ScreenManager: Load screen closed")
+            else:
+                overlay_state.close_overlay()  # Close any active overlay first
+                self._current_game_state.load_screen_open = True
+                
+                if self._current_game_state.load_screen_open:
+                    self.register_load_screen_clickables()
+                
+                print(f"📂 ScreenManager: Load screen opened")
+            return
         
-        elif overlay_id == "inventory":
-            current_state = getattr(self._current_game_state, 'inventory_open', False)
-            self._current_game_state.inventory_open = not current_state
-            print(f"📦 ScreenManager: Inventory {'opened' if self._current_game_state.inventory_open else 'closed'}")
-        
-        elif overlay_id == "quest_log":
-            current_state = getattr(self._current_game_state, 'quest_log_open', False)
-            self._current_game_state.quest_log_open = not current_state
-            print(f"📋 ScreenManager: Quest log {'opened' if self._current_game_state.quest_log_open else 'closed'}")
-        
-        elif overlay_id == "character_sheet":
-            current_state = getattr(self._current_game_state, 'character_sheet_open', False)
-            self._current_game_state.character_sheet_open = not current_state
-            print(f"👤 ScreenManager: Character sheet {'opened' if self._current_game_state.character_sheet_open else 'closed'}")
-        
-        elif overlay_id == "help":
-            current_state = getattr(self._current_game_state, 'help_screen_open', False)
-            self._current_game_state.help_screen_open = not current_state
-            print(f"❓ ScreenManager: Help screen {'opened' if self._current_game_state.help_screen_open else 'closed'}")
+        # Universal overlay handling with centralized state
+        if overlay_state.is_open(overlay_id):
+            overlay_state.close_overlay()
+            print(f"📋 ScreenManager: {overlay_id} closed")
+        else:
+            overlay_state.open_overlay(overlay_id)
+            print(f"📋 ScreenManager: {overlay_id} opened")
 
     def _render_overlays(self, game_state):
         """Render any active overlays on top of the main screen"""
@@ -1081,18 +1092,20 @@ class ScreenManager:
             
             draw_save_game_screen(self.screen, game_state, self.fonts, self.images, save_manager)
 
-        if getattr(game_state, 'inventory_open', False):
-            from screens.inventory import draw_inventory_screen
-            draw_inventory_screen(self.screen, game_state, self.fonts, self.images)
-        
-        if getattr(game_state, 'quest_log_open', False):
-            from screens.quest_log import draw_quest_log_screen
-            draw_quest_log_screen(self.screen, game_state, self.fonts, self.images)
-        
-        if getattr(game_state, 'character_sheet_open', False):
-            from screens.character_overlay import draw_character_sheet_screen
-            draw_character_sheet_screen(self.screen, game_state, self.fonts, self.images)
-        
-        if getattr(game_state, 'help_screen_open', False):
-            from screens.help_overlay import draw_help_screen
-            draw_help_screen(self.screen, game_state, self.fonts, self.images)
+        # Check centralized overlay state
+        if hasattr(game_state, 'overlay_state') and game_state.overlay_state.has_any_overlay_open():
+            active_overlay_id = game_state.overlay_state.get_active_overlay()
+            
+            # Explicit overlay rendering with _key naming
+            if active_overlay_id == "quest_key":
+                from screens.quest_overlay import draw_quest_overlay
+                draw_quest_overlay(self.screen, game_state, self.fonts, self.images)
+            elif active_overlay_id == "character_key":
+                from screens.character_overlay import draw_character_sheet_screen
+                draw_character_sheet_screen(self.screen, game_state, self.fonts, self.images)
+            elif active_overlay_id == "help_key":
+                from screens.help_overlay import draw_help_screen
+                draw_help_screen(self.screen, game_state, self.fonts, self.images)
+            elif active_overlay_id == "inventory_key":
+                from screens.inventory_overlay import draw_inventory_screen
+                draw_inventory_screen(self.screen, game_state, self.fonts, self.images)

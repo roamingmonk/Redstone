@@ -1,0 +1,451 @@
+"""
+Terror in Redstone - Quest Log Overlay
+Professional 2-tab quest management system following BaseTabbedOverlay pattern
+Integrates with professional quest system for real quest data
+"""
+
+import pygame
+from utils.tabbed_overlay_utils import BaseTabbedOverlay
+from utils.constants import *
+from utils.graphics import draw_text
+from utils.overlay_utils import (
+    draw_chunky_border, WHITE, BLACK, BRIGHT_GREEN, BROWN, 
+    DARK_GRAY, SELECTION_COLOR
+)
+
+class QuestOverlay(BaseTabbedOverlay):
+    """Professional 2-tab quest log overlay (Active | Completed)"""
+    
+    def __init__(self, screen_manager=None):
+        super().__init__("quest_key", "QUEST LOG", screen_manager)
+        
+        # Add tabs following the established pattern
+        self.add_tab("active_quests", "Active", pygame.K_1)
+        self.add_tab("completed_quests", "Completed", pygame.K_2)
+        
+        # Quest selection state
+        self.selected_quest = None
+        self.quest_rects = []
+        
+        print("🗒️ QuestOverlay initialized with 2 tabs")
+    
+    def render_tab_content(self, surface: pygame.Surface, active_tab, game_state, fonts, images):
+        """
+        Render tab-specific content based on active tab
+        
+        DESIGN PRINCIPLE: 
+        Each tab handles its own content rendering while framework manages tabs
+        """
+        content_rect = self.get_content_area_rect()
+        tab_id = active_tab.tab_id if hasattr(active_tab, 'tab_id') else active_tab
+        
+        try:
+            if tab_id == "active_quests":
+                self._render_active_quests(surface, content_rect, game_state, fonts)
+            elif tab_id == "completed_quests":
+                self._render_completed_quests(surface, content_rect, game_state, fonts)
+            else:
+                self._render_fallback_content(surface, content_rect, fonts, f"Unknown tab: {tab_id}")
+                
+        except Exception as e:
+            print(f"❌ Error rendering quest tab {tab_id}: {e}")
+            self._render_fallback_content(surface, content_rect, fonts, "Error loading quest data")
+    
+    def _render_active_quests(self, surface, content_rect, game_state, fonts):
+        """Render active quests tab content"""
+        # Get quest data from quest system
+        active_quests = self._get_active_quests(game_state)
+        
+        if not active_quests:
+            self._render_empty_quest_list(surface, content_rect, fonts, "No active quests")
+            return
+        
+        # Render quest list and details using existing layout
+        self._render_quest_content(surface, content_rect, active_quests, game_state, fonts, "Active Quests")
+    
+    def _render_completed_quests(self, surface, content_rect, game_state, fonts):
+        """Render completed quests tab content"""
+        # Get quest data from quest system
+        completed_quests = self._get_completed_quests(game_state)
+        
+        if not completed_quests:
+            self._render_empty_quest_list(surface, content_rect, fonts, "No completed quests yet")
+            return
+        
+        # Render quest list and details using existing layout
+        self._render_quest_content(surface, content_rect, completed_quests, game_state, fonts, "Completed Quests")
+    
+    def _get_active_quests(self, game_state):
+        """Get active quests from quest system"""
+        if hasattr(game_state, 'quest_manager'):
+            quest_manager = game_state.quest_manager
+            active_quests = quest_manager.get_active_quests()
+            
+            # Convert to display format
+            quest_list = []
+            for quest in active_quests:
+                completed, total = quest.get_progress()
+                quest_data = {
+                    'id': quest.id,
+                    'title': quest.title,
+                    'description': quest.description,
+                    'completed': False,
+                    'progress': f"{completed}/{total}",
+                    'objectives': [
+                        {
+                            'description': obj.description,
+                            'completed': obj.completed
+                        }
+                        for obj in quest.objectives if not getattr(obj, 'hidden', False)
+                    ]
+                }
+                quest_list.append(quest_data)
+            
+            return quest_list
+        
+        print("⚠️ Quest manager not found in game state")
+        return []
+    
+    def _get_completed_quests(self, game_state):
+        """Get completed quests from quest system"""
+        if hasattr(game_state, 'quest_manager'):
+            quest_manager = game_state.quest_manager
+            completed_quests = quest_manager.get_completed_quests()
+            
+            # Convert to display format
+            quest_list = []
+            for quest in completed_quests:
+                completed, total = quest.get_progress()
+                quest_data = {
+                    'id': quest.id,
+                    'title': quest.title,
+                    'description': quest.description,
+                    'completed': True,
+                    'progress': f"{completed}/{total}",
+                    'objectives': [
+                        {
+                            'description': obj.description,
+                            'completed': obj.completed
+                        }
+                        for obj in quest.objectives if not getattr(obj, 'hidden', False)
+                    ]
+                }
+                quest_list.append(quest_data)
+            
+            return quest_list
+        
+        print("⚠️ Quest manager not found in game state")
+        return []
+    
+    def _render_quest_content(self, surface, content_rect, quests, game_state, fonts, section_title):
+        """Render quest list and details using the classic 2-column layout"""
+        # Calculate layout areas (preserving original quest_log.py layout)
+        quest_list_x = content_rect.x + 20
+        quest_list_y = content_rect.y + 20
+        quest_list_width = 350  # Left column for quest list
+        quest_list_height = content_rect.height - 40
+        
+        # Divider line
+        divider_x = quest_list_x + quest_list_width + 10
+        divider_y = quest_list_y
+        divider_height = quest_list_height
+        
+        # Quest details area  
+        details_x = divider_x + 20
+        details_y = quest_list_y
+        details_width = content_rect.width - (details_x - content_rect.x) - 20
+        details_height = quest_list_height
+        
+        # Draw quest list background
+        pygame.draw.rect(surface, DARK_GRAY, 
+                        (quest_list_x, quest_list_y, quest_list_width, quest_list_height))
+        pygame.draw.rect(surface, WHITE, 
+                        (quest_list_x, quest_list_y, quest_list_width, quest_list_height), 2)
+        
+        # Draw divider line
+        pygame.draw.line(surface, WHITE, 
+                        (divider_x, divider_y), (divider_x, divider_y + divider_height), 3)
+        
+        # Draw quest details background
+        pygame.draw.rect(surface, DARK_GRAY, 
+                        (details_x, details_y, details_width, details_height))
+        pygame.draw.rect(surface, WHITE, 
+                        (details_x, details_y, details_width, details_height), 2)
+        
+        # Draw quest list
+        self.quest_rects = []
+        row_height = 40
+        start_y = quest_list_y + 10
+        
+        # Headers
+        font = fonts.get('fantasy_small', fonts['normal'])
+        small_font = fonts.get('normal', font)
+        
+        # Draw "Quest Title" and "Progress" headers
+        header_y = start_y
+        header_text = font.render("Quest Title", True, WHITE)
+        surface.blit(header_text, (quest_list_x + 10, header_y))
+
+        progress_text = font.render("Progress", True, WHITE)
+        surface.blit(progress_text, (quest_list_x + 260, header_y))
+        
+        # Draw header separator line
+        header_line_y = header_y + 25
+        pygame.draw.line(surface, WHITE, 
+                        (quest_list_x + 10, header_line_y), 
+                        (quest_list_x + quest_list_width - 10, header_line_y), 2)
+        
+        # Draw quest rows
+        current_y = header_line_y + 10
+        
+        for quest in quests:
+            quest_rect = pygame.Rect(quest_list_x + 5, current_y - 5, 
+                                   quest_list_width - 10, row_height)
+            self.quest_rects.append((quest_rect, quest['id']))
+            
+            # Highlight selected quest
+            if self.selected_quest == quest['id']:
+                pygame.draw.rect(surface, SELECTION_COLOR, quest_rect)
+            
+            # Draw quest status indicator
+            status_x = quest_list_x + 15
+            status_y = current_y + 10
+            
+            if quest['completed']:
+                # Draw checkmark for completed quests
+                pygame.draw.circle(surface, BRIGHT_GREEN, (status_x, status_y), 8)
+                # Simple checkmark using lines
+                pygame.draw.line(surface, WHITE, (status_x - 3, status_y), (status_x, status_y + 3), 2)
+                pygame.draw.line(surface, WHITE, (status_x, status_y + 3), (status_x + 4, status_y - 2), 2)
+            else:
+                # Draw open circle for active quests
+                pygame.draw.circle(surface, WHITE, (status_x, status_y), 8, 2)
+            
+            # Draw quest title (truncated if needed)
+            title_x = quest_list_x + 40
+            max_title_width = 220  # Leave room for progress text
+            title_text = quest['title']
+            
+            # Truncate title if too long
+            title_surface = small_font.render(title_text, True, WHITE)
+            if title_surface.get_width() > max_title_width:
+                # Gradually shorten until it fits
+                while title_surface.get_width() > max_title_width and len(title_text) > 10:
+                    title_text = title_text[:-4] + "..."
+                    title_surface = small_font.render(title_text, True, WHITE)
+            
+            surface.blit(title_surface, (title_x, current_y + 5))
+            
+            # Draw progress text
+            progress_surface = small_font.render(quest['progress'], True, WHITE)
+            progress_text_x = quest_list_x + 260
+            surface.blit(progress_surface, (progress_text_x, current_y + 5))
+            
+            current_y += row_height
+        
+        # Draw quest details
+        if self.selected_quest:
+            quest_data = next((q for q in quests if q['id'] == self.selected_quest), None)
+            if quest_data:
+                self._draw_quest_details(surface, quest_data, details_x, details_y, 
+                                       details_width, details_height, fonts)
+        else:
+            # Show prompt to select a quest
+            prompt_y = details_y + details_height // 2
+            prompt_text = fonts.get('normal', font).render("Select a quest to view details", True, WHITE)
+            text_x = details_x + (details_width - prompt_text.get_width()) // 2
+            surface.blit(prompt_text, (text_x, prompt_y))
+    
+    def _draw_quest_details(self, surface, quest_data, x, y, width, height, fonts):
+        """Draw detailed quest information in the right panel"""
+        font = fonts.get('normal', fonts['header'])
+        small_font = fonts.get('small', font)
+        
+        # Quest title
+        title_y = y + 20
+        title_surface = font.render(quest_data['title'], True, BRIGHT_GREEN)
+        surface.blit(title_surface, (x + 20, title_y))
+        
+        # Quest description with word wrapping
+        desc_y = title_y + 40
+        description = quest_data['description']
+        
+        # Simple word wrapping
+        words = description.split(' ')
+        lines = []
+        current_line = ''
+        
+        for word in words:
+            test_line = current_line + word + ' '
+            test_surface = small_font.render(test_line, True, WHITE)
+            
+            if test_surface.get_width() > width - 40:
+                if current_line:
+                    lines.append(current_line.strip())
+                    current_line = word + ' '
+                else:
+                    lines.append(word)
+                    current_line = ''
+            else:
+                current_line = test_line
+        
+        if current_line:
+            lines.append(current_line.strip())
+        
+        # Draw description lines
+        line_height = 25
+        current_y = desc_y
+        
+        for line in lines:
+            if current_y + line_height > y + height - 100:  # Leave room for objectives
+                break
+            line_surface = small_font.render(line, True, WHITE)
+            surface.blit(line_surface, (x + 20, current_y))
+            current_y += line_height
+        
+        # Draw objectives
+        if quest_data.get('objectives'):
+            current_y += 20
+            obj_header = font.render("Objectives:", True, BRIGHT_GREEN)
+            surface.blit(obj_header, (x + 20, current_y))
+            current_y += 30
+            
+            for objective in quest_data['objectives']:
+                if current_y + line_height > y + height - 20:
+                    break
+                
+                # Draw objective status
+                status_char = "✓" if objective['completed'] else "○"
+                status_color = BRIGHT_GREEN if objective['completed'] else WHITE
+                
+                obj_text = f"{status_char} {objective['description']}"
+                obj_surface = small_font.render(obj_text, True, status_color)
+                surface.blit(obj_surface, (x + 40, current_y))
+                current_y += line_height
+    
+    def _render_empty_quest_list(self, surface, content_rect, fonts, message):
+        """Render empty quest list message"""
+        # Center the message
+        text_width = len(message) * 12  # Rough estimate for centering
+        text_x = content_rect.x + (content_rect.width - text_width) // 2
+        text_y = content_rect.y + (content_rect.height - 30) // 2
+        
+        draw_text(surface, message, 
+                fonts.get('fantasy_medium', fonts.get('normal', pygame.font.Font(None, 24))),
+                text_x, text_y, WHITE)
+    
+    def _render_fallback_content(self, surface, content_rect, fonts, message):
+        """Render fallback content when there's an error"""
+        # Center the error message
+        text_width = len(message) * 12  # Rough estimate for centering
+        text_x = content_rect.x + (content_rect.width - text_width) // 2
+        text_y = content_rect.y + (content_rect.height - 30) // 2
+        
+        draw_text(surface, message, 
+                fonts.get('fantasy_medium', fonts.get('normal', pygame.font.Font(None, 24))),
+                text_x, text_y, WHITE)
+    
+    def handle_mouse_click(self, mouse_pos):
+        """Handle mouse clicks on quest items and tabs"""
+        # FIRST: Check if click was on a tab (let parent handle it)
+        if super().handle_mouse_click(mouse_pos):
+            return True
+        
+        # SECOND: Check quest selection (only if not a tab click)
+        for quest_rect, quest_id in self.quest_rects:
+            if quest_rect.collidepoint(mouse_pos):
+                self.selected_quest = quest_id
+                print(f"📋 Quest selected: {quest_id}")
+                return True
+        
+        # Clear selection if clicked on empty space
+        self.selected_quest = None
+        return False
+
+    def handle_quest_overlay_click(mouse_pos, result):
+        """
+        COMPATIBILITY: Handle clicks on quest overlay
+        
+        This maintains the exact same interface as your original quest_log.py
+        but internally uses the new tabbed overlay system.
+        """
+        overlay = get_quest_overlay()
+        
+        # Try to handle tab clicks first  
+        if overlay.handle_mouse_click(mouse_pos):
+            return None  # Tab click handled
+        
+        # No clicks handled - equivalent to your original behavior
+        return None
+
+    def handle_quest_keyboard_input(key, game_state):
+        """NEW: Handle keyboard input for quest overlay"""
+        if getattr(game_state, 'quest_log_open', False):
+            overlay = get_quest_overlay()
+            return overlay.handle_keyboard_input(key)
+        return False
+
+
+
+# Compatibility function for ScreenManager integration
+# ========================================
+# COMPATIBILITY LAYER
+# ========================================
+
+# Create global instance
+quest_overlay_instance = None
+
+def get_quest_overlay():
+    """Get the global quest overlay instance"""
+    global quest_overlay_instance
+    if quest_overlay_instance is None:
+        quest_overlay_instance = QuestOverlay()
+    return quest_overlay_instance
+
+def draw_quest_overlay(surface, game_state, fonts, images=None):
+    """
+    Compatibility function for ScreenManager
+    """
+    
+    overlay = get_quest_overlay()
+    
+    # Register with input handler on first render if not already registered
+    if not getattr(overlay, '_input_registered', False):
+        try:
+            import inspect
+            frame = inspect.currentframe().f_back
+            if frame and 'self' in frame.f_locals:
+                screen_manager = frame.f_locals['self']
+                if hasattr(screen_manager, 'input_handler'):
+                    overlay.screen_manager = screen_manager
+                    overlay._register_with_input_handler()
+                    overlay._input_registered = True
+        except:
+            overlay._input_registered = True
+    
+    overlay.render(surface, game_state, fonts, images)
+    return None
+
+def handle_quest_overlay_click(mouse_pos, result):
+    """
+    COMPATIBILITY: Handle clicks on quest overlay
+    
+    This maintains the exact same interface as your original quest_log.py
+    but internally uses the new tabbed overlay system.
+    """
+    overlay = get_quest_overlay()
+    return overlay.handle_mouse_click(mouse_pos)
+
+def handle_quest_keyboard_input(key, game_state):
+    """NEW: Handle keyboard input for quest overlay - CRITICAL FOR TAB NAVIGATION"""
+    if getattr(game_state, 'quest_log_open', False):
+        overlay = get_quest_overlay()
+        key_name = pygame.key.name(key)
+        print(f"🎯 Quest overlay processing key: {key_name}")
+        result = overlay.handle_keyboard_input(key)
+        if result:
+            print(f"✅ Quest overlay handled key: {key_name}")
+        else:
+            print(f"❌ Quest overlay ignored key: {key_name}")
+        return result
+    return False
