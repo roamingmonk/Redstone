@@ -41,6 +41,9 @@ class EventManager:
         # Enable/disable event logging for development
         self.debug_logging = True
         
+        # Service registry
+        self.services = {}  
+
         print("🎯 EventManager initialized - Professional event system ready!")
     
     def emit(self, event_type: str, data: Optional[Dict[str, Any]] = None) -> bool:
@@ -135,7 +138,17 @@ class EventManager:
         except Exception as e:
             print(f"❌ EM Failed to unregister event listener: {e}")
             return False
-    
+
+    def register_service(self, service_name: str, service_instance):
+        """Register a service for access by other components"""
+        self.services[service_name] = service_instance
+        print(f"📋 Service registered: {service_name}")
+
+    def get_service(self, service_name: str):
+        """Get a registered service"""
+        return self.services.get(service_name)
+
+
     def get_event_history(self, limit: int = 10) -> List[Dict[str, Any]]:
         """
         Get recent event history for debugging

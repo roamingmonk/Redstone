@@ -9,6 +9,7 @@ from typing import Dict, Callable, Any, Optional
 import pygame
 import traceback
 from utils.constants import OVERLAY_RESTRICTED_SCREENS, MAIN_MENU_ALLOWED_OVERLAYS, ALL_OVERLAY_ATTRIBUTES
+from ui.generic_dialogue_handler import register_dialogue_clickables
 
 class ScreenManager:
     """
@@ -50,7 +51,9 @@ class ScreenManager:
         self.fallback_screen = "main_menu"
         self.error_count = 0
         self.max_errors = 3
-                
+
+        self._current_game_controller = None 
+
         # Navigation route map for simple transitions
         self.navigation_routes = {
             'START_GAME': 'developer_splash',
@@ -919,7 +922,12 @@ class ScreenManager:
         try:
             # Call the screen's render function - THIS REPLACES THE ENTIRE MASSIVE METHOD
             render_function = self.render_functions[self.current_screen]
-            render_function(self.screen, game_state, self.fonts, self.images)
+            try:
+                # Try with controller first (for dialogue screens)
+                render_function(self.screen, game_state, self.fonts, self.images, self._current_game_controller)
+            except TypeError:
+                # Fallback to 4 parameters (for existing screens)
+                render_function(self.screen, game_state, self.fonts, self.images)
             
             # Reset error count on successful render
             self.error_count = 0
@@ -1028,28 +1036,62 @@ class ScreenManager:
         return False
 
     def _register_npc_dialogue_screens(self):
-        """Register NPC dialogue screens directly - no GameController dependency"""
+        """
+        Auto-register dialogue screens from filesystem
+        Follows location_npc pattern: broken_blade_garrick.json -> "broken_blade_garrick" screen
+        """
+        import os
         from ui.generic_dialogue_handler import draw_generic_dialogue_screen
         
-        # List of NPCs that need dialogue screens
-        npc_list = ['garrick', 'meredith', 'gareth', 'elara', 'thorman']
+        dialogue_path = "data/dialogues/"
+        registered_count = 0
         
-        for npc_id in npc_list:
-            screen_name = f"{npc_id}_dialogue"
-            
-            # Create a render function for this NPC using the generic handler
-            def create_npc_render_function(npc_id):
-                def render_npc_dialogue(surface, game_state, fonts, images, controller=None):
-                    return draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, controller)
-                return render_npc_dialogue
-            
-            # Register the screen with its render function
-            npc_render_func = create_npc_render_function(npc_id)
-            self.register_render_function(screen_name, npc_render_func)
-            
-            print(f"✅ Registered NPC dialogue screen: {screen_name}")
+        if not os.path.exists(dialogue_path):
+            print(f"Warning: Dialogue directory not found: {dialogue_path}")
+            return
         
-        print(f"✅ {len(npc_list)} NPC dialogue screens registered by ScreenManager")
+        for filename in os.listdir(dialogue_path):
+            if filename.endswith('.json'):
+                # Extract screen name from filename
+                screen_name = filename[:-5]  # Remove .json extension
+                
+                # Parse location_npc pattern
+                if '_' in screen_name:
+                    parts = screen_name.rsplit('_', 1)  # Split on LAST underscore
+                    location_id = parts[0]  # "broken_blade"
+                    npc_id = parts[1]       # "garrick"
+                    
+                    # Create render function for this specific dialogue
+                    def create_dialogue_render_function(npc_id, location_id):
+                        def render_dialogue(surface, game_state, fonts, images, controller=None):
+                            return draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, controller, location_id)
+                        return render_dialogue
+                
+                    def create_dialogue_enter_hook(npc_id, screen_name):  # Pass screen_name as parameter
+                        print(f"DEBUG: SM: Enter hook called for {screen_name} with npc_id {npc_id}")
+                        def dialogue_enter_hook(game_state):
+                            register_dialogue_clickables(screen_name, npc_id, game_state, self.fonts, self._current_game_controller)
+                        return dialogue_enter_hook
+
+                    # Register the screen
+                    dialogue_render_func = create_dialogue_render_function(npc_id, location_id)
+                    dialogue_enter_func = create_dialogue_enter_hook(npc_id, screen_name)
+                    print(f"DEBUG: SM: Registering enter hook for {screen_name}")
+                    self.register_render_function(screen_name, dialogue_render_func, enter_hook=dialogue_enter_func)
+                    
+                    registered_count += 1
+                    print(f"✅ Auto-registered dialogue: {screen_name} (location: {location_id}, npc: {npc_id})")
+                
+                else:
+                    print(f"⚠️ Skipping dialogue file with invalid naming: {filename}")
+                    print(f"   Expected format: location_npc.json (e.g., broken_blade_garrick.json)")
+        
+        print(f"🎭 Dialogue system: {registered_count} screens auto-registered from filesystem")
+        
+        if registered_count == 0:
+            print("⚠️ No dialogue screens registered. Check data/dialogues/ directory and file naming.")
+        else:
+            print("✅ Dialogue system ready - adding new NPCs now requires only JSON file creation!")
 
     def set_game_state_context(self, game_state):
         """Set the game state context for event handling"""

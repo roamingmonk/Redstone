@@ -24,7 +24,7 @@ from utils.npc_display import draw_npc_portrait
 from utils.party_display import draw_party_status_panel
 from utils.dialogue_ui_utils import draw_standard_dialogue_screen, draw_standard_response_screen
 
-def draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, controller=None):
+def draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, controller=None, location_id=None):
     #print(f"DEBUG: GDH: draw_generic_dialogue_screen called for {npc_id}")
     """
     Universal NPC dialogue screen - works for ANY NPC
@@ -38,7 +38,19 @@ def draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, con
     3. Handles all dialogue UI through standardized system
     4. Works identically for any NPC without code changes
     """
+    
+    #print(f"DEBUG: Controller received: {controller is not None}")
+    #if controller:
+     #   print(f"DEBUG: Controller has dialogue_engine: {hasattr(controller, 'dialogue_engine')}")
+        #if hasattr(controller, 'dialogue_engine'):
+            #print(f"DEBUG: dialogue_engine is: {controller.dialogue_engine}")
+    
     try: 
+        if not location_id:
+            raise ValueError(f"location_id is required for dialogue with {npc_id}")
+        
+        setattr(game_state, f'{npc_id}_current_location', location_id)
+        
         # Check for response display state first
         response_attr = f'showing_{npc_id}_response'
         if getattr(game_state, response_attr, False):
@@ -50,13 +62,15 @@ def draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, con
             #print(f"DEBUG: GDH: No controller provided")
             return draw_generic_fallback_screen(surface, npc_id, game_state, fonts)
         
-        dialogue_engine = controller.dialogue_engine
+        dialogue_engine = None
+        if hasattr(controller, 'event_manager'):
+            dialogue_engine = controller.event_manager.get_service('dialogue_engine')
+
         if not dialogue_engine:
-            #print(f"DEBUG: GDH: No dialogue engine")
             return draw_generic_fallback_screen(surface, npc_id, game_state, fonts)
-        
+                
         # Automatically determine dialogue file based on NPC ID
-        dialogue_file_id = f'tavern_{npc_id}'
+        dialogue_file_id = f'{location_id}_{npc_id}'
         #print(f"DEBUG: GDH: Getting conversation options for {dialogue_file_id}")
         # Get current conversation options from DialogueEngine
         conversation_data = dialogue_engine.get_conversation_options(dialogue_file_id, npc_id)
@@ -120,7 +134,7 @@ def draw_generic_fallback_screen(surface, npc_id, game_state, fonts):
     
     return {"type": "fallback", "back_button": back_button}
 
-def process_generic_dialogue_choice(npc_id, choice_index, game_state, controller):
+def process_generic_dialogue_choice(npc_id, choice_index, game_state, controller, location_id=None):
     """
     Universal dialogue choice processor - works for ANY NPC
     
@@ -138,8 +152,13 @@ def process_generic_dialogue_choice(npc_id, choice_index, game_state, controller
     if not dialogue_engine:
         return None
     
+    # Retrieve stored location - REQUIRED
+    location_id = getattr(game_state, f'{npc_id}_current_location')
+    if not location_id:
+        raise ValueError(f"No location stored for {npc_id} dialogue session")
+
     # Automatically determine dialogue file based on NPC ID  
-    dialogue_file_id = f'tavern_{npc_id}'
+    dialogue_file_id = f'{location_id}_{npc_id}'
     
     conversation_data = dialogue_engine.get_conversation_options(dialogue_file_id, npc_id)
     
@@ -177,16 +196,14 @@ def process_generic_dialogue_choice(npc_id, choice_index, game_state, controller
     
     return None
 
-
-# Add this NEW function after process_generic_dialogue_choice
-def process_response_action(npc_id, action_name, game_state, controller):
+def process_response_action(npc_id, action_name, game_state, controller, location_id=None):
     """Process action button clicks from response screens"""
     print(f"DEBUG: process_response_action: {npc_id}, {action_name}")
     
     if not controller or not controller.dialogue_engine:
         return None
     
-    dialogue_file_id = f'tavern_{npc_id}'
+    dialogue_file_id = f'{location_id}_{npc_id}'
     dialogue_engine = controller.dialogue_engine
     
     # Get the action definition from the dialogue file
@@ -423,7 +440,49 @@ def register_npc_dialogue_screen(screen_manager, npc_id):
     screen_manager.register_screen(screen_name, npc_click_handler)
     print(f"Registered generic dialogue screen: {screen_name}")
 
-
+def register_dialogue_clickables(screen_name, npc_id, game_state, fonts, controller):
+    """Register dialogue screen clickable areas following BaseLocation pattern"""
+    print(f"DEBUG: GDH: register_dialogue_clickables called for screen: {screen_name}, npc: {npc_id}")
+    
+    if not controller or not hasattr(controller, 'screen_manager'):
+        return
+    
+    screen_manager = controller.screen_manager
+    if not hasattr(screen_manager, 'input_handler') or not screen_manager.input_handler:
+        return
+    
+    input_handler = screen_manager.input_handler
+    input_handler.clear_clickables(screen_name)
+    
+    # Create temp surface to get button positions (BaseLocation pattern)
+    temp_surface = pygame.Surface((1024, 768))
+    
+    # Get dialogue data and render to find button positions
+    dialogue_engine = controller.event_manager.get_service('dialogue_engine')
+    if dialogue_engine:
+        location_id = getattr(game_state, f'{npc_id}_current_location', 'broken_blade')
+        dialogue_file_id = f'{location_id}_{npc_id}'
+        conversation_data = dialogue_engine.get_conversation_options(dialogue_file_id, npc_id)
+        
+        result = draw_standard_dialogue_screen(temp_surface, npc_id, conversation_data, 
+                                             game_state, fonts, controller)
+        
+        # Register dialogue option clicks
+        for i, option_rect in enumerate(result.get('option_rects', [])):
+            input_handler.register_clickable(
+                screen_name, option_rect, 'DIALOGUE_CHOICE', 
+                {'npc_id': npc_id, 'choice_index': i}
+            )
+        
+        # Register action button clicks  
+        for action_name, action_rect in result.get('action_rects', {}).items():
+            input_handler.register_clickable(
+                screen_name, action_rect, 'DIALOGUE_ACTION',
+                {'npc_id': npc_id, 'action_name': action_name}
+            )
+        
+        registered_count = len(result.get('option_rects', [])) + len(result.get('action_rects', {}))
+        print(f"🎭 Dialogue clickables registered for {screen_name}: {registered_count} buttons")
 # ==========================================
 # GAME CONTROLLER INTEGRATION
 # ==========================================

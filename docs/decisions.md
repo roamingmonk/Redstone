@@ -761,17 +761,42 @@ Implemented complete BaseLocation architecture with ActionHubLocation and NPCSel
 **Positive:** New locations can be added with JSON-only configuration, maintaining architectural consistency and enabling rapid content expansion
 **Architecture Validated:** Thin coordination layer successfully translates JSON to events while preserving existing system integration
 **Foundation Complete:** Core BaseLocation system ready for Session 8C shopping conversion and additional location types
-
 ## Files Modified
 - ui/base_location.py (created complete architecture)
 - ui/screen_manager.py (added BaseLocation registration)
 - input_handler.py (added LOCATION_ACTION processing)
 - data/locations/broken_blade.json (functional configuration)
 - utils/location_loader.py (JSON loading and validation)
-
 ## Status
 **Core Implementation:** ✅ Complete and functional
 **Next Phase:** Session 8C - Shopping system conversion to ShoppingLocation
+
+# ADR-047: DialogueEngine Modernization with Auto-Discovery Architecture
+# Status: Accepted
+# Date: September 11, 2025
+**Context:** Dialogue system required modernization from hardcoded NPC functions to professional event-driven architecture supporting zero-code content expansion and location-aware NPCs.
+**Decision**
+Implemented comprehensive DialogueEngine modernization with systematic auto-discovery registration, EventManager services integration, and location-aware dialogue processing through established event-driven patterns.
+**Implementation**  **Auto-Discovery System:** Filesystem-based dialogue registration automatically loads JSON files from data/dialogues/*.json using {location_id}_{npc_id} naming convention
+**Services Registry:** Added DialogueEngine to EventManager services hub enabling clean engine access via event_manager.get_service()
+**Conditional Parameters:** ScreenManager handles both legacy 4-parameter and new 5-parameter render functions maintaining backward compatibility
+Event-Driven Processing: DIALOGUE_CHOICE and DIALOGUE_ACTION events route through InputHandler → EventManager → DialogueEngine
+**Technical Achievements**
+Zero-Code Workflow: New NPCs require only JSON file creation with no code modifications
+Location Context: Dynamic dialogue loading with persistent location state throughout dialogue sessions
+**Proper Closure Handling:** Fixed Python closure bugs in nested function registration **Rich Interface:** Portrait loading, choice buttons, and action processing functional
+**Consequences**
+Positive: Established professional dialogue architecture scalable to entire game with clean separation of concerns and zero-code content expansion workflow
+**Foundation Ready:** Shopping system conversion and additional location types can proceed using established patterns
+**Technical Debt Resolved:** Eliminated hardcoded NPC dialogue functions and centralized processing logic
+Remaining Work
+Critical response flow completion for all dialogue actions and proper navigation integration back to location screens needed for Session 8A completion.
+**Files Modified:** ui/base_location.py, ui/screen_manager.py, ui/generic_dialogue_handler.py, game_logic/dialogue_engine.py, game_logic/event_manager.py, core/game_controller.py
+
+
+
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

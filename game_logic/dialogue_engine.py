@@ -139,7 +139,55 @@ class DialogueEngine:
             }
         
         return self._get_fallback_dialogue(npc_id)
-    
+
+    def register_event_handlers(self, event_manager):
+        """Register dialogue event handlers with EventManager"""
+        event_manager.register("DIALOGUE_CHOICE", self._handle_dialogue_choice)
+        event_manager.register("DIALOGUE_ACTION", self._handle_dialogue_action)
+        print("🎭 DialogueEngine event handlers registered")
+
+    def _handle_dialogue_choice(self, event_data):
+        """Handle DIALOGUE_CHOICE events - delegates to existing process_dialogue_choice"""
+        npc_id = event_data.get('npc_id')
+        choice_index = event_data.get('choice_index')
+        
+        if npc_id and choice_index is not None:
+            # Get stored location and build dialogue_file_id
+            location_id = getattr(self.game_state, f'{npc_id}_current_location', 'broken_blade')
+            dialogue_file_id = f'{location_id}_{npc_id}'
+            
+            # Get choice_id from conversation data
+            conversation_data = self.get_conversation_options(dialogue_file_id, npc_id)
+            if choice_index < len(conversation_data.get('options', [])):
+                choice_id = conversation_data['options'][choice_index]['id']
+                
+                # Call existing method
+                result = self.process_dialogue_choice(dialogue_file_id, npc_id, choice_id)
+                print(f"🎭 Dialogue choice processed: {choice_id} -> {len(result.get('response', []))} response lines")
+
+    def _handle_dialogue_action(self, event_data):
+        """Handle DIALOGUE_ACTION events"""
+        npc_id = event_data.get('npc_id')
+        action_name = event_data.get('action_name')
+        
+        if npc_id and action_name:
+            print(f"🎭 Processing dialogue action: {npc_id}, {action_name}")
+            
+            if action_name == 'goodbye' or action_name == 'back':
+                # Clear response state and go back to main screen
+                setattr(self.game_state, f'showing_{npc_id}_response', False)
+                setattr(self.game_state, f'{npc_id}_dialogue_response', [])
+                # Emit screen change event to go back
+                # TODO: Need to trigger navigation back to broken_blade_main
+                
+            elif action_name == 'shop':
+                # Handle shop transition
+                print(f"🎭 Shop action for {npc_id}")
+                # TODO: Navigate to shop screen
+                
+            else:
+                print(f"🎭 Unknown dialogue action: {action_name}")
+
     def process_dialogue_choice(self, dialogue_id: str, npc_id: str, choice_id: str) -> Dict[str, Any]:
         """
         Process player's dialogue choice and return response
@@ -319,18 +367,20 @@ class DialogueEngine:
         
         self.quest_event_hooks.clear()
 
-def initialize_dialogue_engine(game_state_ref):
+def initialize_dialogue_engine(game_state_ref, event_manager_ref):
     """
     Initialize DialogueEngine following the established DataManager pattern
     
     Args:
         game_state_ref: Reference to GameState (Single Data Authority)
+        event_manager_ref: Reference to EventManager for event handler registration
         
     Returns:
         DialogueEngine: Initialized engine instance
     """
     try:
         engine = DialogueEngine(game_state_ref)
+        engine.register_event_handlers(event_manager_ref)  # ADD THIS LINE
         print("✅ DialogueEngine initialized successfully")
         return engine
     except Exception as e:

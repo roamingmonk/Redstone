@@ -195,8 +195,16 @@ class GameController:
         self.character_engine = initialize_character_engine(self.game_state, self.event_manager)
         self.inventory_engine = initialize_inventory_engine(self.game_state, self.data_manager.item_manager, self.event_manager)
         self.commerce_engine = initialize_commerce_engine(self.game_state, self.data_manager.item_manager)
-        self.dialogue_engine = initialize_dialogue_engine(self.game_state)
+        self.dialogue_engine = initialize_dialogue_engine(self.game_state, self.event_manager)
         self.quest_engine = initialize_quest_engine(self.game_state, self.event_manager)
+
+        # Register engines as services in EventManager
+        self.event_manager.register_service('dialogue_engine', self.dialogue_engine)
+        self.event_manager.register_service('commerce_engine', self.commerce_engine)
+        self.event_manager.register_service('quest_engine', self.quest_engine)
+        self.event_manager.register_service('character_engine', self.character_engine)
+        self.event_manager.register_service('inventory_engine', self.inventory_engine)
+
 
         self._mark_system_created("character_engine")
         self._mark_system_created("inventory_engine")

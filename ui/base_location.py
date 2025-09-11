@@ -315,7 +315,7 @@ class ActionHubLocation(BaseLocation):
             total_text_width = 0
 
             for action_name, action_data in actions.items():
-                label = action_data.get('label', action_name.replace('_', ' ').lower())
+                label = action_data.get('label', action_name.replace('_', ' ')).title()
                 text_width = button_font.size(label)[0]
                 button_width = max(text_width + 40, 80)  # 40px padding, 80px minimum
                 button_configs.append({
@@ -339,7 +339,8 @@ class ActionHubLocation(BaseLocation):
                                         config['label'], button_font)
                 button_rects[config['action_name']] = button_rect
                 current_x += config['width'] + button_spacing
-
+            
+            #print(f"DEBUG: BL: Drew {config['action_name']} button at {button_rect}")
         
         return {
             'button_rects': button_rects,
@@ -369,7 +370,7 @@ class ActionHubLocation(BaseLocation):
             npc_id = action_data.get('npc_id')
             if npc_id:
                 event_manager.emit("SCREEN_CHANGE", {
-                    "target_screen": f"{npc_id}_dialogue",
+                    "target_screen": f"{self.location_id}_{npc_id}",
                     "source_screen": f"{self.location_id}_{self.current_area}"
                 })
                 return "dialogue_success"
