@@ -67,18 +67,23 @@ class BaseLocation(ABC):
         controller = getattr(screen_manager, '_current_game_controller', None)
         
         # Create minimal fonts and images dictionaries
-        dummy_fonts = {
-            'normal': pygame.font.Font(None, 24),
-            'fantasy_large': pygame.font.Font(None, 36),
-            'fantasy_medium': pygame.font.Font(None, 28),
-            'fantasy_small': pygame.font.Font(None, 20),
-            'fantasy_tiny': pygame.font.Font(None, 16),
-            # Add font key aliases that rendering code expects
-            'header': pygame.font.Font(None, 36),  # Maps to fantasy_large
-            'large': pygame.font.Font(None, 36),   # Maps to fantasy_large  
-            'small': pygame.font.Font(None, 20),   # Maps to fantasy_small
-            'tiny': pygame.font.Font(None, 16)     # Maps to fantasy_tiny
-        }
+        # Use the same fonts that the actual rendering will use
+        if controller and hasattr(controller, 'fonts'):
+            dummy_fonts = controller.fonts
+            print(f"DEBUG: BL: Using controller fonts for registration")
+        else:
+            dummy_fonts = {
+                'normal': pygame.font.Font(None, 24),
+                'fantasy_large': pygame.font.Font(None, 36),
+                'fantasy_medium': pygame.font.Font(None, 28),
+                'fantasy_small': pygame.font.Font(None, 20),
+                'fantasy_tiny': pygame.font.Font(None, 16),
+                'header': pygame.font.Font(None, 36),
+                'large': pygame.font.Font(None, 36),   
+                'small': pygame.font.Font(None, 20),
+                'tiny': pygame.font.Font(None, 16)
+            }
+            
         dummy_images = {}
         
         try:
@@ -334,11 +339,17 @@ class ActionHubLocation(BaseLocation):
             current_x = start_x
 
             for config in button_configs:
-                button_rect = draw_button(surface, current_x, button_y, 
-                                        config['width'], button_height, 
-                                        config['label'], button_font)
+                # Draw the visual button
+                draw_button(surface, current_x, button_y, 
+                            config['width'], button_height, 
+                            config['label'], button_font)
+                
+                # Create exact matching clickable rectangle
+                button_rect = pygame.Rect(current_x, button_y, config['width'], button_height)
                 button_rects[config['action_name']] = button_rect
                 current_x += config['width'] + button_spacing
+                
+                #print(f"DEBUG: BL: {config['action_name']} button at x={current_x-config['width']-button_spacing}, w={config['width']}")
             
             #print(f"DEBUG: BL: Drew {config['action_name']} button at {button_rect}")
         
