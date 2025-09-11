@@ -793,7 +793,15 @@ Remaining Work
 Critical response flow completion for all dialogue actions and proper navigation integration back to location screens needed for Session 8A completion.
 **Files Modified:** ui/base_location.py, ui/screen_manager.py, ui/generic_dialogue_handler.py, game_logic/dialogue_engine.py, game_logic/event_manager.py, core/game_controller.py
 
-
+# ADR-048: BaseLocation Button Coordinate Alignment Fix
+# Status: Accepted
+# Date: Sep 11, 2025
+**Context:** BaseLocation system had coordinate mismatch between button registration and rendering, causing clickable areas to be shifted left from visual buttons.
+**Problem:** Registration used dummy fonts while rendering used controller fonts, creating different text measurements and button positioning between the two render() calls.
+**Decision:** Modified BaseLocation register_with_input_handler() to use controller.fonts instead of dummy fonts, ensuring identical coordinate calculation.
+**Result:** Server button now consistently positioned at x=649, w=114 in both registration and rendering. Click detection working correctly with coordinates properly aligned.
+**Files Modified:** ui/base_location.py
+**Impact:** Session 8A main screen navigation complete. BaseLocation coordinate system validated for broken_blade_main screen.
 
 
 
