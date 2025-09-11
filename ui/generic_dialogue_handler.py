@@ -481,8 +481,51 @@ def register_dialogue_clickables(screen_name, npc_id, game_state, fonts, control
                 {'npc_id': npc_id, 'action_name': action_name}
             )
         
-        registered_count = len(result.get('option_rects', [])) + len(result.get('action_rects', {}))
-        print(f"🎭 Dialogue clickables registered for {screen_name}: {registered_count} buttons")
+            # Check if we're in response mode
+            showing_response_attr = f'showing_{npc_id}_response'
+            is_showing_response = getattr(game_state, showing_response_attr, False)
+            
+            if is_showing_response:
+                # RESPONSE SCREEN - Register BACK button
+                result = draw_generic_response_screen(temp_surface, npc_id, game_state, fonts)
+                
+                # Register action buttons from response screen
+                for action_name, action_rect in result.get('action_rects', {}).items():
+                    input_handler.register_clickable(
+                        screen_name, action_rect, 'DIALOGUE_ACTION',
+                        {'npc_id': npc_id, 'action_name': action_name}
+                    )
+                
+                registered_count = len(result.get('action_rects', {}))
+                print(f"🎭 Response screen clickables registered for {screen_name}: {registered_count} buttons")
+            
+            else:
+                # CHOICE SCREEN - Register dialogue options
+                dialogue_engine = controller.event_manager.get_service('dialogue_engine')
+                if dialogue_engine:
+                    location_id = getattr(game_state, f'{npc_id}_current_location', 'broken_blade')
+                    dialogue_file_id = f'{location_id}_{npc_id}'
+                    conversation_data = dialogue_engine.get_conversation_options(dialogue_file_id, npc_id)
+                    
+                    result = draw_standard_dialogue_screen(temp_surface, npc_id, conversation_data, 
+                                                        game_state, fonts, controller)
+                    
+                    # Register dialogue option clicks
+                    for i, option_rect in enumerate(result.get('option_rects', [])):
+                        input_handler.register_clickable(
+                            screen_name, option_rect, 'DIALOGUE_CHOICE', 
+                            {'npc_id': npc_id, 'choice_index': i}
+                        )
+                    
+                    # Register action button clicks  
+                    for action_name, action_rect in result.get('action_rects', {}).items():
+                        input_handler.register_clickable(
+                            screen_name, action_rect, 'DIALOGUE_ACTION',
+                            {'npc_id': npc_id, 'action_name': action_name}
+                        )
+                    
+                    registered_count = len(result.get('option_rects', [])) + len(result.get('action_rects', {}))
+                    print(f"🎭 Choice screen clickables registered for {screen_name}: {registered_count} buttons")
 # ==========================================
 # GAME CONTROLLER INTEGRATION
 # ==========================================

@@ -50,76 +50,30 @@ class GameState:
         self.current_npc = None
         self.tavern_visits = 0
         
-        # Quest system flags  
-        self.mayor_mentioned = False
-        self.mayor_talked = False
-        self.quest_active = False
-
-        # Location discovery system
-        self.hill_ruins_known = False
-        self.swamp_church_known = False  
-        self.refugee_camp_known = False
-
-        # NPC interaction tracking
-        self.garrick_talked = False
-        self.meredith_talked = False
-        self.drunk_talked = False
-        self.pete_attempted_recruitment = False
-        self.pete_showing_comedy = False
-
-        # NPC response tracking  (validate this is needed)
-        self.showing_garrick_repsponse = False
-        self.garrick_dialogue_response = []
-        self.showing_meredith_response = False
-        self.meredith_dialogue_response = []
+        # Equipment system (game mechanics)
+        self.equipped_weapon = None
+        self.equipped_armor = None  
+        self.equipped_shield = None
         
-        integrate_quest_system(self)
-
-        # Shopping cart for current merchant session
-        self.shopping_cart = {}  # {'item_name': quantity}
-        # Inventory Management System
-        self.equipped_weapon = None      # Currently equipped weapon name
-        self.equipped_armor = None       # Currently equipped body armor name  
-        self.equipped_shield = None      # Currently equipped shield name
-        self.inventory_open = False      # Is inventory screen open
-        self.inventory_tab = "weapons"   # Current tab: weapons, armor, items, consumables
+        # Inventory UI state (game mechanics)
+        self.inventory_selected = None
+        self.inventory_tab = "weapons"
+        self.inventory_open = False
         self.inventory_page = {"weapons": 0, "armor": 0, "items": 0, "consumables": 0}
         self.inventory_selected = None   # Currently selected item name
 
-        # Quest Log System
-        self.quest_log_open = False      # Is quest log screen open
-        self.selected_quest = None       # Currently selected quest for details
-        
-        # Character Sheet
-        self.character_sheet_open = False  # Is character sheet screen open
-        
-        # Help Screen
-        self._screen_open = False
+        # Shopping cart for current merchant session
+        self.shopping_cart = {}  # {'item_name': quantity}
 
-        # Quest progression flags
-        self.met_mayor = False           # Has player talked to mayor
-        self.learned_about_refugees = False    # Bartender Garrick mentioned refugee camp
-        self.learned_about_church = False      # Server Meredith mentioned swamp church  
-        self.learned_about_ruins = False       # Grizzled warrior mentioned hill ruins
-        
-        # Quest completion flags
-        self.main_quest_complete = False
-        self.refugee_camp_complete = False
-        self.swamp_church_complete = False
-        self.hill_ruins_complete = False
-
-        # In GameState.__init__
+        # Save/load system state (game mechanics)
         self.load_screen_open = False
         self.load_selected_slot = None
         self.load_status_message = "Select a save file to load or delete"
-
-        # Save game screen state
         self.save_screen_open = False
         self.save_selected_slot = None
         self.save_status_message = "Select a slot to save your game"
 
-
-        # Enhanced Gambling state for Redstone Dice
+        # Gambling state for Redstone Dice
         self.gambling_state = {
             'last_player_dice': [0, 0],
             'last_house_dice': [0, 0],
@@ -128,7 +82,7 @@ class GameState:
             'roll_start_time': 0
         }
         
-        # NEW: Redstone Dice Game State
+        # Redstone Dice Game State
         self.dice_game = {
             'house_money': random.randint(400, 700),  # House starts with random amount
             'current_bet': 0,
@@ -141,7 +95,70 @@ class GameState:
             'win_streak': 0,
             'loss_streak': 0
         }
+
+        # Quest and overlay UI state (game mechanics)
+        self.quest_log_open = False
+        self.character_sheet_open = False
+        self.help_screen_open = False
         
+        # NARRATIVE SCHEMA INTEGRATION - Initialize all story flags
+        from utils.narrative_schema import narrative_schema
+        
+        # Initialize all narrative flags from schema
+        print("🏗️ Initializing narrative schema flags...")
+        all_flags = narrative_schema.get_all_flags()
+        for flag_name in all_flags:
+            setattr(self, flag_name, False)
+        print(f"✅ Initialized {len(all_flags)} narrative flags")
+        
+        # Additional quest flags that might not be in schema yet but are needed
+        # These will be added to schema in next iteration
+        self.quest_active = False
+        self.just_got_quest = False
+        
+        # Validate that key flags were created
+        expected_flags = [
+            'meredith_talked', 'garrick_talked', 'mayor_talked',
+            'gareth_recruited', 'elara_recruited', 'thorman_recruited', 'lyra_recruited',
+            'learned_about_swamp_church', 'learned_about_ruins'
+        ]
+        
+        # Initialize quest tracking system (game mechanics)
+        integrate_quest_system(self)
+
+
+        missing_flags = []
+        for flag in expected_flags:
+            if not hasattr(self, flag):
+                print(f"⚠️  Missing expected flag: {flag}")
+                missing_flags.append(flag)
+                setattr(self, flag, False)  # Create it manually as fallback
+        
+        if missing_flags:
+            print(f"⚠️  Created {len(missing_flags)} missing flags manually")
+        else:
+            print("✅ All expected narrative flags found in schema")
+        
+    # Add computed property for recruitment tracking
+    @property
+    def recruited_count(self):
+        """Calculate number of recruited NPCs using narrative schema"""
+        from utils.narrative_schema import narrative_schema
+        recruitment_flags = narrative_schema.schema.get("recruitment_system", {}).get("recruitment_flags", [])
+        return sum(1 for flag in recruitment_flags if getattr(self, flag, False))
+    
+    @property
+    def max_party_size(self):
+        """Get maximum party size from narrative schema"""
+        from utils.narrative_schema import narrative_schema
+        return narrative_schema.schema.get("recruitment_system", {}).get("max_party_size", 4)
+    
+    @property
+    def can_recruit_more(self):
+        """Check if more party members can be recruited"""
+        return self.recruited_count < (self.max_party_size - 1)  # -1 for player character
+
+    
 
     
     def set_selected_portrait(self, gender, portrait_index):

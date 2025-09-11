@@ -1,0 +1,215 @@
+{
+  "dialogue_id": "tavern_meredith",
+  "npc_name": "Meredith",
+  "full_name": "Meredith Whisperwind",
+  "description": "A cheerful serving girl with knowing eyes who hears all the tavern's gossip",
+  
+  "states": {
+    "first_meeting": {
+      "introduction": [
+        "*A cheerful serving girl approaches with a bright smile and knowing eyes*",
+        "Well hello there, stranger! You've got the look of someone with important business.",
+        "I hear all the best gossip working these tables, you know.",
+        "What brings you to our little corner of trouble?"
+      ],
+      "options": [
+        {
+          "id": "ask_gossip",
+          "text": "What kind of gossip have you been hearing?",
+          "response": [
+            "*Meredith glances around conspiratorially, then leans in closer*",
+            "Oh, the usual tavern tales - who's courting whom, whose crops failed...",
+            "But lately, it's been darker things. People going missing.",
+            "Started with the beggars and vagrants - folk no one really notices.",
+            "But then respectable people started vanishing too.",
+            "The Mayor's been beside himself since his own family disappeared."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "meredith_mentioned_mayor",
+              "value": true
+            }
+          ],
+          "actions": ["goodbye"]
+        },
+        {
+          "id": "ask_troubles",
+          "text": "Tell me about the troubles in this town.",
+          "response": [
+            "*Her cheerful demeanor fades slightly*",
+            "Ooh, you're asking the right questions! But...",
+            "The Mayor's been very clear - all official business goes through him first.",
+            "Talk to him about the troubles, then come back for the real stories!",
+            "I promise I'll have much more interesting things to share then."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "meredith_directed_to_mayor",
+              "value": true
+            }
+          ],
+          "actions": ["goodbye"]
+        },
+        {
+          "id": "just_visiting",
+          "text": "I'm just a traveler passing through.",
+          "response": [
+            "*Meredith's smile brightens again*",
+            "Oh, well welcome to Redstone! Though I'm afraid you've picked",
+            "an interesting time to visit us.",
+            "Things have been... unsettled lately.",
+            "But don't let that worry you! The Broken Blade's still the",
+            "safest place in town for a good meal and warm company."
+          ],
+          "effects": [],
+          "actions": ["goodbye"]
+        }
+      ],
+      "default_actions": ["goodbye"]
+    },
+    
+    "post_mayor": {
+      "introduction": [
+        "*Meredith's eyes light up with excitement as you approach*",
+        "So the Mayor finally told someone about his poor family!",
+        "Now I can share what I've really been hearing.",
+        "The whispers, the strange stories... there's definitely more going on."
+      ],
+      "options": [
+        {
+          "id": "swamp_church",
+          "text": "Have you heard anything about specific locations?",
+          "response": [
+            "*She leans in with genuine concern*",
+            "I've heard whispers about that old Swamp Church to the south.",
+            "Strange lights at night, eerie singing... gives me the shivers!",
+            "The refugees mention it in their nightmares, poor souls.",
+            "Some say they've seen figures moving through the mist there.",
+            "If you're planning to investigate, be very careful."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "learned_about_swamp_church",
+              "value": true
+            },
+            {
+              "type": "add_location",
+              "location": "Swamp Church"
+            },
+            {
+              "type": "quest_trigger",
+              "quest_id": "main_storyline",
+              "trigger_type": "location_discovered",
+              "data": {"location": "Swamp Church", "source": "meredith"}
+            }
+          ],
+          "actions": ["goodbye"]
+        },
+        {
+          "id": "refugee_stories",
+          "text": "What do the refugees say about what they've seen?",
+          "response": [
+            "*Meredith shudders slightly*",
+            "Poor things wake up screaming about shadows with glowing eyes.",
+            "They talk about hearing voices calling their names in the dark.",
+            "One woman swears she saw her missing husband beckoning to her",
+            "from the edge of the swamp before he vanished again.",
+            "Whatever's taking people, it's not natural."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "heard_refugee_nightmares",
+              "value": true
+            }
+          ],
+          "actions": ["goodbye"]
+        },
+        {
+          "id": "other_gossip",
+          "text": "Any other strange gossip I should know about?",
+          "response": [
+            "*She thinks for a moment, wiping down a nearby table*",
+            "Well, the town guard has been acting odd lately.",
+            "More nervous patrols, whispered conversations that stop",
+            "when regular folk get too close.",
+            "And some of the local merchants have been talking about",
+            "strange deliveries at night - crates that no one ordered."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "heard_guard_gossip",
+              "value": true
+            }
+          ],
+          "actions": ["goodbye"]
+        }
+      ],
+      "default_actions": ["goodbye"]
+    },
+    
+    "return_visits": {
+      "introduction": [
+        "*Meredith wipes down a nearby table while chatting*",
+        "Any luck finding the Mayor's family yet?",
+        "That Swamp Church I mentioned is definitely worth investigating.",
+        "Be careful though - the stories I hear are... unsettling."
+      ],
+      "options": [
+        {
+          "id": "progress_update",
+          "text": "I'm still investigating. Any new information?",
+          "response": [
+            "*She glances around to make sure no one's listening*",
+            "Actually, yes. Old Henrik mentioned seeing lights",
+            "moving in patterns near the church - like some kind of ritual.",
+            "And the baker's wife swears she heard chanting",
+            "carried on the wind three nights ago.",
+            "Be extra careful if you go there after dark."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "meredith_ritual_warning",
+              "value": true
+            }
+          ],
+          "actions": ["goodbye"]
+        },
+        {
+          "id": "party_status",
+          "text": "Do you think I have enough help for this task?",
+          "response": [
+            "*She looks over your assembled party with approval*",
+            "My stars! Look at this impressive group!",
+            "With warriors like these, you might actually solve this mystery.",
+            "I'll keep my ears open for any new gossip while you're gone!",
+            "Just... promise me you'll all come back safely."
+          ],
+          "effects": [],
+          "actions": ["goodbye"]
+        }
+      ],
+      "default_actions": ["goodbye"]
+    }
+  },
+  
+  "actions": {
+    "goodbye": {
+      "text": "FAREWELL",
+      "description": "End conversation with Meredith",
+      "type": "exit"
+    }
+  },
+  
+  "metadata": {
+    "created": "Session Current",
+    "version": "1.0",
+    "author": "Terror in Redstone Development", 
+    "notes": "Meredith Whisperwind dialogue converted from legacy format to new DialogueEngine standard. Provides Swamp Church location and refugee gossip."
+  }
+}

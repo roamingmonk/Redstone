@@ -17,6 +17,7 @@ Key Features:
 import json
 import os
 from typing import Dict, List, Optional, Tuple, Any
+from utils.narrative_schema import narrative_schema
 
 class DialogueEngine:
     """
@@ -152,6 +153,11 @@ class DialogueEngine:
         choice_index = event_data.get('choice_index')
         
         if npc_id and choice_index is not None:
+            # NARRATIVE SCHEMA INTEGRATION - Set conversation flag
+            conv_flag = narrative_schema.get_npc_conversation_flag(npc_id)
+            setattr(self.game_state, conv_flag, True)
+            print(f"✅ Set conversation flag: {conv_flag} = True")
+
             # Get stored location and build dialogue_file_id
             location_id = getattr(self.game_state, f'{npc_id}_current_location', 'broken_blade')
             dialogue_file_id = f'{location_id}_{npc_id}'
@@ -163,8 +169,58 @@ class DialogueEngine:
                 
                 # Call existing method
                 result = self.process_dialogue_choice(dialogue_file_id, npc_id, choice_id)
-                print(f"🎭 Dialogue choice processed: {choice_id} -> {len(result.get('response', []))} response lines")
 
+                # CRITICAL: Re-register dialogue buttons after state change
+                try:
+                    print(f"🔍 DEBUG: DE: About to try re-registration for {npc_id}")
+                    
+                    # Use global event manager access
+                    from game_logic.event_manager import get_event_manager
+                    event_manager = get_event_manager()
+                    
+                    if event_manager:
+                        print(f"🔍 DEBUG: DE: Got event_manager successfully")
+                        
+                        # Get screen manager and controller
+                        screen_manager_service = event_manager.get_service('screen_manager')
+                        if screen_manager_service and hasattr(screen_manager_service, '_current_game_controller'):
+                            controller = screen_manager_service._current_game_controller
+                            
+                            # Get CURRENT screen name dynamically - no hardcoding
+                            current_screen = screen_manager_service.get_current_screen()
+                            
+                            print(f"🔍 DEBUG: DE: Re-registering for current screen: {current_screen}")
+                            
+                            # Call the register function that we KNOW works
+                            if hasattr(controller.screen_manager, 'input_handler'):
+                                # Clear existing clickables for current screen
+                                controller.screen_manager.input_handler.clear_clickables(current_screen)
+                                
+                                # Import and call the register function
+                                import ui.generic_dialogue_handler as gdh
+                                gdh.register_dialogue_clickables(current_screen, npc_id, self.game_state, 
+                                                                controller.fonts, controller)
+                                
+                                print(f"🔄 Re-registered dialogue buttons for response state: {current_screen}")
+                            else:
+                                print(f"⚠️ Could not get input_handler")
+                        else:
+                            print(f"⚠️ Could not get screen_manager or controller")
+                    else:
+                        print(f"⚠️ Could not get global event_manager")
+                except Exception as e:
+                    print(f"⚠️ Could not re-register dialogue buttons: {e}")
+                    import traceback
+                    traceback.print_exc()
+                
+                return result
+            else:
+                print(f"⚠️ Invalid choice index {choice_index} for {npc_id}")
+                return None
+        else:
+            print(f"⚠️ Missing npc_id or choice_index in dialogue choice event: {event_data}")
+            return None
+        
     def _handle_dialogue_action(self, event_data):
         """Handle DIALOGUE_ACTION events"""
         npc_id = event_data.get('npc_id')

@@ -803,7 +803,11 @@ Critical response flow completion for all dialogue actions and proper navigation
 **Files Modified:** ui/base_location.py
 **Impact:** Session 8A main screen navigation complete. BaseLocation coordinate system validated for broken_blade_main screen.
 
+# ADR-049: narrative schema integration 
 
+-- core/game_state.py (narrative schema integration), game_logic/dialogue_engine.py (schema flag setting), utils/generic_dialogue_handler.py (response state detection)
+- updated gamestate, auto initilize, integrated the narrative schema, confirmed 4 dialogue screens, and coordinated flags for dialogue, quest tracking.  
+- Open issues.  need to validate if save/load system is holding the new attributes., initial dialogue screen works for garrick and meredith, but response screens are not working and buttons are not working.  patron selection is not linked and has similar button issues.
 
 ```
 ## ADR-XXX: <Short title>
