@@ -1,0 +1,389 @@
+{
+  "version": "1.0",
+  "description": "Canonical narrative identifiers for Terror in Redstone - Single source of truth for all story flags",
+  
+  "npcs": {
+    "meredith": {
+      "system_id": "meredith",
+      "full_name": "Meredith Whisperwind", 
+      "dialogue_file": "broken_blade_meredith",
+      "conversation_flag": "meredith_talked",
+      "location": "broken_blade",
+      "role": "server",
+      "story_flags": {
+        "mentioned_mayor": "meredith_mentioned_mayor",
+        "directed_to_mayor": "meredith_directed_to_mayor",
+        "gave_swamp_location": "learned_about_swamp_church",
+        "shared_refugee_nightmares": "heard_refugee_nightmares",
+        "shared_guard_gossip": "heard_guard_gossip",
+        "gave_ritual_warning": "meredith_ritual_warning"
+      }
+    },
+    "garrick": {
+      "system_id": "garrick",
+      "full_name": "Garrick Ironbrew",
+      "dialogue_file": "broken_blade_garrick", 
+      "conversation_flag": "garrick_talked",
+      "location": "broken_blade",
+      "role": "bartender",
+      "story_flags": {
+        "gave_ruins_location": "learned_about_ruins",
+        "offered_basement_quest": "garrick_offered_basement",
+        "mentioned_mayor": "garrick_mentioned_mayor"
+      }
+    },
+    "pete": {
+      "system_id": "pete",
+      "full_name": "Pete Stumblefoot",
+      "dialogue_file": "broken_blade_pete",
+      "conversation_flag": "pete_talked",
+      "location": "broken_blade",
+      "role": "comedy_relief",
+      "special_mechanics": {
+        "fake_recruitment": true,
+        "comedy_sequence": true,
+        "always_available": true,
+        "never_recruitable": true
+      },
+      "story_flags": {
+        "attempted_recruitment": "pete_attempted_recruitment",
+        "showed_comedy": "pete_showing_comedy",
+        "gave_refugee_hints": "pete_mentioned_refugees",
+        "heroic_pose_attempted": "pete_tried_heroic_pose",
+        "comedy_routine_complete": "pete_comedy_complete"
+      }
+    },
+    "mayor": {
+      "system_id": "mayor",
+      "full_name": "Mayor Aldwin Goldenbottom",
+      "dialogue_file": "redstone_town_mayor",
+      "conversation_flag": "mayor_talked",
+      "location": "redstone_town",
+      "role": "authority", 
+      "story_flags": {
+        "gave_main_quest": "quest_active",
+        "mentioned_family": "mayor_mentioned_family",
+        "gave_refugee_location": "learned_about_refugees"
+      }
+    },
+    "gareth": {
+      "system_id": "gareth",
+      "full_name": "Gareth Ironwill",
+      "dialogue_file": "broken_blade_gareth",
+      "conversation_flag": "gareth_talked",
+      "location": "broken_blade",
+      "role": "recruitable_fighter",
+      "story_flags": {
+        "recruitment_available": "gareth_available",
+        "recruitment_completed": "gareth_recruited",
+        "shared_background": "gareth_shared_story"
+      }
+    },
+    "elara": {
+      "system_id": "elara", 
+      "full_name": "Elara Moonwhisper",
+      "dialogue_file": "broken_blade_elara",
+      "conversation_flag": "elara_talked",
+      "location": "broken_blade",
+      "role": "recruitable_mage",
+      "story_flags": {
+        "recruitment_available": "elara_available",
+        "recruitment_completed": "elara_recruited", 
+        "shared_magic_knowledge": "elara_shared_magic"
+      }
+    },
+    "thorman": {
+      "system_id": "thorman",
+      "full_name": "Thorman Stormhammer", 
+      "dialogue_file": "broken_blade_thorman",
+      "conversation_flag": "thorman_talked",
+      "location": "broken_blade",
+      "role": "recruitable_cleric",
+      "story_flags": {
+        "recruitment_available": "thorman_available",
+        "recruitment_completed": "thorman_recruited",
+        "shared_faith": "thorman_shared_faith"
+      }
+    },
+    "lyra": {
+      "system_id": "lyra",
+      "full_name": "Lyra Quickfingers",
+      "dialogue_file": "broken_blade_lyra", 
+      "conversation_flag": "lyra_talked",
+      "location": "broken_blade",
+      "role": "recruitable_rogue",
+      "story_flags": {
+        "recruitment_available": "lyra_available",
+        "recruitment_completed": "lyra_recruited",
+        "shared_skills": "lyra_shared_skills"
+      }
+    },
+    "bernard": {
+      "system_id": "bernard",
+      "full_name": "Bernard Mugsworth",
+      "dialogue_file": "redstone_town_bernard",
+      "conversation_flag": "bernard_talked", 
+      "location": "redstone_town",
+      "role": "merchant_general",
+      "story_flags": {
+        "first_shop_visit": "bernard_first_visit",
+        "heard_rumors": "bernard_shared_rumors",
+        "gave_supplies_discount": "bernard_gave_discount"
+      }
+    },
+    "jenna": {
+      "system_id": "jenna",
+      "full_name": "Jenna Goldleaf",
+      "dialogue_file": "redstone_town_jenna",
+      "conversation_flag": "jenna_talked",
+      "location": "redstone_town", 
+      "role": "merchant_general_clerk",
+      "story_flags": {
+        "explained_inventory": "jenna_explained_shop",
+        "offered_special_items": "jenna_offered_specials"
+      }
+    }
+  },
+
+  "locations": {
+    "swamp_church": {
+      "display_name": "Swamp Church",
+      "system_id": "swamp_church",
+      "discovery_flag": "learned_about_swamp_church",
+      "quest_id": "explore_swamp_church",
+      "source_npc": "meredith",
+      "location_type": "investigation_site"
+    },
+    "hill_ruins": {
+      "display_name": "Hill Ruins", 
+      "system_id": "hill_ruins",
+      "discovery_flag": "learned_about_ruins",
+      "quest_id": "investigate_hill_ruins",
+      "source_npc": "garrick",
+      "location_type": "investigation_site"
+    },
+    "refugee_camp": {
+      "display_name": "Refugee Camp",
+      "system_id": "refugee_camp", 
+      "discovery_flag": "learned_about_refugees",
+      "quest_id": "find_refugee_camp",
+      "source_npc": "mayor",
+      "location_type": "investigation_site"
+    },
+    "redstone_town": {
+      "display_name": "Town Square",
+      "system_id": "redstone_town",
+      "discovery_flag": "visited_town_square",
+      "quest_id": null,
+      "source_npc": null,
+      "location_type": "town_hub"
+    },
+    "general_store": {
+      "display_name": "General Store",
+      "system_id": "general_store",
+      "discovery_flag": "visited_general_store", 
+      "quest_id": null,
+      "source_npc": "bernard",
+      "location_type": "merchant"
+    },
+    "mayor_office": {
+      "display_name": "Mayor's Office",
+      "system_id": "mayor_office",
+      "discovery_flag": "visited_mayor_office",
+      "quest_id": null,
+      "source_npc": "mayor",
+      "location_type": "authority"
+    }
+  },
+
+  "recruitment_system": {
+    "max_party_size": 4,
+    "max_recruitable": 3,
+    "recruitment_flags": ["gareth_recruited", "elara_recruited", "thorman_recruited", "lyra_recruited"],
+    "recruitment_logic": {
+      "available_when": "mayor_talked && recruited_count < 3",
+      "blocked_when": "recruited_count >= 3",
+      "requires_conversation": true
+    },
+    "recruitable_npcs": {
+      "gareth": {
+        "class": "Fighter",
+        "recruitment_flag": "gareth_recruited",
+        "availability_flag": "gareth_available",
+        "conversation_required": "gareth_talked"
+      },
+      "elara": {
+        "class": "Mage", 
+        "recruitment_flag": "elara_recruited",
+        "availability_flag": "elara_available",
+        "conversation_required": "elara_talked"
+      },
+      "thorman": {
+        "class": "Cleric",
+        "recruitment_flag": "thorman_recruited", 
+        "availability_flag": "thorman_available",
+        "conversation_required": "thorman_talked"
+      },
+      "lyra": {
+        "class": "Rogue",
+        "recruitment_flag": "lyra_recruited",
+        "availability_flag": "lyra_available", 
+        "conversation_required": "lyra_talked"
+      }
+    }
+  },
+
+  "quest_triggers": {
+    "meredith_swamp_discovery": {
+      "dialogue_flag": "learned_about_swamp_church",
+      "quest_objective": "main_story.investigate_swamp_church",
+      "event_type": "INFORMATION_DISCOVERED",
+      "xp_reward": 50
+    },
+    "garrick_ruins_discovery": {
+      "dialogue_flag": "learned_about_ruins", 
+      "quest_objective": "main_story.investigate_hill_ruins",
+      "event_type": "INFORMATION_DISCOVERED",
+      "xp_reward": 50
+    },
+    "mayor_main_quest": {
+      "dialogue_flag": "quest_active",
+      "quest_objective": "main_story.meet_mayor", 
+      "event_type": "QUEST_ACTIVATED",
+      "xp_reward": 100
+    },
+    "party_recruitment_triggers": {
+      "gareth_recruited": {
+        "quest_objective": "party_building.recruit_warrior",
+        "event_type": "PARTY_MEMBER_RECRUITED",
+        "xp_reward": 200
+      },
+      "elara_recruited": {
+        "quest_objective": "party_building.recruit_mage", 
+        "event_type": "PARTY_MEMBER_RECRUITED",
+        "xp_reward": 200
+      },
+      "thorman_recruited": {
+        "quest_objective": "party_building.recruit_cleric",
+        "event_type": "PARTY_MEMBER_RECRUITED", 
+        "xp_reward": 200
+      },
+      "lyra_recruited": {
+        "quest_objective": "party_building.recruit_rogue",
+        "event_type": "PARTY_MEMBER_RECRUITED",
+        "xp_reward": 200
+      }
+    },
+    "basement_quest_triggers": {
+      "garrick_basement_offer": {
+        "dialogue_flag": "garrick_offered_basement",
+        "quest_objective": "basement_rat_combat.accept_challenge",
+        "event_type": "QUEST_OFFERED",
+        "xp_reward": 25
+      },
+      "basement_combat_complete": {
+        "dialogue_flag": "completed_basement_combat", 
+        "quest_objective": "basement_rat_combat.clear_basement",
+        "event_type": "COMBAT_VICTORY",
+        "xp_reward": 150
+      }
+    }
+  },
+
+  "quest_mappings": {
+    "main_story": {
+      "type": "primary",
+      "objectives": {
+        "talk_to_npcs": ["meredith_talked", "garrick_talked"],
+        "meet_mayor": ["mayor_talked"],
+        "recruit_party": ["recruited_count >= 1"],
+        "investigate_swamp_church": ["learned_about_swamp_church", "explored_swamp_church"],
+        "investigate_hill_ruins": ["learned_about_ruins", "explored_hill_ruins"],
+        "investigate_refugee_camp": ["learned_about_refugees", "gathered_refugee_info"],
+        "solve_mystery": ["found_swamp_evidence", "found_ruins_evidence", "gathered_refugee_info"]
+      }
+    },
+    "party_building": {
+      "type": "secondary",
+      "activation_flag": "mayor_talked",
+      "objectives": {
+        "recruit_warrior": ["gareth_recruited"],
+        "recruit_mage": ["elara_recruited"], 
+        "recruit_cleric": ["thorman_recruited"],
+        "recruit_rogue": ["lyra_recruited"]
+      }
+    },
+    "basement_rat_combat": {
+      "type": "secondary",
+      "activation_flag": "garrick_offered_basement",
+      "objectives": {
+        "accept_challenge": ["accepted_basement_quest"],
+        "clear_basement": ["completed_basement_combat"],
+        "report_success": ["reported_basement_victory"]
+      }
+    }
+  },
+
+  "dialogue_state_mapping": {
+    "meredith": {
+      "first_meeting": "!meredith_talked",
+      "post_mayor": "meredith_talked && mayor_talked", 
+      "return_visits": "meredith_talked && !mayor_talked"
+    },
+    "garrick": {
+      "first_meeting": "!garrick_talked",
+      "after_first_talk": "garrick_talked && !mayor_talked",
+      "post_mayor": "garrick_talked && mayor_talked",
+      "quest_active": "quest_active"
+    },
+    "pete": {
+      "first_meeting": "!pete_talked",
+      "pre_recruitment_comedy": "pete_talked && !pete_attempted_recruitment",
+      "comedy_sequence": "pete_attempted_recruitment && !pete_comedy_complete",
+      "post_comedy": "pete_comedy_complete",
+      "repeat_performances": "pete_comedy_complete"
+    },
+    "mayor": {
+      "first_meeting": "!mayor_talked",
+      "quest_given": "quest_active",
+      "progress_updates": "mayor_talked && (learned_about_swamp_church || learned_about_ruins || learned_about_refugees)"
+    },
+    "gareth": {
+      "first_meeting": "!gareth_talked",
+      "recruitment_available": "gareth_talked && !gareth_recruited && mayor_talked && recruited_count < 3",
+      "recruitment_blocked": "gareth_talked && recruited_count >= 3",
+      "already_recruited": "gareth_recruited",
+      "casual_chat": "gareth_talked && !mayor_talked"
+    },
+    "elara": {
+      "first_meeting": "!elara_talked", 
+      "recruitment_available": "elara_talked && !elara_recruited && mayor_talked && recruited_count < 3",
+      "recruitment_blocked": "elara_talked && recruited_count >= 3",
+      "already_recruited": "elara_recruited",
+      "casual_chat": "elara_talked && !mayor_talked"
+    },
+    "thorman": {
+      "first_meeting": "!thorman_talked",
+      "recruitment_available": "thorman_talked && !thorman_recruited && mayor_talked && recruited_count < 3", 
+      "recruitment_blocked": "thorman_talked && recruited_count >= 3",
+      "already_recruited": "thorman_recruited",
+      "casual_chat": "thorman_talked && !mayor_talked"
+    },
+    "lyra": {
+      "first_meeting": "!lyra_talked",
+      "recruitment_available": "lyra_talked && !lyra_recruited && mayor_talked && recruited_count < 3",
+      "recruitment_blocked": "lyra_talked && recruited_count >= 3",
+      "already_recruited": "lyra_recruited", 
+      "casual_chat": "lyra_talked && !mayor_talked"
+    },
+    "bernard": {
+      "first_meeting": "!bernard_talked",
+      "regular_customer": "bernard_talked",
+      "bulk_discounts": "bernard_talked && recruited_count >= 2"
+    },
+    "jenna": {
+      "first_meeting": "!jenna_talked",
+      "returning_customer": "jenna_talked"
+    }
+  }
+}

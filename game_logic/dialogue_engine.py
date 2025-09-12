@@ -38,7 +38,8 @@ class DialogueEngine:
         self.game_state = game_state
         self.dialogues = {}  # Loaded dialogue trees
         self.quest_event_hooks = []  # Future QuestEngine integration
-        
+        self.event_manager = None 
+
         print("🗣️ DialogueEngine initialized with GameState authority")
     
     def load_dialogue_file(self, dialogue_id: str) -> bool:
@@ -70,41 +71,47 @@ class DialogueEngine:
             return False
     
     def get_current_dialogue_state(self, npc_id: str) -> str:
-        """
-        Determine current conversation state for NPC based on game progression
-        Enhanced to support dynamic state transitions from JSON
-        """
+        """Determine current dialogue state for NPC using narrative schema"""
         
-        # Check if NPC has a stored dialogue state from previous transitions
-        state_attr = f'{npc_id}_dialogue_state'
-        stored_state = getattr(self.game_state, state_attr, None)
+        # Use narrative schema dialogue state mapping
+        dialogue_states = narrative_schema.schema.get('dialogue_state_mapping', {})
+        npc_states = dialogue_states.get(npc_id, {})
         
-        if stored_state:
-            #print(f"DEBUG: DE: Using stored state for {npc_id}: {stored_state}")
-            return stored_state
+        if not npc_states:
+            return 'first_meeting'
         
-        # Original state logic as fallback
-        if npc_id == 'garrick':
-            if not getattr(self.game_state, 'garrick_talked', False):
-                return 'first_meeting'
-            elif not getattr(self.game_state, 'mayor_talked', False):
-                return 'after_first_talk'  
-            elif getattr(self.game_state, 'quest_active', False):
-                return 'quest_active'
-            else:
-                return 'post_mayor'
+        # Create evaluation context with current game state
+        context = {}
+        for flag_name in narrative_schema.get_all_flags():
+            context[flag_name] = getattr(self.game_state, flag_name, False)
         
-        elif npc_id == 'meredith' or npc_id == 'server':
-            if not getattr(self.game_state, 'meredith_talked', False):
-                return 'first_meeting'
-            elif getattr(self.game_state, 'mayor_talked', False):
-                return 'post_mayor'
-            else:
-                return 'return_visits'
-
-        # Default to first meeting for other NPCs
+        # CRITICAL: If dialogue in progress, temporarily override talked flag
+        in_progress = getattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
+        if in_progress:
+            talked_flag = narrative_schema.get_npc_conversation_flag(npc_id)
+            context[talked_flag] = False  # Pretend we haven't talked yet
+            #print(f"DEBUG: Dialogue in progress for {npc_id}, overriding {talked_flag} to False")
+        
+        # Evaluate each state condition
+        for state_name, condition in npc_states.items():
+            if self._evaluate_condition(condition, context):
+               #print(f"DEBUG: State for {npc_id}: {state_name} (condition: {condition})")
+                return state_name
+        
         return 'first_meeting'
-    
+
+    def _evaluate_condition(self, condition: str, context: dict) -> bool:
+        """Evaluate dialogue state condition string"""
+        try:
+            # Replace operators
+            condition = condition.replace('!', 'not ').replace('&&', ' and ').replace('||', ' or ')
+            
+            # Safely evaluate
+            return eval(condition, {"__builtins__": {}}, context)
+        except Exception as e:
+            print(f"DEBUG: Condition evaluation failed: {condition}, error: {e}")
+            return False
+
     def get_conversation_options(self, dialogue_id: str, npc_id: str) -> Dict[str, Any]:
         """
         Get current conversation options for NPC
@@ -143,84 +150,64 @@ class DialogueEngine:
 
     def register_event_handlers(self, event_manager):
         """Register dialogue event handlers with EventManager"""
+        #STORE the event_manager reference
+        self.event_manager = event_manager
+        
         event_manager.register("DIALOGUE_CHOICE", self._handle_dialogue_choice)
         event_manager.register("DIALOGUE_ACTION", self._handle_dialogue_action)
         print("🎭 DialogueEngine event handlers registered")
 
     def _handle_dialogue_choice(self, event_data):
-        """Handle DIALOGUE_CHOICE events - delegates to existing process_dialogue_choice"""
+        """Handle DIALOGUE_CHOICE events"""
+        print(f"🎭 DEBUG: DialogueEngine received DIALOGUE_CHOICE event: {event_data}")
+        
         npc_id = event_data.get('npc_id')
         choice_index = event_data.get('choice_index')
         
         if npc_id and choice_index is not None:
+            print(f"🎭 DEBUG: Processing choice {choice_index} for {npc_id}")
+            
             # NARRATIVE SCHEMA INTEGRATION - Set conversation flag
             conv_flag = narrative_schema.get_npc_conversation_flag(npc_id)
             setattr(self.game_state, conv_flag, True)
             print(f"✅ Set conversation flag: {conv_flag} = True")
 
-            # Get stored location and build dialogue_file_id
-            location_id = getattr(self.game_state, f'{npc_id}_current_location', 'broken_blade')
+            # Get stored location - REQUIRED, no hardcoding
+            location_id = getattr(self.game_state, f'{npc_id}_current_location', None)
+            if not location_id:
+                raise ValueError(f"No location set for {npc_id} dialogue session - location must be set before dialogue begins")
+            
             dialogue_file_id = f'{location_id}_{npc_id}'
+            print(f"🎭 DEBUG: Looking for dialogue file: {dialogue_file_id}")
             
             # Get choice_id from conversation data
             conversation_data = self.get_conversation_options(dialogue_file_id, npc_id)
-            if choice_index < len(conversation_data.get('options', [])):
-                choice_id = conversation_data['options'][choice_index]['id']
+            options = conversation_data.get('options', [])
+            
+            if choice_index < len(options):
+                choice_id = options[choice_index]['id']
+                print(f"🎭 DEBUG: Selected option ID: {choice_id}")
                 
-                # Call existing method
+                # Call existing business logic method
                 result = self.process_dialogue_choice(dialogue_file_id, npc_id, choice_id)
+                print(f"🎭 DEBUG: Choice processing result: {result}")
 
-                # CRITICAL: Re-register dialogue buttons after state change
-                try:
-                    print(f"🔍 DEBUG: DE: About to try re-registration for {npc_id}")
+                if result:
+                    # Store response and set showing response flag
+                    response_lines = result.get('response', [])
+                    setattr(self.game_state, f'{npc_id}_dialogue_response', response_lines)
+                    setattr(self.game_state, f'showing_{npc_id}_response', True)
                     
-                    # Use global event manager access
-                    from game_logic.event_manager import get_event_manager
-                    event_manager = get_event_manager()
+                    print(f"🎭 DEBUG: Response stored, registering dialogue state handler")
                     
-                    if event_manager:
-                        print(f"🔍 DEBUG: DE: Got event_manager successfully")
-                        
-                        # Get screen manager and controller
-                        screen_manager_service = event_manager.get_service('screen_manager')
-                        if screen_manager_service and hasattr(screen_manager_service, '_current_game_controller'):
-                            controller = screen_manager_service._current_game_controller
-                            
-                            # Get CURRENT screen name dynamically - no hardcoding
-                            current_screen = screen_manager_service.get_current_screen()
-                            
-                            print(f"🔍 DEBUG: DE: Re-registering for current screen: {current_screen}")
-                            
-                            # Call the register function that we KNOW works
-                            if hasattr(controller.screen_manager, 'input_handler'):
-                                # Clear existing clickables for current screen
-                                controller.screen_manager.input_handler.clear_clickables(current_screen)
-                                
-                                # Import and call the register function
-                                import ui.generic_dialogue_handler as gdh
-                                gdh.register_dialogue_clickables(current_screen, npc_id, self.game_state, 
-                                                                controller.fonts, controller)
-                                
-                                print(f"🔄 Re-registered dialogue buttons for response state: {current_screen}")
-                            else:
-                                print(f"⚠️ Could not get input_handler")
-                        else:
-                            print(f"⚠️ Could not get screen_manager or controller")
-                    else:
-                        print(f"⚠️ Could not get global event_manager")
-                except Exception as e:
-                    print(f"⚠️ Could not re-register dialogue buttons: {e}")
-                    import traceback
-                    traceback.print_exc()
-                
-                return result
+                    return result
             else:
-                print(f"⚠️ Invalid choice index {choice_index} for {npc_id}")
+                print(f"❌ DEBUG: Invalid choice index {choice_index} for {npc_id} (only {len(options)} options available)")
                 return None
         else:
-            print(f"⚠️ Missing npc_id or choice_index in dialogue choice event: {event_data}")
+            print(f"❌ DEBUG: Missing npc_id ({npc_id}) or choice_index ({choice_index}) in event data")
             return None
-        
+            
     def _handle_dialogue_action(self, event_data):
         """Handle DIALOGUE_ACTION events"""
         npc_id = event_data.get('npc_id')
@@ -230,14 +217,34 @@ class DialogueEngine:
             print(f"🎭 Processing dialogue action: {npc_id}, {action_name}")
             
             if action_name == 'goodbye' or action_name == 'back':
-                # Clear response state and go back to main screen
+                # Clear response state and dialogue state
                 setattr(self.game_state, f'showing_{npc_id}_response', False)
                 setattr(self.game_state, f'{npc_id}_dialogue_response', [])
-                # Emit screen change event to go back
-                # TODO: Need to trigger navigation back to broken_blade_main
                 
+                # Clear dialogue in progress flag
+                setattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
+                print(f"DEBUG: Cleared {npc_id}_dialogue_in_progress")
+                
+                # Unregister dialogue state handler
+                if self.event_manager:
+                    screen_manager_service = self.event_manager.get_service('screen_manager')
+                    if screen_manager_service and hasattr(screen_manager_service, 'input_handler'):
+                        input_handler = screen_manager_service.input_handler
+                        state_flag = f'showing_{npc_id}_response'
+                        input_handler.unregister_dialogue_state(state_flag)
+                        print(f"Unregistered dialogue state: {state_flag}")
+                
+                # Navigate back to the location where dialogue started - NO HARDCODING!
+                location_id = getattr(self.game_state, f'{npc_id}_current_location', None)
+                if location_id:
+                    target_screen = f'{location_id}_main'  # broken_blade_main, hill_ruins_main, etc.
+                    self.event_manager.emit('SCREEN_CHANGE', {'target_screen': target_screen})
+                    print(f"Navigating back to {target_screen}")
+                else:
+                    print(f"ERROR: No location stored for {npc_id}, cannot navigate back")
+                    
+                    
             elif action_name == 'shop':
-                # Handle shop transition
                 print(f"🎭 Shop action for {npc_id}")
                 # TODO: Navigate to shop screen
                 

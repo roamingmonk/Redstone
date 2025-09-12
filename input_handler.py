@@ -192,6 +192,11 @@ class InputHandler:
         Returns:
             bool: True if click was handled, False otherwise
         """
+        
+        # ADD DEBUG LOGGING HERE:
+        print(f"🖱️ DEBUG: IH: Mouse click detected at {mouse_pos}")
+        print(f"🖱️ DEBUG: IH: Current screen: {current_screen}")
+        
         # Record click for debugging
         self.click_history.append({
             'pos': mouse_pos,
@@ -204,7 +209,7 @@ class InputHandler:
             self.click_history.pop(0)
         
         if self.debug_input:
-            print(f"🖱️  Mouse click at {mouse_pos} on screen '{current_screen}'")
+            print(f"🖱️ IH:  Mouse click at {mouse_pos} on screen '{current_screen}'")
         
         if self._handle_location_action_events(mouse_pos, current_screen):
             return True
@@ -214,15 +219,19 @@ class InputHandler:
             regions = self.clickable_regions[current_screen]
             regions_checked = 0
             
+            print(f"🖱️ DEBUG: IH: Found {len(regions)} clickable regions for {current_screen}")
+
             for region in regions:
                 regions_checked += 1
                 if region.rect.collidepoint(mouse_pos):
                     if self.debug_input:
-                        print(f"✅ Click hit: {region.event_type} with data {region.event_data}")
-                    
+                        
+                        print(f"🎯 DEBUG: IH: HIT! Event: {region.event_type}, Data: {region.event_data}")
+
                     # Emit the event instead of calling methods directly
                     self.event_manager.emit(region.event_type, region.event_data)
-                    
+                    print(f"✅ DEBUG: IH: Event emitted successfully")
+
                     # Update debug info
                     self.click_history[-1]['regions_checked'] = regions_checked
                     self.click_history[-1]['hit'] = True
@@ -240,6 +249,10 @@ class InputHandler:
             if self.debug_input:
                 print(f"⚠️  No clickable regions registered for screen: {current_screen}")
         
+        # Handle dialogue state input
+        if self._handle_dialogue_state_input(mouse_pos):
+            return True
+                
         # Universal overlay input handling 
         if self._handle_registered_overlay_input(mouse_pos):
             return True
@@ -266,6 +279,70 @@ class InputHandler:
         if self.debug_input:
             print(f"🚫 Ignoring empty space click on {current_screen}")
         return True
+
+    #### Handle dialgoue states  ####
+    def register_dialogue_state(self, dialogue_handler, state_flag: str) -> bool:
+        """
+        Register a dialogue state handler for automatic input routing
+        
+        Args:
+            dialogue_handler: The dialogue handler object (must have handle_mouse_click method)
+            state_flag: GameState attribute name (e.g., 'showing_meredith_response')
+            
+        Returns:
+            bool: True if registration successful, False otherwise
+        """
+        try:
+            # Validate handler has required methods
+            if not hasattr(dialogue_handler, 'handle_mouse_click'):
+                print(f"⚠️ Dialogue state registration failed: {dialogue_handler} missing handle_mouse_click method")
+                return False
+            
+            # Store in a separate registry (not overlay_registry)
+            if not hasattr(self, 'dialogue_state_registry'):
+                self.dialogue_state_registry = {}
+                
+            self.dialogue_state_registry[state_flag] = dialogue_handler
+            
+            if self.debug_input:
+                print(f"✅ Dialogue state registered: {state_flag} -> {getattr(dialogue_handler, 'handler_id', 'unknown')}")
+            
+            return True
+            
+        except Exception as e:
+            print(f"⚠️ Dialogue state registration error for {state_flag}: {e}")
+            return False
+
+    def unregister_dialogue_state(self, state_flag: str) -> bool:
+        """Unregister a dialogue state from input routing"""
+        if hasattr(self, 'dialogue_state_registry') and state_flag in self.dialogue_state_registry:
+            del self.dialogue_state_registry[state_flag]
+            if self.debug_input:
+                print(f"🗑️ Dialogue state unregistered: {state_flag}")
+            return True
+        return False
+
+    def _handle_dialogue_state_input(self, mouse_pos) -> bool:
+        """Handle clicks for active dialogue states"""
+        if not hasattr(self, 'dialogue_state_registry'):
+            return False
+            
+        game_state = self.game_controller.game_state
+        
+        # Check each registered dialogue state
+        for state_flag, dialogue_handler in self.dialogue_state_registry.items():
+            if hasattr(game_state, state_flag) and getattr(game_state, state_flag):
+                if self.debug_input:
+                    print(f"🎭 Routing click to dialogue state: {state_flag}")
+                
+                # Route the click to the dialogue handler
+                if dialogue_handler.handle_mouse_click(mouse_pos):
+                    return True
+                    
+        return False
+
+    ####    ####
+
 
     def _handle_registered_overlay_keyboard_input(self, key) -> bool:
         """Handle keyboard input for all registered overlays"""
@@ -329,6 +406,7 @@ class InputHandler:
 
     def process_keyboard_input(self, event: pygame.event.Event, 
                               game_state) -> bool:
+        print(f"DEBUG: IH: Keyboard event - key: {pygame.key.name(event.key)}, screen: {game_state.screen}")
         """
         Process keyboard input and emit appropriate events
         
@@ -393,8 +471,12 @@ class InputHandler:
                     self.event_manager.emit(event_type, event_data)
                 
                 return True
-        
-        #Prioirty 3: Route keyboard input to registered overlays
+
+        # PRIORITY 3: Handle dialogue keyboard input
+        if self._handle_dialogue_keyboard_input(event.key, game_state):
+            return True
+
+        #Prioirty 4: Route keyboard input to registered overlays
         if self._handle_registered_overlay_keyboard_input(event.key):
             return True
 
@@ -577,6 +659,60 @@ class InputHandler:
         # Other event types are ignored but considered "handled"
         return True
 
+    def _handle_dialogue_keyboard_input(self, key, game_state) -> bool:
+            """Handle keyboard input for dialogue screens"""
+            # Only process on dialogue screens
+            current_screen = game_state.screen
+            if not (current_screen.endswith('_dialogue') or '_dialogue' in current_screen):
+                return False
+                
+            print(f"DEBUG: Dialogue keyboard check - screen: {current_screen}, key: {pygame.key.name(key)}")
+            if self.debug_input:
+                print(f"⌨️ Dialogue screen detected: {current_screen}")
+            
+            # Check if we're in response mode
+            npc_id = None
+            if '_' in current_screen:
+                # Extract NPC ID from screen name (e.g., 'broken_blade_meredith' -> 'meredith')
+                parts = current_screen.split('_')
+                if len(parts) >= 2:
+                    npc_id = parts[-1]  # Last part should be NPC name
+            
+            if not npc_id:
+                return False
+                
+            showing_response_attr = f'showing_{npc_id}_response'
+            is_showing_response = getattr(game_state, showing_response_attr, False)
+            
+            if is_showing_response:
+                # RESPONSE MODE - Only A key for actions
+                if key == pygame.K_a:
+                    if self.debug_input:
+                        print(f"⌨️ Response action A pressed for {npc_id}")
+                    self.event_manager.emit("DIALOGUE_ACTION", {
+                        'npc_id': npc_id,
+                        'action_name': 'goodbye'
+                    })
+                    return True
+            else:
+                # CHOICE MODE - 1, 2, 3 keys for choices
+                choice_keys = {
+                    pygame.K_1: 0,
+                    pygame.K_2: 1, 
+                    pygame.K_3: 2
+                }
+                
+                if key in choice_keys:
+                    choice_index = choice_keys[key]
+                    if self.debug_input:
+                        print(f"⌨️ Choice {choice_index + 1} pressed for {npc_id}")
+                    self.event_manager.emit("DIALOGUE_CHOICE", {
+                        'npc_id': npc_id,
+                        'choice_index': choice_index
+                    })
+                    return True
+                    
+            return False
 
 
 

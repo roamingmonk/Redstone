@@ -38,89 +38,120 @@ def draw_standard_dialogue_screen(surface, npc_name, conversation_data, game_sta
     title_rect = title_text.get_rect(center=(dialogue_area.centerx, 120)) #DIALOGUE_TITLE_Y))
     surface.blit(title_text, title_rect)
     
-    # Introduction text with proper wrapping
-    intro_font = fonts.get('fantasy_small', fonts['normal'])
-    y_pos = 160 #DIALOGUE_TEXT_START_Y
-    x_pos = 190 #DIALOGUE_AREA_X
+    # Check if we're in response mode first
+    response_attr = f'showing_{npc_name}_response'
+    is_showing_response = getattr(game_state, response_attr, False)
+    
+    if is_showing_response:
+        # RESPONSE MODE - Show response text instead of introduction + choices
+        response_attr = f'{npc_name}_dialogue_response'
+        response_lines = getattr(game_state, response_attr, ["Thank you for listening."])
+        
+        # Display response text in the same area as introduction
+        intro_font = fonts.get('fantasy_small', fonts['normal'])
+        y_pos = 160
+        x_pos = 190
+        
+        for line in response_lines:
+            if line.strip():  # Skip empty lines
+                wrapped_lines = wrap_text(line, intro_font, DIALOGUE_AREA_WIDTH - 40)
+                for wrapped_surface in wrapped_lines:
+                    surface.blit(wrapped_surface, (x_pos, y_pos))
+                    y_pos += DIALOGUE_TEXT_LINE_HEIGHT
+                y_pos += 10  # Extra space between paragraphs
+    else:
+        # CHOICE MODE - Show normal introduction text
+        intro_font = fonts.get('fantasy_small', fonts['normal'])
+        y_pos = 160 #DIALOGUE_TEXT_START_Y
+        x_pos = 190 #DIALOGUE_AREA_X
 
-    for line in conversation_data['introduction']:
-        wrapped_lines = wrap_text(line, intro_font, DIALOGUE_AREA_WIDTH - 40)
-        for wrapped_surface in wrapped_lines:
-            surface.blit(wrapped_surface, (x_pos, y_pos))#DIALOGUE_AREA_X - 70, y_pos))
-            y_pos += DIALOGUE_TEXT_LINE_HEIGHT
+        for line in conversation_data['introduction']:
+            wrapped_lines = wrap_text(line, intro_font, DIALOGUE_AREA_WIDTH - 40)
+            for wrapped_surface in wrapped_lines:
+                surface.blit(wrapped_surface, (x_pos, y_pos))#DIALOGUE_AREA_X - 70, y_pos))
+                y_pos += DIALOGUE_TEXT_LINE_HEIGHT
     
-    # Draw dialogue options with hover detection
-    mouse_pos = pygame.mouse.get_pos()
+    # Draw dialogue options OR action buttons based on mode
     option_rects = []
-    y_pos += DIALOGUE_OPTIONS_START_Y_OFFSET
     
-    for i, option in enumerate(conversation_data['options']):
-        option_text = f"[{i+1}] {option['text']}"
+    if not is_showing_response:
+        # CHOICE MODE - Show dialogue options with hover detection
+        mouse_pos = pygame.mouse.get_pos()
+        y_pos += DIALOGUE_OPTIONS_START_Y_OFFSET
         
-        # Calculate dynamic hover rect
-        text_surface = intro_font.render(option_text, True, DIALOGUE_OPTION_COLOR)
-        text_width = text_surface.get_width()
-        text_height = text_surface.get_height()
-        
-        option_rect = pygame.Rect(
-            x_pos + 25, #DIALOGUE_AREA_X - 45,  # Small left padding
-            y_pos - DIALOGUE_OPTION_PADDING,
-            text_width + (DIALOGUE_OPTION_PADDING * 2),
-            text_height + (DIALOGUE_OPTION_PADDING * 2)
-        )
-        
-        # Hover highlight
-        if option_rect.collidepoint(mouse_pos):
-            pygame.draw.rect(surface, DIALOGUE_OPTION_BG_HOVER, option_rect)
-            text_surface = intro_font.render(option_text, True, DIALOGUE_OPTION_HOVER_COLOR)
-        
-        surface.blit(text_surface, (x_pos + 25, y_pos))#(DIALOGUE_AREA_X + 20, y_pos))
-        option_rects.append(option_rect)
-        y_pos += DIALOGUE_OPTION_HEIGHT
+        for i, option in enumerate(conversation_data['options']):
+            option_text = f"[{i+1}] {option['text']}"
+            
+            # Calculate dynamic hover rect
+            text_surface = intro_font.render(option_text, True, DIALOGUE_OPTION_COLOR)
+            text_width = text_surface.get_width()
+            text_height = text_surface.get_height()
+            
+            option_rect = pygame.Rect(
+                x_pos + 25, #DIALOGUE_AREA_X - 45,  # Small left padding
+                y_pos - DIALOGUE_OPTION_PADDING,
+                text_width + (DIALOGUE_OPTION_PADDING * 2),
+                text_height + (DIALOGUE_OPTION_PADDING * 2)
+            )
+            
+            # Hover highlight
+            if option_rect.collidepoint(mouse_pos):
+                pygame.draw.rect(surface, DIALOGUE_OPTION_BG_HOVER, option_rect)
+                text_surface = intro_font.render(option_text, True, DIALOGUE_OPTION_HOVER_COLOR)
+            
+            surface.blit(text_surface, (x_pos + 25, y_pos))#(DIALOGUE_AREA_X + 20, y_pos))
+            option_rects.append(option_rect)
+            y_pos += DIALOGUE_OPTION_HEIGHT
+    # If in response mode, we skip drawing dialogue options entirely
     
     
     # Draw party status using your existing system
     from utils.party_display import draw_party_status_panel
     draw_party_status_panel(surface, game_state, fonts)
     
-     # Process default_actions from JSON for immediate action buttons
+    # Process action buttons based on mode
     action_rects = {}
-    default_actions = conversation_data.get('default_actions', [])
-    actions_config = conversation_data.get('actions', {})
     
-    #print(f"DEBUG: DUI: DSDS: Processing {len(default_actions)} dialogue-level action buttons")
-    
-    if default_actions:
-        # Position action buttons below dialogue options
+    if is_showing_response:
+        # RESPONSE MODE - Show simple FAREWELL button
         action_y = y_pos + 20
+        farewell_button = draw_button(surface, 450, action_y, 120, 35, "FAREWELL", 
+                                    fonts.get('fantasy_small', fonts['normal']))
+        action_rects['goodbye'] = farewell_button
+    else:
+        # CHOICE MODE - Process default_actions from JSON
+        default_actions = conversation_data.get('default_actions', [])
+        actions_config = conversation_data.get('actions', {})
         
-        for action_name in default_actions:
-            # Get button text from actions config or use default mapping
-            if action_name in actions_config:
-                button_text = actions_config[action_name].get('text', action_name.upper())
-            else:
-                # Default text mapping
-                action_text_map = {
-                    'shop': 'SHOP',
-                    'goodbye': 'FAREWELL',
-                    'leave': 'LEAVE',
-                    'back': 'BACK'
-                }
-                button_text = action_text_map.get(action_name, action_name.upper())
+        if default_actions:
+            # Position action buttons below dialogue options
+            action_y = y_pos + 20
             
-            #print(f"DEBUG: DUI: DSDS: Creating button '{button_text}' for action '{action_name}'")
-            
-            # Create action button
-            action_button = draw_button(surface, 450, action_y, 120, 35, button_text, 
-                                      fonts.get('fantasy_small', fonts['normal']))
-            action_rects[action_name] = action_button
-            action_y += 45  # Space buttons vertically
-    
-    # Keep BACK button as fallback if no actions
-    if not default_actions:
-        back_button = draw_button(surface, 450, 520, 120, 35, "BACK", 
-                                fonts.get('fantasy_small', fonts['normal']))
-        action_rects['back'] = back_button
+            for action_name in default_actions:
+                # Get button text from actions config or use default mapping
+                if action_name in actions_config:
+                    button_text = actions_config[action_name].get('text', action_name.upper())
+                else:
+                    # Default text mapping
+                    action_text_map = {
+                        'shop': 'SHOP',
+                        'goodbye': 'FAREWELL',
+                        'leave': 'LEAVE',
+                        'back': 'BACK'
+                    }
+                    button_text = action_text_map.get(action_name, action_name.upper())
+                
+                # Create action button
+                action_button = draw_button(surface, 450, action_y, 120, 35, button_text, 
+                                          fonts.get('fantasy_small', fonts['normal']))
+                action_rects[action_name] = action_button
+                action_y += 45  # Space buttons vertically
+        
+        # Keep BACK button as fallback if no actions
+        if not default_actions:
+            back_button = draw_button(surface, 450, 520, 120, 35, "BACK", 
+                                    fonts.get('fantasy_small', fonts['normal']))
+            action_rects['back'] = back_button
     
     return {
         "type": "standard_dialogue",
@@ -243,11 +274,11 @@ def draw_standard_response_screen(surface, npc_name, response_lines, game_state,
         action_rects[action_name] = action_button
         action_y += 45  # Space buttons vertically
 
-   # Fallback if no actions processed
+    # Fallback if no actions processed
     if not action_rects:
-        continue_button = draw_button(surface, 450, action_y, 120, 35, "CONTINUE", 
+        continue_button = draw_button(surface, 450, action_y, 120, 35, "FAREWELL", 
                                     fonts.get('fantasy_small', fonts['normal']))
-        action_rects['continue'] = continue_button
+        action_rects['goodbye'] = continue_button  # Changed from 'continue' to 'goodbye'
         #print(f"DEBUG: DSRS: Added fallback CONTINUE button")
     
     return {

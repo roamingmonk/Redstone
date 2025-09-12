@@ -204,7 +204,7 @@ class GameController:
         self.event_manager.register_service('quest_engine', self.quest_engine)
         self.event_manager.register_service('character_engine', self.character_engine)
         self.event_manager.register_service('inventory_engine', self.inventory_engine)
-
+        self.event_manager.register_service('screen_manager', self.screen_manager)
 
         self._mark_system_created("character_engine")
         self._mark_system_created("inventory_engine")
