@@ -20,18 +20,20 @@
       }
     },
     "garrick": {
-      "system_id": "garrick",
-      "full_name": "Garrick Ironbrew",
-      "dialogue_file": "broken_blade_garrick", 
-      "conversation_flag": "garrick_talked",
-      "location": "broken_blade",
-      "role": "bartender",
-      "story_flags": {
-        "gave_ruins_location": "learned_about_ruins",
-        "offered_basement_quest": "garrick_offered_basement",
-        "mentioned_mayor": "garrick_mentioned_mayor"
-      }
-    },
+    "system_id": "garrick",
+    "full_name": "Garrick Ironbrew",
+    "dialogue_file": "broken_blade_garrick", 
+    "conversation_flag": "garrick_talked",
+    "location": "broken_blade",
+    "role": "bartender",
+    "story_flags": {
+      "gave_ruins_location": "learned_about_ruins",
+      "offered_basement_quest": "garrick_offered_basement",
+      "mentioned_mayor": "garrick_mentioned_mayor",
+      "basement_quest_completed": "completed_basement_combat",
+      "basement_victory_reported": "reported_basement_victory"
+    }
+  },
     "pete": {
       "system_id": "pete",
       "full_name": "Pete Stumblefoot",

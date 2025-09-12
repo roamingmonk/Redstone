@@ -698,10 +698,10 @@ class InputHandler:
                 # RESPONSE MODE - primary/back/shop via keyboard
                 if key in (pygame.K_RETURN, pygame.K_a):
                     if self.debug_input:
-                        print(f"⌨️ Response primary pressed for {npc_id} → goodbye")
+                        print(f"⌨️ Response primary pressed for {npc_id} → continue")
                     self.event_manager.emit("DIALOGUE_ACTION", {
                         'npc_id': npc_id,
-                        'action_name': 'goodbye'
+                        'action_name': 'continue'  # ← Changed from 'goodbye' to 'continue'
                     })
                     return True
 

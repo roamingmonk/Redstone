@@ -1,7 +1,7 @@
 {
-  "dialogue_id": "tavern_garrick",
+  "dialogue_id": "broken_blade_garrick",
   "npc_name": "Garrick the Barkeep",
-  "description": "A weathered tavern keeper with knowing eyes and extensive local knowledge",
+  "description": "A weathered tavern keeper with extensive local knowledge and a rat problem",
   
   "states": {
     "first_meeting": {
@@ -13,303 +13,351 @@
       ],
       "options": [
         {
-          "id": "ask_troubles",
-          "text": "Tell me about these troubles you mention.",
+          "id": "ask_about_troubles",
+          "text": "I've heard there are troubles here. What's happening?",
           "response": [
-            "*Garrick's expression darkens as he leans closer*",
-            "Folk have been disappearing. Started with the homeless and beggars.",
-            "Then the Mayor's own wife and daughter vanished without a trace.",
-            "But there's more to it than just disappearances..."
+            "*Garrick's expression darkens*",
+            "Aye, troubles indeed. Folk have been disappearing.",
+            "Started with the homeless, but it's gotten worse.",
+            "You should speak with Mayor Goldenbottom about the details.",
+            "He's been trying to organize some kind of response."
           ],
           "effects": [
             {
               "type": "set_flag",
-              "flag": "learned_basic_troubles",
+              "flag": "garrick_mentioned_mayor",
               "value": true
             }
           ],
-          "actions": ["investigate_deeper", "ask_about_ruins", "change_subject"]
+          "actions": ["suggest_mayor", "ask_about_ruins"]
         },
         {
-          "id": "just_drink",
-          "text": "I'm just here for a drink and a room.",
+          "id": "just_drinking",
+          "text": "Just looking for a drink and perhaps a room.",
           "response": [
-            "*Garrick nods understandingly*",
-            "Aye, sometimes a traveler just needs rest and refreshment.",
-            "Though if you change your mind about helping our town..."
+            "*Garrick nods and pours you an ale*",
+            "That I can provide. Two copper for the ale, five silver for a room.",
+            "Though if you're planning to stay, you might want to know about our... situation."
           ],
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "garrick_casual_meeting",
-              "value": true
-            }
-          ],
-          "actions": ["ask_troubles_delayed", "shop", "goodbye"]
+          "effects": [],
+          "actions": ["ask_situation", "shop", "goodbye"]
         },
         {
           "id": "offer_help",
           "text": "I might be able to help with whatever's troubling the town.",
           "response": [
             "*Garrick's eyes light up with hope*",
-            "Now that's what I was hoping to hear!",
-            "But this isn't a simple problem, stranger.",
-            "There are... layers to what's happening here."
+            "A helpful stranger? That's rare these days.",
+            "The Mayor would want to speak with you first, but...",
+            "*He leans closer*",
+            "I might have a smaller task if you're willing."
           ],
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "offered_help",
-              "value": true
-            }
-          ],
-          "actions": ["press_for_details", "ask_about_layers", "suggest_mayor"]
+          "effects": [],
+          "actions": ["ask_task", "suggest_mayor", "decline_help"]
         }
       ],
       "default_actions": ["shop", "goodbye"]
     },
 
-    "investigating_troubles": {
+    "after_first_talk": {
       "introduction": [
-        "*Garrick glances around the tavern, then leans in closer*",
-        "Since you seem genuinely interested in helping...",
-        "There are things the Mayor doesn't know. Things I've kept to myself."
+        "*Garrick looks up as you approach the bar*",
+        "Back again? Good to see you're still in one piece.",
+        "How can I help you today?"
       ],
       "options": [
         {
-          "id": "press_secrets",
-          "text": "What kind of secrets?",
+          "id": "basement_quest",
+          "text": "You mentioned a smaller task earlier?",
           "response": [
-            "*Garrick's voice drops to almost a whisper*",
-            "I've seen things. Shadows moving where they shouldn't.",
-            "And there's a pattern to the disappearances - they're not random.",
-            "Someone's been watching, selecting specific people."
+            "*Garrick grimaces and points toward a door behind the bar*",
+            "My basement's been overrun with rats. Giant ones.",
+            "They're getting into my grain stores and scaring customers.",
+            "I'd clear them out myself, but at my age...",
+            "*He shrugs apologetically*",
+            "Five gold pieces if you can solve my rat problem."
           ],
           "effects": [
             {
               "type": "set_flag",
-              "flag": "learned_selection_pattern",
+              "flag": "garrick_offered_basement",
               "value": true
             }
           ],
-          "actions": ["ask_about_watcher", "investigate_pattern", "request_proof"]
+          "actions": ["accept_rats", "decline_rats", "negotiate_price"]
         },
         {
-          "id": "ask_witnesses",
-          "text": "Who else has seen these strange things?",
+          "id": "ask_ruins_location",
+          "text": "Can you tell me about any ruins or old places nearby?",
           "response": [
-            "*Garrick considers carefully*",
-            "Old Henrik the fisherman mentioned seeing lights near the ruins.",
-            "And Meredith - our serving girl - she's heard whispers.",
-            "But most folk are too scared to talk openly."
+            "*Garrick strokes his beard thoughtfully*",
+            "Aye, there are some old ruins up on Raven's Hill.",
+            "Been there since before my grandfather's time.",
+            "Strange place. Most folks avoid it, especially lately.",
+            "If you're thinking of exploring, be careful."
           ],
           "effects": [
             {
               "type": "set_flag",
-              "flag": "learned_about_witnesses",
-              "value": true
-            }
-          ],
-          "actions": ["talk_to_meredith", "seek_henrik", "investigate_alone"]
-        },
-        {
-          "id": "timeline_questions",
-          "text": "When did all this start exactly?",
-          "response": [
-            "*Garrick counts on his fingers*",
-            "First disappearance was about three months ago.",
-            "But the strange lights... those started appearing about a week before.",
-            "Almost like something was... preparing."
-          ],
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "learned_timeline",
-              "value": true
-            }
-          ],
-          "actions": ["investigate_preparation", "ask_about_lights", "connect_events"]
-        }
-      ],
-      "default_actions": ["return_to_basics", "shop", "goodbye"]
-    },
-
-    "deep_investigation": {
-      "introduction": [
-        "*Garrick's hands shake slightly as he pours himself a drink*",
-        "You want the whole truth? Fine.",
-        "But once you know this, there's no going back to ignorance."
-      ],
-      "options": [
-        {
-          "id": "demand_truth",
-          "text": "Tell me everything. I can handle it.",
-          "response": [
-            "*Garrick takes a long drink, then meets your eyes*",
-            "The thing taking people... it's not human.",
-            "I saw it once, three nights ago. Tall, wrong somehow.",
-            "It was watching the tavern. Watching the people inside.",
-            "I think... I think it knows we're talking about it."
-          ],
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "learned_creature_truth",
-              "value": true
-            },
-            {
-              "type": "quest_trigger",
-              "quest_id": "main_storyline",
-              "trigger_type": "major_revelation",
-              "data": {"revelation": "creature_confirmed", "source": "garrick"}
-            }
-          ],
-          "actions": ["plan_confrontation", "seek_protection", "warn_others"]
-        },
-        {
-          "id": "ask_location",
-          "text": "Where exactly did you see this thing?",
-          "response": [
-            "*Garrick points toward the window*",
-            "Right outside, in the alley between here and the bakery.",
-            "It was just... standing there. For hours.",
-            "When dawn came, it melted away like morning mist."
-          ],
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "learned_creature_location",
+              "flag": "learned_about_ruins",
               "value": true
             },
             {
               "type": "add_location",
-              "location": "Tavern Alley"
+              "location": "Raven Hill Ruins"
             }
           ],
-          "actions": ["investigate_alley", "set_trap", "organize_watch"]
+          "actions": ["ask_ruins_details", "thank_info"]
         },
         {
-          "id": "protective_measures",
-          "text": "How have you been protecting yourself?",
+          "id": "mayor_status",
+          "text": "Have you heard anything from the Mayor lately?",
           "response": [
-            "*Garrick reaches under the bar and produces a small iron charm*",
-            "Cold iron. My grandmother swore by it for warding off... unnatural things.",
-            "I've got a few more pieces. You'll need them if you're going after this creature."
+            "*Garrick shakes his head*",
+            "Nothing official. He's been keeping to himself mostly.",
+            "Though I did hear he's looking for capable folk.",
+            "You should pay him a visit if you haven't already."
           ],
+          "effects": [],
+          "actions": ["plan_mayor_visit", "ask_directions"]
+        }
+      ],
+      "default_actions": ["shop", "goodbye"]
+    },
+
+    "post_mayor": {
+      "introduction": [
+        "*Garrick nods approvingly as you approach*",
+        "I heard you spoke with the Mayor. Good man, Aldwin.",
+        "I imagine he's got you busy with important tasks.",
+        "Anything I can do to help?"
+      ],
+      "options": [
+        {
+          "id": "quest_support",
+          "text": "Do you have any supplies or information that might help?",
+          "response": [
+            "*Garrick reaches under the bar*",
+            "I've got some supplies you might find useful.",
+            "Basic adventuring gear, some food, a few healing potions.",
+            "And if you've got the coin, I can get you better equipment."
+          ],
+          "effects": [],
+          "actions": ["shop", "ask_advice"]
+        },
+        {
+          "id": "basement_reminder",
+          "text": "About those rats in your basement...",
+          "response": [
+            "*If basement quest not completed*",
+            "*Garrick winces*",
+            "Still there, making noise all night.",
+            "I know you've got bigger problems now, but if you ever have time..."
+          ],
+          "requirements": {
+            "flags": {
+              "garrick_offered_basement": true,
+              "completed_basement_combat": false
+            }
+          },
+          "effects": [],
+          "actions": ["accept_rats", "promise_later"]
+        },
+        {
+          "id": "rat_victory",
+          "text": "I cleared out your basement.",
+          "response": [
+            "*Garrick's face breaks into a wide grin*",
+            "You did? Outstanding! I can hear the difference already.",
+            "Here's your payment, and my sincere thanks.",
+            "*He hands you a small pouch of gold*",
+            "You've earned yourself free drinks whenever you're in town."
+          ],
+          "requirements": {
+            "flags": {
+              "completed_basement_combat": true,
+              "reported_basement_victory": false
+            }
+          },
           "effects": [
             {
               "type": "set_flag",
-              "flag": "learned_about_iron",
+              "flag": "reported_basement_victory",
               "value": true
             }
           ],
-          "actions": ["request_iron_charm", "ask_about_grandmother", "learn_more_wards"]
+          "actions": ["accept_thanks", "ask_about_free_drinks"]
+        },
+        {
+          "id": "general_support",
+          "text": "Any news or advice while I'm working on the Mayor's tasks?",
+          "response": [
+            "*Garrick leans in conspiratorially*",
+            "Keep your ears open and your weapons sharp.",
+            "Whatever's been taking people... it's not natural.",
+            "Trust your instincts, and don't travel alone after dark."
+          ],
+          "effects": [],
+          "actions": ["ask_details", "thank_advice"]
         }
       ],
-      "default_actions": ["step_back", "shop", "goodbye"]
+      "default_actions": ["shop", "goodbye"]
     }
   },
-  
+
   "actions": {
-    "investigate_deeper": {
-      "text": "There's more? Tell me everything.",
-      "description": "Press Garrick for deeper information",
-      "type": "dialogue_branch",
-      "target_state": "investigating_troubles",
-      "target_option": "press_secrets"
+    "suggest_mayor": {
+    "text": "I should speak with the Mayor then.",
+    "description": "Plan to visit Mayor Goldenbottom",
+    "type": "information",
+    "response": [
+        "*Garrick nods approvingly*",
+        "Aye, that's wise. You'll find Mayor Goldenbottom in the town hall.",
+        "Tell him Garrick sent you - he'll know you're serious about helping.",
+        "Come back and see me after you've spoken with him.",
+        "I might have more... practical assistance to offer then."
+    ]
     },
     
     "ask_about_ruins": {
-      "text": "What about these ruins you mentioned?",
-      "description": "Focus on the Hill Ruins connection",
-      "type": "dialogue_branch", 
-      "target_state": "investigating_troubles",
-      "target_option": "timeline_questions"
+    "text": "Tell me about these ruins you mentioned.",
+    "description": "Get information about local ruins",
+    "type": "information",
+    "response": [
+        "*Garrick leans in closer, lowering his voice*",
+        "The old ruins on Raven's Hill. Been there since my grandfather's time.",
+        "Most folk won't go near them, especially lately.",
+        "Strange lights, odd sounds... that sort of thing.",
+        "But the Mayor will want to brief you properly before you go exploring.",
+        "Best speak with him first."
+    ]
     },
     
-    "change_subject": {
-      "text": "Perhaps we should discuss something else.",
-      "description": "Avoid the topic for now",
-      "type": "dialogue_branch",
-      "target_state": "first_meeting",
-      "target_option": "just_drink"
+    "ask_situation": {
+      "text": "What kind of situation?",
+      "description": "Learn about the town's troubles",
+      "type": "information",
+      "response": [
+        "*Garrick glances around nervously*",
+        "Folk going missing, strange happenings at night.",
+        "Nothing I'd want to discuss in detail here.",
+        "The Mayor's the one organizing the response.",
+        "If you're truly interested in helping, speak with him first.",
+        "Then come back - I'll be more willing to share what I know."
+      ]
     },
     
-    "press_for_details": {
-      "text": "What do you mean by 'layers'?",
-      "description": "Investigate the complexity of the situation", 
-      "type": "dialogue_branch",
-      "target_state": "investigating_troubles",
-      "target_option": "press_secrets"
+    "ask_task": {
+      "text": "What kind of task?",
+      "description": "Learn about Garrick's rat problem",
+      "type": "information", 
+      "response": [
+        "*Garrick grimaces slightly*",
+        "Well, it's not exactly heroic work, but...",
+        "I've got a rat problem in my basement. Big ones.",
+        "But perhaps you should speak with the Mayor first.",
+        "If you're still willing to help with smaller tasks after that,",
+        "come back and we'll discuss it properly."
+      ]
     },
     
-    "ask_about_layers": {
-      "text": "Tell me about these layers of the problem.",
-      "description": "Explore the deeper mystery",
-      "type": "dialogue_branch",
-      "target_state": "investigating_troubles", 
-      "target_option": "timeline_questions"
+    "decline_help": {
+      "text": "I'm not looking to get involved.",
+      "description": "Politely decline helping",
+      "type": "information",
+      "response": [
+        "*Garrick nods understandingly*",
+        "Can't say I blame you, stranger.",
+        "Most folk just want to pass through quietly these days.",
+        "Well, the offer stands if you change your mind.",
+        "And you're always welcome for a drink and conversation."
+      ]
     },
     
-    "suggest_mayor": {
-      "text": "Should I speak with the Mayor first?",
-      "description": "Seek official guidance",
+    "accept_rats": {
+      "text": "I'll deal with your rat problem.",
+      "description": "Accept the basement quest",
+      "type": "quest_accept",
+      "quest_id": "basement_rat_combat"
+    },
+    
+    "decline_rats": {
+      "text": "I'm not interested in pest control.",
+      "description": "Decline the basement quest",
       "type": "information"
     },
     
-    "ask_about_watcher": {
-      "text": "Who do you think is doing the watching?",
-      "description": "Investigate the mysterious observer",
-      "type": "dialogue_branch",
-      "target_state": "deep_investigation",
-      "target_option": "demand_truth"
+    "negotiate_price": {
+      "text": "Can we discuss the payment?",
+      "description": "Try to negotiate better terms",
+      "type": "information"
     },
     
-    "investigate_pattern": {
-      "text": "What's the pattern to these disappearances?", 
-      "description": "Analyze the selection criteria",
-      "type": "dialogue_branch",
-      "target_state": "deep_investigation",
-      "target_option": "ask_location"
+    "ask_ruins_details": {
+      "text": "What makes the ruins strange?",
+      "description": "Learn more about the ruins",
+      "type": "information"
     },
     
-    "request_proof": {
-      "text": "Do you have any proof of what you're saying?",
-      "description": "Demand evidence",
-      "type": "dialogue_branch",
-      "target_state": "deep_investigation", 
-      "target_option": "protective_measures"
+    "thank_info": {
+      "text": "Thank you for the information.",
+      "description": "Acknowledge the help",
+      "type": "information"
     },
     
-    "return_to_basics": {
-      "text": "Let's go back to the basic facts.",
-      "description": "Return to simpler discussion",
-      "type": "dialogue_branch",
-      "target_state": "first_meeting",
-      "target_option": "ask_troubles"
+    "plan_mayor_visit": {
+      "text": "I'll go see him soon.",
+      "description": "Plan to visit the Mayor",
+      "type": "information"
     },
     
-    "step_back": {
-      "text": "This is getting too intense. Let's talk about something else.",
-      "description": "Retreat from deep investigation", 
-      "type": "dialogue_branch",
-      "target_state": "investigating_troubles",
-      "target_option": "timeline_questions"
+    "ask_directions": {
+      "text": "Where can I find the Mayor?",
+      "description": "Get directions to the Mayor",
+      "type": "information"
+    },
+    
+    "ask_advice": {
+      "text": "Any advice for the tasks ahead?",
+      "description": "Get general advice",
+      "type": "information"
+    },
+    
+    "promise_later": {
+      "text": "I'll come back when I have time.",
+      "description": "Promise to handle rats later",
+      "type": "information"
+    },
+    
+    "accept_thanks": {
+      "text": "Glad I could help.",
+      "description": "Accept gratitude gracefully",
+      "type": "information"
+    },
+    
+    "ask_about_free_drinks": {
+      "text": "Free drinks? I like the sound of that.",
+      "description": "Ask about the reward",
+      "type": "information"
+    },
+    
+    "ask_details": {
+      "text": "What do you mean by 'not natural'?",
+      "description": "Press for more details",
+      "type": "information"
+    },
+    
+    "thank_advice": {
+      "text": "I appreciate the warning.",
+      "description": "Thank him for the advice",
+      "type": "information"
     },
     
     "shop": {
       "text": "SHOP",
-      "description": "Browse Garrick's supplies", 
+      "description": "Browse Garrick's supplies",
       "type": "merchant",
       "merchant_id": "garrick_barkeep"
-    },
-    
-    "ask_troubles_delayed": {
-      "text": "ABOUT THOSE TROUBLES...",
-      "description": "Ask about the town's problems",
-      "type": "dialogue_branch",
-      "target_state": "first_meeting",
-      "target_option": "ask_troubles"
     },
     
     "goodbye": {
@@ -320,9 +368,14 @@
   },
   
   "metadata": {
-    "created": "Session 8 - Enhanced", 
-    "version": "2.0",
+    "created": "Session 8A - Schema Aligned",
+    "version": "3.0",
     "author": "Terror in Redstone Development",
-    "notes": "Deep branching dialogue system with 3 conversation states and sophisticated flow control"
+    "notes": "Aligned with narrative schema states. Includes basement rat quest integration with proper flag progression.",
+    "narrative_schema_compliance": {
+      "states_used": ["first_meeting", "after_first_talk", "post_mayor"],
+      "flags_set": ["garrick_mentioned_mayor", "garrick_offered_basement", "learned_about_ruins", "completed_basement_combat", "reported_basement_victory"],
+      "quest_integration": "basement_rat_combat"
+    }
   }
 }
