@@ -12,7 +12,7 @@ from utils.npc_display import draw_npc_portrait
 print(f"🔎 DUI module path: {__file__}")
 
 def draw_standard_dialogue_screen(surface, npc_name, conversation_data, game_state, fonts, controller=None):
-    print(f"🖼️ DUU: draw_standard_dialogue_screen [{npc_name}] from {__file__}")
+    #print(f"🖼️ DUU: draw_standard_dialogue_screen [{npc_name}] from {__file__}")
     """
     Standardized dialogue screen that works with DialogueEngine data
     This replaces the individual draw_[npc]_dialogue_screen functions
@@ -73,12 +73,8 @@ def draw_standard_dialogue_screen(surface, npc_name, conversation_data, game_sta
             for wrapped_surface in wrapped_lines:
                 surface.blit(wrapped_surface, (x_pos, y_pos))#DIALOGUE_AREA_X - 70, y_pos))
                 y_pos += DIALOGUE_TEXT_LINE_HEIGHT
-    
-    # Draw dialogue options OR action buttons based on mode
-    option_rects = []
-    
+       
     if not is_showing_response:
-        # CHOICE MODE — keyboard-only (no mouse hover, no click rects)
         y_pos += DIALOGUE_OPTIONS_START_Y_OFFSET
 
         for i, option in enumerate(conversation_data['options']):
@@ -86,78 +82,27 @@ def draw_standard_dialogue_screen(surface, npc_name, conversation_data, game_sta
             text_surface = intro_font.render(option_text, True, DIALOGUE_OPTION_COLOR)
             surface.blit(text_surface, (x_pos + 25, y_pos))
             y_pos += DIALOGUE_OPTION_HEIGHT
-
-        # Ensure no phantom click targets are returned/used
-        option_rects = []
-    # If in response mode, we skip drawing dialogue options entirely
-
     
     # Draw party status using your existing system
     from utils.party_display import draw_party_status_panel
     draw_party_status_panel(surface, game_state, fonts)
     
-    # Process action buttons based on mode
-    action_rects = {}
-    
-    if is_showing_response:
-        # RESPONSE MODE - Show simple FAREWELL button
-        action_y = y_pos + 20
-        farewell_button = draw_button(surface, 450, action_y, 120, 35, "FAREWELL", 
-                                    fonts.get('fantasy_small', fonts['normal']))
-        action_rects['goodbye'] = farewell_button
-    else:
-        # CHOICE MODE - Process default_actions from JSON
-        default_actions = conversation_data.get('default_actions', [])
-        actions_config = conversation_data.get('actions', {})
-        
-        if default_actions:
-            # Position action buttons below dialogue options
-            action_y = y_pos + 20
-            
-            for action_name in default_actions:
-                # Get button text from actions config or use default mapping
-                if action_name in actions_config:
-                    button_text = actions_config[action_name].get('text', action_name.upper())
-                else:
-                    # Default text mapping
-                    action_text_map = {
-                        'shop': 'SHOP',
-                        'goodbye': 'FAREWELL',
-                        'leave': 'LEAVE',
-                        'back': 'BACK'
-                    }
-                    button_text = action_text_map.get(action_name, action_name.upper())
-                
-                # Create action button
-                action_button = draw_button(surface, 450, action_y, 120, 35, button_text, 
-                                          fonts.get('fantasy_small', fonts['normal']))
-                action_rects[action_name] = action_button
-                action_y += 45  # Space buttons vertically
-        
-        # Keep BACK button as fallback if no actions
-        if not default_actions:
-            back_button = draw_button(surface, 450, 520, 120, 35, "BACK", 
-                                    fonts.get('fantasy_small', fonts['normal']))
-            action_rects['back'] = back_button
-    
-        # NEW: keyboard hint strip (works for both modes)
+    # No action buttons in keyboard mode - just render choice mode hint
+    if not is_showing_response:
         hint_font = fonts.get('fantasy_small', fonts['normal'])
-        hint_text = "[Enter] Continue  [B/Backspace] Back  [S] Shop (when shown)"
+        hint_text = "[1-3] Choose Option  [Enter] First Option  [B/Backspace] Back"
         hint_surface = hint_font.render(hint_text, True, DIALOGUE_OPTION_COLOR)
-        # Reuse dialogue_area from earlier in the function
         surface.blit(hint_surface, (dialogue_area.left + 20, dialogue_area.bottom - 40))
 
-        return {
-            "type": "standard_dialogue",
-            "option_rects": option_rects,
-            "action_rects": action_rects,
-            "conversation_data": conversation_data
-        }
-
+    # Keyboard-only mode - no clickable regions returned
+    return {
+        "type": "standard_dialogue",
+        "conversation_data": conversation_data
+    }
 
 
 def draw_standard_response_screen(surface, npc_name, response_lines, game_state, fonts, controller=None):
-    print(f"🖼️ DUI: draw_standard_response_screen [{npc_name}] from {__file__}")
+    #print(f"🖼️ DUI: draw_standard_response_screen [{npc_name}] from {__file__}")
     """
     Standardized response screen that matches the dialogue layout
     Shows NPC's response using the same visual framework as dialogue options
@@ -241,76 +186,13 @@ def draw_standard_response_screen(surface, npc_name, response_lines, game_state,
     else:
         action_definitions = {}  # Fallback if no dialogue engine
 
-
-    # Position buttons below response text
-    action_y = y_pos + 20
-
-    if response_actions:
-        # PRIORITY: Always render response actions first
-        print(f"DEBUG: DSRS: Rendering {len(response_actions)} action buttons")
-        #print(f"DEBUG: DSRS: response_actions = {response_actions}")
-    for action_name in response_actions:
-        action_def = action_definitions.get(action_name, {})
-        action_type = action_def.get('type', 'button')
-        
-        #print(f"DEBUG: DSRS: Action '{action_name}' has type '{action_type}'")
-        
-        # INDUSTRY STANDARD: Button text comes directly from JSON
-        button_text = action_def.get('text', action_name.replace('_', ' ').title())
-        
-        # Professional fallback only for missing/malformed data
-        if not button_text or not button_text.strip():
-            button_text = action_name.replace('_', ' ').title()
-            
-        #print(f"DEBUG: DSRS: Creating button '{button_text}' for action '{action_name}' at position y={action_y}")
-        
-        # Create action button
-        action_button = draw_button(surface, 450, action_y, 200, 35, button_text, 
-                                fonts.get('fantasy_small', fonts['normal']))
-        action_rects[action_name] = action_button
-        action_y += 45  # Space buttons vertically
-
-        # Fallback if no actions processed
-        if not action_rects:
-            continue_button = draw_button(surface, 450, action_y, 120, 35, "FAREWELL", 
-                                        fonts.get('fantasy_small', fonts['normal']))
-            action_rects['goodbye'] = continue_button
-
-    # NEW: keyboard hint strip for response mode
+    # Keyboard hint strip for response mode - moved here to replace buttons
     hint_font = fonts.get('fantasy_small', fonts['normal'])
     hint_text = "[Enter] Continue  [B/Backspace] Back  [S] Shop (when shown)"
     hint_surface = hint_font.render(hint_text, True, DIALOGUE_OPTION_COLOR)
     surface.blit(hint_surface, (dialogue_area.left + 20, dialogue_area.bottom - 40))
 
-
-    # # --- 8A: keyboard hint strip (response mode) ---
-    # # Always draw the hint INSIDE the dialogue panel so it can't be clipped/overdrawn.
-    # hint_font = fonts.get('fantasy_small', fonts['normal'])
-    # hint_text = "[Enter] Continue   [B/Backspace] Back   [S] Shop (when shown)"
-    # hint_surface = hint_font.render(hint_text, True, DIALOGUE_OPTION_COLOR)
-
-    # # Panel coordinates (same panel used above for text)
-    # panel_x = DIALOGUE_AREA_X
-    # panel_y = DIALOGUE_AREA_Y
-    # panel_h = DIALOGUE_AREA_HEIGHT
-
-    # # 20px left padding, 14px bottom padding
-    # hint_x = panel_x + 20
-    # hint_y = panel_y + panel_h - hint_surface.get_height() - 14
-
-    # # Draw a 1px underline below the hint so we can SEE it's definitely drawing
-    # pygame.draw.line(
-    #     surface, DIALOGUE_OPTION_COLOR,
-    #     (hint_x, hint_y + hint_surface.get_height() + 4),
-    #     (hint_x + hint_surface.get_width(), hint_y + hint_surface.get_height() + 4), 1
-    # )
-
-    # surface.blit(hint_surface, (hint_x, hint_y))
-    # # --- end 8A hint strip ---
-
-
-
+    # Keyboard-only mode - no clickable regions returned
     return {
-        "type": "standard_response",
-        "action_rects": action_rects
+        "type": "standard_response"
     }

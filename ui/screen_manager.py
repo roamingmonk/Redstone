@@ -9,7 +9,6 @@ from typing import Dict, Callable, Any, Optional
 import pygame
 import traceback
 from utils.constants import OVERLAY_RESTRICTED_SCREENS, MAIN_MENU_ALLOWED_OVERLAYS, ALL_OVERLAY_ATTRIBUTES
-from ui.generic_dialogue_handler import register_dialogue_clickables
 
 class ScreenManager:
     """
@@ -1035,6 +1034,7 @@ class ScreenManager:
         
         return False
 
+
     def _register_npc_dialogue_screens(self):
         """
         Auto-register dialogue screens from filesystem
@@ -1067,18 +1067,10 @@ class ScreenManager:
                             return draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, controller, location_id)
                         return render_dialogue
                 
-                    def create_dialogue_enter_hook(npc_id, screen_name):  # Pass screen_name as parameter
-                        print(f"DEBUG: SM: Enter hook called for {screen_name} with npc_id {npc_id}")
-                        def dialogue_enter_hook(game_state):
-                            register_dialogue_clickables(screen_name, npc_id, game_state, self.fonts, self._current_game_controller)
-                        return dialogue_enter_hook
-
-                    # Register the screen
+                    # Register the screen (keyboard-only, no enter hook needed)
                     dialogue_render_func = create_dialogue_render_function(npc_id, location_id)
-                    dialogue_enter_func = create_dialogue_enter_hook(npc_id, screen_name)
-                    print(f"DEBUG: SM: Registering enter hook for {screen_name}")
-                    self.register_render_function(screen_name, dialogue_render_func, enter_hook=dialogue_enter_func)
-                    
+                    self.register_render_function(screen_name, dialogue_render_func)         
+                               
                     registered_count += 1
                     print(f"✅ Auto-registered dialogue: {screen_name} (location: {location_id}, npc: {npc_id})")
                 
