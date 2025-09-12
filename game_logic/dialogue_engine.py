@@ -216,40 +216,61 @@ class DialogueEngine:
         if npc_id and action_name:
             print(f"🎭 Processing dialogue action: {npc_id}, {action_name}")
             
-            if action_name == 'goodbye' or action_name == 'back':
-                # Clear response state and dialogue state
+            if action_name == 'goodbye':
+                # EXIT conversation entirely
                 setattr(self.game_state, f'showing_{npc_id}_response', False)
                 setattr(self.game_state, f'{npc_id}_dialogue_response', [])
-                
-                # Clear dialogue in progress flag
                 setattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
                 print(f"DEBUG: Cleared {npc_id}_dialogue_in_progress")
-                
-                # Unregister dialogue state handler
+
+                # Unregister dialogue state handler if present
                 if self.event_manager:
                     screen_manager_service = self.event_manager.get_service('screen_manager')
                     if screen_manager_service and hasattr(screen_manager_service, 'input_handler'):
-                        input_handler = screen_manager_service.input_handler
                         state_flag = f'showing_{npc_id}_response'
-                        input_handler.unregister_dialogue_state(state_flag)
+                        screen_manager_service.input_handler.unregister_dialogue_state(state_flag)
                         print(f"Unregistered dialogue state: {state_flag}")
-                
-                # Navigate back to the location where dialogue started - NO HARDCODING!
-                location_id = getattr(self.game_state, f'{npc_id}_current_location', None)
-                if location_id:
-                    target_screen = f'{location_id}_main'  # broken_blade_main, hill_ruins_main, etc.
-                    self.event_manager.emit('SCREEN_CHANGE', {'target_screen': target_screen})
-                    print(f"Navigating back to {target_screen}")
-                else:
-                    print(f"ERROR: No location stored for {npc_id}, cannot navigate back")
-                    
-                    
-            elif action_name == 'shop':
-                print(f"🎭 Shop action for {npc_id}")
-                # TODO: Navigate to shop screen
-                
-            else:
-                print(f"🎭 Unknown dialogue action: {action_name}")
+
+                    # Prefer actual previous baselocation screen; fall back to location_main
+                    target_screen = None
+                    prev = None
+                    current_screen = getattr(self.game_state, 'screen', None)
+
+                    if self.event_manager:
+                        sm = self.event_manager.get_service('screen_manager')
+                        if sm and hasattr(sm, 'previous_screen'):
+                            prev = getattr(sm, 'previous_screen', None)
+
+                    # Avoid looping back to the same dialogue screen or to the current screen
+                    dialogue_screen_name = f"{getattr(self.game_state, f'{npc_id}_current_location', '')}_{npc_id}"
+                    if prev and prev != current_screen and prev != dialogue_screen_name:
+                        target_screen = prev
+
+                    if not target_screen:
+                        location_id = getattr(self.game_state, f'{npc_id}_current_location', None)
+                        if location_id:
+                            target_screen = f'{location_id}_main'
+
+                    if target_screen:
+                        self.event_manager.emit('SCREEN_CHANGE', {
+                            'target_screen': target_screen,
+                            'source_screen': f'{npc_id}_dialogue'
+                        })
+                        print(f"Navigating back to {target_screen} (prev={prev})")
+                    else:
+                        print(f"ERROR: No prior screen or location for {npc_id}; staying put.")
+
+
+            elif action_name == 'back':
+                # RETURN TO CHOICE LIST (stay in conversation)
+                # Only flip off the response flag; keep dialogue_in_progress = True
+                setattr(self.game_state, f'showing_{npc_id}_response', False)
+
+                # Optional: clear cached response lines if you prefer a tidy state
+                # setattr(self.game_state, f'{npc_id}_dialogue_response', [])
+
+                # IMPORTANT: No unregister, no SCREEN_CHANGE; the next draw will show choices again.
+
 
     def process_dialogue_choice(self, dialogue_id: str, npc_id: str, choice_id: str) -> Dict[str, Any]:
         """

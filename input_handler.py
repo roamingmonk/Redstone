@@ -661,47 +661,96 @@ class InputHandler:
 
     def _handle_dialogue_keyboard_input(self, key, game_state) -> bool:
             """Handle keyboard input for dialogue screens"""
-            # Only process on dialogue screens
+            # Detect dialogue-capable screens (legacy "*_dialogue" and new "<location>_<npc>")
             current_screen = game_state.screen
-            if not (current_screen.endswith('_dialogue') or '_dialogue' in current_screen):
+
+            is_dialogue_screen = (current_screen.endswith('_dialogue') or ('_dialogue' in current_screen))
+
+            # Try to infer NPC for "<location>_<npc>" screens (e.g., "broken_blade_meredith")
+            candidate_npc = None
+            if '_' in current_screen:
+                parts = current_screen.split('_')
+                if len(parts) >= 2:
+                    candidate_npc = parts[-1]  # "meredith" in "broken_blade_meredith"
+                    # Treat as dialogue if game_state carries typical dialogue flags for this NPC
+                    if (hasattr(game_state, f'{candidate_npc}_dialogue_in_progress') or
+                        hasattr(game_state, f'showing_{candidate_npc}_response') or
+                        hasattr(game_state, f'{candidate_npc}_current_location')):
+                        is_dialogue_screen = True
+
+            if not is_dialogue_screen:
                 return False
-                
+
             print(f"DEBUG: Dialogue keyboard check - screen: {current_screen}, key: {pygame.key.name(key)}")
             if self.debug_input:
                 print(f"⌨️ Dialogue screen detected: {current_screen}")
-            
-            # Check if we're in response mode
-            npc_id = None
-            if '_' in current_screen:
-                # Extract NPC ID from screen name (e.g., 'broken_blade_meredith' -> 'meredith')
-                parts = current_screen.split('_')
-                if len(parts) >= 2:
-                    npc_id = parts[-1]  # Last part should be NPC name
-            
+
+            # Resolve NPC id (prefer the parsed candidate)
+            npc_id = candidate_npc
             if not npc_id:
                 return False
+
                 
             showing_response_attr = f'showing_{npc_id}_response'
             is_showing_response = getattr(game_state, showing_response_attr, False)
             
             if is_showing_response:
-                # RESPONSE MODE - Only A key for actions
-                if key == pygame.K_a:
+                # RESPONSE MODE - primary/back/shop via keyboard
+                if key in (pygame.K_RETURN, pygame.K_a):
                     if self.debug_input:
-                        print(f"⌨️ Response action A pressed for {npc_id}")
+                        print(f"⌨️ Response primary pressed for {npc_id} → goodbye")
                     self.event_manager.emit("DIALOGUE_ACTION", {
                         'npc_id': npc_id,
                         'action_name': 'goodbye'
                     })
                     return True
+
+                elif key in (pygame.K_b, pygame.K_BACKSPACE):
+                    if self.debug_input:
+                        print(f"⌨️ Response back pressed for {npc_id} → back")
+                    self.event_manager.emit("DIALOGUE_ACTION", {
+                        'npc_id': npc_id,
+                        'action_name': 'back'
+                    })
+                    return True
+
+                elif key == pygame.K_s:
+                    if self.debug_input:
+                        print(f"⌨️ Response shop pressed for {npc_id} → shop")
+                    self.event_manager.emit("DIALOGUE_ACTION", {
+                        'npc_id': npc_id,
+                        'action_name': 'shop'
+                    })
+                    return True
+
             else:
-                # CHOICE MODE - 1, 2, 3 keys for choices
+                # CHOICE MODE - 1, 2, 3 keys for choices (plus ENTER = first/primary)
+                # NEW: Backspace/B exits from the main choice list
+                if key in (pygame.K_BACKSPACE, pygame.K_b):
+                    if self.debug_input:
+                        print(f"⌨️ Choice BACK pressed for {npc_id} -> exit (goodbye)")
+                    self.event_manager.emit("DIALOGUE_ACTION", {
+                        'npc_id': npc_id,
+                        'action_name': 'goodbye'
+                    })
+                    return True
+
                 choice_keys = {
                     pygame.K_1: 0,
                     pygame.K_2: 1, 
                     pygame.K_3: 2
                 }
-                
+
+                # ENTER picks the first option (primary)
+                if key in (pygame.K_RETURN, pygame.K_KP_ENTER):
+                    if self.debug_input:
+                        print(f"⌨️ Choice ENTER pressed for {npc_id} -> option 1")
+                    self.event_manager.emit("DIALOGUE_CHOICE", {
+                        'npc_id': npc_id,
+                        'choice_index': 0
+                    })
+                    return True
+                                        
                 if key in choice_keys:
                     choice_index = choice_keys[key]
                     if self.debug_input:
@@ -711,10 +760,6 @@ class InputHandler:
                         'choice_index': choice_index
                     })
                     return True
-                    
-            return False
-
-
 
 def register_stats_screen_actions(self):
     """Register clickable regions for the stats screen"""

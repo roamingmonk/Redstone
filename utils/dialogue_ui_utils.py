@@ -9,7 +9,10 @@ from utils.constants import *
 from utils.graphics import draw_button
 from utils.npc_display import draw_npc_portrait
 
+print(f"🔎 DUI module path: {__file__}")
+
 def draw_standard_dialogue_screen(surface, npc_name, conversation_data, game_state, fonts, controller=None):
+    print(f"🖼️ DUU: draw_standard_dialogue_screen [{npc_name}] from {__file__}")
     """
     Standardized dialogue screen that works with DialogueEngine data
     This replaces the individual draw_[npc]_dialogue_screen functions
@@ -75,35 +78,19 @@ def draw_standard_dialogue_screen(surface, npc_name, conversation_data, game_sta
     option_rects = []
     
     if not is_showing_response:
-        # CHOICE MODE - Show dialogue options with hover detection
-        mouse_pos = pygame.mouse.get_pos()
+        # CHOICE MODE — keyboard-only (no mouse hover, no click rects)
         y_pos += DIALOGUE_OPTIONS_START_Y_OFFSET
-        
+
         for i, option in enumerate(conversation_data['options']):
             option_text = f"[{i+1}] {option['text']}"
-            
-            # Calculate dynamic hover rect
             text_surface = intro_font.render(option_text, True, DIALOGUE_OPTION_COLOR)
-            text_width = text_surface.get_width()
-            text_height = text_surface.get_height()
-            
-            option_rect = pygame.Rect(
-                x_pos + 25, #DIALOGUE_AREA_X - 45,  # Small left padding
-                y_pos - DIALOGUE_OPTION_PADDING,
-                text_width + (DIALOGUE_OPTION_PADDING * 2),
-                text_height + (DIALOGUE_OPTION_PADDING * 2)
-            )
-            
-            # Hover highlight
-            if option_rect.collidepoint(mouse_pos):
-                pygame.draw.rect(surface, DIALOGUE_OPTION_BG_HOVER, option_rect)
-                text_surface = intro_font.render(option_text, True, DIALOGUE_OPTION_HOVER_COLOR)
-            
-            surface.blit(text_surface, (x_pos + 25, y_pos))#(DIALOGUE_AREA_X + 20, y_pos))
-            option_rects.append(option_rect)
+            surface.blit(text_surface, (x_pos + 25, y_pos))
             y_pos += DIALOGUE_OPTION_HEIGHT
+
+        # Ensure no phantom click targets are returned/used
+        option_rects = []
     # If in response mode, we skip drawing dialogue options entirely
-    
+
     
     # Draw party status using your existing system
     from utils.party_display import draw_party_status_panel
@@ -153,15 +140,24 @@ def draw_standard_dialogue_screen(surface, npc_name, conversation_data, game_sta
                                     fonts.get('fantasy_small', fonts['normal']))
             action_rects['back'] = back_button
     
-    return {
-        "type": "standard_dialogue",
-        "option_rects": option_rects,
-        "action_rects": action_rects,
-        "conversation_data": conversation_data
-    }
+        # NEW: keyboard hint strip (works for both modes)
+        hint_font = fonts.get('fantasy_small', fonts['normal'])
+        hint_text = "[Enter] Continue  [B/Backspace] Back  [S] Shop (when shown)"
+        hint_surface = hint_font.render(hint_text, True, DIALOGUE_OPTION_COLOR)
+        # Reuse dialogue_area from earlier in the function
+        surface.blit(hint_surface, (dialogue_area.left + 20, dialogue_area.bottom - 40))
+
+        return {
+            "type": "standard_dialogue",
+            "option_rects": option_rects,
+            "action_rects": action_rects,
+            "conversation_data": conversation_data
+        }
+
 
 
 def draw_standard_response_screen(surface, npc_name, response_lines, game_state, fonts, controller=None):
+    print(f"🖼️ DUI: draw_standard_response_screen [{npc_name}] from {__file__}")
     """
     Standardized response screen that matches the dialogue layout
     Shows NPC's response using the same visual framework as dialogue options
@@ -274,13 +270,46 @@ def draw_standard_response_screen(surface, npc_name, response_lines, game_state,
         action_rects[action_name] = action_button
         action_y += 45  # Space buttons vertically
 
-    # Fallback if no actions processed
-    if not action_rects:
-        continue_button = draw_button(surface, 450, action_y, 120, 35, "FAREWELL", 
-                                    fonts.get('fantasy_small', fonts['normal']))
-        action_rects['goodbye'] = continue_button  # Changed from 'continue' to 'goodbye'
-        #print(f"DEBUG: DSRS: Added fallback CONTINUE button")
-    
+        # Fallback if no actions processed
+        if not action_rects:
+            continue_button = draw_button(surface, 450, action_y, 120, 35, "FAREWELL", 
+                                        fonts.get('fantasy_small', fonts['normal']))
+            action_rects['goodbye'] = continue_button
+
+    # NEW: keyboard hint strip for response mode
+    hint_font = fonts.get('fantasy_small', fonts['normal'])
+    hint_text = "[Enter] Continue  [B/Backspace] Back  [S] Shop (when shown)"
+    hint_surface = hint_font.render(hint_text, True, DIALOGUE_OPTION_COLOR)
+    surface.blit(hint_surface, (dialogue_area.left + 20, dialogue_area.bottom - 40))
+
+
+    # # --- 8A: keyboard hint strip (response mode) ---
+    # # Always draw the hint INSIDE the dialogue panel so it can't be clipped/overdrawn.
+    # hint_font = fonts.get('fantasy_small', fonts['normal'])
+    # hint_text = "[Enter] Continue   [B/Backspace] Back   [S] Shop (when shown)"
+    # hint_surface = hint_font.render(hint_text, True, DIALOGUE_OPTION_COLOR)
+
+    # # Panel coordinates (same panel used above for text)
+    # panel_x = DIALOGUE_AREA_X
+    # panel_y = DIALOGUE_AREA_Y
+    # panel_h = DIALOGUE_AREA_HEIGHT
+
+    # # 20px left padding, 14px bottom padding
+    # hint_x = panel_x + 20
+    # hint_y = panel_y + panel_h - hint_surface.get_height() - 14
+
+    # # Draw a 1px underline below the hint so we can SEE it's definitely drawing
+    # pygame.draw.line(
+    #     surface, DIALOGUE_OPTION_COLOR,
+    #     (hint_x, hint_y + hint_surface.get_height() + 4),
+    #     (hint_x + hint_surface.get_width(), hint_y + hint_surface.get_height() + 4), 1
+    # )
+
+    # surface.blit(hint_surface, (hint_x, hint_y))
+    # # --- end 8A hint strip ---
+
+
+
     return {
         "type": "standard_response",
         "action_rects": action_rects

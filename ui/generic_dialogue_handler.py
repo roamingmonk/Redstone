@@ -22,9 +22,25 @@ from utils.constants import *
 from utils.graphics import draw_border, draw_button
 from utils.npc_display import draw_npc_portrait
 from utils.party_display import draw_party_status_panel
-from utils.dialogue_ui_utils import draw_standard_dialogue_screen, draw_standard_response_screen
+#from utils.dialogue_ui_utils import draw_standard_dialogue_screen, draw_standard_response_screen
+
+# 8A: pin the renderer to the canonical file on disk (bypass sys.path ghosts)
+from pathlib import Path
+import importlib.util as _ilu
+
+_dlg_path = Path(__file__).resolve().parents[1] / "utils" / "dialogue_ui_utils.py"
+_spec = _ilu.spec_from_file_location("dialogue_ui_utils_canon", str(_dlg_path))
+_dui = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_dui)
+print(f"🔐 DUI pinned to: {_dui.__file__}")
+
+# Export the two functions the handler uses
+draw_standard_dialogue_screen = _dui.draw_standard_dialogue_screen
+draw_standard_response_screen = _dui.draw_standard_response_screen
+
+
 
 def draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, controller=None, location_id=None):
+    print(f"🧭 GDH: draw_generic_dialogue_screen [{npc_id}] loc={location_id} from {__file__}")
     """
     Universal NPC dialogue screen - works for ANY NPC
     
@@ -101,6 +117,7 @@ def draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, con
         return draw_generic_fallback_screen(surface, npc_id, game_state, fonts)
 
 def draw_generic_response_screen(surface, npc_id, game_state, fonts, location_id=None):
+    print(f"🧭 GDH: draw_generic_response_screen [{npc_id}] loc={location_id} from {__file__}")
     """Universal NPC response screen - works for ANY NPC"""
     surface.fill((0, 0, 0))
     
@@ -119,6 +136,7 @@ def draw_generic_response_screen(surface, npc_id, game_state, fonts, location_id
     return draw_standard_response_screen(surface, npc_id, response_lines, game_state, fonts)
 
 def draw_generic_fallback_screen(surface, npc_id, game_state, fonts):
+    print(f"🧭 GDH: draw_generic_fallback_screen [{npc_id}] from {__file__}")
     """Universal fallback screen if DialogueEngine not available"""
     surface.fill((0, 0, 0))
     
@@ -451,6 +469,13 @@ def register_npc_dialogue_screen(screen_manager, npc_id):
     print(f"Registered generic dialogue screen: {screen_name}")
 
 def register_dialogue_clickables(screen_name, npc_id, game_state, fonts, controller):
+    print(f"🎭 REGISTRATION: GDH ENTRY [{screen_name}] npc={npc_id} from {__file__}")
+    # 8A keyboard-first: skip mouse registration
+    USE_MOUSE_FOR_DIALOGUE = False
+    if not USE_MOUSE_FOR_DIALOGUE:
+        print(f"🎭 REGISTRATION: GDH SKIP clickables (keyboard mode)")
+        return
+    
     """Register dialogue screen clickable areas following BaseLocation pattern"""
     print(f"🎭 REGISTRATION: GDH: register_dialogue_clickables called for {screen_name}, npc: {npc_id}")
     
@@ -461,7 +486,12 @@ def register_dialogue_clickables(screen_name, npc_id, game_state, fonts, control
     
     
     print(f"DEBUG: GDH: register_dialogue_clickables called for screen: {screen_name}, npc: {npc_id}")
-    
+    # TEMP for 8A: keyboard-only dialogue; skip mouse regions
+    USE_MOUSE_FOR_DIALOGUE = False
+    if not USE_MOUSE_FOR_DIALOGUE:
+        print(f"🎭 REGISTRATION: GDH: keyboard mode active; skipping clickable registration for {screen_name}")
+        return
+
     if not controller or not hasattr(controller, 'screen_manager'):
         return
     

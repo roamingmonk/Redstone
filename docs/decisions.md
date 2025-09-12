@@ -805,9 +805,54 @@ Critical response flow completion for all dialogue actions and proper navigation
 
 # ADR-049: narrative schema integration 
 
--- core/game_state.py (narrative schema integration), game_logic/dialogue_engine.py (schema flag setting), utils/generic_dialogue_handler.py (response state detection)
+-- core/game_state.py (narrative schema integration), game_logic/dialogue_engine.py (schema flag setting), ui/generic_dialogue_handler.py (response state detection)
 - updated gamestate, auto initilize, integrated the narrative schema, confirmed 4 dialogue screens, and coordinated flags for dialogue, quest tracking.  
 - Open issues.  need to validate if save/load system is holding the new attributes., initial dialogue screen works for garrick and meredith, but response screens are not working and buttons are not working.  patron selection is not linked and has similar button issues.
+# ADR-050:  
+working through dialogue handling infrastructure
+
+- including narrative_schema.json from ADR-049, input handler, game_controller, dialogue engine, generic dialogue handler, dialogue ui utils.
+- working through options to improve dialogue handling.  set stage for keyboard inputs, added service manger link in game controller.  next session will set keyboard inputs if successful.
+
+# ADR-051: Keyboard-Driven Dialogue (Phase 8A)
+# Status: Accepted
+# Date: Sep 12, 2025
+**Context:** Mouse click regions for dialogue (choice vs. response) required re-registration and frequently desynced with UI, causing “phantom” buttons and missed clicks.
+**Decision:** Dialogue screens are keyboard-first.Choice mode: 1, 2, 3 select options. Enter chooses the first option. Response mode: Enter = primary (“Continue/Goodbye”), B/Backspace = Back, S = Shop (when present).
+**Implementation:**
+input_handler._handle_dialogue_keyboard_input(...) emits DIALOGUE_CHOICE or DIALOGUE_ACTION.
+generic_dialogue_handler runs in keyboard mode and skips all clickable registration for dialogue.
+dialogue_ui_utils.draw_standard_dialogue_screen(...) renders [1] [2] [3] labels; hover rectangles removed.
+dialogue_ui_utils.draw_standard_response_screen(...) renders a hint strip with [Enter]/[B]/[S] (indentation fixed).
+Navigation after goodbye/back uses the ScreenManager’s previous screen (baselocation or patron_selection, depending on entry).
+**Consequences:**
+Eliminates re-registration complexity and UI desync.
+Consistent UX across all dialogue screens.
+Mouse support can be reintroduced later (optionally) with event-driven updates, but is no longer required.
+
+# ADR-052: Canonical UI Module Pinning (Import Guard)
+# Status: Accepted
+# Date: Sep 12, 2025
+**Context:** Multiple archived copies of the repo existed under archive/, which let Python import a different utils/dialogue_ui_utils.py. This produced odd __file__ paths (“Redsstone”, “diallogue_ui_utils.ppy”, etc.) and hid code changes.
+**Decision:** Pin and verify the canonical UI module at startup.
+At main.py boot, compute project root and ensure it’s first in sys.path.  Import Redstone.utils.dialogue_ui_utils and immediately log its __file__.
+On mismatch (path not under the active project), raise a loud error with a clear fix.
+(Optional) print a directory scan of any other dialogue_ui_utils.py found under archive/ for visibility.
+**Consequences:**Prevents “wrong file imported” mysteries.
+Keeps dev and runtime aligned with the intended code.
+
+## ADR-053: Standardized Dialogue Render Debug Traces
+# Status: Accepted
+# Date: Sep 12, 2025
+**Context:** Needed reliable visibility into which renderer drew the frame.
+**Decision:** Add one-line traces:
+GDH: draw_generic_dialogue_screen [...] and GDH: draw_generic_response_screen [...]
+DUI: draw_standard_dialogue_screen [...] and DUI: draw_standard_response_screen [...] (plus the pinned __file__ on first import)
+**Consequences:**Faster diagnosis when output doesn’t match code. Helps catch indentation/branching issues immediately.
+
+
+
+
 
 ```
 ## ADR-XXX: <Short title>
