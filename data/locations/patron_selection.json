@@ -11,42 +11,70 @@
           "prompt": "Choose someone to approach:",
           "intro": "You scan the tavern and notice several interesting patrons..."
         },
-       "npcs": [
-        {
+        "npcs": [
+          {
             "id": "gareth",
             "name": "Warrior",
-            "dialogue_file": "tavern_gareth"
-        },
-        {
+            "dialogue_file": "broken_blade_gareth",
+            "description": "A battle-scarred warrior",
+            "recruitment_role": "warrior",
+            "available": "mayor_talked"
+          },
+          {
             "id": "elara", 
             "name": "Mage",
-            "dialogue_file": "tavern_elara"
-        },
-        {
+            "dialogue_file": "broken_blade_elara",
+            "description": "A scholarly spellcaster",
+            "recruitment_role": "mage",
+            "available": "mayor_talked"
+          },
+          {
             "id": "thorman",
-            "name": "Dwarf",
-            "dialogue_file": "tavern_thorman"
-        },
-        {
+            "name": "Cleric",
+            "dialogue_file": "broken_blade_thorman", 
+            "description": "A stout dwarf priest",
+            "recruitment_role": "cleric",
+            "available": "mayor_talked"
+          },
+          {
             "id": "lyra",
             "name": "Rogue",
-            "dialogue_file": "tavern_lyra"
-        },
-        {
+            "dialogue_file": "broken_blade_lyra",
+            "description": "A hooded figure",
+            "recruitment_role": "rogue",
+            "available": "mayor_talked"
+          },
+          {
             "id": "pete",
             "name": "Pete",
-            "dialogue_file": "tavern_pete"
-        },
-        {
+            "dialogue_file": "broken_blade_pete",
+            "description": "A grizzled storyteller",
+            "recruitment_role": "comedy_relief",
+            "special": "fake_recruitment",
+            "available": "always"
+          },
+          {
             "id": "mayor",
             "name": "Mayor",
-            "dialogue_file": "tavern_mayor"
-        }
+            "dialogue_file": "redstone_town_mayor",
+            "description": "A worried official",
+            "recruitment_role": "quest_giver",
+            "location_based": true,
+            "available": "always"
+          }
         ],
         "parent": "broken_blade_main",
+        "navigation": {
+          "back": {
+            "type": "navigate",
+            "target": "broken_blade_main",
+            "label": "Return to Tavern"
+          }
+        },
         "properties": {
           "background_color": [40, 20, 10],
-          "lighting": "warm"
+          "lighting": "warm",
+          "max_party_size": 4
         }
       }
     }

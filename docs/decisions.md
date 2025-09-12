@@ -850,9 +850,37 @@ GDH: draw_generic_dialogue_screen [...] and GDH: draw_generic_response_screen [.
 DUI: draw_standard_dialogue_screen [...] and DUI: draw_standard_response_screen [...] (plus the pinned __file__ on first import)
 **Consequences:**Faster diagnosis when output doesn’t match code. Helps catch indentation/branching issues immediately.
 
+# ADR-054: Cleaned up mouse click items since moving to keyboard only for dialogues
+GDH, Screeen Manage and dialogue ui utils
+removed unnecessary code
 
+# ADR-055: Schema-Aligned Dialogue System (Garrick Complete)
+# Status: Accepted
+# Date: December 19, 2024
+**Context** Garrick dialogue had state mismatches with narrative schema and action processing dead ends causing "I see" responses and continue button cycling.
+**Decision**Rewrote Garrick JSON to use schema states (first_meeting, after_first_talk, post_mayor) and fixed action response processing in dialogue engine.
+**Implementation** dialogue_engine.py: Added action response content handling and fixed continue handler action storage
+broken_blade_garrick.json: Complete rewrite with response content for all actions
+Key fix: Store actions in normal response handling for continue button access
+**Consequences** Positive: Complete dialogue flow with basement quest integration, scalable architecture for other NPCs
+Resolved: Action dead ends, continue cycling, schema mismatches
+Impact: Template established for remaining NPC dialogue implementations
 
-
+# ADR-055: Patron Selection & Recruitment Foundation
+# Status: Accepted
+# Date: December 19, 2024
+**Context**Patron selection had navigation failures and button layout issues preventing NPC recruitment system implementation.
+Decision
+Fixed BaseLocation NPCSelectionLocation to use dialogue_file from JSON instead of constructed screen names. Implemented centered button layout using constants.py. Created complete Gareth recruitment dialogue with schema alignment.
+**Implementation**
+BaseLocation fix: NPCSelectionLocation.handle_action() now uses npc.dialogue_file for navigation
+Button constants: Added NPC button sizing constants to utils/constants.py
+Gareth dialogue: Complete recruitment flow with gruff veteran personality, follows schema states
+Recruitment mechanics: No recruitment until mayor_talked flag set
+**Consequences**
+Positive: Patron selection navigation working, professional button layout, complete recruitment template established
+Outstanding: Location tracking issue causing incorrect return navigation from patron_selection→dialogue→back
+Next: Mayor dialogue implementation to activate recruitment system
 
 ```
 ## ADR-XXX: <Short title>

@@ -326,7 +326,7 @@ class DialogueEngine:
                     
                     # If there are response actions, convert them to choices
                     if response_actions:
-                        location_id = getattr(self.game_state, f'{npc_id}_current_location', 'broken_blade')
+                        location_id = getattr(self.game_state, f'{npc_id}_current_location')
                         dialogue_file_id = f'{location_id}_{npc_id}'
                         dialogue_data = self.dialogues.get(dialogue_file_id, {})
                         actions_config = dialogue_data.get('actions', {})

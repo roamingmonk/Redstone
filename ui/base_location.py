@@ -15,9 +15,27 @@ from utils.constants import *
 from utils.graphics import draw_border, draw_button, draw_centered_text
 from utils.party_display import draw_party_status_panel, PARTY_PANEL_WIDTH
 from utils.constants import wrap_text
-from utils.constants import LOCATION_BACKGROUNDS_PATH, BUTTON_SIZES
+from utils.constants import LOCATION_BACKGROUNDS_PATH, BUTTON_SIZES, NPC_BUTTON_HEIGHT, NPC_BUTTON_SPACING, NPC_BUTTONS_PER_ROW, NPC_BUTTON_WIDTH
 from utils.graphics import draw_button
 from utils.constants import calculate_button_layout, calculate_button_font
+
+def calculate_npc_button_positions(num_npcs, available_width=1024):
+        """Calculate button positions for NPC selection"""
+        
+        # Calculate total width needed
+        total_button_width = num_npcs * NPC_BUTTON_WIDTH
+        total_spacing_width = (num_npcs - 1) * NPC_BUTTON_SPACING
+        total_width_needed = total_button_width + total_spacing_width
+        
+        # Center the buttons
+        start_x = (available_width - total_width_needed) // 2
+        
+        positions = []
+        for i in range(num_npcs):
+            x = start_x + i * (NPC_BUTTON_WIDTH + NPC_BUTTON_SPACING)
+            positions.append(x)
+        
+        return positions
 
 
 
@@ -473,64 +491,33 @@ class NPCSelectionLocation(BaseLocation):
         # === BUTTON ZONE ===
         button_y = LAYOUT_BUTTON_Y
         npcs = area_data.get('npcs', [])
-        
+
         button_rects = {}
-        # button_width now calculated dynamically
-        # button_height = 40  # moved to individual sections
-        # button_spacing = 15  # moved to individual sections
-        
-       # NPC buttons with flexible sizing
-        if npcs:
-            button_font = fonts.get('fantasy_small', fonts['normal'])
-            button_height = 40
-            button_spacing = 15
+
+        # Calculate button positions using new constants
+        num_npcs = len(npcs)
+        if num_npcs > 0:
+            button_positions = calculate_npc_button_positions(num_npcs)
             
-            # Calculate flexible button widths for NPC names
-            button_configs = []
-            
-            for npc_data in npcs:
-                if isinstance(npc_data, dict):
-                    npc_name = npc_data.get('name', npc_data.get('id', '').title())
-                    npc_id = npc_data.get('id')
-                else:
-                    npc_name = npc_data.replace('_', ' ').title()
-                    npc_id = npc_data
-                
-                text_width = button_font.size(npc_name)[0]
-                button_width = max(text_width + 30, 100)  # 30px padding, 100px minimum
-                button_configs.append({
-                    'npc_id': npc_id,
-                    'name': npc_name,
-                    'width': button_width
-                })
-            
-            # Arrange in rows (max 3 per row to accommodate longer names)
-            npcs_per_row = 3
-            rows_needed = (len(button_configs) + npcs_per_row - 1) // npcs_per_row
-            
-            for row in range(rows_needed):
-                row_configs = button_configs[row * npcs_per_row:(row + 1) * npcs_per_row]
-                
-                # Calculate total width for this row
-                total_row_width = sum(config['width'] for config in row_configs)
-                total_spacing = (len(row_configs) - 1) * button_spacing
-                row_total_width = total_row_width + total_spacing
-                
-                # Center the row
-                start_x = (image_width - row_total_width) // 2
-                current_y = button_y + row * (button_height + 15)
-                current_x = start_x
-                
-                # Draw buttons in this row
-                for config in row_configs:
-                    button_rect = draw_button(surface, current_x, current_y, 
-                                            config['width'], button_height, 
-                                            config['name'], button_font)
-                    button_rects[config['npc_id']] = button_rect
-                    current_x += config['width'] + button_spacing
-        
-        # Back button
-        back_rect = draw_button(surface, 50, button_y + 60, 120, 40, "BACK", fonts['normal'])
+            for i, npc in enumerate(npcs):
+                if i < len(button_positions):
+                    npc_name = npc.get('name', npc.get('id', 'Unknown'))
+                    npc_id = npc.get('id')
+                    
+                    # Use calculated position
+                    button_x = button_positions[i]
+                    
+                    # Draw button with consistent sizing
+                    button_rect = draw_button(surface, button_x, button_y, 
+                                            NPC_BUTTON_WIDTH, NPC_BUTTON_HEIGHT, 
+                                            npc_name, fonts['normal'])
+                    button_rects[npc_id] = button_rect
+
+        # Back button (centered below NPC buttons)
+        back_button_width = 120
+        back_x = (1024 - back_button_width) // 2
+        back_rect = draw_button(surface, back_x, button_y + NPC_BUTTON_HEIGHT + 20, 
+                            back_button_width, NPC_BUTTON_HEIGHT, "BACK", fonts['normal'])
         button_rects['back'] = back_rect
         
         return {
@@ -540,7 +527,7 @@ class NPCSelectionLocation(BaseLocation):
         }
     
     def handle_action(self, action_data: Dict[str, Any], game_state, 
-                 event_manager) -> Optional[str]:
+             event_manager) -> Optional[str]:
         """Process NPC selection clicks"""
         
         action_type = action_data.get('type')
@@ -581,37 +568,29 @@ class NPCSelectionLocation(BaseLocation):
                 return "back_success"
             
             else:
-                # Assume it's an NPC selection (patron click)
-                npc_id = action_name
-                event_manager.emit("SCREEN_CHANGE", {
-                    "target_screen": f"{npc_id}_dialogue",
-                    "source_screen": f"{self.location_id}_{self.current_area}"
-                })
-                return "npc_selected"
-        
-        # Handle action passed as direct action name (legacy support)
-        else:
-            action = action_data.get('action')
-            if action:
-                if action == 'back':
-                    area_data = self.get_current_area_data()
-                    parent = area_data.get('parent', 'broken_blade_main')
-                    
-                    event_manager.emit("SCREEN_CHANGE", {
-                        "target_screen": parent,
-                        "source_screen": f"{self.location_id}_{self.current_area}"
-                    })
-                    return "back_success"
+                # Handle NPC selection by finding the dialogue_file from JSON
+                area_data = self.get_current_area_data()
+                npcs = area_data.get('npcs', [])
                 
-                else:
-                    # Assume it's an NPC ID
-                    npc_id = action
+                # Find the NPC by ID and get their dialogue_file
+                target_screen = None
+                for npc in npcs:
+                    if npc.get('id') == action_name:
+                        dialogue_file = npc.get('dialogue_file')
+                        if dialogue_file:
+                            target_screen = dialogue_file  # Use dialogue_file directly
+                            break
+                
+                if target_screen:
                     event_manager.emit("SCREEN_CHANGE", {
-                        "target_screen": f"{npc_id}_dialogue",
+                        "target_screen": target_screen,
                         "source_screen": f"{self.location_id}_{self.current_area}"
                     })
                     return "npc_selected"
-        
+                else:
+                    print(f"⚠️ No dialogue_file found for NPC: {action_name}")
+                    return None
+
         print(f"⚠️ NPCSelectionLocation: Unhandled action: {action_type or action_name or action_data}")
         return None
 

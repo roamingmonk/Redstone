@@ -16,7 +16,10 @@
         "gave_swamp_location": "learned_about_swamp_church",
         "shared_refugee_nightmares": "heard_refugee_nightmares",
         "shared_guard_gossip": "heard_guard_gossip",
-        "gave_ritual_warning": "meredith_ritual_warning"
+        "gave_ritual_warning": "meredith_ritual_warning",
+        "flirtation_started": "meredith_flirtation_started",
+        "attracted_to_player": "meredith_attracted_to_player", 
+        "relationship_progressed": "meredith_relationship_progressed"
       }
     },
     "garrick": {
