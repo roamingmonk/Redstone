@@ -41,7 +41,7 @@ class InventoryEngine:
         }
         
         print("⚔️ InventoryEngine initialized - Pure GameState Authority Pattern!")
-        print("   📋 Data Authority: GameState")
+        #print("   📋 Data Authority: GameState")
         print("   🏪 Item Source: ItemManager")
     
         if hasattr(game_state_ref, 'event_manager'):

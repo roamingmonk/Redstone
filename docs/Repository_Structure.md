@@ -1,10 +1,8 @@
-﻿## Repository Structure (generated 2025-09-13 12:56)
+﻿## Repository Structure (generated 2025-09-13 13:33)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
 C:.
-|   .gitmessage.txt
-|   Design_LatestUpdate.docx
 |   game_state.py
 |   input_handler.py
 |   main.py
@@ -18,9 +16,9 @@ C:.
 |   |       MedievalSharp-Regular.ttf
 |   |       
 |   \---images
-|       |   a-medieval-fantasy-tavern-gambling-corner-in-classic-1980s-tsr-dandd-art-style-reminiscent-of-larry-.jpg
 |       |   Designer (2).jpg
 |       |   Designer (3).jpg
+|       |   tavern-gambling.jpg
 |       |   
 |       +---backgrounds
 |       |   +---locations
@@ -105,9 +103,6 @@ C:.
 |   |   game_controller.py
 |   |   __init__.py
 |   |   
-|   \---__pycache__
-|           game_controller.cpython-312.pyc
-|           __init__.cpython-312.pyc
 |           
 +---data
 |   |   items.json
@@ -154,7 +149,6 @@ C:.
 +---docs
 |       decisions.md
 |       project_context.md
-|       Repository_Structure.md
 |       
 +---game_logic
 |   |   character_engine.py
@@ -169,17 +163,6 @@ C:.
 |   |   quest_engine.py
 |   |   save_manager.py
 |   |   
-|   \---__pycache__
-|           character_engine.cpython-312.pyc
-|           commerce_engine.cpython-312.pyc
-|           data_manager.cpython-312.pyc
-|           dialogue_engine.cpython-312.pyc
-|           event_manager.cpython-312.pyc
-|           inventory_engine.cpython-312.pyc
-|           item_manager.cpython-312.pyc
-|           npc_manager.cpython-312.pyc
-|           quest_engine.cpython-312.pyc
-|           save_manager.cpython-312.pyc
 |           
 +---saves
 |       autosave.json
@@ -203,19 +186,6 @@ C:.
 |   |   title_menu.py
 |   |   __init__.py
 |   |   
-|   \---__pycache__
-|           character_advancement.cpython-312.pyc
-|           character_creation.cpython-312.pyc
-|           character_overlay.cpython-312.pyc
-|           gambling_dice.cpython-312.pyc
-|           help_overlay.cpython-312.pyc
-|           intro_scenes.cpython-312.pyc
-|           inventory_overlay.cpython-312.pyc
-|           load_game.cpython-312.pyc
-|           quest_overlay.cpython-312.pyc
-|           save_game.cpython-312.pyc
-|           title_menu.cpython-312.pyc
-|           __init__.cpython-312.pyc
 |           
 +---scripts
 |       generate_repo_structure.ps1
@@ -227,12 +197,6 @@ C:.
 |   |   screen_manager.py
 |   |   __init__.py
 |   |   
-|   \---__pycache__
-|           base_location.cpython-312.pyc
-|           generic_dialogue_handler.cpython-312.pyc
-|           screen_handlers.cpython-312.pyc
-|           screen_manager.cpython-312.pyc
-|           __init__.cpython-312.pyc
 |           
 +---utils
 |   |   constants.py
@@ -248,22 +212,6 @@ C:.
 |   |   tabbed_overlay_utils.py
 |   |   __init__.py
 |   |   
-|   \---__pycache__
-|           constants.cpython-312.pyc
-|           debug_manager.cpython-312.pyc
-|           dialogue_ui_utils.cpython-312.pyc
-|           graphics.cpython-312.pyc
-|           location_loader.cpython-312.pyc
-|           narrative_schema.cpython-312.pyc
-|           npc_display.cpython-312.pyc
-|           overlay_utils.cpython-312.pyc
-|           party_display.cpython-312.pyc
-|           quest_system.cpython-312.pyc
-|           tabbed_overlay_utils.cpython-312.pyc
-|           __init__.cpython-312.pyc
 |           
-\---__pycache__
-        game_state.cpython-312.pyc
-        input_handler.cpython-312.pyc
         
 ```

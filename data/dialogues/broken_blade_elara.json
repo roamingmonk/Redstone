@@ -1,0 +1,324 @@
+{
+  "dialogue_id": "broken_blade_elara",
+  "npc_name": "Elara Moonwhisper",
+  "description": "A young and enthusiastic mage eager to put her magical knowledge to practical use",
+  
+  "states": {
+    "first_meeting": {
+      "introduction": [
+        "*A young woman in elegant robes looks up from her spellbook, arcane energy crackling around her fingertips*",
+        "Oh! You have quite the interesting magical aura about you.",
+        "I sense you're involved in something important... and dangerous.",
+        "*She closes her book with excited interest*",
+        "How fascinating! I do love a good magical mystery!"
+      ],
+      "options": [
+        {
+          "id": "ask_magic",
+          "text": "You can sense magical auras?",
+          "response": [
+            "*Her eyes light up with scholarly enthusiasm*",
+            "Of course! It's basic arcane theory - all living beings emit magical resonance.",
+            "Yours is particularly complex... layered with purpose and... fear?",
+            "*She tilts her head curiously*",
+            "Someone deeply involved in supernatural events, I'd wager.",
+            "The kind that requires serious magical expertise to resolve."
+          ],
+          "effects": [],
+          "actions": ["ask_expertise", "inquire_availability", "dismiss_magic"]
+        },
+        {
+          "id": "mysterious_approach",
+          "text": "What makes you think I'm involved in anything dangerous?",
+          "response": [
+            "*She gestures at the air around you*",
+            "The magical residue clinging to your essence tells a story.",
+            "Recent exposure to dark enchantments, protective wards, divination magic...",
+            "*Her expression grows more serious*",
+            "Plus everyone in town is whispering about the Mayor's meeting.",
+            "You're clearly not just another tavern patron, are you?"
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "elara_detected_magic",
+              "value": true
+            }
+          ],
+          "actions": ["admit_mission", "deflect_question", "compliment_perception"]
+        },
+        {
+          "id": "interested_mage",
+          "text": "I might need a skilled spellcaster. Are you available?",
+          "response": [
+            "*She practically bounces with excitement*",
+            "Available? I've been waiting months for a proper adventure!",
+            "All this theoretical study is fine, but practical application is where real learning happens!",
+            "*Her enthusiasm dampens slightly*",
+            "Though... the Mayor has strict policies about magic users leaving town.",
+            "Ever since the incidents with unsupervised spellcasters, he requires official approval.",
+            "Get his blessing first, then we can discuss magical support!"
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "elara_eager_adventure",
+              "value": true
+            }
+          ],
+          "actions": ["promise_mayor_visit", "ask_incidents", "understand_policy"]
+        }
+      ],
+      "default_actions": ["goodbye"]
+    },
+
+    "return_visits": {
+      "introduction": [
+        "*Elara looks up from a new tome, quill in hand*",
+        "Back again! I've been researching since our last conversation.",
+        "*She shows you pages covered in arcane symbols*",
+        "Found some fascinating parallels to your situation in historical accounts.",
+        "Any progress on your mysterious endeavor?"
+      ],
+      "options": [
+        {
+          "id": "research_findings",
+          "text": "What did your research uncover?",
+          "response": [
+            "*She flips through her notes excitedly*",
+            "Patterns of disappearances dating back centuries!",
+            "Always the same: people vanishing without trace, no bodies found.",
+            "*Her voice drops to a whisper*",
+            "But here's the fascinating part - it happens in cycles.",
+            "Every few decades, then nothing for years. Very methodical.",
+            "Whatever's behind this isn't random. It's intelligent, organized."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "elara_shared_research",
+              "value": true
+            }
+          ],
+          "actions": ["ask_theories", "request_more_details", "appreciate_scholarship"]
+        },
+        {
+          "id": "mayor_status",
+          "text": "I haven't spoken to the Mayor yet.",
+          "response": [
+            "*She nods understandingly*",
+            "Politics can be tedious when people are in danger.",
+            "But the Mayor's caution comes from painful experience.",
+            "*She closes her book*",
+            "The last unsanctioned magical expedition ended... badly.",
+            "Three amateur wizards tried to investigate the disappearances solo.",
+            "They became part of the mystery themselves."
+          ],
+          "effects": [],
+          "actions": ["express_concern", "ask_details", "promise_caution"]
+        },
+        {
+          "id": "magical_theory",
+          "text": "What's your theory about the magical aspects?",
+          "response": [
+            "*Her eyes gleam with intellectual excitement*",
+            "Fascinating question! Based on the evidence patterns...",
+            "I suspect we're dealing with either planar manipulation or advanced necromancy.",
+            "*She draws arcane diagrams in the air*",
+            "The lack of bodies suggests dimensional displacement rather than simple murder.",
+            "But the methodical timing implies a controlling intelligence.",
+            "Someone - or something - with serious magical power and a long-term plan."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "elara_shared_theories",
+              "value": true
+            }
+          ],
+          "actions": ["impressed_analysis", "request_proof", "discuss_countermeasures"]
+        }
+      ],
+      "default_actions": ["goodbye"]
+    },
+
+    "recruitment_available": {
+      "introduction": [
+        "*Elara stands eagerly as you approach, her spell components organized and ready*",
+        "You spoke with the Mayor! I can see it in your aura - official sanction!",
+        "*She gestures to her prepared gear*",
+        "I've been ready since our first conversation.",
+        "The question is: are you ready for what real magic can accomplish?"
+      ],
+      "options": [
+        {
+          "id": "recruit_elara",
+          "text": "I'd like you to join my expedition.",
+          "response": [
+            "*She claps her hands together, creating small sparks of excitement*",
+            "Finally! A chance to put theory into practice!",
+            "You won't regret this choice - my magic will be invaluable against supernatural threats.",
+            "*She shoulders her pack of spell components*",
+            "Fair warning though: I'm used to academic debates, not life-or-death decisions.",
+            "But I learn quickly, and my spells are thoroughly researched and reliable!",
+            "Where do we begin our magical investigation?"
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "elara_recruited",
+              "value": true
+            },
+            {
+              "type": "quest_trigger",
+              "quest_id": "party_building",
+              "trigger_type": "member_recruited",
+              "data": {"member": "elara", "role": "mage"}
+            }
+          ],
+          "actions": ["welcome_aboard", "discuss_magic_strategy", "set_expectations"]
+        },
+        {
+          "id": "not_ready",
+          "text": "I'm still assembling my team.",
+          "response": [
+            "*Her excitement dims slightly but remains hopeful*",
+            "Of course! Proper preparation is essential for any expedition.",
+            "Take your time choosing companions - party composition is crucial for success.",
+            "*She returns to her studies*",
+            "I'll continue researching potential countermeasures.",
+            "The moment you're ready for magical support, you know where to find me!"
+          ],
+          "effects": [],
+          "actions": ["appreciate_patience", "promise_return", "goodbye"]
+        },
+        {
+          "id": "ask_capabilities",
+          "text": "What magical abilities can you provide?",
+          "response": [
+            "*She perks up, clearly in her element*",
+            "Excellent question! I specialize in combat magic and protective wards.",
+            "Magic Missile for reliable damage, Shield spells for defense.",
+            "*She counts on her fingers*",
+            "Sleep enchantments for crowd control, Detect Magic for investigation.",
+            "And I'm working on mastering Fireball for serious threats!",
+            "Plus extensive theoretical knowledge of counter-magic and dispelling."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "elara_demonstrated_abilities",
+              "value": true
+            }
+          ],
+          "actions": ["impressed_repertoire", "ask_limitations", "discuss_tactics"]
+        }
+      ],
+      "default_actions": ["goodbye"]
+    }
+  },
+
+  "actions": {
+    "ask_expertise": {
+      "text": "What kind of magical expertise do you have?",
+      "description": "Learn about her magical abilities",
+      "type": "information",
+      "response": [
+        "*She straightens proudly*",
+        "Five years of intensive arcane study, specializing in combat magic and protective enchantments.",
+        "Top of my class in theoretical applications, though admittedly light on field experience.",
+        "But that's exactly what I need - practical application of my knowledge!"
+      ]
+    },
+
+    "inquire_availability": {
+      "text": "Would you be interested in joining an expedition?",
+      "description": "Gauge her interest in adventure",
+      "type": "information", 
+      "response": [
+        "*Her face lights up with unbridled enthusiasm*",
+        "Are you serious? Finally, a chance for real magical fieldwork!",
+        "I've been stuck with theoretical exercises for months.",
+        "But you'll need official approval from the Mayor first - town policy."
+      ]
+    },
+
+    "dismiss_magic": {
+      "text": "I'm not really interested in magical theories.",
+      "description": "Downplay the magical aspects",
+      "type": "information",
+      "response": [
+        "*She looks slightly hurt but maintains politeness*",
+        "Oh. Well, not everyone appreciates the arcane arts.",
+        "But trust me - when you face supernatural threats, you'll wish you had a mage.",
+        "The offer stands if you change your mind."
+      ]
+    },
+
+    "admit_mission": {
+      "text": "You're right. I am involved in something dangerous.",
+      "description": "Acknowledge the dangerous situation",
+      "type": "information",
+      "response": [
+        "*She leans forward with intense curiosity*",
+        "I knew it! The magical signatures were too complex for mundane affairs.",
+        "Whatever you're facing, proper magical support could mean the difference between success and catastrophe.",
+        "Consider me very interested in helping!"
+      ]
+    },
+
+    "compliment_perception": {
+      "text": "Your magical perception is impressive.",
+      "description": "Praise her abilities",
+      "type": "information",
+      "response": [
+        "*She beams with pride*",
+        "Thank you! Aura reading is one of my specialties.",
+        "Most people can't even see magical residue, let alone interpret it.",
+        "It's actually quite useful for identifying supernatural threats before they become problems."
+      ]
+    },
+
+    "welcome_aboard": {
+      "text": "Welcome to the team, Elara!",
+      "description": "Officially welcome her to the party",
+      "type": "information",
+      "response": [
+        "*She practically glows with magical excitement*",
+        "This is going to be amazing! Real practical magic!",
+        "I promise you won't regret bringing a dedicated spellcaster.",
+        "When do we begin our investigation?"
+      ]
+    },
+
+    "discuss_magic_strategy": {
+      "text": "How should we approach magical threats?",
+      "description": "Get her tactical magical assessment",
+      "type": "information", 
+      "response": [
+        "*She pulls out a small notebook covered in arcane formulas*",
+        "Preparation is key! We need protective wards, detection spells, and counter-magic ready.",
+        "I suggest investigating with Detect Magic active at all times.",
+        "And I'll prepare dispelling enchantments in case we encounter hostile magic."
+      ]
+    },
+
+    "goodbye": {
+      "text": "FAREWELL", 
+      "description": "End conversation",
+      "type": "exit"
+    }
+  },
+
+  "metadata": {
+    "created": "Phase 2 Step 1 - Elara Implementation",
+    "version": "1.0",
+    "author": "Terror in Redstone Development",
+    "notes": "Eager young mage dialogue with scholarly enthusiasm and magical expertise. Follows Gareth template structure while maintaining unique personality.",
+    "narrative_schema_compliance": {
+      "states_used": ["first_meeting", "return_visits", "recruitment_available"],
+      "flags_set": ["elara_talked", "elara_detected_magic", "elara_eager_adventure", "elara_shared_research", "elara_shared_theories", "elara_recruited"],
+      "recruitment_integration": "Complete recruitment flow with magical theme"
+    }
+  }
+}

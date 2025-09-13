@@ -856,7 +856,7 @@ removed unnecessary code
 
 # ADR-055: Schema-Aligned Dialogue System (Garrick Complete)
 # Status: Accepted
-# Date: December 19, 2024
+# Date: Sep 12, 2025
 **Context** Garrick dialogue had state mismatches with narrative schema and action processing dead ends causing "I see" responses and continue button cycling.
 **Decision**Rewrote Garrick JSON to use schema states (first_meeting, after_first_talk, post_mayor) and fixed action response processing in dialogue engine.
 **Implementation** dialogue_engine.py: Added action response content handling and fixed continue handler action storage
@@ -868,7 +868,7 @@ Impact: Template established for remaining NPC dialogue implementations
 
 # ADR-055: Patron Selection & Recruitment Foundation
 # Status: Accepted
-# Date: December 19, 2024
+# Date: Sep 12, 2025
 **Context**Patron selection had navigation failures and button layout issues preventing NPC recruitment system implementation.
 Decision
 Fixed BaseLocation NPCSelectionLocation to use dialogue_file from JSON instead of constructed screen names. Implemented centered button layout using constants.py. Created complete Gareth recruitment dialogue with schema alignment.
@@ -884,7 +884,7 @@ Next: Mayor dialogue implementation to activate recruitment system
 
 # ADR-056: BaseLocation Universal Keyboard Navigation
 **Status: Accepted**
-# Date: December 19, 2024
+# Date: Sep 12, 2025
 **Context:** Dialogue navigation bug: patron_selection→dialogue→back incorrectly returned to broken_blade_main. BaseLocation screens lacked keyboard back navigation.
 **Decision:** Fixed dialogue navigation using NPC context routing. Added universal B/Backspace/ESC keyboard navigation for all BaseLocation screens using pattern-based detection.
 **Implementation:**
@@ -896,7 +896,7 @@ Files Modified: game_logic/dialogue_engine.py, input_handler.py
 
 # ADR-057: Recruitment System Alignment
 # Status: Accepted
-# Date: January 12, 2025
+# Date: Sep 13, 2025
 **Context** After speaking to the Mayor, recruitable NPCs (e.g., Gareth) still showed “talk to mayor first.” Root causes: conflicting schema flags, quest vs. recruitment state drift, dialogue actions not applying effects, and missing computed props in condition checks.
 **Decision**
 Align the recruitment flow around the narrative schema as the single source of truth:
@@ -914,6 +914,13 @@ data/narrative_schema.json, game_logic/dialogue_engine.py, data/dialogues/,broke
 **Validation**
 Mayor sets quest_active. Gareth presents recruitment when expected. *_recruited flags update party_members. Party-size guardrails respected. State survives save/load.
 **Result:** Recruitment flow unblocked and standardized; architecture scales cleanly to all four recruitable NPCs.
+
+# ADR-058: Made VSC setup changes
+# Sep 13, 2025
+hid pycache from view, hid from github, added repository structure file, added script folder and file to build repo folder structure.
+
+# ADR-059: some small cleanup changes
+- small clean up files to clean some items up.  tried to fix quest # showin 4 party vs. 3 party.  encountered dialogue issues. reverted.
 
 
 ```

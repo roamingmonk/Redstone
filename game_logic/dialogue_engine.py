@@ -74,13 +74,13 @@ class DialogueEngine:
         """Determine current dialogue state for NPC using narrative schema"""
         
        # DEBUG: Add this section
-        if npc_id == 'gareth':
-            print(f"DEBUG: STATE: ===========================")
-            print(f"DEBUG: STATE: Evaluating state for {npc_id}")
-            print(f"DEBUG: STATE: gareth_talked = {getattr(self.game_state, 'gareth_talked', False)}")
-            print(f"DEBUG: STATE: gareth_recruited = {getattr(self.game_state, 'gareth_recruited', False)}")
-            print(f"DEBUG: STATE: mayor_talked = {getattr(self.game_state, 'mayor_talked', False)}")
-            print(f"DEBUG: STATE: recruited_count = {getattr(self.game_state, 'recruited_count', 0)}")
+       # if npc_id == 'gareth':
+       #     print(f"DEBUG: STATE: ===========================")
+       #     print(f"DEBUG: STATE: Evaluating state for {npc_id}")
+       #     print(f"DEBUG: STATE: gareth_talked = {getattr(self.game_state, 'gareth_talked', False)}")
+       #     print(f"DEBUG: STATE: gareth_recruited = {getattr(self.game_state, 'gareth_recruited', False)}")
+       #     print(f"DEBUG: STATE: mayor_talked = {getattr(self.game_state, 'mayor_talked', False)}")
+       #     print(f"DEBUG: STATE: recruited_count = {getattr(self.game_state, 'recruited_count', 0)}")
 
         # Use narrative schema dialogue state mapping
         dialogue_states = narrative_schema.schema.get('dialogue_state_mapping', {})

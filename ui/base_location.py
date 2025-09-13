@@ -140,7 +140,7 @@ class BaseLocation(ABC):
                 )
                 
                 registered_count += 1
-                print(f"  📋 Registered {action_name}: {action_data_from_json.get('type', 'special')} -> {action_data_from_json.get('target', 'N/A')}")
+                #print(f"  📋 Registered {action_name}: {action_data_from_json.get('type', 'special')} -> {action_data_from_json.get('target', 'N/A')}")
             
             print(f"🎯 BaseLocation registered {registered_count} buttons for {screen_name}")
             

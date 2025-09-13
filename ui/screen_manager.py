@@ -121,8 +121,6 @@ class ScreenManager:
         event_manager.register("LOCATION_ACTION", handle_location_action)
         print("🎯 Registered LOCATION_ACTION event handler")
 
-
-
     def _handle_full_screen_registration(self, event_data):
         """Handle dynamic full-screen clickable registration"""
         screen = event_data.get("screen")
@@ -617,47 +615,15 @@ class ScreenManager:
             
             print("⚠️ Low stats confirmation clickables registered")
 
-    # def register_broken_blade_main_clickables(self):
-    #     """Register clickable areas for broken blade main screen using established pattern"""
-    #     if hasattr(self, 'input_handler') and self.input_handler:
-           
-    #         from screens.broken_blade import draw_broken_blade_main_screen
-        
-    #         # Clear existing clickables for this screen
-    #         self.input_handler.clear_clickables('broken_blade_main')
-            
-    #         # Create temporary surface to get button positions from draw function
-    #         temp_surface = pygame.Surface((1024, 768))
-    #         bartender_btn, server_btn, patrons_btn, gamble_btn, leave_btn = draw_broken_blade_main_screen(
-    #             temp_surface, self._current_game_controller.game_state, 
-    #             self._current_game_controller.fonts, self._current_game_controller.images, 
-    #             controller=self._current_game_controller
-    #         )
-            
-    #         # Register each button using the events that screen_handlers.py expects
-    #         self.input_handler.register_clickable('broken_blade_main', bartender_btn, 'NPC_CLICKED', 
-    #                                             {'npc_id': 'garrick', 'location': 'broken_blade_tavern'})
-    #         self.input_handler.register_clickable('broken_blade_main', server_btn, 'NPC_CLICKED',
-    #                                             {'npc_id': 'meredith', 'location': 'broken_blade_tavern'})
-    #         self.input_handler.register_clickable('broken_blade_main', patrons_btn, 'SCREEN_CHANGE',
-    #                                             {'target_screen': 'patron_selection', 'source_screen': 'broken_blade_main'})
-    #         self.input_handler.register_clickable('broken_blade_main', gamble_btn, 'SCREEN_CHANGE',
-    #                                             {'target_screen': 'dice_bets', 'source_screen': 'broken_blade_main'})
-    #         self.input_handler.register_clickable('broken_blade_main', leave_btn, 'SCREEN_CHANGE',
-    #                                             {'target_screen': 'town_square', 'source_screen': 'broken_blade_main'})
-            
-    #         print("✅ Broken Blade main screen clickables registered")
-    #     else:
-    #         print("⚠️ No InputHandler available for broken blade registration")
 
-    def register_inventory_screen_clickables(self):
-        """Register clickable areas for inventory screen"""
-        if hasattr(self, 'input_handler') and self.input_handler:
-            self.input_handler.clear_clickables('inventory')
-            # For now, just register ESC to close - you can add specific inventory buttons later
-            print("📦 Inventory screen clickables registered")
-        else:
-            print("⚠️ No InputHandler available for inventory screen")
+    # def register_inventory_screen_clickables(self):
+    #     """Register clickable areas for inventory screen"""
+    #     if hasattr(self, 'input_handler') and self.input_handler:
+    #         self.input_handler.clear_clickables('inventory')
+    #         # For now, just register ESC to close - you can add specific inventory buttons later
+    #         print("📦 Inventory screen clickables registered")
+    #     else:
+    #         print("⚠️ No InputHandler available for inventory screen")
 
     def register_quest_log_screen_clickables(self):
         """Register clickable areas for quest log screen"""
@@ -735,9 +701,8 @@ class ScreenManager:
             from screens.intro_scenes import (
                 draw_intro_scene_1, draw_intro_scene_2, draw_intro_scene_3
             )
-            #from screens.broken_blade import draw_broken_blade_main_screen
-            #from screens.patron_selection import draw_patron_selection_screen  
-            #from screens.shopping import draw_merchant_screen
+
+            from screens.shopping import draw_merchant_screen
             from screens.inventory_overlay import draw_inventory_screen
             from screens.quest_overlay import draw_quest_overlay
             from screens.character_overlay import draw_character_sheet_screen
