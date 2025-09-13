@@ -1,4 +1,5 @@
 # Python bytecode and caches
+git config --global core.excludesfile ~/.gitignore_global
 __pycache__/
 *.py[cod]
 *.pyo

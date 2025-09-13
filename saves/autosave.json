@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "timestamp": "2025-09-13T12:05:22.356321",
+  "timestamp": "2025-09-13T13:22:23.026505",
   "save_slot": 0,
   "character": {
     "strength": 12,
@@ -53,7 +53,7 @@
         },
         {
           "id": "meet_mayor",
-          "completed": true
+          "completed": false
         },
         {
           "id": "recruit_party",
@@ -70,7 +70,7 @@
       ]
     },
     "party_building": {
-      "status": "active",
+      "status": "inactive",
       "objectives": [
         {
           "id": "recruit_warrior",
@@ -154,26 +154,24 @@
       ]
     }
   },
-  "current_screen": "broken_blade_main",
+  "current_screen": "broken_blade_mayor",
   "screen_history": [],
   "previous_screen": null,
-  "party_members": [
-    "gareth"
-  ],
+  "party_members": [],
   "tavern_visits": 0,
   "locations_discovered": [],
   "quest_flags": {},
   "npc_recruitment_status": {},
   "conversations_had": [],
-  "mayor_talked": true,
-  "mayor_mentioned": true,
+  "mayor_talked": false,
+  "mayor_mentioned": false,
   "pete_attempted_recruitment": false,
   "pete_showing_comedy": false,
   "meredith_talked": false,
   "garrick_talked": false,
   "learned_about_church": false,
   "learned_about_ruins": false,
-  "quest_active": true,
+  "quest_active": false,
   "just_got_quest": false,
   "showing_meredith_response": false,
   "showing_garrick_response": false,
