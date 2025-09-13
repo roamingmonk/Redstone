@@ -253,13 +253,13 @@ class DialogueEngine:
             print(f"🎭 Processing dialogue action: {npc_id}, {action_name}")
             
             if action_name == 'goodbye':
-                # EXIT conversation entirely
+                # Clear dialogue state (preserve existing behavior)
+                setattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
                 setattr(self.game_state, f'showing_{npc_id}_response', False)
                 setattr(self.game_state, f'{npc_id}_dialogue_response', [])
-                setattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
                 print(f"DEBUG: Cleared {npc_id}_dialogue_in_progress")
 
-                # Unregister dialogue state handler if present
+                # Unregister from input handler (preserve existing behavior)
                 if self.event_manager:
                     screen_manager_service = self.event_manager.get_service('screen_manager')
                     if screen_manager_service and hasattr(screen_manager_service, 'input_handler'):
@@ -267,35 +267,26 @@ class DialogueEngine:
                         screen_manager_service.input_handler.unregister_dialogue_state(state_flag)
                         print(f"Unregistered dialogue state: {state_flag}")
 
-                    # Prefer actual previous baselocation screen; fall back to location_main
-                    target_screen = None
-                    prev = None
-                    current_screen = getattr(self.game_state, 'screen', None)
-
-                    if self.event_manager:
-                        sm = self.event_manager.get_service('screen_manager')
-                        if sm and hasattr(sm, 'previous_screen'):
-                            prev = getattr(sm, 'previous_screen', None)
-
-                    # Avoid looping back to the same dialogue screen or to the current screen
-                    dialogue_screen_name = f"{getattr(self.game_state, f'{npc_id}_current_location', '')}_{npc_id}"
-                    if prev and prev != current_screen and prev != dialogue_screen_name:
-                        target_screen = prev
-
-                    if not target_screen:
-                        location_id = getattr(self.game_state, f'{npc_id}_current_location', None)
-                        if location_id:
-                            target_screen = f'{location_id}_main'
-
-                    if target_screen:
-                        self.event_manager.emit('SCREEN_CHANGE', {
-                            'target_screen': target_screen,
-                            'source_screen': f'{npc_id}_dialogue'
-                        })
-                        print(f"Navigating back to {target_screen} (prev={prev})")
-                    else:
-                        print(f"ERROR: No prior screen or location for {npc_id}; staying put.")
-
+                # INTELLIGENT NAVIGATION: Use NPC context instead of broken ScreenManager
+                if npc_id in ['gareth', 'elara', 'thorman', 'lyra', 'mayor', 'pete']:
+                    # Tavern patron NPCs return to patron_selection
+                    target_screen = 'patron_selection'
+                    print(f"🎭 Patron NPC {npc_id} → returning to patron_selection")
+                elif npc_id in ['meredith', 'garrick']:
+                    # Main tavern NPCs return to broken_blade_main  
+                    target_screen = 'broken_blade_main'
+                    print(f"🍺 Tavern staff {npc_id} → returning to broken_blade_main")
+                else:
+                    # Fallback for future NPCs
+                    target_screen = 'broken_blade_main'
+                    print(f"🔄 Fallback → {target_screen}")
+                
+                print(f"✅ Navigating back to: {target_screen}")
+                self.event_manager.emit('SCREEN_CHANGE', {
+                    'target_screen': target_screen,
+                    'source_screen': f'{npc_id}_dialogue'
+                })
+                print(f"ERROR: No prior screen or location for {npc_id}; staying put.")
 
             elif action_name == 'back':
                 # RETURN TO CHOICE LIST (stay in conversation)

@@ -882,6 +882,18 @@ Positive: Patron selection navigation working, professional button layout, compl
 Outstanding: Location tracking issue causing incorrect return navigation from patron_selection→dialogue→back
 Next: Mayor dialogue implementation to activate recruitment system
 
+# ADR-056: BaseLocation Universal Keyboard Navigation
+**Status: Accepted**
+# Date: December 19, 2024
+**Context:** Dialogue navigation bug: patron_selection→dialogue→back incorrectly returned to broken_blade_main. BaseLocation screens lacked keyboard back navigation.
+**Decision:** Fixed dialogue navigation using NPC context routing. Added universal B/Backspace/ESC keyboard navigation for all BaseLocation screens using pattern-based detection.
+**Implementation:**
+Modified dialogue_engine.py: Patron NPCs return to patron_selection, tavern staff return to broken_blade_main
+Added input_handler.py: Pattern-based screen detection (*_main, *_selection, *_hub) triggers LOCATION_ACTION back events
+Eliminated dependency on broken ScreenManager navigation history
+**Consequences:** Fixed patron_selection navigation bug. Universal keyboard navigation for all BaseLocation screens without hardcoding. Scales automatically to future location types.
+Files Modified: game_logic/dialogue_engine.py, input_handler.py
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

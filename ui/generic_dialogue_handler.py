@@ -243,7 +243,7 @@ def process_response_action(npc_id, action_name, game_state, controller, locatio
         # Clear response state and exit to main tavern
         setattr(game_state, f'showing_{npc_id}_response', False)
         setattr(game_state, f'{npc_id}_dialogue_response', [])
-        return "back"  # Return to broken_blade_main instead of looping
+        return "back"  
     
     action_type = action_def.get('type', 'button')
     #print(f"DEBUG: Action {action_name} has type: {action_type}")
@@ -426,10 +426,7 @@ def register_npc_dialogue_screen(screen_manager, npc_id):
             back_button = result.get("back_button") or result.get("action_rects", {}).get("back")
             if back_button and back_button.collidepoint(mouse_pos):
                 print(f"DEBUG: Back button clicked for {npc_id}")
-                event_manager.emit("SCREEN_CHANGE", {
-                    "target_screen": "patron_selection",
-                    "source_screen": f"{npc_id}_dialogue"
-                })
+                game_controller.screen_manager.go_back(game_controller.game_state)
                 return True
                 
             # Handle any action buttons (shop, etc.)
@@ -441,10 +438,7 @@ def register_npc_dialogue_screen(screen_manager, npc_id):
                             "source_screen": f"{npc_id}_dialogue"
                         })
                     elif action_name == "goodbye":
-                        event_manager.emit("SCREEN_CHANGE", {
-                            "target_screen": "broken_blade_main", 
-                            "source_screen": f"{npc_id}_dialogue"
-                        })
+                        game_controller.screen_manager.go_back(game_controller.game_state)
                     return True
 
         else:
@@ -452,12 +446,8 @@ def register_npc_dialogue_screen(screen_manager, npc_id):
             # Add fallback back button handling here:
             if result.get("back_button") and result["back_button"].collidepoint(mouse_pos):
                 print(f"DEBUG: Back button clicked in non-standard dialogue")
-                event_manager.emit("SCREEN_CHANGE", {
-                    "target_screen": "patron_selection",
-                    "source_screen": f"{npc_id}_dialogue"
-                })
-                return True 
-
+                game_controller.screen_manager.go_back(game_controller.game_state)
+                return True
        
         return False
     
@@ -465,83 +455,6 @@ def register_npc_dialogue_screen(screen_manager, npc_id):
     screen_manager.register_screen(screen_name, npc_click_handler)
     print(f"Registered generic dialogue screen: {screen_name}")
 
-# def register_dialogue_clickables(screen_name, npc_id, game_state, fonts, controller):
-#     print(f"🎭 REGISTRATION: GDH ENTRY [{screen_name}] npc={npc_id} from {__file__}")
-#     # 8A keyboard-first: skip mouse registration
-#     USE_MOUSE_FOR_DIALOGUE = False
-#     if not USE_MOUSE_FOR_DIALOGUE:
-#         print(f"🎭 REGISTRATION: GDH SKIP clickables (keyboard mode)")
-#         return
-    
-#     """Register dialogue screen clickable areas following BaseLocation pattern"""
-#     print(f"🎭 REGISTRATION: GDH: register_dialogue_clickables called for {screen_name}, npc: {npc_id}")
-    
-#     # Check response state immediately
-#     showing_response_attr = f'showing_{npc_id}_response'
-#     is_showing_response = getattr(game_state, showing_response_attr, False)
-#     print(f"🎭 REGISTRATION: GDH: is_showing_response = {is_showing_response}")
-    
-    
-#     print(f"DEBUG: GDH: register_dialogue_clickables called for screen: {screen_name}, npc: {npc_id}")
-#     # TEMP for 8A: keyboard-only dialogue; skip mouse regions
-#     USE_MOUSE_FOR_DIALOGUE = False
-#     if not USE_MOUSE_FOR_DIALOGUE:
-#         print(f"🎭 REGISTRATION: GDH: keyboard mode active; skipping clickable registration for {screen_name}")
-#         return
-
-#     if not controller or not hasattr(controller, 'screen_manager'):
-#         return
-    
-#     screen_manager = controller.screen_manager
-#     if not hasattr(screen_manager, 'input_handler') or not screen_manager.input_handler:
-#         return
-    
-#     input_handler = screen_manager.input_handler
-#     input_handler.clear_clickables(screen_name)
-    
-#     # Create temp surface to get button positions (BaseLocation pattern)
-#     temp_surface = pygame.Surface((1024, 768))
-    
-#     # Get dialogue data and render to find button positions
-#     dialogue_engine = controller.event_manager.get_service('dialogue_engine')
-#     if dialogue_engine:
-#         location_id = getattr(game_state, f'{npc_id}_current_location', 'broken_blade')
-#         dialogue_file_id = f'{location_id}_{npc_id}'
-#         conversation_data = dialogue_engine.get_conversation_options(dialogue_file_id, npc_id)
-        
-#         result = draw_standard_dialogue_screen(temp_surface, npc_id, conversation_data, 
-#                                              game_state, fonts, controller)
-        
-#         # Register dialogue option clicks
-#         for i, option_rect in enumerate(result.get('option_rects', [])):
-#             input_handler.register_clickable(
-#                 screen_name, option_rect, 'DIALOGUE_CHOICE', 
-#                 {'npc_id': npc_id, 'choice_index': i}
-#             )
-        
-#         # Register action button clicks  
-#         for action_name, action_rect in result.get('action_rects', {}).items():
-#             input_handler.register_clickable(
-#                 screen_name, action_rect, 'DIALOGUE_ACTION',
-#                 {'npc_id': npc_id, 'action_name': action_name}
-#             )
-        
-#             # Register dialogue option clicks
-#         for i, option_rect in enumerate(result.get('option_rects', [])):
-#             input_handler.register_clickable(
-#                 screen_name, option_rect, 'DIALOGUE_CHOICE', 
-#                 {'npc_id': npc_id, 'choice_index': i}
-#             )
-        
-#         # Register action button clicks  
-#         for action_name, action_rect in result.get('action_rects', {}).items():
-#             input_handler.register_clickable(
-#                 screen_name, action_rect, 'DIALOGUE_ACTION',
-#                 {'npc_id': npc_id, 'action_name': action_name}
-#             )
-        
-#         registered_count = len(result.get('option_rects', [])) + len(result.get('action_rects', {}))
-#         print(f"🎭 Unified screen clickables registered for {screen_name}: {registered_count} buttons")
 # ==========================================
 # GAME CONTROLLER INTEGRATION
 # ==========================================

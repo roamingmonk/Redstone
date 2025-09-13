@@ -451,7 +451,47 @@ class InputHandler:
                 if game_state.screen in ["game_title", "developer_splash"]:
                     self.event_manager.emit("SCREEN_ADVANCE", {"current_screen": game_state.screen})
                     return True
-            
+            # NEW: Handle BaseLocation keyboard navigation (generic)
+            current_screen = game_state.screen
+
+            # Detect BaseLocation screens by common patterns
+            is_location_screen = (
+                current_screen == 'patron_selection' or
+                current_screen.endswith('_main') or
+                current_screen.endswith('_selection') or
+                current_screen.endswith('_hub')
+            )
+
+            # Skip dialogue screens (they have their own keyboard handling)
+            is_dialogue_screen = (
+                current_screen.endswith('_dialogue') or 
+                '_dialogue' in current_screen
+            )
+
+            if is_location_screen and not is_dialogue_screen:
+                if key in (pygame.K_b, pygame.K_BACKSPACE, pygame.K_ESCAPE):
+                    print(f"⌨️ Location screen BACK pressed from {current_screen}")
+                    
+                    # Parse screen to determine location and area
+                    if current_screen == 'patron_selection':
+                        location_id = 'patron_selection'
+                        area_id = 'main_area'
+                    elif '_' in current_screen:
+                        screen_parts = current_screen.split('_')
+                        location_id = '_'.join(screen_parts[:-1])  # Everything except last part
+                        area_id = screen_parts[-1]  # Last part (like "main")
+                    else:
+                        location_id = current_screen
+                        area_id = 'main_area'
+                    
+                    self.event_manager.emit("LOCATION_ACTION", {
+                        'action': 'back',
+                        'location_id': location_id,
+                        'area_id': area_id,
+                        'action_data': {'action_name': 'back'}
+                    })
+                    return True
+
             # Universal hotkeys
             if key in self.universal_hotkeys:
                 event_type, event_data = self.universal_hotkeys[key]
