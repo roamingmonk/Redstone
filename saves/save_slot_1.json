@@ -1,109 +1,53 @@
 {
   "version": "2.0",
-  "timestamp": "2025-08-26T19:38:03.445661",
+  "timestamp": "2025-09-07T21:05:30.016297",
   "save_slot": 1,
-  "player_character": {
-    "id": "player",
-    "name": "Player A",
-    "description": "Player A stands ready to prove his worth in the dangerous world of Redstone",
-    "class": "fighter",
-    "stats": {
-      "strength": 14,
-      "dexterity": 12,
-      "constitution": 10,
-      "intelligence": 10,
-      "wisdom": 11,
-      "charisma": 11
-    },
-    "equipment": {
-      "weapon": "Longsword",
-      "armor": "Leather Armor",
-      "shield": "Shield"
-    },
-    "player_data": {
-      "gender": "male",
-      "trinket": "Tarnished silver locket",
-      "creation_date": "2025-08-26T19:37:19.659481",
-      "portraits": {
-        "selected": "PLACEHOLDER_PORTRAIT",
-        "active_path": "assets/portraits/active/player.jpg"
-      }
-    },
-    "progression": {
-      "level": 1,
-      "experience": 0,
-      "hit_points": {
-        "current": 10,
-        "maximum": 10
-      }
-    },
-    "inventory": {
-      "gold": 65,
-      "items": [
-        "Tarnished silver locket"
-      ],
-      "weapons": [
-        "Longsword"
-      ],
-      "armor": [
-        "Leather Armor",
-        "Shield"
-      ],
-      "consumables": []
-    },
-    "dialogue": {
-      "default": [
-        "Ready for adventure!",
-        "Let's see what Redstone has to offer."
-      ]
-    },
-    "recruitment": {
-      "available": false,
-      "requirements": [],
-      "success_text": "The player character",
-      "party_role": "player"
-    }
-  },
   "character": {
-    "strength": 14,
-    "dexterity": 12,
-    "constitution": 10,
-    "intelligence": 10,
-    "wisdom": 11,
-    "charisma": 11,
-    "gender": "male",
-    "selected_portrait_file": "player_male_05.jpg",
-    "selected_portrait_gender": "male",
-    "name": "Player A",
-    "gold": 65,
-    "trinket": "Tarnished silver locket",
-    "hit_points": 10
+    "strength": 9,
+    "dexterity": 16,
+    "constitution": 13,
+    "intelligence": 9,
+    "wisdom": 12,
+    "charisma": 8,
+    "hit_points": 11,
+    "gender": "female",
+    "name": "Zara Valorborn",
+    "selected_portrait_file": "player_female_05.jpg",
+    "selected_portrait_gender": "female",
+    "gold": 180,
+    "trinket": "Smooth river stone with ancient runes carved deep",
+    "level": 1,
+    "experience": 0,
+    "equipped_weapon": "Longsword",
+    "equipped_armor": "Leather Armor",
+    "equipped_shield": "Shield",
+    "abilities": [
+      "Combat Training",
+      "Weapon Mastery"
+    ]
   },
   "inventory": {
-    "gold": 65,
-    "items": [
-      "Tarnished silver locket"
-    ],
     "weapons": [
+      "Longsword",
       "Longsword"
     ],
     "armor": [
       "Leather Armor",
+      "Shield",
+      "Leather Armor",
       "Shield"
+    ],
+    "items": [
+      "Hemp Rope",
+      "Smooth river stone with ancient runes carved deep"
     ],
     "consumables": []
   },
-  "current_screen": "tavern_main",
-  "screen_history": [
-    "gold",
-    "trinket",
-    "summary",
-    "welcome",
-    "welcome"
-  ],
-  "previous_screen": "welcome",
+  "current_screen": "broken_blade_main",
+  "screen_history": [],
+  "previous_screen": null,
   "party_members": [],
-  "tavern_visits": 1,
+  "tavern_visits": 0,
   "locations_discovered": [],
   "quest_flags": {},
   "npc_recruitment_status": {},
@@ -112,8 +56,8 @@
   "mayor_mentioned": false,
   "pete_attempted_recruitment": false,
   "pete_showing_comedy": false,
-  "server_talked": false,
-  "bartender_talked": false,
+  "meredith_talked": false,
+  "garrick_talked": false,
   "learned_about_church": false,
   "learned_about_ruins": false,
   "quest_active": false,
@@ -174,6 +118,25 @@
       ]
     }
   },
+  "showing_meredith_response": false,
+  "showing_garrick_response": false,
+  "dice_game": {
+    "house_money": 536,
+    "current_bet": 0,
+    "last_roll": [
+      0,
+      0,
+      0
+    ],
+    "rolling": false,
+    "roll_start_time": 0,
+    "last_result": null,
+    "last_payout": 0,
+    "game_active": true,
+    "win_streak": 0,
+    "loss_streak": 0
+  },
+  "shopping_cart": {},
   "house_money": 50,
   "gambling_wins": 0,
   "gambling_losses": 0,

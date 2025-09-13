@@ -1,0 +1,9 @@
+ADR-XXX: <Short summary of the change>
+
+- <What file(s) you changed and why>
+- <Impact: what it fixes, improves, or enables>
+- <Optional: link to issue, ticket, or doc section>
+
+# Replace ADR-XXX with the actual decision number from docs/decisions.md
+# Keep the first line short (~50 chars), bullets go below
+# Lines starting with # are ignored

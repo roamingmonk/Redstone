@@ -1,89 +1,9 @@
 {
   "version": "2.0",
-  "timestamp": "2025-08-26T19:37:53.660222",
+  "timestamp": "2025-08-29T14:33:18.601322",
   "save_slot": 99,
-  "player_character": {
-    "id": "player",
-    "name": "Player A",
-    "description": "Player A stands ready to prove his worth in the dangerous world of Redstone",
-    "class": "fighter",
-    "stats": {
-      "strength": 14,
-      "dexterity": 12,
-      "constitution": 10,
-      "intelligence": 10,
-      "wisdom": 11,
-      "charisma": 11
-    },
-    "equipment": {
-      "weapon": "Longsword",
-      "armor": "Leather Armor",
-      "shield": "Shield"
-    },
-    "player_data": {
-      "gender": "male",
-      "trinket": "Tarnished silver locket",
-      "creation_date": "2025-08-26T19:37:19.659481",
-      "portraits": {
-        "selected": "PLACEHOLDER_PORTRAIT",
-        "active_path": "assets/portraits/active/player.jpg"
-      }
-    },
-    "progression": {
-      "level": 1,
-      "experience": 0,
-      "hit_points": {
-        "current": 10,
-        "maximum": 10
-      }
-    },
-    "inventory": {
-      "gold": 65,
-      "items": [
-        "Tarnished silver locket"
-      ],
-      "weapons": [
-        "Longsword"
-      ],
-      "armor": [
-        "Leather Armor",
-        "Shield"
-      ],
-      "consumables": []
-    },
-    "dialogue": {
-      "default": [
-        "Ready for adventure!",
-        "Let's see what Redstone has to offer."
-      ]
-    },
-    "recruitment": {
-      "available": false,
-      "requirements": [],
-      "success_text": "The player character",
-      "party_role": "player"
-    }
-  },
-  "character": {
-    "strength": 14,
-    "dexterity": 12,
-    "constitution": 10,
-    "intelligence": 10,
-    "wisdom": 11,
-    "charisma": 11,
-    "gender": "male",
-    "selected_portrait_file": "player_male_05.jpg",
-    "selected_portrait_gender": "male",
-    "name": "Player A",
-    "gold": 65,
-    "trinket": "Tarnished silver locket",
-    "hit_points": 10
-  },
+  "character": {},
   "inventory": {
-    "gold": 65,
-    "items": [
-      "Tarnished silver locket"
-    ],
     "weapons": [
       "Longsword"
     ],
@@ -91,6 +11,7 @@
       "Leather Armor",
       "Shield"
     ],
+    "items": [],
     "consumables": []
   },
   "current_screen": "tavern_main",
@@ -103,7 +24,7 @@
   ],
   "previous_screen": "welcome",
   "party_members": [],
-  "tavern_visits": 1,
+  "tavern_visits": 0,
   "locations_discovered": [],
   "quest_flags": {},
   "npc_recruitment_status": {},
@@ -174,6 +95,23 @@
       ]
     }
   },
+  "dice_game": {
+    "house_money": 482,
+    "current_bet": 0,
+    "last_roll": [
+      0,
+      0,
+      0
+    ],
+    "rolling": false,
+    "roll_start_time": 0,
+    "last_result": null,
+    "last_payout": 0,
+    "game_active": true,
+    "win_streak": 0,
+    "loss_streak": 0
+  },
+  "shopping_cart": {},
   "house_money": 50,
   "gambling_wins": 0,
   "gambling_losses": 0,

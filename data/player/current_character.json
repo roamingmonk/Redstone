@@ -1,15 +1,15 @@
 {
   "id": "player",
-  "name": "Player B",
-  "description": "Player B stands ready to prove her worth in the dangerous world of Redstone",
+  "name": "Willem Warwick",
+  "description": "Willem Warwick stands ready to prove his worth in the dangerous world of Redstone",
   "class": "fighter",
   "stats": {
-    "strength": 13,
-    "dexterity": 15,
-    "constitution": 10,
-    "intelligence": 15,
-    "wisdom": 12,
-    "charisma": 9
+    "strength": 15,
+    "dexterity": 12,
+    "constitution": 13,
+    "intelligence": 13,
+    "wisdom": 13,
+    "charisma": 13
   },
   "equipment": {
     "weapon": "Longsword",
@@ -17,9 +17,9 @@
     "shield": "Shield"
   },
   "player_data": {
-    "gender": "female",
+    "gender": "male",
     "trinket": "Smooth river stone with runes",
-    "creation_date": "2025-08-26T19:38:43.949573",
+    "creation_date": "2025-08-26T22:10:11.546522",
     "portraits": {
       "selected": "PLACEHOLDER_PORTRAIT",
       "active_path": "assets/portraits/active/player.jpg"
@@ -29,15 +29,14 @@
     "level": 1,
     "experience": 0,
     "hit_points": {
-      "current": 10,
-      "maximum": 10
+      "current": 11,
+      "maximum": 11
     }
   },
   "inventory": {
-    "gold": 65,
+    "gold": 50,
     "items": [
-      "Smooth river stone with runes",
-      "Hemp Rope"
+      "Smooth river stone with runes"
     ],
     "weapons": [
       "Longsword"
@@ -46,16 +45,7 @@
       "Leather Armor",
       "Shield"
     ],
-    "consumables": [
-      "Strong Ale",
-      "Strong Ale",
-      "Strong Ale",
-      "Strong Ale",
-      "Strong Ale",
-      "Trail Rations",
-      "Trail Rations",
-      "Trail Rations"
-    ]
+    "consumables": []
   },
   "dialogue": {
     "default": [
@@ -68,5 +58,84 @@
     "requirements": [],
     "success_text": "The player character",
     "party_role": "player"
-  }
+  },
+  "previous_screen": "tavern_conversation",
+  "party_members": [],
+  "tavern_visits": 0,
+  "locations_discovered": [],
+  "quest_flags": {},
+  "npc_recruitment_status": {},
+  "conversations_had": [],
+  "mayor_talked": false,
+  "mayor_mentioned": false,
+  "pete_attempted_recruitment": false,
+  "pete_showing_comedy": false,
+  "server_talked": false,
+  "bartender_talked": false,
+  "learned_about_church": false,
+  "learned_about_ruins": false,
+  "quest_active": false,
+  "just_got_quest": false,
+  "quest_system": {
+    "main_story": {
+      "status": "active",
+      "objectives": [
+        {
+          "id": "talk_to_npcs",
+          "completed": false
+        },
+        {
+          "id": "meet_mayor",
+          "completed": false
+        },
+        {
+          "id": "recruit_party",
+          "completed": false
+        },
+        {
+          "id": "explore_ruins",
+          "completed": false
+        },
+        {
+          "id": "explore_church",
+          "completed": false
+        },
+        {
+          "id": "explore_camp",
+          "completed": false
+        },
+        {
+          "id": "solve_mystery",
+          "completed": false
+        }
+      ]
+    },
+    "party_building": {
+      "status": "inactive",
+      "objectives": [
+        {
+          "id": "recruit_warrior",
+          "completed": false
+        },
+        {
+          "id": "recruit_mage",
+          "completed": false
+        },
+        {
+          "id": "recruit_cleric",
+          "completed": false
+        },
+        {
+          "id": "recruit_rogue",
+          "completed": false
+        }
+      ]
+    }
+  },
+  "house_money": 50,
+  "gambling_wins": 0,
+  "gambling_losses": 0,
+  "equipped_weapon": null,
+  "equipped_armor": null,
+  "equipped_shield": null
 }
