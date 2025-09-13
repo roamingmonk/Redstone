@@ -102,7 +102,7 @@ class GameController:
         # Error recovery
         self.last_known_good_screen = "game_title"
         self.error_count = 0
-        
+
         # Debug features
         self.debug_mode = False
         self.frame_count = 0
@@ -273,7 +273,19 @@ class GameController:
         self.screen_manager.transition_to(self.game_state.screen, self.game_state, save_history=False)
         
         print("✅ Phase 3 Complete: System integration finished")
-    
+ 
+    def _initialize_debug_system(self):
+        """Initialize debug manager - keeps GameController lean"""
+        from utils.debug_manager import DebugManager
+        
+        self.debug_manager = DebugManager(self.game_state, self.event_manager)
+        
+        # Register debug manager as a service for other systems
+        self.event_manager.register_service('debug_manager', self.debug_manager)
+        
+        print("🔧 Debug system initialized")
+
+
     def _validate_dependency(self, dependency_name: str, dependency_object: Any):
         """Validate that a required dependency is available"""
         if dependency_object is None:
@@ -316,6 +328,10 @@ class GameController:
             len(self.event_manager.listeners.get("SCREEN_ADVANCE", [])) > 0
         )
         
+         #Initialize debug system
+        self._initialize_debug_system() 
+
+
         # Data loading validation
         validation_results["data_loaded"] = (
             hasattr(self.data_manager, 'item_manager') and
@@ -416,7 +432,7 @@ class GameController:
                 print(f"❌ Render failed for screen: {current_screen}")
                 # Add more debug info
                 registered_screens = list(self.screen_manager.render_functions.keys()) if hasattr(self.screen_manager, 'render_functions') else []
-                print(f"📋 Registered screens: {registered_screens}")
+                #print(f"📋 Registered screens: {registered_screens}")
                 return False
             
             return True

@@ -126,45 +126,44 @@ class QuestManager:
         
     def update_from_game_state(self):
         """Update quest progress based on current game state flags"""
-        
-        # Main story progression
+        # Main story quest progress
         main_quest = self.quests.get("main_story")
         if main_quest:
             # Information gathering phase
-            if (self.game_state.meredith_talked and 
-                self.game_state.garrick_talked and
-                len(self.game_state.party_members) > 0):
+            if (getattr(self.game_state, 'meredith_talked', False) and 
+                getattr(self.game_state, 'garrick_talked', False)):
                 self.complete_objective("main_story", "talk_to_npcs")
                 
             # Mayor meeting
-            if self.game_state.mayor_talked:
+            if getattr(self.game_state, 'mayor_talked', False):
                 self.complete_objective("main_story", "meet_mayor")
                 
-            # Party recruitment
-            if len(self.game_state.party_members) >= 1:
+            # Party recruitment - USE RECRUITMENT FLAGS, not party_members list
+            recruitment_count = self.game_state.recruited_count if hasattr(self.game_state, 'recruited_count') else 0
+            if recruitment_count >= 1:
                 self.complete_objective("main_story", "recruit_party")
                 
             # Location exploration (when implemented)
             if getattr(self.game_state, 'hill_ruins_completed', False):
                 self.complete_objective("main_story", "explore_ruins")
                 
-        # Party building quest
+        # Party building quest - FIX: Use individual recruitment flags
         party_quest = self.quests.get("party_building")
-        if party_quest and self.game_state.mayor_talked:
+        if party_quest:
             # Activate party building quest after meeting mayor
-            if party_quest.status == "inactive":
+            if getattr(self.game_state, 'mayor_talked', False) and party_quest.status == "inactive":
                 self.activate_quest("party_building")
+                print("🎯 Activated party_building quest")
                 
-            # Track specific recruitment types
-            for member in self.game_state.party_members:
-                if member == "gareth":
-                    self.complete_objective("party_building", "recruit_warrior")
-                elif member == "elara":
-                    self.complete_objective("party_building", "recruit_mage")
-                elif member == "thorman":
-                    self.complete_objective("party_building", "recruit_cleric")
-                elif member == "lyra":
-                    self.complete_objective("party_building", "recruit_rogue")
+            # Track specific recruitment types using FLAGS, not party_members
+            if getattr(self.game_state, 'gareth_recruited', False):
+                self.complete_objective("party_building", "recruit_warrior")
+            if getattr(self.game_state, 'elara_recruited', False):
+                self.complete_objective("party_building", "recruit_mage")
+            if getattr(self.game_state, 'thorman_recruited', False):
+                self.complete_objective("party_building", "recruit_cleric")
+            if getattr(self.game_state, 'lyra_recruited', False):
+                self.complete_objective("party_building", "recruit_rogue")
     
     def get_active_quests(self):
         """Return list of active quests for display"""

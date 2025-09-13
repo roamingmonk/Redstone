@@ -79,7 +79,6 @@
       "location": "broken_blade",
       "role": "recruitable_fighter",
       "story_flags": {
-        "recruitment_available": "gareth_available",
         "recruitment_completed": "gareth_recruited",
         "shared_background": "gareth_shared_story"
       }
@@ -92,7 +91,6 @@
       "location": "broken_blade",
       "role": "recruitable_mage",
       "story_flags": {
-        "recruitment_available": "elara_available",
         "recruitment_completed": "elara_recruited", 
         "shared_magic_knowledge": "elara_shared_magic"
       }
@@ -105,7 +103,6 @@
       "location": "broken_blade",
       "role": "recruitable_cleric",
       "story_flags": {
-        "recruitment_available": "thorman_available",
         "recruitment_completed": "thorman_recruited",
         "shared_faith": "thorman_shared_faith"
       }
@@ -118,7 +115,6 @@
       "location": "broken_blade",
       "role": "recruitable_rogue",
       "story_flags": {
-        "recruitment_available": "lyra_available",
         "recruitment_completed": "lyra_recruited",
         "shared_skills": "lyra_shared_skills"
       }
@@ -214,25 +210,21 @@
       "gareth": {
         "class": "Fighter",
         "recruitment_flag": "gareth_recruited",
-        "availability_flag": "gareth_available",
         "conversation_required": "gareth_talked"
       },
       "elara": {
         "class": "Mage", 
         "recruitment_flag": "elara_recruited",
-        "availability_flag": "elara_available",
         "conversation_required": "elara_talked"
       },
       "thorman": {
         "class": "Cleric",
         "recruitment_flag": "thorman_recruited", 
-        "availability_flag": "thorman_available",
         "conversation_required": "thorman_talked"
       },
       "lyra": {
         "class": "Rogue",
         "recruitment_flag": "lyra_recruited",
-        "availability_flag": "lyra_available", 
         "conversation_required": "lyra_talked"
       }
     }

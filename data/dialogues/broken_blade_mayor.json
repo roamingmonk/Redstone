@@ -1,0 +1,334 @@
+{
+  "dialogue_id": "broken_blade_mayor",
+  "npc_name": "Mayor Aldwin",
+  "description": "A weathered man with tired eyes sits heavily, the weight of leadership evident in his posture.",
+  
+  "states": {
+    "first_meeting": {
+      "introduction": [
+        "*An older man with silver hair looks up from his untouched meal*",
+        "You're new in town. I can always tell.",
+        "*He gestures wearily to an empty chair*",
+        "Sit, if you've got a moment. I'm Mayor Aldwin.",
+        "These days, I spend more time here than at the town hall.",
+        "Hard to focus on ledgers when people are... disappearing."
+      ],
+      "options": [
+        {
+          "id": "offer_help",
+          "text": "Perhaps I can help with these disappearances.",
+          "response": [
+            "*His eyes sharpen with sudden interest*",
+            "Help? Most folk want to pack up and leave when they hear the truth.",
+            "*He leans forward intently*",
+            "But if you're serious... we need it desperately.",
+            "Three families gone in the past month. No trace, no ransom demands.",
+            "Started with travelers and drifters. Now it's people with roots.",
+            "*His voice drops to a whisper*",
+            "My own wife and daughter... taken two weeks ago.",
+            "Whatever's doing this is organized, methodical. It's not random."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "mayor_shared_personal_loss",
+              "value": true
+            }
+          ],
+          "actions": ["accept_investigation", "ask_details", "express_condolences"]
+        },
+        {
+          "id": "ask_about_town",
+          "text": "Tell me about Redstone. It seems troubled.",
+          "response": [
+            "*He sighs deeply*",
+            "Redstone was a prosperous place once. Trade routes, good harvests.",
+            "But something's been hunting our people for months now.",
+            "*He stares into his ale*",
+            "We've sent word to the capital, but help is weeks away.",
+            "Meanwhile, families lock their doors at sunset.",
+            "The town watch does what they can, but they're scared too."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "learned_town_history",
+              "value": true
+            }
+          ],
+          "actions": ["offer_assistance", "ask_about_patterns", "inquire_about_help"]
+        },
+        {
+          "id": "express_sympathy",
+          "text": "You carry a heavy burden for this town.",
+          "response": [
+            "*He nods grimly*",
+            "The weight of leadership becomes heavier when you're failing.",
+            "Every morning I wake hoping for good news, and every evening...",
+            "*He trails off, then looks directly at you*",
+            "But dwelling on it won't bring them back.",
+            "Action will. The question is what kind of action.",
+            "Are you someone who acts, or someone who just offers sympathy?"
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "mayor_tested_resolve",
+              "value": true
+            }
+          ],
+          "actions": ["declare_intentions", "ask_what_needed", "promise_action"]
+        }
+      ],
+      "default_actions": ["goodbye"]
+    },
+
+    "quest_given": {
+      "introduction": [
+        "*The Mayor looks up with weary hope as you approach*",
+        "Have you made any progress on the investigation?",
+        "*He studies your face carefully*",
+        "Please, tell me you've found something. Anything.",
+        "Every day that passes, more people live in fear.",
+        "And I wonder if my family is still..."
+      ],
+      "options": [
+        {
+          "id": "request_locations",
+          "text": "Where should I focus my investigation?",
+          "response": [
+            "*He pulls out a worn map and spreads it on the table*",
+            "Three places keep coming up in the reports.",
+            "*He points to different areas*",
+            "The old Swamp Church - abandoned for years, but lights seen at night.",
+            "Hill Ruins outside town - local hunters avoid the area now.",
+            "And there's a refugee camp beyond the forest.",
+            "*He looks up seriously*",
+            "All three have connections to the disappearances.",
+            "But be warned - others have investigated and not returned."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "learned_about_swamp_church",
+              "value": true
+            },
+            {
+              "type": "set_flag",
+              "flag": "learned_about_ruins",
+              "value": true
+            },
+            {
+              "type": "set_flag",
+              "flag": "learned_about_refugees",
+              "value": true
+            }
+          ],
+          "actions": ["ask_swamp_details", "ask_ruins_details", "ask_refugee_details"]
+        },
+        {
+          "id": "request_backup",
+          "text": "I'll need trustworthy companions for this.",
+          "response": [
+            "*He nods emphatically*",
+            "Absolutely. This isn't work for someone alone.",
+            "*He gestures toward the tavern patrons*",
+            "There are good people here who've been waiting for someone to lead.",
+            "Gareth, the warrior - he's been itching to act.",
+            "Elara knows magic, Thorman's got the divine blessing.",
+            "And Lyra... well, she has skills others don't.",
+            "*He leans closer*",
+            "They respect action over words. Show them you're serious,",
+            "and they'll follow you into whatever danger awaits."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "mayor_endorsed_recruitment",
+              "value": true
+            }
+          ],
+          "actions": ["ask_about_individuals", "thank_for_guidance", "promise_recruitment"]
+        },
+        {
+          "id": "report_progress",
+          "text": "I'm gathering information and allies.",
+          "response": [
+            "*Relief crosses his features*",
+            "Good. That's the smart approach.",
+            "Too many have rushed in without preparation.",
+            "*He clasps your shoulder*",
+            "Take the time you need, but please don't take too long.",
+            "Every night, families wonder if they'll see the next dawn.",
+            "When you're ready to move, the town will support you."
+          ],
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "mayor_expressed_urgency",
+              "value": true
+            }
+          ],
+          "actions": ["reassure_speed", "ask_resources", "promise_updates"]
+        }
+      ],
+      "default_actions": ["goodbye"]
+    },
+
+    "progress_updates": {
+      "introduction": [
+        "*The Mayor's face lights up as he sees you*",
+        "Any word from your investigations?",
+        "*He leans forward eagerly*",
+        "Please, even small discoveries give people hope.",
+        "The town needs to know someone capable is working on this."
+      ],
+      "options": [
+        {
+          "id": "share_findings",
+          "text": "I've learned some disturbing things.",
+          "response": [
+            "*His expression becomes grave*",
+            "Tell me everything. No matter how dark.",
+            "*He steels himself*",
+            "I need to know what we're truly facing.",
+            "The people deserve to understand the danger,",
+            "even if the truth is harder than uncertainty."
+          ],
+          "effects": [],
+          "actions": ["detail_discoveries", "warn_of_danger", "discuss_next_steps"]
+        },
+        {
+          "id": "still_investigating",
+          "text": "Still gathering information, but making progress.",
+          "response": [
+            "*He nods understandingly*",
+            "Thorough work takes time. I appreciate your diligence.",
+            "*He looks around the tavern*",
+            "Just knowing someone competent is on this helps morale.",
+            "Take what time you need, but stay safe out there."
+          ],
+          "effects": [],
+          "actions": ["request_patience", "ask_support", "promise_results"]
+        }
+      ],
+      "default_actions": ["goodbye"]
+    }
+  },
+
+  "actions": {
+    "accept_investigation": {
+      "text": "I accept the responsibility of investigating.",
+      "description": "Formally agree to help solve the disappearances",
+      "type": "quest_accept",
+      "response": [
+        "*He stands and grasps your hand firmly*",
+        "Thank you. You may be our only hope.",
+        "I hereby deputize you!",
+        "You have my full authority to go where needed and ask what questions you must.",
+        "*He reaches into his coat*",
+        "This badge will identify you to any town guard or official.",
+        "May the gods watch over you in this dark business."
+      ],
+      "effects": [
+        {
+          "type": "set_flag",
+          "flag": "quest_active",
+          "value": true
+        },
+        {
+          "type": "set_flag",
+          "flag": "official_investigator",
+          "value": true
+        }
+      ]
+    },
+
+    "ask_details": {
+      "text": "Tell me exactly what happened to the missing people.",
+      "description": "Get specific information about the disappearances",
+      "type": "information",
+      "response": [
+        "It always happens the same way. People go missing at night.",
+        "No signs of struggle, no broken doors or windows.",
+        "*His hands clench*",
+        "My investigation found traces leading toward three locations:",
+        "An old church in the swamps, ancient ruins on the hill,",
+        "and reports of strange activity near the refugee camp."
+      ]
+    },
+
+    "express_condolences": {
+      "text": "I'm sorry for your loss.",
+      "description": "Offer sympathy for his personal tragedy", 
+      "type": "information",
+      "response": [
+        "*He nods solemnly*",
+        "Thank you. That means more than you know.",
+        "*He straightens with renewed determination*",
+        "But I can't let grief paralyze me. Others need protection.",
+        "I have to believe action can still save them."
+      ]
+    },
+
+    "ask_swamp_details": {
+      "text": "Tell me about this Swamp Church.",
+      "description": "Learn about the swamp location",
+      "type": "information",
+      "response": [
+        "*He points to the southern area of the map*",
+        "Abandoned temple, maybe fifty years now.",
+        "Used to serve the outer farms before they were abandoned.",
+        "*He frowns*",
+        "Hunters report seeing lights there at night.",
+        "And some of the missing were last seen heading that direction."
+      ]
+    },
+
+    "ask_ruins_details": {
+      "text": "What about these Hill Ruins?",
+      "description": "Learn about the ruins location",
+      "type": "information", 
+      "response": [
+        "*He indicates the eastern hills*",
+        "Ancient stone structures, older than the town.",
+        "Always been rumored to be haunted, but recently...",
+        "*He lowers his voice*",
+        "People hear chanting carried on the wind.",
+        "And the local hunters refuse to go near anymore."
+      ]
+    },
+
+    "ask_refugee_details": {
+      "text": "What's this about a refugee camp?",
+      "description": "Learn about the refugee situation",
+      "type": "information",
+      "response": [
+        "*His expression grows troubled*",
+        "Displaced people from the southern provinces.",
+        "They set up camp a few months ago, seemed harmless enough.",
+        "*He hesitates*",
+        "But some of our missing were last seen near their camp.",
+        "Could be coincidence, but... we can't ignore any possibility."
+      ]
+    },
+
+    "goodbye": {
+      "text": "FAREWELL",
+      "description": "End conversation",
+      "type": "exit"
+    }
+  },
+
+  "metadata": {
+    "created": "Session 8A - Mayor Implementation",
+    "version": "1.0",
+    "author": "Terror in Redstone Development", 
+    "notes": "Keystone dialogue that activates recruitment system and quest progression. Sets mayor_talked flag and reveals investigation locations.",
+    "narrative_schema_compliance": {
+      "states_used": ["first_meeting", "quest_given", "progress_updates"],
+      "flags_set": ["mayor_talked", "quest_active", "learned_about_swamp_church", "learned_about_ruins", "learned_about_refugees"],
+      "quest_integration": "Primary quest catalyst and information hub"
+    }
+  }
+}

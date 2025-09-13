@@ -56,7 +56,7 @@
           {
             "id": "mayor",
             "name": "Mayor",
-            "dialogue_file": "redstone_town_mayor",
+            "dialogue_file": "broken_blade_mayor",
             "description": "A worried official",
             "recruitment_role": "quest_giver",
             "location_based": true,

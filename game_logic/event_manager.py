@@ -73,8 +73,8 @@ class EventManager:
         if len(self.event_history) > self.max_history:
             self.event_history.pop(0)
         
-        if self.debug_logging:
-            print(f"📡 EVENT EM: {event_type} | Data: {data} | Listeners: {len(self.listeners[event_type])}")
+        #if self.debug_logging:
+        #    print(f"📡 EVENT EM: {event_type} | Data: {data} | Listeners: {len(self.listeners[event_type])}")
         
         # Call all registered listeners for this event type
         success = True

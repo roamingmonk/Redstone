@@ -894,6 +894,28 @@ Eliminated dependency on broken ScreenManager navigation history
 **Consequences:** Fixed patron_selection navigation bug. Universal keyboard navigation for all BaseLocation screens without hardcoding. Scales automatically to future location types.
 Files Modified: game_logic/dialogue_engine.py, input_handler.py
 
+# ADR-057: Recruitment System Alignment
+# Status: Accepted
+# Date: January 12, 2025
+**Context** After speaking to the Mayor, recruitable NPCs (e.g., Gareth) still showed “talk to mayor first.” Root causes: conflicting schema flags, quest vs. recruitment state drift, dialogue actions not applying effects, and missing computed props in condition checks.
+**Decision**
+Align the recruitment flow around the narrative schema as the single source of truth:
+Schema cleanup — Remove/normalize conflicting availability_flag entries.
+Party sync — When any *_recruited flag changes, sync game_state.party_members.
+Action effects — Process effects declared on dialogue actions (e.g., set quest_active).
+Computed props — Expose recruited_count/can_recruit_more to dialogue condition evaluation.
+**Consequences**
+Recruitment works end-to-end: Mayor → quest activation → recruitment options → party tracking. Party size limits enforced via computed props (max 3 recruits).Cleaner separation of concerns and a repeatable pattern for Elara, Thorman, and Lyra. Save/load persists recruitment progress without drift.
+**Implementation Notes**
+data/narrative_schema.json: remove/normalize availability references. game_logic/dialogue_engine.py: apply action effects; add computed props to eval context; add _sync_party_members_list().
+Dialogue JSONs: confirm quest_active and *_recruited effects where used.
+**Affected Files**
+data/narrative_schema.json, game_logic/dialogue_engine.py, data/dialogues/,broken_blade_mayor.json, data/dialogues/broken_blade_gareth.json
+**Validation**
+Mayor sets quest_active. Gareth presents recruitment when expected. *_recruited flags update party_members. Party-size guardrails respected. State survives save/load.
+**Result:** Recruitment flow unblocked and standardized; architecture scales cleanly to all four recruitable NPCs.
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

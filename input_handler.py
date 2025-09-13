@@ -194,8 +194,8 @@ class InputHandler:
         """
         
         # ADD DEBUG LOGGING HERE:
-        print(f"🖱️ DEBUG: IH: Mouse click detected at {mouse_pos}")
-        print(f"🖱️ DEBUG: IH: Current screen: {current_screen}")
+        #print(f"🖱️ DEBUG: IH: Mouse click detected at {mouse_pos}")
+        #print(f"🖱️ DEBUG: IH: Current screen: {current_screen}")
         
         # Record click for debugging
         self.click_history.append({
@@ -208,8 +208,8 @@ class InputHandler:
         if len(self.click_history) > self.max_click_history:
             self.click_history.pop(0)
         
-        if self.debug_input:
-            print(f"🖱️ IH:  Mouse click at {mouse_pos} on screen '{current_screen}'")
+        #if self.debug_input:
+            #print(f"🖱️ IH:  Mouse click at {mouse_pos} on screen '{current_screen}'")
         
         if self._handle_location_action_events(mouse_pos, current_screen):
             return True
@@ -219,18 +219,18 @@ class InputHandler:
             regions = self.clickable_regions[current_screen]
             regions_checked = 0
             
-            print(f"🖱️ DEBUG: IH: Found {len(regions)} clickable regions for {current_screen}")
+            #print(f"🖱️ DEBUG: IH: Found {len(regions)} clickable regions for {current_screen}")
 
             for region in regions:
                 regions_checked += 1
                 if region.rect.collidepoint(mouse_pos):
-                    if self.debug_input:
+                    #if self.debug_input:
                         
-                        print(f"🎯 DEBUG: IH: HIT! Event: {region.event_type}, Data: {region.event_data}")
+                        #print(f"🎯 DEBUG: IH: HIT! Event: {region.event_type}, Data: {region.event_data}")
 
                     # Emit the event instead of calling methods directly
                     self.event_manager.emit(region.event_type, region.event_data)
-                    print(f"✅ DEBUG: IH: Event emitted successfully")
+                    #print(f"✅ DEBUG: IH: Event emitted successfully")
 
                     # Update debug info
                     self.click_history[-1]['regions_checked'] = regions_checked
@@ -406,7 +406,7 @@ class InputHandler:
 
     def process_keyboard_input(self, event: pygame.event.Event, 
                               game_state) -> bool:
-        print(f"DEBUG: IH: Keyboard event - key: {pygame.key.name(event.key)}, screen: {game_state.screen}")
+        #print(f"DEBUG: IH: Keyboard event - key: {pygame.key.name(event.key)}, screen: {game_state.screen}")
         """
         Process keyboard input and emit appropriate events
         

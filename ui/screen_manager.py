@@ -87,7 +87,7 @@ class ScreenManager:
             area_id = event_data.get('area_id')
             action_data_from_json = event_data.get('action_data', {})
             
-            print(f"🗺️ Processing location action: {action} at {location_id}.{area_id}")
+            #print(f"🗺️ Processing location action: {action} at {location_id}.{area_id}")
             
             # Get the BaseLocation instance
             if hasattr(self, '_current_game_controller'):
@@ -283,7 +283,7 @@ class ScreenManager:
         if npc_id:
             # Navigate to the NPC's dialogue screen
             dialogue_screen = f"{npc_id}_dialogue"
-            print(f"🗣️ ScreenManager: NPC clicked: {npc_id}, navigating to {dialogue_screen}")
+            #print(f"🗣️ ScreenManager: NPC clicked: {npc_id}, navigating to {dialogue_screen}")
             
             # Use our existing transition method
             if hasattr(self, '_current_game_state'):
@@ -855,7 +855,7 @@ class ScreenManager:
             except Exception as e:
                 print(f"⚠️ Error in enter hook for {screen_name}: {e}")
         
-        print(f"🔄 Screen transition: {old_screen} → {screen_name}")
+        #print(f"🔄 Screen transition: {old_screen} → {screen_name}")
         return True
     
 
@@ -895,7 +895,7 @@ class ScreenManager:
         
         # Register with ScreenManager
         self.register_render_function(screen_name, location_render_function, enter_hook=location_enter_hook)
-        print(f"🗺️ BaseLocation screen registered: {screen_name} -> {location_id}.{area_id}")
+        #print(f"🗺️ BaseLocation screen registered: {screen_name} -> {location_id}.{area_id}")
 
     def render_current_screen(self, game_state) -> bool:
         """
@@ -947,7 +947,7 @@ class ScreenManager:
         Call this from GameController to maintain Single Data Authority
         """
         if self.current_screen != game_state.screen:
-            print(f"🔄 Syncing ScreenManager: {self.current_screen} → {game_state.screen}")
+            #print(f"🔄 Syncing ScreenManager: {self.current_screen} → {game_state.screen}")
             return self.transition_to(game_state.screen, game_state, save_history=False)
         return True
     
@@ -994,16 +994,16 @@ class ScreenManager:
 
     def _handle_screen_change_event(self, event_data):
         """Handle SCREEN_CHANGE events from the EventManager hub"""
-        print(f"🔄 ScreenManager: Received SCREEN_CHANGE event: {event_data}")
+        #print(f"🔄 ScreenManager: Received SCREEN_CHANGE event: {event_data}")
         
         # Support both 'target' and 'target_screen' for compatibility
         target_screen = event_data.get("target_screen") or event_data.get("target")
         source_screen = event_data.get("source_screen") or event_data.get("source")
         
-        print(f"🔄 ScreenManager: Attempting transition to '{target_screen}'")
+        #print(f"🔄 ScreenManager: Attempting transition to '{target_screen}'")
         
         if target_screen:
-            print(f"📺 ScreenManager handling navigation: {source_screen} → {target_screen}")
+            #print(f"📺 ScreenManager handling navigation: {source_screen} → {target_screen}")
             if hasattr(self, '_current_game_state'):
                 success = self.transition_to(target_screen, self._current_game_state)
                 if success:
@@ -1028,7 +1028,7 @@ class ScreenManager:
         
         target_screen = advance_map.get(current_screen)
         if target_screen:
-            print(f"📺 ScreenManager auto-advancing: {current_screen} → {target_screen}")
+            #print(f"📺 ScreenManager auto-advancing: {current_screen} → {target_screen}")
             if hasattr(self, '_current_game_state'):
                 return self.transition_to(target_screen, self._current_game_state)
         
@@ -1121,9 +1121,9 @@ class ScreenManager:
     
     def debug_status(self):
         """Temporary debug method to see what's registered"""
-        print(f"🔍 ScreenManager Debug:")
-        print(f"   Click handlers: {len(self.screens)}")
-        print(f"   Render functions: {len(getattr(self, 'render_functions', {}))}")
+        #print(f"🔍 ScreenManager Debug:")
+        #print(f"   Click handlers: {len(self.screens)}")
+        #print(f"   Render functions: {len(getattr(self, 'render_functions', {}))}")
         print(f"   Current screen: {getattr(self, 'current_screen', 'None')}")
         if hasattr(self, 'render_functions'):
             print(f"   Registered renders: {list(self.render_functions.keys())}")
@@ -1132,7 +1132,7 @@ class ScreenManager:
         """Register ScreenManager as the proper overlay coordinator"""
         if self.event_manager:
             self.event_manager.register("OVERLAY_TOGGLE", self._handle_overlay_toggle)
-            print("📺 ScreenManager registered for overlay management")
+            #print("📺 ScreenManager registered for overlay management")
 
     def _handle_overlay_toggle(self, event_data):
         """Handle overlay toggle - Centralized state management"""
@@ -1152,7 +1152,7 @@ class ScreenManager:
             if current_state:
                 self._current_game_state.load_screen_open = False
                 overlay_state.close_overlay()  # Sync with centralized state
-                print(f"📂 ScreenManager: Load screen closed")
+                #print(f"📂 ScreenManager: Load screen closed")
             else:
                 overlay_state.close_overlay()  # Close any active overlay first
                 self._current_game_state.load_screen_open = True
@@ -1160,16 +1160,16 @@ class ScreenManager:
                 if self._current_game_state.load_screen_open:
                     self.register_load_screen_clickables()
                 
-                print(f"📂 ScreenManager: Load screen opened")
+                #print(f"📂 ScreenManager: Load screen opened")
             return
         
         # Universal overlay handling with centralized state
         if overlay_state.is_open(overlay_id):
             overlay_state.close_overlay()
-            print(f"📋 ScreenManager: {overlay_id} closed")
+            #print(f"📋 ScreenManager: {overlay_id} closed")
         else:
             overlay_state.open_overlay(overlay_id)
-            print(f"📋 ScreenManager: {overlay_id} opened")
+            #print(f"📋 ScreenManager: {overlay_id} opened")
 
     def _render_overlays(self, game_state):
         """Render any active overlays on top of the main screen"""

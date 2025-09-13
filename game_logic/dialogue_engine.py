@@ -73,6 +73,15 @@ class DialogueEngine:
     def get_current_dialogue_state(self, npc_id: str) -> str:
         """Determine current dialogue state for NPC using narrative schema"""
         
+       # DEBUG: Add this section
+        if npc_id == 'gareth':
+            print(f"DEBUG: STATE: ===========================")
+            print(f"DEBUG: STATE: Evaluating state for {npc_id}")
+            print(f"DEBUG: STATE: gareth_talked = {getattr(self.game_state, 'gareth_talked', False)}")
+            print(f"DEBUG: STATE: gareth_recruited = {getattr(self.game_state, 'gareth_recruited', False)}")
+            print(f"DEBUG: STATE: mayor_talked = {getattr(self.game_state, 'mayor_talked', False)}")
+            print(f"DEBUG: STATE: recruited_count = {getattr(self.game_state, 'recruited_count', 0)}")
+
         # Use narrative schema dialogue state mapping
         dialogue_states = narrative_schema.schema.get('dialogue_state_mapping', {})
         npc_states = dialogue_states.get(npc_id, {})
@@ -80,16 +89,22 @@ class DialogueEngine:
         if not npc_states:
             return 'first_meeting'
         
-        # Create evaluation context with current game state
+       # Create evaluation context with current game state
         context = {}
         for flag_name in narrative_schema.get_all_flags():
             context[flag_name] = getattr(self.game_state, flag_name, False)
+
+        # Add computed properties to context
+        context['recruited_count'] = getattr(self.game_state, 'recruited_count', 0)
+        context['can_recruit_more'] = getattr(self.game_state, 'can_recruit_more', True)
         
         # CRITICAL: If dialogue in progress, temporarily override talked flag
         in_progress = getattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
-        if in_progress:
-            talked_flag = narrative_schema.get_npc_conversation_flag(npc_id)
-            context[talked_flag] = False  # Pretend we haven't talked yet
+        talked_flag = narrative_schema.get_npc_conversation_flag(npc_id)
+
+        if in_progress and not getattr(self.game_state, talked_flag, False):
+            # Only override if this is truly the first conversation
+            context[talked_flag] = False
             #print(f"DEBUG: Dialogue in progress for {npc_id}, overriding {talked_flag} to False")
         
         # Evaluate each state condition
@@ -111,6 +126,24 @@ class DialogueEngine:
         except Exception as e:
             print(f"DEBUG: Condition evaluation failed: {condition}, error: {e}")
             return False
+
+    def _sync_party_members_list(self):
+        """Sync party_members list with recruitment flags for UI systems"""
+        # Get all recruitment flags from narrative schema
+        from utils.narrative_schema import narrative_schema
+        recruitment_flags = narrative_schema.schema.get("recruitment_system", {}).get("recruitment_flags", [])
+        
+        # Build party_members list from active recruitment flags
+        party_members = []
+        for flag in recruitment_flags:
+            if getattr(self.game_state, flag, False):
+                # Convert flag name to NPC ID (gareth_recruited -> gareth)
+                npc_id = flag.replace('_recruited', '')
+                party_members.append(npc_id)
+        
+        # Update party_members list
+        self.game_state.party_members = party_members
+        print(f"🔄 Synced party_members: {party_members}")
 
     def get_conversation_options(self, dialogue_id: str, npc_id: str) -> Dict[str, Any]:
         """
@@ -299,7 +332,7 @@ class DialogueEngine:
                 setattr(self.game_state, response_attr, [])
                 
                 # CRITICAL: Don't exit to screen - stay in dialogue for state transition
-                print(f"DEBUG: Staying in dialogue, state may have changed for {npc_id}")
+                #print(f"DEBUG: Staying in dialogue, state may have changed for {npc_id}")
 
             # Also add this case for Enter/Continue:
             elif action_name in ['continue', 'goodbye']:
@@ -438,9 +471,16 @@ class DialogueEngine:
                 
                 # Handle actions with custom responses
                 if 'response' in action_def:
+                    # Process action effects
+                    effects = []
+                    for effect in action_def.get('effects', []):
+                        effect_result = self._apply_dialogue_effect(effect)
+                        if effect_result:
+                            effects.append(effect_result)
+                    
                     return {
                         'response': action_def.get('response', ["I see."]),
-                        'effects': [],
+                        'effects': effects,
                         'action_complete': True
                     }
 
@@ -541,6 +581,12 @@ class DialogueEngine:
                 
             value = effect.get('value', True)
             setattr(self.game_state, flag_name, value)
+            print(f"✅ Set flag: {flag_name} = {value}")
+            
+            # SYNC PARTY MEMBERS LIST when recruitment flags change
+            if flag_name.endswith('_recruited'):
+                self._sync_party_members_list()
+            
             return f"Set {flag_name} = {value}"
             
         elif effect_type == 'quest_trigger':

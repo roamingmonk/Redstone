@@ -140,7 +140,7 @@
       "default_actions": ["goodbye"]
     },
 
-    "post_mayor": {
+    "recruitment_available": {
       "introduction": [
         "*Gareth stands as you approach, his demeanor more respectful*",
         "So you spoke with the Mayor. Saw the weight he carries.",

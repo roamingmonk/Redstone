@@ -531,3 +531,79 @@ class GameState:
                 self.inventory[category].remove(item_name)
                 return True
         return False
+    
+    def debug_quest_state(self):
+        """Print current quest-relevant flags for debugging - F2 Debug System"""
+        print("\n" + "="*50)
+        print("🔍 QUEST DEBUG STATE (F2)")
+        print("="*50)
+        
+        # Core conversation flags
+        print(f"mayor_talked: {getattr(self, 'mayor_talked', False)}")
+        print(f"meredith_talked: {getattr(self, 'meredith_talked', False)}")
+        print(f"garrick_talked: {getattr(self, 'garrick_talked', False)}")
+        print(f"quest_active: {getattr(self, 'quest_active', False)}")
+        
+        # Recruitment flags (narrative schema style)
+        print(f"\n🎯 RECRUITMENT FLAGS:")
+        print(f"gareth_recruited: {getattr(self, 'gareth_recruited', False)}")
+        print(f"elara_recruited: {getattr(self, 'elara_recruited', False)}")
+        print(f"thorman_recruited: {getattr(self, 'thorman_recruited', False)}")
+        print(f"lyra_recruited: {getattr(self, 'lyra_recruited', False)}")
+        
+        # Party members list (old system)
+        print(f"\n👥 PARTY MEMBERS LIST:")
+        party_members = getattr(self, 'party_members', [])
+        print(f"party_members: {party_members}")
+        print(f"party count: {len(party_members)}")
+        
+        # Recruitment count (computed property)
+        print(f"\n📊 COMPUTED VALUES:")
+        print(f"recruited_count: {self.recruited_count}")
+        print(f"can_recruit_more: {self.can_recruit_more}")
+        
+        # Quest manager status
+        if hasattr(self, 'quest_manager'):
+            print(f"\n📋 QUEST MANAGER:")
+            active_quests = self.quest_manager.get_active_quests()
+            print(f"Active quests: {[q.id for q in active_quests]}")
+            
+            # Check specific quest objectives
+            party_quest = self.quest_manager.quests.get("party_building")
+            if party_quest:
+                print(f"Party building quest status: {party_quest.status}")
+                for obj in party_quest.objectives:
+                    print(f"  - {obj.id}: {obj.completed}")
+        else:
+            print("❌ Quest manager not found!")
+        
+        print("="*50 + "\n")
+
+    def debug_save_state(self):
+        """Print save-relevant data for debugging - F3 Debug System"""
+        print("\n" + "="*50)
+        print("💾 SAVE STATE DEBUG (F3)")
+        print("="*50)
+        
+        # Character state
+        print(f"Character name: {getattr(self, 'character', {}).get('name', 'Unknown')}")
+        print(f"Current screen: {getattr(self, 'screen', 'Unknown')}")
+        print(f"Money: {getattr(self, 'money', 0)}")
+        
+        # All narrative flags for save
+        from utils.narrative_schema import narrative_schema
+        print(f"\n🚩 ALL NARRATIVE FLAGS:")
+        all_flags = narrative_schema.get_all_flags()
+        for flag in all_flags:
+            value = getattr(self, flag, False)
+            if value:  # Only show flags that are True
+                print(f"  ✓ {flag}: {value}")
+        
+        # Quest save data
+        if hasattr(self, 'quest_manager'):
+            quest_save_data = self.quest_manager.get_quest_data_for_save()
+            print(f"\n📋 QUEST SAVE DATA:")
+            for quest_id, quest_data in quest_save_data.items():
+                print(f"  {quest_id}: {quest_data['status']}")
+        
+        print("="*50 + "\n")
