@@ -1,0 +1,102 @@
+{
+  "id": "broken_blade_pete",
+  "npc_name": "Pete Stumblefoot",
+
+  "states": {
+    "first_meeting": {
+      "introduction": [
+        "*A cheerful mess of a man raises his mug and nearly drops it.*",
+        "Name's Pete! Adventurer emeritus. Mostly emeritus.",
+        "You look important. I can be important too!"
+      ],
+      "options": [
+        {
+          "id": "try_recruit",
+          "text": "I could use another blade. Interested?",
+          "effects": [{ "type": "set_flag", "flag": "pete_attempted_recruitment", "value": true }],
+          "next_state": "comedy_sequence"
+        },
+        {
+          "id": "ask_refugees",
+          "text": "Heard anything about the refugee camp?",
+          "effects": [
+            { "type": "set_flag", "flag": "pete_mentioned_refugees", "value": true },
+            { "type": "set_flag", "flag": "learned_about_refugees", "value": true }
+        ],
+          "next_state": "refugee_hint"
+        }
+      ]
+    },
+
+    "pre_recruitment_comedy": {
+      "introduction": [
+        "You again! Ready to witness greatness? Or at least survivable enthusiasm?"
+      ],
+      "options": [
+        {
+          "id": "pre_try_recruit",
+          "text": "Fine. Impress me. Join up?",
+          "effects": [{ "type": "set_flag", "flag": "pete_attempted_recruitment", "value": true }],
+          "next_state": "comedy_sequence"
+        },
+        {
+          "id": "pre_refugees",
+          "text": "Any tips about the refugees?",
+          "effects": [
+            { "type": "set_flag", "flag": "pete_mentioned_refugees", "value": true },
+            { "type": "set_flag", "flag": "learned_about_refugees", "value": true }
+        ],
+
+          "next_state": "refugee_hint"
+        }
+      ]
+    },
+
+    "comedy_sequence": {
+      "introduction": [
+        "*Pete leaps onto a stool, strikes a heroic pose, wobbles, and salutes with an empty hand.*",
+        "\"Fear not! Pete Stumblefoot rides!\"",
+        "*He tries to draw a sword that does not exist, spins, and almost wins a fight with gravity.*",
+        "..... Ahem. Maybe I am better as your tavern scout."
+      ],
+      "options": [
+        {
+          "id": "comedy_wrap",
+          "text": "You are not recruit material, Pete.",
+          "effects": [{ "type": "set_flag", "flag": "pete_comedy_complete", "value": true }],
+          "next_state": "post_comedy"
+        }
+      ]
+    },
+
+    "post_comedy": {
+      "introduction": [
+        "Right, right. Team needs focus. I will protect this bar from sobriety and boredom."
+      ],
+      "options": [
+        {
+          "id": "pete_hint_again",
+          "text": "Any harmless gossip I can use?",
+          "next_state": "refugee_hint"
+        },
+        {
+          "id": "encore",
+          "text": "Do the routine again.",
+          "next_state": "comedy_sequence"
+        },
+        { "id": "bye_post", "text": "Keep the stool warm.", "next_state": "exit" }
+      ]
+    },
+
+    "refugee_hint": {
+      "introduction": [
+        "Refugee camp's south by the road. Lots of nightmares, lots of whispers.",
+        "One fella swore he saw figures in the fog at night. Might be nothing. Might be trouble."
+      ],
+      "options": [
+        { "id": "hint_back", "text": "Noted.", "next_state": "post_comedy" },
+        { "id": "bye_hint",  "text": "Thanks, Pete.", "next_state": "exit" }
+      ]
+    }
+  }
+}

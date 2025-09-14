@@ -1,0 +1,90 @@
+{
+  "id": "broken_blade_thorman",
+  "npc_name": "Thorman Stormhammer",
+
+  "states": {
+    "first_meeting": {
+      "introduction": [
+        "*A stout dwarf in well-kept chainmail raises his tankard in salute.*",
+        "Well met, traveler. You look like someone who stands their ground."
+      ],
+      "options": [
+        { "id": "ask_story", "text": "What is your story?", "next_state": "background" },
+        { "id": "bye_first", "text": "Another time.", "next_state": "exit" }
+      ]
+    },
+
+    "casual_chat": {
+      "introduction": [
+        "I do not march without proper cause.",
+        "Speak with the Mayor first. If he vouches for you, we can talk vows and battle plans."
+      ],
+      "options": [
+        { "id": "ack_mayor_gate", "text": "Understood. I will see the Mayor.", "next_state": "exit" },
+        { "id": "ask_story2", "text": "Tell me about yourself anyway.", "next_state": "background" }
+      ]
+    },
+
+    "background": {
+      "introduction": [
+        "I have kept watch over shrines and war-camps from the mountains to the marsh.",
+        "Steel is strong, but faith keeps it steady."
+      ],
+      "options": [
+        {
+          "id": "mark_shared",
+          "text": "Sounds like hard-won wisdom.",
+          "effects": [{ "type": "set_flag", "flag": "thorman_shared_faith", "value": true }],
+          "next_state": "first_meeting"
+        },
+        { "id": "bye_bg", "text": "Thank you.", "next_state": "exit" }
+      ]
+    },
+
+    "recruitment_available": {
+      "introduction": [
+        "*He sets the tankard down and rises.*",
+        "The Mayor says you are fighting this darkness. Good.",
+        "If there is room in your ranks, my hammer and prayers are yours."
+      ],
+      "options": [
+        {
+          "id": "recruit_yes",
+          "text": "Join me. We will need your healing and your hammer.",
+          "effects": [{ "type": "set_flag", "flag": "thorman_recruited", "value": true }],
+          "next_state": "recruited_join"
+        },
+        { "id": "recruit_no", "text": "Not yet. Stand by.", "next_state": "exit" }
+      ]
+    },
+
+    "recruitment_blocked": {
+      "introduction": [
+        "*He eyes your crowded ranks with approval.*",
+        "You are well supplied with allies. Make space and I will be here."
+      ],
+      "options": [
+        { "id": "blocked_ok", "text": "Understood.", "next_state": "exit" }
+      ]
+    },
+
+    "recruited_join": {
+      "introduction": [
+        "I will keep your people standing. Point me where the need is greatest."
+      ],
+      "options": [
+        { "id": "welcome", "text": "Welcome aboard.", "next_state": "exit" }
+      ]
+    },
+
+    "already_recruited": {
+      "introduction": [
+        "*He checks his holy symbol and war hammer.*",
+        "Ready when you are, leader."
+      ],
+      "options": [
+        { "id": "bye_ready", "text": "Form up.", "next_state": "exit" }
+      ]
+    }
+  }
+}

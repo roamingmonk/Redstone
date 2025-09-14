@@ -1,0 +1,138 @@
+{
+  "id": "broken_blade_meredith",
+  "npc_name": "Meredith",
+
+  "states": {
+    "first_meeting": {
+      "introduction": [
+        "Welcome to the Broken Blade. I am Meredith.",
+        "Keep it polite and we will get along fine."
+      ],
+      "options": [
+        { "id": "ask_specials", "text": "What are todays specials?", "next_state": "specials_info" },
+        { "id": "ask_tavern",   "text": "Tell me about this tavern.",  "next_state": "about_tavern" },
+        {
+          "id": "ask_rumors",
+          "text": "Heard anything unusual lately?",
+          "effects": [{ "type": "set_flag", "flag": "learned_about_swamp_church", "value": true }],
+          "next_state": "knows_about_swamp"
+        },
+        { "id": "bye_first", "text": "Just looking around. Goodbye.", "next_state": "exit" }
+      ]
+    },
+
+    "about_tavern": {
+      "introduction": [
+        "Oldest alehouse in Redstone. Miners, hunters, and travelers keep us busy.",
+        "If you need gear, the general store is on the square."
+      ],
+      "options": [
+        { "id": "back", "text": "Good to know.", "next_state": "first_meeting" },
+        { "id": "bye",  "text": "Thanks.",       "next_state": "exit" }
+      ]
+    },
+
+    "specials_info": {
+      "introduction": [
+        "Stew is hot, bread is fresh, and the ale is cold.",
+        "Do not ask what is in the stew unless you really want to know."
+      ],
+      "options": [
+        { "id": "back2", "text": "I will keep that in mind.", "next_state": "first_meeting" },
+        { "id": "bye2",  "text": "Maybe later.",            "next_state": "exit" }
+      ]
+    },
+
+    "knows_about_swamp": {
+      "introduction": [
+        "There’s an old church out in the swamp. Folks say lights move out there at night.",
+        "People who go poking around sometimes do not come back."
+      ],
+      "options": [
+        {
+          "id": "ask_mayor",
+          "text": "Who should I talk to about this?",
+          "effects": [
+            { "type": "set_flag", "flag": "meredith_mentioned_mayor", "value": true },
+            { "type": "set_flag", "flag": "meredith_directed_to_mayor", "value": true }
+          ],
+          "next_state": "gave_mayor_directions"
+        },
+        { "id": "more_details", "text": "What have you heard exactly?", "next_state": "swamp_details" },
+        { "id": "bye_warned",   "text": "Thanks for the warning.",      "next_state": "exit" }
+      ]
+    },
+
+    "swamp_details": {
+      "introduction": [
+        "Hunters talk about chanting when the wind dies, and shapes in the fog.",
+        "Could be stories. Could be trouble."
+      ],
+      "options": [
+        { "id": "back3", "text": "Alright.", "next_state": "knows_about_swamp" },
+        { "id": "bye3",  "text": "I will be careful.", "next_state": "exit" }
+      ]
+    },
+
+    "gave_mayor_directions": {
+      "introduction": [
+        "Talk to the Mayor about the disappearances.",
+        "If anyone is tracking it, it is him."
+      ],
+      "options": [
+        { "id": "bye", "text": "I will do that.", "next_state": "exit" }
+      ]
+    },
+
+    "return_visits": {
+      "introduction": ["Back again? What can I get you?"],
+      "options": [
+        { "id": "ask_business", "text": "How is business?", "next_state": "business_smalltalk" },
+        {
+          "id": "swamp_followup",
+          "text": "Any new word about the swamp church?",
+          "requirements": { "flags": { "learned_about_swamp_church": true } },
+          "next_state": "swamp_update"
+        },
+        { "id": "bye_casual", "text": "Just saying hello.", "next_state": "exit" }
+      ]
+    },
+
+    "business_smalltalk": {
+      "introduction": [
+        "Busy enough. Outsiders passing through, asking the same questions.",
+        "You are not the only one curious about the outskirts."
+      ],
+      "options": [
+        { "id": "back4", "text": "Makes sense.", "next_state": "return_visits" },
+        { "id": "bye4",  "text": "Take care.",   "next_state": "exit" }
+      ]
+    },
+
+    "swamp_update": {
+      "introduction": [
+        "No fresh news—just uneasy looks and quiet voices.",
+        "If you learn anything, let me know."
+      ],
+      "options": [
+        { "id": "back5", "text": "Will do.",    "next_state": "return_visits" },
+        { "id": "bye5",  "text": "Stay safe.",  "next_state": "exit" }
+      ]
+    },
+
+    "post_mayor": {
+      "introduction": [
+        "Heard you spoke with the Mayor. Keep your wits about you if you head toward the marsh."
+      ],
+      "options": [
+        {
+          "id": "post_swamp_followup",
+          "text": "Any further word about the swamp church?",
+          "requirements": { "flags": { "learned_about_swamp_church": true } },
+          "next_state": "swamp_update"
+        },
+        { "id": "bye_post", "text": "Thanks.", "next_state": "exit" }
+      ]
+    }
+  }
+}

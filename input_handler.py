@@ -242,8 +242,8 @@ class InputHandler:
             self.click_history[-1]['regions_checked'] = regions_checked
             self.click_history[-1]['hit'] = False
             
-            if self.debug_input:
-                print(f"❌ Click missed all {regions_checked} regions on {current_screen}")
+            #if self.debug_input:
+                #print(f"❌ Click missed all {regions_checked} regions on {current_screen}")
         
         else:
             if self.debug_input:

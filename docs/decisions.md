@@ -967,8 +967,10 @@ Conversations ending with next_state: exit left players on blank screens instead
 Technical Implementation
 **Validation**Tested Garrick dialogue: first_meeting → knows_about_ruins → gave_mayor_directions → automatic return to broken_blade_main. All transitions work correctly.
 **Impact**Completes dialogue system refactoring (ADR-058). Creates professional dialogue system with natural conversation progression and seamless navigation suitable for commercial RPG development.
+
 # ADR-062:  garrick dialgoue
 - changed to simple one screen with no response screen.  only slightly better still dialogue use errors.
+
 ## ADR-063: Dialogue System Architecture Complete Implementation **Status**: Resolved  
 **Date**: September 14, 2025
 ### Final Resolution Summary
@@ -1018,6 +1020,66 @@ Successfully completed dialogue system architecture redesign, resolving all prog
 ### Key Learning
 The dialogue system required hybrid architecture combining stored state management for conversation continuity with dynamic evaluation for contextual appropriateness. Pure approaches (only stored states OR only dynamic evaluation) failed to provide professional RPG dialogue experience.
 The resolution demonstrates successful integration of multiple architectural patterns to achieve professional game dialogue functionality.
+
+# ADR-064 Streamlines NPC Dialogue Flow + Schema ordering
+
+# Status: Accepted
+# Date: 2025-09-14
+**Context**
+Prior dialogue flow had a transient “response layer” and inconsistent gating semantics. This caused sticky states, phantom next_state hops, and hard-to-debug routing (e.g., casual chat shadowed by broader rules). We refactored around Garrick and validated end-to-end.
+**Decision**
+Remove response layer — Options now transition directly to another state or to exit.
+Gating syntax is canonical
+Schema routing is order-sensitive — Put more-specific conditions before broader ones. Example for Garrick:
+casual_chat (pre-mayor) before knows_about_ruins.
+Post-mayor states ordered: complete → accepted → offered → no_basement.
+Flags must be declared — Any flag referenced in dialogue_state_mapping must exist in npcs.<id>.story_flags.
+
+End-of-quest graduation — Add a “report/ack” flag (e.g., reported_basement_victory and optional post_payment_acknowledged) to prevent payout/victory loops and return to an idle state (or casual chat).
+
+**Engine hygiene**
+Use stored dialogue state only while a conversation is in progress.,  On goodbye, clear *_dialogue_state, *_conversation_data, and *_dialogue_in_progress.
+
+Load JSON with encoding="utf-8" to avoid curly-quote artifacts.
+
+**Alternatives Considered**
+Keep response layer and patch bugs → rejected (extra complexity, more moving parts).
+OR routing in schema → rejected; current evaluator supports simple boolean expressions with ordering, which is sufficient.
+
+**Consequences**
+Pros: Simpler authoring, predictable routing, fewer edge cases; casual chat works reliably; quests advance with clear flags.
+Cons: Authors must define substates for info beats (no free “response” text). Schema order becomes part of the contract.
+
+**How to Author (summary)**
+Every option: id, text, next_state: "<state>" | "exit", optional effects, optional requirements.
+Don’t use "response" fields.
+Define all referenced next_state names.
+Declare all flags used in routing under npcs.<id>.story_flags.
+In schema, list specific conditions first; broad catch-alls last.
+
+**Migration Notes (applied in Garrick)**
+Converted casual-chat gates to requirements.flags.
+Added missing flags: accepted_basement_quest, reported_basement_victory, etc.
+Reordered Garrick mapping: casual_chat before knows_about_ruins; post-mayor fan-out in specific→broad order., Added one-time post-payment ack to graduate from payout screen., Removed DEV hooks and phantom states; replaced any missing next_state with real states or exit.
+Implemented engine fixes: in-progress gating for stored state; full clear on goodbye; UTF-8 JSON load.
+
+**Test Checklist (must pass for each NPC)**
+First meeting: info options route to real substates (no self-loops unless intended)., Rumor/info flags unlock gated items via requirements.flags., Pre-mayor: casual_chat wins over broader knowledge states., Post-mayor quest path: offered → accepted → complete → reported/paid → stable idle/casual., No phantom states; no "response" fields remain; exit returns to location cleanly.
+**Rollout**
+Clone the Garrick pattern to Meredith, Pete, etc.,Validate with the above checklist; keep schema ordering discipline. Remove any temporary DEV flags/options before commit.
+
+# ADR- 065 Unified NPC Dialogue Pattern & Key NPC Implementations
+# Status: Accepted
+# Date: 2025-09-14
+**Context**
+Previous dialogue used a “response layer,” caused sticky state bugs, inconsistent gating, and authoring friction. We need predictable routing and fast content creation across core NPCs (Mayor, Garrick, Meredith, Gareth, Elara, Thorman, Pete).
+**Decision**
+State-only dialogues: remove response layer; each option goes to a state or exit.
+Gating: use requirements: { "flags": { ... } } (AND semantics).
+Schema ordering: evaluate in insertion order; list specific → broad.
+Flags discipline: any flag used in routing must be declared under npcs.<id>.story_flags.
+Engine hygiene: only reuse stored state in-session; clear on goodbye; load JSON with UTF-8.
+**Consequences** **Pros:** simpler authoring, predictable flows, easy testing. **Cons:** authors must define substates (no freeform responses) and maintain mapping order.
 
 ```
 ## ADR-XXX: <Short title>

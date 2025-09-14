@@ -62,7 +62,10 @@ class DebugManager:
         print(f"meredith_talked: {getattr(self.game_state, 'meredith_talked', False)}")
         print(f"garrick_talked: {getattr(self.game_state, 'garrick_talked', False)}")
         print(f"quest_active: {getattr(self.game_state, 'quest_active', False)}")
-        
+        print(f"learned_about_swamp_church: {getattr(self.game_state, 'learned_about_swamp_church', False)}")
+        print(f"learned_about_ruins: {getattr(self.game_state, 'learned_about_ruins', False)}")
+        print(f"learned_about_refugees: {getattr(self.game_state, 'learned_about_refugees', False)}")
+
         # Recruitment flags (narrative schema style)
         print(f"\n🎯 RECRUITMENT FLAGS:")
         print(f"gareth_recruited: {getattr(self.game_state, 'gareth_recruited', False)}")

@@ -1,0 +1,91 @@
+{
+  "id": "broken_blade_lyra",
+  "npc_name": "Lyra Quickfingers",
+
+  "states": {
+    "first_meeting": {
+      "introduction": [
+        "*A lithe figure in dark leather watches from the shadows.*",
+        "You move like someone with purpose - and secrets.",
+        "That makes you interesting."
+      ],
+      "options": [
+        { "id": "ask_story", "text": "What is your story?", "next_state": "background" },
+        { "id": "bye_first", "text": "Maybe later.", "next_state": "exit" }
+      ]
+    },
+
+    "casual_chat": {
+      "introduction": [
+        "Freelance, not reckless. The Mayor is cracking down.",
+        "Get his blessing first, then we can talk business."
+      ],
+      "options": [
+        { "id": "ack_mayor_gate", "text": "Alright. I will see the Mayor.", "next_state": "exit" },
+        { "id": "ask_story2", "text": "Tell me about yourself anyway.", "next_state": "background" }
+      ]
+    },
+
+    "background": {
+      "introduction": [
+        "Locks, traps, and quiet footsteps. I collect problems and make them vanish.",
+        "Discretion costs extra. Trouble costs more."
+      ],
+      "options": [
+        {
+          "id": "mark_shared",
+          "text": "Useful skills.",
+          "effects": [{ "type": "set_flag", "flag": "lyra_shared_tricks", "value": true }],
+          "next_state": "first_meeting"
+        },
+        { "id": "bye_bg", "text": "Thanks.", "next_state": "exit" }
+      ]
+    },
+
+    "recruitment_available": {
+      "introduction": [
+        "*She twirls a dagger, amused.*",
+        "The Mayor vouched for you. Good enough for me.",
+        "If there is room, I am in."
+      ],
+      "options": [
+        {
+          "id": "recruit_yes",
+          "text": "Join me. We will need your skills.",
+          "effects": [{ "type": "set_flag", "flag": "lyra_recruited", "value": true }],
+          "next_state": "recruited_join"
+        },
+        { "id": "recruit_no", "text": "Not yet. Stand by.", "next_state": "exit" }
+      ]
+    },
+
+    "recruitment_blocked": {
+      "introduction": [
+        "*She eyes your ranks, counting footfalls in her head.*",
+        "Too many boots for clean work. Make space and I will be here."
+      ],
+      "options": [
+        { "id": "blocked_ok", "text": "Understood.", "next_state": "exit" }
+      ]
+    },
+
+    "recruited_join": {
+      "introduction": [
+        "Smart choice. Point me at the locks and keep the noise down."
+      ],
+      "options": [
+        { "id": "welcome", "text": "Welcome aboard.", "next_state": "exit" }
+      ]
+    },
+
+    "already_recruited": {
+      "introduction": [
+        "*She checks her picks and tightens a bracer.*",
+        "Ready when you are, leader."
+      ],
+      "options": [
+        { "id": "bye_ready", "text": "Form up.", "next_state": "exit" }
+      ]
+    }
+  }
+}

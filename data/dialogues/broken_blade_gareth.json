@@ -1,0 +1,93 @@
+{
+  "id": "broken_blade_gareth",
+  "npc_name": "Gareth Ironwill",
+
+  "states": {
+    "first_meeting": {
+      "introduction": [
+        "*A weathered soldier sits alone, scarred hands around a tankard.*",
+        "I've been watching you since you arrived.",
+        "You look like someone who attracts trouble—or solves it."
+      ],
+      "options": [
+        { "id": "ask_story", "text": "What is your story?", "next_state": "background" },
+        { "id": "bye_first", "text": "Maybe later.", "next_state": "exit" }
+      ]
+    },
+
+    "casual_chat": {
+      "introduction": [
+        "I don't take orders from strangers, friend.",
+        "You want my sword? Talk to the Mayor first. He will vouch for you—or he won’t."
+      ],
+      "options": [
+        { "id": "ack_mayor_gate", "text": "Alright. I willl speak to the Mayor.", "next_state": "exit" },
+        { "id": "ask_story2", "text": "At least tell me about yourself.", "next_state": "background" }
+      ]
+    },
+
+    "background": {
+      "introduction": [
+        "Twenty years on battlefields both noble and questionable.",
+        "These days? I prefer causes that can still look me in the eye."
+      ],
+      "options": [
+        {
+          "id": "mark_shared",
+          "text": "Sounds like you have seen things.",
+          "effects": [{ "type": "set_flag", "flag": "gareth_shared_story", "value": true }],
+          "next_state": "first_meeting"
+        },
+        { "id": "bye_bg", "text": "Thanks for the honesty.", "next_state": "exit" }
+      ]
+    },
+
+    "recruitment_available": {
+      "introduction": [
+        "*He nods with respect.*",
+        "The Mayor spoke well of you. People are vanishing. I will not sit idle.",
+        "My sword is yours—if you got room."
+      ],
+      "options": [
+        {
+          "id": "recruit_yes",
+          "text": "Join me. We’ll put your axe to work.",
+          "effects": [
+            { "type": "set_flag", "flag": "gareth_recruited", "value": true }
+          ],
+          "next_state": "recruited_join"
+        },
+        { "id": "recruit_no", "text": "Not yet. Stand by.", "next_state": "exit" }
+      ]
+    },
+
+    "recruitment_blocked": {
+      "introduction": [
+        "*He eyes your crowded ranks.*",
+        "Plenty of steel already. Make room and I will be here."
+      ],
+      "options": [
+        { "id": "blocked_ok", "text": "Understood.", "next_state": "exit" }
+      ]
+    },
+
+    "recruited_join": {
+      "introduction": [
+        "Gareth lifts his sword. “Feels like a righteous cause. I am with you.”"
+      ],
+      "options": [
+        { "id": "welcome", "text": "Welcome aboard.", "next_state": "exit" }
+      ]
+    },
+
+    "already_recruited": {
+      "introduction": [
+        "*Checks weapon straps.*",
+        "Ready when you give the word, leader. Where to?"
+      ],
+      "options": [
+        { "id": "bye_ready", "text": "Form up.", "next_state": "exit" }
+      ]
+    }
+  }
+}

@@ -9,12 +9,12 @@
         {
           "id": "ask_supplies",
           "text": "Do you sell supplies?",
-          "next_state": "first_meeting"
+          "next_state": "supplies_info"
         },
         {
           "id": "ask_tavern",
           "text": "Tell me about this tavern.",
-          "next_state": "first_meeting"
+          "next_state": "about_tavern"
         },
         {
           "id": "ask_rumors",
@@ -36,13 +36,35 @@
       ]
     },
     
+    "about_tavern": {
+      "introduction": [
+        "Oldest alehouse in town. Built after the first mine strike.",
+        "Miners, hunters, and the odd scholar keep the stools warm."
+      ],
+      "options": [
+        { "id": "back_first", "text": "Got it.", "next_state": "first_meeting" },
+        { "id": "bye",        "text": "Thanks. Goodbye.", "next_state": "exit" }
+      ]
+    },
+
+    "supplies_info": {
+      "introduction": [
+        "I pour drinks; I do not stock gear, yet. Try the general store on the square."
+      ],
+      "options": [
+        { "id": "back_first2", "text": "Right.", "next_state": "first_meeting" },
+        { "id": "bye2",        "text": "Cheers.", "next_state": "exit" }
+      ]
+    },
+
+
     "after_first_talk": {
       "introduction": ["Back again? Need something else?"],
       "options": [
         {
           "id": "ask_supplies_again",
           "text": "About those supplies...",
-          "next_state": "after_first_talk"
+          "next_state": "supplies_info"
         },
         {
           "id": "ask_rumors_again",
@@ -181,19 +203,40 @@
     },
 
     "post_mayor_basement_complete": {
-      "introduction": ["Well done! Those rats were getting out of hand.", "Here's your payment as promised.", "You're ready for bigger challenges now."],
+      "introduction": [
+        "Well done! Those rats were getting out of hand.",
+        "Here's your payment as promised.",
+        "You're ready for bigger challenges now."
+      ],
       "options": [
         {
-          "id": "thank_for_payment",
+          "id": "take_payment",
           "text": "Thanks for the work.",
-          "next_state": "exit"
+          "effects": [
+            { "type": "set_flag", "flag": "reported_basement_victory", "value": true },
+            { "type": "set_flag", "flag": "garrick_paid", "value": true }
+          ],
+          "next_state": "post_payment_idle"
         },
         {
-          "id": "ask_about_ruins_after_basement",
-          "text": "Now about those ruins...",
-          "next_state": "ruins_details"
+          "id": "ask_ruins_after_job",
+          "text": "Now about those ruins…",
+          "effects": [
+            { "type": "set_flag", "flag": "reported_basement_victory", "value": true }
+          ],
+          "next_state": "knows_about_ruins"
         }
       ]
+    },
+
+    "post_payment_idle": {
+      "introduction": ["Your tab is settled. Grab a stool anytime."],
+      "options": [
+        { 
+          "id": "bye", 
+          "text": "Later.", 
+          "effects": [{ "type": "set_flag", "flag": "post_payment_acknowledged", "value": true }],
+          "next_state": "exit" }]
     },
     
     "ruins_details": {
@@ -479,19 +522,19 @@
         {
           "id": "ask_supplies_casual",
           "text": "Do you sell any supplies?",
-          "next_state": "casual_chat"
+          "next_state": "supplies_info"
         },
         {
           "id": "check_basement_quest",
           "text": "About that basement job...",
-          "requirements": {"flag": "garrick_offered_basement"},
+          "requirements": { "flags": { "garrick_offered_basement": true } },
           "next_state": "basement_quest_status"
         },
         {
           "id": "ruins_small_talk",
           "text": "Any word on the ruins situation?",
-          "requirements": {"flag": "learned_about_ruins"},
-          "next_state": "ruins_update"
+          "requirements": { "flags": { "learned_about_ruins": true } },
+          "next_state": "knows_about_ruins"
         },
         {
           "id": "goodbye_casual",

@@ -13,13 +13,7 @@
       "story_flags": {
         "mentioned_mayor": "meredith_mentioned_mayor",
         "directed_to_mayor": "meredith_directed_to_mayor",
-        "gave_swamp_location": "learned_about_swamp_church",
-        "shared_refugee_nightmares": "heard_refugee_nightmares",
-        "shared_guard_gossip": "heard_guard_gossip",
-        "gave_ritual_warning": "meredith_ritual_warning",
-        "flirtation_started": "meredith_flirtation_started",
-        "attracted_to_player": "meredith_attracted_to_player", 
-        "relationship_progressed": "meredith_relationship_progressed"
+        "gave_swamp_location": "learned_about_swamp_church"
       }
     },
     "garrick": {
@@ -56,9 +50,7 @@
       "story_flags": {
         "attempted_recruitment": "pete_attempted_recruitment",
         "showed_comedy": "pete_showing_comedy",
-        "gave_refugee_hints": "pete_mentioned_refugees",
-        "heroic_pose_attempted": "pete_tried_heroic_pose",
-        "comedy_routine_complete": "pete_comedy_complete"
+        "gave_refugee_hints": "pete_mentioned_refugees"
       }
     },
     "mayor": {
@@ -71,7 +63,12 @@
       "story_flags": {
         "gave_main_quest": "quest_active",
         "mentioned_family": "mayor_mentioned_family",
-        "gave_refugee_location": "learned_about_refugees"
+        "gave_swamp_location": "learned_about_swamp_church",
+        "gave_ruins_location": "learned_about_ruins",
+        "gave_refugee_location": "learned_about_refugees",
+        "main_quest_completed": "main_quest_completed",
+        "main_quest_reported": "reported_main_quest",
+        "main_quest_paid": "mayor_paid_main_quest"
       }
     },
     "gareth": {
@@ -79,7 +76,7 @@
       "full_name": "Gareth Ironwill",
       "dialogue_file": "broken_blade_gareth",
       "conversation_flag": "gareth_talked",
-      "location": "broken_blade",
+      "location": "patron_selection",
       "role": "recruitable_fighter",
       "story_flags": {
         "recruitment_completed": "gareth_recruited",
@@ -246,6 +243,12 @@
       "event_type": "INFORMATION_DISCOVERED",
       "xp_reward": 50
     },
+    "pete_mentioned_refugees": {
+      "dialogue_flag": "learned_about_refugees", 
+      "quest_objective": "main_story.investigate_refugees",
+      "event_type": "INFORMATION_DISCOVERED",
+      "xp_reward": 50
+    },
     "mayor_main_quest": {
       "dialogue_flag": "quest_active",
       "quest_objective": "main_story.meet_mayor", 
@@ -327,8 +330,9 @@
   "dialogue_state_mapping": {
     "meredith": {
       "first_meeting": "!meredith_talked",
-      "post_mayor": "meredith_talked && mayor_talked", 
-      "return_visits": "meredith_talked && !mayor_talked"
+      "return_visits": "meredith_talked && !mayor_talked",
+      "knows_about_swamp": "meredith_talked && !mayor_talked && learned_about_swamp_church",
+      "post_mayor": "meredith_talked && mayor_talked"
     },
     "garrick": {
       "first_meeting": "!garrick_talked",
@@ -343,42 +347,43 @@
     },
     "pete": {
       "first_meeting": "!pete_talked",
-      "pre_recruitment_comedy": "pete_talked && !pete_attempted_recruitment",
       "comedy_sequence": "pete_attempted_recruitment && !pete_comedy_complete",
       "post_comedy": "pete_comedy_complete",
-      "repeat_performances": "pete_comedy_complete"
+      "pre_recruitment_comedy": "pete_talked && !pete_attempted_recruitment"
     },
     "mayor": {
       "first_meeting": "!mayor_talked",
-      "quest_given": "quest_active",
-      "progress_updates": "mayor_talked && (learned_about_swamp_church || learned_about_ruins || learned_about_refugees)"
+      "post_completion_reward": "quest_active && main_quest_completed && !reported_main_quest",
+      "post_completion_idle":   "quest_active && main_quest_completed && reported_main_quest",
+      "quest_given":       "quest_active && !main_quest_completed && !(learned_about_swamp_church || learned_about_ruins || learned_about_refugees)",
+      "progress_updates":  "mayor_talked && quest_active && (learned_about_swamp_church || learned_about_ruins || learned_about_refugees) && !main_quest_completed"
     },
     "gareth": {
       "first_meeting": "!gareth_talked",
-      "recruitment_available": "gareth_talked && !gareth_recruited && mayor_talked && recruited_count < 3",
-      "recruitment_blocked": "gareth_talked && recruited_count >= 3",
       "already_recruited": "gareth_recruited",
+      "recruitment_blocked": "gareth_talked && mayor_talked && !gareth_recruited && recruited_count >= 3",
+      "recruitment_available": "gareth_talked && mayor_talked && !gareth_recruited && recruited_count < 3",
       "casual_chat": "gareth_talked && !mayor_talked"
     },
     "elara": {
       "first_meeting": "!elara_talked", 
-      "recruitment_available": "elara_talked && !elara_recruited && mayor_talked && recruited_count < 3",
-      "recruitment_blocked": "elara_talked && recruited_count >= 3",
       "already_recruited": "elara_recruited",
+      "recruitment_blocked": "elara_talked && mayor_talked && !elara_recruited && recruited_count >= 3",
+      "recruitment_available": "elara_talked && mayor_talked && !elara_recruited && recruited_count < 3",
       "casual_chat": "elara_talked && !mayor_talked"
     },
     "thorman": {
       "first_meeting": "!thorman_talked",
-      "recruitment_available": "thorman_talked && !thorman_recruited && mayor_talked && recruited_count < 3", 
-      "recruitment_blocked": "thorman_talked && recruited_count >= 3",
       "already_recruited": "thorman_recruited",
+      "recruitment_blocked": "thorman_talked && mayor_talked && !thorman_recruited && recruited_count >= 3",
+      "recruitment_available": "thorman_talked && mayor_talked && !thorman_recruited && recruited_count < 3",
       "casual_chat": "thorman_talked && !mayor_talked"
     },
     "lyra": {
       "first_meeting": "!lyra_talked",
-      "recruitment_available": "lyra_talked && !lyra_recruited && mayor_talked && recruited_count < 3",
-      "recruitment_blocked": "lyra_talked && recruited_count >= 3",
-      "already_recruited": "lyra_recruited", 
+      "already_recruited": "lyra_recruited",
+      "recruitment_blocked": "lyra_talked && mayor_talked && !lyra_recruited && recruited_count >= 3",
+      "recruitment_available": "lyra_talked && mayor_talked && !lyra_recruited && recruited_count < 3",
       "casual_chat": "lyra_talked && !mayor_talked"
     },
     "bernard": {

@@ -1,0 +1,91 @@
+{
+  "id": "broken_blade_elara",
+  "npc_name": "Elara Moonwhisper",
+
+  "states": {
+    "first_meeting": {
+      "introduction": [
+        "*A young mage studies a spellbook, crackling energy playing at her fingertips.*",
+        "Oh! You have quite the interesting aura.",
+        "Important business... and dangerous, by the look of it."
+      ],
+      "options": [
+        { "id": "ask_story", "text": "What is your story?", "next_state": "background" },
+        { "id": "bye_first", "text": "Maybe later.", "next_state": "exit" }
+      ]
+    },
+
+    "casual_chat": {
+      "introduction": [
+        "I am not supposed to join expeditions without approval.",
+        "Talk to the Mayor first. If he clears it, we can discuss the arcane details."
+      ],
+      "options": [
+        { "id": "ack_mayor_gate", "text": "Alright. I will see the Mayor.", "next_state": "exit" },
+        { "id": "ask_story2", "text": "Tell me about yourself anyway.", "next_state": "background" }
+      ]
+    },
+
+    "background": {
+      "introduction": [
+        "Trained in formal academies and messy fieldwork.",
+        "I prefer puzzles with real stakes."
+      ],
+      "options": [
+        {
+          "id": "mark_shared",
+          "text": "Good to know.",
+          "effects": [{ "type": "set_flag", "flag": "elara_shared_magic", "value": true }],
+          "next_state": "casual_chat"
+        },
+        { "id": "bye_bg", "text": "Thanks.", "next_state": "exit" }
+      ]
+    },
+
+    "recruitment_available": {
+      "introduction": [
+        "*Her eyes brighten.*",
+        "The Mayor vouched for you. Missing people and odd phenomena...",
+        "Yes. You will need a mage. If there is room, I will help."
+      ],
+      "options": [
+        {
+          "id": "recruit_yes",
+          "text": "Join me. We will need your magic.",
+          "effects": [{ "type": "set_flag", "flag": "elara_recruited", "value": true }],
+          "next_state": "recruited_join"
+        },
+        { "id": "recruit_no", "text": "Not yet. Stand by.", "next_state": "exit" }
+      ]
+    },
+
+    "recruitment_blocked": {
+      "introduction": [
+        "*She glances at your ranks.*",
+        "You seem fully staffed. Make space and I will be here."
+      ],
+      "options": [
+        { "id": "blocked_ok", "text": "Understood.", "next_state": "exit" }
+      ]
+    },
+
+    "recruited_join": {
+      "introduction": [
+        "Excellent. I have preparations to make. I will not slow you down."
+      ],
+      "options": [
+        { "id": "welcome", "text": "Welcome aboard.", "next_state": "exit" }
+      ]
+    },
+
+    "already_recruited": {
+      "introduction": [
+        "*She checks components and murmurs a cantrip.*",
+        "Ready when you are, leader."
+      ],
+      "options": [
+        { "id": "bye_ready", "text": "Form up.", "next_state": "exit" }
+      ]
+    }
+  }
+}
