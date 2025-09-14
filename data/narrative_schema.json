@@ -33,8 +33,11 @@
       "gave_ruins_location": "learned_about_ruins",
       "offered_basement_quest": "garrick_offered_basement",
       "mentioned_mayor": "garrick_mentioned_mayor",
+      "basement_quest_accepted": "accepted_basement_quest",
       "basement_quest_completed": "completed_basement_combat",
-      "basement_victory_reported": "reported_basement_victory"
+      "basement_victory_reported": "reported_basement_victory",
+      "garrick_paid_flag": "garrick_paid",
+      "post_payment_ack": "post_payment_acknowledged"
     }
   },
     "pete": {
@@ -329,13 +332,14 @@
     },
     "garrick": {
       "first_meeting": "!garrick_talked",
-      "after_first_talk": "garrick_talked && !mayor_talked && !learned_about_ruins",
+      "casual_chat": "(garrick_talked && garrick_mentioned_mayor && !mayor_talked) || (garrick_talked && mayor_talked && reported_basement_victory && post_payment_acknowledged)",
       "knows_about_ruins": "garrick_talked && !mayor_talked && learned_about_ruins",
-      "casual_chat": "garrick_talked && garrick_mentioned_mayor && !mayor_talked",
-      "post_mayor_no_basement": "garrick_talked && mayor_talked && !garrick_offered_basement",
-      "post_mayor_basement_offered": "garrick_talked && mayor_talked && garrick_offered_basement && !accepted_basement_quest",
+      "after_first_talk": "garrick_talked && !mayor_talked && !learned_about_ruins",
+      "post_payment_idle": "garrick_talked && mayor_talked && completed_basement_combat && reported_basement_victory && !post_payment_acknowledged",
+      "post_mayor_basement_complete": "garrick_talked && mayor_talked && completed_basement_combat",
       "post_mayor_basement_accepted": "garrick_talked && mayor_talked && accepted_basement_quest && !completed_basement_combat",
-      "post_mayor_basement_complete": "garrick_talked && mayor_talked && completed_basement_combat"
+      "post_mayor_basement_offered": "garrick_talked && mayor_talked && garrick_offered_basement && !accepted_basement_quest",
+      "post_mayor_no_basement": "garrick_talked && mayor_talked && !garrick_offered_basement"
     },
     "pete": {
       "first_meeting": "!pete_talked",

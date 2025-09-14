@@ -72,6 +72,10 @@ class GameController:
         self.fonts = fonts
         self.images = images
         self.data_manager = data_manager
+
+       # #################### TEMP #########################
+       # # DEV: force mayor talked for Garrick testing (remove after test)
+       # setattr(self.game_state, "mayor_talked", True)
         
         # Initialization state tracking
         self.current_phase = InitializationPhase.NOT_STARTED

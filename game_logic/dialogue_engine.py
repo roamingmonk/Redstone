@@ -75,9 +75,11 @@ class DialogueEngine:
         # Check for stored dialogue state first (from recent transitions)
         stored_state_attr = f'{npc_id}_dialogue_state'
         stored_state = getattr(self.game_state, stored_state_attr, None)
-        if stored_state:
+        in_progress = getattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
+
+        if in_progress and stored_state:
             print(f"DEBUG: DE: GCDS: Using stored dialogue state: {stored_state}")
-            return stored_state
+            return stored_state        
         
         # Use narrative schema dialogue state mapping
         dialogue_states = narrative_schema.schema.get('dialogue_state_mapping', {})
@@ -105,9 +107,10 @@ class DialogueEngine:
             #print(f"DEBUG: Dialogue in progress for {npc_id}, overriding {talked_flag} to False")
         
         # Evaluate each state condition
+        print("DE: STATE-EVAL ORDER:", list(npc_states.keys()))
         for state_name, condition in npc_states.items():
             if self._evaluate_condition(condition, context):
-               #print(f"DEBUG: State for {npc_id}: {state_name} (condition: {condition})")
+                print("DE: MATCH ->", state_name)
                 return state_name
         
         return 'first_meeting'
@@ -359,7 +362,9 @@ class DialogueEngine:
                     setattr(self.game_state, f'showing_{npc_id}_response', False)
                     setattr(self.game_state, f'{npc_id}_dialogue_response', [])
                     setattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
-                    
+                    setattr(self.game_state, f'{npc_id}_dialogue_state', None)
+                    setattr(self.game_state, f'{npc_id}_conversation_data', None)
+
                     # Navigate back to previous screen
                     if self.event_manager:
                         screen_manager_service = self.event_manager.get_service('screen_manager')
