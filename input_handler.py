@@ -767,11 +767,17 @@ class InputHandler:
                     return True
 
             else:
+                # Dynamically support up to 9 choices
+                choice_keys = {
+                    pygame.K_1: 0, pygame.K_2: 1, pygame.K_3: 2, pygame.K_4: 3, pygame.K_5: 4,
+                    pygame.K_6: 5, pygame.K_7: 6, pygame.K_8: 7, pygame.K_9: 8
+                }
+
                 if self.debug_input:
                     print(f"🔍 DEBUG: In CHOICE mode for {npc_id} (showing_{npc_id}_response = False)")
-                    print(f"🔍 DEBUG: Available keys: 1,2,3=choices, Enter=first choice, B/Backspace=exit")
-                        
-                # CHOICE MODE - 1, 2, 3 keys for choices (plus ENTER = first/primary)
+                    print(f"🔍 DEBUG: Available keys: 1-9=choices, Enter=first choice, B/Backspace=exit")
+                                        
+                # CHOICE MODE - 1-9 keys for choices (plus ENTER = first/primary)
                 # NEW: Backspace/B exits from the main choice list
                 if key in (pygame.K_BACKSPACE, pygame.K_b):
                     if self.debug_input:
@@ -782,11 +788,11 @@ class InputHandler:
                     })
                     return True
 
-                choice_keys = {
-                    pygame.K_1: 0,
-                    pygame.K_2: 1, 
-                    pygame.K_3: 2
-                }
+               # choice_keys = {
+               #     pygame.K_1: 0,
+               #     pygame.K_2: 1, 
+               #     pygame.K_3: 2
+               # }
 
                 # ENTER picks the first option (primary)
                 if key in (pygame.K_RETURN, pygame.K_KP_ENTER):

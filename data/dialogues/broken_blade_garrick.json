@@ -473,6 +473,34 @@
       ]
     },
     
+    "casual_chat": {
+      "introduction": ["Back for another drink? What brings you by?"],
+      "options": [
+        {
+          "id": "ask_supplies_casual",
+          "text": "Do you sell any supplies?",
+          "next_state": "casual_chat"
+        },
+        {
+          "id": "check_basement_quest",
+          "text": "About that basement job...",
+          "requirements": {"flag": "garrick_offered_basement"},
+          "next_state": "basement_quest_status"
+        },
+        {
+          "id": "ruins_small_talk",
+          "text": "Any word on the ruins situation?",
+          "requirements": {"flag": "learned_about_ruins"},
+          "next_state": "ruins_update"
+        },
+        {
+          "id": "goodbye_casual",
+          "text": "Just saying hello.",
+          "next_state": "exit"
+        }
+      ]
+    },
+    
     "helpful_conclusion": {
       "introduction": ["Glad I could help. Be careful up there."],
       "options": [

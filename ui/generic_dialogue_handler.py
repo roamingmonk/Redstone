@@ -74,8 +74,8 @@ def draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, con
         if not conversation_data:
             # No stored data, get fresh conversation options from DialogueEngine
             conversation_data = dialogue_engine.get_conversation_options(dialogue_file_id, npc_id)
-        else:
-            print(f"🔄 Using stored conversation data for {npc_id}")
+        if conversation_data:
+            print(f"RENDER DEBUG: GDH: Got intro: {conversation_data.get('introduction', ['NO INTRO'])[0]}")
         
     except Exception as e:
         print(f"ERROR in draw_generic_dialogue_screen: {e}")

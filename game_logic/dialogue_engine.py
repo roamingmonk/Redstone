@@ -72,6 +72,12 @@ class DialogueEngine:
     
     def get_current_dialogue_state(self, npc_id: str) -> str:
         """Determine current dialogue state for NPC using narrative schema"""
+        # Check for stored dialogue state first (from recent transitions)
+        stored_state_attr = f'{npc_id}_dialogue_state'
+        stored_state = getattr(self.game_state, stored_state_attr, None)
+        if stored_state:
+            print(f"DEBUG: DE: GCDS: Using stored dialogue state: {stored_state}")
+            return stored_state
         
         # Use narrative schema dialogue state mapping
         dialogue_states = narrative_schema.schema.get('dialogue_state_mapping', {})
@@ -499,6 +505,16 @@ class DialogueEngine:
 
             if next_state == 'exit':
                 # End conversation and return to location
+                
+                # ADD THIS: Clear stored dialogue state so next conversation evaluates fresh
+                state_attr = f'{npc_id}_dialogue_state'
+                setattr(self.game_state, state_attr, None)
+                
+                # ALSO clear stored conversation data
+                conversation_attr = f'{npc_id}_conversation_data'
+                setattr(self.game_state, conversation_attr, None)
+                print(f"🧹 DE: PDC: Cleared dialogue state and conversation data for {npc_id}")
+                
                 self._clear_conversation_state(npc_id)
                 return {
                     'conversation_ended': True,
@@ -511,6 +527,10 @@ class DialogueEngine:
                 state_attr = f'{npc_id}_dialogue_state'
                 setattr(self.game_state, state_attr, next_state)
                 
+                # Add this debug:
+                actual_state = getattr(self.game_state, state_attr)
+                print(f"DE: STATE UPDATE CHECK: {npc_id} should be {next_state}, actually is {actual_state}")
+    
                # Get new conversation data for the NEW state after transition
                 if next_state and next_state != 'exit':
                     new_conversation = self.get_conversation_options(dialogue_id, npc_id, forced_state=next_state)

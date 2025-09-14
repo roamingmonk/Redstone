@@ -331,6 +331,7 @@
       "first_meeting": "!garrick_talked",
       "after_first_talk": "garrick_talked && !mayor_talked && !learned_about_ruins",
       "knows_about_ruins": "garrick_talked && !mayor_talked && learned_about_ruins",
+      "casual_chat": "garrick_talked && garrick_mentioned_mayor && !mayor_talked",
       "post_mayor_no_basement": "garrick_talked && mayor_talked && !garrick_offered_basement",
       "post_mayor_basement_offered": "garrick_talked && mayor_talked && garrick_offered_basement && !accepted_basement_quest",
       "post_mayor_basement_accepted": "garrick_talked && mayor_talked && accepted_basement_quest && !completed_basement_combat",
