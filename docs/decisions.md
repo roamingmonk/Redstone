@@ -1081,6 +1081,13 @@ Flags discipline: any flag used in routing must be declared under npcs.<id>.stor
 Engine hygiene: only reuse stored state in-session; clear on goodbye; load JSON with UTF-8.
 **Consequences** **Pros:** simpler authoring, predictable flows, easy testing. **Cons:** authors must define substates (no freeform responses) and maintain mapping order.
 
+# ADR-066 - Small fixes, patron screen ui, save/load, F5 quick save
+-Sep 14, 2025
+- updated patron selection json to allow for image upload.  
+- updated base location to fix patron selection ui for NPC screen, party portrait grid, button position.  added, back button.
+- some gamestates were not working on save/load/  added dynamic narrative schema load to ensure save and load were accurate.
+fixed F5 quicksave button. 
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

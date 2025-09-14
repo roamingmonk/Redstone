@@ -191,8 +191,8 @@ class ScreenManager:
             if hasattr(self, '_current_game_controller') and self._current_game_controller:
                 save_manager = getattr(self._current_game_controller, 'save_manager', None)
             
-            print(f"💾 DEBUG: save_manager = {save_manager}")
-            print(f"💾 DEBUG: _current_game_controller = {getattr(self, '_current_game_controller', 'NOT SET')}")
+            #print(f"💾 DEBUG: save_manager = {save_manager}")
+            #print(f"💾 DEBUG: _current_game_controller = {getattr(self, '_current_game_controller', 'NOT SET')}")
 
             result = draw_save_game_screen(
                 temp_surface, 

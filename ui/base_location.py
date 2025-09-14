@@ -237,14 +237,12 @@ class ActionHubLocation(BaseLocation):
 
         draw_party_status_panel(surface, game_state, fonts)
         
+        # Adjust image width to accommodate party panel
+        image_width = 1024 - PARTY_PANEL_WIDTH - 10  # 10px spacing
+
         # === IMAGE ZONE (ADJUSTED FOR PARTY PANEL) ===
         image_y = LAYOUT_IMAGE_Y
         image_height = LAYOUT_IMAGE_HEIGHT
-        
-        # Adjust image width to accommodate party panel
-
-        image_width = 1024 - PARTY_PANEL_WIDTH - 10  # 10px spacing
-        
         draw_border(surface, 0, image_y, image_width, image_height)
         
         # Background image or fallback
@@ -449,34 +447,59 @@ class NPCSelectionLocation(BaseLocation):
         surface.fill(BLACK)
         area_data = self.get_current_area_data()
         
-        # Calculate display width (accounting for party panel)
+        # *** Party status panel (right side) ***
+        draw_party_status_panel(surface, game_state, fonts)
 
-        image_width = 1024 - PARTY_PANEL_WIDTH - 10  # 10px spacing
+        # Calculate display width (accounting for party panel)
+        image_width = 1024 - PARTY_PANEL_WIDTH - 10  # 10px spacin
 
         # === IMAGE ZONE ===
         image_y = LAYOUT_IMAGE_Y
         image_height = LAYOUT_IMAGE_HEIGHT
-        draw_border(surface, 0, image_y, 1024, image_height)
+        draw_border(surface, 0, image_y, image_width, image_height)  
         
         # Background
         border_thickness = 6
         img_x = border_thickness
         img_y = image_y + border_thickness
-        img_width = 1024 - 2 * border_thickness
+        img_width = image_width - 2 * border_thickness 
         img_height = image_height - 2 * border_thickness
         
-        pygame.draw.rect(surface, (40, 20, 10), (img_x, img_y, img_width, img_height))
+        # Load background image using JSON filename + constants path ***
+        bg_image_key = area_data.get('properties', {}).get('background_image')
+        bg_loaded = False
+
+        if bg_image_key:
+            try:
+                image_path = os.path.join(LOCATION_BACKGROUNDS_PATH, f"{bg_image_key}.jpg")
+                
+                if os.path.exists(image_path):
+                    bg_image = pygame.image.load(image_path)
+                    scaled_bg = pygame.transform.scale(bg_image, (img_width, img_height))
+                    surface.blit(scaled_bg, (img_x, img_y))
+                    bg_loaded = True
+            except Exception as e:
+                print(f"Warning: Could not load background image '{bg_image_key}': {e}")
+
+        if not bg_loaded:
+            # Fallback to colored background
+            bg_color = area_data.get('properties', {}).get('background_color', [40, 20, 10])
+            pygame.draw.rect(surface, bg_color, (img_x, img_y, img_width, img_height))
         
-        # Title
+        # Title overlay on image (only show if no background image loaded)
         title = area_data.get('title', 'SELECT CHARACTER')
         title_font = fonts.get('fantasy_large', fonts['header'])
-        draw_centered_text(surface, title, title_font, image_y + 240, YELLOW)
+        if not bg_loaded:
+            draw_centered_text(surface, title, title_font, image_y + 240, YELLOW)
         
-        # === DIALOG ZONE ===
+        #=== DIALOG ZONE (FULL SCREEN WIDTH) ===
         dialog_y = LAYOUT_DIALOG_Y
         dialog_height = LAYOUT_DIALOG_HEIGHT
-        draw_border(surface, 20, dialog_y, 1024-40, dialog_height)
+        dialog_margin = 0
         
+        # Use full 1024 width for dialog box
+        draw_border(surface, dialog_margin, dialog_y, 1024 - (dialog_margin * 2), dialog_height)
+
         # Instructions
         description = area_data.get('description', {})
         if isinstance(description, dict):
@@ -491,21 +514,25 @@ class NPCSelectionLocation(BaseLocation):
         # === BUTTON ZONE ===
         button_y = LAYOUT_BUTTON_Y
         npcs = area_data.get('npcs', [])
-
         button_rects = {}
 
-        # Calculate button positions using new constants
+        # Calculate button positions including the back button as part of the row
         num_npcs = len(npcs)
-        if num_npcs > 0:
-            button_positions = calculate_npc_button_positions(num_npcs)
+        total_buttons = num_npcs + 1  # NPCs + back button
+
+        if total_buttons > 0:
+            # Calculate positions for ALL buttons (NPCs + back button)
+            available_width = image_width - 40  # Account for dialog borders
+            button_positions = calculate_npc_button_positions(total_buttons, available_width)
             
+            # Draw NPC buttons
             for i, npc in enumerate(npcs):
                 if i < len(button_positions):
                     npc_name = npc.get('name', npc.get('id', 'Unknown'))
                     npc_id = npc.get('id')
                     
-                    # Use calculated position
-                    button_x = button_positions[i]
+                    # Use calculated position + dialog margin
+                    button_x = button_positions[i] + 90
                     
                     # Draw button with consistent sizing
                     button_rect = draw_button(surface, button_x, button_y, 
@@ -513,12 +540,12 @@ class NPCSelectionLocation(BaseLocation):
                                             npc_name, fonts['normal'])
                     button_rects[npc_id] = button_rect
 
-        # Back button (centered below NPC buttons)
-        back_button_width = 120
-        back_x = (1024 - back_button_width) // 2
-        back_rect = draw_button(surface, back_x, button_y + NPC_BUTTON_HEIGHT + 20, 
-                            back_button_width, NPC_BUTTON_HEIGHT, "BACK", fonts['normal'])
-        button_rects['back'] = back_rect
+            # Back button (positioned as the last button in the row)
+            if len(button_positions) > num_npcs:
+                back_x = button_positions[num_npcs] + 90  # Last position + dialog margin
+                back_rect = draw_button(surface, back_x, button_y, 
+                                    NPC_BUTTON_WIDTH, NPC_BUTTON_HEIGHT, "Back", fonts['normal'])
+                button_rects['back'] = back_rect
         
         return {
             'button_rects': button_rects,

@@ -101,43 +101,51 @@ class GameState:
         self.character_sheet_open = False
         self.help_screen_open = False
         
-        # NARRATIVE SCHEMA INTEGRATION - Initialize all story flags
-        from utils.narrative_schema import narrative_schema
-        
-        # Initialize all narrative flags from schema
-        print("🏗️ Initializing narrative schema flags...")
-        all_flags = narrative_schema.get_all_flags()
-        for flag_name in all_flags:
-            setattr(self, flag_name, False)
-        print(f"✅ Initialized {len(all_flags)} narrative flags")
-        
-        # Additional quest flags that might not be in schema yet but are needed
-        # These will be added to schema in next iteration
-        self.quest_active = False
-        self.just_got_quest = False
-        
-        # Validate that key flags were created
-        expected_flags = [
-            'meredith_talked', 'garrick_talked', 'mayor_talked',
-            'gareth_recruited', 'elara_recruited', 'thorman_recruited', 'lyra_recruited',
-            'learned_about_swamp_church', 'learned_about_ruins'
-        ]
-        
-        # Initialize quest tracking system (game mechanics)
-        integrate_quest_system(self)
+        # *** ADD: Initialize all narrative schema flags ***
+        try:
+            from utils.narrative_schema import narrative_schema
+            all_flags = narrative_schema.get_all_flags()
+            
+            # Filter out None values and duplicates
+            valid_flags = []
+            for flag in all_flags:
+                if flag and flag not in valid_flags:
+                    valid_flags.append(flag)
+            
+            # Initialize each flag to False if it doesn't already exist
+            for flag_name in valid_flags:
+                if not hasattr(self, flag_name):
+                    setattr(self, flag_name, False)
+            
+            print(f"🏗️ Initialized {len(valid_flags)} narrative schema flags")
+            
+            # Debug: Show some key flags that were initialized
+            key_flags = ['mayor_talked', 'quest_active', 'gareth_recruited']
+            for flag in key_flags:
+                if flag in valid_flags:
+                    print(f"   ✓ {flag}: {getattr(self, flag)}")
+                    
+        except ImportError:
+            print("⚠️ Narrative schema not available during GameState init")
+            # Fallback initialization of critical flags for backward compatibility
+            critical_flags = [
+                'mayor_talked', 'garrick_talked', 'meredith_talked', 'pete_talked',
+                'gareth_talked', 'elara_talked', 'thorman_talked', 'lyra_talked',
+                'quest_active', 'gareth_recruited', 'elara_recruited', 
+                'thorman_recruited', 'lyra_recruited',
+                'learned_about_swamp_church', 'learned_about_ruins', 'learned_about_refugees',
+                'main_quest_completed', 'reported_main_quest'
+            ]
+            
+            for flag_name in critical_flags:
+                if not hasattr(self, flag_name):
+                    setattr(self, flag_name, False)
+                    
+            print(f"🏗️ Fallback: Initialized {len(critical_flags)} critical flags")
 
-
-        missing_flags = []
-        for flag in expected_flags:
-            if not hasattr(self, flag):
-                print(f"⚠️  Missing expected flag: {flag}")
-                missing_flags.append(flag)
-                setattr(self, flag, False)  # Create it manually as fallback
-        
-        if missing_flags:
-            print(f"⚠️  Created {len(missing_flags)} missing flags manually")
-        else:
-            print("✅ All expected narrative flags found in schema")
+        except Exception as e:
+            print(f"❌ Error initializing narrative flags: {e}")
+            # Continue with basic initialization
         
     # Add computed property for recruitment tracking
     @property

@@ -72,6 +72,7 @@
           }
         },
         "properties": {
+          "background_image": "patron_selection",
           "background_color": [40, 20, 10],
           "lighting": "warm",
           "max_party_size": 4

@@ -18,6 +18,7 @@ class SaveManager:
         # Register for save info events
         if event_manager:
             event_manager.register("SAVE_INFO_REQUESTED", self.handle_save_info_request)
+            event_manager.register("SAVE_REQUESTED", self._handle_quicksave_request)
             print("📡 SaveManager registered for SAVE_INFO_REQUESTED events")
         else:
             print("❌ SaveManager: No event_manager provided - event registration skipped!")  
@@ -78,7 +79,7 @@ class SaveManager:
                 'learned_about_church': getattr(self.game_state, 'learned_about_church', False),
                 'learned_about_ruins': getattr(self.game_state, 'learned_about_ruins', False),
                 'quest_active': getattr(self.game_state, 'quest_active', False),
-               'just_got_quest': getattr(self.game_state, 'just_got_quest', False),
+                'just_got_quest': getattr(self.game_state, 'just_got_quest', False),
                 'quest_system': self.game_state.quest_manager.get_quest_data_for_save() if hasattr(self.game_state, 'quest_manager') and self.game_state.quest_manager else {},
                 'showing_meredith_response':getattr(self.game_state, 'showing_meredith_response', False),
                 'showing_garrick_response':getattr(self.game_state, 'showing_garrick_response', False),
@@ -100,6 +101,57 @@ class SaveManager:
                 'equipped_shield': getattr(self.game_state, 'equipped_shield', None),
             }
             
+            # *** ADD: Save all narrative schema flags dynamically ***
+            narrative_flags = {}
+            try:
+                from utils.narrative_schema import narrative_schema
+                all_flags = narrative_schema.get_all_flags()
+                
+                # Filter out None values and collect flag states
+                for flag_name in all_flags:
+                    if flag_name:  # Skip None/empty flags
+                        flag_value = getattr(self.game_state, flag_name, False)
+                        narrative_flags[flag_name] = bool(flag_value)  # Ensure boolean
+                
+                print(f"💾 Saving {len(narrative_flags)} narrative flags")
+                
+                # Debug: Show some key flags being saved
+                key_flags = ['mayor_talked', 'quest_active', 'gareth_recruited']
+                for flag in key_flags:
+                    if flag in narrative_flags:
+                        print(f"   💾 {flag}: {narrative_flags[flag]}")
+                        
+            except ImportError:
+                print("⚠️ Narrative schema not available for save - using manual collection")
+                # Fallback to manual flag collection for backward compatibility
+                manual_flags = [
+                    'mayor_talked', 'garrick_talked', 'meredith_talked', 'pete_talked',
+                    'gareth_talked', 'elara_talked', 'thorman_talked', 'lyra_talked',
+                    'quest_active', 'gareth_recruited', 'elara_recruited', 
+                    'thorman_recruited', 'lyra_recruited',
+                    'learned_about_swamp_church', 'learned_about_ruins', 'learned_about_refugees',
+                    'main_quest_completed', 'reported_main_quest'
+                ]
+                
+                for flag_name in manual_flags:
+                    flag_value = getattr(self.game_state, flag_name, False)
+                    narrative_flags[flag_name] = bool(flag_value)
+            
+            except Exception as e:
+                print(f"❌ Error collecting narrative flags for save: {e}")
+                # Continue with empty narrative_flags - save will still work
+            
+            # Add narrative flags to save data
+            save_data['narrative_flags'] = narrative_flags
+            
+            # *** ADD: Also save computed properties for verification ***
+            save_data['computed_data'] = {
+                'recruited_count': len(getattr(self.game_state, 'party_members', [])),
+                'party_members': getattr(self.game_state, 'party_members', []),
+                'can_recruit_more': len(getattr(self.game_state, 'party_members', [])) < 3
+            }
+
+
             # Create saves directory if it doesn't exist
             #os.makedirs('saves', exist_ok=True)
             
@@ -118,9 +170,11 @@ class SaveManager:
             with open(filename, 'w') as f:
                 json.dump(save_data, f, indent=2)
             
-            print(f"💾 {save_type} completed: {filename}")
-            print(f"   🎭 Character: {self.game_state.character.get('name', 'Unknown')}")
-            print(f"   💰 Gold: {self.game_state.character.get('gold', 0)}")
+            print(f"✅ {save_type} completed successfully")
+            print(f"   Character: {self.game_state.character.get('name', 'Unknown')}")
+            print(f"   Location: {self.game_state.screen}")
+            print(f"   Party size: {len(self.game_state.party_members) + 1}")
+            print(f"   Narrative flags: {len(narrative_flags)}")
         
             # Update GameController state tracking
             self.last_save_time = datetime.now()
@@ -199,6 +253,70 @@ class SaveManager:
             self.game_state.pete_showing_comedy = save_data.get('pete_showing_comedy', False)
             self.game_state.showing_meredith_response = save_data.get('showing_meredith_response', False)
             self.game_state.showing_garrick_response = save_data.get('showing_garrick_response', False)
+
+            # *** Load all narrative schema flags dynamically ***
+            narrative_flags = save_data.get('narrative_flags', {})
+            
+            if narrative_flags:
+                print(f"📂 Loading {len(narrative_flags)} narrative flags")
+                
+                try:
+                    from utils.narrative_schema import narrative_schema
+                    all_schema_flags = narrative_schema.get_all_flags()
+                    
+                    # Load all schema-defined flags
+                    for flag_name in all_schema_flags:
+                        if flag_name:  # Skip None/empty flags
+                            flag_value = narrative_flags.get(flag_name, False)
+                            setattr(self.game_state, flag_name, bool(flag_value))
+                    
+                    # Also load any extra flags that were saved but not in current schema
+                    # This ensures backward compatibility if schema changes
+                    for flag_name, flag_value in narrative_flags.items():
+                        if flag_name and not hasattr(self.game_state, flag_name):
+                            setattr(self.game_state, flag_name, bool(flag_value))
+                            print(f"   📂 Restored legacy flag: {flag_name}")
+                    
+                    # Debug: Show some key flags that were loaded
+                    key_flags = ['mayor_talked', 'quest_active', 'gareth_recruited']
+                    for flag in key_flags:
+                        if flag in narrative_flags:
+                            print(f"   📂 {flag}: {narrative_flags[flag]}")
+                            
+                except ImportError:
+                    print("⚠️ Narrative schema not available for load - using direct restore")
+                    # Fallback to direct restoration
+                    for flag_name, flag_value in narrative_flags.items():
+                        if flag_name:  # Skip None/empty flags
+                            setattr(self.game_state, flag_name, bool(flag_value))
+                            
+            else:
+                print("⚠️ No narrative flags found in save data - may be old save format")
+            
+            # *** ADD: Restore computed data and sync party ***
+            computed_data = save_data.get('computed_data', {})
+            if computed_data:
+                # Restore party_members list (this might override the earlier restore, which is fine)
+                saved_party = computed_data.get('party_members', [])
+                self.game_state.party_members = saved_party
+                print(f"👥 Restored party members: {saved_party}")
+                
+                # Verify recruitment flags match party_members
+                expected_recruited = set(saved_party)
+                actual_recruited = set()
+                
+                for npc in ['gareth', 'elara', 'thorman', 'lyra']:
+                    if getattr(self.game_state, f'{npc}_recruited', False):
+                        actual_recruited.add(npc)
+                
+                if expected_recruited != actual_recruited:
+                    print(f"⚠️ Party sync mismatch - Expected: {expected_recruited}, Actual: {actual_recruited}")
+                    # Force sync party to match flags
+                    self._sync_party_with_flags()
+            else:
+                # No computed_data, party_members already restored above from save_data.get('party_members', [])
+                print(f"👥 Restored party members (legacy): {self.game_state.party_members}")
+
 
             quest_system_data = save_data.get('quest_system', {})
             if quest_system_data and hasattr(self.game_state, 'quest_manager'):
@@ -595,3 +713,35 @@ class SaveManager:
         self.game_state.save_screen_open = False
         self.game_state.save_selected_slot = None
         print("❌ SaveManager: Save screen cancelled")
+
+    def _sync_party_with_flags(self):
+        """Sync party_members list with recruitment flags after load"""
+        recruited = []
+        
+        for npc in ['gareth', 'elara', 'thorman', 'lyra']:
+            if getattr(self.game_state, f'{npc}_recruited', False):
+                recruited.append(npc)
+        
+        self.game_state.party_members = recruited
+        print(f"🔄 Synced party_members to match flags: {recruited}")
+
+    def _handle_quicksave_request(self, event_data):
+        """Handle SAVE_REQUESTED events from InputHandler (F5 key)"""
+        print("⚡ F5 Quicksave requested via InputHandler")
+        
+        # Check what type of save request this is
+        slot_info = event_data.get("slot", "unknown")
+        print(f"   Slot info: {slot_info}")
+        
+        # Check if save is allowed on current screen
+        if not self.can_save_load():
+            print("🚫 Quicksave blocked on current screen")
+            return
+        
+        # Perform quicksave (slot 99)
+        success = self.save_game(save_slot=99)
+        
+        if success:
+            print("✅ F5 Quicksave completed successfully")
+        else:
+            print("❌ F5 Quicksave failed")
