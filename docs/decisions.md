@@ -922,6 +922,38 @@ hid pycache from view, hid from github, added repository structure file, added s
 # ADR-059: some small cleanup changes
 - small clean up files to clean some items up.  tried to fix quest # showin 4 party vs. 3 party.  encountered dialogue issues. reverted.
 
+# ADR-060  Dialogue Engine Direct Flow Architecture
+# Date: September 13, 2025
+# Status: Implemented
+**Decision**Replace complex dialogue response-action system with direct state transition flow driven by narrative schema.
+**Problem** The previous dialogue system used intermediate response screens with action buttons, creating: State management conflicts between dialogue engine and UI
+Complex action processing logic scattered across multiple methods
+Inconsistent flag timing causing "I don't understand" errors
+Difficult content authoring requiring code changes for new NPCs
+
+**Solution** New Flow Pattern,  NPC Message + Options → Player Choice → New NPC Message + Options → Repeat, Key Components
+**Narrative Schema State Mapping:** Centralized dialogue state determination
+Forced State Processing: Consistent state throughout choice processing chain
+Direct JSON Transitions: next_state field drives conversation flow
+Immediate Effect Processing: Flags updated when choices are selected
+**Technical Implementation**
+Modified process_dialogue_choice() to accept forced_state parameter
+Updated get_conversation_options() to respect forced state
+Eliminated response action complexity in favor of direct transitions
+Integrated narrative schema evaluation with proper timing
+**Consequences** Positive
+Simplified Content Creation: New NPCs require only JSON dialogue files
+Consistent State Management: Single source of truth for dialogue states
+Improved Debugging: Clear state evaluation with comprehensive logging
+Professional Architecture: Industry-standard dialogue tree pattern
+**Negative**
+Migration Required: Existing NPCs need dialogue file updates
+Input Handler Adjustment: UI input processing needs minor updates
+Learning Curve: Content creators need to understand narrative schema
+**Validation** Tested with Garrick NPC dialogue:
+State transitions work correctly (first_meeting → knows_about_ruins)
+Effect processing functions (learned_about_ruins flag set)
+Conversation data updates properly, still has issues to troubleshoot.
 
 ```
 ## ADR-XXX: <Short title>

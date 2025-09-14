@@ -168,7 +168,12 @@ def draw_standard_response_screen(surface, npc_name, response_lines, game_state,
 # Check if dialogue can continue after this response
     can_continue_dialogue = False
     if controller and controller.dialogue_engine:
-        dialogue_file_id = f'tavern_{npc_name}'
+        # Get location from stored dialogue session data - no hardcoding
+        location_id = getattr(game_state, f'{npc_name}_current_location', None)
+        if not location_id:
+            print(f"❌ No location stored for {npc_name} dialogue session")
+            return  # or handle error appropriately
+        dialogue_file_id = f'{location_id}_{npc_name}'
         
         dialogue_data = controller.dialogue_engine.dialogues.get(dialogue_file_id, {})
         action_definitions = dialogue_data.get('actions', {})

@@ -56,7 +56,7 @@ class DebugManager:
         print("\n" + "="*50)
         print("🔍 QUEST DEBUG STATE (F2)")
         print("="*50)
-        
+
         # Core conversation flags
         print(f"mayor_talked: {getattr(self.game_state, 'mayor_talked', False)}")
         print(f"meredith_talked: {getattr(self.game_state, 'meredith_talked', False)}")

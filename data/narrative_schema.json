@@ -61,9 +61,9 @@
     "mayor": {
       "system_id": "mayor",
       "full_name": "Mayor Aldwin Goldenbottom",
-      "dialogue_file": "redstone_town_mayor",
+      "dialogue_file": "broken_blade_mayor",
       "conversation_flag": "mayor_talked",
-      "location": "redstone_town",
+      "location": "broken_blade",
       "role": "authority", 
       "story_flags": {
         "gave_main_quest": "quest_active",
@@ -329,9 +329,12 @@
     },
     "garrick": {
       "first_meeting": "!garrick_talked",
-      "after_first_talk": "garrick_talked && !mayor_talked",
-      "post_mayor": "garrick_talked && mayor_talked",
-      "quest_active": "quest_active"
+      "after_first_talk": "garrick_talked && !mayor_talked && !learned_about_ruins",
+      "knows_about_ruins": "garrick_talked && !mayor_talked && learned_about_ruins",
+      "post_mayor_no_basement": "garrick_talked && mayor_talked && !garrick_offered_basement",
+      "post_mayor_basement_offered": "garrick_talked && mayor_talked && garrick_offered_basement && !accepted_basement_quest",
+      "post_mayor_basement_accepted": "garrick_talked && mayor_talked && accepted_basement_quest && !completed_basement_combat",
+      "post_mayor_basement_complete": "garrick_talked && mayor_talked && completed_basement_combat"
     },
     "pete": {
       "first_meeting": "!pete_talked",

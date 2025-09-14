@@ -74,13 +74,15 @@ class DialogueEngine:
         """Determine current dialogue state for NPC using narrative schema"""
         
        # DEBUG: Add this section
-       # if npc_id == 'gareth':
-       #     print(f"DEBUG: STATE: ===========================")
-       #     print(f"DEBUG: STATE: Evaluating state for {npc_id}")
-       #     print(f"DEBUG: STATE: gareth_talked = {getattr(self.game_state, 'gareth_talked', False)}")
-       #     print(f"DEBUG: STATE: gareth_recruited = {getattr(self.game_state, 'gareth_recruited', False)}")
-       #     print(f"DEBUG: STATE: mayor_talked = {getattr(self.game_state, 'mayor_talked', False)}")
-       #     print(f"DEBUG: STATE: recruited_count = {getattr(self.game_state, 'recruited_count', 0)}")
+        if npc_id == 'garrick':
+            print(f"🐛 DEBUG STATE EVAL: =========================")
+            print(f"🐛 DEBUG STATE EVAL: Evaluating state for {npc_id}")
+            garrick_talked = getattr(self.game_state, 'garrick_talked', False)
+            mayor_talked = getattr(self.game_state, 'mayor_talked', False)
+            learned_about_ruins = getattr(self.game_state, 'learned_about_ruins', False)
+            print(f"🐛 DEBUG STATE EVAL: garrick_talked = {garrick_talked}")
+            print(f"🐛 DEBUG STATE EVAL: mayor_talked = {mayor_talked}")
+            print(f"🐛 DEBUG STATE EVAL: learned_about_ruins = {learned_about_ruins}")
 
         # Use narrative schema dialogue state mapping
         dialogue_states = narrative_schema.schema.get('dialogue_state_mapping', {})
@@ -98,6 +100,18 @@ class DialogueEngine:
         context['recruited_count'] = getattr(self.game_state, 'recruited_count', 0)
         context['can_recruit_more'] = getattr(self.game_state, 'can_recruit_more', True)
         
+        # Evaluate each state condition
+        for state_name, condition in npc_states.items():
+            result = self._evaluate_condition(condition, context)
+            if npc_id == 'garrick':
+                print(f"🐛 DEBUG STATE EVAL: DE: Testing {state_name}: '{condition}' = {result}")
+            if result:
+                print(f"🐛 DEBUG STATE EVAL: DE: Selected state: {state_name}")
+                return state_name
+        
+        print(f"🐛 DEBUG STATE EVAL: DE: Fallback to first_meeting")
+        return 'first_meeting'
+
         # CRITICAL: If dialogue in progress, temporarily override talked flag
         in_progress = getattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
         talked_flag = narrative_schema.get_npc_conversation_flag(npc_id)
@@ -145,7 +159,7 @@ class DialogueEngine:
         self.game_state.party_members = party_members
         print(f"🔄 Synced party_members: {party_members}")
 
-    def get_conversation_options(self, dialogue_id: str, npc_id: str) -> Dict[str, Any]:
+    def get_conversation_options(self, dialogue_id: str, npc_id: str, forced_state: str = None) -> Dict[str, Any]:
         """
         Get current conversation options for NPC
         
@@ -157,33 +171,25 @@ class DialogueEngine:
             Dict containing conversation data and options
         """
         
-        # Check if we have temporary action choices to display
+        # (near the top of get_conversation_options)
         temp_choices_attr = f'{npc_id}_dialogue_response_actions'
         temp_choices = getattr(self.game_state, temp_choices_attr, None)
-        
-        #print(f"DEBUG: DE: get_conversation_options - Looking for {temp_choices_attr}, found: {temp_choices}")
-    
+        show_actions_flag = getattr(self.game_state, f'{npc_id}_show_action_choices', False)
 
-        if temp_choices:
+        if temp_choices and show_actions_flag:
             # Convert action names to choice-like options for UI
             dialogue_data = self.dialogues.get(dialogue_id, {})
             actions_config = dialogue_data.get('actions', {})
-            
             action_options = []
             for action_name in temp_choices:
                 action_def = actions_config.get(action_name, {})
-                
                 action_options.append({
                     'id': f'action_{action_name}',
                     'text': action_def.get('text', action_name.replace('_', ' ').title()),
                     'description': action_def.get('description', ''),
-                    'action_name': action_name,  # Store original action name
+                    'action_name': action_name,
                     'is_action_choice': True
                 })
-            
-            # Clear the temporary choices
-            #setattr(self.game_state, temp_choices_attr, None)
-            
             return {
                 'npc_name': dialogue_data.get('npc_name', npc_id.title()),
                 'description': dialogue_data.get('description', ''),
@@ -191,13 +197,16 @@ class DialogueEngine:
                 'options': action_options,
                 'current_state': 'action_choices'
             }
+        # NOTE: if temp_choices exist but show_actions_flag is False,
+        # we fall through to normal state-driven options (exactly what we want after Back).
+
        
         if dialogue_id not in self.dialogues:
             if not self.load_dialogue_file(dialogue_id):
                 return self._get_fallback_dialogue(npc_id)
         
         dialogue_tree = self.dialogues[dialogue_id]
-        current_state = self.get_current_dialogue_state(npc_id)
+        current_state = forced_state or self.get_current_dialogue_state(npc_id)
         
         if current_state in dialogue_tree.get('states', {}):
             state_data = dialogue_tree['states'][current_state]
@@ -236,10 +245,6 @@ class DialogueEngine:
         if npc_id and choice_index is not None:
             print(f"🎭 DEBUG: Processing choice {choice_index} for {npc_id}")
             
-            # NARRATIVE SCHEMA INTEGRATION - Set conversation flag
-            conv_flag = narrative_schema.get_npc_conversation_flag(npc_id)
-            setattr(self.game_state, conv_flag, True)
-            print(f"✅ Set conversation flag: {conv_flag} = True")
 
             # Get stored location - REQUIRED, no hardcoding
             location_id = getattr(self.game_state, f'{npc_id}_current_location', None)
@@ -252,24 +257,36 @@ class DialogueEngine:
             # Get choice_id from conversation data
             conversation_data = self.get_conversation_options(dialogue_file_id, npc_id)
             options = conversation_data.get('options', [])
-            
+
             if choice_index < len(options):
                 choice_id = options[choice_index]['id']
                 print(f"🎭 DEBUG: Selected option ID: {choice_id}")
                 
-                # Call existing business logic method
-                result = self.process_dialogue_choice(dialogue_file_id, npc_id, choice_id)
+                # Determine state BEFORE setting flags for consistency
+                current_state = self.get_current_dialogue_state(npc_id)
+                print(f"🎭 DEBUG: Using state: {current_state} for choice processing")
+                
+                # NARRATIVE SCHEMA INTEGRATION - Set conversation flag AFTER state determination
+                conv_flag = narrative_schema.get_npc_conversation_flag(npc_id)
+                setattr(self.game_state, conv_flag, True)
+                print(f"✅ Set conversation flag: {conv_flag} = True")
+
+                # Call existing business logic method with explicit state
+                result = self.process_dialogue_choice(dialogue_file_id, npc_id, choice_id, current_state)
                 print(f"🎭 DEBUG: Choice processing result: {result}")
 
                 if result:
-                    # Store response and set showing response flag
-                    response_lines = result.get('response', [])
-                    setattr(self.game_state, f'{npc_id}_dialogue_response', response_lines)
-                    setattr(self.game_state, f'showing_{npc_id}_response', True)
-                    
-                    print(f"🎭 DEBUG: Response stored, registering dialogue state handler")
-                    
-                    return result
+                    # Handle new conversation flow - don't store response data
+                    if result.get('new_conversation') or result.get('conversation_ended'):
+                        print(f"🎭 DEBUG: Engine result ready for UI handler")
+                        return result
+                    else:
+                        # Fallback for old response format
+                        response_lines = result.get('response', [])
+                        setattr(self.game_state, f'{npc_id}_dialogue_response', response_lines)
+                        setattr(self.game_state, f'showing_{npc_id}_response', True)
+                        print(f"🎭 DEBUG: Response stored, registering dialogue state handler")
+                        return result
             else:
                 print(f"❌ DEBUG: Invalid choice index {choice_index} for {npc_id} (only {len(options)} options available)")
                 return None
@@ -285,51 +302,20 @@ class DialogueEngine:
         if npc_id and action_name:
             print(f"🎭 Processing dialogue action: {npc_id}, {action_name}")
             
-            if action_name == 'goodbye':
-                # Clear dialogue state (preserve existing behavior)
-                setattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
-                setattr(self.game_state, f'showing_{npc_id}_response', False)
-                setattr(self.game_state, f'{npc_id}_dialogue_response', [])
-                print(f"DEBUG: Cleared {npc_id}_dialogue_in_progress")
-
-                # Unregister from input handler (preserve existing behavior)
-                if self.event_manager:
-                    screen_manager_service = self.event_manager.get_service('screen_manager')
-                    if screen_manager_service and hasattr(screen_manager_service, 'input_handler'):
-                        state_flag = f'showing_{npc_id}_response'
-                        screen_manager_service.input_handler.unregister_dialogue_state(state_flag)
-                        print(f"Unregistered dialogue state: {state_flag}")
-
-                # INTELLIGENT NAVIGATION: Use NPC context instead of broken ScreenManager
-                if npc_id in ['gareth', 'elara', 'thorman', 'lyra', 'mayor', 'pete']:
-                    # Tavern patron NPCs return to patron_selection
-                    target_screen = 'patron_selection'
-                    print(f"🎭 Patron NPC {npc_id} → returning to patron_selection")
-                elif npc_id in ['meredith', 'garrick']:
-                    # Main tavern NPCs return to broken_blade_main  
-                    target_screen = 'broken_blade_main'
-                    print(f"🍺 Tavern staff {npc_id} → returning to broken_blade_main")
-                else:
-                    # Fallback for future NPCs
-                    target_screen = 'broken_blade_main'
-                    print(f"🔄 Fallback → {target_screen}")
-                
-                print(f"✅ Navigating back to: {target_screen}")
-                self.event_manager.emit('SCREEN_CHANGE', {
-                    'target_screen': target_screen,
-                    'source_screen': f'{npc_id}_dialogue'
-                })
-                print(f"ERROR: No prior screen or location for {npc_id}; staying put.")
-
-            elif action_name == 'back':
+            if action_name == 'back':
                 # RETURN TO CHOICE LIST (stay in conversation)
-                # Check if we're in a state transition scenario
                 showing_response_attr = f'showing_{npc_id}_response'
                 setattr(self.game_state, showing_response_attr, False)
-                
-                # Clear the response lines to force a fresh render
+
+                # Clear response text
                 response_attr = f'{npc_id}_dialogue_response'
                 setattr(self.game_state, response_attr, [])
+
+                # CRITICAL: clear any leftover response-actions and disable their gate
+                temp_choices_attr = f'{npc_id}_dialogue_response_actions'
+                setattr(self.game_state, temp_choices_attr, None)
+                setattr(self.game_state, f'{npc_id}_show_action_choices', False)
+
                 
                 # CRITICAL: Don't exit to screen - stay in dialogue for state transition
                 #print(f"DEBUG: Staying in dialogue, state may have changed for {npc_id}")
@@ -414,7 +400,7 @@ class DialogueEngine:
                                 'source_screen': f'{npc_id}_dialogue'
                             })
 
-    def process_dialogue_choice(self, dialogue_id: str, npc_id: str, choice_id: str) -> Dict[str, Any]:
+    def process_dialogue_choice(self, dialogue_id: str, npc_id: str, choice_id: str, forced_state: str = None) -> Dict[str, Any]:
         """
         Process player's dialogue choice and return response
         
@@ -426,7 +412,7 @@ class DialogueEngine:
         Returns:
             Dict containing NPC response and any triggered effects
         """
-        
+        print(f"🔧 DEBUG PROCESS: Called with forced_state={forced_state}")
         print(f"DEBUG: DE: Processing choice {choice_id} for {npc_id}")
 
         # Clear temporary action choices when a choice is made
@@ -488,7 +474,8 @@ class DialogueEngine:
                 return {'response': ["I see."], 'effects': []}
             
             # Handle normal dialogue choices
-            current_state = self.get_current_dialogue_state(npc_id)
+            current_state = forced_state or self.get_current_dialogue_state(npc_id)
+            print(f"🔧 DEBUG PROCESS: DE: Using current_state={current_state}")
             print(f"DEBUG: DE: Current state = {current_state}")
 
             if current_state not in dialogue_tree.get('states', {}):
@@ -509,48 +496,49 @@ class DialogueEngine:
             print(f"DEBUG: DE: Selected choice = {selected_choice}")
 
             # Process the choice effects
-            effects = []
+            #effects = []
+            #for effect in selected_choice.get('effects', []):
+            #    effect_result = self._apply_dialogue_effect(effect)
+            #    if effect_result:
+            #        effects.append(effect_result)
+
+            # Process effects immediately when choice is selected
+            effects_processed = []
             for effect in selected_choice.get('effects', []):
                 effect_result = self._apply_dialogue_effect(effect)
                 if effect_result:
-                    effects.append(effect_result)
+                    effects_processed.append(effect_result)
 
-            # Check if any actions are dialogue branches that should trigger state transitions
-            for action in selected_choice.get('actions', []):
-                action_def = actions_config.get(action, {})
-                if action_def.get('type') == 'dialogue_branch':
-                    target_state = action_def.get('target_state')
-                    
-                    if target_state:
-                        # Set the new dialogue state for this NPC
-                        state_attr = f'{npc_id}_dialogue_state'
-                        setattr(self.game_state, state_attr, target_state)
-                        print(f"DEBUG: DE: State transition triggered: {npc_id} -> {target_state}")
+            # Handle next state - simplified direct transition
+            next_state = selected_choice.get('next_state')
 
-                        # Store the actions that should become choices after the response
-                        response_actions_attr = f'{npc_id}_dialogue_response_actions'
-                        setattr(self.game_state, response_actions_attr, selected_choice.get('actions', []))
-                        print(f"DEBUG: DE: Stored response actions: {selected_choice.get('actions', [])}")
+            if next_state == 'exit':
+                # End conversation and return to location
+                self._clear_conversation_state(npc_id)
+                return {
+                    'conversation_ended': True,
+                    'effects': effects_processed,
+                    'return_to': 'location'
+                }
 
-                        return {
-                            'response': selected_choice.get('response', ["..."]),
-                            'effects': effects,
-                            'actions_available': selected_choice.get('actions', []),
-                            'state_transitioned': True,
-                            'target_state': target_state
-                        }
+            if next_state:
+                # Transition to new dialogue state
+                state_attr = f'{npc_id}_dialogue_state'
+                setattr(self.game_state, state_attr, next_state)
+                
+                # Get new conversation data for immediate display
+                new_conversation = self.get_conversation_options(dialogue_id, npc_id, forced_state=current_state)
+                
+                return {
+                    'new_conversation': new_conversation,
+                    'effects': effects_processed,
+                    'state_changed': True
+                }
 
-            # Normal response handling (no state transitions)
-            # Store actions for continue handler to access
-            response_actions_attr = f'{npc_id}_dialogue_response_actions'
-            setattr(self.game_state, response_actions_attr, selected_choice.get('actions', []))
-            print(f"DEBUG: DE: Stored normal response actions: {selected_choice.get('actions', [])}")
- 
+            # No next_state means stay in current conversation
             return {
-                'response': selected_choice.get('response', ["..."]),
-                'effects': effects,
-                'next_state': selected_choice.get('next_state'),
-                'actions_available': selected_choice.get('actions', [])
+                'effects': effects_processed,
+                'continue_dialogue': True
             }
             
         except Exception as e:
@@ -654,6 +642,26 @@ class DialogueEngine:
             quest_engine.handle_dialogue_event(event)
         
         self.quest_event_hooks.clear()
+   
+    def _clear_conversation_state(self, npc_id):
+            """Clear conversation state when dialogue ends"""
+            state_attr = f'{npc_id}_dialogue_state'
+            if hasattr(self.game_state, state_attr):
+                delattr(self.game_state, state_attr)
+            
+            # Clear any stored response data from old system
+            response_attrs = [
+                f'{npc_id}_dialogue_response',
+                f'showing_{npc_id}_response',
+                f'{npc_id}_dialogue_response_actions'
+            ]
+            
+            for attr in response_attrs:
+                if hasattr(self.game_state, attr):
+                    delattr(self.game_state, attr)
+                    
+            print(f"🧹 Cleared dialogue state for {npc_id}")
+
 
 def initialize_dialogue_engine(game_state_ref, event_manager_ref):
     """

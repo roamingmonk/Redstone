@@ -199,28 +199,34 @@ def process_generic_dialogue_choice(npc_id, choice_index, game_state, controller
         # Process the choice through DialogueEngine
         result = dialogue_engine.process_dialogue_choice(dialogue_file_id, npc_id, choice_id)
 
-        # Normal response handling
-        response_attr = f'{npc_id}_dialogue_response'
-        showing_attr = f'showing_{npc_id}_response'
-        actions_attr = f'{npc_id}_dialogue_response_actions'
+        # Handle new conversation flow
+        if result.get('conversation_ended'):
+            # End dialogue and return to location
+            setattr(game_state, f'{npc_id}_dialogue_active', False)
+            return "exit_to_location"
+            
+        elif result.get('new_conversation'):
+            # Update conversation data for immediate display - NO response screen
+            new_conv = result['new_conversation']
+            setattr(game_state, f'{npc_id}_conversation_data', new_conv)
+            # Clear any old response state to prevent conflicts
+            setattr(game_state, f'showing_{npc_id}_response', False)
+            setattr(game_state, f'{npc_id}_dialogue_response', [])
+            print(f"Updated {npc_id} conversation data with new state")
+            return "continue_dialogue"
+            
+        else:
+            # Fallback for old response format (shouldn't happen with new system)
+            response_attr = f'{npc_id}_dialogue_response'
+            showing_attr = f'showing_{npc_id}_response'
+            actions_attr = f'{npc_id}_dialogue_response_actions'
 
-        setattr(game_state, response_attr, result['response'])
-        setattr(game_state, showing_attr, True)
-        setattr(game_state, actions_attr, result.get('actions_available', []))
-        if choice_index < len(conversation_data['options']):
-            selected_option = conversation_data['options'][choice_index]
-            response_actions = selected_option.get('actions', [])
-            setattr(game_state, actions_attr, response_actions)
-
-        # Mark conversation flags using standardized naming
-        talked_attr = f'{npc_id}_talked'
-        if not getattr(game_state, talked_attr, False):
-            setattr(game_state, talked_attr, True)
-        
-        print(f"Processed {npc_id} dialogue choice: {choice_id}")
-        return result
-    
-    return None
+            setattr(game_state, response_attr, result.get('response', ["..."]))
+            setattr(game_state, showing_attr, True)
+            setattr(game_state, actions_attr, result.get('actions_available', []))
+            
+            print(f"Processed {npc_id} dialogue choice: {choice_id} (old format)")
+            return result
 
 def process_response_action(npc_id, action_name, game_state, controller, location_id=None):
     """Process action button clicks from response screens"""
