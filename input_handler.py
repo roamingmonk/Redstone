@@ -735,9 +735,9 @@ class InputHandler:
             is_showing_response = getattr(game_state, showing_response_attr, False)
             
             if is_showing_response:
-                if self.debug_input:
-                    print(f"🔍 DEBUG: IH: In RESPONSE mode for {npc_id} (showing_{npc_id}_response = True)")
-                    print(f"🔍 DEBUG: IH: Available keys: Enter/A=continue, B/Backspace=back, S=shop")
+                #if self.debug_input:
+                    #print(f"🔍 DEBUG: IH: In RESPONSE mode for {npc_id} (showing_{npc_id}_response = True)")
+                    #print(f"🔍 DEBUG: IH: Available keys: Enter/A=continue, B/Backspace=back, S=shop")
                 # RESPONSE MODE - primary/back/shop via keyboard
                 if key in (pygame.K_RETURN, pygame.K_a):
                     if self.debug_input:

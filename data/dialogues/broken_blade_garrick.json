@@ -26,7 +26,7 @@
               "value": true
             }
           ],
-          "next_state": "first_meeting"
+          "next_state": "knows_about_ruins"
         },
         {
           "id": "goodbye_first",
@@ -54,7 +54,7 @@
               "value": true
             }
           ],
-          "next_state": "after_first_talk"
+          "next_state": "knows_about_ruins"
         },
         {
           "id": "goodbye_return",
@@ -109,6 +109,89 @@
           "id": "ready_to_go",
           "text": "I'll head there now.",
           "next_state": "exit"
+        }
+      ]
+    },
+
+    "post_mayor_no_basement": {
+      "introduction": ["Heard you spoke with the Mayor.", "About time someone looked into those disappearances."],
+      "options": [
+        {
+          "id": "need_practice",
+          "text": "I could use some practice first.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "garrick_offered_basement",
+              "value": true
+            }
+          ],
+          "next_state": "post_mayor_basement_offered"
+        },
+        {
+          "id": "ready_to_go",
+          "text": "I'm ready for whatever's out there.",
+          "next_state": "exit"
+        },
+        {
+          "id": "ask_more_about_ruins",
+          "text": "What else can you tell me about the ruins?",
+          "next_state": "ruins_details"
+        }
+      ]
+    },
+    
+    "post_mayor_basement_offered": {
+      "introduction": ["Got a rat problem in the basement if you want practice.", "Big rats. Clear them out for some coin?"],
+      "options": [
+        {
+          "id": "accept_basement",
+          "text": "I'll handle your rat problem.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "accepted_basement_quest",
+              "value": true
+            }
+          ],
+          "next_state": "basement_accepted"
+        },
+        {
+          "id": "maybe_later",
+          "text": "Maybe later.",
+          "next_state": "exit"
+        }
+      ]
+    },
+    
+    "basement_accepted": {
+      "introduction": ["Good! The entrance is behind the bar.", "Watch yourself down there - they're meaner than normal rats.", "Come back when you're done and I'll settle up."],
+      "options": [
+        {
+          "id": "head_down_now",
+          "text": "I'll take care of it right now.",
+          "next_state": "exit"
+        },
+        {
+          "id": "prepare_first",
+          "text": "Let me prepare first.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "post_mayor_basement_complete": {
+      "introduction": ["Well done! Those rats were getting out of hand.", "Here's your payment as promised.", "You're ready for bigger challenges now."],
+      "options": [
+        {
+          "id": "thank_for_payment",
+          "text": "Thanks for the work.",
+          "next_state": "exit"
+        },
+        {
+          "id": "ask_about_ruins_after_basement",
+          "text": "Now about those ruins...",
+          "next_state": "ruins_details"
         }
       ]
     },
@@ -170,6 +253,102 @@
         }
       ]
     },
+
+    "other_survivors": {
+      "introduction": ["A few others made it back over the years.", "Most won't talk about it.", "Those that do... well, their stories don't match."],
+      "options": [
+        {
+          "id": "conflicting_stories",
+          "text": "What do you mean they don't match?",
+          "next_state": "conflicting_accounts"
+        },
+        {
+          "id": "enough_survivors",
+          "text": "I've heard enough.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "conflicting_accounts": {
+      "introduction": ["Some say they saw lights in the darkness.", "Others swear the stones moved on their own.", "One fellow claimed he heard voices... calling his name."],
+      "options": [
+        {
+          "id": "voices_detail",
+          "text": "Voices calling his name?",
+          "next_state": "voice_mystery"
+        },
+        {
+          "id": "moving_stones",
+          "text": "Moving stones?",
+          "next_state": "stone_mystery"
+        },
+        {
+          "id": "too_strange",
+          "text": "That's... unsettling.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "voice_mystery": {
+      "introduction": ["Poor Aldric. Swore something was calling to him from deep below.", "Said it knew things about him no one else could know.", "Haven't seen him since he tried to go back."],
+      "options": [
+        {
+          "id": "went_back",
+          "text": "He went back?",
+          "next_state": "aldric_fate"
+        },
+        {
+          "id": "disturbing",
+          "text": "That's deeply disturbing.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "aldric_fate": {
+      "introduction": ["Three months ago. Said he had to know what was calling him.", "We organized a search party after a week.", "Found his torch at the entrance. Nothing else."],
+      "options": [
+        {
+          "id": "recent_disappearance",
+          "text": "So recent disappearances are still happening.",
+          "next_state": "ongoing_danger"
+        },
+        {
+          "id": "poor_aldric",
+          "text": "Poor man.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "ongoing_danger": {
+      "introduction": ["Aye. Mayor's been trying to organize something.", "But most folk are too scared.", "Can't say I blame them."],
+      "options": [
+        {
+          "id": "mayor_plans",
+          "text": "What kind of organization?",
+          "next_state": "mayor_efforts"
+        },
+        {
+          "id": "understand_fear",
+          "text": "I understand their fear.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "mayor_efforts": {
+      "introduction": ["Talk to him yourself. He's got ideas about hiring proper adventurers.", "Folk with experience dealing with... unusual problems.", "That's all I know."],
+      "options": [
+        {
+          "id": "thank_info",
+          "text": "Thanks for the information.",
+          "next_state": "exit"
+        }
+      ]
+    },
     
     "symbol_description": {
       "introduction": ["Spirals and sharp angles, carved deep into the stone.", "Some say they're just old tribal markings.", "Others think they're something... else."],
@@ -207,6 +386,92 @@
         }
       ]
     },
+
+    "magic_opinion": {
+      "introduction": ["I've seen enough strange things in my years.", "Magic's real, whether folk want to believe it or not.", "The question is what kind of magic made those symbols."],
+      "options": [
+        {
+          "id": "what_kind",
+          "text": "What kind do you think it is?",
+          "next_state": "dark_magic_theory"
+        },
+        {
+          "id": "agree_magic_real",
+          "text": "I agree magic is real.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "dark_magic_theory": {
+      "introduction": ["The kind that hungers. That calls to people.", "The kind that doesn't let go once it has hold of you.", "Stay away from those ruins, if you're smart."],
+      "options": [
+        {
+          "id": "final_warning",
+          "text": "I'll be careful.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "warning_speculation": {
+      "introduction": ["Warnings to stay away, maybe.", "Or warnings about what's buried there.", "Either way, they didn't work - people keep going."],
+      "options": [
+        {
+          "id": "what_buried",
+          "text": "What do you think is buried there?",
+          "next_state": "burial_theory"
+        },
+        {
+          "id": "warnings_ignored",
+          "text": "People ignore warnings when they're desperate.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "burial_theory": {
+      "introduction": ["Something old. Something that should have stayed buried.", "The ruins are just the surface. There's more underneath.", "Much more."],
+      "options": [
+        {
+          "id": "underground_structures",
+          "text": "Underground structures?",
+          "next_state": "underground_details"
+        },
+        {
+          "id": "ominous_enough",
+          "text": "That's ominous enough for me.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "underground_details": {
+      "introduction": ["Tunnels. Chambers. Things carved from living rock.", "The few who've been down there and lived... they won't describe it.", "They can't. The words won't come."],
+      "options": [
+        {
+          "id": "cant_describe",
+          "text": "They can't describe it?",
+          "next_state": "description_curse"
+        },
+        {
+          "id": "enough_details_final",
+          "text": "I think I've heard enough.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "description_curse": {
+      "introduction": ["Try to ask them and they just... stop talking.", "Look at you with empty eyes.", "Like something took the words right out of their heads."],
+      "options": [
+        {
+          "id": "truly_final",
+          "text": "That's truly unsettling.",
+          "next_state": "exit"
+        }
+      ]
+    },
     
     "helpful_conclusion": {
       "introduction": ["Glad I could help. Be careful up there."],
@@ -214,68 +479,6 @@
         {
           "id": "will_be_careful",
           "text": "I will. Thanks again.",
-          "next_state": "exit"
-        }
-      ]
-    },
-    
-    "post_mayor_no_basement": {
-      "introduction": ["Heard you spoke with the Mayor.", "About time someone looked into those disappearances."],
-      "options": [
-        {
-          "id": "need_practice",
-          "text": "I could use some practice first.",
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "garrick_offered_basement",
-              "value": true
-            }
-          ],
-          "next_state": "post_mayor_no_basement"
-        },
-        {
-          "id": "ready_to_go",
-          "text": "I'm ready for whatever's out there.",
-          "next_state": "exit"
-        }
-      ]
-    },
-    
-    "post_mayor_basement_offered": {
-      "introduction": ["Got a rat problem in the basement if you want practice.", "Big rats. Clear them out for some coin?"],
-      "options": [
-        {
-          "id": "accept_basement",
-          "text": "I'll handle your rat problem.",
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "accepted_basement_quest",
-              "value": true
-            }
-          ],
-          "next_state": "basement_accepted"
-        },
-        {
-          "id": "maybe_later",
-          "text": "Maybe later.",
-          "next_state": "exit"
-        }
-      ]
-    },
-    
-    "basement_accepted": {
-      "introduction": ["Good! The entrance is behind the bar.", "Watch yourself down there - they're meaner than normal rats.", "Come back when you're done and I'll settle up."],
-      "options": [
-        {
-          "id": "head_down_now",
-          "text": "I'll take care of it right now.",
-          "next_state": "exit"
-        },
-        {
-          "id": "prepare_first",
-          "text": "Let me prepare first.",
           "next_state": "exit"
         }
       ]

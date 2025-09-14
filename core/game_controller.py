@@ -404,6 +404,8 @@ class GameController:
         else:
             print(f"Warning: Cannot register screen {screen_name} - ScreenManager not available")
  
+    # Find the run_current_screen method in game_controller.py and modify it:
+
     def run_current_screen(self):
         """
         CLEAN VERSION - Delegates to ScreenManager instead of massive if/elif chain
@@ -412,6 +414,11 @@ class GameController:
         try:
             current_screen = self.game_state.screen
             sm_screen = self.screen_manager.get_current_screen()
+            
+            # CRITICAL FIX: Ensure ScreenManager has controller reference
+            if not hasattr(self.screen_manager, '_current_game_controller') or self.screen_manager._current_game_controller != self:
+                self.screen_manager.set_current_controller(self)
+                print(f"🔗 Controller linked to ScreenManager")
             
             # Debug logging
             if current_screen != sm_screen:
@@ -432,7 +439,7 @@ class GameController:
                 print(f"❌ Render failed for screen: {current_screen}")
                 # Add more debug info
                 registered_screens = list(self.screen_manager.render_functions.keys()) if hasattr(self.screen_manager, 'render_functions') else []
-                #print(f"📋 Registered screens: {registered_screens}")
+                print(f"📋 Registered screens: {registered_screens}")
                 return False
             
             return True

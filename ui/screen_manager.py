@@ -1027,6 +1027,8 @@ class ScreenManager:
         return True
 
 
+# Find these lines in screen_manager.py around line 250-280:
+
     def _register_npc_dialogue_screens(self):
         """
         Auto-register dialogue screens from filesystem
@@ -1037,7 +1039,7 @@ class ScreenManager:
         
         dialogue_path = "data/dialogues/"
         registered_count = 0
-        
+
         if not os.path.exists(dialogue_path):
             print(f"Warning: Dialogue directory not found: {dialogue_path}")
             return
@@ -1056,13 +1058,21 @@ class ScreenManager:
                     # Create render function for this specific dialogue
                     def create_dialogue_render_function(npc_id, location_id):
                         def render_dialogue(surface, game_state, fonts, images, controller=None):
+                            # CRITICAL FIX: Get controller from ScreenManager if not provided
+                            if not controller:
+                                controller = getattr(self, '_current_game_controller', None)
+                                if controller:
+                                    print(f"🔧 CONTROLLER FIX: Retrieved controller from ScreenManager for {npc_id}")
+                                else:
+                                    print(f"⚠️ CONTROLLER MISSING: No controller available for {npc_id}")
+                            
                             return draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, controller, location_id)
                         return render_dialogue
                 
                     # Register the screen (keyboard-only, no enter hook needed)
                     dialogue_render_func = create_dialogue_render_function(npc_id, location_id)
                     self.register_render_function(screen_name, dialogue_render_func)         
-                               
+                            
                     registered_count += 1
                     print(f"✅ Auto-registered dialogue: {screen_name} (location: {location_id}, npc: {npc_id})")
                 
@@ -1076,6 +1086,15 @@ class ScreenManager:
             print("⚠️ No dialogue screens registered. Check data/dialogues/ directory and file naming.")
         else:
             print("✅ Dialogue system ready - adding new NPCs now requires only JSON file creation!")
+
+    # ALSO ADD: Method to set the current game controller
+    def set_current_controller(self, controller):
+        """Store reference to current game controller for dialogue screens"""
+        self._current_game_controller = controller
+        if controller:
+            print(f"🎮 ScreenManager: Controller reference stored")
+        else:
+            print(f"⚠️ ScreenManager: Controller reference cleared")
 
     def set_game_state_context(self, game_state):
         """Set the game state context for event handling"""

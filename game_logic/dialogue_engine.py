@@ -5,7 +5,7 @@ Following Single Data Authority Pattern established in the project
 
 GameState = THE authoritative data source for all conversation flags
 DialogueEngine = Pure business logic for conversation flow and quest triggers
-JSON Files = Data-driven conversation content with Baldur's Gate style choices
+JSON Files = Data-driven conversation content 
 
 Key Features:
 - Branching dialogue trees with player choice consequences
@@ -73,17 +73,6 @@ class DialogueEngine:
     def get_current_dialogue_state(self, npc_id: str) -> str:
         """Determine current dialogue state for NPC using narrative schema"""
         
-       # DEBUG: Add this section
-        if npc_id == 'garrick':
-            print(f"🐛 DEBUG STATE EVAL: =========================")
-            print(f"🐛 DEBUG STATE EVAL: Evaluating state for {npc_id}")
-            garrick_talked = getattr(self.game_state, 'garrick_talked', False)
-            mayor_talked = getattr(self.game_state, 'mayor_talked', False)
-            learned_about_ruins = getattr(self.game_state, 'learned_about_ruins', False)
-            print(f"🐛 DEBUG STATE EVAL: garrick_talked = {garrick_talked}")
-            print(f"🐛 DEBUG STATE EVAL: mayor_talked = {mayor_talked}")
-            print(f"🐛 DEBUG STATE EVAL: learned_about_ruins = {learned_about_ruins}")
-
         # Use narrative schema dialogue state mapping
         dialogue_states = narrative_schema.schema.get('dialogue_state_mapping', {})
         npc_states = dialogue_states.get(npc_id, {})
@@ -100,18 +89,6 @@ class DialogueEngine:
         context['recruited_count'] = getattr(self.game_state, 'recruited_count', 0)
         context['can_recruit_more'] = getattr(self.game_state, 'can_recruit_more', True)
         
-        # Evaluate each state condition
-        for state_name, condition in npc_states.items():
-            result = self._evaluate_condition(condition, context)
-            if npc_id == 'garrick':
-                print(f"🐛 DEBUG STATE EVAL: DE: Testing {state_name}: '{condition}' = {result}")
-            if result:
-                print(f"🐛 DEBUG STATE EVAL: DE: Selected state: {state_name}")
-                return state_name
-        
-        print(f"🐛 DEBUG STATE EVAL: DE: Fallback to first_meeting")
-        return 'first_meeting'
-
         # CRITICAL: If dialogue in progress, temporarily override talked flag
         in_progress = getattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
         talked_flag = narrative_schema.get_npc_conversation_flag(npc_id)
@@ -284,6 +261,8 @@ class DialogueEngine:
                         })
                         return result
                     elif result.get('new_conversation'):
+                        new_conv = result['new_conversation']
+                        setattr(self.game_state, f'{npc_id}_conversation_data', new_conv)
                         print(f"🎭 DEBUG: Engine result ready for UI handler")
                         return result
                     else:
@@ -532,8 +511,11 @@ class DialogueEngine:
                 state_attr = f'{npc_id}_dialogue_state'
                 setattr(self.game_state, state_attr, next_state)
                 
-                # Get new conversation data for immediate display
-                new_conversation = self.get_conversation_options(dialogue_id, npc_id, forced_state=current_state)
+               # Get new conversation data for the NEW state after transition
+                if next_state and next_state != 'exit':
+                    new_conversation = self.get_conversation_options(dialogue_id, npc_id, forced_state=next_state)
+                else:
+                    new_conversation = self.get_conversation_options(dialogue_id, npc_id, forced_state=current_state)
                 
                 return {
                     'new_conversation': new_conversation,
