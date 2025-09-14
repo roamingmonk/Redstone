@@ -955,6 +955,20 @@ State transitions work correctly (first_meeting → knows_about_ruins)
 Effect processing functions (learned_about_ruins flag set)
 Conversation data updates properly, still has issues to troubleshoot.
 
+# ADR-061 Dialogue Progression & Screen Navigation
+# Date: September 13, 2025
+# Status: Implemented
+**Context:** Completion of Session 8A dialogue system refactoring
+**Decision**Implement progressive dialogue states with automated screen navigation for conversation endings.
+**Problem**NPCs repeated same dialogue options after significant interactions (conversation loops)
+Conversations ending with next_state: exit left players on blank screens instead of returning to originating location
+**Solution** Progressive Dialogue: Each significant interaction advances to new states rather than looping, Example: knows_about_ruins → gave_mayor_directions → helpful_conclusion → exit
+**Automated Navigation:** DialogueEngine emits DIALOGUE_ENDED events; ScreenManager handles return to originating location using stored {npc_id}_current_location
+Technical Implementation
+**Validation**Tested Garrick dialogue: first_meeting → knows_about_ruins → gave_mayor_directions → automatic return to broken_blade_main. All transitions work correctly.
+**Impact**Completes dialogue system refactoring (ADR-058). Creates professional dialogue system with natural conversation progression and seamless navigation suitable for commercial RPG development.
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

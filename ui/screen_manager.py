@@ -64,6 +64,7 @@ class ScreenManager:
         if event_manager:
             event_manager.register("SCREEN_CHANGE", self._handle_screen_change_event)
             event_manager.register("SCREEN_ADVANCE", self._handle_screen_advance_event)
+            event_manager.register("DIALOGUE_ENDED", self._handle_dialogue_ended)
             # Register direct navigation events
             # This direct system is simple and not the same input system as subsequent screens
             # Plan to use the screen manager route map for more complex flows
@@ -127,7 +128,9 @@ class ScreenManager:
         event_type = event_data.get("event_type")
         if screen and event_type:
             self.register_full_screen_clickable(screen, event_type)
-    
+
+
+
     def register_full_screen_clickable(self, screen_name, event_type):
         """Dynamically register full-screen clickable"""
         if hasattr(self, 'input_handler') and self.input_handler:
@@ -998,6 +1001,30 @@ class ScreenManager:
                 return self.transition_to(target_screen, self._current_game_state)
         
         return False
+
+    def _handle_dialogue_ended(self, event_data):
+        """Handle DIALOGUE_ENDED events by returning to appropriate screen"""
+        npc_id = event_data.get('npc_id')
+        return_to = event_data.get('return_to', 'location')
+        
+        # Get the stored location context for this dialogue session
+        if hasattr(self, '_current_game_state'):
+            location_id = getattr(self._current_game_state, f'{npc_id}_current_location', None)
+            
+            if location_id:
+                # Return to the main area of the originating location
+                target_screen = f'{location_id}_main'
+                source_screen = f'{location_id}_{npc_id}'
+                
+                # Use the same event structure as other screen changes
+                self.event_manager.emit("SCREEN_CHANGE", {
+                    'target_screen': target_screen,
+                    'source_screen': source_screen
+                })
+            else:
+                print(f"Warning: No stored location for {npc_id}")
+        
+        return True
 
 
     def _register_npc_dialogue_screens(self):

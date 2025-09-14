@@ -77,11 +77,143 @@
               "value": true
             }
           ],
-          "next_state": "knows_about_ruins"
+          "next_state": "gave_mayor_directions"
+        },
+        {
+          "id": "ask_more_details",
+          "text": "Tell me more about what happened.",
+          "next_state": "ruins_details"
         },
         {
           "id": "thanks_info",
           "text": "Thanks for the warning.",
+          "next_state": "exit"
+        }
+      ]
+    },
+    
+    "gave_mayor_directions": {
+      "introduction": ["Talk to the Mayor about the disappearances.", "His office is across the square - big building with the town banner.", "Tell him I sent you if you need an introduction."],
+      "options": [
+        {
+          "id": "thank_directions",
+          "text": "Thank you for the directions.",
+          "next_state": "helpful_conclusion"
+        },
+        {
+          "id": "ask_more_about_ruins",
+          "text": "What else can you tell me about the ruins?",
+          "next_state": "ruins_details"
+        },
+        {
+          "id": "ready_to_go",
+          "text": "I'll head there now.",
+          "next_state": "exit"
+        }
+      ]
+    },
+    
+    "ruins_details": {
+      "introduction": ["The ruins are old - older than the town.", "Strange carvings on the stones, symbols nobody can read.", "The few who came back... they won't talk about what they saw."],
+      "options": [
+        {
+          "id": "ask_about_survivors",
+          "text": "Who came back? Can I talk to them?",
+          "next_state": "survivor_info"
+        },
+        {
+          "id": "ask_about_symbols",
+          "text": "What kind of symbols?",
+          "next_state": "symbol_description"
+        },
+        {
+          "id": "enough_details",
+          "text": "That's enough for now.",
+          "next_state": "exit"
+        }
+      ]
+    },
+    
+    "survivor_info": {
+      "introduction": ["Old Henrik made it back, but he's... different now.", "Sits in the corner most days, staring at nothing.", "Won't say a word about what he saw up there."],
+      "options": [
+        {
+          "id": "where_is_henrik",
+          "text": "Where can I find Henrik?",
+          "next_state": "henrik_location"
+        },
+        {
+          "id": "anyone_else",
+          "text": "Anyone else make it back?",
+          "next_state": "other_survivors"
+        },
+        {
+          "id": "understood",
+          "text": "I understand.",
+          "next_state": "exit"
+        }
+      ]
+    },
+    
+    "henrik_location": {
+      "introduction": ["Henrik's usually at the market during the day.", "Sells what few vegetables his hands can still tend.", "But like I said, he won't talk about the ruins."],
+      "options": [
+        {
+          "id": "ill_try",
+          "text": "I'll try talking to him anyway.",
+          "next_state": "exit"
+        },
+        {
+          "id": "good_to_know",
+          "text": "Good to know. Thanks.",
+          "next_state": "exit"
+        }
+      ]
+    },
+    
+    "symbol_description": {
+      "introduction": ["Spirals and sharp angles, carved deep into the stone.", "Some say they're just old tribal markings.", "Others think they're something... else."],
+      "options": [
+        {
+          "id": "what_else",
+          "text": "What do others think they are?",
+          "next_state": "symbol_theories"
+        },
+        {
+          "id": "interesting",
+          "text": "Interesting. I'll keep that in mind.",
+          "next_state": "exit"
+        }
+      ]
+    },
+    
+    "symbol_theories": {
+      "introduction": ["Some of the older folk whisper about dark magic.", "Others say they're warnings, left by whoever built the place.", "All I know is they give me the shivers."],
+      "options": [
+        {
+          "id": "dark_magic",
+          "text": "Dark magic? You believe that?",
+          "next_state": "magic_opinion"
+        },
+        {
+          "id": "warnings",
+          "text": "Warnings about what?",
+          "next_state": "warning_speculation"
+        },
+        {
+          "id": "enough_theories",
+          "text": "Thanks for the information.",
+          "next_state": "exit"
+        }
+      ]
+    },
+    
+    "helpful_conclusion": {
+      "introduction": ["Glad I could help. Be careful up there."],
+      "options": [
+        {
+          "id": "will_be_careful",
+          "text": "I will. Thanks again.",
           "next_state": "exit"
         }
       ]
@@ -123,11 +255,27 @@
               "value": true
             }
           ],
-          "next_state": "post_mayor_basement_offered"
+          "next_state": "basement_accepted"
         },
         {
           "id": "maybe_later",
           "text": "Maybe later.",
+          "next_state": "exit"
+        }
+      ]
+    },
+    
+    "basement_accepted": {
+      "introduction": ["Good! The entrance is behind the bar.", "Watch yourself down there - they're meaner than normal rats.", "Come back when you're done and I'll settle up."],
+      "options": [
+        {
+          "id": "head_down_now",
+          "text": "I'll take care of it right now.",
+          "next_state": "exit"
+        },
+        {
+          "id": "prepare_first",
+          "text": "Let me prepare first.",
           "next_state": "exit"
         }
       ]

@@ -274,10 +274,16 @@ class DialogueEngine:
                 # Call existing business logic method with explicit state
                 result = self.process_dialogue_choice(dialogue_file_id, npc_id, choice_id, current_state)
                 print(f"🎭 DEBUG: Choice processing result: {result}")
-
                 if result:
-                    # Handle new conversation flow - don't store response data
-                    if result.get('new_conversation') or result.get('conversation_ended'):
+                    # Handle conversation ending through event system
+                    if result.get('conversation_ended'):
+                        print(f"🎭 DEBUG: Conversation ended, emitting navigation event")
+                        self.event_manager.emit("DIALOGUE_ENDED", {
+                            'npc_id': npc_id,
+                            'return_to': result.get('return_to', 'location')
+                        })
+                        return result
+                    elif result.get('new_conversation'):
                         print(f"🎭 DEBUG: Engine result ready for UI handler")
                         return result
                     else:
