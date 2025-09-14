@@ -1013,7 +1013,10 @@ class ScreenManager:
             
             if location_id:
                 # Return to the main area of the originating location
-                target_screen = f'{location_id}_main'
+                if location_id == "broken_blade":
+                    target_screen = "broken_blade_main"  # Legacy exception
+                else:
+                    target_screen = location_id  # Standard naming
                 source_screen = f'{location_id}_{npc_id}'
                 
                 # Use the same event structure as other screen changes

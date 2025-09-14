@@ -1088,6 +1088,22 @@ Engine hygiene: only reuse stored state in-session; clear on goodbye; load JSON 
 - some gamestates were not working on save/load/  added dynamic narrative schema load to ensure save and load were accurate.
 fixed F5 quicksave button. 
 
+# ADR-067: Screen Naming Convention Fix
+# Date: September 14, 2025
+# Status: Implemented
+Decision- Fixed dialogue navigation by implementing conditional screen naming logic in dialogue_engine.py:
+All other locations → location_id directly (new standard)
+Problem
+Patron selection NPCs were failing to return from dialogue due to missing patron_selection_main screen (only patron_selection exists).
+Solution
+✅ Patron selection dialogue navigation works
+✅ Future locations use cleaner naming (no _main suffix)
+✅ Fixed main menu QUIT button (controller.shutdown() vs controller.quit_game())
+Files Modified
+game_logic/dialogue_engine.py - Screen naming logic
+main.py - Event handler method call
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

@@ -441,8 +441,22 @@ class InputHandler:
             # Any other key in text mode is handled but ignored
             return True
         
+        # PRIORITY 2: Handle ESC for overlays BEFORE other keyboard handling
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            # Check if any overlays are open first
+            overlay_closed = self._handle_escape_key(game_state)
+            if overlay_closed:
+                print("🔴 ESC closed overlay, input handled")
+                return True
+            # If no overlays were closed, continue to other ESC handling below
        
-        # PRIORITY 2: Handle universal hotkeys
+        
+        #Prioirty 3: Route keyboard input to registered overlays
+        if self._handle_registered_overlay_keyboard_input(event.key):
+            return True
+        
+        
+         # PRIORITY 4: Handle universal hotkeys
         if event.type == pygame.KEYDOWN:
             key = event.key
             
@@ -499,25 +513,14 @@ class InputHandler:
                 if self.debug_input:
                     print(f"⌨️  Universal hotkey: {pygame.key.name(key)} -> {event_type}")
                 
-                # Special handling for ESC key
-                if event_type == "ESCAPE_PRESSED":
-                    # Check if any overlays are open first
-                    overlay_closed = self._handle_escape_key(game_state)
-                    if not overlay_closed:
-                        # No overlays open - this means quit game
-                        return False
-                else:
-                    # Emit the event
+                # Skip ESC since we handled it above
+                if event_type != "ESCAPE_PRESSED":
                     self.event_manager.emit(event_type, event_data)
                 
                 return True
 
-        # PRIORITY 3: Handle dialogue keyboard input
+        # PRIORITY 5: Handle dialogue keyboard input
         if self._handle_dialogue_keyboard_input(event.key, game_state):
-            return True
-
-        #Prioirty 4: Route keyboard input to registered overlays
-        if self._handle_registered_overlay_keyboard_input(event.key):
             return True
 
         return True  # Continue running

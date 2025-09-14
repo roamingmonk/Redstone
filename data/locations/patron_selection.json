@@ -15,7 +15,7 @@
           {
             "id": "gareth",
             "name": "Warrior",
-            "dialogue_file": "broken_blade_gareth",
+            "dialogue_file": "patron_selection_gareth",
             "description": "A battle-scarred warrior",
             "recruitment_role": "warrior",
             "available": "mayor_talked"
@@ -23,7 +23,7 @@
           {
             "id": "elara", 
             "name": "Mage",
-            "dialogue_file": "broken_blade_elara",
+            "dialogue_file": "patron_selection_elara",
             "description": "A scholarly spellcaster",
             "recruitment_role": "mage",
             "available": "mayor_talked"
@@ -31,7 +31,7 @@
           {
             "id": "thorman",
             "name": "Cleric",
-            "dialogue_file": "broken_blade_thorman", 
+            "dialogue_file": "patron_selection_thorman", 
             "description": "A stout dwarf priest",
             "recruitment_role": "cleric",
             "available": "mayor_talked"
@@ -39,7 +39,7 @@
           {
             "id": "lyra",
             "name": "Rogue",
-            "dialogue_file": "broken_blade_lyra",
+            "dialogue_file": "patron_selection_lyra",
             "description": "A hooded figure",
             "recruitment_role": "rogue",
             "available": "mayor_talked"
@@ -47,7 +47,7 @@
           {
             "id": "pete",
             "name": "Pete",
-            "dialogue_file": "broken_blade_pete",
+            "dialogue_file": "patron_selection_pete",
             "description": "A grizzled storyteller",
             "recruitment_role": "comedy_relief",
             "special": "fake_recruitment",
@@ -56,7 +56,7 @@
           {
             "id": "mayor",
             "name": "Mayor",
-            "dialogue_file": "broken_blade_mayor",
+            "dialogue_file": "patron_selection_mayor",
             "description": "A worried official",
             "recruitment_role": "quest_giver",
             "location_based": true,

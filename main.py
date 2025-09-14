@@ -81,7 +81,7 @@ def main():
     def handle_quit_event(event_data):
         global running
         print("🎮 QUIT_GAME: Exiting application")
-        controller.quit_game()
+        controller.shutdown()
         running = False
 
     controller.event_manager.register('QUIT_GAME', handle_quit_event)

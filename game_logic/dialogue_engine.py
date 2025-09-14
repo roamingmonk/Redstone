@@ -39,6 +39,8 @@ class DialogueEngine:
         self.dialogues = {}  # Loaded dialogue trees
         self.quest_event_hooks = []  # Future QuestEngine integration
         self.event_manager = None 
+        self.dialogue_source_screen = None  # Track where dialogue came from
+        self.current_dialogue_npc = None
 
         print("🗣️ DialogueEngine initialized with GameState authority")
     
@@ -107,10 +109,10 @@ class DialogueEngine:
             #print(f"DEBUG: Dialogue in progress for {npc_id}, overriding {talked_flag} to False")
         
         # Evaluate each state condition
-        print("DE: STATE-EVAL ORDER:", list(npc_states.keys()))
+        #print("DE: STATE-EVAL ORDER:", list(npc_states.keys()))
         for state_name, condition in npc_states.items():
             if self._evaluate_condition(condition, context):
-                print("DE: MATCH ->", state_name)
+                #print("DE: MATCH ->", state_name)
                 return state_name
         
         return 'first_meeting'
@@ -388,7 +390,11 @@ class DialogueEngine:
                         if not target_screen:
                             location_id = getattr(self.game_state, f'{npc_id}_current_location', None)
                             if location_id:
-                                target_screen = f'{location_id}_main'
+                               # Some locations need _main suffix, others dont
+                               if location_id == 'broken_blade':
+                                   target_screen = f'{location_id}_main'
+                               else:
+                                   target_screen = location_id
 
                         if target_screen:
                             self.event_manager.emit('SCREEN_CHANGE', {
@@ -534,7 +540,7 @@ class DialogueEngine:
                 
                 # Add this debug:
                 actual_state = getattr(self.game_state, state_attr)
-                print(f"DE: STATE UPDATE CHECK: {npc_id} should be {next_state}, actually is {actual_state}")
+                #print(f"DE: STATE UPDATE CHECK: {npc_id} should be {next_state}, actually is {actual_state}")
     
                # Get new conversation data for the NEW state after transition
                 if next_state and next_state != 'exit':
@@ -674,6 +680,46 @@ class DialogueEngine:
                     delattr(self.game_state, attr)
                     
             print(f"🧹 Cleared dialogue state for {npc_id}")
+
+    def start_dialogue(self, npc_id: str, source_screen: str = None):
+        """Start dialogue and remember where it came from"""
+        self.current_dialogue_npc = npc_id
+        self.dialogue_source_screen = source_screen or self.game_state.screen
+        print(f"🎭 Starting dialogue with {npc_id} from {self.dialogue_source_screen}")
+    
+    def end_dialogue(self):
+        """End dialogue and return to appropriate source"""
+        
+        if self.dialogue_source_screen:
+            target_screen = self.dialogue_source_screen
+            print(f"🔙 Returning to tracked source screen: {target_screen}")
+        # else:
+        #     # Smart fallback based on NPC type
+        #     if self.current_dialogue_npc:
+        #         if self.current_dialogue_npc in ['gareth', 'elara', 'thorman', 'lyra', 'pete', 'mayor']:
+        #             target_screen = 'patron_selection'
+        #             print(f"🔙 Smart fallback: patron NPC {self.current_dialogue_npc} -> patron_selection")
+        #         elif self.current_dialogue_npc in ['garrick', 'meredith']:
+        #             target_screen = 'broken_blade_main'
+        #             print(f"🔙 Smart fallback: tavern staff {self.current_dialogue_npc} -> broken_blade_main")
+        #         else:
+        #             target_screen = 'broken_blade_main'
+        #             print(f"🔙 Default fallback: {self.current_dialogue_npc} -> broken_blade_main")
+        #     else:
+        #         target_screen = 'broken_blade_main'
+        #         print(f"🔙 No NPC context, defaulting to broken_blade_main")
+        
+        # Clear dialogue state
+        self.current_dialogue_npc = None
+        self.dialogue_source_screen = None
+        
+        # Navigate back
+        if self.event_manager:
+            self.event_manager.emit('SCREEN_CHANGE', {
+                'target_screen': target_screen,
+                'source_screen': f'dialogue'
+            })
+            print(f"🔙 Navigation event emitted to: {target_screen}")
 
 
 def initialize_dialogue_engine(game_state_ref, event_manager_ref):
