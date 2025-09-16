@@ -27,7 +27,7 @@ class ScreenManager:
     """
     
     def __init__(self, event_manager, screen=None, fonts=None, images=None):
-        # EXISTING: Your original click handling system
+        # Your original click handling system
         self.event_manager = event_manager
         self.screens = {}  # screen_name -> screen_handler (click handlers)
         
@@ -66,8 +66,12 @@ class ScreenManager:
             event_manager.register("SCREEN_ADVANCE", self._handle_screen_advance_event)
             event_manager.register("DIALOGUE_ENDED", self._handle_dialogue_ended)
             event_manager.register("OPEN_SHOPPING", self._handle_open_shopping)
-            event_manager.register("SHOPPING_BACK", self._handle_shopping_back)
-            
+            event_manager.register("SHOPPING_BACK", self._handle_shopping_back)  ####  TODO REMOVE AFTER OVERLAY ADD
+            event_manager.register("SHOPPING_ITEM_CLICK", self._handle_shopping_item_click)  ####  TODO REMOVE AFTER OVERLAY ADD
+            self.event_manager.register("COMMERCE_PURCHASE", self._handle_commerce_purchase)
+            self.event_manager.register("COMMERCE_RESET_CART", self._handle_commerce_reset)
+
+
             # Register direct navigation events
             # This direct system is simple and not the same input system as subsequent screens
             # Plan to use the screen manager route map for more complex flows
@@ -649,11 +653,20 @@ class ScreenManager:
                     merchant_items = []
                     for item in all_items:
                         if item.get('id') in include_ids:
+                            item_id = item.get('id')
+        
+                            # Get stock from merchant config
+                            #TODO-enhance to remember totals and delay replinishment 
+                            stock_overrides = merchant_config.get('stock_overrides', {})
+                            default_stock = merchant_config.get('default_stock_quantity', 5)
+                            stock_quantity = stock_overrides.get(item_id, default_stock)
+                            
                             merchant_items.append({
                                 'name': item.get('name'),
                                 'description': item.get('description'), 
                                 'cost': item.get('base_cost', 1),
-                                'item_id': item.get('id')
+                                'item_id': item.get('id'),
+                                'stock': stock_quantity
                             })
                     
                     # Create the merchant data structure
@@ -684,55 +697,19 @@ class ScreenManager:
         
         print(f"❌ Failed to open shop for {merchant_id}")
 
+#########  TODO Keep as fallback until render shopping overlay is confirmed.  /////Plan to remove ////
     def _render_merchant_shop(self, surface, game_state, fonts, images, controller):
-        """Render wrapper for merchant shop screen"""
-        merchant_data = getattr(game_state, 'current_merchant_data', None)
-        print(f"🔧 Merchant data type: {type(merchant_data)}")
-        print(f"🔧 Merchant data content: {merchant_data}")
-
-        # Check if data is in the correct format (dict, not list)
-        if merchant_data and isinstance(merchant_data, dict):
-            from ui.shopping_overlay import draw_merchant_screen
-            
-            # Draw the screen and capture button rectangles
-            result = draw_merchant_screen(surface, game_state, fonts, merchant_data, images)
-            print(f"🔧 Draw function returned: {type(result)}")
-
-            # Register clickable areas if we got button rectangles back
-            if isinstance(result, tuple) and len(result) == 4:
-                merchant_item_rects, buy_button, reset_button, back_button = result
-                print(f"🔧 Button rects - Buy: {buy_button}, Reset: {reset_button}, Back: {back_button}")
-            
-                # Register buttons as clickable
-                if buy_button:
-                    self.input_handler.register_clickable(
-                        screen_name="merchant_shop", rect=buy_button,
-                        event_type="COMMERCE_PURCHASE", event_data={'action': 'buy'})
-                if reset_button:
-                    self.input_handler.register_clickable(
-                        screen_name="merchant_shop", rect=reset_button,
-                        event_type="COMMERCE_RESET_CART", event_data={'action': 'reset'})
-                if back_button:
-                    self.input_handler.register_clickable(
-                        screen_name="merchant_shop", rect=back_button,
-                        event_type="SHOPPING_BACK", event_data={'action': 'back'})
-            
-            return True
-        else:
-            # Show error screen instead of crashing
-            surface.fill((0, 0, 0))
-            font = fonts.get('normal', fonts['normal'])
-            
-            if isinstance(merchant_data, list):
-                text = font.render("Error: Merchant data is list, expected dict", True, (255, 255, 255))
-            else:
-                text = font.render("Error: No valid merchant data", True, (255, 255, 255))
-            
-            surface.blit(text, (100, 100))
-            return False
-
+        """TEMPORARY: Render tabbed shopping overlay - will be removed once verified"""
+        from ui.shopping_overlay import ShoppingOverlay
+        
+        if not hasattr(self, '_shopping_overlay'):
+            self._shopping_overlay = ShoppingOverlay(screen_manager=self)
+        
+        self._shopping_overlay.render(surface, game_state, fonts, images or {})
+        return True
+#########  TODO Keep as fallback until render shopping overlay is confirmed.  /////Plan to remove ////
     def _handle_shopping_back(self, event_data):
-        """Handle BACK button - navigation only"""
+        """Handle BACK button - navigation only- TOBE REMOVED AFTER OVERLAY ADD"""
         print("🛒 BACK button clicked!")
         game_state = self._current_game_controller.game_state
         return_dialogue = getattr(game_state, 'shopping_return_dialogue', 'broken_blade_garrick')
@@ -741,6 +718,143 @@ class ScreenManager:
             'target_screen': return_dialogue,
             'source_screen': "merchant_shop"
         })
+
+#########   TODO Keep as fallback until render shopping overlay is confirmed.  /////Plan to remove ////
+    def _handle_shopping_item_click(self, event_data):
+        """Handle item row clicks - add to cart- TOBE REMOVED AFTER OVERLAY ADD"""
+        item_index = event_data.get('item_index')
+        print(f"🛒 Item {item_index} clicked!")
+        
+        # Get current merchant data to find which item was clicked
+        game_state = self._current_game_controller.game_state
+        merchant_data = getattr(game_state, 'current_merchant_data', None)
+        
+        if merchant_data and item_index is not None:
+            items = merchant_data.get('items', [])
+            if 0 <= item_index < len(items):
+                clicked_item = items[item_index]
+                item_id = clicked_item.get('item_id')
+                merchant_id = merchant_data.get('merchant_id')
+                
+                # Check stock before allowing add to cart
+                from game_logic.commerce_engine import get_commerce_engine
+                commerce = get_commerce_engine()
+                stock_status = commerce.get_stock_status(item_id, merchant_id)
+                
+                if stock_status['remaining'] <= 0:
+                    print(f"⚠️ {clicked_item.get('name', item_id)} is out of stock!")
+                    return  # Don't add to cart   
+
+                # Emit event to CommerceEngine to add item to cart
+                self.event_manager.emit("COMMERCE_ADD_TO_CART", {
+                    'item_id': item_id,
+                    'merchant_id': merchant_id,
+                    'action': 'add_to_cart'
+                })
+
+
+    def _handle_shopping_item_click_direct(self, item_index):
+        """Handle direct item click in shopping overlay"""
+        game_state = self._current_game_controller.game_state
+        merchant_data = getattr(game_state, 'current_merchant_data', None)
+        
+        if merchant_data and merchant_data.get('items'):
+            items = merchant_data['items']
+            if 0 <= item_index < len(items):
+                clicked_item = items[item_index]
+                item_id = clicked_item.get('item_id')
+                merchant_id = merchant_data.get('merchant_id')
+                
+                # Check stock
+                from game_logic.commerce_engine import get_commerce_engine
+                commerce = get_commerce_engine()
+                stock_status = commerce.get_stock_status(item_id, merchant_id)
+                
+                if stock_status['remaining'] <= 0:
+                    print(f"⚠️ {clicked_item.get('name', item_id)} is out of stock!")
+                    return
+                
+                # Add to cart
+                commerce.add_to_cart(item_id, merchant_id)
+                print(f"🛒 Added {clicked_item.get('name')} to cart")
+
+    def _handle_shopping_close(self):
+        """Handle closing the shopping overlay"""
+        game_state = self._current_game_controller.game_state
+        return_dialogue = getattr(game_state, 'shopping_return_dialogue', 'broken_blade_garrick')
+        
+        self.event_manager.emit("SCREEN_CHANGE", {
+            'target_screen': return_dialogue,
+            'source_screen': "merchant_shop"
+        })
+
+    def _handle_commerce_purchase(self, event_data):
+        """Handle purchase button from shopping overlay"""
+        game_state = self._current_game_controller.game_state
+        merchant_id = getattr(game_state, 'current_merchant_id', 'garrick')
+        
+        from game_logic.commerce_engine import get_commerce_engine
+        commerce = get_commerce_engine()
+        success, message = commerce.process_purchase(merchant_id)
+        print(f"🛒 {message}")
+
+    def _handle_commerce_reset(self, event_data):
+        """Handle reset cart button from shopping overlay"""
+        from game_logic.commerce_engine import get_commerce_engine
+        commerce = get_commerce_engine()
+        commerce.clear_cart()
+        print("🛒 Shopping cart cleared")
+
+    def handle_current_screen_input(self, event, game_state):
+        """
+        Handle input for screens that manage their own input (overlays)
+        Returns True if input was handled, False otherwise
+        """
+        current_screen = game_state.screen
+        
+        # Shopping overlay input handling
+        if current_screen == "merchant_shop" and hasattr(self, '_shopping_overlay'):
+            if event.type == pygame.KEYDOWN:
+                # Handle tab switching and shortcuts
+                if event.key == pygame.K_b:  # BUY tab
+                    return self._shopping_overlay.switch_to_tab(0)
+                elif event.key == pygame.K_s:  # SELL tab
+                    return self._shopping_overlay.switch_to_tab(1)
+                elif event.key == pygame.K_i:  # INFO tab
+                    return self._shopping_overlay.switch_to_tab(2)
+                elif event.key == pygame.K_ESCAPE:
+                    # Close shopping overlay
+                    self._handle_shopping_close()
+                    return True
+                # Let overlay handle other keys
+                return self._shopping_overlay.handle_keyboard_input(event.key)
+            
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                # Let overlay handle clicks
+                click_handled = self._shopping_overlay.handle_mouse_click(event.pos)
+                if click_handled:
+                    return True
+                
+                # Handle button clicks within overlay
+                if hasattr(self._shopping_overlay, 'button_rects'):
+                    for button_name, button_rect in self._shopping_overlay.button_rects.items():
+                        if button_rect and button_rect.collidepoint(event.pos):
+                            if button_name == 'buy':
+                                self._handle_commerce_purchase({})
+                            elif button_name == 'reset':
+                                self._handle_commerce_reset({})
+                            elif button_name == 'close':
+                                self._handle_shopping_close()
+                            return True
+                
+                # Handle item clicks in BUY tab
+                if self._shopping_overlay.active_tab_index == 0:  # BUY tab
+                    for item_rect, item_index in self._shopping_overlay.merchant_item_rects:
+                        if item_rect.collidepoint(event.pos):
+                            self._handle_shopping_item_click_direct(item_index)
+                            return True
+        
+        return False
 
     def register_quest_log_screen_clickables(self):
         """Register clickable areas for quest log screen"""
@@ -776,6 +890,20 @@ class ScreenManager:
             print("❓ Help screen clickables registered")
         else:
             print("⚠️ No InputHandler available for help screen")
+
+    def register_shopping_overlay_clickables(self):
+        """Register clickable areas for shopping overlay"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            self.input_handler.clear_clickables('merchant_shop')
+            
+            # Register tab clicks if overlay exists
+            if hasattr(self, '_shopping_overlay') and self._shopping_overlay:
+                # Let the overlay handle its own clicks
+                print("🛒 Shopping overlay clickables registered")
+            
+            # Register ESC to close (will be handled by overlay)
+        else:
+            print("⚠️ No InputHandler available for shopping overlay")
 
     def register_render_function(self, screen_name: str, render_function: Callable,
                                 enter_hook: Optional[Callable] = None,
@@ -817,7 +945,7 @@ class ScreenManager:
             from screens.intro_scenes import (
                 draw_intro_scene_1, draw_intro_scene_2, draw_intro_scene_3
             )
-            from ui.shopping_overlay import draw_merchant_screen
+            from ui.shopping_overlay import draw_shopping_overlay
             from screens.inventory_overlay import draw_inventory_screen
             from screens.quest_overlay import draw_quest_overlay
             from screens.character_overlay import draw_character_sheet_screen
@@ -873,9 +1001,15 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_character_sheet_screen_clickables())
             self.register_render_function("help", draw_help_screen,
                 enter_hook=lambda _: self.register_help_screen_clickables())
-            #self.register_render_function("merchant_shop", self._render_merchant_shop,
-            #   enter_hook=lambda _: self.register_shopping_screen_clickables())            
-            self.register_render_function("merchant_shop", self._render_merchant_shop)
+
+            #self.register_render_function("merchant_shop", draw_shopping_overlay)
+
+            self.register_render_function("merchant_shop", self._render_shopping_overlay,
+                enter_hook=lambda _: self.register_shopping_overlay_clickables())
+
+            #self.register_render_function("merchant_shop", draw_shopping_overlay,
+            #    enter_hook=lambda _: print("🛒 Shopping overlay ready"))
+
 
             self._register_npc_dialogue_screens()
 
@@ -1023,7 +1157,20 @@ class ScreenManager:
             print(f"❌ Error rendering screen '{self.current_screen}': {e}")
             print(f"📍 Traceback: {traceback.format_exc()}")
             return self._handle_render_error(game_state)
-    
+
+    def _render_shopping_overlay(self, surface, game_state, fonts, images, controller):
+        """Render the new tabbed shopping overlay"""
+        from ui.shopping_overlay import ShoppingOverlay
+        
+        # Create overlay instance if needed
+        if not hasattr(self, '_shopping_overlay'):
+            self._shopping_overlay = ShoppingOverlay(screen_manager=self)
+        
+        # Render the overlay
+        self._shopping_overlay.render(surface, game_state, fonts, images or {})
+        return True
+
+
     def sync_with_game_state(self, game_state) -> bool:
         """
         NEW: Ensure ScreenManager is synced with GameState.screen
@@ -1144,8 +1291,6 @@ class ScreenManager:
         
         return True
 
-# Find these lines in screen_manager.py around line 250-280:
-
     def _register_npc_dialogue_screens(self):
         """
         Auto-register dialogue screens from filesystem
@@ -1204,7 +1349,7 @@ class ScreenManager:
         else:
             print("✅ Dialogue system ready - adding new NPCs now requires only JSON file creation!")
 
-    # ALSO ADD: Method to set the current game controller
+    # Method to set the current game controller
     def set_current_controller(self, controller):
         """Store reference to current game controller for dialogue screens"""
         self._current_game_controller = controller

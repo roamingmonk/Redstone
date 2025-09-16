@@ -13,6 +13,11 @@ class CommerceEngine:
     def __init__(self, game_state_ref, item_manager_ref):
         self.game_state = game_state_ref
         self.item_manager = item_manager_ref
+
+        # Initialize merchant stocks if needed
+        if not hasattr(self.game_state, 'merchant_stocks'):
+            self.game_state.merchant_stocks = {}
+
         print("🛒 CommerceEngine ready (ID-based, stock-aware)")
 
     # =========================
@@ -112,10 +117,25 @@ class CommerceEngine:
                 inv_row = self._find_in_merchant_by_id(item_id, merchant_data)
                 if not inv_row:
                     continue
-                category = self._determine_inventory_category(inv_row.get("type", "items"))
+                
+                item_def = self.item_manager.get_item_by_id(item_id) if self.item_manager else None
+                category = self._determine_inventory_category(item_def.get("category", "items") if item_def else "items")
+                
                 for _ in range(qty):
-                    self.game_state.inventory[category].append(item_id)
+                    # Get display name instead of item_id
+                    item_def = self.item_manager.get_item_by_id(item_id) if self.item_manager else None
+                    display_name = item_def.get('name', item_id) if item_def else item_id
+                    self.game_state.inventory[category].append(display_name)
                 purchased += qty
+
+            # Reduce merchant stock PERMANENTLY in game_state
+            if merchant_id not in self.game_state.merchant_stocks:
+                self._initialize_merchant_stock(merchant_id)
+
+            for item_id, qty in self.game_state.shopping_cart.items():
+                current_stock = self.game_state.merchant_stocks[merchant_id].get(item_id, 0)
+                self.game_state.merchant_stocks[merchant_id][item_id] = max(0, current_stock - qty)
+                print(f"🛒 Reduced {item_id} stock from {current_stock} to {self.game_state.merchant_stocks[merchant_id][item_id]}")
 
             # Deduct gold, clear cart
             self.game_state.character["gold"] = current_gold - total_cost
@@ -128,6 +148,13 @@ class CommerceEngine:
     def can_afford_cart(self, merchant_id: str) -> bool:
         return self.get_cart_total(merchant_id) <= self.game_state.character.get("gold", 0)
 
+    # CALL THIS METHOD TO RESET STOCK FOR MERCHANTS, maybe after a 'rest'
+    def restock_merchant(self, merchant_id: str):
+        """Reset merchant to full stock (call on rest/new day)"""
+        self._initialize_merchant_stock(merchant_id)  # Resets to full
+        print(f"🔄 {merchant_id} restocked")
+
+# Call this when player rests at inn or after quest completion
     def register_event_handlers(self, event_manager):
         """Register commerce event handlers"""
         event_manager.register("COMMERCE_PURCHASE", self._handle_purchase)
@@ -148,8 +175,20 @@ class CommerceEngine:
 
     def _handle_add_to_cart(self, event_data):
         """Handle add to cart requests"""
-        # TODO: Get item from event_data
-        print("🛒 Add to cart requested")
+        item_id = event_data.get('item_id')
+        merchant_id = event_data.get('merchant_id')
+        
+        print(f"🛒 Adding {item_id} to cart for merchant {merchant_id}")
+        
+        if item_id and merchant_id:
+            success = self.add_to_cart(item_id, merchant_id)
+            print(f"🛒 Add to cart result: {success}")
+            
+            # Trigger screen refresh so Purchase column updates
+            if success and hasattr(self, 'event_manager'):
+                self.event_manager.emit("SCREEN_REDRAW", {"screen": "merchant_shop"})
+        else:
+            print("🛒 Missing item_id or merchant_id in add to cart request")
 
 
     # =====================
@@ -183,14 +222,27 @@ class CommerceEngine:
         return any(row.get("item_id") == item_id for row in m.get("items", []))
 
     def _get_stock_limit(self, item_id: str, merchant_id: str) -> int:
-        m = self._get_merchant_data(merchant_id)
-        if not m:
-            return 0
-        row = self._find_in_merchant_by_id(item_id, m)
-        if row and "stock" in row:
-            return int(row["stock"])
-        # fallback to merchant default if present
-        return int(m.get("default_stock_quantity", 0))
+        """Get CURRENT stock from game_state, initialize if needed"""
+        # Initialize merchant stock on first access
+        if merchant_id not in self.game_state.merchant_stocks:
+            self._initialize_merchant_stock(merchant_id)
+        
+        # Return current stock from game state
+        return self.game_state.merchant_stocks[merchant_id].get(item_id, 0)
+
+    def _initialize_merchant_stock(self, merchant_id: str):
+        """Set up initial stock levels from merchant data"""
+        merchant_data = self._get_merchant_data(merchant_id)
+        if not merchant_data:
+            return
+        
+        self.game_state.merchant_stocks[merchant_id] = {}
+        for item in merchant_data.get('items', []):
+            item_id = item.get('item_id')
+            stock = item.get('stock', 5)  # Get from merchant data
+            self.game_state.merchant_stocks[merchant_id][item_id] = stock
+        
+        print(f"🛒 Initialized stock for {merchant_id}: {self.game_state.merchant_stocks[merchant_id]}")
 
     def _get_item_cost(self, item_id: str, merchant_data: Dict) -> int:
         row = self._find_in_merchant_by_id(item_id, merchant_data)
@@ -204,14 +256,18 @@ class CommerceEngine:
 
     def _determine_inventory_category(self, item_type: str) -> str:
         # Keep in sync with ItemLoader’s normalization (e.g., "potion" → "consumables")
+        print(f"🛒 DEBUG: _determine_inventory_category called with: '{item_type}'") 
         mapping = {
             "weapons": "weapons",
             "armor": "armor",
             "consumables": "consumables",
             "items": "items"
         }
-        return mapping.get(item_type, "items")
 
+        result = mapping.get(item_type, "items")    
+        print(f"🛒 DEBUG: Mapped '{item_type}' to '{result}'")
+        return result
+            
 
 # ==========================================
 # GLOBAL COMMERCE ENGINE MANAGEMENT (unchanged)

@@ -64,7 +64,10 @@ class GameState:
 
         # Shopping cart for current merchant session
         self.shopping_cart = {}  # {'item_name': quantity}
-
+        
+        #Tracking remaining stock per merchant
+        self.merchant_stocks = {}
+        
         # Save/load system state (game mechanics)
         self.load_screen_open = False
         self.load_selected_slot = None

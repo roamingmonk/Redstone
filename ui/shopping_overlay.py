@@ -4,7 +4,8 @@ Reusable merchant screen for all shops in the game
 """
 
 import pygame
-
+from utils.tabbed_overlay_utils import BaseTabbedOverlay, TabDefinition
+from collections import Counter
 from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, 
                            LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
                            LAYOUT_BUTTON_Y, LAYOUT_DIALOG_TEXT_Y, LAYOUT_BUTTON_CENTER_Y)
@@ -25,12 +26,759 @@ YELLOW = (255, 255, 85)
 CYAN = (0, 255, 255)
 RED = (170, 0, 0)
 DARK_BROWN = (101, 67, 33)
+CORNFLOWER_BLUE = (100, 149, 237)  # selection color
 
+# ==========================================
+# TABBED SHOPPING OVERLAY CLASS (NEW)
+# ==========================================
+
+class ShoppingOverlay(BaseTabbedOverlay):
+    """
+    Tabbed shopping interface using BaseTabbedOverlay framework
+    
+    Tabs:
+    - BUY (B): Purchase from merchant stock
+    - SELL (S): Sell items to merchant
+    - INFO (I): View merchant details
+    """
+    
+    def __init__(self, screen_manager=None):
+        super().__init__("merchant_shop", "MERCHANT", screen_manager)
+        
+        # Add 3 tabs - using keys B, S, I for tab switching
+        self.add_tab("buy", "BUY")
+        self.add_tab("sell", "SELL")
+        self.add_tab("info", "INFO")
+        
+        # Tab-specific pagination state
+        self.buy_page = 0
+        self.sell_page = 0
+        self.items_per_page = 6
+        
+        # Click tracking
+        self.merchant_item_rects = []
+        self.sell_item_rects = []
+        self.button_rects = {}
+        # Sell cart tracking (separate from buy cart)
+        self.sell_cart = {}  # {item_name: quantity}
+        self.sell_cart_total = 0
+    
+    def render_tab_content(self, surface, active_tab, game_state, fonts, images):
+        """
+        REQUIRED: Render content for the active tab
+        Called by BaseTabbedOverlay.render()
+        """
+        tab_id = active_tab.tab_id
+        content_rect = self.get_content_area_rect()
+        
+        try:
+            if tab_id == "buy":
+                self._render_buy_tab(surface, content_rect, game_state, fonts, images)
+            elif tab_id == "sell":
+                self._render_sell_tab(surface, content_rect, game_state, fonts, images)
+            elif tab_id == "info":
+                self._render_info_tab(surface, content_rect, game_state, fonts, images)
+        except Exception as e:
+            print(f"⚠️ Error rendering {tab_id} tab: {e}")
+            draw_centered_text(surface, f"Error: {e}", fonts['normal'], 
+                             content_rect.centery, WHITE)
+    
+    def _render_buy_tab(self, surface, content_rect, game_state, fonts, images):
+        """
+        BUY tab - Show merchant stock with purchase options
+        Reuses existing shopping logic with pagination
+        """
+        merchant_data = getattr(game_state, 'current_merchant_data', None)
+        if not merchant_data:
+            draw_centered_text(surface, "No merchant data available", 
+                             fonts['normal'], content_rect.centery, WHITE)
+            return
+        
+        commerce = get_commerce_engine()
+        merchant_id = merchant_data.get('merchant_id')
+        
+        # Title
+        title_y = content_rect.y + 10
+        draw_centered_text(surface, f"{merchant_data['merchant_name']}'s Stock",
+                          fonts.get('fantasy_medium', fonts['normal']), title_y, YELLOW)
+        
+        # Table headers (adjusted for smaller content area)
+        header_y = title_y + 35
+        header_font = fonts.get('fantasy_small', fonts['normal'])
+        
+        # Column positions (adjusted for content_rect)
+        icon_x = content_rect.x + 20
+        desc_x = content_rect.x + 100
+        cost_x = content_rect.x + 420
+        stock_x = content_rect.x + 520
+        cart_x = content_rect.x + 620
+        
+        # Draw headers
+        header_surface = header_font.render("Item", True, CYAN)
+        surface.blit(header_surface, (icon_x, header_y))
+        
+        header_surface = header_font.render("Description", True, CYAN)
+        surface.blit(header_surface, (desc_x, header_y))
+        
+        header_surface = header_font.render("Cost", True, CYAN)
+        surface.blit(header_surface, (cost_x, header_y))
+        
+        header_surface = header_font.render("Stock", True, CYAN)
+        surface.blit(header_surface, (stock_x, header_y))
+        
+        header_surface = header_font.render("Cart", True, CYAN)
+        surface.blit(header_surface, (cart_x, header_y))
+        
+        # Draw merchant items with pagination
+        items = merchant_data.get('items', [])
+        total_items = len(items)
+        
+        # Pagination calculations
+        total_pages = max(1, (total_items + self.items_per_page - 1) // self.items_per_page)
+        if self.buy_page >= total_pages:
+            self.buy_page = total_pages - 1
+        
+        start_idx = self.buy_page * self.items_per_page
+        end_idx = min(start_idx + self.items_per_page, total_items)
+        page_items = items[start_idx:end_idx]
+        
+        # Draw items
+        self.merchant_item_rects = []
+        item_font = fonts.get('fantasy_tiny', fonts['small'])
+        item_y = header_y + 30
+        line_height = 32
+        
+        for i, item in enumerate(page_items):
+            current_y = item_y + i * line_height
+            
+            # Create clickable rect and check hover
+            item_rect = pygame.Rect(icon_x - 5, current_y - 5,
+                                   cart_x - icon_x + 100, line_height)
+            
+            mouse_pos = pygame.mouse.get_pos()
+            if item_rect.collidepoint(mouse_pos):
+                SELECTION_COLOR = (100, 149, 237)
+                pygame.draw.rect(surface, SELECTION_COLOR, item_rect)
+            
+            # Store for click detection (with original index)
+            self.merchant_item_rects.append((item_rect, start_idx + i))
+            
+            # Draw item details
+            item_id = item['item_id']
+            
+            # Icon
+            if images and 'item_icons' in images and item['name'] in images['item_icons']:
+                icon = images['item_icons'][item['name']]
+                surface.blit(icon, (icon_x + 5, current_y - 5))
+            else:
+                icon_surface = item_font.render("X", True, WHITE)
+                surface.blit(icon_surface, (icon_x + 10, current_y))
+            
+            # Description
+            desc_surface = item_font.render(item['description'], True, WHITE)
+            surface.blit(desc_surface, (desc_x, current_y))
+            
+            # Cost
+            cost_surface = item_font.render(str(item['cost']), True, WHITE)
+            surface.blit(cost_surface, (cost_x + 10, current_y))
+            
+            # Stock
+            stock_info = commerce.get_stock_status(item_id, merchant_id)
+            stock_surface = item_font.render(str(stock_info['available']), True, WHITE)
+            surface.blit(stock_surface, (stock_x + 20, current_y))
+            
+            # Cart quantity
+            cart_qty = game_state.shopping_cart.get(item_id, 0)
+            if cart_qty > 0:
+                cart_surface = item_font.render(str(cart_qty), True, BRIGHT_GREEN)
+                surface.blit(cart_surface, (cart_x + 20, current_y))
+        
+        # Pagination controls
+        if total_pages > 1:
+            page_y = item_y + (self.items_per_page * line_height) + 10
+            page_text = f"Page {self.buy_page + 1} of {total_pages}"
+            draw_centered_text(surface, page_text, fonts['normal'], page_y, YELLOW)
+        
+        # Bottom section - Gold, Cart, Buttons
+        bottom_y = content_rect.bottom - 110
+        
+        player_gold = game_state.character.get('gold', 0)
+        cart_total = commerce.get_cart_total(merchant_id)
+        
+        draw_centered_text(surface, f"Your Gold: {player_gold} gp",
+                          fonts.get('fantasy_medium', fonts['normal']), bottom_y, BRIGHT_GREEN)
+        
+        draw_centered_text(surface, f"Cart Total: {cart_total} gp",
+                          fonts.get('fantasy_small', fonts['normal']), bottom_y + 25, YELLOW)
+        
+        # Action buttons
+        button_y = bottom_y + 60
+        button_width = 100
+        button_spacing = 20
+        
+        total_width = 3 * button_width + 2 * button_spacing
+        start_x = content_rect.x + (content_rect.width - total_width) // 2
+        
+        can_afford = commerce.can_afford_cart(merchant_id)
+        has_items = cart_total > 0
+        
+        self.button_rects['buy'] = draw_button(
+            surface, start_x, button_y, button_width, 40,
+            "BUY", fonts.get('fantasy_small', fonts['normal']),
+            enabled=can_afford)
+        
+        self.button_rects['reset'] = draw_button(
+            surface, start_x + button_width + button_spacing, button_y,
+            button_width, 40, "RESET",
+            fonts.get('fantasy_small', fonts['normal']),
+            enabled=has_items)
+        
+        self.button_rects['close'] = draw_button(
+            surface, start_x + 2 * (button_width + button_spacing), button_y,
+            button_width, 40, "CLOSE",
+            fonts.get('fantasy_small', fonts['normal']))
+
+    def _render_sell_tab(self, surface, content_rect, game_state, fonts, images):
+        """SELL tab - player inventory with buyback pricing"""
+        merchant_data = getattr(game_state, 'current_merchant_data', None)
+        if not merchant_data:
+            return
+        
+        merchant_id = merchant_data.get('merchant_id')
+        
+        # Get merchant config for sell multiplier
+        merchant_config = game_state.item_manager.merchant_data.get('merchants', {}).get(merchant_id, {})
+        sell_multiplier = merchant_config.get('sell_multiplier', 0.4)
+        stock_categories = merchant_config.get('stock_categories', [])
+        
+        # Title
+        title_y = content_rect.y + 10
+        draw_centered_text(surface, f"Sell Items to {merchant_data['merchant_name']}",
+                        fonts.get('fantasy_medium', fonts['normal']), title_y, YELLOW)
+        
+        # Info text
+        info_y = title_y + 35
+        draw_centered_text(surface, f"Buying items at {int(sell_multiplier * 100)}% of value",
+                        fonts.get('fantasy_small', fonts['normal']), info_y, GRAY)
+        
+        # Table headers
+        header_y = info_y + 40
+        header_font = fonts.get('fantasy_small', fonts['normal'])
+        
+        icon_x = content_rect.x + 20
+        desc_x = content_rect.x + 100
+        value_x = content_rect.x + 400
+        sell_price_x = content_rect.x + 500
+        qty_x = content_rect.x + 600
+        
+        # Draw headers
+        header_surface = header_font.render("Item", True, CYAN)
+        surface.blit(header_surface, (icon_x, header_y))
+        
+        header_surface = header_font.render("Description", True, CYAN)
+        surface.blit(header_surface, (desc_x, header_y))
+        
+        header_surface = header_font.render("Value", True, CYAN)
+        surface.blit(header_surface, (value_x, header_y))
+        
+        header_surface = header_font.render("Sell For", True, CYAN)
+        surface.blit(header_surface, (sell_price_x, header_y))
+        
+        header_surface = header_font.render("Qty", True, CYAN)
+        surface.blit(header_surface, (qty_x, header_y))
+        
+        # Get sellable items from player inventory
+        sellable_items = self._get_sellable_items(game_state, merchant_id, stock_categories, sell_multiplier)
+        
+        # Draw items
+        self.sell_item_rects = []
+        item_font = fonts.get('fantasy_tiny', fonts['small'])
+        item_y = header_y + 30
+        line_height = 32
+        
+        for i, item_data in enumerate(sellable_items[:self.items_per_page]):  # Pagination later
+            current_y = item_y + i * line_height
+            
+            # Create clickable rect
+            item_rect = pygame.Rect(icon_x - 5, current_y - 5,
+                                qty_x - icon_x + 100, line_height)
+            
+            # Hover highlight
+            mouse_pos = pygame.mouse.get_pos()
+            if item_rect.collidepoint(mouse_pos):
+                pygame.draw.rect(surface, CORNFLOWER_BLUE, item_rect)
+            
+            self.sell_item_rects.append((item_rect, i))
+            
+            # Draw item details
+            item_name = item_data['name']
+            
+            # Icon
+            if images and 'item_icons' in images and item_name in images['item_icons']:
+                icon = images['item_icons'][item_name]
+                surface.blit(icon, (icon_x + 5, current_y - 5))
+            else:
+                icon_surface = item_font.render("X", True, WHITE)
+                surface.blit(icon_surface, (icon_x + 10, current_y))
+            
+            # Description
+            desc_surface = item_font.render(item_name, True, WHITE)
+            surface.blit(desc_surface, (desc_x, current_y))
+            
+            # Original value
+            value_surface = item_font.render(str(item_data['base_cost']), True, WHITE)
+            surface.blit(value_surface, (value_x + 10, current_y))
+            
+            # Sell price
+            sell_surface = item_font.render(str(item_data['sell_price']), True, BRIGHT_GREEN)
+            surface.blit(sell_surface, (sell_price_x + 10, current_y))
+            
+            # Quantity
+            qty_surface = item_font.render(str(item_data['quantity']), True, WHITE)
+            surface.blit(qty_surface, (qty_x + 20, current_y))
+        
+        if not sellable_items:
+            no_items_y = content_rect.centery
+            draw_centered_text(surface, f"No items to sell to {merchant_data['merchant_name']}",
+                            fonts['normal'], no_items_y, WHITE)
+
+    def _render_sell_tab(self, surface, content_rect, game_state, fonts, images):
+        """SELL tab - player inventory with buyback pricing"""
+        merchant_data = getattr(game_state, 'current_merchant_data', None)
+        if not merchant_data:
+            return
+        
+        merchant_id = merchant_data.get('merchant_id')
+        
+        # Get merchant config for sell multiplier
+        merchant_config = game_state.item_manager.merchant_data.get('merchants', {}).get(merchant_id, {})
+        sell_multiplier = merchant_config.get('sell_multiplier', 0.4)
+        stock_categories = merchant_config.get('stock_categories', [])
+        
+        # Title
+        title_y = content_rect.y + 10
+        draw_centered_text(surface, f"Sell Items to {merchant_data['merchant_name']}",
+                        fonts.get('fantasy_medium', fonts['normal']), title_y, YELLOW)
+        
+        # Info text
+        info_y = title_y + 35
+        draw_centered_text(surface, f"Buying items at {int(sell_multiplier * 100)}% of value",
+                        fonts.get('fantasy_small', fonts['normal']), info_y, GRAY)
+        
+        # Table headers
+        header_y = info_y + 40
+        header_font = fonts.get('fantasy_small', fonts['normal'])
+        
+        icon_x = content_rect.x + 20
+        desc_x = content_rect.x + 100
+        value_x = content_rect.x + 400
+        sell_price_x = content_rect.x + 500
+        qty_x = content_rect.x + 600
+        cart_x = content_rect.x + 700
+
+        
+        # Draw headers
+        header_surface = header_font.render("Item", True, CYAN)
+        surface.blit(header_surface, (icon_x, header_y))
+        
+        header_surface = header_font.render("Description", True, CYAN)
+        surface.blit(header_surface, (desc_x, header_y))
+        
+        header_surface = header_font.render("Value", True, CYAN)
+        surface.blit(header_surface, (value_x, header_y))
+        
+        header_surface = header_font.render("Sell For", True, CYAN)
+        surface.blit(header_surface, (sell_price_x, header_y))
+        
+        header_surface = header_font.render("Qty", True, CYAN)
+        surface.blit(header_surface, (qty_x, header_y))
+
+        header_surface = header_font.render("Cart", True, CYAN)
+        surface.blit(header_surface, (cart_x, header_y))
+        
+        # Get sellable items from player inventory
+        sellable_items = self._get_sellable_items(game_state, merchant_id, stock_categories, sell_multiplier)
+        
+        # Draw items
+        self.sell_item_rects = []
+        item_font = fonts.get('fantasy_tiny', fonts['small'])
+        item_y = header_y + 30
+        line_height = 32
+        
+        for i, item_data in enumerate(sellable_items[:self.items_per_page]):  # Pagination later
+            current_y = item_y + i * line_height
+            
+            # Create clickable rect
+            item_rect = pygame.Rect(icon_x - 5, current_y - 5,
+                                qty_x - icon_x + 100, line_height)
+            
+            # Hover highlight
+            mouse_pos = pygame.mouse.get_pos()
+            if item_rect.collidepoint(mouse_pos):
+                pygame.draw.rect(surface, CORNFLOWER_BLUE, item_rect)
+            
+            self.sell_item_rects.append((item_rect, i))
+            
+            # Draw item details
+            item_name = item_data['name']
+            
+            # Icon
+            if images and 'item_icons' in images and item_name in images['item_icons']:
+                icon = images['item_icons'][item_name]
+                surface.blit(icon, (icon_x + 5, current_y - 5))
+            else:
+                icon_surface = item_font.render("X", True, WHITE)
+                surface.blit(icon_surface, (icon_x + 10, current_y))
+            
+            # Description
+            desc_surface = item_font.render(item_name, True, WHITE)
+            surface.blit(desc_surface, (desc_x, current_y))
+            
+            # Original value
+            value_surface = item_font.render(str(item_data['base_cost']), True, WHITE)
+            surface.blit(value_surface, (value_x + 10, current_y))
+            
+            # Sell price
+            sell_surface = item_font.render(str(item_data['sell_price']), True, BRIGHT_GREEN)
+            surface.blit(sell_surface, (sell_price_x + 10, current_y))
+            
+            # Quantity
+            qty_surface = item_font.render(str(item_data['quantity']), True, WHITE)
+            surface.blit(qty_surface, (qty_x + 20, current_y))
+
+            #Cart Qty    
+            cart_qty = self.sell_cart.get(item_name, 0)
+            if cart_qty > 0:
+                cart_surface = item_font.render(str(cart_qty), True, BRIGHT_GREEN)
+                surface.blit(cart_surface, (cart_x + 20, current_y))
+
+        
+        if not sellable_items:
+            no_items_y = content_rect.centery
+            draw_centered_text(surface, f"No items to sell to {merchant_data['merchant_name']}",
+                            fonts['normal'], no_items_y, WHITE)
+        
+        # Bottom section - Gold, Cart, Buttons (like BUY tab)
+        bottom_y = content_rect.bottom - 110
+        
+        player_gold = game_state.character.get('gold', 0)
+        
+        # Calculate sell cart total
+        self.sell_cart_total = sum(
+            item_data['sell_price'] * qty 
+            for item_data, qty in [(self._get_item_data_by_name(item_name, sellable_items), qty) 
+                                for item_name, qty in self.sell_cart.items()]
+            if item_data
+        )
+        
+        draw_centered_text(surface, f"Your Gold: {player_gold} gp",
+                        fonts.get('fantasy_medium', fonts['normal']), bottom_y, BRIGHT_GREEN)
+        
+        draw_centered_text(surface, f"Sell Total: +{self.sell_cart_total} gp",
+                        fonts.get('fantasy_small', fonts['normal']), bottom_y + 25, YELLOW)
+        
+        # Action buttons
+        button_y = bottom_y + 60
+        button_width = 100
+        button_spacing = 20
+        
+        total_width = 3 * button_width + 2 * button_spacing
+        start_x = content_rect.x + (content_rect.width - total_width) // 2
+        
+        has_items = len(self.sell_cart) > 0
+        
+        self.button_rects['sell'] = draw_button(
+            surface, start_x, button_y, button_width, 40,
+            "SELL", fonts.get('fantasy_small', fonts['normal']),
+            enabled=has_items)
+        
+        self.button_rects['clear'] = draw_button(
+            surface, start_x + button_width + button_spacing, button_y,
+            button_width, 40, "CLEAR",
+            fonts.get('fantasy_small', fonts['normal']),
+            enabled=has_items)
+        
+        self.button_rects['close'] = draw_button(
+            surface, start_x + 2 * (button_width + button_spacing), button_y,
+            button_width, 40, "CLOSE",
+            fonts.get('fantasy_small', fonts['normal']))
+
+    def _get_item_data_by_name(self, item_name, sellable_items):
+        """Helper to find item data by name"""
+        return next((item for item in sellable_items if item['name'] == item_name), None)
+    
+    def _render_info_tab(self, surface, content_rect, game_state, fonts, images):
+        """
+        INFO tab - Merchant details and lore
+        """
+        merchant_data = getattr(game_state, 'current_merchant_data', None)
+        if not merchant_data:
+            return
+        
+        # Title - Merchant Name
+        title_y = content_rect.y + 10
+        draw_centered_text(surface, merchant_data['merchant_name'],
+                          fonts.get('fantasy_medium', fonts['normal']), title_y, YELLOW)
+        
+        # Greeting
+        greeting_y = content_rect.y + 60
+        greeting = merchant_data.get('greeting', 'Welcome!')
+        draw_centered_text(surface, f'"{greeting}"',
+                          fonts['normal'], greeting_y, WHITE)
+        
+        # Merchant details
+        info_y = content_rect.y + 120
+        
+        merchant_id = merchant_data.get('merchant_id')
+        merchant_config = game_state.item_manager.merchant_data.get('merchants', {}).get(merchant_id, {})
+        
+        # Stock categories
+        categories = merchant_config.get('stock_categories', [])
+        if categories:
+            draw_centered_text(surface, f"Specializes in: {', '.join(categories)}",
+                              fonts['small'], info_y, GRAY)
+        
+        # Buy/sell rates
+        sell_mult = merchant_config.get('sell_multiplier', 0.4)
+        rate_y = info_y + 40
+        draw_centered_text(surface, f"Buys items at {int(sell_mult * 100)}% of value",
+                          fonts['small'], rate_y, GRAY)
+        
+        # Location info (future enhancement)
+        location_y = rate_y + 40
+        draw_centered_text(surface, "More merchant lore coming soon!",
+                          fonts['small'], location_y, DARK_GRAY)
+        
+    def handle_mouse_click(self, mouse_pos):
+        """Handle mouse clicks on the shopping overlay"""
+        print(f"🛒 DEBUG: ShoppingOverlay.handle_mouse_click called with {mouse_pos}")
+        
+        # Let parent handle tab clicks first
+        if super().handle_mouse_click(mouse_pos):
+            print("✅ DEBUG: Tab click handled by parent")
+            return True
+        
+        # Handle button clicks in BUY tab
+        if self.active_tab_index == 0:  # BUY tab
+            print("🛒 DEBUG: In BUY tab, checking buttons")
+            for button_name, button_rect in self.button_rects.items():
+                if button_rect and button_rect.collidepoint(mouse_pos):
+                    print(f"🎯 DEBUG: Button {button_name} clicked!")
+                    if button_name == 'buy':
+                        if hasattr(self, 'screen_manager') and self.screen_manager:
+                            self.screen_manager.event_manager.emit("COMMERCE_PURCHASE", {})
+                    elif button_name == 'reset':
+                        if hasattr(self, 'screen_manager') and self.screen_manager:
+                            self.screen_manager.event_manager.emit("COMMERCE_RESET_CART", {})
+                    elif button_name == 'close':
+                        self._handle_close()
+                    return True
+            
+            # Handle item clicks
+            print(f"🛒 DEBUG: Checking {len(self.merchant_item_rects)} item rects")
+            for item_rect, item_index in self.merchant_item_rects:
+                if item_rect.collidepoint(mouse_pos):
+                    print(f"🎯 DEBUG: Item {item_index} clicked!")
+                    self._handle_item_click(item_index)
+                    return True
+                
+        # Handle SELL tab clicks (COMBINED - remove the duplicate!)
+        elif self.active_tab_index == 1:  # SELL tab
+            print("🛒 DEBUG: In SELL tab")
+            
+            # FIRST: Check buttons
+            print("🛒 DEBUG: Checking buttons")
+            for button_name, button_rect in self.button_rects.items():
+                if button_rect and button_rect.collidepoint(mouse_pos):
+                    print(f"🎯 DEBUG: SELL Button {button_name} clicked!")
+                    if button_name == 'sell':
+                        self._process_sell_cart()
+                        return True
+                    elif button_name == 'clear':
+                        self.sell_cart.clear()
+                        print("🛒 Sell cart cleared")
+                        return True
+                    elif button_name == 'close':
+                        self._handle_close()
+                        return True
+            
+            # SECOND: Check item clicks
+            print("🛒 DEBUG: In SELL tab, checking sell items")
+            print(f"🛒 DEBUG: Checking {len(self.sell_item_rects)} sell item rects")
+            for item_rect, item_index in self.sell_item_rects:
+                if item_rect.collidepoint(mouse_pos):
+                    print(f"🎯 DEBUG: Sell item {item_index} clicked!")
+                    self._handle_sell_item_click(item_index)
+                    return True
+        
+        print("❌ DEBUG: No click handled")
+        return False
+
+    def _handle_item_click(self, item_index):
+        """Handle clicking on an item"""
+        if hasattr(self, 'screen_manager') and self.screen_manager:
+            game_state = self.screen_manager._current_game_controller.game_state
+            merchant_data = getattr(game_state, 'current_merchant_data', None)
+            
+            if merchant_data:
+                items = merchant_data.get('items', [])
+                if 0 <= item_index < len(items):
+                    clicked_item = items[item_index]
+                    item_id = clicked_item.get('item_id')
+                    merchant_id = merchant_data.get('merchant_id')
+                    
+                    # Add to cart via commerce engine
+                    from game_logic.commerce_engine import get_commerce_engine
+                    commerce = get_commerce_engine()
+                    
+                    # Check stock first
+                    stock_status = commerce.get_stock_status(item_id, merchant_id)
+                    if stock_status['remaining'] <= 0:
+                        print(f"⚠️ {clicked_item.get('name', item_id)} is out of stock!")
+                        return
+                    
+                    commerce.add_to_cart(item_id, merchant_id)
+                    print(f"🛒 Added {clicked_item.get('name')} to cart")
+
+    def _handle_sell_item_click(self, item_index):
+        """Handle clicking on an item to add to sell cart"""
+        game_state = self.screen_manager._current_game_controller.game_state
+        merchant_data = getattr(game_state, 'current_merchant_data', None)
+        
+        if merchant_data:
+            merchant_id = merchant_data.get('merchant_id')
+            merchant_config = game_state.item_manager.merchant_data.get('merchants', {}).get(merchant_id, {})
+            sell_multiplier = merchant_config.get('sell_multiplier', 0.4)
+            buy_categories = merchant_config.get('buy_categories', merchant_config.get('stock_categories', []))
+            
+            sellable_items = self._get_sellable_items(game_state, merchant_id, buy_categories, sell_multiplier)
+            
+            if 0 <= item_index < len(sellable_items):
+                item_data = sellable_items[item_index]
+                item_name = item_data['name']
+                
+                # Add to sell cart (max = owned quantity)
+                max_qty = item_data['quantity']
+                current_in_cart = self.sell_cart.get(item_name, 0)
+                
+                if current_in_cart < max_qty:
+                    self.sell_cart[item_name] = current_in_cart + 1
+                    print(f"🛒 Added {item_name} to sell cart ({self.sell_cart[item_name]}/{max_qty})")
+                else:
+                    print(f"⚠️ Already have all {item_name} in sell cart")
+
+    def _get_sellable_items(self, game_state, merchant_id, buy_categories, sell_multiplier):
+        """Get items from player inventory that this merchant will buy"""
+        sellable = []
+        
+        # Get all player inventory items
+        from collections import Counter
+        all_items = []
+        for category in ['weapons', 'armor', 'items', 'consumables']:
+            items_in_category = game_state.inventory.get(category, [])
+            all_items.extend(items_in_category)
+        
+        # Count quantities
+        item_counts = Counter(all_items)
+        
+        # Check each unique item
+        for item_name, quantity in item_counts.items():
+            # Get item definition
+            item_def = game_state.item_manager.get_item_by_name(item_name)
+            if not item_def:
+                continue
+            
+            item_category = item_def.get('category', 'items')
+            
+            # RESTRICTION: Check if merchant buys this category
+            if item_category not in buy_categories:
+                continue  # Skip items this merchant won't buy
+            
+            # RESTRICTION: Skip quest items
+            if item_def.get('quest_item', False):
+                continue
+            
+            base_cost = item_def.get('base_cost', item_def.get('cost', 1))
+            sell_price = max(1, int(base_cost * sell_multiplier))
+            
+            sellable.append({
+                'name': item_name,
+                'item_id': item_def.get('id', item_name.lower().replace(' ', '_')),
+                'base_cost': base_cost,
+                'sell_price': sell_price,
+                'quantity': quantity,
+                'category': item_category
+            })
+        
+        return sellable
+
+    def _process_sell_cart(self):
+        """Process the sell cart - actually sell the items"""
+        if not self.sell_cart:
+            return
+        
+        game_state = self.screen_manager._current_game_controller.game_state
+        merchant_data = getattr(game_state, 'current_merchant_data', None)
+        if not merchant_data:
+            return
+        
+        merchant_id = merchant_data.get('merchant_id')
+        merchant_config = game_state.item_manager.merchant_data.get('merchants', {}).get(merchant_id, {})
+        sell_multiplier = merchant_config.get('sell_multiplier', 0.4)
+        buy_categories = merchant_config.get('buy_categories', [])
+        
+        total_gold = 0
+        items_sold = 0
+        
+       # Process each item in sell cart
+        for item_name, qty in self.sell_cart.items():
+            # Get item definition for base cost
+            item_def = game_state.item_manager.get_item_by_name(item_name)
+            if not item_def:
+                continue
+            
+            base_cost = item_def.get('base_cost', item_def.get('cost', 1))
+            
+            # FIXED: Calculate total value first, THEN convert to int
+            total_item_value = base_cost * qty * sell_multiplier
+            item_gold = max(1, int(total_item_value))  # Minimum 1 gold for any sale
+            
+            # Remove from inventory
+            for category in ['weapons', 'armor', 'items', 'consumables']:
+                inventory_items = game_state.inventory.get(category, [])
+                for _ in range(qty):
+                    if item_name in inventory_items:
+                        inventory_items.remove(item_name)
+                        items_sold += 1
+            
+            total_gold += item_gold
+            print(f"💰 Sold {qty} {item_name} for {item_gold} gold (base: {base_cost}, multiplier: {sell_multiplier})")
+        
+        # Add gold to player
+        game_state.character['gold'] += total_gold
+        
+        # Clear sell cart
+        self.sell_cart.clear()
+        
+        print(f"💰 Total: Sold {items_sold} items for {total_gold} gold")
+
+    def _handle_close(self):
+        """Handle closing the overlay"""
+        if hasattr(self, 'screen_manager') and self.screen_manager:
+            game_state = self.screen_manager._current_game_controller.game_state
+            return_dialogue = getattr(game_state, 'shopping_return_dialogue', 'broken_blade_garrick')
+            
+            self.screen_manager.event_manager.emit("SCREEN_CHANGE", {
+                'target_screen': return_dialogue,
+                'source_screen': "merchant_shop"
+            })        
+
+###  Keep for fallback, Need to be moved to utils/graphics.py ###
 def draw_border(surface, x, y, width, height):
     """Draw a chunky retro border"""
     pygame.draw.rect(surface, WHITE, (x, y, width, height), 3)
     pygame.draw.rect(surface, GRAY, (x+3, y+3, width-6, height-6), 2)
-
+###  Keep for fallback, Need to be moved to utils/graphics.py ###
 def draw_button(surface, x, y, width, height, text, font, pressed=False, selected=False, enabled=True):
     """Draw a retro-style button"""
     if not enabled:
@@ -54,7 +802,7 @@ def draw_button(surface, x, y, width, height, text, font, pressed=False, selecte
     surface.blit(text_surface, text_rect)
     
     return pygame.Rect(x, y, width, height) if enabled else None
-
+###  Keep for fallback, Need to be moved to utils/graphics.py ###
 def draw_centered_text(surface, text, font, y_position, color=WHITE, screen_width=1024):
     """Draw text centered horizontally on the screen"""
     text_surface = font.render(text, True, color)
@@ -62,9 +810,10 @@ def draw_centered_text(surface, text, font, y_position, color=WHITE, screen_widt
     surface.blit(text_surface, text_rect)
     return text_rect
 
+###  TODO Keep for fallback until overlay is finised, then remove  ###
 def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None):
     """
-    Table-style merchant screen matching the mockup design
+    Table-style merchant screen matching the mockup design-- removew after overlay
     """
     # Extract merchant_id from merchant_data
     merchant_id = merchant_data.get('merchant_id')
@@ -135,6 +884,19 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
     
     for i, item in enumerate(merchant_data['items']):
         current_y = item_y + i * line_height
+    
+        # Create rectangle for hover detection
+        item_rect = pygame.Rect(icon_x - 5, current_y - 5, 
+                                purchase_x - icon_x + 100, line_height)
+        
+        # Check if mouse hovering
+        mouse_pos = pygame.mouse.get_pos()
+        is_hovering = item_rect.collidepoint(mouse_pos)
+        
+        # Draw blue selection highlight
+        if is_hovering:
+            
+            pygame.draw.rect(surface, CORNFLOWER_BLUE, item_rect)
         
         # Draw item icon
         if images and 'item_icons' in images and item['name'] in images['item_icons']:
@@ -154,7 +916,7 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
         surface.blit(cost_surface, (cost_x + 10, current_y))
 
         # Get all stock info from the Commerce Engine
-        stock_info = commerce.get_stock_status(item['name'], merchant_id)
+        stock_info = commerce.get_stock_status(item['item_id'], merchant_id)
 
         # Available quantity - each item has limited stock (Hardcoded)
         qty_available = stock_info['available']
@@ -306,11 +1068,12 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
     
     return merchant_item_rects, buy_button, reset_button, back_button
 
+# Phase 2 (LATER): Clean up
+# Move draw_border, draw_button, draw_centered_text to utils/graphics.py
+# Remove draw_merchant_screen()
+# Remove register_shop_screens()
 
-# ==========================================
-# SCREEN REGISTRATION FUNCTIONS (NEW ARCHITECTURE)
-# ==========================================
-
+###  TODO Keep for fallback until overlay is finised, then remove  ###
 def register_shop_screens(controller):
     """
     Register all shop-related screens with the controller.
@@ -329,7 +1092,7 @@ def register_shop_screens(controller):
         print(f"  ✅ Registered: {screen_name}")
     
     print("🏪 Shop screens registered!")
-
+###  TODO Keep for fallback until overlay is finised, then remove  ###
 def render_merchant_shop(surface, game_state, fonts, images, controller):
     """
     Render function for merchant shops - handles all the data loading logic.
@@ -366,4 +1129,60 @@ def render_merchant_shop(surface, game_state, fonts, images, controller):
     font = fonts.get('normal', fonts['normal'])
     text = font.render(f"Shop Error: {merchant_id}", True, (255, 255, 255))
     surface.blit(text, (100, 100))
+    return False
+
+# ==========================================
+# COMPATIBILITY LAYER (ADD AT THE VERY END)
+# ==========================================
+
+# Global instance management
+shopping_overlay_instance = None
+
+def get_shopping_overlay():
+    """Get the global shopping overlay instance"""
+    global shopping_overlay_instance
+    if shopping_overlay_instance is None:
+        shopping_overlay_instance = ShoppingOverlay()
+    return shopping_overlay_instance
+
+def draw_shopping_overlay(surface, game_state, fonts, images=None):
+    """
+    REQUIRED: Compatibility function for ScreenManager
+    MUST match this exact signature
+    """
+    overlay = get_shopping_overlay()
+    
+    # Register with input handler on first render
+    if not getattr(overlay, '_input_registered', False):
+        try:
+            import inspect
+            frame = inspect.currentframe().f_back
+            if frame and 'self' in frame.f_locals:
+                screen_manager = frame.f_locals['self']
+                if hasattr(screen_manager, 'input_handler'):
+                    overlay.screen_manager = screen_manager
+                    overlay._register_with_input_handler()
+                    overlay._input_registered = True
+        except:
+            overlay._input_registered = True
+    
+    overlay.render(surface, game_state, fonts, images)
+    return None
+
+def handle_shopping_click(mouse_pos, result):
+    """
+    REQUIRED: Compatibility function for mouse handling
+    MUST match this exact signature
+    """
+    overlay = get_shopping_overlay()
+    return overlay.handle_mouse_click(mouse_pos)
+
+def handle_shopping_keyboard_input(key, game_state):
+    """
+    REQUIRED: Compatibility function for keyboard handling
+    MUST match this exact signature
+    """
+    if game_state.screen == "merchant_shop":
+        overlay = get_shopping_overlay()
+        return overlay.handle_keyboard_input(key)
     return False

@@ -202,6 +202,8 @@ class GameController:
         self.dialogue_engine = initialize_dialogue_engine(self.game_state, self.event_manager)
         self.quest_engine = initialize_quest_engine(self.game_state, self.event_manager)
 
+        self.commerce_engine.register_event_handlers(self.event_manager)
+        
         # Register engines as services in EventManager
         self.event_manager.register_service('dialogue_engine', self.dialogue_engine)
         self.event_manager.register_service('commerce_engine', self.commerce_engine)

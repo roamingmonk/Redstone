@@ -1103,6 +1103,47 @@ Files Modified
 game_logic/dialogue_engine.py - Screen naming logic
 main.py - Event handler method call
 
+# ADR-068: Shopping System Integration via Event-Driven Architecture
+# Status: Partially Complete
+# Date: September 15, 2025
+**Decision:** Implement shopping integration using event-driven architecture with OPEN_SHOPPING events triggered by dialogue effects, maintaining clean separation between dialogue, commerce, and UI systems.
+Implementation: DialogueEngine processes open_shop effects and emits OPEN_SHOPPING events. ScreenManager handles screen transitions and coordinates merchant data loading from ItemManager. CommerceEngine handles business logic via COMMERCE_* events.
+**Result:** Shopping screen successfully renders with proper merchant data. Dialogue → shopping flow functional. Architecture maintains single responsibility principle with proper event routing.
+Remaining: Button functionality, overlay conversion, UI polish.
+
+
+# ADR-069: Shopping System Event-Driven Integration
+# Status: Implemented
+# Date: September 15, 2025
+**Decision:** Implement shopping system using event-driven architecture with dialogue effects triggering OPEN_SHOPPING events, JSON-driven merchant filtering, and proper separation of concerns.
+Problem: Legacy shopping.py existed but wasn't integrated. ItemManager methods didn't match expected interfaces. CommerceEngine hardcoded merchant references.
+**Solution:**
+DialogueEngine processes open_shop effects and emits OPEN_SHOPPING events
+ScreenManager loads merchant configuration from JSON and filters items using include_ids
+CommerceEngine accesses pre-filtered merchant data from GameState
+Shopping screen renders as full screen with proper merchant inventory display
+**Implementation:** Created complete event chain from dialogue choice to functional shopping screen. Eliminated hardcoded merchant references. Established JSON-first merchant configuration workflow.
+Result: Functional shopping integration displaying filtered inventory (Strong Ale, Torch, Trail Rations) with proper merchant data structure. Foundation established for complete commerce system.
+**Technical Debt:** Item interaction, purchase processing, and overlay conversion remain for next phase.
+Files Modified: ui/screen_manager.py, game_logic/commerce_engine.py, data/dialogues/broken_blade_garrick.json, data/merchants.json
+
+
+# ADR-070: Tabbed Shopping System
+# Status: Implemented
+**Date: December 2024**
+**Context:** Single-screen shopping interface couldn't scale to support selling mechanics and became inconsistent with other overlay systems in the game.
+**Decision:** Implement tabbed shopping system using BaseTabbedOverlay framework with persistent merchant stock tracking and category-based commerce restrictions.
+**Implementation:**
+Converted shopping system to three-tab overlay (BUY/SELL/INFO)
+Added GameState.merchant_stocks for exploit prevention
+Implemented category-based buying restrictions per merchant type
+Created cart-based selling system matching purchase UX
+**Consequences:**
+Positive: Unified overlay experience, prevents infinite buying exploits, enables merchant specialization, provides foundation for commerce expansion
+Negative: Increased system complexity, required InputHandler modifications for screen-specific overlay routing
+Architecture: Eliminated register_shopping_screen_clickables() and related methods, established pattern for future merchant implementations
+
+
 
 ```
 ## ADR-XXX: <Short title>

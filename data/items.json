@@ -362,7 +362,7 @@
       "id": "trail_rations",
       "name": "Trail Rations",
       "description": "Nourishing food for the road.",
-      "base_cost": 1,
+      "base_cost": 10,
       "category": "consumables",
       "icon_file": "trail_rations.png",
       "consumable": true,

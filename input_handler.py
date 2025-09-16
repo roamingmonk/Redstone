@@ -214,6 +214,15 @@ class InputHandler:
         if self._handle_location_action_events(mouse_pos, current_screen):
             return True
 
+        #  Handle screen-specific overlays (like merchant_shop)
+        if current_screen == "merchant_shop":
+            # Check if the shopping overlay is registered
+            for state_flag, overlay_instance in self.overlay_registry.items():
+                if overlay_instance.overlay_id == "merchant_shop":
+                    if overlay_instance.handle_mouse_click(mouse_pos):
+                        return True
+                    break
+
         # Check clickable regions for current screen
         if current_screen in self.clickable_regions:
             regions = self.clickable_regions[current_screen]
@@ -249,10 +258,11 @@ class InputHandler:
             if self.debug_input:
                 print(f"⚠️  No clickable regions registered for screen: {current_screen}")
         
+    
         # Handle dialogue state input
         if self._handle_dialogue_state_input(mouse_pos):
             return True
-                
+
         # Universal overlay input handling 
         if self._handle_registered_overlay_input(mouse_pos):
             return True
@@ -522,6 +532,15 @@ class InputHandler:
         # PRIORITY 5: Handle dialogue keyboard input
         if self._handle_dialogue_keyboard_input(event.key, game_state):
             return True
+
+        #Handle screen-specific overlay keyboard input
+        current_screen = game_state.screen
+        if current_screen == "merchant_shop":
+            for state_flag, overlay_instance in self.overlay_registry.items():
+                if overlay_instance.overlay_id == "merchant_shop":
+                    if overlay_instance.handle_keyboard_input(event.key):
+                        return True
+                    break
 
         return True  # Continue running
     
