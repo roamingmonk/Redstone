@@ -80,7 +80,7 @@ class DialogueEngine:
         in_progress = getattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
 
         if in_progress and stored_state:
-            print(f"DEBUG: DE: GCDS: Using stored dialogue state: {stored_state}")
+            #print(f"DEBUG: DE: GCDS: Using stored dialogue state: {stored_state}")
             return stored_state        
         
         # Use narrative schema dialogue state mapping
@@ -507,7 +507,7 @@ class DialogueEngine:
             # Process effects immediately when choice is selected
             effects_processed = []
             for effect in selected_choice.get('effects', []):
-                effect_result = self._apply_dialogue_effect(effect)
+                effect_result = self._apply_dialogue_effect(effect, npc_id)
                 if effect_result:
                     effects_processed.append(effect_result)
 
@@ -566,7 +566,7 @@ class DialogueEngine:
             traceback.print_exc()
             return {'response': ["Something went wrong."], 'effects': []}
     
-    def _apply_dialogue_effect(self, effect: Dict[str, Any]) -> Optional[str]:
+    def _apply_dialogue_effect(self, effect: Dict[str, Any], npc_id: str = None) -> Optional[str]:
         """Apply dialogue choice effects to GameState with robust error handling"""
         
         # Add defensive checks at the start
@@ -612,7 +612,26 @@ class DialogueEngine:
             if location and location not in self.game_state.locations_discovered:
                 self.game_state.locations_discovered.append(location)
                 return f"Discovered location: {location}"
+       
+        elif effect_type == 'open_shop':
+            merchant_id = effect.get('merchant_id')
+            if not merchant_id:
+                print(f"WARNING: open_shop effect missing merchant_id: {effect}")
+                return None
+            
+            if self.event_manager:
+                self.event_manager.emit('OPEN_SHOPPING', {
+                    'merchant_id': merchant_id,
+                    'source_location': getattr(self.game_state, f'{npc_id}_current_location', 'broken_blade')
+                })
+                return f"Opening shop for {merchant_id}"
+            
+            return None
         
+        return None
+
+
+
         return None
 
     def _check_option_requirements(self, option: Dict[str, Any]) -> bool:

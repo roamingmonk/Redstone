@@ -58,7 +58,7 @@ class DataManager:
         self.character_engine = initialize_character_engine(game_state_ref, event_manager)  # Fixed typo
         self.inventory_engine = initialize_inventory_engine(game_state_ref, self.item_manager)
         self.commerce_engine = initialize_commerce_engine(game_state_ref, self.item_manager) 
-        self.dialogue_engine = initialize_dialogue_engine(game_state_ref)
+        self.dialogue_engine = initialize_dialogue_engine(game_state_ref, event_manager)
         #self.quest_engine = initialize_dialogue_engine(game_state_ref)
 
         print("DataManager: All engines initialized successfully")
@@ -209,20 +209,19 @@ class DataManager:
             'items': self.item_manager,
             'npcs': self.npc_manager, 
             'locations': self.location_manager,
-            'dialogue': self.dialogue_engine,
+            #'dialogue': self.dialogue_engine,
         }
         
-        if manager_type not in manager_map:
-            print(f"❌ DataManager: Unknown manager type: {manager_type}")
-            print(f"DEBUG: DataManager: Trying to get sub-manager of type: {manager_type}")
+        if manager_type in manager_map:
+            manager = manager_map[manager_type]
+            if manager:
+                return manager
+            else:
+                print(f"⚠️ Manager '{manager_type}' is None")
+                return None
+        else:
+            print(f"⚠️ Unknown manager type: {manager_type}")
             return None
-        
-        manager = manager_map[manager_type]
-        if manager is None:
-            print(f"❌ DataManager: Manager '{manager_type}' not initialized")
-            return None
-        
-        return manager
     
     def emergency_fallback(self) -> Dict[str, Any]:
         """

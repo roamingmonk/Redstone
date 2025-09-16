@@ -66,6 +66,13 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
     """
     Table-style merchant screen matching the mockup design
     """
+    # Extract merchant_id from merchant_data
+    merchant_id = merchant_data.get('merchant_id')
+    
+    if not merchant_id:
+        print("ERROR: No merchant_id found in merchant_data")
+        return  # or handle error appropriately
+    
     commerce = get_commerce_engine()
     surface.fill(BLACK)
     
@@ -147,7 +154,7 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
         surface.blit(cost_surface, (cost_x + 10, current_y))
 
         # Get all stock info from the Commerce Engine
-        stock_info = commerce.get_stock_status(item['name'])
+        stock_info = commerce.get_stock_status(item['name'], merchant_id)
 
         # Available quantity - each item has limited stock (Hardcoded)
         qty_available = stock_info['available']
@@ -237,7 +244,7 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
     #cart_total = game_state.get_cart_total(merchant_data)
     
     #New pull from Commerce Engine
-    cart_total = commerce.get_cart_total()
+    cart_total = commerce.get_cart_total(merchant_id)
 
 
     draw_centered_text(surface, f"Your Gold: {player_gold} gp", 
@@ -267,10 +274,10 @@ def draw_merchant_screen(surface, game_state, fonts, merchant_data, images=None)
     #has_items_in_cart = cart_total > 0
 
     # Get cart_total from the engine as you do now
-    cart_total = commerce.get_cart_total()
+    cart_total = commerce.get_cart_total(merchant_id)
 
     # Check if player can afford cart using the engine's logic
-    can_afford = commerce.can_afford_cart()
+    can_afford = commerce.can_afford_cart(merchant_id)
     has_items_in_cart = cart_total > 0
 
     buy_button = draw_button(surface, start_x, button_y, button_width, button_height,

@@ -34,6 +34,16 @@ class ItemLoader:
         self.load_item_icons()
         print("DEBUG: ItemLoader initialization complete (load_data)")  
 
+    def _normalize_category(self, raw: str) -> str:
+        mapping = {
+            'potion': 'consumables',
+            'consumables': 'consumables',
+            'weapons': 'weapons',
+            'armor': 'armor',
+            'items': 'items'
+        }
+        return mapping.get(raw, 'items')
+
     def load_items(self):
         """Load all item definitions from JSON data file"""
         try:
@@ -124,31 +134,44 @@ class ItemLoader:
         """Get the icon surface for a specific item"""
         return self.item_icons.get(item_id, self.create_placeholder_icon())
 
-    def get_item_price(self, item_id, merchant_modifier=1.0):
-        """Calculate final price with merchant modifier"""
-        #print(f"DEBUG: get_item_price called with item_id='{item_id}', modifier={merchant_modifier}")
+    def get_item_price(self, item_id, merchant=None, merchant_modifier: float = 1.0) -> int:
+        """
+        Calculate final price with optional merchant context.
+        Honors per-item price_overrides if present on the merchant.
+        """
         item = self.get_item_by_id(item_id)
-        #print(f"DEBUG: get_item_by_id returned: {item}")
-        if item:
-            # Handle both 'base_cost' and 'cost' field names
-            base_price = item.get('base_cost') or item.get('cost') or 0
-        #    print(f"DEBUG: base_price extracted: {base_price} (type: {type(base_price)})")
-            final_price = int(base_price * merchant_modifier)
-        #    print(f"DEBUG: final calculated price: {final_price}")
-            return final_price
-        #print("DEBUG: item was None, returning 0")
-        return 0
+        if not item:
+            return 0
+
+        base = item.get('base_cost') or item.get('cost') or 0
+
+        # Merchant-aware path
+        if merchant:
+            # Optional: explicit override for a specific item
+            overrides = merchant.get('price_overrides', {})
+            if item_id in overrides:
+                return int(overrides[item_id])
+
+            # Otherwise apply the merchant's modifier (or provided fallback)
+            mod = float(merchant.get('price_modifier', merchant_modifier))
+            return int(round(base * mod))
+
+        # Fallback: no merchant provided, just apply given modifier
+        return int(round(base * merchant_modifier))
+
 
     def get_merchant_pricing(self, merchant_type="standard"):
         """Get pricing modifier for different merchant types"""
         modifiers = {
-            "standard": 1.0,      # Tavern, city merchants
-            "remote": 1.3,        # Remote village traders  
-            "specialty": 1.2,     # Weapon/armor specialists
-            "black_market": 0.8,  # Shady dealers (cheaper but risky)
-            "emergency": 2.0      # Disaster/siege pricing
+            "standard": 1.0,
+            "tavern_keeper": 1.0,   # Garrick’s type
+            "remote": 1.3,
+            "specialty": 1.2,
+            "black_market": 0.8,
+            "emergency": 2.0
         }
         return modifiers.get(merchant_type, 1.0)
+
     
     def load_merchant_data(self):
         """Load merchant configurations from JSON"""
@@ -165,37 +188,72 @@ class ItemLoader:
         except json.JSONDecodeError as e:
             self.merchant_data = {"merchants": {}}
 
-    def get_merchant_inventory(self, merchant_id):
-        """Get inventory for a specific merchant"""
-       # print(f"DEBUG: Looking for merchant_id: '{merchant_id}'")
-       # print(f"DEBUG: Available merchants: {list(self.merchant_data.get('merchants', {}).keys())}")
-        
-        merchant = self.merchant_data.get('merchants', {}).get(merchant_id)
-       # print(f"DEBUG: Found merchant data: {merchant}")
-        
-        if not merchant:
-        #    print(f"DEBUG: Merchant '{merchant_id}' not found!")
-            return None
-        
-        formatted_items = []
-        for item_id in merchant['stock_items']:
-            item = self.get_item_by_id(item_id)
-            if item:
-                final_cost = self.get_item_price(item_id, merchant['price_modifier'])
-                formatted_items.append({
-                    'name': item['name'],
-                    'cost': final_cost,
-                    'type': item['category'],
-                    'description': item['description'],
-                    'item_id': item['id']
-                })
-        
-        return {
-            'merchant_name': merchant['name'],
-            'greeting': merchant['greeting'],
-            'items': formatted_items
-        }
+def get_merchant_inventory(self, merchant_id):
+    """
+    Materialize a merchant's inventory from declarative config
+    """
+    merchant = self.merchant_data.get('merchants', {}).get(merchant_id)
+    if not merchant:
+        print(f"❌ No merchant found for ID: {merchant_id}")
+        return None
+
+    # Build candidate item ids from filters
+    include_ids = set(merchant.get('stock_filter', {}).get('include_ids', []))
+    print(f"🔧 Merchant {merchant_id} include_ids: {include_ids}")
+    allowed_cats = set(merchant.get('stock_categories', []))
+    max_rarity = merchant.get('stock_filter', {}).get('max_rarity')
+
+    # Collect items - prioritize include_ids over categories
+    candidates = []
+    seen = set()
     
+    for item in self.get_all_items():
+        if item['id'] in seen:
+            continue
+            
+        # If include_ids is specified, ONLY use those items
+        if include_ids:
+            if item['id'] in include_ids:
+                candidates.append(item)
+                seen.add(item['id'])
+                print(f"✅ Included specific item: {item['id']}")
+        # Otherwise fall back to category filtering
+        elif allowed_cats and item.get('category') in allowed_cats:
+            candidates.append(item)
+            seen.add(item['id'])
+            print(f"✅ Included category item: {item['id']}")
+
+    print(f"🔧 Final filtered items: {[item['id'] for item in candidates]}")
+
+    # Rest of the method for pricing and formatting...
+    mtype = merchant.get('merchant_type', 'standard')
+    fallback_modifier = self.get_merchant_pricing(mtype)
+    default_stock = int(merchant.get('default_stock_quantity', 5))
+    stock_over = merchant.get('stock_overrides', {})
+
+    formatted_items = []
+    for item in candidates:
+        item_id = item['id']
+        cat = self._normalize_category(item.get('category', 'items'))
+        price = self.get_item_price(item_id, merchant=merchant, merchant_modifier=fallback_modifier)
+        formatted_items.append({
+            'item_id': item_id,
+            'name': item['name'],
+            'type': cat,
+            'description': item.get('description', ''),
+            'cost': price,
+            'stock': int(stock_over.get(item_id, default_stock)),
+        })
+
+    return {
+        'merchant_id': merchant_id,
+        'merchant_name': merchant.get('name', merchant_id),
+        'greeting': merchant.get('greeting', ''),
+        'price_modifier': float(merchant.get('price_modifier', fallback_modifier)),
+        'default_stock_quantity': default_stock,
+        'items': formatted_items
+    }
+   
 
 # Global item manager instance
 item_manager = ItemLoader()

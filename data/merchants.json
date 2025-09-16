@@ -1,16 +1,26 @@
 {
   "merchants": {
-    "garrick_barkeep": {
-      "name": "Garrick the Barkeep",
-      "greeting": "What can I get for you? I keep basic adventuring gear in stock:",
+    "garrick": {
+      "merchant_id": "garrick",
+      "name": "Garrick Ironbrew",
+      "location": "broken_blade", 
+      "greeting": "What can I get for ye, traveler?",
+      "merchant_type": "tavern_keeper",
       "price_modifier": 1.0,
-      "stock_items": ["strong_ale", "trail_rations", "hemp_rope", "torch"]
-    },
-    "jenna_general_store": {
-      "name": "Jenna Hemperstop",
-      "greeting": "Greetings, traveler. I have a bit of everything to aid in your journey:",
-      "price_modifier": 1.0,
-      "stock_items": ["strong_ale", "trail_rations", "hemp_rope", "torch"]
+      "sell_multiplier": 0.4,
+      "stock_categories": ["items"],
+      "stock_filter": {
+        "include_ids": ["strong_ale", "trail_rations", "torch"],
+        "max_rarity": "common"
+      },
+      "default_stock_quantity": 5,
+      "price_overrides": {
+        "strong_ale": 2
+      },
+      "stock_overrides": {
+        "strong_ale": 20,
+        "bedroll": 2
+      }  
     }
   }
 }

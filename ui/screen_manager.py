@@ -65,6 +65,9 @@ class ScreenManager:
             event_manager.register("SCREEN_CHANGE", self._handle_screen_change_event)
             event_manager.register("SCREEN_ADVANCE", self._handle_screen_advance_event)
             event_manager.register("DIALOGUE_ENDED", self._handle_dialogue_ended)
+            event_manager.register("OPEN_SHOPPING", self._handle_open_shopping)
+            event_manager.register("SHOPPING_BACK", self._handle_shopping_back)
+            
             # Register direct navigation events
             # This direct system is simple and not the same input system as subsequent screens
             # Plan to use the screen manager route map for more complex flows
@@ -128,8 +131,6 @@ class ScreenManager:
         event_type = event_data.get("event_type")
         if screen and event_type:
             self.register_full_screen_clickable(screen, event_type)
-
-
 
     def register_full_screen_clickable(self, screen_name, event_type):
         """Dynamically register full-screen clickable"""
@@ -618,15 +619,128 @@ class ScreenManager:
             
             print("⚠️ Low stats confirmation clickables registered")
 
+    def _handle_open_shopping(self, event_data):
+        """Handle OPEN_SHOPPING events from dialogue system"""
+        print(f"📺 ScreenManager: _handle_open_shopping called with: {event_data}")
+        
+        merchant_id = event_data.get('merchant_id')
+        source_location = event_data.get('source_location', 'broken_blade')
+        
+        print(f"🛒 Opening shopping for merchant: {merchant_id}")
 
-    # def register_inventory_screen_clickables(self):
-    #     """Register clickable areas for inventory screen"""
-    #     if hasattr(self, 'input_handler') and self.input_handler:
-    #         self.input_handler.clear_clickables('inventory')
-    #         # For now, just register ESC to close - you can add specific inventory buttons later
-    #         print("📦 Inventory screen clickables registered")
-    #     else:
-    #         print("⚠️ No InputHandler available for inventory screen")
+        # Get merchant data from ItemManager
+        data_manager = self._current_game_controller.data_manager
+        if data_manager:
+            item_manager = data_manager.get_manager('items')
+            if item_manager:
+                # Load merchant configuration if not already loaded
+                if not hasattr(item_manager, 'merchant_data') or not item_manager.merchant_data:
+                    item_manager.load_merchant_data()
+                
+                # Get the merchant config from merchants.json
+                merchant_config = item_manager.merchant_data.get('merchants', {}).get(merchant_id)
+                
+                if merchant_config:
+                    # Use the include_ids from the JSON config
+                    include_ids = merchant_config.get('stock_filter', {}).get('include_ids', [])
+                    all_items = item_manager.get_merchant_items()
+                    
+                    # Filter using the JSON configuration
+                    merchant_items = []
+                    for item in all_items:
+                        if item.get('id') in include_ids:
+                            merchant_items.append({
+                                'name': item.get('name'),
+                                'description': item.get('description'), 
+                                'cost': item.get('base_cost', 1),
+                                'item_id': item.get('id')
+                            })
+                    
+                    # Create the merchant data structure
+                    merchant_data = {
+                        'merchant_id': merchant_id,
+                        'merchant_name': merchant_config.get('name', merchant_id),
+                        'items': merchant_items
+                    }
+                    
+                    # Store merchant data in game state
+                    game_state = self._current_game_controller.game_state
+                    setattr(game_state, 'current_merchant_data', merchant_data)
+                    setattr(game_state, 'current_merchant_id', merchant_id)
+                    setattr(game_state, 'shopping_return_dialogue', f"{source_location}_{merchant_id}")
+                    
+                    # Use the same event structure as other screen changes
+                    self.event_manager.emit("SCREEN_CHANGE", {
+                        'target_screen': "merchant_shop",
+                        'source_screen': source_location
+                    })
+                    return
+                else:
+                    print(f"❌ No merchant config found for {merchant_id}")
+            else:
+                print("❌ No item_manager found")
+        else:
+            print("❌ No data_manager found")
+        
+        print(f"❌ Failed to open shop for {merchant_id}")
+
+    def _render_merchant_shop(self, surface, game_state, fonts, images, controller):
+        """Render wrapper for merchant shop screen"""
+        merchant_data = getattr(game_state, 'current_merchant_data', None)
+        print(f"🔧 Merchant data type: {type(merchant_data)}")
+        print(f"🔧 Merchant data content: {merchant_data}")
+
+        # Check if data is in the correct format (dict, not list)
+        if merchant_data and isinstance(merchant_data, dict):
+            from ui.shopping_overlay import draw_merchant_screen
+            
+            # Draw the screen and capture button rectangles
+            result = draw_merchant_screen(surface, game_state, fonts, merchant_data, images)
+            print(f"🔧 Draw function returned: {type(result)}")
+
+            # Register clickable areas if we got button rectangles back
+            if isinstance(result, tuple) and len(result) == 4:
+                merchant_item_rects, buy_button, reset_button, back_button = result
+                print(f"🔧 Button rects - Buy: {buy_button}, Reset: {reset_button}, Back: {back_button}")
+            
+                # Register buttons as clickable
+                if buy_button:
+                    self.input_handler.register_clickable(
+                        screen_name="merchant_shop", rect=buy_button,
+                        event_type="COMMERCE_PURCHASE", event_data={'action': 'buy'})
+                if reset_button:
+                    self.input_handler.register_clickable(
+                        screen_name="merchant_shop", rect=reset_button,
+                        event_type="COMMERCE_RESET_CART", event_data={'action': 'reset'})
+                if back_button:
+                    self.input_handler.register_clickable(
+                        screen_name="merchant_shop", rect=back_button,
+                        event_type="SHOPPING_BACK", event_data={'action': 'back'})
+            
+            return True
+        else:
+            # Show error screen instead of crashing
+            surface.fill((0, 0, 0))
+            font = fonts.get('normal', fonts['normal'])
+            
+            if isinstance(merchant_data, list):
+                text = font.render("Error: Merchant data is list, expected dict", True, (255, 255, 255))
+            else:
+                text = font.render("Error: No valid merchant data", True, (255, 255, 255))
+            
+            surface.blit(text, (100, 100))
+            return False
+
+    def _handle_shopping_back(self, event_data):
+        """Handle BACK button - navigation only"""
+        print("🛒 BACK button clicked!")
+        game_state = self._current_game_controller.game_state
+        return_dialogue = getattr(game_state, 'shopping_return_dialogue', 'broken_blade_garrick')
+        
+        self.event_manager.emit("SCREEN_CHANGE", {
+            'target_screen': return_dialogue,
+            'source_screen': "merchant_shop"
+        })
 
     def register_quest_log_screen_clickables(self):
         """Register clickable areas for quest log screen"""
@@ -644,7 +758,6 @@ class ScreenManager:
             print("📋 Quest overlay clickables registered")
         else:
             print("⚠️ No InputHandler available for quest overlay")
-
 
     def register_character_sheet_screen_clickables(self):
         """Register clickable areas for character sheet screen"""
@@ -704,8 +817,7 @@ class ScreenManager:
             from screens.intro_scenes import (
                 draw_intro_scene_1, draw_intro_scene_2, draw_intro_scene_3
             )
-
-            from screens.shopping import draw_merchant_screen
+            from ui.shopping_overlay import draw_merchant_screen
             from screens.inventory_overlay import draw_inventory_screen
             from screens.quest_overlay import draw_quest_overlay
             from screens.character_overlay import draw_character_sheet_screen
@@ -761,6 +873,10 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_character_sheet_screen_clickables())
             self.register_render_function("help", draw_help_screen,
                 enter_hook=lambda _: self.register_help_screen_clickables())
+            #self.register_render_function("merchant_shop", self._render_merchant_shop,
+            #   enter_hook=lambda _: self.register_shopping_screen_clickables())            
+            self.register_render_function("merchant_shop", self._render_merchant_shop)
+
             self._register_npc_dialogue_screens()
 
             # Gambling mini-game screens
@@ -826,7 +942,6 @@ class ScreenManager:
         #print(f"🔄 Screen transition: {old_screen} → {screen_name}")
         return True
     
-
     def _register_base_location_screen(self, screen_name: str, location_id: str, area_id: str):
         """Register a BaseLocation screen with proper event integration"""
         
@@ -1028,7 +1143,6 @@ class ScreenManager:
                 print(f"Warning: No stored location for {npc_id}")
         
         return True
-
 
 # Find these lines in screen_manager.py around line 250-280:
 

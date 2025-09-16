@@ -49,14 +49,33 @@
 
     "supplies_info": {
       "introduction": [
-        "I pour drinks; I do not stock gear, yet. Try the general store on the square."
+        "I pour drinks mostly, but I do keep some basic supplies for travelers.",
+        "Nothing fancy - just the essentials."
       ],
       "options": [
-        { "id": "back_first2", "text": "Right.", "next_state": "first_meeting" },
-        { "id": "bye2",        "text": "Cheers.", "next_state": "exit" }
+        {
+          "id": "browse_supplies",
+          "text": "Can I see what you have?",
+          "effects": [
+            {
+              "type": "open_shop",
+              "merchant_id": "garrick"
+            }
+          ],
+          "next_state": "post_shopping"
+        },
+        { "id": "back_first2", "text": "Maybe later.", "next_state": "first_meeting" },
+        { "id": "bye2", "text": "Thanks anyway.", "next_state": "exit" }
       ]
     },
 
+    "post_shopping": {
+      "introduction": ["Take your time looking around."],
+      "options": [
+        { "id": "back_to_talk", "text": "Let's talk.", "next_state": "first_meeting" },
+        { "id": "goodbye", "text": "Thanks.", "next_state": "exit" }
+      ]
+    },
 
     "after_first_talk": {
       "introduction": ["Back again? Need something else?"],
