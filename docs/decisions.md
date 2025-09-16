@@ -1143,7 +1143,23 @@ Positive: Unified overlay experience, prevents infinite buying exploits, enables
 Negative: Increased system complexity, required InputHandler modifications for screen-specific overlay routing
 Architecture: Eliminated register_shopping_screen_clickables() and related methods, established pattern for future merchant implementations
 
-
+# ADR-071: Quest System Completion Logic & UI Enhancement
+# Date: Sep 16, 2025
+# Status: Accepted
+**Context:** Party building quest showed as incomplete despite having full party (3 members). Rat basement quest missing from quest log. Quest UI had text overflow and inconsistent sizing issues.
+**Decision:** Implemented smart quest completion logic and professional UI improvements.
+**Implementation:**
+Added missing rat quest: Created basement_rat_combat quest with 4 objectives matching existing game flags
+Fixed party completion: Custom logic completes party building quest when party_ready objective achieved (3+ recruits)
+Progress display: "COMPLETE" text for finished quests instead of confusing partial ratios
+UI polish: Repositioned progress column, smaller fonts, text wrapping for objectives with color preservation
+**Technical Changes:**
+Enhanced Quest._check_quest_completion() with quest-specific completion rules
+Added quest sync logic in update_from_game_state() for rat quest progression
+Updated quest overlay rendering with manual text wrapping and proper color handling
+Modified progress display logic in both active and completed quest tabs
+**Result:** Professional quest system with intuitive completion logic, clean UI presentation, and proper objective tracking for all quest types.
+Files Modified: utils/quest_system.py, quest overlay rendering file
 
 ```
 ## ADR-XXX: <Short title>

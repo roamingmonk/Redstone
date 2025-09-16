@@ -8,6 +8,7 @@ import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay
 from utils.constants import *
 from utils.graphics import draw_text
+from utils.constants import wrap_text
 from utils.overlay_utils import (
     draw_chunky_border, WHITE, BLACK, BRIGHT_GREEN, BROWN, 
     DARK_GRAY, SELECTION_COLOR
@@ -121,7 +122,7 @@ class QuestOverlay(BaseTabbedOverlay):
                     'title': quest.title,
                     'description': quest.description,
                     'completed': True,
-                    'progress': f"{completed}/{total}",
+                    'progress': "COMPLETE" if quest.status == "completed" else f"{completed}/{total}",
                     'objectives': [
                         {
                             'description': obj.description,
@@ -179,7 +180,7 @@ class QuestOverlay(BaseTabbedOverlay):
         
         # Headers
         font = fonts.get('fantasy_small', fonts['normal'])
-        small_font = fonts.get('normal', font)
+        small_font = fonts.get('small', fonts['normal'])
         
         # Draw "Quest Title" and "Progress" headers
         header_y = start_y
@@ -187,7 +188,7 @@ class QuestOverlay(BaseTabbedOverlay):
         surface.blit(header_text, (quest_list_x + 10, header_y))
 
         progress_text = font.render("Progress", True, WHITE)
-        surface.blit(progress_text, (quest_list_x + 260, header_y))
+        surface.blit(progress_text, (quest_list_x + 230, header_y))
         
         # Draw header separator line
         header_line_y = header_y + 25
@@ -237,7 +238,13 @@ class QuestOverlay(BaseTabbedOverlay):
             surface.blit(title_surface, (title_x, current_y + 5))
             
             # Draw progress text
-            progress_surface = small_font.render(quest['progress'], True, WHITE)
+            progress_text = quest['progress']
+            if progress_text == "COMPLETE":
+                # Use even smaller font for COMPLETE to match numerical progress
+                tiny_font = fonts.get('fantasy_micro', fonts['small'])
+                progress_surface = tiny_font.render(progress_text, True, WHITE)
+            else:
+                progress_surface = small_font.render(progress_text, True, WHITE)
             progress_text_x = quest_list_x + 260
             surface.blit(progress_surface, (progress_text_x, current_y + 5))
             
@@ -311,17 +318,42 @@ class QuestOverlay(BaseTabbedOverlay):
             current_y += 30
             
             for objective in quest_data['objectives']:
-                if current_y + line_height > y + height - 20:
+                if current_y + 20 > y + height - 20:
                     break
                 
-                # Draw objective status
+                # Draw objective with manual wrapping and proper colors
                 status_char = "✓" if objective['completed'] else "○"
                 status_color = BRIGHT_GREEN if objective['completed'] else WHITE
                 
+                # Use smaller font
+                tiny_font = fonts.get('fantasy_small', fonts['small'])
                 obj_text = f"{status_char} {objective['description']}"
-                obj_surface = small_font.render(obj_text, True, status_color)
-                surface.blit(obj_surface, (x + 40, current_y))
-                current_y += line_height
+                
+                # Manual wrapping with color preservation
+                words = obj_text.split(' ')
+                lines = []
+                current_line = ''
+                max_obj_width = width - 80
+                
+                for word in words:
+                    test_line = current_line + word + ' ' if current_line else word + ' '
+                    if tiny_font.size(test_line)[0] <= max_obj_width:
+                        current_line = test_line
+                    else:
+                        if current_line:
+                            lines.append(current_line.strip())
+                        current_line = word + ' '
+                
+                if current_line:
+                    lines.append(current_line.strip())
+                
+                # Draw each line with proper color
+                for line in lines:
+                    if current_y + 20 > y + height - 20:
+                        break
+                    line_surface = tiny_font.render(line, True, status_color)
+                    surface.blit(line_surface, (x + 40, current_y))
+                    current_y += 20
     
     def _render_empty_quest_list(self, surface, content_rect, fonts, message):
         """Render empty quest list message"""

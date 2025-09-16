@@ -36,9 +36,17 @@ class Quest:
         
     def _check_quest_completion(self):
         """Check if all objectives are complete"""
+        # Special case for party_building: complete when party_ready is done
+        if self.id == "party_building":
+            party_ready_obj = next((obj for obj in self.objectives if obj.id == "party_ready"), None)
+            if party_ready_obj and party_ready_obj.completed:
+                self.status = "completed"
+                return
+        
+        # Default: all objectives must be complete
         if all(obj.completed for obj in self.objectives):
             self.status = "completed"
-            
+                
     def get_progress(self):
         """Return (completed_objectives, total_objectives)"""
         completed = sum(1 for obj in self.objectives if obj.completed)
@@ -62,6 +70,7 @@ class QuestManager:
         main_quest.add_objective("talk_to_npcs", "Gather information from tavern patrons")
         main_quest.add_objective("meet_mayor", "Speak with Mayor Aldwin about the crisis")
         main_quest.add_objective("recruit_party", "Recruit at least one companion")
+        main_quest.add_objective("discover_locations", "Learn about all three investigation sites")
         main_quest.add_objective("investigate_locations", "Investigate the three key locations")
         main_quest.add_objective("solve_mystery", "Uncover the truth behind the disappearances")
         
@@ -74,6 +83,7 @@ class QuestManager:
         recruitment_quest.add_objective("recruit_mage", "Recruit a mage (Elara)")  
         recruitment_quest.add_objective("recruit_cleric", "Recruit a cleric (Thorman)")
         recruitment_quest.add_objective("recruit_rogue", "Recruit a rogue (Lyra)")
+        recruitment_quest.add_objective("party_ready", "Assemble a full party (3 members)")
         
         self.quests["party_building"] = recruitment_quest
         
@@ -105,10 +115,19 @@ class QuestManager:
         
         self.quests["find_refugee_camp"] = refugee_camp_quest
         
-        print("🎯 Enhanced quest system initialized with 5 quests")
+        # SECONDARY QUEST: Rat Basement Combat (Garrick's side quest)
+        rat_quest = Quest("basement_rat_combat", "Clear the Basement", 
+                         "Help Garrick eliminate the rats infesting his tavern basement")
+        rat_quest.add_objective("accept_challenge", "Accept Garrick's basement clearing job")
+        rat_quest.add_objective("clear_basement", "Defeat all rats in the basement")
+        rat_quest.add_objective("report_victory", "Report success to Garrick")
+        rat_quest.add_objective("collect_payment", "Collect payment from Garrick")
+        
+        self.quests["basement_rat_combat"] = rat_quest
+        
+        print("🎯 Enhanced quest system initialized with 6 quests")
         print("📋 Primary: Terror in Redstone (main story)")
-        print("📋 Secondary: Party Building, Hill Ruins, Swamp Church, Refugee Camp")
-        print("🐀 Rat Basement quest will be unlocked dynamically")
+        print("📋 Secondary: Party Building, Hill Ruins, Swamp Church, Refugee Camp, Rat Basement")
         
     def activate_quest(self, quest_id):
         """Activate a quest and make it trackable"""
@@ -142,6 +161,18 @@ class QuestManager:
             recruitment_count = self.game_state.recruited_count if hasattr(self.game_state, 'recruited_count') else 0
             if recruitment_count >= 1:
                 self.complete_objective("main_story", "recruit_party")
+            
+            # Location discovery progress
+            locations_discovered = 0
+            if getattr(self.game_state, 'learned_about_swamp_church', False):
+                locations_discovered += 1
+            if getattr(self.game_state, 'learned_about_ruins', False):
+                locations_discovered += 1
+            if getattr(self.game_state, 'learned_about_refugees', False):
+                locations_discovered += 1
+            
+            if locations_discovered >= 3:
+                self.complete_objective("main_story", "discover_locations")
                 
             # Location exploration (when implemented)
             if getattr(self.game_state, 'hill_ruins_completed', False):
@@ -165,6 +196,33 @@ class QuestManager:
             if getattr(self.game_state, 'lyra_recruited', False):
                 self.complete_objective("party_building", "recruit_rogue")
     
+            # Complete party building when we have 3 recruits (full party)
+            if recruitment_count >= 3:
+                print(f"🎯 Completing party_ready objective (recruited_count: {recruitment_count})")
+                party_quest = self.quests.get("party_building")
+                if party_quest:
+                    print(f"📋 Party quest objectives: {[obj.id for obj in party_quest.objectives]}")
+                result = self.complete_objective("party_building", "party_ready")
+                print(f"📝 Complete objective result: {result}")
+
+
+        # Rat basement quest progression
+        rat_quest = self.quests.get("basement_rat_combat")
+        if rat_quest and getattr(self.game_state, 'garrick_offered_basement', False):
+            # Activate quest when offered
+            if rat_quest.status == "inactive":
+                self.activate_quest("basement_rat_combat")
+            
+            # Update objectives based on current flags
+            if getattr(self.game_state, 'accepted_basement_quest', False):
+                self.complete_objective("basement_rat_combat", "accept_challenge")
+            if getattr(self.game_state, 'completed_basement_combat', False):
+                self.complete_objective("basement_rat_combat", "clear_basement")
+            if getattr(self.game_state, 'reported_basement_victory', False):
+                self.complete_objective("basement_rat_combat", "report_victory")
+            if getattr(self.game_state, 'garrick_paid', False):
+                self.complete_objective("basement_rat_combat", "collect_payment")
+
     def get_active_quests(self):
         """Return list of active quests for display"""
         active_quests = []
@@ -278,7 +336,7 @@ def get_quest_log_data(game_state):
             'id': quest.id,
             'title': quest.title,
             'description': quest.description,
-            'progress': f"{completed}/{total}",
+            'progress': "COMPLETE" if quest.status == "completed" else f"{completed}/{total}",
             'objectives': [
                 {
                     'description': obj.description,
