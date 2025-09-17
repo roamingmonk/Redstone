@@ -47,6 +47,8 @@ class GameState:
         
         # Tavern state
         self.party_members = []
+        self.party_member_data = []  # List of full NPC character objects 
+        self._party_lookup = {}  # Quick lookup: npc_id -> character data 
         self.current_npc = None
         self.tavern_visits = 0
         
@@ -173,7 +175,80 @@ class GameState:
         """Check if more party members can be recruited"""
         return self.recruited_count < (self.max_party_size - 1)  # -1 for player character
 
-    
+    def add_party_member_data(self, npc_id):
+        """Add full character data for recruited NPC (called by dialogue system)"""
+        import json
+        import os
+        
+        # Skip if already exists
+        if npc_id in self._party_lookup:
+            return True
+            
+        # Only add if NPC is actually recruited (check flag)
+        recruited_flag = f"{npc_id}_recruited"
+        if not getattr(self, recruited_flag, False):
+            print(f"⚠️ {npc_id} not recruited - skipping character data")
+            return False
+        
+        # Load character template from JSON
+        npc_json_path = os.path.join("data", "npcs", f"{npc_id}.json")
+        try:
+            with open(npc_json_path, 'r') as f:
+                npc_template = json.load(f)
+        except FileNotFoundError:
+            print(f"❌ NPC JSON not found: {npc_json_path}")
+            return False
+        
+        # Create character data object
+        character_data = {
+            'id': npc_id,
+            'name': npc_template.get('name', npc_id.title()),
+            'class': npc_template.get('class', 'Fighter'),
+            'level': npc_template.get('level', 1),
+            'experience': 0,  # Start at 0 XP
+            'hit_points': npc_template.get('hp', 20),
+            'max_hit_points': npc_template.get('hp', 20),
+            'stats': npc_template.get('stats', {}).copy(),
+            'equipment': npc_template.get('equipment', {}).copy(),
+            'effects': []
+        }
+        
+        # Add to collections
+        self.party_member_data.append(character_data)
+        self._party_lookup[npc_id] = character_data
+        
+        print(f"✅ Added character data for {character_data['name']}")
+        return True
+
+    def get_party_member_data(self, npc_id):
+        """Get full character data for party member"""
+        return self._party_lookup.get(npc_id)
+
+    def sync_party_member_data(self):
+        """Sync party_member_data with recruitment flags (called by dialogue system)"""
+        # Get current recruited NPCs from flags
+        from utils.narrative_schema import narrative_schema
+        recruitment_flags = narrative_schema.schema.get("recruitment_system", {}).get("recruitment_flags", [])
+        
+        should_have_data = []
+        for flag in recruitment_flags:
+            if getattr(self, flag, False):
+                npc_id = flag.replace('_recruited', '')
+                should_have_data.append(npc_id)
+        
+        # Add missing character data
+        for npc_id in should_have_data:
+            if npc_id not in self._party_lookup:
+                self.add_party_member_data(npc_id)
+        
+        # Remove character data for un-recruited NPCs
+        current_data_ids = list(self._party_lookup.keys())
+        for npc_id in current_data_ids:
+            if npc_id not in should_have_data:
+                # Remove from collections
+                char_data = self._party_lookup.pop(npc_id)
+                self.party_member_data.remove(char_data)
+                print(f"➖ Removed character data for {npc_id}")
 
     
     def set_selected_portrait(self, gender, portrait_index):

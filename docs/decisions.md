@@ -1184,6 +1184,21 @@ Visual progression: Clear upgrade path from colored tiles → graphics → multi
 **Created:** data/maps/redstone_town_map.py, screens/redstone_town_navigation.py
 **Enhanced:** game_state.py (player position), screen_manager.py (registration), constants.py (asset paths)
 
+# ADR-073: Conditional Button System Implementation
+# Status: Accepted
+# Date: September 17, 2025
+**Context:** Dynamic quest-gated content needed for basement access after Garrick dialogue trigger
+Decision: Implemented flag-based requirements system in ActionHubLocation with JSON configuration support
+**Implementation:**
+Added evaluate_requirements() method with flag validation logic
+Enhanced render method to filter actions based on requirements before button creation
+Updated broken_blade.json with basement action requiring accepted_basement_quest: true
+Created temporary basement placeholder screen with navigation back to tavern
+**Consequences:**
+Positive: Zero-code conditional content workflow established; basement button appears only when quest accepted; clean data-driven architecture maintained
+Foundation: Pattern ready for all future quest-gated locations, NPCs, and actions via JSON requirements blocks
+Files Modified: ui/base_location.py, ui/screen_manager.py, data/locations/broken_blade.json
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

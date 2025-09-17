@@ -1010,6 +1010,8 @@ class ScreenManager:
         
             self._register_npc_dialogue_screens()
 
+            self.register_render_function("broken_blade_basement", self._render_basement_placeholder)
+
             # Gambling mini-game screens
             self.register_render_function("dice_bets", draw_dice_bets_screen)
             self.register_render_function("dice_rolling", draw_dice_rolling_screen)
@@ -1110,6 +1112,43 @@ class ScreenManager:
         # Register with ScreenManager
         self.register_render_function(screen_name, location_render_function, enter_hook=location_enter_hook)
         #print(f"🗺️ BaseLocation screen registered: {screen_name} -> {location_id}.{area_id}")
+
+    def _render_basement_placeholder(self, surface, game_state, fonts, images, controller):
+        """Temporary basement placeholder screen"""
+        from utils.graphics import draw_text_with_shadow, draw_button
+        
+        # Clear screen with dark basement atmosphere
+        surface.fill((20, 15, 10))  # Even darker than tavern
+        
+        # Title
+        title = "BROKEN BLADE BASEMENT"
+        draw_text_with_shadow(surface, title, fonts['fantasy_large'], 
+                              512 - fonts['fantasy_large'].size(title)[0]//2, 100)
+        
+        # Placeholder message
+        message = "You descend into the tavern's basement..."
+        draw_text_with_shadow(surface, message, fonts['normal'],
+                              512 - fonts['normal'].size(message)[0]//2, 300)
+        
+        message2 = "(This area is under construction)"
+        draw_text_with_shadow(surface, message2, fonts['small'],
+                              512 - fonts['small'].size(message2)[0]//2, 350)
+        
+        # Back button
+        back_button = draw_button(surface, 462, 500, 100, 50, "BACK", fonts['normal'])
+        
+        # Register the back button for clicking
+        self.input_handler.register_clickable(
+            screen_name="broken_blade_basement",
+            rect=back_button,
+            event_type="SCREEN_CHANGE",
+            event_data={
+                "target_screen": "broken_blade_main",
+                "source_screen": "broken_blade_basement"
+            }
+        )
+        
+        return {'back': back_button}
 
     def render_current_screen(self, game_state) -> bool:
         """

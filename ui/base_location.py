@@ -37,8 +37,6 @@ def calculate_npc_button_positions(num_npcs, available_width=1024):
         
         return positions
 
-
-
 class BaseLocation(ABC):
     """
     Abstract base class for all game locations
@@ -226,6 +224,26 @@ class ActionHubLocation(BaseLocation):
         super().__init__(location_data)
         self.location_type = "action_hub"
     
+    def evaluate_requirements(self, requirements: Dict, game_state) -> bool:
+        """Evaluate whether action requirements are met"""
+        if not requirements:
+            return True
+        
+        flags = requirements.get('flags', {})
+        if flags:
+            for flag_name, required_value in flags.items():
+                current_value = getattr(game_state, flag_name, False)
+                #print(f"🔍 Evaluating flag '{flag_name}': current={current_value}, required={required_value}")
+                
+                if isinstance(required_value, bool):
+                    if current_value != required_value:
+                        #print(f"❌ Flag requirement failed: {flag_name}")
+                        return False
+        
+        print(f"✅ All requirements satisfied")
+        return True
+    
+    
     def render(self, surface: pygame.Surface, game_state, fonts: Dict, images: Dict, 
            controller=None) -> Dict[str, Any]:
 
@@ -325,7 +343,17 @@ class ActionHubLocation(BaseLocation):
         button_y = LAYOUT_BUTTON_Y
         actions = area_data.get('actions', {})
 
-        if actions:            
+        # Filter actions based on requirements
+        available_actions = {}
+        for action_name, action_data in actions.items():
+            requirements = action_data.get('requirements')
+            if self.evaluate_requirements(requirements, game_state):
+                available_actions[action_name] = action_data
+                #print(f"✅ Action '{action_name}' requirements met")
+            #else:
+                #print(f"❌ Action '{action_name}' requirements not met, skipping")
+
+        if available_actions:             
             # Calculate flexible button widths based on text content
             button_height = BUTTON_SIZES['medium'][1]  # 50px standard height
             button_font = fonts.get('fantasy_small', fonts['normal'])
@@ -335,7 +363,7 @@ class ActionHubLocation(BaseLocation):
             button_configs = []
             total_text_width = 0
 
-            for action_name, action_data in actions.items():
+            for action_name, action_data in available_actions.items():
                 label = action_data.get('label', action_name.replace('_', ' ')).title()
                 text_width = button_font.size(label)[0]
                 button_width = max(text_width + 40, 80)  # 40px padding, 80px minimum

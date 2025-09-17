@@ -253,10 +253,10 @@ class CharacterOverlay(BaseTabbedOverlay):
         
         # Available NPC data for display (from npc_manager research)
         npc_data = {
-            'gareth': {'name': 'Gareth the Warrior', 'class': 'Fighter', 'level': 2},
-            'elara': {'name': 'Elara the Wise', 'class': 'Mage', 'level': 2},
-            'thorman': {'name': 'Thorman the Bold', 'class': 'Cleric', 'level': 2},
-            'lyra': {'name': 'Lyra the Swift', 'class': 'Thief', 'level': 2}
+            'gareth': {'name': 'Gareth the Warrior', 'class': 'Fighter', 'level': 1},
+            'elara': {'name': 'Elara the Wise', 'class': 'Mage', 'level': 1},
+            'thorman': {'name': 'Thorman the Bold', 'class': 'Cleric', 'level': 1},
+            'lyra': {'name': 'Lyra the Swift', 'class': 'Thief', 'level': 1}
         }
         
         # Fonts

@@ -33,12 +33,22 @@
                 "npc_id": "meredith",
                 "label": "server"
             },
+            "basement": {
+                "type": "navigate",
+                "target": "broken_blade_basement",
+                "label": "basement",
+                "requirements": {
+                  "flags": {
+                    "accepted_basement_quest": true
+                  }
+                }    
+            },
             "leave": {
                 "type": "navigate",
                 "target": "redstone_town_navigation",
                 "label": "leave"
-            }
-            },
+              }
+        },
         "properties": {
         "background_image": "tavern_interior",
         "background_color": [40, 20, 10],

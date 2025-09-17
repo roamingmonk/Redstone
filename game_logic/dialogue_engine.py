@@ -153,6 +153,8 @@ class DialogueEngine:
         # Update party_members list
         self.game_state.party_members = party_members
         print(f"🔄 Synced party_members: {party_members}")
+        # Also sync character data
+        self.game_state.sync_party_member_data()
 
     def get_conversation_options(self, dialogue_id: str, npc_id: str, forced_state: str = None) -> Dict[str, Any]:
         print(f"🔍 GET_OPTIONS DEBUG: Called for {dialogue_id}, {npc_id}")
@@ -215,20 +217,14 @@ class DialogueEngine:
         dialogue_tree = self.dialogues[dialogue_id]
         current_state = forced_state or self.get_current_dialogue_state(npc_id)
 
-        # ADD THESE DEBUG LINES HERE:
-        print(f"🔍🔍 STATE DEBUG: current_state = {current_state}")
-        print(f"🔍🔍 STATE DEBUG: available states = {list(dialogue_tree.get('states', {}).keys())}")
-        print(f"🔍🔍 STATE DEBUG: state exists? {current_state in dialogue_tree.get('states', {})}")
-
-
         if current_state in dialogue_tree.get('states', {}):
             state_data = dialogue_tree['states'][current_state]
             
             # After determining current_state, add this:
-            print(f"🎯 DEBUG: get_conversation_options for {npc_id}")
-            print(f"🎯 DEBUG: dialogue_id: {dialogue_id}")
-            print(f"🎯 DEBUG: determined state: {current_state}")
-            print(f"🎯 DEBUG: state_data options: {state_data.get('options', [])}")
+            #print(f"🎯 DEBUG: get_conversation_options for {npc_id}")
+            #print(f"🎯 DEBUG: dialogue_id: {dialogue_id}")
+            #print(f"🎯 DEBUG: determined state: {current_state}")
+            #print(f"🎯 DEBUG: state_data options: {state_data.get('options', [])}")
 
             # Filter options based on requirements (if any)
             available_options = []
