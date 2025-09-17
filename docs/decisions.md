@@ -1161,6 +1161,29 @@ Modified progress display logic in both active and completed quest tabs
 **Result:** Professional quest system with intuitive completion logic, clean UI presentation, and proper objective tracking for all quest types.
 Files Modified: utils/quest_system.py, quest overlay rendering file
 
+# ADR-072 - Town Navigation Tile System Implementation
+# Status: Accepted
+# Date: 9/17/2025
+**Context:** Game previously limited to tavern interior with no exploration mechanics. Players needed ability to navigate between buildings and explore the town environment to create proper RPG progression and world-building.
+**Decision:** Implement professional tile-based navigation system with scrolling camera for Redstone town exploration, using 64x64 tile grid with 13x7 visible window and colored tile graphics as Phase 1 foundation.
+Implementation:
+
+**Created data-driven map system:** data/maps/redstone_town_map.py with 16x12 tile layout and building definitions
+Added navigation screen: screens/redstone_town_navigation.py with scrolling camera, movement timing, and building interaction system
+Integrated with existing architecture: Seamless BaseLocation transitions, ScreenManager registration, and party status panel consistency
+Minimal code changes: Only 11 lines modified across 3 existing files (game_state.py, screen_manager.py, constants.py)
+Professional fallback system: Colored rectangle tiles provide immediate functionality while graphics system remains ready for Phase 2 upgrade
+**Technical Approach:**
+Scrolling camera system: 876x510 pixel display area shows portion of larger 1024x768 town map with smooth player-centered camera
+Building interaction: Walk-to-building-and-press-ENTER system with visual prompts for entry points (still needs to be validated)
+Asset organization: Professional tile graphics structure ready for Phase 2 (graphics), Phase 3 (multi-tile), Phase 4 (animation)
+**Consequences:**
+Major gameplay expansion: Players can now exit tavern and explore full town environment with proper RPG navigation
+Foundation for world exploration: Scalable architecture supports future world map, location discovery, and complex area navigation
+Visual progression: Clear upgrade path from colored tiles → graphics → multi-tile buildings → animations maintains development momentum
+**Created:** data/maps/redstone_town_map.py, screens/redstone_town_navigation.py
+**Enhanced:** game_state.py (player position), screen_manager.py (registration), constants.py (asset paths)
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

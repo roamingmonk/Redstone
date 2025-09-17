@@ -195,7 +195,7 @@
               "value": true
             }
           ],
-          "next_state": "basement_accepted"
+          "next_state": "post_mayor_basement_accepted"
         },
         {
           "id": "maybe_later",
@@ -205,8 +205,8 @@
       ]
     },
     
-    "basement_accepted": {
-      "introduction": ["Good! The entrance is behind the bar.", "Watch yourself down there - they're meaner than normal rats.", "Come back when you're done and I'll settle up."],
+    "post_mayor_basement_accepted": {
+      "introduction": ["Thanks for helping! The basement1 is behind the bar.", "Watch yourself down there - they're meaner than normal rats.", "Come back when you're done and I'll settle up."],
       "options": [
         {
           "id": "head_down_now",
@@ -216,7 +216,7 @@
         {
           "id": "prepare_first",
           "text": "Let me prepare first.",
-          "next_state": "exit"
+          "next_state": "supplies_info"
         }
       ]
     },

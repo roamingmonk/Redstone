@@ -108,6 +108,13 @@ GENERAL_STORE_IMAGE = os.path.join(SHOP_BACKGROUNDS_PATH, "general_store.jpg")
 GAMBLING_DEN_IMAGE = os.path.join(SHOP_BACKGROUNDS_PATH, "gambling_den.jpg")
 ARMORER_SHOP_IMAGE = os.path.join(SHOP_BACKGROUNDS_PATH, "armorer_shop.jpg")
 
+# Navigation Tile images:
+TILES_PATH = os.path.join(IMAGES_PATH, "tiles")
+TERRAIN_TILES_PATH = os.path.join(TILES_PATH, "terrain") 
+BUILDING_TILES_PATH = os.path.join(TILES_PATH, "buildings")
+DECORATIONS_TILES_PATH = os.path.join(TILES_PATH, "decorations")
+ANIMATED_TILES_PATH = os.path.join(TILES_PATH, "animated")
+
 # === FONT LOADING SYSTEM ===
 
 def load_fonts():

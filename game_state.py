@@ -76,6 +76,10 @@ class GameState:
         self.save_selected_slot = None
         self.save_status_message = "Select a slot to save your game"
 
+        #Redstone Town location position
+        self.town_player_x = 3  # Town spawn position
+        self.town_player_y = 5  # Outside tavern door
+
         # Gambling state for Redstone Dice
         self.gambling_state = {
             'last_player_dice': [0, 0],

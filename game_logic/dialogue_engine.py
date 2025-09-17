@@ -54,11 +54,15 @@ class DialogueEngine:
         Returns:
             bool: True if loaded successfully
         """
+        print(f"🔍 LOAD DEBUG: Attempting to load dialogue file: {dialogue_id}")
+        print(f"🔍 LOAD DEBUG: Current dialogues cache: {list(self.dialogues.keys())}")
+    
         try:
             file_path = os.path.join('data', 'dialogues', f'{dialogue_id}.json')
-            
+            print(f"🔍 LOAD DEBUG: File path: {file_path}")
             if not os.path.exists(file_path):
                 print(f"⚠️ Dialogue file not found: {file_path}")
+                print(f"🔍 LOAD DEBUG: File does not exist: {file_path}")
                 return False
                 
             with open(file_path, 'r', encoding="utf-8") as f:
@@ -66,10 +70,13 @@ class DialogueEngine:
                 
             self.dialogues[dialogue_id] = dialogue_data
             print(f"✅ Loaded dialogue tree: {dialogue_id}")
+            print(f"🔍 LOAD DEBUG: Successfully loaded {dialogue_id}")
+            print(f"🔍 LOAD DEBUG: Dialogue data keys: {dialogue_data.keys()}")
             return True
             
         except Exception as e:
             print(f"❌ Error loading dialogue {dialogue_id}: {e}")
+            print(f"🔍 LOAD DEBUG: Error loading dialogue {dialogue_id}: {e}")
             return False
     
     def get_current_dialogue_state(self, npc_id: str) -> str:
@@ -148,6 +155,18 @@ class DialogueEngine:
         print(f"🔄 Synced party_members: {party_members}")
 
     def get_conversation_options(self, dialogue_id: str, npc_id: str, forced_state: str = None) -> Dict[str, Any]:
+        print(f"🔍 GET_OPTIONS DEBUG: Called for {dialogue_id}, {npc_id}")
+        print(f"🔍 GET_OPTIONS DEBUG: dialogue_id in self.dialogues? {dialogue_id in self.dialogues}")
+        
+        if dialogue_id not in self.dialogues:
+            print(f"🔍 GET_OPTIONS DEBUG: Dialogue not in cache, attempting to load...")
+            if not self.load_dialogue_file(dialogue_id):
+                print(f"🔍 GET_OPTIONS DEBUG: Load failed, using fallback")
+                return self._get_fallback_dialogue(npc_id)
+        else:
+            print(f"🔍 GET_OPTIONS DEBUG: Using cached dialogue")
+    
+        
         """
         Get current conversation options for NPC
         
@@ -195,10 +214,22 @@ class DialogueEngine:
         
         dialogue_tree = self.dialogues[dialogue_id]
         current_state = forced_state or self.get_current_dialogue_state(npc_id)
-        
+
+        # ADD THESE DEBUG LINES HERE:
+        print(f"🔍🔍 STATE DEBUG: current_state = {current_state}")
+        print(f"🔍🔍 STATE DEBUG: available states = {list(dialogue_tree.get('states', {}).keys())}")
+        print(f"🔍🔍 STATE DEBUG: state exists? {current_state in dialogue_tree.get('states', {})}")
+
+
         if current_state in dialogue_tree.get('states', {}):
             state_data = dialogue_tree['states'][current_state]
             
+            # After determining current_state, add this:
+            print(f"🎯 DEBUG: get_conversation_options for {npc_id}")
+            print(f"🎯 DEBUG: dialogue_id: {dialogue_id}")
+            print(f"🎯 DEBUG: determined state: {current_state}")
+            print(f"🎯 DEBUG: state_data options: {state_data.get('options', [])}")
+
             # Filter options based on requirements (if any)
             available_options = []
             for option in state_data.get('options', []):
@@ -414,6 +445,17 @@ class DialogueEngine:
         Returns:
             Dict containing NPC response and any triggered effects
         """
+        # DEBUG: Check what conversation data exists
+        stored_conversation_attr = f'{npc_id}_conversation_data'
+        stored_data = getattr(self.game_state, stored_conversation_attr, None)
+        print(f"🔍 DEBUG: Stored conversation data for {npc_id}: {stored_data}")
+        
+        # DEBUG: Check current state vs what UI thinks
+        current_state = self.get_current_dialogue_state(npc_id)
+        print(f"🔍 DEBUG: DE: Current calculated state: {current_state}")
+        print(f"🔍 DEBUG: DE: Forced state: {forced_state}")
+        print(f"🔍 DEBUG: DE: Choice ID from UI: {choice_id}")
+        
         print(f"🔧 DEBUG PROCESS: Called with forced_state={forced_state}")
         print(f"DEBUG: DE: Processing choice {choice_id} for {npc_id}")
 

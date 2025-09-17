@@ -955,6 +955,8 @@ class ScreenManager:
                 draw_dice_results_screen, draw_dice_rules_screen
             )
             
+            from screens.redstone_town_navigation import render_town_navigation
+
             # Title and menu screens
             self.register_render_function("game_title", draw_title_screen)
             self.register_render_function("developer_splash", draw_company_splash_screen)
@@ -1001,16 +1003,11 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_character_sheet_screen_clickables())
             self.register_render_function("help", draw_help_screen,
                 enter_hook=lambda _: self.register_help_screen_clickables())
-
-            #self.register_render_function("merchant_shop", draw_shopping_overlay)
-
             self.register_render_function("merchant_shop", self._render_shopping_overlay,
                 enter_hook=lambda _: self.register_shopping_overlay_clickables())
 
-            #self.register_render_function("merchant_shop", draw_shopping_overlay,
-            #    enter_hook=lambda _: print("🛒 Shopping overlay ready"))
-
-
+            self.register_render_function("redstone_town_navigation", render_town_navigation)
+        
             self._register_npc_dialogue_screens()
 
             # Gambling mini-game screens

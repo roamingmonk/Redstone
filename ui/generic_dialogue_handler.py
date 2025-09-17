@@ -15,7 +15,11 @@ from utils.npc_display import draw_npc_portrait
 from utils.party_display import draw_party_status_panel
 
 def draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, controller=None, location_id=None):
-    #print(f"🧭 RENDER GDH: draw_generic_dialogue_screen [{npc_id}] loc={location_id} from {__file__}")
+    print(f"🧭 RENDER GDH: draw_generic_dialogue_screen [{npc_id}] loc={location_id} from {__file__}")
+    stored_conversation_attr = f'{npc_id}_conversation_data'
+    stored_data = getattr(game_state, stored_conversation_attr, None)
+    print(f"🔍 CACHE DEBUG: {npc_id}_conversation_data = {stored_data}")
+    
     """
     Universal NPC dialogue screen - works for ANY NPC
     
@@ -82,6 +86,9 @@ def draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, con
         import traceback
         traceback.print_exc()
         return draw_generic_fallback_screen(surface, npc_id, game_state, fonts)
+
+    print(f"🔍 PASSING TO RENDER: conversation_data = {conversation_data}")
+    print(f"🔍 PASSING TO RENDER: options = {conversation_data.get('options', [])}")
 
     # PHASE 1: Render dialogue directly instead of calling DUU
     return render_dialogue_screen_directly(surface, npc_id, conversation_data, game_state, fonts)
