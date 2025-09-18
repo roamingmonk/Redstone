@@ -1,0 +1,34 @@
+{
+    "id": "thorman",
+    "name": "Thorman Stormhammer",
+    "description": "*A stout dwarf cleric sits in meditation, his holy symbol glowing softly with divine light.*",
+    "level": 1,
+    "age": 78,
+    "gender": "male",
+    "class": "cleric",
+    "stats": {
+        "strength": 14,
+        "dexterity": 10,
+        "constitution": 16,
+        "intelligence": 12,
+        "wisdom": 15,
+        "charisma": 13
+    },
+    "hp": 28,
+    "ac": 15,
+    "equipment": {
+        "weapon": "Mace",
+        "armor": "Scale Mail",
+        "shield": "Shield"
+    },
+    "spells": {
+        "cantrips_known": ["Sacred Flame", "Light", "Thaumaturgy"],
+        "spells_known": ["Cure Wounds", "Guiding Bolt", "Sanctuary", "Bless"]
+    },
+    "character_details": {
+        "background": "Dwarven cleric devoted to the forge god",
+        "personality": "Steadfast and protective, values honor and craftsmanship", 
+        "motivations": "Believes the darkness threatening the land offends his deity",
+        "combat_style": "Tank and healer, strong front-line fighter with divine magic"
+    }
+}

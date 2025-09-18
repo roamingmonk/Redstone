@@ -1,0 +1,30 @@
+{
+    "id": "lyra",
+    "name": "Lyra Quickfingers",
+    "description": "*A nimble halfling sits in the shadows, daggers glinting as she practices knife tricks with casual expertise.*",
+    "level": 1,
+    "age": 25,
+    "gender": "female",
+    "class": "rogue",
+    "stats": {
+        "strength": 10,
+        "dexterity": 16,
+        "constitution": 13,
+        "intelligence": 14,
+        "wisdom": 12,
+        "charisma": 15
+    },
+    "hp": 22,
+    "ac": 14,
+    "equipment": {
+        "weapon": "Rapier",
+        "armor": "Leather Armor",
+        "shield": "None"
+    },
+    "character_details": {
+        "background": "Halfling scout and treasure hunter",
+        "personality": "Cheerful but cautious, quick-witted with a silver tongue",
+        "motivations": "Adventure calls, and there might be treasure in those ruins",
+        "combat_style": "Stealth and precision, sneak attacks and mobility"
+    }
+}

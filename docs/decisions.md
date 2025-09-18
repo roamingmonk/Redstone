@@ -1199,6 +1199,27 @@ Positive: Zero-code conditional content workflow established; basement button ap
 Foundation: Pattern ready for all future quest-gated locations, NPCs, and actions via JSON requirements blocks
 Files Modified: ui/base_location.py, ui/screen_manager.py, data/locations/broken_blade.json
 
+# ADR-074: Unified XP & Narrative Event Architecture
+# Date: Sep 18, 2025
+**Context.** XP was awarded in multiple places (DialogueEngine, ad-hoc handlers), schema tables were sometimes nested, and recruitment/completion logic risked duplication and drift.
+**Decision.** Centralize all XP logic in QuestEngine, driven by neutral events and schema:
+DialogueEngine only sets flags and emits FLAG_CHANGED (and optional PARTY_MEMBER_RECRUITED for objectives/UI).
+QuestEngine.on_flag_changed handles two cases:
+Dialogue/discovery triggers via _evaluate_quest_triggers.
+Per-recruit awards via _award_recruit_xp_for_flag when *_recruited flips.
+PARTY_MEMBER_RECRUITED is objective-only (no XP).
+Narrative schema is read from schema["quest_triggers"] (supports nested party_recruitment_triggers and quest_completion_triggers).
+XPManager.get_reward supports flat keys (e.g., recruitment_bonus), multipliers (quest_multipliers.X × base_quest_xp), and dict form {base, mult, plus}.
+One EventManager instance is created in GameController and shared by all systems.
+One source of truth for quest completion XP (choose either QuestEngine or the consumer of QUEST_COMPLETED, not both).
+**Consequences.**
+Deterministic, schema-driven XP; DialogueEngine stays thin.
+Per-recruit XP is consistent and guarded (e.g., xp_awarded__recruit__{flag}) to prevent duplicates.
+Authors can tune rewards by editing JSON only.
+Fewer integration bugs from multiple event buses or duplicated award paths.
+Easier debugging: FLAG_CHANGED → QuestEngine evaluators → single XP_AWARDED emit.
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

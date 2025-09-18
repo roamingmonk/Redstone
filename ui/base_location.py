@@ -86,7 +86,7 @@ class BaseLocation(ABC):
         # Use the same fonts that the actual rendering will use
         if controller and hasattr(controller, 'fonts'):
             dummy_fonts = controller.fonts
-            print(f"DEBUG: BL: Using controller fonts for registration")
+            #print(f"DEBUG: BL: Using controller fonts for registration")
         else:
             dummy_fonts = {
                 'normal': pygame.font.Font(None, 24),
@@ -140,7 +140,7 @@ class BaseLocation(ABC):
                 registered_count += 1
                 #print(f"  📋 Registered {action_name}: {action_data_from_json.get('type', 'special')} -> {action_data_from_json.get('target', 'N/A')}")
             
-            print(f"🎯 BaseLocation registered {registered_count} buttons for {screen_name}")
+            #print(f"🎯 BaseLocation registered {registered_count} buttons for {screen_name}")
             
         except Exception as e:
             print(f"❌ Error registering BaseLocation buttons for {screen_name}: {e}")
@@ -240,7 +240,7 @@ class ActionHubLocation(BaseLocation):
                         #print(f"❌ Flag requirement failed: {flag_name}")
                         return False
         
-        print(f"✅ All requirements satisfied")
+        #print(f"✅ All requirements satisfied")
         return True
     
     

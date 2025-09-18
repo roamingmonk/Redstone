@@ -110,7 +110,7 @@ class GameState:
         self.character_sheet_open = False
         self.help_screen_open = False
         
-        # *** ADD: Initialize all narrative schema flags ***
+        # *** Initialize all narrative schema flags ***
         try:
             from utils.narrative_schema import narrative_schema
             all_flags = narrative_schema.get_all_flags()
@@ -526,7 +526,7 @@ class GameState:
         print(f"🔍 DEBUG: Using DataManager's item_manager")    
         merchant_inventory = item_manager.get_merchant_inventory('garrick_barkeep')
         
-        print("🔍 DEBUG: DataManager or item_manager not available")
+        #print("🔍 DEBUG: DataManager or item_manager not available")
         merchant_inventory = None
         print(f"🔍 DEBUG: merchant_inventory result: {merchant_inventory}")
 

@@ -54,6 +54,7 @@ class InputHandler:
             pygame.K_F1: ("DEBUG_TOGGLE", {}),
             pygame.K_F2: ("DEBUG_PERFORMANCE", {}),  # New debug key
             pygame.K_F3: ("DEBUG_SAVE_STATE", {}),   # New debug key
+            pygame.K_F4: ("XP_AWARDED", {"amount": 100, "reason": "F4 debug test"}),  # XP test key
             pygame.K_F5: ("SAVE_REQUESTED", {"slot": "quick_save"}),
             pygame.K_F7: ("SAVE_GAME", {}),          # Fixed: Opens save overlay
             pygame.K_F10: ("LOAD_GAME", {}),         # Fixed: Opens load overlay
@@ -159,8 +160,8 @@ class InputHandler:
             
             for region in regions:
                 if region.rect.collidepoint(mouse_pos) and region.event_type == "LOCATION_ACTION":
-                    if self.debug_input:
-                        print(f"🎯 BaseLocation action clicked: {region.event_data}")
+                    #if self.debug_input:
+                        #print(f"🎯 BaseLocation action clicked: {region.event_data}")
                     
                     # Emit the LOCATION_ACTION event
                     self.event_manager.emit("LOCATION_ACTION", region.event_data)
@@ -797,7 +798,7 @@ class InputHandler:
 
                 if self.debug_input:
                     print(f"🔍 DEBUG: In CHOICE mode for {npc_id} (showing_{npc_id}_response = False)")
-                    print(f"🔍 DEBUG: Available keys: 1-9=choices, Enter=first choice, B/Backspace=exit")
+                    #print(f"🔍 DEBUG: Available keys: 1-9=choices, Enter=first choice, B/Backspace=exit")
                                         
                 # CHOICE MODE - 1-9 keys for choices (plus ENTER = first/primary)
                 # NEW: Backspace/B exits from the main choice list
@@ -809,12 +810,6 @@ class InputHandler:
                         'action_name': 'goodbye'
                     })
                     return True
-
-               # choice_keys = {
-               #     pygame.K_1: 0,
-               #     pygame.K_2: 1, 
-               #     pygame.K_3: 2
-               # }
 
                 # ENTER picks the first option (primary)
                 if key in (pygame.K_RETURN, pygame.K_KP_ENTER):

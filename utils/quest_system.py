@@ -320,6 +320,9 @@ def update_quest_system(game_state):
     """Call this periodically to keep quests in sync"""
     if hasattr(game_state, 'quest_manager'):
         game_state.quest_manager.update_from_game_state()
+       #let QuestEngine notice transitions to 'completed'
+        if getattr(game_state, "quest_engine", None):
+            game_state.quest_engine.scan_for_completions()
 
 # Quest Log UI Integration
 def get_quest_log_data(game_state):

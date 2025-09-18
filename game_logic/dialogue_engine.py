@@ -18,6 +18,7 @@ import json
 import os
 from typing import Dict, List, Optional, Tuple, Any
 from utils.narrative_schema import narrative_schema
+from utils.xp_manager import XPManager
 
 class DialogueEngine:
     """
@@ -54,29 +55,28 @@ class DialogueEngine:
         Returns:
             bool: True if loaded successfully
         """
-        print(f"🔍 LOAD DEBUG: Attempting to load dialogue file: {dialogue_id}")
-        print(f"🔍 LOAD DEBUG: Current dialogues cache: {list(self.dialogues.keys())}")
+        #print(f"🔍 LOAD DEBUG: Attempting to load dialogue file: {dialogue_id}")
+        #print(f"🔍 LOAD DEBUG: Current dialogues cache: {list(self.dialogues.keys())}")
     
         try:
             file_path = os.path.join('data', 'dialogues', f'{dialogue_id}.json')
-            print(f"🔍 LOAD DEBUG: File path: {file_path}")
+            #print(f"🔍 LOAD DEBUG: File path: {file_path}")
             if not os.path.exists(file_path):
                 print(f"⚠️ Dialogue file not found: {file_path}")
-                print(f"🔍 LOAD DEBUG: File does not exist: {file_path}")
+                #print(f"🔍 LOAD DEBUG: File does not exist: {file_path}")
                 return False
                 
             with open(file_path, 'r', encoding="utf-8") as f:
                 dialogue_data = json.load(f)
                 
             self.dialogues[dialogue_id] = dialogue_data
-            print(f"✅ Loaded dialogue tree: {dialogue_id}")
-            print(f"🔍 LOAD DEBUG: Successfully loaded {dialogue_id}")
-            print(f"🔍 LOAD DEBUG: Dialogue data keys: {dialogue_data.keys()}")
+            #print(f"✅ Loaded dialogue tree: {dialogue_id}")
+            #print(f"🔍 LOAD DEBUG: Successfully loaded {dialogue_id}")
+            #print(f"🔍 LOAD DEBUG: Dialogue data keys: {dialogue_data.keys()}")
             return True
             
         except Exception as e:
             print(f"❌ Error loading dialogue {dialogue_id}: {e}")
-            print(f"🔍 LOAD DEBUG: Error loading dialogue {dialogue_id}: {e}")
             return False
     
     def get_current_dialogue_state(self, npc_id: str) -> str:
@@ -153,20 +153,86 @@ class DialogueEngine:
         # Update party_members list
         self.game_state.party_members = party_members
         print(f"🔄 Synced party_members: {party_members}")
+        
         # Also sync character data
         self.game_state.sync_party_member_data()
+        
+        #Update quest system when flags change
+        if hasattr(self.game_state, 'quest_manager'):
+            self.game_state.quest_manager.update_from_game_state()
+            print("📋 Quest system updated after flag changes")
+        
+
+    def _process_narrative_events(self):
+        
+        """Process all narrative events from schema configuration"""
+        #xp_manager = XPManager(self.narrative_schema)
+        #all_triggers = self.narrative_schema.schema.get('quest_triggers', {})
+        
+        xp_manager = XPManager(narrative_schema)
+        all_triggers = narrative_schema.schema.get('quest_triggers', {})
+
+
+        # Process individual triggers (discovery, quest activation, etc.)
+        for trigger_name, trigger_data in all_triggers.items():
+            if isinstance(trigger_data, dict) and 'dialogue_flag' in trigger_data:
+                self._check_single_trigger(trigger_name, trigger_data, xp_manager)
+        
+        # Process recruitment triggers
+        party_triggers = all_triggers.get('party_recruitment_triggers', {})
+        for npc_id, trigger_data in party_triggers.items():
+            # Convert recruitment trigger to standard format
+            standard_trigger = {
+                'dialogue_flag': npc_id,
+                'event_type': trigger_data.get('event_type'),
+                'xp_reward': trigger_data.get('xp_reward')
+            }
+            self._check_single_trigger(f"recruitment_{npc_id}", standard_trigger, xp_manager)
+        
+        # Process basement quest triggers
+        basement_triggers = all_triggers.get('basement_quest_triggers', {})
+        for trigger_name, trigger_data in basement_triggers.items():
+            if 'dialogue_flag' in trigger_data:
+                self._check_single_trigger(f"basement_{trigger_name}", trigger_data, xp_manager)
+
+    def _check_single_trigger(self, trigger_name, trigger_data, xp_manager):
+        """Check a single narrative trigger for XP award"""
+        dialogue_flag = trigger_data.get('dialogue_flag')
+        xp_reward_key = trigger_data.get('xp_reward')
+        event_type = trigger_data.get('event_type')
+        
+        if not all([dialogue_flag, xp_reward_key, event_type]):
+            return
+        
+        # Check if flag is set and XP not already awarded
+        flag_set = getattr(self.game_state, dialogue_flag, False)
+        xp_awarded = getattr(self.game_state, f"{dialogue_flag}_xp_awarded", False)
+        
+        if flag_set and not xp_awarded:
+            xp_amount = xp_manager.get_reward(xp_reward_key)
+            
+            if self.event_manager and xp_amount > 0:
+                self.event_manager.emit("XP_AWARDED", {
+                    'amount': xp_amount,
+                    'reason': f"{event_type.lower()}: {trigger_name}"
+                })
+            
+            setattr(self.game_state, f"{dialogue_flag}_xp_awarded", True)
+            print(f"⚡ Event XP awarded: {xp_amount} for {trigger_name}")
+
+
 
     def get_conversation_options(self, dialogue_id: str, npc_id: str, forced_state: str = None) -> Dict[str, Any]:
-        print(f"🔍 GET_OPTIONS DEBUG: Called for {dialogue_id}, {npc_id}")
-        print(f"🔍 GET_OPTIONS DEBUG: dialogue_id in self.dialogues? {dialogue_id in self.dialogues}")
+        #print(f"🔍 GET_OPTIONS DEBUG: Called for {dialogue_id}, {npc_id}")
+        #print(f"🔍 GET_OPTIONS DEBUG: dialogue_id in self.dialogues? {dialogue_id in self.dialogues}")
         
         if dialogue_id not in self.dialogues:
-            print(f"🔍 GET_OPTIONS DEBUG: Dialogue not in cache, attempting to load...")
+            #print(f"🔍 GET_OPTIONS DEBUG: Dialogue not in cache, attempting to load...")
             if not self.load_dialogue_file(dialogue_id):
-                print(f"🔍 GET_OPTIONS DEBUG: Load failed, using fallback")
+                #print(f"🔍 GET_OPTIONS DEBUG: Load failed, using fallback")
                 return self._get_fallback_dialogue(npc_id)
-        else:
-            print(f"🔍 GET_OPTIONS DEBUG: Using cached dialogue")
+        #else:
+            #print(f"🔍 GET_OPTIONS DEBUG: Using cached dialogue")
     
         
         """
@@ -252,13 +318,13 @@ class DialogueEngine:
 
     def _handle_dialogue_choice(self, event_data):
         """Handle DIALOGUE_CHOICE events"""
-        print(f"🎭 DEBUG: DialogueEngine received DIALOGUE_CHOICE event: {event_data}")
+        #print(f"🎭 DEBUG: DialogueEngine received DIALOGUE_CHOICE event: {event_data}")
         
         npc_id = event_data.get('npc_id')
         choice_index = event_data.get('choice_index')
         
         if npc_id and choice_index is not None:
-            print(f"🎭 DEBUG: Processing choice {choice_index} for {npc_id}")
+            #print(f"🎭 DEBUG: Processing choice {choice_index} for {npc_id}")
             
 
             # Get stored location - REQUIRED, no hardcoding
@@ -267,7 +333,7 @@ class DialogueEngine:
                 raise ValueError(f"No location set for {npc_id} dialogue session - location must be set before dialogue begins")
             
             dialogue_file_id = f'{location_id}_{npc_id}'
-            print(f"🎭 DEBUG: Looking for dialogue file: {dialogue_file_id}")
+            #print(f"🎭 DEBUG: Looking for dialogue file: {dialogue_file_id}")
             
             # Get choice_id from conversation data
             conversation_data = self.get_conversation_options(dialogue_file_id, npc_id)
@@ -275,11 +341,11 @@ class DialogueEngine:
 
             if choice_index < len(options):
                 choice_id = options[choice_index]['id']
-                print(f"🎭 DEBUG: Selected option ID: {choice_id}")
+                #print(f"🎭 DEBUG: Selected option ID: {choice_id}")
                 
                 # Determine state BEFORE setting flags for consistency
                 current_state = self.get_current_dialogue_state(npc_id)
-                print(f"🎭 DEBUG: Using state: {current_state} for choice processing")
+                #print(f"🎭 DEBUG: Using state: {current_state} for choice processing")
                 
                 # NARRATIVE SCHEMA INTEGRATION - Set conversation flag AFTER state determination
                 conv_flag = narrative_schema.get_npc_conversation_flag(npc_id)
@@ -288,11 +354,11 @@ class DialogueEngine:
 
                 # Call existing business logic method with explicit state
                 result = self.process_dialogue_choice(dialogue_file_id, npc_id, choice_id, current_state)
-                print(f"🎭 DEBUG: Choice processing result: {result}")
+                #print(f"🎭 DEBUG: Choice processing result: {result}")
                 if result:
                     # Handle conversation ending through event system
                     if result.get('conversation_ended'):
-                        print(f"🎭 DEBUG: Conversation ended, emitting navigation event")
+                        #print(f"🎭 DEBUG: Conversation ended, emitting navigation event")
                         self.event_manager.emit("DIALOGUE_ENDED", {
                             'npc_id': npc_id,
                             'return_to': result.get('return_to', 'location')
@@ -301,14 +367,14 @@ class DialogueEngine:
                     elif result.get('new_conversation'):
                         new_conv = result['new_conversation']
                         setattr(self.game_state, f'{npc_id}_conversation_data', new_conv)
-                        print(f"🎭 DEBUG: Engine result ready for UI handler")
+                        #print(f"🎭 DEBUG: Engine result ready for UI handler")
                         return result
                     else:
                         # Fallback for old response format
                         response_lines = result.get('response', [])
                         setattr(self.game_state, f'{npc_id}_dialogue_response', response_lines)
                         setattr(self.game_state, f'showing_{npc_id}_response', True)
-                        print(f"🎭 DEBUG: Response stored, registering dialogue state handler")
+                        #print(f"🎭 DEBUG: Response stored, registering dialogue state handler")
                         return result
             else:
                 print(f"❌ DEBUG: Invalid choice index {choice_index} for {npc_id} (only {len(options)} options available)")
@@ -444,22 +510,22 @@ class DialogueEngine:
         # DEBUG: Check what conversation data exists
         stored_conversation_attr = f'{npc_id}_conversation_data'
         stored_data = getattr(self.game_state, stored_conversation_attr, None)
-        print(f"🔍 DEBUG: Stored conversation data for {npc_id}: {stored_data}")
+        #print(f"🔍 DEBUG: Stored conversation data for {npc_id}: {stored_data}")
         
         # DEBUG: Check current state vs what UI thinks
         current_state = self.get_current_dialogue_state(npc_id)
-        print(f"🔍 DEBUG: DE: Current calculated state: {current_state}")
-        print(f"🔍 DEBUG: DE: Forced state: {forced_state}")
-        print(f"🔍 DEBUG: DE: Choice ID from UI: {choice_id}")
+        #print(f"🔍 DEBUG: DE: Current calculated state: {current_state}")
+        #print(f"🔍 DEBUG: DE: Forced state: {forced_state}")
+        #print(f"🔍 DEBUG: DE: Choice ID from UI: {choice_id}")
         
-        print(f"🔧 DEBUG PROCESS: Called with forced_state={forced_state}")
-        print(f"DEBUG: DE: Processing choice {choice_id} for {npc_id}")
+        #print(f"🔧 DEBUG PROCESS: Called with forced_state={forced_state}")
+        #print(f"DEBUG: DE: Processing choice {choice_id} for {npc_id}")
 
         # Clear temporary action choices when a choice is made
         temp_choices_attr = f'{npc_id}_dialogue_response_actions'
         if hasattr(self.game_state, temp_choices_attr):
             setattr(self.game_state, temp_choices_attr, None)
-            print(f"DEBUG: DE: Cleared temporary action choices for {npc_id}")
+            #print(f"DEBUG: DE: Cleared temporary action choices for {npc_id}")
 
         try:
             if dialogue_id not in self.dialogues:
@@ -480,7 +546,7 @@ class DialogueEngine:
                         # Set the new dialogue state
                         state_attr = f'{npc_id}_dialogue_state'
                         setattr(self.game_state, state_attr, target_state)
-                        print(f"DEBUG: DE: Action choice triggered state transition: {npc_id} -> {target_state}")
+                        #print(f"DEBUG: DE: Action choice triggered state transition: {npc_id} -> {target_state}")
                         
                         # CRITICAL FIX: Clear response state to force dialogue reload
                         setattr(self.game_state, f'showing_{npc_id}_response', False)
@@ -515,8 +581,8 @@ class DialogueEngine:
             
             # Handle normal dialogue choices
             current_state = forced_state or self.get_current_dialogue_state(npc_id)
-            print(f"🔧 DEBUG PROCESS: DE: Using current_state={current_state}")
-            print(f"DEBUG: DE: Current state = {current_state}")
+            #print(f"🔧 DEBUG PROCESS: DE: Using current_state={current_state}")
+            #print(f"DEBUG: DE: Current state = {current_state}")
 
             if current_state not in dialogue_tree.get('states', {}):
                 return {'response': ["I don't understand."], 'effects': []}
@@ -533,7 +599,7 @@ class DialogueEngine:
             if not selected_choice:
                 return {'response': ["I don't understand."], 'effects': []}
             
-            print(f"DEBUG: DE: Selected choice = {selected_choice}")
+            #print(f"DEBUG: DE: Selected choice = {selected_choice}")
 
             # Process the choice effects
             #effects = []
@@ -562,7 +628,7 @@ class DialogueEngine:
                 # ALSO clear stored conversation data
                 conversation_attr = f'{npc_id}_conversation_data'
                 setattr(self.game_state, conversation_attr, None)
-                print(f"🧹 DE: PDC: Cleared dialogue state and conversation data for {npc_id}")
+                #print(f"🧹 DE: PDC: Cleared dialogue state and conversation data for {npc_id}")
                 
                 self._clear_conversation_state(npc_id)
                 return {
@@ -605,37 +671,55 @@ class DialogueEngine:
             return {'response': ["Something went wrong."], 'effects': []}
     
     def _apply_dialogue_effect(self, effect: Dict[str, Any], npc_id: str = None) -> Optional[str]:
-        """Apply dialogue choice effects to GameState with robust error handling"""
-        
-        # Add defensive checks at the start
+        """Apply dialogue choice effects to GameState; emit neutral events for QuestEngine."""
+        # 0) Defensive checks
         if not effect or not isinstance(effect, dict):
             print(f"WARNING: Invalid effect data: {effect}")
             return None
-            
+
         effect_type = effect.get('type')
         if not effect_type:
             print(f"WARNING: Effect missing type: {effect}")
             return None
-        
+
+        # 1) set_flag  -------------------------------------------------------------
         if effect_type == 'set_flag':
             flag_name = effect.get('flag')
-            # ADD THIS CHECK:
             if not flag_name:
                 print(f"WARNING: set_flag effect missing flag name: {effect}")
                 return None
-                
+
             value = effect.get('value', True)
             setattr(self.game_state, flag_name, value)
             print(f"✅ Set flag: {flag_name} = {value}")
-            
-            # SYNC PARTY MEMBERS LIST when recruitment flags change
+
+            # (A) Keep party list accurate locally (no XP logic here)
             if flag_name.endswith('_recruited'):
-                self._sync_party_members_list()
-            
+                try:
+                    self._sync_party_members_list()
+                except Exception as e:
+                    print(f"DE: party sync failed after {flag_name}: {e}")
+
+            # (B) Emit neutral events so QuestEngine can react
+            if self.event_manager:
+                try:
+                    self.event_manager.emit("FLAG_CHANGED", {"flag": flag_name, "value": value, "source": "dialogue"})
+                    if flag_name.endswith('_recruited') and value:
+                        member = flag_name.split("_")[0]
+                        self.event_manager.emit("PARTY_MEMBER_RECRUITED", {"member_id": member, "member": member, "source": "dialogue"})
+                    print(f"[DBG] EMIT FLAG_CHANGED {flag_name}={value}")
+                
+                except Exception as e:
+                    print(f"DE: event emit failed for {flag_name}: {e}")
+
+            # (C) IMPORTANT: remove any direct calls to narrative/XP processing here
+            #     (i.e., do NOT call self._handle_flag_change(...) or _process_narrative_events())
+
             return f"Set {flag_name} = {value}"
-            
+
+        # 2) quest_trigger  --------------------------------------------------------
         elif effect_type == 'quest_trigger':
-            # Quest event hook for future QuestEngine integration
+            # Leave as-is; emit a neutral quest event (no XP calculation here)
             quest_event = {
                 'type': 'quest_trigger',
                 'quest_id': effect.get('quest_id'),
@@ -644,33 +728,54 @@ class DialogueEngine:
             }
             self._emit_quest_event(quest_event)
             return f"Quest trigger: {effect.get('quest_id')}"
-            
+
+        # 3) add_location  ---------------------------------------------------------
         elif effect_type == 'add_location':
             location = effect.get('location')
             if location and location not in self.game_state.locations_discovered:
                 self.game_state.locations_discovered.append(location)
+                # Emit discovery so QuestEngine can advance quests/XP
+                if self.event_manager:
+                    try:
+                        self.event_manager.emit("LOCATION_DISCOVERED", {"location": location, "source": "dialogue"})
+                    except Exception as e:
+                        print(f"DE: event emit failed for LOCATION_DISCOVERED {location}: {e}")
                 return f"Discovered location: {location}"
-       
+
+        # 4) open_shop  ------------------------------------------------------------
         elif effect_type == 'open_shop':
             merchant_id = effect.get('merchant_id')
             if not merchant_id:
                 print(f"WARNING: open_shop effect missing merchant_id: {effect}")
                 return None
-            
+
             if self.event_manager:
                 self.event_manager.emit('OPEN_SHOPPING', {
                     'merchant_id': merchant_id,
                     'source_location': getattr(self.game_state, f'{npc_id}_current_location', 'broken_blade')
                 })
                 return f"Opening shop for {merchant_id}"
-            
             return None
-        
+
+        # 5) default ---------------------------------------------------------------
         return None
 
 
+    def _handle_flag_change(self, flag_name: str) -> None:
+        """
+        Central place for: party sync, narrative trigger processing, and safety.
+        Called after ANY set_flag.
+        """
+        try:
+            # Keep party in sync (this can still be no-op for non-recruit flags)
+            self._sync_party_members_list()
 
-        return None
+            # Evaluate narrative triggers → may award XP, unlock beats, etc.
+            self._process_narrative_events()
+        except Exception as e:
+            # Don’t let one bad trigger lock the UI in a render loop
+            print(f"DE: flag side-effects failed for {flag_name}: {e}")
+
 
     def _check_option_requirements(self, option: Dict[str, Any]) -> bool:
             """Check if dialogue option requirements are met"""

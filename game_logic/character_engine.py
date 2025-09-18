@@ -8,6 +8,7 @@ CharacterEngine = Pure business logic processor
 import random
 from typing import Dict, List, Tuple, Optional
 from datetime import datetime
+from utils.narrative_schema import narrative_schema
 
 class CharacterEngine:
     """
@@ -32,7 +33,7 @@ class CharacterEngine:
         """
         self.game_state = game_state_ref
         print("🏗️ CharacterEngine initialized with Single Data Authority pattern")
-    
+        self.event_manager = None  # Will be set by dependency injection
 
     # ==========================================
     # CHARACTER CREATION OPERATIONS
@@ -45,6 +46,16 @@ class CharacterEngine:
         # Emit navigation to first character creation screen
         if self.event_manager:
             self.event_manager.emit('SCREEN_CHANGE', {'target': 'stats'})
+    
+    def set_event_manager(self, event_manager):
+        """Set event manager reference and register for XP events"""
+        self.event_manager = event_manager
+        
+        # Register for XP award events
+        if event_manager:
+            event_manager.register("XP_AWARDED", self._handle_xp_award)
+            event_manager.register("QUEST_COMPLETED", self._handle_quest_xp)
+            print("📡 CharacterEngine registered for XP events")
 
     def roll_stats(self, reroll_ones=True):
         """
@@ -77,7 +88,6 @@ class CharacterEngine:
         
         print(f"🎲 Character stats rolled: {stats}")
         return stats
-
 
     def _handle_reroll_stats(self, event_data):
         """Event wrapper for roll_stats - just adds logging"""
@@ -158,8 +168,6 @@ class CharacterEngine:
         event_manager.register("QUEST_COMPLETED", self._handle_quest_completion)
         event_manager.register("INFORMATION_DISCOVERED", self._handle_information_discovery)
         print("🎯 CharacterEngine registered for quest events")
-
-
 
     def handle_advance_from_snarky(self, event_data):
         """Handle click to advance from snarky comment"""
@@ -425,8 +433,6 @@ class CharacterEngine:
                 "event_type": "ADVANCE_FROM_SNARKY"
             })
             
-        
-
     def ensure_active_portrait(self, game_state):
         """Ensure active portrait file exists, recreate if missing"""
         import os
@@ -550,10 +556,9 @@ class CharacterEngine:
         print("🎬 Triggering intro sequence with auto-save...")
         self.event_manager.emit("INTRO_START", {})
 
-
     def handle_keep_stats(self, event_data):
         """Handle keeping stats - check for low primary abilities first"""
-        print(f"DEBUG: CE: Starting KEEP_STATS check")
+       # print(f"DEBUG: CE: Starting KEEP_STATS check")
         
         # Get primary abilities for current class
         primary_abilities = self._get_primary_abilities()
@@ -1030,14 +1035,16 @@ class CharacterEngine:
         current_level = self.game_state.character.get('level', 1)
         current_xp = self.game_state.character.get('experience', 0)
         
-        # Simple XP table for levels 1-5
-        xp_requirements = {
-            1: 0,
-            2: 300,
-            3: 900,
-            4: 2700,
-            5: 6500
-        }
+        # Get XP requirements from narrative schema
+        #from utils.narrative_schema import narrative_schema
+        xp_requirements = narrative_schema.schema.get('xp_balance', {}).get('level_progression', {}).get('requirements', [0, 300, 900, 2700, 6500])
+        
+        # Convert list to dict for compatibility
+        xp_req_dict = {}
+        for level, xp in enumerate(xp_requirements, 1):
+            if level <= len(xp_requirements):
+                xp_req_dict[level] = xp
+        xp_requirements = xp_req_dict
         
         next_level = current_level + 1
         if next_level <= 5 and current_xp >= xp_requirements.get(next_level, 999999):
@@ -1129,6 +1136,7 @@ class CharacterEngine:
         total_xp = base_xp * enemy_count
         return self.award_experience(total_xp, f"defeated {enemy_count} enemies")
     
+    #TODO  does this need t be removed or updated since we have a calculated XP
     # ENHANCED VERSION - More precise than legacy, less specific than quest_engine
     def award_quest_xp(self, quest_type="normal", custom_amount=None):
         """Award XP for quest completion with flexible options"""
@@ -1288,6 +1296,7 @@ class CharacterEngine:
         current_level = member_data.get('level', 1)
         current_xp = member_data.get('experience', 0)
         
+        #TODO   Don;t we need to update this hardcoded xp requirements as well??
         # Use same XP table as player
         xp_requirements = {1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500}
         
@@ -1341,6 +1350,8 @@ class CharacterEngine:
         
         member_data = self.game_state.party_xp[member_id]
         
+
+        #TODO   Don;t we need to update this hardcoded xp requirements as well??
         # Calculate XP to next level
         current_level = member_data.get('level', 1)
         current_xp = member_data.get('experience', 0)
@@ -1420,7 +1431,65 @@ class CharacterEngine:
         }
         
         return summary
-    
+
+    def _handle_xp_award(self, event_data):
+        """Handle XP_AWARDED events from quest/combat/discovery systems"""
+        xp_amount = event_data.get('amount', 0)
+        reason = event_data.get('reason', 'Unknown')
+        
+        if xp_amount > 0:
+            self.award_party_experience(xp_amount, reason)
+
+    def _handle_quest_xp(self, event_data):
+        """Handle QUEST_COMPLETED events with appropriate XP rewards"""
+        quest_id = event_data.get('quest_id', '')
+        xp_amount = event_data.get('amount', 300)
+        reason = f"completed quest: {quest_id}"
+        
+        self.award_party_experience(xp_amount, reason)
+
+    def award_party_experience(self, xp_amount, reason=""):
+        """Award experience to all party members using GameState data"""
+        # Award to player (existing logic)
+        current_player_xp = self.game_state.character.get('experience', 0)
+        self.game_state.character['experience'] = current_player_xp + xp_amount
+        
+        # Award to all party members
+        level_up_candidates = []
+        for party_member in self.game_state.party_member_data:
+            old_xp = party_member.get('experience', 0)
+            new_xp = old_xp + xp_amount
+            party_member['experience'] = new_xp
+                       
+            # Check for level-up opportunity
+            if self._can_npc_level_up(party_member):
+                level_up_candidates.append(party_member['name'])
+        
+        print(f"⭐ Awarded {xp_amount} XP to entire party! {reason}")
+        if level_up_candidates:
+            print(f"🎊 Ready to level up: {', '.join(level_up_candidates)}")
+        
+        # Check if player can level up too
+        if self.can_level_up():
+            print("🎊 Player ready to level up!")
+
+    def _can_npc_level_up(self, npc_data):
+        """Check if NPC can level up using same XP table as player"""
+        current_level = npc_data.get('level', 1)
+        current_xp = npc_data.get('experience', 0)
+        
+        # Get XP requirements from narrative schema
+        #from utils.narrative_schema import narrative_schema   
+        xp_requirements = narrative_schema.schema.get('xp_balance', {}).get('level_progression', {}).get('requirements', [0, 300, 900, 2700, 6500])
+        
+        # Convert to dict format
+        xp_req_dict = {i+1: xp for i, xp in enumerate(xp_requirements)}
+        xp_requirements = xp_req_dict
+        
+        next_level = current_level + 1
+        return (next_level <= 5 and 
+                current_xp >= xp_requirements.get(next_level, 999999))
+
     def finalize_character_creation(self):
         """
         Complete character creation process with class-specific setup
@@ -1501,6 +1570,11 @@ class CharacterEngine:
             print("❌ Character creation validation failed!")
         
         return is_valid
+    
+
+
+
+
 
 
 # ==========================================
@@ -1530,7 +1604,7 @@ def initialize_character_engine(game_state_ref, event_manager=None):
         print("📝 CharacterEngine registered for character creation events")
         character_engine.register_quest_events(event_manager)
         print("🎯 CharacterEngine registered for quest events")
-        
+        character_engine.set_event_manager(event_manager)
     else:
         print("⚠️ No EventManager provided to CharacterEngine")
     

@@ -328,7 +328,7 @@ class ScreenManager:
             female_rect = pygame.Rect(560, 280, 160, 70)
             self.input_handler.register_clickable('gender', female_rect, 'SELECT_FEMALE', {})
             
-            print("🚹🚺 Gender screen clickables registered")
+            #print("🚹🚺 Gender screen clickables registered")
         else:
             print("⚠️ No InputHandler available for gender screen registration")
 
@@ -409,7 +409,7 @@ class ScreenManager:
             back_rect = pygame.Rect(550, button_y, 160, 50)
             self.input_handler.register_clickable('name_confirm', back_rect, 'BACK_TO_NAME_SELECTION', {'action': 'BACK_TO_NAME_SELECTION'})
             
-            print("✅ Name confirm screen clickables registered")
+            #print("✅ Name confirm screen clickables registered")
         else:
             print("⚠️ No InputHandler available for name confirm screen registration")
     
@@ -446,7 +446,7 @@ class ScreenManager:
             self.input_handler.register_clickable('portrait_selection', continue_rect, 
                                                 'CONFIRM_PORTRAIT', {'action': 'CONFIRM_PORTRAIT'})
             
-            print("🖼️ Portrait selection screen clickables registered (5 portraits + 2 buttons)")
+            #print("🖼️ Portrait selection screen clickables registered (5 portraits + 2 buttons)")
         else:
             print("⚠️ No InputHandler available for portrait screen registration")
 
@@ -480,7 +480,6 @@ class ScreenManager:
 
     def register_summary_screen_clickables(self, game_state):
         """Register clickable regions for summary screen using semantic actions"""
-        print("🎯 Registering summary screen clickables")
         
        # Get the START GAME button coordinates from the draw function
         temp_surface = pygame.Surface((1024, 768))
@@ -501,7 +500,7 @@ class ScreenManager:
                 "START_GAME", 
                 {}
             )
-            print(f"✅ START GAME button registered at {start_button}")
+            
         else:
             print("⚠️ Could not get START GAME button coordinates")
             
@@ -564,8 +563,8 @@ class ScreenManager:
             if hasattr(self, '_current_game_controller') and self._current_game_controller:
                 save_manager = getattr(self._current_game_controller, 'save_manager', None)
             
-            print(f"🔍 DEBUG: save_manager = {save_manager}")
-            print(f"🔍 DEBUG: _current_game_controller = {getattr(self, '_current_game_controller', 'NOT SET')}")
+            #print(f"🔍 DEBUG: save_manager = {save_manager}")
+            #print(f"🔍 DEBUG: _current_game_controller = {getattr(self, '_current_game_controller', 'NOT SET')}")
 
             result = draw_load_game_screen(
                 temp_surface, 

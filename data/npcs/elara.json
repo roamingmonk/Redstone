@@ -1,0 +1,34 @@
+{
+    "id": "elara",
+    "name": "Elara Moonwhisper",
+    "description": "*A graceful elf sits reading an ancient tome, arcane symbols flickering around her fingers as she studies.*",
+    "level": 1,
+    "age": 127,
+    "gender": "female",
+    "class": "wizard",
+    "stats": {
+        "strength": 8,
+        "dexterity": 14,
+        "constitution": 12,
+        "intelligence": 16,
+        "wisdom": 13,
+        "charisma": 15
+    },
+    "hp": 18,
+    "ac": 12,
+    "equipment": {
+        "weapon": "Quarterstaff",
+        "armor": "None",
+        "shield": "None"
+    },
+    "spells": {
+        "cantrips_known": ["Mage Hand", "Light", "Prestidigitation"],
+        "spells_known": ["Magic Missile", "Shield", "Detect Magic", "Sleep", "Burning Hands", "Comprehend Languages"]
+    },
+    "character_details": {
+        "background": "Elven scholar specializing in ancient magic",
+        "personality": "Intellectual and curious, slightly aloof but loyal to friends",
+        "motivations": "Seeks to understand the magical disturbances plaguing the region",
+        "combat_style": "Ranged spellcaster, prefers control and damage spells"
+    }
+}

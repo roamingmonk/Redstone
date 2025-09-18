@@ -79,7 +79,7 @@ class EventManager:
         # In event_manager.py emit method, add:
         if event_type == "DIALOGUE_ENDED":
             print(f"🔍 DEBUG: DIALOGUE_ENDED emitted with data: {data}")  # Use 'data' not 'event_data'
-            print(f"🔍 DEBUG: Listeners for DIALOGUE_ENDED: {len(self.listeners.get('DIALOGUE_ENDED', []))}")
+            #print(f"🔍 DEBUG: Listeners for DIALOGUE_ENDED: {len(self.listeners.get('DIALOGUE_ENDED', []))}")
         # Call all registered listeners for this event type
         success = True
         for callback in self.listeners[event_type]:

@@ -20,6 +20,7 @@ from game_logic.inventory_engine import initialize_inventory_engine
 from game_logic.commerce_engine import initialize_commerce_engine
 from game_logic.dialogue_engine import initialize_dialogue_engine
 from game_logic.quest_engine import initialize_quest_engine
+from utils.quest_system import integrate_quest_system, update_quest_system
 from ui.screen_manager import ScreenManager
 from input_handler import InputHandler
 from screens.intro_scenes import IntroSequenceManager
@@ -192,6 +193,10 @@ class GameController:
         self.data_manager.load_all_data()
         self._mark_system_created("data_loaded")
         
+        # Step 4.5: Ensure QuestManager exists
+        integrate_quest_system(self.game_state)
+        self._mark_system_created("quest_manager")
+
         # Step 5: Initialize engines (requires: EventManager, DataManager)
         self._validate_dependency("event_manager", self.event_manager)
         self._validate_dependency("data_manager", self.data_manager)
@@ -201,6 +206,9 @@ class GameController:
         self.commerce_engine = initialize_commerce_engine(self.game_state, self.data_manager.item_manager)
         self.dialogue_engine = initialize_dialogue_engine(self.game_state, self.event_manager)
         self.quest_engine = initialize_quest_engine(self.game_state, self.event_manager)
+
+        # Make QuestEngine discoverable by helpers (e.g., update_quest_system -> scan)
+        self.game_state.quest_engine = self.quest_engine
 
         self.commerce_engine.register_event_handlers(self.event_manager)
         
@@ -239,6 +247,11 @@ class GameController:
         )
         self._mark_system_created("intro_sequence_manager")
         
+         # Initial quest sync + detection (safe if nothing changed)
+        update_quest_system(self.game_state)
+        if getattr(self.game_state, "quest_engine", None):
+            self.game_state.quest_engine.scan_for_completions()
+
         print("✅ Phase 2 Complete: All core dependencies initialized")
     
     def _initialize_system_integration(self):
@@ -278,6 +291,15 @@ class GameController:
         # Sync ScreenManager with current game state
         self.screen_manager.transition_to(self.game_state.screen, self.game_state, save_history=False)
         
+    # --- DEBUG: temporary event tap to see XP awards in the console ---
+    # Remove once you confirm XP events are flowing.
+        try:
+            self.event_manager.register("XP_AWARDED",
+                lambda d: print(f"[TAP] XP_AWARDED {d}"))
+            print("[DBG] XP_AWARDED tap registered")
+        except Exception as e:
+            print(f"[DBG] Failed to register XP_AWARDED tap: {e}")
+
         print("✅ Phase 3 Complete: System integration finished")
  
     def _initialize_debug_system(self):

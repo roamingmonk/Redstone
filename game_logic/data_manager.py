@@ -90,7 +90,7 @@ class DataManager:
         Get comprehensive system status report
         Useful for debugging and system monitoring
         """
-        print("🔍 DEBUG: get_system_status() called")
+        #print("🔍 DEBUG: get_system_status() called")
         try:
             print(f"🔍 DEBUG: self.initialized = {getattr(self, 'initialized', 'MISSING')}")
             print(f"🔍 DEBUG: self.load_start_time = {getattr(self, 'load_start_time', 'MISSING')}")

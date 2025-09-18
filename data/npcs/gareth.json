@@ -1,0 +1,30 @@
+{
+    "id": "gareth",
+    "name": "Gareth Ironwill",
+    "description": "*A weathered soldier sits alone, his scarred hands wrapped around a tankard. Battle experience shows in every line of his face.*",
+    "level": 1,
+    "age": 35,
+    "gender": "male",
+    "class": "fighter",
+    "stats": {
+        "strength": 16,
+        "dexterity": 12,
+        "constitution": 15,
+        "intelligence": 10,
+        "wisdom": 13,
+        "charisma": 11
+    },
+    "hp": 32,
+    "ac": 16,
+    "equipment": {
+        "weapon": "Longsword",
+        "armor": "Chain Mail", 
+        "shield": "Shield"
+    },
+    "character_details": {
+        "background": "Veteran soldier with 20 years combat experience",
+        "personality": "Gruff but loyal, values honor above personal gain",
+        "motivations": "Seeks worthy cause to fight for after years of questionable wars",
+        "combat_style": "Aggressive melee fighter, relies on strength and experience"
+    }
+}

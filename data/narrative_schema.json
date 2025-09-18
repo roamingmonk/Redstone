@@ -1,7 +1,22 @@
 {
   "version": "1.0",
   "description": "Canonical narrative identifiers for Terror in Redstone - Single source of truth for all story flags",
-  
+  "xp_balance": {
+    "discovery_base": 50,
+    "recruitment_bonus": 25,
+    "base_quest_xp": 50,
+    "quest_multipliers": {
+      "main_story": 20.0,
+      "secondary": 6.0,
+      "investigation": 8.0,
+      "side_task": 3.0
+    },
+    "level_progression": {
+      "comment": "XP requirements for levels 1-5",
+      "requirements": [0, 300, 900, 2700, 6500]
+    }
+  },
+
   "npcs": {
     "meredith": {
       "system_id": "meredith",
@@ -235,60 +250,78 @@
       "dialogue_flag": "learned_about_swamp_church",
       "quest_objective": "main_story.investigate_swamp_church",
       "event_type": "INFORMATION_DISCOVERED",
-      "xp_reward": 50
+      "xp_reward": "discovery_base"
     },
     "garrick_ruins_discovery": {
       "dialogue_flag": "learned_about_ruins", 
       "quest_objective": "main_story.investigate_hill_ruins",
       "event_type": "INFORMATION_DISCOVERED",
-      "xp_reward": 50
+      "xp_reward": "discovery_base"
     },
     "pete_mentioned_refugees": {
       "dialogue_flag": "learned_about_refugees", 
       "quest_objective": "main_story.investigate_refugees",
       "event_type": "INFORMATION_DISCOVERED",
-      "xp_reward": 50
+      "xp_reward": "discovery_base"
     },
     "mayor_main_quest": {
       "dialogue_flag": "quest_active",
       "quest_objective": "main_story.meet_mayor", 
       "event_type": "QUEST_ACTIVATED",
-      "xp_reward": 100
+      "xp_reward": "quest_multipliers.main_story"
     },
     "party_recruitment_triggers": {
       "gareth_recruited": {
         "quest_objective": "party_building.recruit_warrior",
         "event_type": "PARTY_MEMBER_RECRUITED",
-        "xp_reward": 200
+        "xp_reward": "recruitment_bonus"
       },
       "elara_recruited": {
         "quest_objective": "party_building.recruit_mage", 
         "event_type": "PARTY_MEMBER_RECRUITED",
-        "xp_reward": 200
+        "xp_reward": "quest_multipliers.secondary"
       },
       "thorman_recruited": {
         "quest_objective": "party_building.recruit_cleric",
         "event_type": "PARTY_MEMBER_RECRUITED", 
-        "xp_reward": 200
+        "xp_reward": "quest_multipliers.secondary"
       },
       "lyra_recruited": {
         "quest_objective": "party_building.recruit_rogue",
         "event_type": "PARTY_MEMBER_RECRUITED",
-        "xp_reward": 200
+        "xp_reward": "quest_multipliers.secondary"
+      }
+    },
+    "quest_completion_triggers": {
+      "party_building_complete": {
+        "quest_id": "party_building",
+        "event_type": "QUEST_COMPLETED",
+        "xp_reward": "quest_multipliers.secondary"
+      },
+      "main_story_complete": {
+        "quest_id": "main_story", 
+        "event_type": "QUEST_COMPLETED",
+        "xp_reward": "quest_multipliers.main_story"
       }
     },
     "basement_quest_triggers": {
       "garrick_basement_offer": {
         "dialogue_flag": "garrick_offered_basement",
         "quest_objective": "basement_rat_combat.accept_challenge",
-        "event_type": "QUEST_OFFERED",
-        "xp_reward": 25
+        "event_type": "QUEST_ACCEPTED",
+        "xp_reward": "discovery_base"
       },
       "basement_combat_complete": {
         "dialogue_flag": "completed_basement_combat", 
         "quest_objective": "basement_rat_combat.clear_basement",
         "event_type": "COMBAT_VICTORY",
-        "xp_reward": 150
+        "xp_reward": "quest_multipliers.side_task"
+      },
+      "basement_quest_complete": {
+        "dialogue_flag": "reported_basement_victory", 
+        "quest_objective": "basement_rat_combat.report_success",
+        "event_type": "QUEST_COMPLETED",
+        "xp_reward": "quest_multipliers.side_task"
       }
     }
   },
