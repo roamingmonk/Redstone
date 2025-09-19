@@ -11,12 +11,16 @@ ARCHITECTURE CONVERSION:
 - Maintains exact visual compatibility for user experience
 """
 
+import json
+import os
 import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay
 from utils.overlay_utils import *
 from utils.graphics import draw_text
 from utils.constants import SPACING
 from utils.party_display import load_portrait, get_character_color
+from game_logic.character_engine import CharacterEngine
+from utils.narrative_schema import narrative_schema
 
 class CharacterOverlay(BaseTabbedOverlay):
     """
@@ -35,6 +39,8 @@ class CharacterOverlay(BaseTabbedOverlay):
         # Add two tabs following roadmap specification
         self.add_tab("player_stats", "Player", pygame.K_1)
         self.add_tab("party_members", "Party", pygame.K_2)
+        self.add_tab("abilities", "Abilities", pygame.K_3)
+        self.add_tab("advancement", "Advance", pygame.K_4)
         
         print("🎯 Character overlay initialized with 2 tabs")
     
@@ -51,6 +57,10 @@ class CharacterOverlay(BaseTabbedOverlay):
             self._render_player_stats_tab(surface, content_rect, game_state, fonts, images)
         elif active_tab.tab_id == "party_members":
             self._render_party_members_tab(surface, content_rect, game_state, fonts, images)
+        elif active_tab.tab_id == "abilities":
+            self._render_abilities_tab(surface, content_rect, game_state, fonts, images)
+        elif active_tab.tab_id == "advancement":
+            self._render_advancement_tab(surface, content_rect, game_state, fonts, images)
         else:
             # Fallback - should never happen
             draw_text(surface, f"Unknown tab: {active_tab.tab_id}", 
@@ -266,6 +276,144 @@ class CharacterOverlay(BaseTabbedOverlay):
         # For now, just show "None" - future expansion for status effects
         conditions_text = small_font.render("None", True, WHITE)
         surface.blit(conditions_text, (left_section_x + 160, conditions_y + 5))
+
+    def _render_abilities_tab(self, surface: pygame.Surface, content_rect: pygame.Rect, 
+                         game_state, fonts, images):
+        """
+        Render abilities tab - spells and special abilities
+        """
+        header_font = fonts.get('fantasy_medium', fonts['normal'])
+        draw_text(surface, "SPELLS & ABILITIES", header_font, 
+                content_rect.x + 20, content_rect.y + 20, CYAN)
+        
+        normal_font = fonts.get('fantasy_small', fonts['normal'])
+        draw_text(surface, "Coming soon - spell management interface", normal_font, 
+                content_rect.x + 40, content_rect.y + 60, WHITE)
+
+    def _render_advancement_tab(self, surface: pygame.Surface, content_rect: pygame.Rect, 
+                           game_state, fonts, images):
+        """
+        Render advancement tab - level up interface
+        """
+        # Get fonts
+        header_font = fonts.get('fantasy_medium', fonts['normal'])
+        normal_font = fonts.get('fantasy_small', fonts['normal'])
+        
+        # Check if character exists
+        if not hasattr(game_state, 'character'):
+            draw_text(surface, "ERROR: No character data", header_font,
+                    content_rect.centerx, content_rect.centery, WHITE)
+            return
+        
+        character = game_state.character
+        current_level = character.get('level', 1)
+        current_xp = character.get('experience', 0)
+        
+        # Use your existing XP detection logic
+        
+        xp_requirements = narrative_schema.schema.get('xp_balance', {}).get('level_progression', {}).get('requirements', [0, 300, 900, 2700, 6500])
+        #xp_requirements = self.character_engine.get_level_requirements()
+
+        # Check if ready to level up
+        can_level_up = False
+        if current_level < 5:
+            next_level_xp = xp_requirements[current_level] if current_level < len(xp_requirements) else xp_requirements[-1]
+            if current_xp >= next_level_xp:
+                can_level_up = True
+        
+        # Render header
+        draw_text(surface, "CHARACTER ADVANCEMENT", header_font, 
+                content_rect.x + 20, content_rect.y + 20, CYAN)
+        
+        current_y = content_rect.y + 60
+        
+        if can_level_up:
+            draw_text(surface, "LEVEL UP AVAILABLE!", normal_font, 
+                    content_rect.x + 40, current_y, BRIGHT_GREEN)
+            current_y += 40
+        
+            # Show what will be gained
+            next_level = current_level + 1
+            character_class = character.get('class', 'fighter')
+            
+            draw_text(surface, f"Advancing to Level {next_level}:", normal_font, 
+                    content_rect.x + 40, current_y, YELLOW)
+            current_y += 30
+            
+            class_file = os.path.join("data", "player", "character_classes.json")
+            try:
+                with open(class_file, 'r') as f:
+                    json_data = json.load(f)
+                class_data = json_data["character_classes"].get(character_class, {})
+                
+                hit_die = class_data.get('hit_die', 8)
+                draw_text(surface, f"• Hit Points: +1d{hit_die} + CON modifier", normal_font, 
+                          content_rect.x + 60, current_y, WHITE)
+            except:
+                draw_text(surface, f"• Hit Points: +1d8 + CON modifier", normal_font, 
+                          content_rect.x + 60, current_y, WHITE)
+            current_y += 25
+            
+            # Show features gained from JSON
+            if 'level_progression' in class_data:
+                level_key = f"level_{next_level}"
+                level_data = class_data['level_progression'].get(level_key, {})
+                
+                features = level_data.get('features', [])
+                description = level_data.get('description', '')
+                
+                # Show features
+                for feature in features:
+                    draw_text(surface, f"• {feature}", normal_font, 
+                              content_rect.x + 60, current_y, WHITE)
+                    current_y += 25
+                
+                # Show description if available
+                if description:
+                    current_y += 10
+                    draw_text(surface, description, normal_font, 
+                              content_rect.x + 60, current_y, YELLOW)
+                    current_y += 35  # Extra space before button
+                
+                # Add Level Up button
+                button_rect = pygame.Rect(content_rect.x + 60, current_y, 120, 35)
+                pygame.draw.rect(surface, BRIGHT_GREEN, button_rect)
+                pygame.draw.rect(surface, WHITE, button_rect, 2)
+                
+                button_font = fonts.get('fantasy_small', fonts['normal'])
+                button_text = button_font.render("ADVANCE!", True, BLACK)
+                text_rect = button_text.get_rect(center=button_rect.center)
+                surface.blit(button_text, text_rect)
+                
+                # Store button rect for click detection (we'll add click handling next)
+                self.level_up_button_rect = button_rect
+        
+        else:
+            draw_text(surface, "No advancement available", normal_font, 
+                    content_rect.x + 40, current_y, WHITE)
+            current_y += 30
+            
+            # Show recent level-up results if available
+            if hasattr(self, 'level_up_results') and self.level_up_results:
+                current_y += 20
+                draw_text(surface, "RECENT ADVANCEMENT:", header_font, 
+                        content_rect.x + 40, current_y, BRIGHT_GREEN)
+                current_y += 30
+                
+                results = self.level_up_results
+                draw_text(surface, f"Advanced to Level {results['new_level']} {results['class'].title()}!", normal_font, 
+                        content_rect.x + 60, current_y, YELLOW)
+                current_y += 25
+                
+                draw_text(surface, f"Gained {results['hp_gain']} Hit Points (Total: {results['new_total_hp']})", normal_font, 
+                        content_rect.x + 60, current_y, WHITE)
+                current_y += 25
+                
+                if results['abilities_gained']:
+                    for ability in results['abilities_gained']:
+                        draw_text(surface, f"New Ability: {ability}", normal_font, 
+                                content_rect.x + 60, current_y, CYAN)
+                        current_y += 25
     
     def _render_party_members_tab(self, surface: pygame.Surface, content_rect: pygame.Rect, 
                                  game_state, fonts, images):
@@ -390,6 +538,7 @@ class CharacterOverlay(BaseTabbedOverlay):
     def on_overlay_opened(self, game_state):
         """Called when character overlay opens"""
         super().on_overlay_opened(game_state)
+        self.game_state = game_state  # Store for button clicks
         print("👤 Character overlay opened - tabbed version!")
     
     def on_overlay_closed(self, game_state):
@@ -404,6 +553,41 @@ class CharacterOverlay(BaseTabbedOverlay):
         if active_tab:
             print(f"📋 Character overlay: Switched to {active_tab.display_name} tab")
 
+    def handle_mouse_click(self, mouse_pos):
+        """Handle mouse clicks - MUST call parent first for tab functionality"""
+        # CRITICAL: Check tab clicks first
+        if super().handle_mouse_click(mouse_pos):
+            return True
+        
+        # Handle advancement button click
+        if hasattr(self, 'level_up_button_rect') and self.level_up_button_rect.collidepoint(mouse_pos):
+            print("ADVANCE button clicked!")
+            
+            # Get game_state from screen_manager using correct attribute name
+            if self.screen_manager and hasattr(self.screen_manager, '_current_game_state'):
+                game_state = self.screen_manager._current_game_state
+                print("DEBUG: game_state found, creating CharacterEngine")
+                
+                character_engine = CharacterEngine(game_state)
+                
+                print(f"DEBUG: Checking can_level_up...")
+                if character_engine.can_level_up():
+                    print("DEBUG: can_level_up = True, calling level_up()")
+                    results = character_engine.level_up()
+                    if results:
+                        print(f"Level up successful: {results}")
+                        # Store results for display
+                        self.level_up_results = results
+                    else:
+                        print("DEBUG: level_up() returned None")
+                else:
+                    print("DEBUG: can_level_up = False")
+            else:
+                print("DEBUG: Could not access _current_game_state")
+            
+            return True
+        
+        return False
 # ========================================
 # COMPATIBILITY LAYER
 # ========================================
@@ -473,3 +657,4 @@ def handle_character_keyboard_input(key, game_state):
             print(f"❌ Character overlay ignored key: {key_name}")
         return result
     return False
+

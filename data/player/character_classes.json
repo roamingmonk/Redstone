@@ -5,6 +5,27 @@
       "description": "A master of martial combat, skilled with a variety of weapons and armor",
       "hit_die": 10,
       "primary_abilities": ["strength", "dexterity"],
+      
+       "level_progression": {
+          "level_2": {
+            "features": ["Combat Surge"],
+            "description": "Gain Combat Surge - take an extra action once per day"
+          },
+          "level_3": {
+            "features": ["Extra Attack"],
+            "ability_score_choice": true,
+            "description": "Choose +2 to one ability (max 18). Gain Extra Attack - make 2 attacks per round"
+          },
+          "level_4": {
+            "features": ["Shield Focus"],
+            "description": "Gain Shield Focus - activate once per day for +1 AC during one combat"
+          },
+          "level_5": {
+            "features": ["Terror Resistance"],
+            "description": "Gain Terror Resistance - +1 bonus vs fear effects"
+          }
+        },
+  
       "saving_throw_proficiencies": ["strength", "constitution"],
       "starting_gold": {
         "dice": 5,

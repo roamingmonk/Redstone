@@ -52,12 +52,11 @@ class InputHandler:
             
             # Game controls (corrected)
             pygame.K_F1: ("DEBUG_TOGGLE", {}),
-            pygame.K_F2: ("DEBUG_PERFORMANCE", {}),  # New debug key
-            pygame.K_F3: ("DEBUG_SAVE_STATE", {}),   # New debug key
-            pygame.K_F4: ("XP_AWARDED", {"amount": 100, "reason": "F4 debug test"}),  # XP test key
+            pygame.K_F2: ("DEBUG_PERFORMANCE", {}),  # debug key
+            pygame.K_F3: ("DEBUG_SAVE_STATE", {}),   # debug key
             pygame.K_F5: ("SAVE_REQUESTED", {"slot": "quick_save"}),
-            pygame.K_F7: ("SAVE_GAME", {}),          # Fixed: Opens save overlay
-            pygame.K_F10: ("LOAD_GAME", {}),         # Fixed: Opens load overlay
+            pygame.K_F7: ("SAVE_GAME", {}),          # Opens save overlay
+            pygame.K_F10: ("LOAD_GAME", {}),         # Opens load overlay
             
             pygame.K_ESCAPE: ("ESCAPE_PRESSED", {})
         }

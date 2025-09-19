@@ -270,6 +270,24 @@
       "event_type": "QUEST_ACTIVATED",
       "xp_reward": "quest_multipliers.main_story"
     },
+    "garrick_basement_offer": {
+      "dialogue_flag": "garrick_offered_basement",
+      "quest_objective": "basement_rat_combat.accept_challenge",
+      "event_type": "QUEST_ACCEPTED",
+      "xp_reward": "discovery_base"
+    },
+    "basement_combat_complete": {
+      "dialogue_flag": "completed_basement_combat", 
+      "quest_objective": "basement_rat_combat.clear_basement",
+      "event_type": "COMBAT_VICTORY",
+      "xp_reward": "quest_multipliers.side_task"
+    },
+    "basement_quest_complete": {
+      "dialogue_flag": "reported_basement_victory", 
+      "quest_objective": "basement_rat_combat.report_success",
+      "event_type": "QUEST_COMPLETED",
+      "xp_reward": "quest_multipliers.side_task"
+    },
     "party_recruitment_triggers": {
       "gareth_recruited": {
         "quest_objective": "party_building.recruit_warrior",
@@ -302,26 +320,6 @@
         "quest_id": "main_story", 
         "event_type": "QUEST_COMPLETED",
         "xp_reward": "quest_multipliers.main_story"
-      }
-    },
-    "basement_quest_triggers": {
-      "garrick_basement_offer": {
-        "dialogue_flag": "garrick_offered_basement",
-        "quest_objective": "basement_rat_combat.accept_challenge",
-        "event_type": "QUEST_ACCEPTED",
-        "xp_reward": "discovery_base"
-      },
-      "basement_combat_complete": {
-        "dialogue_flag": "completed_basement_combat", 
-        "quest_objective": "basement_rat_combat.clear_basement",
-        "event_type": "COMBAT_VICTORY",
-        "xp_reward": "quest_multipliers.side_task"
-      },
-      "basement_quest_complete": {
-        "dialogue_flag": "reported_basement_victory", 
-        "quest_objective": "basement_rat_combat.report_success",
-        "event_type": "QUEST_COMPLETED",
-        "xp_reward": "quest_multipliers.side_task"
       }
     }
   },

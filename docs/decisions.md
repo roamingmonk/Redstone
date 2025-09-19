@@ -1225,6 +1225,25 @@ Easier debugging: FLAG_CHANGED → QuestEngine evaluators → single XP_AWARDED 
 when next level is reached, a button appears to LEVEL UP!
 Functionality for the button is still needed to be added.
 
+## ADR-076: Character Advancement System Implementation
+**Status:** Accepted  
+**Date:** Sep 19, 2025  
+**Context:** Need functional level-up system with player choices, data-driven progression, and proper UI integration
+**Decision:** Implement 4-tab character overlay with JSON-driven level progression and functional advancement interface
+**Implementation:**
+- **4-Tab Character Overlay:** Player/Party/Abilities/Advance tabs using BaseTabbedOverlay framework
+- **Data-Driven Progression:** Level advancement data stored in enhanced character_classes.json with features, descriptions, and ability score choices
+- **Functional Level-Up Interface:** ADVANCE button triggers existing CharacterEngine.level_up() method with player feedback
+- **Player Feedback System:** Recent advancement display shows level gained, HP increase, and new abilities
+- **JSON Integration:** Direct JSON reading bypasses CharacterEngine data structure differences
+**Technical Features:**
+- Level progression requirements from narrative_schema.json (300/900/2700/6500 XP)
+- Class-specific features: Fighter gains Combat Surge(L2), Extra Attack(L3), Shield Focus(L4), Terror Resistance(L5)
+- HP calculation using class hit die + CON modifier with proper dice rolling
+- Results display shows: new level, HP gained, total HP, abilities gained
+**Files Modified:** character_overlay.py, character_classes.json
+**Benefits:** Professional advancement system ready for all 4 classes, player agency in level-up process, clean separation of data and logic
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

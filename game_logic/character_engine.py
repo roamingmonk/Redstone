@@ -6,7 +6,7 @@ CharacterEngine = Pure business logic processor
 """
 
 import random
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
 from datetime import datetime
 from utils.narrative_schema import narrative_schema
 
@@ -25,15 +25,15 @@ class CharacterEngine:
     """
     
     def __init__(self, game_state_ref):
-        """
-        Initialize with GameState reference (Single Data Authority pattern)
-        
-        Args:
-            game_state_ref: Reference to GameState (the data authority)
-        """
         self.game_state = game_state_ref
-        print("🏗️ CharacterEngine initialized with Single Data Authority pattern")
-        self.event_manager = None  # Will be set by dependency injection
+        self.event_manager = None
+        #print("🏗️ CharacterEngine initialized with Single Data Authority pattern")
+
+        # cache just once
+        xp_cfg = (getattr(narrative_schema, "schema", {}) or {}).get("xp_balance", {}) or {}
+        self._level_requirements = (xp_cfg.get("level_progression", {}) or {}).get(
+            "requirements", [0, 300, 900, 2700, 6500]
+        )
 
     # ==========================================
     # CHARACTER CREATION OPERATIONS
@@ -921,6 +921,8 @@ class CharacterEngine:
         print(f"⚔️ Character class set to: {character_class}")
         return character_class
     
+    #TODO is this redundant?  review and see if this is conflicting with character_class JSON or
+    # if other json data.  Is anything reading this data?
     def _get_class_data(self, character_class):
         """
         Get class-specific data for character creation and progression
@@ -1025,6 +1027,9 @@ class CharacterEngine:
     # CHARACTER PROGRESSION OPERATIONS
     # ==========================================
     
+    def get_level_requirements(self):
+        return list(self._level_requirements)
+
     def can_level_up(self):
         """
         Check if character has enough experience to level up
@@ -1571,12 +1576,6 @@ class CharacterEngine:
         
         return is_valid
     
-
-
-
-
-
-
 # ==========================================
 # GLOBAL CHARACTER ENGINE MANAGEMENT
 # ==========================================
@@ -1610,7 +1609,6 @@ def initialize_character_engine(game_state_ref, event_manager=None):
     
     print("🔧 Initialized CharacterEngine")
     return character_engine
-
 
 # Development and testing utilities
 if __name__ == "__main__":
