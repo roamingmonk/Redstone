@@ -82,6 +82,10 @@ class GameState:
         self.town_player_x = 3  # Town spawn position
         self.town_player_y = 5  # Outside tavern door
 
+        # Ensure XP fields exist
+        self.character.setdefault('experience', 0)
+        self.character.setdefault('level', 1)
+
         # Gambling state for Redstone Dice
         self.gambling_state = {
             'last_player_dice': [0, 0],

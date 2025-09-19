@@ -5,6 +5,8 @@ GameState = THE authoritative data source
 CharacterEngine = Pure business logic processor
 """
 
+import json
+import os
 import random
 from typing import Dict, List, Tuple, Optional, Any
 from datetime import datetime
@@ -693,6 +695,21 @@ class CharacterEngine:
         print(f"🎭 Generated {len(names)} {gender} names: {names}")
         return names
 
+    def _load_class_data_from_json(self, character_class):
+        """
+        Load class data from JSON file - replacement for old _get_class_data
+        """
+        
+        try:
+            class_file = os.path.join("data", "player", "character_classes.json")
+            with open(class_file, 'r') as f:
+                json_data = json.load(f)
+            
+            return json_data["character_classes"].get(character_class, {})
+        except Exception as e:
+            print(f"Error loading class data for {character_class}: {e}")
+            return {}
+
     def calculate_hp(self, constitution_score=None, character_class=None):
         """
         Calculate hit points based on constitution score and class
@@ -711,8 +728,8 @@ class CharacterEngine:
             character_class = self.game_state.character.get('class', 'fighter')
         
         # Get class-specific hit die
-        class_data = self._get_class_data(character_class)
-        hit_die = class_data.get('hit_die', 10) if class_data else 10
+        class_data = self._load_class_data_from_json(character_class)
+        hit_die = class_data.get('hit_die', 10)
         
         # Calculate constitution modifier
         constitution_modifier = (constitution_score - 10) // 2
@@ -903,16 +920,13 @@ class CharacterEngine:
     def set_character_class(self, character_class='fighter'):
         """
         Set character class with full framework support
-        
-        Args:
-            character_class: Class name ('fighter', 'wizard', 'rogue', 'cleric')
         """
-        class_data = self._get_class_data(character_class)
+        class_data = self._load_class_data_from_json(character_class)
         
         if not class_data:
             print(f"⚠️ Invalid class {character_class}, defaulting to fighter")
             character_class = 'fighter'
-            class_data = self._get_class_data('fighter')
+            class_data = self._load_class_data_from_json('fighter')
         
         # Update GameState directly (Single Data Authority)
         self.game_state.character['class'] = character_class
@@ -923,106 +937,144 @@ class CharacterEngine:
     
     #TODO is this redundant?  review and see if this is conflicting with character_class JSON or
     # if other json data.  Is anything reading this data?
+    # def _get_class_data(self, character_class):
+    #     """
+    #     Get class-specific data for character creation and progression
+        
+    #     Returns:
+    #         dict: Class data including equipment, abilities, progression
+    #     """
+    #     class_definitions = {
+    #         'fighter': {
+    #             'name': 'Fighter',
+    #             'description': 'A master of martial combat, skilled with various weapons and armor',
+    #             'hit_die': 10,  # d10 for HP per level
+    #             'primary_stats': ['strength', 'constitution'],
+    #             'starting_equipment': {
+    #                 'weapon': 'Longsword',
+    #                 'armor': 'Leather Armor', 
+    #                 'shield': 'Shield',
+    #                 'items': ['Hemp Rope']
+    #             },
+    #             'starting_gold': {'base': 5, 'multiplier': 5},  # 5d6 * 5 gold
+    #             'abilities': {
+    #                 'level_1': ['Combat Training', 'Weapon Mastery'],
+    #                 'level_2': ['Action Surge'],
+    #                 'level_3': ['Second Wind'],
+    #                 'level_4': ['Ability Score Improvement'],
+    #                 'level_5': ['Extra Attack']
+    #             }
+    #         },
+    #         'wizard': {
+    #             'name': 'Wizard',
+    #             'description': 'A scholarly magic-user capable of manipulating arcane forces',
+    #             'hit_die': 6,  # d6 for HP per level
+    #             'primary_stats': ['intelligence', 'wisdom'],
+    #             'starting_equipment': {
+    #                 'weapon': 'Quarterstaff',
+    #                 'armor': 'Robes',
+    #                 'shield': None,
+    #                 'items': ['Spellbook', 'Component Pouch']
+    #             },
+    #             'starting_gold': {'base': 3, 'multiplier': 10},  # 3d6 * 10 gold
+    #             'abilities': {
+    #                 'level_1': ['Spellcasting', 'Arcane Recovery'],
+    #                 'level_2': ['School of Magic'],
+    #                 'level_3': ['Cantrip Mastery'],
+    #                 'level_4': ['Ability Score Improvement'],
+    #                 'level_5': ['3rd Level Spells']
+    #             },
+    #             'spells_known': {
+    #                 'level_1': ['Magic Missile', 'Shield', 'Detect Magic'],
+    #                 'cantrips': ['Light', 'Mage Hand', 'Prestidigitation']
+    #             }
+    #         },
+    #         'rogue': {
+    #             'name': 'Rogue',
+    #             'description': 'A scoundrel who uses stealth and trickery to overcome obstacles',
+    #             'hit_die': 8,  # d8 for HP per level
+    #             'primary_stats': ['dexterity', 'intelligence'],
+    #             'starting_equipment': {
+    #                 'weapon': 'Shortsword',
+    #                 'armor': 'Leather Armor',
+    #                 'shield': None,
+    #                 'items': ['Thieves Tools', 'Daggers (2)']
+    #             },
+    #             'starting_gold': {'base': 4, 'multiplier': 4},  # 4d6 * 4 gold
+    #             'abilities': {
+    #                 'level_1': ['Sneak Attack', 'Thieves Cant'],
+    #                 'level_2': ['Cunning Action'],
+    #                 'level_3': ['Roguish Archetype'],
+    #                 'level_4': ['Ability Score Improvement'],
+    #                 'level_5': ['Uncanny Dodge']
+    #             }
+    #         },
+    #         'cleric': {
+    #             'name': 'Cleric',
+    #             'description': 'A priestly champion who wields divine magic in service of a higher power',
+    #             'hit_die': 8,  # d8 for HP per level
+    #             'primary_stats': ['wisdom', 'constitution'],
+    #             'starting_equipment': {
+    #                 'weapon': 'Mace',
+    #                 'armor': 'Scale Mail',
+    #                 'shield': 'Shield',
+    #                 'items': ['Holy Symbol', 'Prayer Book']
+    #             },
+    #             'starting_gold': {'base': 5, 'multiplier': 4},  # 5d6 * 4 gold
+    #             'abilities': {
+    #                 'level_1': ['Divine Magic', 'Turn Undead'],
+    #                 'level_2': ['Channel Divinity'],
+    #                 'level_3': ['Divine Domain'],
+    #                 'level_4': ['Ability Score Improvement'],
+    #                 'level_5': ['3rd Level Spells']
+    #             },
+    #             'spells_known': {
+    #                 'level_1': ['Cure Wounds', 'Bless', 'Detect Evil'],
+    #                 'cantrips': ['Sacred Flame', 'Light', 'Thaumaturgy']
+    #             }
+    #         }
+    #     }
+        
+    #     return class_definitions.get(character_class.lower())
+    
     def _get_class_data(self, character_class):
         """
-        Get class-specific data for character creation and progression
-        
-        Returns:
-            dict: Class data including equipment, abilities, progression
+        Get class-specific data from JSON file
         """
-        class_definitions = {
-            'fighter': {
-                'name': 'Fighter',
-                'description': 'A master of martial combat, skilled with various weapons and armor',
-                'hit_die': 10,  # d10 for HP per level
-                'primary_stats': ['strength', 'constitution'],
-                'starting_equipment': {
-                    'weapon': 'Longsword',
-                    'armor': 'Leather Armor', 
-                    'shield': 'Shield',
-                    'items': ['Hemp Rope']
-                },
-                'starting_gold': {'base': 5, 'multiplier': 5},  # 5d6 * 5 gold
-                'abilities': {
-                    'level_1': ['Combat Training', 'Weapon Mastery'],
-                    'level_2': ['Action Surge'],
-                    'level_3': ['Second Wind'],
-                    'level_4': ['Ability Score Improvement'],
-                    'level_5': ['Extra Attack']
-                }
-            },
-            'wizard': {
-                'name': 'Wizard',
-                'description': 'A scholarly magic-user capable of manipulating arcane forces',
-                'hit_die': 6,  # d6 for HP per level
-                'primary_stats': ['intelligence', 'wisdom'],
-                'starting_equipment': {
-                    'weapon': 'Quarterstaff',
-                    'armor': 'Robes',
-                    'shield': None,
-                    'items': ['Spellbook', 'Component Pouch']
-                },
-                'starting_gold': {'base': 3, 'multiplier': 10},  # 3d6 * 10 gold
-                'abilities': {
-                    'level_1': ['Spellcasting', 'Arcane Recovery'],
-                    'level_2': ['School of Magic'],
-                    'level_3': ['Cantrip Mastery'],
-                    'level_4': ['Ability Score Improvement'],
-                    'level_5': ['3rd Level Spells']
-                },
-                'spells_known': {
-                    'level_1': ['Magic Missile', 'Shield', 'Detect Magic'],
-                    'cantrips': ['Light', 'Mage Hand', 'Prestidigitation']
-                }
-            },
-            'rogue': {
-                'name': 'Rogue',
-                'description': 'A scoundrel who uses stealth and trickery to overcome obstacles',
-                'hit_die': 8,  # d8 for HP per level
-                'primary_stats': ['dexterity', 'intelligence'],
-                'starting_equipment': {
-                    'weapon': 'Shortsword',
-                    'armor': 'Leather Armor',
-                    'shield': None,
-                    'items': ['Thieves Tools', 'Daggers (2)']
-                },
-                'starting_gold': {'base': 4, 'multiplier': 4},  # 4d6 * 4 gold
-                'abilities': {
-                    'level_1': ['Sneak Attack', 'Thieves Cant'],
-                    'level_2': ['Cunning Action'],
-                    'level_3': ['Roguish Archetype'],
-                    'level_4': ['Ability Score Improvement'],
-                    'level_5': ['Uncanny Dodge']
-                }
-            },
-            'cleric': {
-                'name': 'Cleric',
-                'description': 'A priestly champion who wields divine magic in service of a higher power',
-                'hit_die': 8,  # d8 for HP per level
-                'primary_stats': ['wisdom', 'constitution'],
-                'starting_equipment': {
-                    'weapon': 'Mace',
-                    'armor': 'Scale Mail',
-                    'shield': 'Shield',
-                    'items': ['Holy Symbol', 'Prayer Book']
-                },
-                'starting_gold': {'base': 5, 'multiplier': 4},  # 5d6 * 4 gold
-                'abilities': {
-                    'level_1': ['Divine Magic', 'Turn Undead'],
-                    'level_2': ['Channel Divinity'],
-                    'level_3': ['Divine Domain'],
-                    'level_4': ['Ability Score Improvement'],
-                    'level_5': ['3rd Level Spells']
-                },
-                'spells_known': {
-                    'level_1': ['Cure Wounds', 'Bless', 'Detect Evil'],
-                    'cantrips': ['Sacred Flame', 'Light', 'Thaumaturgy']
-                }
-            }
-        }
+        import json
+        import os
         
-        return class_definitions.get(character_class.lower())
-    
+        try:
+            class_file = os.path.join("data", "player", "character_classes.json")
+            with open(class_file, 'r') as f:
+                json_data = json.load(f)
+            
+            class_data = json_data["character_classes"].get(character_class, {})
+            
+            # Convert JSON structure to expected format
+            abilities = {}
+            level_progression = class_data.get('level_progression', {})
+            for level_key, level_data in level_progression.items():
+                abilities[level_key] = level_data.get('features', [])
+            
+            return {
+                'name': class_data.get('name', character_class.title()),
+                'description': class_data.get('description', ''),
+                'hit_die': class_data.get('hit_die', 8),
+                'primary_stats': class_data.get('primary_abilities', []),
+                'abilities': abilities
+            }
+            
+        except Exception as e:
+            print(f"Error loading class data: {e}")
+            # Fallback to basic data
+            return {
+                'name': character_class.title(),
+                'hit_die': 8,
+                'abilities': {}
+            }
+
+
     # ==========================================
     # CHARACTER PROGRESSION OPERATIONS
     # ==========================================
@@ -1070,18 +1122,34 @@ class CharacterEngine:
             return None
         
         current_level = self.game_state.character.get('level', 1)
+        current_xp = self.game_state.character.get('experience', 0)
         new_level = current_level + 1
         character_class = self.game_state.character.get('class', 'fighter')
         
+        # Get XP requirements - consume XP for level-up
+        #from utils.narrative_schema import narrative_schema
+        xp_requirements = narrative_schema.schema.get('xp_balance', {}).get('level_progression', {}).get('requirements', [0, 300, 900, 2700, 6500])
+        
+        # Consume XP for this level (optional - some games keep cumulative XP)
+        # # Comment this out if you want to keep cumulative XP like modern RPGs
+        # if new_level <= len(xp_requirements):
+        #     xp_consumed = xp_requirements[new_level - 1]  # XP required for this level
+        #     remaining_xp = current_xp - xp_consumed
+        #     self.game_state.character['experience'] = max(0, remaining_xp)  # Don't go negative
+        #     print(f"🔄 Consumed {xp_consumed} XP for level-up, {remaining_xp} XP remaining")
+        print(f"🎊 Level-up! XP remains at {current_xp} (cumulative system)")
+
+
         # Get class-specific data
         class_data = self._get_class_data(character_class)
         hit_die = class_data.get('hit_die', 10) if class_data else 10
         
         # Roll for HP gain (class hit die + con modifier per level)
         constitution_modifier = (self.game_state.character.get('constitution', 10) - 10) // 2
-        hp_gain = random.randint(1, hit_die) + constitution_modifier
+        dice_roll = random.randint(1, hit_die)  # Define dice_roll first
+        hp_gain = dice_roll + constitution_modifier
         hp_gain = max(1, hp_gain)  # Minimum 1 HP per level
-        
+        print(f"DEBUG: HP Roll - 1d{hit_die}({dice_roll}) + CON({constitution_modifier}) = {hp_gain}")
         # Get new abilities for this level
         new_abilities = []
         if class_data and 'abilities' in class_data:
@@ -1090,6 +1158,9 @@ class CharacterEngine:
         
         # Update character stats in GameState (Single Data Authority)
         self.game_state.character['level'] = new_level
+        # Ensure experience field exists and is preserved (don't consume XP)
+        self.game_state.character.setdefault('experience', 0)
+        
         current_hp = self.game_state.character.get('hit_points', 10)
         self.game_state.character['hit_points'] = current_hp + hp_gain
         
@@ -1515,7 +1586,9 @@ class CharacterEngine:
             self.roll_starting_gold()
         
         # Set up starting equipment based on class
-        class_data = self._get_class_data(character_class)
+        class_data = self._load_class_data_from_json(character_class)
+        starting_equipment = class_data.get('starting_equipment', {})
+        
         if class_data and 'starting_equipment' in class_data:
             starting_equipment = class_data['starting_equipment']
             

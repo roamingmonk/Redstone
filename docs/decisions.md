@@ -1244,6 +1244,27 @@ Functionality for the button is still needed to be added.
 **Files Modified:** character_overlay.py, character_classes.json
 **Benefits:** Professional advancement system ready for all 4 classes, player agency in level-up process, clean separation of data and logic
 
+
+
+# ADR-076: Character Advancement System with JSON-Driven Progression
+**Status:** Accepted  
+**Date:** Sep 19, 2025  
+**Context:** Need complete level-up system with ability descriptions, XP persistence, and data-driven progression
+**Decision:** Replace hardcoded CharacterEngine class data with JSON-based system and implement 4-tab character overlay with functional advancement interface
+**Implementation:**
+- **Data Consolidation:** Eliminated hardcoded _get_class_data() method, replaced with _load_class_data_from_json() reading from character_classes.json
+- **XP Persistence:** Fixed cumulative XP system - characters retain full XP totals after leveling, save/load preserves experience field
+- **4-Tab Character Interface:** Player/Party/Abilities/Advance tabs with ability descriptions from feature_descriptions JSON section
+- **Level-Up Integration:** ADVANCE button triggers existing CharacterEngine.level_up() with player feedback showing gained features
+- **D&D 5e HP System:** Maintained proper dice rolling (1d[hit_die] + CON modifier) with debug output for transparency
+**Technical Benefits:**
+- Single source of truth: character_classes.json drives all class progression
+- Ability descriptions displayed inline with features gained
+- Clean separation: UI detects advancement, engines handle business logic, JSON stores configuration
+- Cumulative XP system matches modern RPG expectations
+**Files Modified:** character_overlay.py, character_engine.py, character_classes.json, save_manager.py, game_state.py
+**Result:** Professional character advancement system with data-driven progression, persistent XP, and clear player feedback
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

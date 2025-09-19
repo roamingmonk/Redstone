@@ -25,6 +25,13 @@
             "description": "Gain Terror Resistance - +1 bonus vs fear effects"
           }
         },
+
+        "feature_descriptions": {
+          "Combat Surge": "Once per day, take an additional action during combat. Resets after rest.",
+          "Extra Attack": "Make 2 attacks per combat round instead of 1.",
+          "Shield Focus": "Once per day, gain +1 AC for one entire combat encounter.",
+          "Terror Resistance": "+1 bonus to saving throws against fear effects."
+        },
   
       "saving_throw_proficiencies": ["strength", "constitution"],
       "starting_gold": {

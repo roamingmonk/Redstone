@@ -150,7 +150,9 @@ class SaveManager:
                 'party_members': getattr(self.game_state, 'party_members', []),
                 'can_recruit_more': len(getattr(self.game_state, 'party_members', [])) < 3
             }
-
+            # Ensure XP is saved properly
+            if 'experience' not in save_data['character']:
+                save_data['character']['experience'] = self.game_state.character.get('experience', 0)
 
             # Create saves directory if it doesn't exist
             #os.makedirs('saves', exist_ok=True)

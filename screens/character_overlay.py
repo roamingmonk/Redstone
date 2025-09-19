@@ -282,13 +282,63 @@ class CharacterOverlay(BaseTabbedOverlay):
         """
         Render abilities tab - spells and special abilities
         """
-        header_font = fonts.get('fantasy_medium', fonts['normal'])
-        draw_text(surface, "SPELLS & ABILITIES", header_font, 
-                content_rect.x + 20, content_rect.y + 20, CYAN)
+        if not hasattr(game_state, 'character'):
+            error_font = fonts.get('fantasy_medium', fonts['normal'])
+            draw_text(surface, "ERROR: No character data", error_font,
+                    content_rect.centerx, content_rect.centery, WHITE)
+            return
         
+        character = game_state.character
+        character_class = character.get('class', 'fighter')
+        level = character.get('level', 1)
+        
+        # Fonts
+        header_font = fonts.get('fantasy_medium', fonts['normal'])
         normal_font = fonts.get('fantasy_small', fonts['normal'])
-        draw_text(surface, "Coming soon - spell management interface", normal_font, 
-                content_rect.x + 40, content_rect.y + 60, WHITE)
+        
+        current_y = content_rect.y + 20
+        
+        # Header
+        draw_text(surface, "ABILITIES & FEATURES", header_font, 
+                content_rect.x + 20, current_y, CYAN)
+        current_y += 40
+        
+        # Show gained abilities from level progression
+        abilities_gained = character.get('abilities', [])
+        if abilities_gained:
+            draw_text(surface, "Class Features:", normal_font, 
+                    content_rect.x + 40, current_y, YELLOW)
+            current_y += 25
+            
+            for ability in abilities_gained:
+                draw_text(surface, f"• {ability}", normal_font, 
+                        content_rect.x + 60, current_y, WHITE)
+                current_y += 20
+                
+                # Show description
+                description = self._get_ability_description(ability, character_class)
+                if description:
+                    draw_text(surface, f"  {description}", normal_font, 
+                            content_rect.x + 80, current_y, GRAY)
+                    current_y += 20
+    
+                current_y += 5  # Extra spacing between abilities
+        
+        # Show spells if spellcaster
+        if character_class in ['wizard', 'cleric']:
+            draw_text(surface, "Spellcasting:", normal_font, 
+                    content_rect.x + 40, current_y, YELLOW)
+            current_y += 25
+            
+            # This is placeholder for now - we'll enhance this later
+            draw_text(surface, "• Spell system coming soon", normal_font, 
+                    content_rect.x + 60, current_y, WHITE)
+            current_y += 20
+        
+        # Show basic info
+        if not abilities_gained and character_class not in ['wizard', 'cleric']:
+            draw_text(surface, "No special abilities yet", normal_font, 
+                    content_rect.x + 40, current_y, WHITE)
 
     def _render_advancement_tab(self, surface: pygame.Surface, content_rect: pygame.Rect, 
                            game_state, fonts, images):
@@ -516,7 +566,7 @@ class CharacterOverlay(BaseTabbedOverlay):
         party_size = 1 + len(party_members)  # Player + NPCs
         summary_text = normal_font.render(f"Total Party Size: {party_size}/4", True, YELLOW)
         surface.blit(summary_text, (content_rect.x + 20, summary_y))
-    
+#TODO this armor class ac needs to be pulled from somewhere else and not hard coded.
     def _get_armor_ac(self, armor_name):
         """Get armor class string for display - copied from character_sheet.py logic"""
         if armor_name == "Leather Armor":
@@ -527,14 +577,28 @@ class CharacterOverlay(BaseTabbedOverlay):
             return "(AC 3)"
         else:
             return ""
-    
+#TODO this sheild ac needs to be pulled from somewhere else and not hard coded.    
     def _get_shield_ac(self, shield_name):
         """Get shield AC bonus string - copied from character_sheet.py logic"""
         if shield_name in ["Small Shield", "Medium Shield", "Large Shield"]:
             return "(+1 AC)"
         else:
             return ""
-    
+
+    def _get_ability_description(self, ability_name, character_class):
+        """Get description for an ability from JSON"""
+
+        try:
+            class_file = os.path.join("data", "player", "character_classes.json")
+            with open(class_file, 'r') as f:
+                json_data = json.load(f)
+            
+            class_data = json_data["character_classes"].get(character_class, {})
+            descriptions = class_data.get("feature_descriptions", {})
+            return descriptions.get(ability_name, "")
+        except:
+            return ""
+
     def on_overlay_opened(self, game_state):
         """Called when character overlay opens"""
         super().on_overlay_opened(game_state)
@@ -573,10 +637,21 @@ class CharacterOverlay(BaseTabbedOverlay):
                 print(f"DEBUG: Checking can_level_up...")
                 if character_engine.can_level_up():
                     print("DEBUG: can_level_up = True, calling level_up()")
+                    
+                    # DEBUG: Show XP before level-up
+                    current_xp_before = game_state.character.get('experience', 0)
+                    current_level_before = game_state.character.get('level', 1)
+                    print(f"DEBUG: BEFORE level-up - Level: {current_level_before}, XP: {current_xp_before}")
+                    
                     results = character_engine.level_up()
+                    
+                    # DEBUG: Show XP after level-up  
+                    current_xp_after = game_state.character.get('experience', 0)
+                    current_level_after = game_state.character.get('level', 1)
+                    print(f"DEBUG: AFTER level-up - Level: {current_level_after}, XP: {current_xp_after}")
+                    
                     if results:
                         print(f"Level up successful: {results}")
-                        # Store results for display
                         self.level_up_results = results
                     else:
                         print("DEBUG: level_up() returned None")
