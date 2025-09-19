@@ -494,14 +494,6 @@ class CharacterOverlay(BaseTabbedOverlay):
                     content_rect.centerx, content_rect.centery + 20, GRAY)
             return
         
-        # Available NPC data for display (from npc_manager research)
-        npc_data = {
-            'gareth': {'name': 'Gareth the Warrior', 'class': 'Fighter', 'level': 1},
-            'elara': {'name': 'Elara the Wise', 'class': 'Mage', 'level': 1},
-            'thorman': {'name': 'Thorman the Bold', 'class': 'Cleric', 'level': 1},
-            'lyra': {'name': 'Lyra the Swift', 'class': 'Thief', 'level': 1}
-        }
-        
         # Fonts
         header_font = fonts.get('fantasy_medium', fonts['normal'])
         normal_font = fonts.get('fantasy_small', fonts['normal'])
@@ -540,7 +532,9 @@ class CharacterOverlay(BaseTabbedOverlay):
             info_y = portrait_y
             
             # Get NPC data (with fallbacks)
-            npc_info = npc_data.get(npc_id, {'name': npc_id.title(), 'class': 'Adventurer', 'level': 1})
+            npc_info = game_state.get_party_member_data(npc_id)
+            if not npc_info:
+                npc_info = {'name': npc_id.title(), 'class': 'Adventurer', 'level': 1}
             
             # NPC Name
             name_text = header_font.render(npc_info['name'], True, CYAN)
@@ -566,6 +560,8 @@ class CharacterOverlay(BaseTabbedOverlay):
         party_size = 1 + len(party_members)  # Player + NPCs
         summary_text = normal_font.render(f"Total Party Size: {party_size}/4", True, YELLOW)
         surface.blit(summary_text, (content_rect.x + 20, summary_y))
+
+        
 #TODO this armor class ac needs to be pulled from somewhere else and not hard coded.
     def _get_armor_ac(self, armor_name):
         """Get armor class string for display - copied from character_sheet.py logic"""
@@ -653,6 +649,22 @@ class CharacterOverlay(BaseTabbedOverlay):
                     if results:
                         print(f"Level up successful: {results}")
                         self.level_up_results = results
+                        
+                        # DEBUG: Check party XP tracking
+                        print(f"DEBUG: Party members: {getattr(game_state, 'party_members', [])}")
+                        print(f"DEBUG: Party XP data: {getattr(game_state, 'party_xp', {})}")
+
+                        # ADD THIS NEW CODE HERE:
+                        # Check and level up party members
+                        party_level_ups = character_engine.check_party_level_ups()
+                        print(f"DEBUG: Party level-up candidates: {party_level_ups}")
+
+                        # Level up any party members who can advance
+                        for member_id in party_level_ups:
+                            if member_id != "player":  # Skip player, already done
+                                party_result = character_engine.level_up_party_member(member_id)
+                                if party_result:
+                                    print(f"Party member {member_id} also leveled up!")
                     else:
                         print("DEBUG: level_up() returned None")
                 else:

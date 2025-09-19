@@ -89,9 +89,6 @@ class QuestEngine:
         if not flag_hint or not flag_hint.endswith("_recruited"):
             return
 
-        from utils.narrative_schema import narrative_schema
-        from utils.xp_manager import XPManager
-
         schema    = getattr(narrative_schema, "schema", {}) or {}
         rec_trigs = schema.get("quest_triggers", {}).get("party_recruitment_triggers", {})
         spec      = rec_trigs.get(flag_hint)
@@ -107,7 +104,6 @@ class QuestEngine:
             return
 
         xp       = XPManager(narrative_schema)
-        
         
         #mult_key = spec.get("xp_reward", "quest_multipliers.secondary")
         #amount   = xp.get_reward({"base": "base_quest_xp", "mult": mult_key})

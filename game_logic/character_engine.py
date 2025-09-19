@@ -1362,13 +1362,9 @@ class CharacterEngine:
     
     def can_party_member_level_up(self, member_id):
         """Check if party member has enough XP to level up"""
-        if 'party_xp' not in self.game_state.__dict__:
+        member_data = self.game_state.get_party_member_data(member_id)
+        if not member_data:
             return False
-        
-        if member_id not in self.game_state.party_xp:
-            return False
-        
-        member_data = self.game_state.party_xp[member_id]
         current_level = member_data.get('level', 1)
         current_xp = member_data.get('experience', 0)
         
@@ -1384,11 +1380,9 @@ class CharacterEngine:
     
     def level_up_party_member(self, member_id):
         """Level up a specific party member"""
-        if not self.can_party_member_level_up(member_id):
-            print(f"❌ {member_id} cannot level up yet")
-            return None
-        
-        member_data = self.game_state.party_xp[member_id]
+        member_data = self.game_state.get_party_member_data(member_id)
+        if not member_data:
+            return False
         current_level = member_data.get('level', 1)
         new_level = current_level + 1
         
