@@ -1219,6 +1219,11 @@ Authors can tune rewards by editing JSON only.
 Fewer integration bugs from multiple event buses or duplicated award paths.
 Easier debugging: FLAG_CHANGED → QuestEngine evaluators → single XP_AWARDED emit.
 
+# ADR-075:  Character Sheet update, add XP, level
+# Date: Sep 18, 2025
+**Context.** Added uo to include level, XP and progress bar to character sheet.
+when next level is reached, a button appears to LEVEL UP!
+Functionality for the button is still needed to be added.
 
 ```
 ## ADR-XXX: <Short title>

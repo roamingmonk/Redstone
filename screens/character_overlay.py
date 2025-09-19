@@ -100,12 +100,57 @@ class CharacterOverlay(BaseTabbedOverlay):
         surface.blit(name_text, (left_section_x, current_y))
         current_y += 32
         
-        # Gender
-        gender_text = normal_font.render(f"Gender: {character.get('gender', 'Unknown').title()}", True, WHITE)
-        surface.blit(gender_text, (left_section_x, current_y))
+        # Level (prominent display)
+        current_level = character.get('level', 1)
+        level_text = header_font.render(f"Level: {current_level}", True, CYAN)
+        surface.blit(level_text, (left_section_x, current_y))
         current_y += 32
         
-        # Hit Points
+        # XP Progress Bar (ASCII Style)
+        current_xp = character.get('experience', 0)
+        from utils.narrative_schema import narrative_schema
+        xp_requirements = narrative_schema.schema.get('xp_balance', {}).get('level_progression', {}).get('requirements', [0, 300, 900, 2700, 6500])
+        
+        if current_level < 5:  # Max level is 5
+            next_level_xp = xp_requirements[current_level] if current_level < len(xp_requirements) else xp_requirements[-1]
+            current_level_xp = xp_requirements[current_level - 1] if current_level > 1 else 0
+            
+            xp_progress = current_xp - current_level_xp
+            xp_needed_total = next_level_xp - current_level_xp
+            
+            if current_xp >= next_level_xp:
+                # Ready to level up - text and button on same line
+                xp_text = normal_font.render("XP Needed: [LEVEL UP READY!]", True, BRIGHT_GREEN)
+                surface.blit(xp_text, (left_section_x, current_y))
+                
+                # Level UP! button - positioned right of the text
+                text_width = xp_text.get_width()
+                level_up_button = pygame.Rect(left_section_x + text_width + 20, current_y - 5, 100, 30)
+                pygame.draw.rect(surface, BRIGHT_GREEN, level_up_button)
+                pygame.draw.rect(surface, WHITE, level_up_button, 2)
+                button_text = normal_font.render("Level UP!", True, BLACK)
+                text_rect = button_text.get_rect(center=level_up_button.center)
+                surface.blit(button_text, text_rect)
+                current_y += 40
+            else:
+                # ASCII Progress Bar
+                bar_length = 10  # Number of characters in bar
+                filled_chars = int((xp_progress / xp_needed_total) * bar_length) if xp_needed_total > 0 else 0
+                empty_chars = bar_length - filled_chars
+                
+                progress_bar = "#" * filled_chars + "-" * empty_chars
+                remaining_xp = next_level_xp - current_xp
+                
+                xp_text = normal_font.render(f"XP : ({current_xp:,}/{next_level_xp:,}) [{progress_bar}]", True, WHITE)
+                surface.blit(xp_text, (left_section_x, current_y))
+                current_y += 35
+        else:
+            # Max level reached
+            xp_text = normal_font.render("XP Needed: [MAX LEVEL]", True, YELLOW)
+            surface.blit(xp_text, (left_section_x, current_y))
+            current_y += 35
+        
+        # Hit Points  
         hp_text = normal_font.render(f"Hit Points: {character.get('hit_points', 10)}", True, WHITE)
         surface.blit(hp_text, (left_section_x, current_y))
         current_y += 50

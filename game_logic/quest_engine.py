@@ -82,8 +82,6 @@ class QuestEngine:
         print(f"[DBG] on_flag_changed received: {flag}={val}")
         # Evaluate only triggers referencing this flag; fall back to a sweep if none found.
         self._evaluate_quest_triggers(flag_hint=flag)
-        #self._evaluate_recruitment_by_flag(flag_hint=flag)
-        #TODO Do we need ro remove _evaluate_recruitment_by_flag????
         self._award_recruit_xp_for_flag(flag)
 
     def _award_recruit_xp_for_flag(self, flag_hint: str | None):
@@ -142,89 +140,49 @@ class QuestEngine:
 
         setattr(self.game_state, guard, True)
 
+    # def _evaluate_quest_triggers(self, flag_hint: str | None = None):
+    #     schema = getattr(narrative_schema, "schema", {}) or {}
+    #     trigs  = schema.get("quest_triggers", {})  # nested root
+    #     print(f"[DBG] quest_triggers count={len(trigs)}")
 
+    #     if flag_hint:
+    #         candidates = [(tid, spec) for tid, spec in trigs.items()
+    #                     if isinstance(spec, dict) and spec.get("dialogue_flag") == flag_hint]
+    #         print(f"[DBG] candidates for flag '{flag_hint}': {[tid for tid,_ in candidates]}")
+    #         if not candidates and getattr(self.game_state, flag_hint, False):
+    #             print("[DBG] no direct candidates; falling back to full sweep")
+    #             candidates = [(tid, spec) for tid, spec in trigs.items() if isinstance(spec, dict)]
+    #     else:
+    #         candidates = [(tid, spec) for tid, spec in trigs.items() if isinstance(spec, dict)]
 
-    def _evaluate_quest_triggers(self, flag_hint: str | None = None):
-        schema = getattr(narrative_schema, "schema", {}) or {}
-        trigs  = schema.get("quest_triggers", {})  # nested root
-        print(f"[DBG] quest_triggers count={len(trigs)}")
+    #     xp = XPManager(narrative_schema)
 
-        if flag_hint:
-            candidates = [(tid, spec) for tid, spec in trigs.items()
-                        if isinstance(spec, dict) and spec.get("dialogue_flag") == flag_hint]
-            print(f"[DBG] candidates for flag '{flag_hint}': {[tid for tid,_ in candidates]}")
-            if not candidates and getattr(self.game_state, flag_hint, False):
-                print("[DBG] no direct candidates; falling back to full sweep")
-                candidates = [(tid, spec) for tid, spec in trigs.items() if isinstance(spec, dict)]
-        else:
-            candidates = [(tid, spec) for tid, spec in trigs.items() if isinstance(spec, dict)]
+    #     for trig_id, spec in candidates:
+    #         dlg_flag = spec.get("dialogue_flag")
+    #         if not dlg_flag or not getattr(self.game_state, dlg_flag, False):
+    #             continue
 
-        xp = XPManager(narrative_schema)
+    #         guard = f"xp_awarded__trigger__{trig_id}"
+    #         if getattr(self.game_state, guard, False):
+    #             continue
 
-        for trig_id, spec in candidates:
-            dlg_flag = spec.get("dialogue_flag")
-            if not dlg_flag or not getattr(self.game_state, dlg_flag, False):
-                continue
+    #         reward_spec = spec.get("xp_reward", 0)
+    #         amount = xp.get_reward(reward_spec)
+    #         print(f"[DBG] trigger={trig_id} flag={dlg_flag} reward_spec={reward_spec} -> amount={amount}")
 
-            guard = f"xp_awarded__trigger__{trig_id}"
-            if getattr(self.game_state, guard, False):
-                continue
+    #         if amount > 0 and self.event_manager:
+    #             self.event_manager.emit("XP_AWARDED", {
+    #                 "amount": amount,
+    #                 "reason": f"{spec.get('event_type','TRIGGER')}:{dlg_flag}",  # neutral by flag
+    #                 "recipient": "party"
+    #             })
+    #             print(f"⭐ Trigger XP: {amount} for {trig_id}")
 
-            reward_spec = spec.get("xp_reward", 0)
-            amount = xp.get_reward(reward_spec)
-            print(f"[DBG] trigger={trig_id} flag={dlg_flag} reward_spec={reward_spec} -> amount={amount}")
+    #         if spec.get("quest_objective"):
+    #             self._complete_objective_from_path(spec["quest_objective"])
 
-            if amount > 0 and self.event_manager:
-                self.event_manager.emit("XP_AWARDED", {
-                    "amount": amount,
-                    "reason": f"{spec.get('event_type','TRIGGER')}:{dlg_flag}",  # neutral by flag
-                    "recipient": "party"
-                })
-                print(f"⭐ Trigger XP: {amount} for {trig_id}")
-
-            if spec.get("quest_objective"):
-                self._complete_objective_from_path(spec["quest_objective"])
-
-            # ✅ guard set INSIDE the loop
-            setattr(self.game_state, guard, True)
-    
-        
-    def _evaluate_recruitment_by_flag(self, flag_hint: str | None):
-        if not flag_hint or not flag_hint.endswith("_recruited"):
-            return
-
-        schema   = getattr(narrative_schema, "schema", {}) or {}
-        rec_trigs = (schema.get("party_recruitment_triggers") or {})
-        spec     = rec_trigs.get(flag_hint)
-        print(f"[DBG] recruitment lookup for {flag_hint} -> {'FOUND' if spec else 'MISSING'}")
-
-        if not spec or not getattr(self.game_state, flag_hint, False):
-            return
-
-        guard = f"xp_awarded__recruit__{flag_hint}"
-        if getattr(self.game_state, guard, False):
-            print(f"[DBG] guard blocked duplicate recruit award for {flag_hint}")
-            return
-
-        xp = XPManager(narrative_schema)
-        mult_key = spec.get("xp_reward", "quest_multipliers.secondary")
-        amount   = xp.get_reward({"base": "base_quest_xp", "mult": mult_key})
-        print(f"[DBG] recruit={flag_hint} mult={mult_key} -> amount={amount}")
-
-        if amount > 0 and self.event_manager:
-            self.event_manager.emit("XP_AWARDED", {
-                "amount": amount,
-                "reason": f"recruitment:{flag_hint}",
-                "recipient": "party",
-            })
-            print(f"⭐ Recruitment XP: {amount} for {flag_hint}")
-
-        # progress linked objective if provided
-        obj_path = spec.get("quest_objective")
-        if obj_path:
-            self._complete_objective_from_path(obj_path)
-
-        setattr(self.game_state, guard, True)
+    #         # ✅ guard set INSIDE the loop
+    #         setattr(self.game_state, guard, True)
 
 
     def _handle_dialogue_quest_trigger(self, event_data):
@@ -279,25 +237,19 @@ class QuestEngine:
     # ==========================================
     
     def _evaluate_quest_triggers(self, flag_hint: str | None = None):
-
         schema = getattr(narrative_schema, "schema", {}) or {}
-        trigs = (schema.get("quest_triggers") or {})
+        trigs  = schema.get("quest_triggers", {})
 
-        # --- debug visibility ---
-        print(f"[DBG] quest_triggers count={len(trigs)}")
-        if flag_hint:
-            print(f"[DBG] flag_hint={flag_hint}")
-
-        # Build candidate list filtered by dialogue_flag, or sweep all if none found
         if flag_hint:
             candidates = [(tid, spec) for tid, spec in trigs.items()
-                        if spec.get("dialogue_flag") == flag_hint]
-            print(f"[DBG] candidates for {flag_hint}: {[tid for tid,_ in candidates]}")
+                        if isinstance(spec, dict) and spec.get("dialogue_flag") == flag_hint]
             if not candidates and getattr(self.game_state, flag_hint, False):
-                print("[DBG] no direct candidates; falling back to full sweep")
-                candidates = list(trigs.items())
+                # sweep only entries that actually look like triggers
+                candidates = [(tid, spec) for tid, spec in trigs.items()
+                            if isinstance(spec, dict) and "dialogue_flag" in spec]
         else:
-            candidates = list(trigs.items())
+            candidates = [(tid, spec) for tid, spec in trigs.items()
+                        if isinstance(spec, dict) and "dialogue_flag" in spec]
 
         xp = XPManager(narrative_schema)
 
@@ -312,7 +264,6 @@ class QuestEngine:
 
             reward_spec = spec.get("xp_reward", 0)
             amount = xp.get_reward(reward_spec)
-            print(f"[DBG] trigger={trig_id} reward_spec={reward_spec} amount={amount}")
 
             if amount > 0 and self.event_manager:
                 self.event_manager.emit("XP_AWARDED", {
@@ -320,13 +271,12 @@ class QuestEngine:
                     "reason": f"{spec.get('event_type','TRIGGER')}:{dlg_flag}",
                     "recipient": "party"
                 })
-                print(f"⭐ Trigger XP: {amount} for {trig_id}")
 
-            obj_path = spec.get("quest_objective")
-            if obj_path:
-                self._complete_objective_from_path(obj_path)
+            if spec.get("quest_objective"):
+                self._complete_objective_from_path(spec["quest_objective"])
 
             setattr(self.game_state, guard, True)
+
 
     def _complete_objective_from_path(self, path: str):
         if not hasattr(self.game_state, "quest_manager"):
