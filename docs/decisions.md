@@ -1300,6 +1300,27 @@ Verified ability accumulation works correctly across levels (Combat Surge at L2,
 Result: Character abilities now properly assigned during level-up, modifier system functional for future combat/social/exploration mechanics integration
 Files Modified: character_engine.py
 
+# ADR-081 Sharted Tiel Graphic system
+# Status: Accepted
+# Date: Sep 20, 2025
+**Context:** Town navigation system used basic colored rectangles without scalable graphics architecture. Multiple future tile-based systems (other towns, world map, dungeons) would require graphics capabilities with consistent loading and fallback behavior.
+**Decision:** Implement shared tile graphics utility using singleton pattern with professional fallback system, enabling graphics upgrades while maintaining functionality with zero art assets.
+**Implementation:**
+Created shared graphics utility: utils/tile_graphics.py with singleton TileGraphicsManager class supporting all tile-based systems
+Universal architecture: 23 tile types and 4-directional player sprites loaded and cached for use across all future tile systems
+Enhanced visual presentation: Clean tile borders, consistent color scheme, professional grid layout with maintained 60 FPS performance
+**Technical Approach:**
+Professional API: Clean interface for tiles (get_tile_image()), player sprites (get_player_sprite(direction)), and extensibility (add_custom_tile())
+Future-ready structure: Asset organization supports terrain, buildings, decorations, characters, and world map graphics
+**Consequences:**
+Immediate functionality: System works perfectly with colored fallback tiles, no graphics creation required for deployment
+Scalable architecture: Future towns, world map, and dungeon systems automatically inherit graphics capabilities and loaded assets
+Memory efficiency: Single instance loads and caches all graphics, preventing duplication across multiple tile-based screens
+Development flexibility: Graphics can be added incrementally - each file immediately improves visual quality without code changes
+Professional foundation: Industry-standard graphics management ready for commercial-quality tile graphics and sprite animations
+**Files Created:** utils/tile_graphics.py
+**Files Modified:** screens/redstone_town_navigation.py (uses shared manager), constants.py (tile paths)
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected
