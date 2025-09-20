@@ -609,8 +609,6 @@ class CharacterEngine:
 
     def _get_primary_abilities(self):
         """Get primary abilities from JSON for current class"""
-        import json
-        import os
         
         class_file = os.path.join("data", "player", "character_classes.json")
         try:
@@ -748,17 +746,9 @@ class CharacterEngine:
     def roll_starting_gold(self, character_class=None):
         """
         Roll starting gold based on character class using JSON data
-        
-        Args:
-            character_class: Optional override, uses GameState if not provided
-            
-        Returns:
-            int: Starting gold amount
+        Args: character_class: Optional override, uses GameState if not provided
+        Returns:int: Starting gold amount
         """
-        import json
-        import os
-        import random
-        
         # Load class data from JSON file
         class_file = os.path.join("data", "player", "character_classes.json")
         try:
@@ -812,27 +802,6 @@ class CharacterEngine:
         
         return starting_gold
 
-    def _fallback_gold_roll(self, character_class=None):
-        """
-        Fallback gold rolling when JSON file is unavailable
-        
-        Args:
-            character_class: Character class (ignored in fallback)
-            
-        Returns:
-            int: Starting gold amount using default fighter formula
-        """
-        import random
-        
-        # Default to fighter formula: 5d6 × 10
-        dice_total = sum(random.randint(1, 6) for _ in range(5))
-        starting_gold = dice_total * 10
-        
-        self.game_state.character['gold'] = starting_gold
-        
-        print(f"💰 Fallback Gold Roll: 5d6 × 10 = {starting_gold} gold pieces")
-        return starting_gold
-
     def _load_class_data_from_json(self, character_class):
         """
         Load class data from JSON file - replacement for old _get_class_data
@@ -847,7 +816,6 @@ class CharacterEngine:
         except Exception as e:
             print(f"Error loading class data for {character_class}: {e}")
             return {}
-
 
     def apply_class_stat_adjustments(self, character_class=None):
         """
@@ -1028,7 +996,7 @@ class CharacterEngine:
 
 
         # Get class-specific data
-        class_data = self._get_class_data(character_class)
+        class_data = self._load_class_data_from_json(character_class)
         hit_die = class_data.get('hit_die', 10) if class_data else 10
         
         # Roll for HP gain (class hit die + con modifier per level)
@@ -1039,9 +1007,10 @@ class CharacterEngine:
         print(f"DEBUG: HP Roll - 1d{hit_die}({dice_roll}) + CON({constitution_modifier}) = {hp_gain}")
         # Get new abilities for this level
         new_abilities = []
-        if class_data and 'abilities' in class_data:
+        if class_data and 'level_progression' in class_data:
             level_key = f'level_{new_level}'
-            new_abilities = class_data['abilities'].get(level_key, [])
+            level_data = class_data['level_progression'].get(level_key, {})
+            new_abilities = level_data.get('features', [])  
         
         # Update character stats in GameState (Single Data Authority)
         self.game_state.character['level'] = new_level
@@ -1068,6 +1037,14 @@ class CharacterEngine:
         if new_abilities:
             print(f"📚 New abilities: {', '.join(new_abilities)}")
         
+        #TODO remove after test.
+        # TEST CODE:
+        print("🔍 DEBUG: Testing modifier calculation...")
+        modifiers = self.calculate_all_modifiers()
+        print(f"   Attacks per round: {modifiers['attacks_per_round']}")
+        print(f"   Shop price modifier: {modifiers['shop_price_modifier']:.1%}")
+        print(f"   Daily abilities: {list(modifiers['daily_abilities'].keys())}")
+
         return level_up_results
     
     def award_experience(self, xp_amount, reason=""):
@@ -1099,7 +1076,7 @@ class CharacterEngine:
         total_xp = base_xp * enemy_count
         return self.award_experience(total_xp, f"defeated {enemy_count} enemies")
     
-    #TODO  does this need t be removed or updated since we have a calculated XP
+    #TODO  does this need to be removed or updated since we have a calculated XP
     # ENHANCED VERSION - More precise than legacy, less specific than quest_engine
     def award_quest_xp(self, quest_type="normal", custom_amount=None):
         """Award XP for quest completion with flexible options"""
@@ -1535,6 +1512,118 @@ class CharacterEngine:
             print("❌ Character creation validation failed!")
         
         return is_valid
+    # ==========================================
+    # CONSOLIDATED MODIFIER CALCULATER USED TO 
+    # PUSH CHARACTER ABILITIES AND EFFECTS TO 
+    # COMBAT AND OTHER ENGINES
+    # ========================================== 
+
+    def calculate_all_modifiers(self):
+        """
+        THE UNIFIED MODIFIER CALCULATOR
+        Parses character abilities and stats to return all game modifiers
+        
+        This is the single source of truth for all character effects.
+        Every system (combat, shopping, dialogue, skills) uses this.
+        
+        Returns:
+            dict: Complete modifier object with all game effects
+        """
+        abilities = self.game_state.character.get('abilities', [])
+        base_stats = self.game_state.character
+        
+        # Start with base modifiers - everything defaults to 0/empty
+        modifiers = {
+            # Combat modifiers
+            'attacks_per_round': 1,
+            'ac_bonus': 0,
+            'damage_bonus': 0,
+            'hit_bonus': 0,
+            
+            # Social modifiers  
+            'shop_price_modifier': 0.0,  # -0.1 = 10% discount
+            'dialogue_charisma_bonus': 0,
+            'intimidation_bonus': 0,
+            
+            # Exploration modifiers
+            'movement_bonus': 0,
+            'trap_detection_bonus': 0,
+            'search_bonus': 0,
+            
+            # Magic modifiers (for future spellcasters)
+            'spell_slot_bonus': 0,
+            'spell_save_dc_bonus': 0,
+            'spell_damage_bonus': 0,
+            
+            # Saving throw bonuses
+            'fear_save_bonus': 0,
+            'poison_save_bonus': 0,
+            'magic_save_bonus': 0,
+            
+            # Daily abilities available (use tracking)
+            'daily_abilities': {},
+            
+            # Ability score bonuses from class features
+            'ability_score_bonuses': {}
+        }
+        
+        # Parse each ability for its mechanical effects
+        for ability in abilities:
+            if ability == "Extra Attack":
+                modifiers['attacks_per_round'] = 2
+                
+            elif ability == "Combat Surge":
+                modifiers['daily_abilities']['Combat Surge'] = {
+                    'uses_remaining': 1,  # TODO: Track daily resets
+                    'effect': 'Take an extra action once per day',
+                    'type': 'combat_action'
+                }
+                
+            elif ability == "Shield Focus":
+                modifiers['daily_abilities']['Shield Focus'] = {
+                    'uses_remaining': 1,  # TODO: Track daily resets  
+                    'effect': '+1 AC for one entire combat encounter',
+                    'type': 'defensive_bonus'
+                }
+                
+            elif ability == "Terror Resistance":
+                modifiers['fear_save_bonus'] = 1
+                
+            # Future abilities can be added here easily:
+            # elif ability == "Silver Tongue":  # hypothetical charisma ability
+            #     modifiers['shop_price_modifier'] -= 0.1  # 10% discount
+            #     modifiers['dialogue_charisma_bonus'] += 2
+            #     
+            # elif ability == "Weapon Mastery":  # hypothetical combat ability
+            #     modifiers['hit_bonus'] += 1
+            #     modifiers['damage_bonus'] += 2
+        
+        # Add base stat modifiers (D&D style ability modifiers)
+        strength = base_stats.get('strength', 10)
+        dexterity = base_stats.get('dexterity', 10)
+        constitution = base_stats.get('constitution', 10)
+        intelligence = base_stats.get('intelligence', 10)
+        wisdom = base_stats.get('wisdom', 10)
+        charisma = base_stats.get('charisma', 10)
+        
+        # Calculate D&D-style ability modifiers
+        str_mod = (strength - 10) // 2
+        dex_mod = (dexterity - 10) // 2
+        con_mod = (constitution - 10) // 2
+        int_mod = (intelligence - 10) // 2
+        wis_mod = (wisdom - 10) // 2
+        cha_mod = (charisma - 10) // 2
+        
+        # Apply stat-based modifiers
+        modifiers['damage_bonus'] += str_mod  # STR affects melee damage
+        modifiers['hit_bonus'] += str_mod     # STR affects melee accuracy
+        modifiers['ac_bonus'] += dex_mod      # DEX affects AC (if wearing light armor)
+        modifiers['shop_price_modifier'] += (cha_mod * 0.05)  # CHA affects prices (5% per modifier)
+        modifiers['dialogue_charisma_bonus'] += cha_mod
+        modifiers['search_bonus'] += int_mod   # INT affects finding things
+        modifiers['trap_detection_bonus'] += wis_mod  # WIS affects noticing traps
+        
+        return modifiers
     
 # ==========================================
 # GLOBAL CHARACTER ENGINE MANAGEMENT

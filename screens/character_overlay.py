@@ -51,6 +51,7 @@ class CharacterOverlay(BaseTabbedOverlay):
         DESIGN PRINCIPLE: 
         Each tab handles its own content rendering while framework manages tabs
         """
+        
         content_rect = self.get_content_area_rect()
         
         if active_tab.tab_id == "player_stats":
@@ -560,7 +561,6 @@ class CharacterOverlay(BaseTabbedOverlay):
         party_size = 1 + len(party_members)  # Player + NPCs
         summary_text = normal_font.render(f"Total Party Size: {party_size}/4", True, YELLOW)
         surface.blit(summary_text, (content_rect.x + 20, summary_y))
-
         
 #TODO this armor class ac needs to be pulled from somewhere else and not hard coded.
     def _get_armor_ac(self, armor_name):

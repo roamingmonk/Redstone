@@ -1283,6 +1283,23 @@ Functionality for the button is still needed to be added.
 **Files Modified:** character_overlay.py, character_engine.py, character_classes.json, save_manager.py, game_state.py
 **Result:** Complete character advancement system with data-driven progression, persistent XP, party advancement, and clear player feedback ready for ability score choices at level 3
 
+# ADR-079:  equipment structure cleanup
+**Date:** Sep 19, 2025  
+- gamestate, character engine, inventory engine, character creation, inventory overlay, constants, items and character classes.jsons
+- data standarization using item ids and internal connection. linked character creation to items, to inventory in a single method.  Json->character engine->gamestate->UI display
+
+# ADR-080: Character Ability Progression System Fix
+# Status: Accepted
+# Date: Sep 20, 2025
+**Context:** Level-up system failed to assign class abilities due to JSON structure mismatch - code expected class_data['abilities'] but JSON used class_data['level_progression'][level]['features']
+Decision: Fix ability assignment logic to properly read from JSON structure and implement unified modifier calculation system
+Implementation:
+Fixed level-up ability parsing: level_data.get('features', []) instead of incorrect class_data['features']
+Added calculate_all_modifiers() method to CharacterEngine for unified stat/ability processing
+Verified ability accumulation works correctly across levels (Combat Surge at L2, Extra Attack at L3, etc.)
+Result: Character abilities now properly assigned during level-up, modifier system functional for future combat/social/exploration mechanics integration
+Files Modified: character_engine.py
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected
