@@ -45,6 +45,17 @@
       "rarity": "common"
     },
     {
+      "id": "leather_armor",
+      "name": "Leather Armor",
+      "description": "Armor made from leather.",
+      "base_cost": 40,
+      "category": "armor",
+      "icon_file": "leather_armor.png",
+      "consumable": false,
+      "weight": 30,
+      "rarity": "common"
+    },
+    {
       "id": "crystal_pendant",
       "name": "Crystal pendant",
       "description": "A pendant with a shimmering crystal.",

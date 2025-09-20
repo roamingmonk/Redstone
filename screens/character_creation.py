@@ -4,6 +4,7 @@ Contains all the character creation screen drawing functions
 """
 
 import pygame
+import json
 import os
 # Import layout constants for new standardized system  
 from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, 
@@ -592,13 +593,63 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
     surface.blit(equipment_title, (80, y_pos))
     y_pos += line_height
     
-    equipment = [
-        "Leather Armor (AC 12)",
-        "Longsword (1d8 damage)",
-        "Shield (+2 AC)",
-        game_state.character['trinket']
-    ]
-    
+    # equipment = [
+    #     "Leather Armor (AC 12)",
+    #     "Longsword (1d8 damage)",
+    #     "Shield (+2 AC)",
+    #     game_state.character['trinket']
+    # ]
+
+    try:
+        # Load character class data
+        class_file = os.path.join("data", "player", "character_classes.json")
+        with open(class_file, 'r') as f:
+            class_data = json.load(f)
+        
+        # Load items data for name lookup
+        items_file = os.path.join("data", "items.json")
+        with open(items_file, 'r') as f:
+            items_data = json.load(f)
+        
+        # Get current character class
+        current_class = game_state.character.get('class', 'fighter')
+        class_info = class_data["character_classes"].get(current_class, {})
+        starting_equipment = class_info.get('starting_equipment', {})
+        
+        # Build equipment list from JSON
+        equipment = []
+        
+        # Add weapons
+        for weapon_id in starting_equipment.get('weapons', []):
+            for item in items_data['merchant_items']:
+                if item['id'] == weapon_id:
+                    equipment.append(item['name'])
+                    break
+        
+        # Add armor (includes shields)
+        for armor_id in starting_equipment.get('armor', []):
+            for item in items_data['merchant_items']:
+                if item['id'] == armor_id:
+                    equipment.append(item['name'])
+                    break
+        
+        # Add items
+        for item_id in starting_equipment.get('items', []):
+            for item in items_data['merchant_items']:
+                if item['id'] == item_id:
+                    equipment.append(item['name'])
+                    break
+        
+        # Add trinket
+        trinket = game_state.character.get('trinket')
+        if trinket and trinket != 'None':
+            equipment.append(trinket)
+
+    except (FileNotFoundError, KeyError, json.JSONDecodeError) as e:
+        print(f"Error loading equipment data: {e}")
+        # Fallback to basic equipment
+        equipment = ["Basic Equipment", game_state.character.get('trinket', 'None')]
+ 
     for item in equipment:
         item_surface = fonts.get('fantasy_tiny', fonts['small']).render(f"• {item}", True, WHITE)
         surface.blit(item_surface, (80, y_pos))
@@ -615,8 +666,6 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
     
     # Load the active player portrait using same logic as party_display.py
     try:
-        from utils.constants import MALE_PORTRAITS_PATH
-        import os
         
         active_dir = os.path.join(os.path.dirname(MALE_PORTRAITS_PATH), "active")
         active_path = os.path.join(active_dir, "player.jpg")
@@ -647,7 +696,6 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
 def finalize_character_creation(game_state):
     """
     Complete character creation by using CharacterEngine
-    This replaces the existing finalize_character() call
     """
     from game_logic.character_engine import get_character_engine
     engine = get_character_engine()
@@ -656,8 +704,8 @@ def finalize_character_creation(game_state):
         # Set character class (fighter for now, expandable later)
         engine.set_character_class('fighter')
         
-        # Let engine handle all finalization
-        success = engine.finalize_character(game_state)
+        # Call the NEW method instead
+        success = engine.finalize_character_creation()  # <-- Changed this line
         
         if success:
             print("✅ Character creation completed via CharacterEngine!")
@@ -665,7 +713,7 @@ def finalize_character_creation(game_state):
     else:
         print("❌ CharacterEngine not available!")
         return False
-
+    
 def draw_welcome_screen(surface, game_state, fonts, images=None):
     """Draw the welcome to Redstone screen"""
     surface.fill(BLACK)

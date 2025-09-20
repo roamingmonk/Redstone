@@ -24,13 +24,36 @@ class GameState:
         self.item_manager = self.data_manager.item_manager
 
         # Character data
-        self.character = {}
+        self.character = {
+            # Core identity
+            'name': '',
+            'class': 'fighter',
+            'gender': '',
+            'trinket': '',
+            
+            # Core stats (set during character creation)
+            'strength': 0,
+            'dexterity': 0, 
+            'constitution': 0,
+            'intelligence': 0,
+            'wisdom': 0,
+            'charisma': 0,
+            
+            # Progression tracking
+            'level': 1,
+            'experience': 0,
+            'hit_points': 10,
+            'abilities': [],  # ← THE KEY ADDITION!
+            
+            # Resources
+            'gold': 0
+        }
         self.temp_stats = {}
         
         # Inventory system
         self.inventory = {
-            'weapons': ['Longsword'],
-            'armor': ['Leather Armor', 'Shield'], 
+            'weapons': [],
+            'armor': [], 
             'items': [],
             'consumables': []
         }

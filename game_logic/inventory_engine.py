@@ -95,7 +95,7 @@ class InventoryEngine:
             
             # Add items (with stacking support)
             for _ in range(quantity):
-                self.game_state.inventory[category_key].append(item_template['name'])
+                self.game_state.inventory[category_key].append(item_template['id'])
             
             item_name = item_template.get('name', item_id)
             qty_text = f"{quantity}x " if quantity > 1 else ""

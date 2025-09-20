@@ -370,7 +370,7 @@ def load_images():
         
         try:
             icon = pygame.image.load(filepath)
-            images['item_icons'][item_name] = pygame.transform.scale(icon, (32, 32))
+            images['item_icons'][base_filename] = pygame.transform.scale(icon, (32, 32))
             print(f"✓ Item icon loaded: {item_name}")
         except Exception as e:
             print(f"✗ Item icon failed: {item_name}")
@@ -378,7 +378,7 @@ def load_images():
             print(f"  Error: {e}")
             # Create professional fallback icon
             fallback_icon = create_item_fallback_icon(item_name)
-            images['item_icons'][item_name] = fallback_icon
+            images['item_icons'][base_filename] = fallback_icon
             print(f"✓ Using fallback icon for: {item_name}")
             pygame.draw.rect(fallback_icon, (255, 255, 255), (0, 0, 32, 32), 2)
             font = pygame.font.Font(None, 24)

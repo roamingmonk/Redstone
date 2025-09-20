@@ -46,25 +46,18 @@
         "constitution": 1
       },
       "starting_equipment": {
-        "weapons": ["Longsword", "Handaxe"],
-        "armor": "Chain Mail",
-        "shield": "Shield",
-        "tools": [],
-        "items": ["Explorer's Pack", "Hemp Rope (50 feet)"]
+        "weapons": ["longsword"],
+        "armor": ["leather_armor", "shield"], 
+        "items": [],
+        "consumables": []
       },
       "skill_options": [
         "Acrobatics", "Animal Handling", "Athletics", "History", 
         "Insight", "Intimidation", "Perception", "Survival"
       ],
-      "skills_to_choose": 2,
-      "level_1_features": [
-        "Fighting Style",
-        "Second Wind"
-      ],
       "proficiencies": {
         "armor": ["Light Armor", "Medium Armor", "Heavy Armor", "Shields"],
-        "weapons": ["Simple Weapons", "Martial Weapons"],
-        "tools": []
+        "weapons": ["Simple Weapons", "Martial Weapons"]
       }
     },
     "wizard": {
@@ -84,20 +77,14 @@
         "intelligence": 2
       },
       "starting_equipment": {
-        "weapons": ["Quarterstaff", "Dagger"],
-        "armor": "None",
-        "shield": "None",
-        "tools": [],
-        "items": ["Spellbook", "Component Pouch", "Scholar's Pack", "Ink and Quill"]
+        "weapons": ["quarterstaff", "dagger"],
+        "armor": [],
+        "items": [],
+        "consumables": []
       },
       "skill_options": [
         "Arcana", "History", "Insight", "Investigation", 
         "Medicine", "Religion"
-      ],
-      "skills_to_choose": 2,
-      "level_1_features": [
-        "Spellcasting",
-        "Arcane Recovery"
       ],
       "spellcasting": {
         "cantrips_known": 3,
@@ -110,8 +97,7 @@
       },
       "proficiencies": {
         "armor": [],
-        "weapons": ["Daggers", "Darts", "Slings", "Quarterstaffs", "Light Crossbows"],
-        "tools": []
+        "weapons": ["Daggers", "Darts", "Slings", "Quarterstaffs", "Light Crossbows"]
       }
     },
     "rogue": {
@@ -131,11 +117,10 @@
         "dexterity": 2
       },
       "starting_equipment": {
-        "weapons": ["Rapier", "Shortsword", "Shortbow"],
-        "armor": "Leather Armor",
-        "shield": "None",
-        "tools": ["Thieves' Tools"],
-        "items": ["Burglar's Pack", "Arrows (20)", "Hemp Rope (50 feet)"]
+        "weapons": ["rapier", "shortbow"],
+        "armor": "leather_armor",
+        "items": ["hemp_rope", "thieves_tools"],
+        "consumables": []
       },
       "skill_options": [
         "Acrobatics", "Athletics", "Deception", "Insight", "Intimidation", 
@@ -151,7 +136,7 @@
       "proficiencies": {
         "armor": ["Light Armor"],
         "weapons": ["Simple Weapons", "Hand Crossbows", "Longswords", "Rapiers", "Shortswords"],
-        "tools": ["Thieves' Tools"]
+        "items": ["Thieves' Tools"]
       }
     },
     "cleric": {
@@ -171,19 +156,13 @@
         "wisdom": 2
       },
       "starting_equipment": {
-        "weapons": ["Mace", "Light Crossbow"],
-        "armor": "Scale Mail",
-        "shield": "Shield",
-        "tools": [],
-        "items": ["Priest's Pack", "Holy Symbol", "Crossbow Bolts (20)"]
+        "weapons": ["mace"],
+        "armor": ["scale_mail", "shield"],
+        "items": ["holy_symbol"],
+        "consumables": []
       },
       "skill_options": [
         "History", "Insight", "Medicine", "Persuasion", "Religion"
-      ],
-      "skills_to_choose": 2,
-      "level_1_features": [
-        "Spellcasting",
-        "Divine Domain"
       ],
       "spellcasting": {
         "cantrips_known": 3,
@@ -196,8 +175,7 @@
       },
       "proficiencies": {
         "armor": ["Light Armor", "Medium Armor", "Shields"],
-        "weapons": ["Simple Weapons"],
-        "tools": []
+        "weapons": ["Simple Weapons"]
       }
     }
   },

@@ -168,15 +168,28 @@ class InventoryOverlay(BaseTabbedOverlay):
             
             # Draw item icon
             icon_x_pos = icon_x + 5
-            if images and 'item_icons' in images and item_name in images['item_icons']:
-                icon = images['item_icons'][item_name]
-                surface.blit(icon, (icon_x_pos, current_row_y - 5))
+            print(f"🔍 Looking for icon: '{item_name}' in item_icons")
+            if images and 'item_icons' in images:
+                print(f"🔍 Available icons: {list(images['item_icons'].keys())}")
+                if item_name in images['item_icons']:
+                    icon = images['item_icons'][item_name]
+                    surface.blit(icon, (icon_x_pos, current_row_y - 5))
+                    print(f"✅ Icon found and displayed for: {item_name}")
+                else:
+                    icon_surface = item_font.render("X", True, BLACK)
+                    surface.blit(icon_surface, (icon_x_pos + 10, current_row_y))
+                    print(f"❌ No icon found for: {item_name}")
             else:
                 icon_surface = item_font.render("X", True, BLACK)
                 surface.blit(icon_surface, (icon_x_pos + 10, current_row_y))
-            
+                print("❌ No item_icons available")
+
+                
+            # Convert item ID to display name for rendering
+            display_name = item_name.replace('_', ' ').title()
+
             # Draw item details
-            desc_surface = item_font.render(item_name, True, BLACK)
+            desc_surface = item_font.render(display_name, True, BLACK)
             surface.blit(desc_surface, (desc_x, current_row_y))
             
             qty_surface = item_font.render(str(quantity), True, BLACK)

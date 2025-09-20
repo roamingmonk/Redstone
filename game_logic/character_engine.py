@@ -43,6 +43,10 @@ class CharacterEngine:
     def _handle_new_game(self, event_data):
         """Handle starting character creation flow"""
         print("🎮 CharacterEngine: Starting character creation")
+        
+        # Initialize character creation with proper setup
+        self.initialize_character_creation()
+        
         self.activate_character_portrait(self.game_state)
         
         # Emit navigation to first character creation screen
@@ -58,6 +62,27 @@ class CharacterEngine:
             event_manager.register("XP_AWARDED", self._handle_xp_award)
             event_manager.register("QUEST_COMPLETED", self._handle_quest_xp)
             print("📡 CharacterEngine registered for XP events")
+
+    def initialize_character_creation(self):
+        #########################################
+        ######## ADD Class selection Here #######
+        #########################################
+        """
+        Initialize a new character creation session
+        Sets up default values and prepares for character creation flow
+        """
+        print("🎮 Initializing character creation session")
+        
+        # Set default class (expandable to class selection screen later)
+        self.set_character_class('fighter')
+        
+        # Initialize any other default character creation values
+        self.game_state.character['level'] = 1
+        self.game_state.character['experience'] = 0
+        self.game_state.stats_rolled = False
+        
+        print("✅ Character creation initialized with default fighter class")
+
 
     def roll_stats(self, reroll_ones=True):
         """
@@ -504,42 +529,32 @@ class CharacterEngine:
         except Exception as e:
             print(f"Error clearing active portrait: {e}")
 
-    def finalize_character(self, game_state):
-        """
-        Complete character creation by calculating final stats
-        """
-        self.character['hit_points'] = self.calculate_hp()
-    
-        # Add starting trinket to inventory
-        if 'trinket' in self.character:
-            self.inventory['items'].append(self.character['trinket'])
-
     def handle_gold_button_click(self, event_data):
         """Handle gold button click - either roll gold or continue to trinket screen"""
-        
-        # Check if gold already exists
-        if 'gold' in self.game_state.character:
+    
+        # Check if gold already rolled (has meaningful value)
+        current_gold = self.game_state.character.get('gold', 0)
+        if current_gold > 0:
             # Gold already rolled, advance to trinket screen
             print("Gold confirmed, advancing to trinket screen")
-            print(f"DEBUG: Current character data: {self.game_state.character}")
             self.event_manager.emit("SCREEN_CHANGE", {"target": "trinket"})
         else:
-            # Use the sophisticated JSON-based class system
-            self.roll_starting_gold()  # Updates GameState directly
+            # Roll for gold
+            self.roll_starting_gold()
             print(f"DEBUG: Character data after gold roll: {self.game_state.character}")
-            # Stay on gold screen so button changes to "CONTINUE"
 
     def handle_trinket_button_click(self, event_data):
         """Handle trinket button click - either roll trinket or continue to summary screen"""
         
-        # Check if trinket already exists
-        if 'trinket' in self.game_state.character:
+        # Check if trinket already rolled (not empty string)
+        current_trinket = self.game_state.character.get('trinket', '')
+        if current_trinket and current_trinket != '':
             # Trinket already rolled, advance to summary screen
-            print("✨ Trinket confirmed, advancing to summary screen")
+            print("✨ Trinket already rolled, advancing to summary screen")
             print(f"🔍 DEBUG: Current character data: {self.game_state.character}")
             self.event_manager.emit("SCREEN_CHANGE", {"target": "summary"})
         else:
-            # Roll for trinket using the updated JSON-based method
+            # Roll for trinket
             trinket = self.roll_trinket()
             print(f"🔍 DEBUG: Character data after trinket roll: {self.game_state.character}")
             # Stay on trinket screen so button changes to "CONTINUE"
@@ -695,21 +710,6 @@ class CharacterEngine:
         print(f"🎭 Generated {len(names)} {gender} names: {names}")
         return names
 
-    def _load_class_data_from_json(self, character_class):
-        """
-        Load class data from JSON file - replacement for old _get_class_data
-        """
-        
-        try:
-            class_file = os.path.join("data", "player", "character_classes.json")
-            with open(class_file, 'r') as f:
-                json_data = json.load(f)
-            
-            return json_data["character_classes"].get(character_class, {})
-        except Exception as e:
-            print(f"Error loading class data for {character_class}: {e}")
-            return {}
-
     def calculate_hp(self, constitution_score=None, character_class=None):
         """
         Calculate hit points based on constitution score and class
@@ -833,6 +833,22 @@ class CharacterEngine:
         print(f"💰 Fallback Gold Roll: 5d6 × 10 = {starting_gold} gold pieces")
         return starting_gold
 
+    def _load_class_data_from_json(self, character_class):
+        """
+        Load class data from JSON file - replacement for old _get_class_data
+        """
+        
+        try:
+            class_file = os.path.join("data", "player", "character_classes.json")
+            with open(class_file, 'r') as f:
+                json_data = json.load(f)
+            
+            return json_data["character_classes"].get(character_class, {})
+        except Exception as e:
+            print(f"Error loading class data for {character_class}: {e}")
+            return {}
+
+
     def apply_class_stat_adjustments(self, character_class=None):
         """
         Apply class-specific stat adjustments from JSON data
@@ -871,7 +887,7 @@ class CharacterEngine:
             if stat in self.game_state.character:
                 old_value = self.game_state.character[stat]
                 new_value = old_value + adjustment
-                # Cap at 18 (D&D maximum for starting characters)
+                # Cap at 18 
                 new_value = min(new_value, 18)
                 self.game_state.character[stat] = new_value
                 applied_adjustments[stat] = adjustment
@@ -881,7 +897,36 @@ class CharacterEngine:
             print(f"⚡ {class_info.get('name', character_class.title())} class bonuses applied!")
         
         return applied_adjustments
-    
+
+    def get_available_classes(self):
+        """
+        Get list of available character classes for future selection screen
+        
+        Returns:
+            list: Available class names
+        """
+        try:
+            class_file = os.path.join("data", "player", "character_classes.json")
+            with open(class_file, 'r') as f:
+                class_data = json.load(f)
+            return list(class_data["character_classes"].keys())
+        except Exception as e:
+            print(f"❌ Error loading class list: {e}")
+            return ['fighter']  # Fallback   
+
+    def set_character_class(self, class_name='fighter'):
+        """Set character class with validation"""
+        class_data = self._load_class_data_from_json(class_name)
+        
+        if not class_data:
+            print(f"Invalid class {class_name}, defaulting to fighter")
+            class_name = 'fighter'
+        
+        self.game_state.character['class'] = class_name
+        
+        print(f"⚔️ Character class set to: {class_name}")
+        return class_name
+
     def roll_trinket(self):
         """
         Roll for a mysterious starting trinket
@@ -916,164 +961,6 @@ class CharacterEngine:
         
         print(f"✨ Rolled trinket: {trinket}")
         return trinket
-    
-    def set_character_class(self, character_class='fighter'):
-        """
-        Set character class with full framework support
-        """
-        class_data = self._load_class_data_from_json(character_class)
-        
-        if not class_data:
-            print(f"⚠️ Invalid class {character_class}, defaulting to fighter")
-            character_class = 'fighter'
-            class_data = self._load_class_data_from_json('fighter')
-        
-        # Update GameState directly (Single Data Authority)
-        self.game_state.character['class'] = character_class
-        self.game_state.character['class_data'] = class_data
-        
-        print(f"⚔️ Character class set to: {character_class}")
-        return character_class
-    
-    #TODO is this redundant?  review and see if this is conflicting with character_class JSON or
-    # if other json data.  Is anything reading this data?
-    # def _get_class_data(self, character_class):
-    #     """
-    #     Get class-specific data for character creation and progression
-        
-    #     Returns:
-    #         dict: Class data including equipment, abilities, progression
-    #     """
-    #     class_definitions = {
-    #         'fighter': {
-    #             'name': 'Fighter',
-    #             'description': 'A master of martial combat, skilled with various weapons and armor',
-    #             'hit_die': 10,  # d10 for HP per level
-    #             'primary_stats': ['strength', 'constitution'],
-    #             'starting_equipment': {
-    #                 'weapon': 'Longsword',
-    #                 'armor': 'Leather Armor', 
-    #                 'shield': 'Shield',
-    #                 'items': ['Hemp Rope']
-    #             },
-    #             'starting_gold': {'base': 5, 'multiplier': 5},  # 5d6 * 5 gold
-    #             'abilities': {
-    #                 'level_1': ['Combat Training', 'Weapon Mastery'],
-    #                 'level_2': ['Action Surge'],
-    #                 'level_3': ['Second Wind'],
-    #                 'level_4': ['Ability Score Improvement'],
-    #                 'level_5': ['Extra Attack']
-    #             }
-    #         },
-    #         'wizard': {
-    #             'name': 'Wizard',
-    #             'description': 'A scholarly magic-user capable of manipulating arcane forces',
-    #             'hit_die': 6,  # d6 for HP per level
-    #             'primary_stats': ['intelligence', 'wisdom'],
-    #             'starting_equipment': {
-    #                 'weapon': 'Quarterstaff',
-    #                 'armor': 'Robes',
-    #                 'shield': None,
-    #                 'items': ['Spellbook', 'Component Pouch']
-    #             },
-    #             'starting_gold': {'base': 3, 'multiplier': 10},  # 3d6 * 10 gold
-    #             'abilities': {
-    #                 'level_1': ['Spellcasting', 'Arcane Recovery'],
-    #                 'level_2': ['School of Magic'],
-    #                 'level_3': ['Cantrip Mastery'],
-    #                 'level_4': ['Ability Score Improvement'],
-    #                 'level_5': ['3rd Level Spells']
-    #             },
-    #             'spells_known': {
-    #                 'level_1': ['Magic Missile', 'Shield', 'Detect Magic'],
-    #                 'cantrips': ['Light', 'Mage Hand', 'Prestidigitation']
-    #             }
-    #         },
-    #         'rogue': {
-    #             'name': 'Rogue',
-    #             'description': 'A scoundrel who uses stealth and trickery to overcome obstacles',
-    #             'hit_die': 8,  # d8 for HP per level
-    #             'primary_stats': ['dexterity', 'intelligence'],
-    #             'starting_equipment': {
-    #                 'weapon': 'Shortsword',
-    #                 'armor': 'Leather Armor',
-    #                 'shield': None,
-    #                 'items': ['Thieves Tools', 'Daggers (2)']
-    #             },
-    #             'starting_gold': {'base': 4, 'multiplier': 4},  # 4d6 * 4 gold
-    #             'abilities': {
-    #                 'level_1': ['Sneak Attack', 'Thieves Cant'],
-    #                 'level_2': ['Cunning Action'],
-    #                 'level_3': ['Roguish Archetype'],
-    #                 'level_4': ['Ability Score Improvement'],
-    #                 'level_5': ['Uncanny Dodge']
-    #             }
-    #         },
-    #         'cleric': {
-    #             'name': 'Cleric',
-    #             'description': 'A priestly champion who wields divine magic in service of a higher power',
-    #             'hit_die': 8,  # d8 for HP per level
-    #             'primary_stats': ['wisdom', 'constitution'],
-    #             'starting_equipment': {
-    #                 'weapon': 'Mace',
-    #                 'armor': 'Scale Mail',
-    #                 'shield': 'Shield',
-    #                 'items': ['Holy Symbol', 'Prayer Book']
-    #             },
-    #             'starting_gold': {'base': 5, 'multiplier': 4},  # 5d6 * 4 gold
-    #             'abilities': {
-    #                 'level_1': ['Divine Magic', 'Turn Undead'],
-    #                 'level_2': ['Channel Divinity'],
-    #                 'level_3': ['Divine Domain'],
-    #                 'level_4': ['Ability Score Improvement'],
-    #                 'level_5': ['3rd Level Spells']
-    #             },
-    #             'spells_known': {
-    #                 'level_1': ['Cure Wounds', 'Bless', 'Detect Evil'],
-    #                 'cantrips': ['Sacred Flame', 'Light', 'Thaumaturgy']
-    #             }
-    #         }
-    #     }
-        
-    #     return class_definitions.get(character_class.lower())
-    
-    def _get_class_data(self, character_class):
-        """
-        Get class-specific data from JSON file
-        """
-        import json
-        import os
-        
-        try:
-            class_file = os.path.join("data", "player", "character_classes.json")
-            with open(class_file, 'r') as f:
-                json_data = json.load(f)
-            
-            class_data = json_data["character_classes"].get(character_class, {})
-            
-            # Convert JSON structure to expected format
-            abilities = {}
-            level_progression = class_data.get('level_progression', {})
-            for level_key, level_data in level_progression.items():
-                abilities[level_key] = level_data.get('features', [])
-            
-            return {
-                'name': class_data.get('name', character_class.title()),
-                'description': class_data.get('description', ''),
-                'hit_die': class_data.get('hit_die', 8),
-                'primary_stats': class_data.get('primary_abilities', []),
-                'abilities': abilities
-            }
-            
-        except Exception as e:
-            print(f"Error loading class data: {e}")
-            # Fallback to basic data
-            return {
-                'name': character_class.title(),
-                'hit_die': 8,
-                'abilities': {}
-            }
-
 
     # ==========================================
     # CHARACTER PROGRESSION OPERATIONS
@@ -1469,7 +1356,7 @@ class CharacterEngine:
         
         print("✅ Character data validated successfully")
         return True
-    
+#TODO where is this character summary used???    
     def get_character_summary(self):
         """
         Get formatted character summary for display
@@ -1494,9 +1381,9 @@ class CharacterEngine:
                 'Charisma': char.get('charisma', 10)
             },
             'equipment': {
-                'weapon': char.get('equipped_weapon', 'Longsword'),
-                'armor': char.get('equipped_armor', 'Leather Armor'),
-                'shield': char.get('equipped_shield', 'Shield')
+                'weapon': char.get('equipped_weapon', None),
+                'armor': char.get('equipped_armor', None),
+                'shield': char.get('equipped_shield', None)
             }
         }
         
@@ -1561,6 +1448,7 @@ class CharacterEngine:
                 current_xp >= xp_requirements.get(next_level, 999999))
 
     def finalize_character_creation(self):
+        print("🔧 DEBUG: Starting finalize_character_creation()")
         """
         Complete character creation process with class-specific setup
         Performs final calculations and validations
@@ -1583,36 +1471,46 @@ class CharacterEngine:
         class_data = self._load_class_data_from_json(character_class)
         starting_equipment = class_data.get('starting_equipment', {})
         
+        print("🔧 DEBUG: About to add starting equipment")
+        print(f"🔧 DEBUG: Current inventory before: {self.game_state.inventory}")
         if class_data and 'starting_equipment' in class_data:
             starting_equipment = class_data['starting_equipment']
             
-            # Add weapons to inventory
-            if starting_equipment.get('weapon'):
+            # Add weapons to inventory (handle arrays)
+            for weapon in starting_equipment.get('weapons', []):
+                print(f"🔧 DEBUG: Adding weapon: {weapon}")
+                
                 if 'weapons' not in self.game_state.inventory:
                     self.game_state.inventory['weapons'] = []
-                weapon = starting_equipment['weapon']
                 self.game_state.inventory['weapons'].append(weapon)
-                self.game_state.character['equipped_weapon'] = weapon
+                # Equip the first weapon
+                if not self.game_state.character.get('equipped_weapon'):
+                    self.game_state.character['equipped_weapon'] = weapon
             
-            # Add armor to inventory
-            if starting_equipment.get('armor'):
+            # Add armor to inventory (handle arrays, includes shields)
+            for armor_item in starting_equipment.get('armor', []):
+                print(f"🔧 DEBUG: Adding armor: {armor_item}")
                 if 'armor' not in self.game_state.inventory:
                     self.game_state.inventory['armor'] = []
-                armor = starting_equipment['armor']
-                self.game_state.inventory['armor'].append(armor)
-                self.game_state.character['equipped_armor'] = armor
-            
-            # Add shield if applicable
-            if starting_equipment.get('shield'):
-                shield = starting_equipment['shield']
-                self.game_state.inventory['armor'].append(shield)
-                self.game_state.character['equipped_shield'] = shield
+                self.game_state.inventory['armor'].append(armor_item)
+                
+                # Handle equipping logic - shields vs body armor
+                if armor_item.lower() == 'shield':
+                    self.game_state.character['equipped_shield'] = armor_item
+                else:
+                    self.game_state.character['equipped_armor'] = armor_item
             
             # Add class-specific items
-            class_items = starting_equipment.get('items', [])
-            if 'items' not in self.game_state.inventory:
-                self.game_state.inventory['items'] = []
-            self.game_state.inventory['items'].extend(class_items)
+            for item in starting_equipment.get('items', []):
+                if 'items' not in self.game_state.inventory:
+                    self.game_state.inventory['items'] = []
+                self.game_state.inventory['items'].append(item)
+            
+            # Add consumables if any
+            for consumable in starting_equipment.get('consumables', []):
+                if 'consumables' not in self.game_state.inventory:
+                    self.game_state.inventory['consumables'] = []
+                self.game_state.inventory['consumables'].append(consumable)
         
         # Add trinket to inventory if it exists
         trinket = self.game_state.character.get('trinket')
@@ -1620,11 +1518,6 @@ class CharacterEngine:
             if 'items' not in self.game_state.inventory:
                 self.game_state.inventory['items'] = []
             self.game_state.inventory['items'].append(trinket)
-        
-        # Set up class-specific abilities
-        if class_data and 'abilities' in class_data:
-            level_1_abilities = class_data['abilities'].get('level_1', [])
-            self.game_state.character['abilities'] = level_1_abilities.copy()
         
         # Set up spells for casters
         if class_data and 'spells_known' in class_data:
