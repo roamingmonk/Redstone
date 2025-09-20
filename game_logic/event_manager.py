@@ -247,8 +247,9 @@ class EventTypes:
     # Save Screen Events (Semantic Actions)
     SAVE_SLOT_SELECTED = "SAVE_SLOT_SELECTED"         # User clicks a save slot
     SAVE_GAME_CONFIRM = "SAVE_GAME_CONFIRM"           # User clicks SAVE button
+    SAVE_AND_QUIT_CONFIRM = "SAVE_AND_QUIT_CONFIRM"   # User clicks SAVE&QUIT button
     SAVE_SCREEN_CANCEL = "SAVE_SCREEN_CANCEL"         # User clicks CANCEL button
-    
+        
     # Load Screen Events (Semantic Actions)  
     LOAD_SLOT_SELECTED = "LOAD_SLOT_SELECTED"         # User clicks a load slot
     LOAD_GAME_CONFIRM = "LOAD_GAME_CONFIRM"           # User clicks LOAD button

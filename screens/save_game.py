@@ -178,7 +178,7 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
     button_spacing = 40
     
     # Calculate button positions (centered)
-    total_button_width = (2 * button_width) + button_spacing  # Only Save and Cancel
+    total_button_width = (3 * button_width) + (2 * button_spacing)  # Save, Save&Quit, Cancel
     start_x = (1024 - total_button_width) // 2
     
     # Determine button states
@@ -197,8 +197,21 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
                    "SAVE", fonts.get('fantasy_small', fonts['normal']),
                    pressed=False, selected=False)
     
-    # Cancel button
-    cancel_x = start_x + button_width + button_spacing
+    #Save & Quit button (middle position)
+    save_quit_x = start_x + button_width + button_spacing
+    save_quit_button = None
+    if has_selection:
+        save_quit_button = draw_button(surface, save_quit_x, button_y, button_width, button_height,
+                                     "SAVE&QUIT", fonts.get('fantasy_tiny', fonts['fantasy_small']),
+                                     pressed=False, selected=True)
+    else:
+        # Draw disabled save & quit button
+        draw_button(surface, save_quit_x, button_y, button_width, button_height,
+                   "SAVE&QUIT", fonts.get('fantasy_tiny', fonts['fantasy_small']),
+                   pressed=False, selected=False)
+    
+    # Cancel button (now rightmost)
+    cancel_x = start_x + (2 * button_width) + (2 * button_spacing)
     cancel_button = draw_button(surface, cancel_x, button_y, button_width, button_height,
                                "CANCEL", fonts.get('fantasy_small', fonts['normal']))
     
@@ -206,5 +219,6 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
         'slot_rects': slot_rects,
         'save_slots': save_slots,
         'save_button': save_button,  # Only returns if enabled
+        'save_quit_button': save_quit_button,  # Only returns if enabled
         'cancel_button': cancel_button
     }

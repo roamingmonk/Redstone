@@ -572,6 +572,7 @@ class SaveManager:
             # Register the new save screen events
             self.event_manager.register("SAVE_SLOT_SELECTED", self._handle_save_slot_selection)
             self.event_manager.register("SAVE_GAME_CONFIRM", self._handle_save_confirm)
+            self.event_manager.register("SAVE_AND_QUIT_CONFIRM", self._handle_save_and_quit_confirm)
             self.event_manager.register("SAVE_SCREEN_CANCEL", self._handle_save_cancel)
             self.event_manager.register("SCREEN_REFRESH_REQUESTED", self._handle_screen_refresh)
 
@@ -715,6 +716,28 @@ class SaveManager:
         self.game_state.save_screen_open = False
         self.game_state.save_selected_slot = None
         print("❌ SaveManager: Save screen cancelled")
+
+    def _handle_save_and_quit_confirm(self, event_data):
+        """Handle SAVE_AND_QUIT_CONFIRM events"""
+        if not hasattr(self.game_state, 'save_selected_slot') or self.game_state.save_selected_slot is None:
+            print("No slot selected for save and quit")
+            return
+            
+        # First, save the game
+        success = self.save_game(self.game_state.save_selected_slot)
+        
+        if success:
+            print("✅ SaveManager: Game saved successfully, initiating shutdown...")
+            # Close save screen
+            self.game_state.save_screen_open = False
+            self.game_state.save_selected_slot = None
+            
+        if hasattr(self, '_game_controller_ref'):
+            self._game_controller_ref.shutdown()
+        else:
+            # Fallback: emit quit event that main.py will catch
+            if self.event_manager:
+                self.event_manager.emit("QUIT_GAME", {})
 
     def _sync_party_with_flags(self):
         """Sync party_members list with recruitment flags after load"""

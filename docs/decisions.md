@@ -1321,6 +1321,12 @@ Professional foundation: Industry-standard graphics management ready for commerc
 **Files Created:** utils/tile_graphics.py
 **Files Modified:** screens/redstone_town_navigation.py (uses shared manager), constants.py (tile paths)
 
+# ADR-082 save and quit button add to save screen
+# Status: Accepted
+# Date: Sep 20, 2025
+- added save and quit button the F7 save screen
+- event driven and used same quit event system 
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

@@ -222,13 +222,14 @@ class ScreenManager:
                 button_width = 120
                 button_height = 50
                 button_spacing = 40
-                total_button_width = (2 * button_width) + button_spacing  # Only Save and Cancel
+                total_button_width = (3 * button_width) + (2 * button_spacing)  # Save, Save&Quit, Cancel
                 start_x = (1024 - total_button_width) // 2
 
-                # Always register both buttons (Save and Cancel)
+                # Always register all three buttons (Save, Save&Quit, Cancel)
                 buttons = [
                     (start_x, 'SAVE_GAME_CONFIRM'),
-                    (start_x + button_width + button_spacing, 'SAVE_SCREEN_CANCEL')
+                    (start_x + button_width + button_spacing, 'SAVE_AND_QUIT_CONFIRM'),
+                    (start_x + (2 * button_width) + (2 * button_spacing), 'SAVE_SCREEN_CANCEL')
                 ]
 
                 for button_x, event_type in buttons:
