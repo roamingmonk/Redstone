@@ -115,7 +115,7 @@
       "category": "items",
       "subcategory": "trinket",
       "special_effect": "resistance_sleep",
-      "icon_file": "feathered_dream_catcher.jpg",
+      "icon_file": "feathered_dream_catcher.png",
       "consumable": false,
       "weight": 0,
       "rarity": "uncommon"

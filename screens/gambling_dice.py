@@ -20,6 +20,29 @@ BROWN = (170, 85, 0)
 DARK_BROWN = (101, 67, 33)
 BLUE = (0, 0, 170)
 
+
+def get_gambling_stats(game_state):
+    """Get gambling statistics with backward compatibility"""
+    # Try new location first (DiceGameEngine)
+    if 'gambling_stats' in game_state.character:
+        return game_state.character['gambling_stats']
+    
+    # Fall back to old location if it exists (legacy)
+    if hasattr(game_state, 'dice_game'):
+        return game_state.dice_game
+    
+    # Return default empty dict if neither exists
+    return {
+        'house_money': 500,
+        'game_active': True,
+        'win_streak': 0,
+        'loss_streak': 0,
+        'last_roll': [1, 1, 1],
+        'current_bet': 0,
+        'last_result': {}
+    }
+
+
 # Drawing functions (duplicated here to avoid import issues)
 def draw_text_with_shadow(surface, text, font, x, y, text_color=WHITE, shadow_color=DARK_GRAY, shadow_offset=3):
     """Draw text with a shadow effect"""
@@ -89,10 +112,11 @@ def draw_dice(surface, x, y, size, value, rolling=False):
     for dot_x, dot_y in dot_positions[value]:
         pygame.draw.circle(surface, BLACK, (x + dot_x, y + dot_y), dot_size)
 
-def draw_dice_bets_screen(surface, game_state, fonts, images=None):
+def draw_dice_bets_screen(surface, game_state, fonts, images=None, controller=None):
     """Draw the betting selection screen"""
     surface.fill(BLACK)
-    
+    gambling_stats = get_gambling_stats(game_state)
+
     # Same 70/30 layout
     image_y = 20
     image_height = 510
@@ -108,6 +132,15 @@ def draw_dice_bets_screen(surface, game_state, fonts, images=None):
     
     pygame.draw.rect(surface, (20, 40, 20), (img_x, img_y, img_width, img_height))  # Dark green felt
     
+    # Betting buttons
+    button_width = 120
+    button_height = 50
+    button_spacing = 140
+    
+    # Calculate starting position to center all buttons
+    total_width = 3 * button_width + 2 * button_spacing + 2 * 20  # Include spacing for rules and back
+    start_x = (1024 - total_width) // 2
+
     # Draw large decorative dice in the image area
     dice_size = 80
     dice_y = img_y + img_height//2 - dice_size//2
@@ -125,26 +158,29 @@ def draw_dice_bets_screen(surface, game_state, fonts, images=None):
     dialog_height = 768 - dialog_y - 20
     draw_border(surface, 20, dialog_y, 1024-40, dialog_height)
     
-    # Player status
     text_y = dialog_y + 25
+    button_y = text_y + 70
+
+    # Player status
+    player_gold = game_state.character.get('gold', 0)
+    house_money = gambling_stats.get('house_money', 500)
+
+    def can_afford_bet(amount):
+        return player_gold >= amount
+    
+    bet_5_button = draw_button(surface, start_x, button_y, button_width, button_height,
+                              "BET 5 GP", fonts.get('fantasy_tiny', fonts['small']),
+                              enabled=can_afford_bet(5))
+
  
     player_gold = game_state.character.get('gold', 0)
-    house_money = game_state.dice_game['house_money']
+    gambling_stats = get_gambling_stats(game_state)
+    house_money = gambling_stats.get('house_money', 500)
     
     draw_centered_text(surface, f"Your Gold: {player_gold} gp", 
                       fonts.get('fantasy_medium', fonts['normal']), text_y, BRIGHT_GREEN)
     draw_centered_text(surface, f"House Money: {house_money} gp", 
                       fonts.get('fantasy_small', fonts['normal']), text_y + 30, YELLOW)
-    
-    # Betting buttons
-    button_y = text_y + 70
-    button_width = 120
-    button_height = 50
-    button_spacing = 140
-    
-    # Calculate starting position to center all buttons
-    total_width = 3 * button_width + 2 * button_spacing + 2 * 20  # Include spacing for rules and back
-    start_x = (1024 - total_width) // 2
     
     # Check which bets player can afford
     bet_5_button = draw_button(surface, start_x, button_y, button_width, button_height,
@@ -167,7 +203,7 @@ def draw_dice_bets_screen(surface, game_state, fonts, images=None):
                              "BACK", fonts.get('fantasy_tiny', fonts['small']))
     
     # Instructions
-    if not game_state.dice_game['game_active']:
+    if not gambling_stats.get('game_active', True):
         draw_centered_text(surface, "GAME OVER - Casino closed or house is broke!", 
                           fonts.get('fantasy_small', fonts['normal']), button_y + 70, RED)
     elif player_gold < 5:
@@ -204,11 +240,12 @@ def draw_dice_rolling_screen(surface, game_state, fonts, images=None):
     
     # Check if we're still in rolling animation
     current_time = pygame.time.get_ticks()
-    roll_start_time = game_state.dice_game.get('roll_start_time', 0)
+    gambling_stats = get_gambling_stats(game_state)
+    roll_start_time = gambling_stats.get('roll_start_time', 0)
     rolling_duration = 2000  # 2 seconds of rolling animation
     
     # Check if animation should be skipped (will be set by click handler)
-    animation_skipped = game_state.dice_game.get('animation_skipped', False)
+    animation_skipped = gambling_stats.get('animation_skipped', False)
     is_rolling = (current_time - roll_start_time) < rolling_duration and not animation_skipped
     
     # Draw dice - large and centered
@@ -228,7 +265,7 @@ def draw_dice_rolling_screen(surface, game_state, fonts, images=None):
         return pygame.Rect(0, 0, 1024, 768)  # Full screen clickable
     else:
         # Show final results
-        final_dice = game_state.dice_game.get('last_roll', [1, 1, 1])
+        final_dice = gambling_stats.get('last_roll', [1, 1, 1])
         for i, value in enumerate(final_dice):
             dice_x = dice_start_x + i * (dice_size + dice_spacing)
             draw_dice(surface, dice_x, dice_y, dice_size, value)
@@ -239,7 +276,7 @@ def draw_dice_rolling_screen(surface, game_state, fonts, images=None):
     draw_border(surface, 20, dialog_y, 1024-40, dialog_height)
     
     text_y = dialog_y + 20
-    bet_amount = game_state.dice_game.get('current_bet', 0)
+    bet_amount = gambling_stats.get('current_bet', 0)
     
     if is_rolling:
         draw_centered_text(surface, f"Rolling dice for {bet_amount} gold...", 
@@ -259,10 +296,11 @@ def draw_dice_rolling_screen(surface, game_state, fonts, images=None):
         
         return continue_button
 
-def draw_dice_results_screen(surface, game_state, fonts, images=None):
+def draw_dice_results_screen(surface, game_state, fonts, images=None, controller=None):
     """Draw the results and payout screen"""
     surface.fill(BLACK)
-    
+    gambling_stats = get_gambling_stats(game_state)
+
     # Same 70/30 layout
     image_y = 20
     image_height = 510
@@ -279,8 +317,8 @@ def draw_dice_results_screen(surface, game_state, fonts, images=None):
     pygame.draw.rect(surface, (20, 40, 20), (img_x, img_y, img_width, img_height))
     
     # Get results
-    last_roll = game_state.dice_game.get('last_roll', [1, 1, 1])
-    last_result = game_state.dice_game.get('last_result', {})
+    last_roll = gambling_stats.get('last_roll', [1, 1, 1])
+    last_result = gambling_stats.get('last_result', {})
     
     combination = last_result.get('combination', 'Unknown')
     payout = last_result.get('payout', 0)
@@ -314,7 +352,7 @@ def draw_dice_results_screen(surface, game_state, fonts, images=None):
         draw_centered_text(surface, f"You win {payout} gold!", 
                           fonts.get('fantasy_medium', fonts['normal']), image_y + 320, BRIGHT_GREEN)
     else:
-        bet_amount = game_state.dice_game.get('current_bet', 0)
+        bet_amount = gambling_stats.get('current_bet', 0)
         draw_centered_text(surface, f"You lose {bet_amount} gold!", 
                           fonts.get('fantasy_medium', fonts['normal']), image_y + 320, RED)
     
@@ -328,7 +366,7 @@ def draw_dice_results_screen(surface, game_state, fonts, images=None):
     # Show current status
     
     player_gold = game_state.character.get('gold', 0)
-    house_money = game_state.dice_game['house_money']
+    house_money = gambling_stats.get('house_money', 500)
     
     draw_centered_text(surface, f"Your Gold: {player_gold} gp  |  House Money: {house_money} gp", 
                       fonts.get('fantasy_small', fonts['normal']), text_y, WHITE)
@@ -340,7 +378,7 @@ def draw_dice_results_screen(surface, game_state, fonts, images=None):
     # Action buttons
     button_y = text_y + 80
     
-    if game_state.dice_game['game_active'] and player_gold > 0:
+    if gambling_stats.get('game_active', True) and player_gold > 0:
         play_again_button = draw_button(surface, 350, button_y, 140, 40, "PLAY AGAIN", 
                                        fonts.get('fantasy_small', fonts['normal']))
         quit_button = draw_button(surface, 510, button_y, 140, 40, "QUIT GAME", 
@@ -348,7 +386,7 @@ def draw_dice_results_screen(surface, game_state, fonts, images=None):
         return play_again_button, quit_button
     else:
         # Game over
-        if not game_state.dice_game['game_active']:
+        if not gambling_stats.get('game_active', True):
             draw_centered_text(surface, "GAME OVER - Casino has closed!", 
                               fonts.get('fantasy_medium', fonts['normal']), button_y - 10, RED)
         else:
@@ -359,7 +397,7 @@ def draw_dice_results_screen(surface, game_state, fonts, images=None):
                                  fonts.get('fantasy_small', fonts['normal']))
         return None, quit_button
 
-def draw_dice_rules_screen(surface, game_state, fonts, images=None):
+def draw_dice_rules_screen(surface, game_state, fonts, images=None, controller=None):
     """Draw the rules explanation screen"""
     surface.fill(BLACK)
     

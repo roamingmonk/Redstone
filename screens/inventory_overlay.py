@@ -62,7 +62,7 @@ class InventoryOverlay(BaseTabbedOverlay):
         content_height = content_rect.height - 140  # Leave room for title and buttons
         
         # Draw title
-        title_y = content_rect.y + 10
+        title_y = content_rect.y + 30
         draw_centered_text(surface, f"{character_name}'s Inventory", 
                           fonts.get('fantasy_large', fonts['header']), title_y, BRIGHT_GREEN, 800)
         
@@ -252,7 +252,7 @@ class InventoryOverlay(BaseTabbedOverlay):
             self._buttons_registered = True
 
         # Draw close instruction
-        close_y = button_y + button_height + SPACING['margin']
+        close_y = button_y + button_height + SPACING['margin'] + 20
         close_font = fonts.get('help_text', fonts['small'])
         close_text = "Press I to close"
         

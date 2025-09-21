@@ -20,6 +20,7 @@ from game_logic.inventory_engine import initialize_inventory_engine
 from game_logic.commerce_engine import initialize_commerce_engine
 from game_logic.dialogue_engine import initialize_dialogue_engine
 from game_logic.quest_engine import initialize_quest_engine
+from game_logic.dice_game_engine import initialize_dice_game_engine
 from utils.quest_system import integrate_quest_system, update_quest_system
 from ui.screen_manager import ScreenManager
 from input_handler import InputHandler
@@ -206,6 +207,7 @@ class GameController:
         self.commerce_engine = initialize_commerce_engine(self.game_state, self.data_manager.item_manager)
         self.dialogue_engine = initialize_dialogue_engine(self.game_state, self.event_manager)
         self.quest_engine = initialize_quest_engine(self.game_state, self.event_manager)
+        self.dice_game_engine = initialize_dice_game_engine(self.game_state, self.event_manager)
 
         # Make QuestEngine discoverable by helpers (e.g., update_quest_system -> scan)
         self.game_state.quest_engine = self.quest_engine

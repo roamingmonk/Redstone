@@ -20,6 +20,8 @@ from game_logic.character_engine import initialize_character_engine
 from game_logic.inventory_engine import initialize_inventory_engine
 from game_logic.commerce_engine import initialize_commerce_engine
 from game_logic.dialogue_engine import initialize_dialogue_engine
+from game_logic.dice_game_engine import initialize_dice_game_engine
+
 #from game_logic.quest_engine import initialize_quest_engine
 
 
@@ -60,6 +62,8 @@ class DataManager:
         self.commerce_engine = initialize_commerce_engine(game_state_ref, self.item_manager) 
         self.dialogue_engine = initialize_dialogue_engine(game_state_ref, event_manager)
         #self.quest_engine = initialize_dialogue_engine(game_state_ref)
+        self.dice_game_engine = initialize_dice_game_engine(game_state_ref, event_manager)
+
 
         print("DataManager: All engines initialized successfully")
 

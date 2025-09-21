@@ -260,13 +260,25 @@ class ScreenManager:
             return True
         
         # Import your existing main menu handler
-        from ui.screen_handlers import handle_main_menu_clicks
+        from ui.screen_handlers import (
+        handle_main_menu_clicks,
+        handle_dice_bets_clicks,
+        handle_dice_rolling_clicks,
+        handle_dice_results_clicks,
+        handle_dice_rules_clicks
+        )
         
         # Register all basic handlers
         self.register_screen("game_title", handle_title_click)
         self.register_screen("developer_splash", handle_developer_splash_click)
         self.register_screen("main_menu", handle_main_menu_clicks)
         
+        # Register dice game handlers
+        self.register_screen("dice_bets", handle_dice_bets_clicks)
+        self.register_screen("dice_rolling", handle_dice_rolling_clicks)
+        self.register_screen("dice_results", handle_dice_results_clicks)
+        self.register_screen("dice_rules", handle_dice_rules_clicks)
+
         print("📺 Basic screen click handlers auto-registered")
 
     def handle_screen_click(self, screen_name: str, mouse_pos, game_controller):

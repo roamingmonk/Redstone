@@ -4,129 +4,6 @@ Generic Screen Handlers - Replace hardcoded click detection
 """
 import pygame
 
-# def handle_broken_blade_clicks(mouse_pos, game_controller, event_manager):
-#     """Handle broken blade tavern clicks using events"""
-    
-#    #print(f"DEBUG: ScreenHandler: handle_broken_blade_clicks called")
-#    # print(f"DEBUG: ScreenHandler: game_controller = {game_controller}")
-#    # print(f"DEBUG: ScreenHandler: event_manager = {event_manager}")
-#    # print(f"DEBUG: ScreenHandler: event_manager type = {type(event_manager)}")
-
-
-
-#     # Import the screen drawing function to get button positions
-#     from screens.broken_blade import draw_broken_blade_main_screen
-#     import pygame
-    
-#     # Create temporary surface to get button positions
-#     temp_surface = pygame.Surface((1024, 768))
-    
-#     # Get button positions (this is the current approach)
-#     bartender_btn, server_btn, patrons_btn, gamble_btn, leave_btn = draw_broken_blade_main_screen(
-#         temp_surface, game_controller.game_state, game_controller.fonts, 
-#         game_controller.images, controller=game_controller
-#     )
-    
-#     # Check clicks and emit appropriate events
-#     if bartender_btn.collidepoint(mouse_pos):
-#         #print(f"DEBUG: SH: About to emit NPC_CLICKED event")
-#         #print(f"DEBUG: SH: Using event_manager: {event_manager}")
-#         event_manager.emit("NPC_CLICKED", {
-#             "npc_id": "garrick",
-#             "location": "broken_blade_tavern"
-#         })
-#         return True
-        
-#     elif server_btn.collidepoint(mouse_pos):
-#         event_manager.emit("NPC_CLICKED", {
-#             "npc_id": "meredith", 
-#             "location": "broken_blade_tavern"
-#         })
-#         return True
-        
-#     elif patrons_btn.collidepoint(mouse_pos):
-#         event_manager.emit("SCREEN_CHANGE", {
-#             "target_screen": "patron_selection",
-#             "source_screen": "broken_blade_main"
-#         })
-#         return True
-        
-#     elif gamble_btn.collidepoint(mouse_pos):
-#         event_manager.emit("SCREEN_CHANGE", {
-#             "target_screen": "dice_bets",
-#             "source_screen": "broken_blade_main"
-#         })
-#         return True
-        
-#     elif leave_btn.collidepoint(mouse_pos):
-#         event_manager.emit("SCREEN_CHANGE", {
-#             "target_screen": "town_square",
-#             "source_screen": "broken_blade_main"
-#         })
-#         return True
-    
-#     return False  # No click handled
-
-# def handle_patron_selection_clicks(mouse_pos, game_controller, event_manager):
-#     """Handle patron selection clicks using event-driven architecture"""
-    
-#     # Import the screen drawing function to get button positions
-#     from screens.patron_selection import draw_patron_selection_screen
-#     import pygame
-    
-#     # Create temporary surface to get button positions (same pattern as broken_blade)
-#     temp_surface = pygame.Surface((1024, 768))
-    
-#     # Get button positions from screen drawing function
-#     gareth_btn, elara_btn, thorman_btn, lyra_btn, pete_btn, back_btn = draw_patron_selection_screen(
-#         temp_surface, game_controller.game_state, game_controller.fonts, 
-#         game_controller.images, controller=game_controller
-#     )
-    
-#     # Check clicks and emit appropriate events
-#     if gareth_btn.collidepoint(mouse_pos):
-#         event_manager.emit("SCREEN_CHANGE", {
-#             "target_screen": "gareth_dialogue",
-#             "source_screen": "patron_selection"
-#         })
-#         return True
-        
-#     elif elara_btn and elara_btn.collidepoint(mouse_pos):  # ADD: elara_btn and
-#         event_manager.emit("SCREEN_CHANGE", {
-#             "target_screen": "elara_dialogue", 
-#             "source_screen": "patron_selection"
-#         })
-#         return True
-        
-#     elif thorman_btn and thorman_btn.collidepoint(mouse_pos):  # ADD: thorman_btn and
-#         event_manager.emit("SCREEN_CHANGE", {
-#             "target_screen": "thorman_dialogue",
-#             "source_screen": "patron_selection"
-#         })
-#         return True
-        
-#     elif lyra_btn and lyra_btn.collidepoint(mouse_pos):  # ADD: lyra_btn and
-#         event_manager.emit("SCREEN_CHANGE", {
-#             "target_screen": "lyra_dialogue",
-#             "source_screen": "patron_selection"
-#         })
-#         return True
-        
-#     elif pete_btn and pete_btn.collidepoint(mouse_pos):  # ADD: pete_btn and
-#         event_manager.emit("SCREEN_CHANGE", {
-#             "target_screen": "pete_dialogue",
-#             "source_screen": "patron_selection"
-#         })
-#         return True
-        
-#     elif back_btn and back_btn.collidepoint(mouse_pos):  # ADD: back_btn and
-#         event_manager.emit("SCREEN_CHANGE", {
-#             "target_screen": "broken_blade_main",
-#             "source_screen": "patron_selection"
-#         })
-#         return True
-    
-#     return False  # No click handled
 
 def handle_main_menu_clicks(mouse_pos, game_controller, event_manager):
     """Handle main menu clicks using actual button coordinates"""
@@ -166,3 +43,117 @@ def handle_developer_splash_clicks(mouse_pos, game_controller, event_manager):
         "source_screen": "developer_splash" 
     })
     return True
+
+
+# Add these functions to ui/screen_handlers.py (at the end of the file)
+
+def handle_dice_bets_clicks(mouse_pos, game_controller, event_manager):
+    """Handle dice betting screen clicks using event-driven architecture"""
+    
+    from screens.gambling_dice import draw_dice_bets_screen
+    import pygame
+    
+    temp_surface = pygame.Surface((1024, 768))
+    bet_5_btn, bet_10_btn, bet_25_btn, rules_btn, back_btn = draw_dice_bets_screen(
+        temp_surface, game_controller.game_state, game_controller.fonts, 
+        game_controller.images
+    )
+    
+    if bet_5_btn and bet_5_btn.collidepoint(mouse_pos):
+        event_manager.emit("DICE_BET_PLACED", {"bet_amount": 5})
+        return True
+    elif bet_10_btn and bet_10_btn.collidepoint(mouse_pos):
+        event_manager.emit("DICE_BET_PLACED", {"bet_amount": 10})
+        return True
+    elif bet_25_btn and bet_25_btn.collidepoint(mouse_pos):
+        event_manager.emit("DICE_BET_PLACED", {"bet_amount": 25})
+        return True
+    elif rules_btn and rules_btn.collidepoint(mouse_pos):
+        event_manager.emit("SCREEN_CHANGE", {
+            "target_screen": "dice_rules", "source_screen": "dice_bets"
+        })
+        return True
+    elif back_btn and back_btn.collidepoint(mouse_pos):
+        event_manager.emit("SCREEN_CHANGE", {
+            "target_screen": "broken_blade_main", "source_screen": "dice_bets"
+        })
+        return True
+    return False
+
+def handle_dice_rolling_clicks(mouse_pos, game_controller, event_manager):
+    """Handle dice rolling screen clicks (skip animation or continue)"""
+    
+    from screens.gambling_dice import draw_dice_rolling_screen
+    import pygame
+    
+    temp_surface = pygame.Surface((1024, 768))
+    clickable_area = draw_dice_rolling_screen(
+        temp_surface, game_controller.game_state, game_controller.fonts, 
+        game_controller.images
+    )
+    
+    if clickable_area and clickable_area.collidepoint(mouse_pos):
+        current_time = pygame.time.get_ticks()
+        # Access gambling stats through new structure
+        gambling_stats = game_controller.game_state.character.get('gambling_stats', {})
+        roll_start_time = gambling_stats.get('roll_start_time', 0)
+        is_rolling = (current_time - roll_start_time) < 2000
+        
+        if is_rolling:
+            event_manager.emit("DICE_SKIP_ANIMATION", {})
+        else:
+            event_manager.emit("SCREEN_CHANGE", {
+                "target_screen": "dice_results", "source_screen": "dice_rolling"
+            })
+        return True
+    return False
+
+def handle_dice_results_clicks(mouse_pos, game_controller, event_manager):
+    """Handle dice results screen clicks (play again or quit)"""
+    
+    from screens.gambling_dice import draw_dice_results_screen
+    import pygame
+    
+    temp_surface = pygame.Surface((1024, 768))
+    buttons = draw_dice_results_screen(
+        temp_surface, game_controller.game_state, game_controller.fonts, 
+        game_controller.images
+    )
+    
+    if isinstance(buttons, tuple) and len(buttons) == 2:
+        play_again_btn, quit_btn = buttons
+        if play_again_btn and play_again_btn.collidepoint(mouse_pos):
+            event_manager.emit("SCREEN_CHANGE", {
+                "target_screen": "dice_bets", "source_screen": "dice_results"
+            })
+            return True
+        elif quit_btn and quit_btn.collidepoint(mouse_pos):
+            event_manager.emit("SCREEN_CHANGE", {
+                "target_screen": "broken_blade_main", "source_screen": "dice_results"
+            })
+            return True
+    elif buttons and buttons.collidepoint(mouse_pos):  # Single quit button
+        event_manager.emit("SCREEN_CHANGE", {
+            "target_screen": "broken_blade_main", "source_screen": "dice_results"
+        })
+        return True
+    return False
+
+def handle_dice_rules_clicks(mouse_pos, game_controller, event_manager):
+    """Handle dice rules screen clicks (back button)"""
+    
+    from screens.gambling_dice import draw_dice_rules_screen
+    import pygame
+    
+    temp_surface = pygame.Surface((1024, 768))
+    back_btn = draw_dice_rules_screen(
+        temp_surface, game_controller.game_state, game_controller.fonts, 
+        game_controller.images
+    )
+    
+    if back_btn and back_btn.collidepoint(mouse_pos):
+        event_manager.emit("SCREEN_CHANGE", {
+            "target_screen": "dice_bets", "source_screen": "dice_rules"
+        })
+        return True
+    return False

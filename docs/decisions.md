@@ -1365,6 +1365,26 @@ Purchased items appear as sellable with correct pricing
 Inventory display shows proper item names converted from IDs
 Shopping cart and sell cart functionality operational
 
+
+## ADR-084: DiceGameEngine Architecture Implementation
+- **Status:** Accepted
+- **Date:** Sep 21, 2025
+- **Context:** Dice game logic was scattered across GameState methods (roll_dice_gambling, analyze_dice_results, etc.) violating Single Data Authority and separation of concerns principles
+- **Decision:** Extract dice game business logic into dedicated DiceGameEngine following established engine patterns
+- **Implementation:**
+  - Created `game_logic/dice_game_engine.py` as pure business logic processor
+  - Moved gambling stats from `game_state.dice_game` to `game_state.character['gambling_stats']`
+  - Added dice click handlers to ScreenManager following event-driven patterns
+  - DiceGameEngine initialized by GameController with EventManager integration
+  - Backward compatibility helper in gambling_dice.py for smooth transition
+- **Consequences:**
+  - GameState no longer contains dice business logic (6 methods removed)
+  - Gambling statistics properly tracked in character data for save/load persistence
+  - Event flow: UI → Events → DiceGameEngine → GameState data updates
+  - Dice game follows same architectural patterns as other engines
+  - Foundation established for additional gambling game variants
+- **Files Modified:** Created dice_game_engine.py, updated game_controller.py, screen_manager.py, screen_handlers.py, gambling_dice.py, removed methods from game_state.py
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected
