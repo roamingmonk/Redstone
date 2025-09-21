@@ -23,12 +23,27 @@
       "rarity": "common"
     },
     {
+      "id": "broken_compass",
+      "name": "Broken compass",
+      "description": "Broken compass that points toward magic instead of north.",
+      "base_cost": 1,
+      "category": "items",
+      "subcategory": "trinket",
+      "special_effect": "navigation_bonus",
+      "icon_file": "broken_compass.jpg",
+      "consumable": false,
+      "weight": 7,
+      "rarity": "rare"
+    },
+    {
       "id": "carved_bone_dice",
       "name": "Carved bone dice",
       "description": "Dice for playing games.",
       "base_cost": 1,
       "category": "items",
-      "icon_file": "carved_bone_dice.png",
+      "subcategory": "trinket",
+      "special_effect": "gambling_luck",
+      "icon_file": "carved_bone_dice.jpg",
       "consumable": false,
       "weight": 0,
       "rarity": "common"
@@ -39,6 +54,7 @@
       "description": "Armor made from interlocking metal rings.",
       "base_cost": 75,
       "category": "armor",
+      "subcategory": "body_armor",
       "icon_file": "chainmail.png",
       "consumable": false,
       "weight": 55,
@@ -50,6 +66,7 @@
       "description": "Armor made from leather.",
       "base_cost": 40,
       "category": "armor",
+      "subcategory": "body_armor",
       "icon_file": "leather_armor.png",
       "consumable": false,
       "weight": 30,
@@ -61,10 +78,10 @@
       "description": "A pendant with a shimmering crystal.",
       "base_cost": 10,
       "category": "items",
-      "icon_file": "crystal_pendant.png",
+      "icon_file": "crystal_pendant.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "common"
+      "rarity": "uncommon"
     },
     {
       "id": "dagger",
@@ -78,15 +95,30 @@
       "rarity": "common"
     },
     {
+      "id": "empty_small_leather_pouch_that_jingles",
+      "name": "Empty small leather pouch that jingles",
+      "description": "A mysterious empty pouch that jingles.",
+      "base_cost": 0,
+      "category": "items",
+      "subcategory": "trinket",
+      "special_effect": "ac_bonus",
+      "icon_file": "empty_small_leather_pouch_that_jingles.jpg",
+      "consumable": false,
+      "weight": 0,
+      "rarity": "rare"
+    },
+    {
       "id": "feathered_dream_catcher",
       "name": "Feathered dream catcher",
       "description": "A charm to ward off bad dreams.",
       "base_cost": 0,
       "category": "items",
-      "icon_file": "feathered_dream_catcher.png",
+      "subcategory": "trinket",
+      "special_effect": "resistance_sleep",
+      "icon_file": "feathered_dream_catcher.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "common"
+      "rarity": "uncommon"
     },
     {
       "id": "glass_vial_with_swirling_mist",
@@ -94,10 +126,12 @@
       "description": "A vial with a mysterious mist.",
       "base_cost": 1,
       "category": "items",
+      "subcategory": "trinket",
+      "special_effect": "morale_bonus",
       "icon_file": "glass_vial_with_swirling_mist.png",
       "consumable": false,
       "weight": 0,
-      "rarity": "common"
+      "rarity": "rare"
     },
     {
       "id": "greataxe",
@@ -151,10 +185,12 @@
       "description": "An iron ring with strange symbols.",
       "base_cost": 0,
       "category": "items",
-      "icon_file": "iron_ring_with_strange_symbols.png",
+      "subcategory": "trinket",
+      "special_effect": "ac_bonus",
+      "icon_file": "iron_ring_with_strange_symbols.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "common"
+      "rarity": "uncommon"
     },
     {
       "id": "shield",
@@ -162,6 +198,7 @@
       "description": "Basic leather protection.",
       "base_cost": 10,
       "category": "armor",
+      "subcategory": "shield",
       "icon_file": "shield.png",
       "consumable": false,
       "weight": 10,
@@ -173,7 +210,9 @@
       "description": "A pouch containing dried herbs.",
       "base_cost": 0,
       "category": "items",
-      "icon_file": "leather_pouch_with_dried_herbs.png",
+      "subcategory": "trinket",
+      "special_effect": "morale_bonus",
+      "icon_file": "leather_pouch_with_dried_herbs.jpg",
       "consumable": false,
       "weight": 0,
       "rarity": "common"
@@ -217,6 +256,7 @@
       "description": "Heavy-duty plate armor.",
       "base_cost": 1500,
       "category": "armor",
+      "subcategory": "body_armor",
       "icon_file": "plate_armor.png",
       "consumable": false,
       "weight": 65,
@@ -228,10 +268,12 @@
       "description": "A shard of obsidian, polished smooth.",
       "base_cost": 0,
       "category": "items",
-      "icon_file": "polished_obsidian_shard.png",
+      "subcategory": "trinket",
+      "special_effect": "constitution_bonus",
+      "icon_file": "polished_obsidian_shard.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "common"
+      "rarity": "uncommon"
     },
     {
       "id": "quarterstaff",
@@ -261,6 +303,7 @@
       "description": "A shield with a magical enhancement.",
       "base_cost": 200,
       "category": "armor",
+      "subcategory": "shield",
       "icon_file": "shield_plus_1.png",
       "consumable": false,
       "weight": 6,
@@ -283,7 +326,9 @@
       "description": "A small mirror with a bronze frame.",
       "base_cost": 5,
       "category": "items",
-      "icon_file": "small_bronze_mirror.png",
+      "subcategory": "trinket",
+      "special_effect": "charisma_bonus",
+      "icon_file": "small_bronze_mirror.jpg",
       "consumable": false,
       "weight": 0,
       "rarity": "common"
@@ -294,10 +339,11 @@
       "description": "A smooth stone etched with runes.",
       "base_cost": 0,
       "category": "items",
-      "icon_file": "smooth_river_stone_with_runes.png",
+      "subcategory": "trinket",
+      "special_effect": "ac_bonus",
+      "icon_file": "smooth_river_stone_with_runes.jpg",
       "consumable": false,
-      "weight": 0,
-      "rarity": "common"
+      "rarity": "rare"
     },
     {
       "id": "splint_armor",
@@ -305,6 +351,7 @@
       "description": "Armor made from overlapping metal strips.",
       "base_cost": 200,
       "category": "armor",
+      "subcategory": "body_armor",
       "icon_file": "splint_armor.png",
       "consumable": false,
       "weight": 60,
@@ -329,10 +376,12 @@
       "description": "A tarnished silver locket.",
       "base_cost": 0,
       "category": "items",
-      "icon_file": "tarnished_silver_locket.png",
+      "subcategory": "trinket",
+      "special_effect": "morale_bonus",
+      "icon_file": "tarnished_silver_locket.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "common"
+      "rarity": "uncommon"
     },
     {
       "id": "thieves_tools",
@@ -388,10 +437,64 @@
       "description": "A wand made from twisted driftwood.",
       "base_cost": 0,
       "category": "items",
+      "subcategory": "trinket",
+      "special_effect": "navigation_bonus",
       "icon_file": "twisted_driftwood_wand.png",
       "consumable": false,
       "weight": 0,
-      "rarity": "common"
+      "rarity": "uncommon"
+    },
+    {
+      "id": "small_brass_key",
+      "name": "Small brass key with no lock in sight",
+      "description": "A mysterious key that opens opportunities when you least expect it.",
+      "base_cost": 0,
+      "category": "items",
+      "subcategory": "trinket",
+      "special_effect": "lockpicking_bonus",
+      "icon_file": "small_brass_key.jpg",
+      "consumable": false,
+      "weight": 0,
+      "rarity": "rare"
+    },
+    {
+      "id": "wooden_dice_same_number",
+      "name": "Wooden dice that always show the same number",
+      "description": "These dice seem to have a mind of their own.",
+      "base_cost": 0,
+      "category": "items", 
+      "subcategory": "trinket",
+      "special_effect": "gambling_luck",
+      "icon_file": "wooden_dice.jpg",
+      "consumable": false,
+      "weight": 0,
+      "rarity": "rare"
+    },
+    {
+      "id": "star_map_fragment",
+      "name": "Fragment of a star map drawn on worn parchment",
+      "description": "Ancient celestial knowledge that guides the lost.",
+      "base_cost": 0,
+      "category": "items",
+      "subcategory": "trinket", 
+      "special_effect": "navigation_bonus",
+      "icon_file": "star_map_fragment.jpg",
+      "consumable": false,
+      "weight": 0,
+      "rarity": "rare"
+    },
+    {
+      "id": "pressed_flower",
+      "name": "Pressed flower from your childhood home",
+      "description": "A reminder of simpler times that bolsters your spirit.",
+      "base_cost": 0,
+      "category": "items",
+      "subcategory": "trinket",
+      "special_effect": "morale_bonus", 
+      "icon_file": "pressed_flower.jpg",
+      "consumable": false,
+      "weight": 0,
+      "rarity": "rare"
     },
     {
       "id": "wooden_doll_with_button_eyes",
@@ -399,7 +502,9 @@
       "description": "A quaint wooden doll.",
       "base_cost": 0,
       "category": "items",
-      "icon_file": "wooden_doll_with_button_eyes.png",
+      "subcategory": "trinket",
+      "special_effect": "morale_bonus",
+      "icon_file": "wooden_doll_with_button_eyes.jpg",
       "consumable": false,
       "weight": 0,
       "rarity": "common"

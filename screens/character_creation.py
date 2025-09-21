@@ -697,6 +697,7 @@ def finalize_character_creation(game_state):
     """
     Complete character creation by using CharacterEngine
     """
+
     from game_logic.character_engine import get_character_engine
     engine = get_character_engine()
     

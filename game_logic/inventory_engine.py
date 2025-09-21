@@ -306,6 +306,13 @@ class InventoryEngine:
             'item': 'items'
         }
         return category_mapping.get(category.lower(), category.lower() + 's')
+    
+    def get_item_subcategory(self, item_id):
+        """Get subcategory for an item using ItemManager data"""
+        item_data = self.item_manager.get_item_by_id(item_id)
+        if item_data:
+            return item_data.get('subcategory', 'body_armor')
+        return 'body_armor'
 
 
 # ==========================================

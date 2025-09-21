@@ -122,10 +122,7 @@ class CommerceEngine:
                 category = self._determine_inventory_category(item_def.get("category", "items") if item_def else "items")
                 
                 for _ in range(qty):
-                    # Get display name instead of item_id
-                    item_def = self.item_manager.get_item_by_id(item_id) if self.item_manager else None
-                    display_name = item_def.get('name', item_id) if item_def else item_id
-                    self.game_state.inventory[category].append(display_name)
+                    self.game_state.inventory[category].append(item_id)
                 purchased += qty
 
             # Reduce merchant stock PERMANENTLY in game_state

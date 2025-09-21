@@ -188,6 +188,16 @@ class BaseTabbedOverlay:
         
         Returns list of clickable tab rectangles for mouse handling
         """
+        
+        # CRITICAL FIX: Get ItemManager if we don't have one
+        if not hasattr(self, 'item_manager') or self.item_manager is None:
+            if hasattr(self, 'screen_manager') and self.screen_manager:
+                if hasattr(self.screen_manager, '_current_game_controller'):
+                    controller = self.screen_manager._current_game_controller
+                    if hasattr(controller, 'data_manager'):
+                        self.item_manager = controller.data_manager.item_manager
+                        print("🔧 InventoryOverlay: ItemManager accessed successfully")
+        
         # Existing popup background pattern
         #draw_popup_background(surface)
 

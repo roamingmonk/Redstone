@@ -1,14 +1,21 @@
 {
   "trinket_table": [
-    "A small brass key with no lock in sight",
-    "Smooth river stone with ancient runes carved deep",
-    "Tiny glass vial filled with swirling purple mist",
-    "Silver coin from a kingdom that no longer exists",
-    "Wooden dice that always show the same number",
-    "Fragment of a star map drawn on worn parchment",
-    "Iron ring that grows cold near undead creatures",
-    "Pressed flower from your childhood home",
-    "Small leather pouch that jingles but appears empty",
-    "Broken compass that points toward magic instead of north"
+    "small_brass_key",
+    "smooth_river_stone_with_runes",
+    "glass_vial_with_swirling_mist",
+    "broken_compass",
+    "wooden_dice_same_number",
+    "star_map_fragment",
+    "iron_ring_with_strange_symbols",
+    "pressed_flower",
+    "empty_small_leather_pouch_that_jingles",
+    "tarnished_silver_locket",
+    "wooden_doll_with_button_eyes",
+    "twisted_driftwood_wand",
+    "small_bronze_mirror",
+    "leather_pouch_with_dried_herbs",
+    "polished_obsidian_shard",
+    "carved_bone_dice",
+    "feathered_dream_catcher"
   ]
 }

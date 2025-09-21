@@ -13,9 +13,9 @@ from utils.overlay_utils import (
 )
 
 class InventoryOverlay(BaseTabbedOverlay):
-    def __init__(self, screen_manager=None):
+    def __init__(self, screen_manager=None, item_manager=None):
         super().__init__("inventory_key", "INVENTORY", screen_manager)
-        
+        self.item_manager = item_manager
         # Add 4 tabs for inventory categories
         self.add_tab("weapons", "WEAPONS", hotkey=pygame.K_1)
         self.add_tab("armor", "ARMOR", hotkey=pygame.K_2) 
@@ -85,7 +85,8 @@ class InventoryOverlay(BaseTabbedOverlay):
         
         # Display items for current tab
         self._render_item_list(surface, game_state, fonts, images, current_tab, 
-                              table_x, table_y + header_height + 10, table_width)
+                      table_x, table_y + header_height + 10, table_width, 
+                      item_manager=self.item_manager)
         
         # Draw action buttons
         self._render_action_buttons(surface, game_state, fonts, current_tab, 
@@ -116,7 +117,7 @@ class InventoryOverlay(BaseTabbedOverlay):
             surface.blit(header_surface, (equipped_x, table_y + 8))
     
     def _render_item_list(self, surface, game_state, fonts, images, current_tab, 
-                         table_x, item_y, table_width):
+                         table_x, item_y, table_width, item_manager=None):
         """Render the list of items for current category"""
         # Reset item tracking
         self.item_rects = []
@@ -168,25 +169,18 @@ class InventoryOverlay(BaseTabbedOverlay):
             
             # Draw item icon
             icon_x_pos = icon_x + 5
-            print(f"🔍 Looking for icon: '{item_name}' in item_icons")
-            if images and 'item_icons' in images:
-                print(f"🔍 Available icons: {list(images['item_icons'].keys())}")
-                if item_name in images['item_icons']:
-                    icon = images['item_icons'][item_name]
-                    surface.blit(icon, (icon_x_pos, current_row_y - 5))
-                    print(f"✅ Icon found and displayed for: {item_name}")
-                else:
-                    icon_surface = item_font.render("X", True, BLACK)
-                    surface.blit(icon_surface, (icon_x_pos + 10, current_row_y))
-                    print(f"❌ No icon found for: {item_name}")
+            if item_manager:
+                icon = item_manager.get_item_icon(item_name)
+                surface.blit(icon, (icon_x_pos, current_row_y - 5))
             else:
+                # Fallback: draw "X" if no ItemManager available
                 icon_surface = item_font.render("X", True, BLACK)
                 surface.blit(icon_surface, (icon_x_pos + 10, current_row_y))
-                print("❌ No item_icons available")
+                print(f"❌ No ItemManager available for icon: {item_name}")
 
                 
             # Convert item ID to display name for rendering
-            display_name = item_name.replace('_', ' ').title()
+            display_name = item_manager.get_display_name(item_name)
 
             # Draw item details
             desc_surface = item_font.render(display_name, True, BLACK)

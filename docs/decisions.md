@@ -1327,6 +1327,44 @@ Professional foundation: Industry-standard graphics management ready for commerc
 - added save and quit button the F7 save screen
 - event driven and used same quit event system 
 
+# ADR-083 itemManager API unification
+# Status: Accepted
+# Date: Sep 21, 2025
+**Context** The item system had multiple competing lookup methods and inconsistent data storage, causing icon loading failures and sellable item logic errors. Different parts of the codebase used mixed ID/name conventions.
+**Problem**Multiple ItemManager methods: get_item_by_id(), get_item_by_name(), get_item_icon_by_name(),Inconsistent inventory storage: some items stored as IDs ('longsword'), others as names ('Strong Ale'),CharacterEngine, CommerceEngine, and inventory display used different data formats,Shopping sell tab showed "No items to sell" despite having sellable inventory
+**Decision** Implement unified ID-based item system with single data authority pattern: ItemManager API Cleanup
+Keep: get_item_by_id(item_id) - single lookup method
+Keep: get_item_icon(item_id) - direct icon access
+Remove: get_item_by_name() and get_item_icon_by_name() - eliminated confusion
+Add: get_display_name(item_id) - ID to name conversion for UI
+**Data Storage Standardization**
+CharacterEngine: Store starting equipment as IDs ('longsword', 'leather_armor')
+CommerceEngine: Store purchased items as IDs ('strong_ale', 'trail_rations')
+Inventory Display: Convert IDs to display names only for rendering
+Shopping System: Use IDs internally, names only for user display
+**Implementation**
+Simplified ItemManager to single lookup pattern
+Updated CharacterEngine equipment finalization to store IDs
+Fixed CommerceEngine purchase logic to append IDs instead of names
+Updated inventory_overlay.py and shopping_overlay.py to use get_item_icon(item_id)
+Modified sellable items logic to work with consistent ID-based data
+**Results**
+Functional: Sellable items display correctly with proper quantities and pricing
+Consistent: All inventory storage uses lowercase_underscore IDs
+Maintainable: Single ItemManager API eliminates lookup confusion
+Extensible: Adding new items requires only JSON updates, no code changes
+**Files Modified**
+game_logic/item_manager.py - API simplification
+game_logic/character_engine.py - ID-based equipment storage
+game_logic/commerce_engine.py - ID-based purchase storage
+screens/inventory_overlay.py - Updated icon calls
+screens/shopping_overlay.py - Fixed sellable items rendering
+**Validation**
+Character creation stores equipment as IDs
+Purchased items appear as sellable with correct pricing
+Inventory display shows proper item names converted from IDs
+Shopping cart and sell cart functionality operational
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

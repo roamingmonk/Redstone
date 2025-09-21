@@ -69,21 +69,26 @@ class DataManager:
         The NEW single point of truth for all data loading.
         This method orchestrates all data loading and initialization.
         """
-        self.load_start_time = datetime.now()  
         print("🔄 DataManager: Starting data loading...")
-    # Load Item and NPC data first
-    # Check if data is already loaded to avoid duplication
-        if hasattr(self.item_manager, 'items_data') and self.item_manager.items_data:
-            print("ℹ️  Items already loaded, skipping reload...")
-        else:
-           self.item_manager.load_data()
-        if hasattr(self.npc_manager, 'npcs_data') and self.npc_manager.npcs_data:
-            print("ℹ️  NPCs already loaded, skipping reload...")
-        else:
+        self.load_start_time = datetime.now()
+        
+        try:
+            # Phase 1: Load all JSON data
+            self.item_manager.load_data()
+            self.system_health['items'] = True
+            
             self.npc_manager.load_data()
-        self.system_health['items'] = True
-        self.system_health['npcs'] = True
-        print("✅ Basic systems initialized successfully!")
+            self.system_health['npcs'] = True
+            
+            # Phase 2: Create data summaries
+            print("✅ Basic systems initialized successfully!")
+            self.initialized = True
+            return True
+            
+        except Exception as e:
+            self.load_errors.append(f"Critical data loading failure: {e}")
+            print(f"❌ DataManager initialization failed: {e}")
+            return False
 
     def get_system_status(self) -> Dict[str, Any]:
         """

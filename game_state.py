@@ -277,7 +277,6 @@ class GameState:
                 self.party_member_data.remove(char_data)
                 print(f"➖ Removed character data for {npc_id}")
 
-    
     def set_selected_portrait(self, gender, portrait_index):
         """Store portrait selection using actual filename"""
         # Get the actual filename from the available portraits
@@ -612,11 +611,18 @@ class GameState:
                 item_name == self.equipped_shield)
 
     def equip_item(self, item_name, category):
-        """Equip an item (weapon or armor)"""
+        """Equip an item using InventoryEngine for subcategory lookup"""
         if category == "weapons":
             self.equipped_weapon = item_name
         elif category == "armor":
-            if item_name == "Shield":
+            # Ask InventoryEngine for subcategory (proper architecture)
+            if hasattr(self, 'inventory_engine') and self.inventory_engine:
+                subcategory = self.inventory_engine.get_item_subcategory(item_name)
+            else:
+                # Fallback
+                subcategory = "shield" if "shield" in item_name.lower() else "body_armor"
+            
+            if subcategory == "shield":
                 self.equipped_shield = item_name
             else:
                 self.equipped_armor = item_name

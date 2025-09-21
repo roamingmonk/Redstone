@@ -69,11 +69,18 @@ class ItemLoader:
     
     def load_item_icons(self):
         """Load all item icons with fallback to placeholder"""
-        items_dir = os.path.join('assets', 'images', 'items')
+        print(f"DEBUG: Current working directory: {os.getcwd()}")
+        items_dir = os.path.join('assets', 'images', 'icons','items')
         
+        print(f"DEBUG: Looking for icons in: {os.path.abspath(items_dir)}")
+        print(f"DEBUG: Directory exists? {os.path.exists(items_dir)}")
+
         for item in self.get_all_items():
             icon_name = item.get('icon_file', f"{item['id']}.png")
             icon_path = os.path.join(items_dir, icon_name)
+
+            print(f"DEBUG: Trying to load icon for {item['id']}: {icon_path}")
+            print(f"DEBUG: File exists? {os.path.exists(icon_path)}")
 
             # Try to load the actual icon
             if os.path.exists(icon_path):
@@ -114,25 +121,51 @@ class ItemLoader:
     
     def get_item_by_id(self, item_id):
         """Get a specific item by its ID"""
-        #print(f"DEBUG: Looking for item_id '{item_id}'")  # DEBUG
+        print(f"DEBUG: Looking for item_id '{item_id}'")  # DEBUG
         for item in self.get_all_items():
-         #   print(f"DEBUG: Checking item with id '{item.get('id', 'NO_ID')}', base_cost: {item.get('base_cost', 'MISSING')}")  # DEBUG
+            print(f"DEBUG: Checking item with id '{item.get('id', 'NO_ID')}', base_cost: {item.get('base_cost', 'MISSING')}")  # DEBUG
             if item['id'] == item_id:
-                #print(f"DEBUG: FOUND MATCH! Returning item: {item}")  # DEBUG
+                print(f"DEBUG: FOUND MATCH! Returning item: {item}")  # DEBUG
                 return item
-        #print(f"DEBUG: NO MATCH FOUND for '{item_id}'")  # DEBUG
+        print(f"DEBUG: NO MATCH FOUND for '{item_id}'")  # DEBUG
         return None
         
-    def get_item_by_name(self, item_name):
-        """Get a specific item by its display name"""
-        for item in self.get_all_items():
-            if item['name'] == item_name:
-                return item
-        return None
+    # def get_item_by_name(self, item_name):
+    #     """Get a specific item by its display name"""
+    #     print(f"DEBUG: IM: get_item_by_name searching for '{item_name}'")
+        
+    #     for item in self.get_all_items():
+    #         item_display_name = item.get('name', '')
+    #         print(f"DEBUG: IM: Comparing '{item_name}' vs '{item_display_name}'")
+    #         if item['name'] == item_name:
+    #             print(f"DEBUG: IM: MATCH FOUND for '{item_name}' -> {item['id']}")
+    #             return item
+        
+    #     print(f"DEBUG: IM: NO MATCH for '{item_name}'")
+    #     return None
     
     def get_item_icon(self, item_id):
         """Get the icon surface for a specific item"""
         return self.item_icons.get(item_id, self.create_placeholder_icon())
+
+    # def get_item_icon_by_name(self, item_name):
+    #     """Get icon by item name (converts name to ID first)"""
+    #     print(f"DEBUG: IM:: get_item_icon_by_name called for '{item_name}', have {len(self.item_icons)} icons loaded")
+    #     item = self.get_item_by_name(item_name)
+    #     if item:
+    #         return self.get_item_icon(item['id'])
+    #     return self.create_placeholder_icon()
+
+    def get_display_name(self, item_id):
+        """Convert item ID to proper display name"""
+        item = self.get_item_by_id(item_id)
+        return item['name'] if item else item_id.replace('_', ' ').title()
+
+    def get_item_description(self, item_id):
+        """Get item description by ID"""
+        item = self.get_item_by_id(item_id)
+        return item.get('description', '') if item else ''
+
 
     def get_item_price(self, item_id, merchant=None, merchant_modifier: float = 1.0) -> int:
         """

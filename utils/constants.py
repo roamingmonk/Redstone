@@ -255,6 +255,8 @@ def load_images():
     
         return placeholder
     
+
+#TODO this is greyed out... is it an issue????
     def create_item_fallback_icon(item_name):
         """Create professional fallback icon for missing item images"""
         icon = pygame.Surface((32, 32))
@@ -273,8 +275,6 @@ def load_images():
             pass
         
         return icon
-
-
 
 
     # === UI BACKGROUND IMAGES ===
@@ -328,65 +328,6 @@ def load_images():
         except:
             images[key] = None
             update_progress(f"{key.title()} shop background", False)
-    
-    # === ITEM ICONS (32x32 PIXEL ART) ===
-    
-    images['item_icons'] = {}
-    
-    # Organized item categories (your excellent structure!)
-    item_names = [
-        # Consumables
-        'Strong Ale', 'Trail Rations',
-        # Weapons
-        'Longsword',
-        # Armor
-        'Leather Armor', 'Shield',
-        # Items
-        'Hemp Rope', 'Torch',
-        # Character Creation Trinkets (all 12!)
-        'Carved bone dice', 'Crystal pendant', 'Wooden doll with button eyes',
-        'Tarnished silver locket', 'Smooth river stone with runes', 'Feathered dream catcher',
-        'Iron ring with strange symbols', 'Glass vial with swirling mist', 
-        'Leather pouch with dried herbs', 'Small bronze mirror', 
-        'Twisted driftwood wand', 'Polished obsidian shard',
-        # Potions
-        'Healing potion'
-    ]
-
-    for item_name in item_names:
-        # Convert item name to filename (spaces to underscores, lowercase)
-        base_filename = item_name.lower().replace(' ', '_')
-
-        # Try PNG first, then JPG (using new item icons path)
-        filepath = None
-        for extension in ['.png', '.jpg']:
-            test_path = os.path.join(ITEM_ICONS_PATH, base_filename + extension)
-            if os.path.exists(test_path):
-                filepath = test_path
-                break
-
-        if not filepath:
-            filepath = os.path.join(ITEM_ICONS_PATH, base_filename + '.png')
-        
-        try:
-            icon = pygame.image.load(filepath)
-            images['item_icons'][base_filename] = pygame.transform.scale(icon, (32, 32))
-            print(f"✓ Item icon loaded: {item_name}")
-        except Exception as e:
-            print(f"✗ Item icon failed: {item_name}")
-            print(f"  Tried: {filepath}")
-            print(f"  Error: {e}")
-            # Create professional fallback icon
-            fallback_icon = create_item_fallback_icon(item_name)
-            images['item_icons'][base_filename] = fallback_icon
-            print(f"✓ Using fallback icon for: {item_name}")
-            pygame.draw.rect(fallback_icon, (255, 255, 255), (0, 0, 32, 32), 2)
-            font = pygame.font.Font(None, 24)
-            text = font.render("X", True, (255, 255, 255))
-            text_rect = text.get_rect(center=(16, 16))
-            fallback_icon.blit(text, text_rect)
-            images['item_icons'][item_name] = fallback_icon
-            print(f"✗ Using fallback icon for: {item_name}")
     
     # === FUTURE ASSET CATEGORIES ===
     

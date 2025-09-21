@@ -26,9 +26,10 @@ class CharacterEngine:
     GameState remains THE single source of truth for all data.
     """
     
-    def __init__(self, game_state_ref):
+    def __init__(self, game_state_ref, event_manager=None, item_manager_ref=None):
         self.game_state = game_state_ref
-        self.event_manager = None
+        self.event_manager = event_manager
+        self.item_manager = item_manager_ref
         #print("🏗️ CharacterEngine initialized with Single Data Authority pattern")
 
         # cache just once
@@ -82,7 +83,6 @@ class CharacterEngine:
         self.game_state.stats_rolled = False
         
         print("✅ Character creation initialized with default fighter class")
-
 
     def roll_stats(self, reroll_ones=True):
         """
@@ -900,35 +900,64 @@ class CharacterEngine:
         Roll for a mysterious starting trinket
         Classic D&D-style random trinket table loaded from JSON
         
+        IMPORTANT: Only sets character['trinket'] field - does NOT add to inventory yet
+        Inventory addition happens later in finalize_character_creation()
+        
         Returns:
             str: Description of the rolled trinket
         """
-        import json
-        import os
-        import random
+        #import json
+        #import os
+        #import random
         
         # Load trinket data from JSON file
         trinket_file = os.path.join("data", "player", "trinkets.json")
         try:
             with open(trinket_file, 'r') as f:
                 trinket_data = json.load(f)
-            trinket_table = trinket_data["trinket_table"]
+            trinket_ids = trinket_data["trinket_table"]
         except FileNotFoundError:
-            print("⚠️ Trinket data file not found, using fallback")
-            # Fallback trinket table if JSON file missing
-            trinket_table = [
-                "A small brass key with no lock in sight",
-                "Smooth river stone with ancient runes carved deep",
-                "Tiny glass vial filled with swirling purple mist"
-            ]
+            print("Warning: Trinket data file not found, using fallback")
+            trinket_ids = ["small_brass_key", "broken_compass", "glass_vial_with_swirling_mist"]
         
-        trinket = random.choice(trinket_table)
+        # Roll for random trinket ID
+        trinket_id = random.choice(trinket_ids)
         
-        # Update GameState directly (Single Data Authority)
-        self.game_state.character['trinket'] = trinket
+       # Get the actual item data to find the proper name
+        trinket_name = trinket_id  # Default fallback
+
+        # Try multiple paths to get ItemManager
+        item_manager = None
+        if hasattr(self, 'item_manager') and self.item_manager:
+            item_manager = self.item_manager
+        elif hasattr(self, 'game_state') and hasattr(self.game_state, 'data_manager'):
+            item_manager = self.game_state.data_manager.item_manager
+        else:
+            # Try to get global data manager
+            try:
+                from game_logic.data_manager import get_data_manager
+                data_manager = get_data_manager()
+                item_manager = data_manager.item_manager
+            except:
+                pass
+
+        if item_manager and hasattr(item_manager, 'items_data'):
+            merchant_items = item_manager.items_data.get('merchant_items', [])
+            for item in merchant_items:
+                if item.get('id') == trinket_id:
+                    trinket_name = item.get('name', trinket_id)
+                    print(f"DEBUG: Trinket name lookup successful: {trinket_id} -> {trinket_name}")
+                    break
+        else:
+            print("Warning: No ItemManager available for trinket name lookup")
         
-        print(f"✨ Rolled trinket: {trinket}")
-        return trinket
+        # ONLY store the trinket name in character data - do NOT add to inventory here
+        self.game_state.character['trinket'] = trinket_name
+        
+        print(f"✨ Rolled trinket: {trinket_name}")
+        print(f"DEBUG: CE: Trinket stored in character data only (not added to inventory yet)")
+        
+        return trinket_name
 
     # ==========================================
     # CHARACTER PROGRESSION OPERATIONS
@@ -1273,7 +1302,25 @@ class CharacterEngine:
             'hp_gain': hp_gain,
             'new_total_hp': member_data['hit_points']
         }
-    
+
+    def get_trinket_effects(self):
+        """Get all active trinket special effects for gameplay bonuses"""
+        effects = []
+        trinket_name = self.game_state.character.get('trinket')
+        
+        if trinket_name and self.item_manager:
+            # Find trinket in items data by name
+            if hasattr(self.item_manager, 'items_data'):
+                merchant_items = self.item_manager.items_data.get('merchant_items', [])
+                for item in merchant_items:
+                    if item.get('name') == trinket_name:
+                        special_effect = item.get('special_effect')
+                        if special_effect:
+                            effects.append(special_effect)
+                        break
+        
+        return effects
+
     def get_party_member_info(self, member_id):
         """Get complete info for a party member"""
         if 'party_xp' not in self.game_state.__dict__:
@@ -1424,8 +1471,17 @@ class CharacterEngine:
         return (next_level <= 5 and 
                 current_xp >= xp_requirements.get(next_level, 999999))
 
+    def _get_item_display_name(self, item_id):
+        """Convert item ID to display name using ItemManager"""
+        if hasattr(self, 'item_manager') and self.item_manager:
+            item = self.item_manager.get_item_by_id(item_id)
+            if item:
+                return item['name']
+        return item_id  # Fallback to ID if lookup fails
+
     def finalize_character_creation(self):
         print("🔧 DEBUG: Starting finalize_character_creation()")
+        print(f"DEBUG: Inventory before finalization: {self.game_state.inventory}")
         """
         Complete character creation process with class-specific setup
         Performs final calculations and validations
@@ -1453,29 +1509,28 @@ class CharacterEngine:
         if class_data and 'starting_equipment' in class_data:
             starting_equipment = class_data['starting_equipment']
             
-            # Add weapons to inventory (handle arrays)
-            for weapon in starting_equipment.get('weapons', []):
-                print(f"🔧 DEBUG: Adding weapon: {weapon}")
-                
+            # Weapons section:
+            for weapon_id in starting_equipment.get('weapons', []):
+                print(f"🔧 DEBUG: Adding weapon: {weapon_id}")
                 if 'weapons' not in self.game_state.inventory:
                     self.game_state.inventory['weapons'] = []
-                self.game_state.inventory['weapons'].append(weapon)
+                self.game_state.inventory['weapons'].append(weapon_id)  # Store ID, not name
                 # Equip the first weapon
                 if not self.game_state.character.get('equipped_weapon'):
-                    self.game_state.character['equipped_weapon'] = weapon
-            
-            # Add armor to inventory (handle arrays, includes shields)
-            for armor_item in starting_equipment.get('armor', []):
-                print(f"🔧 DEBUG: Adding armor: {armor_item}")
+                    self.game_state.character['equipped_weapon'] = weapon_id  # Store ID
+
+            # Armor section:
+            for armor_id in starting_equipment.get('armor', []):
+                print(f"🔧 DEBUG: Adding armor: {armor_id}")
                 if 'armor' not in self.game_state.inventory:
                     self.game_state.inventory['armor'] = []
-                self.game_state.inventory['armor'].append(armor_item)
+                self.game_state.inventory['armor'].append(armor_id)  # Store ID, not name
                 
-                # Handle equipping logic - shields vs body armor
-                if armor_item.lower() == 'shield':
-                    self.game_state.character['equipped_shield'] = armor_item
+                # Handle equipping logic
+                if armor_id.lower() == 'shield':
+                    self.game_state.character['equipped_shield'] = armor_id  # Store ID
                 else:
-                    self.game_state.character['equipped_armor'] = armor_item
+                    self.game_state.character['equipped_armor'] = armor_id  # Store ID
             
             # Add class-specific items
             for item in starting_equipment.get('items', []):
@@ -1489,12 +1544,18 @@ class CharacterEngine:
                     self.game_state.inventory['consumables'] = []
                 self.game_state.inventory['consumables'].append(consumable)
         
-        # Add trinket to inventory if it exists
+        # CRITICAL FIX: Add trinket to inventory ONLY ONCE
         trinket = self.game_state.character.get('trinket')
         if trinket and trinket != 'None':
             if 'items' not in self.game_state.inventory:
                 self.game_state.inventory['items'] = []
-            self.game_state.inventory['items'].append(trinket)
+            
+            # CHECK IF TRINKET ALREADY EXISTS IN INVENTORY
+            if trinket not in self.game_state.inventory['items']:
+                self.game_state.inventory['items'].append(trinket)
+                print(f"🔧 DEBUG: Added trinket to inventory: {trinket}")
+            else:
+                print(f"🔧 DEBUG: Trinket already in inventory, skipping: {trinket}")
         
         # Set up spells for casters
         if class_data and 'spells_known' in class_data:
@@ -1502,11 +1563,12 @@ class CharacterEngine:
         
         # Validate the completed character
         is_valid = self.validate_character()
-        
+        print(f"DEBUG: Inventory after finalization: {self.game_state.inventory}")
         if is_valid:
             print("✅ Character creation finalized successfully!")
             char_name = self.game_state.character.get('name', 'Unknown Hero')
             char_class = self.game_state.character.get('class', 'fighter').title()
+            print(f"DEBUG: Inventory after finalization: {self.game_state.inventory}")
             print(f"🎭 Welcome to Redstone, {char_name} the {char_class}!")
         else:
             print("❌ Character creation validation failed!")
