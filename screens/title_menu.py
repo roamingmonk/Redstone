@@ -6,6 +6,7 @@ Title Screen and Main Menu - Professional RPG start experience
 import pygame
 from utils.constants import *
 from utils.graphics import draw_border, draw_button, draw_centered_text
+from utils.animation import SpriteAnimation
 #from screens.title_menu import draw_title_screen, draw_company_splash_screen, draw_main_menu
 
 BROWN = (170, 85, 0)
@@ -24,7 +25,24 @@ def draw_text_with_shadow(surface, text, font, x, y, text_color=WHITE, shadow_co
 def draw_title_screen(surface, game_state, fonts, images=None):
     """Draw the game splash screen"""
     surface.fill(BLACK)
+    # Temporary - change this line in draw_title_screen:
+    #surface.fill((50, 50, 50))  
     
+    # Initialize animations if not already done
+    if not hasattr(game_state, 'title_animations'):
+        game_state.title_animations = {
+            'campfire': SpriteAnimation(
+                'assets/images/sprites/fire/campfire_animation.png', 
+                10,  # Adjust this to match your actual frame count
+                (64, 64),  # Your campfire size
+                300  # Animation speed in milliseconds
+            )
+        }
+    
+    # Update animations
+    for animation in game_state.title_animations.values():
+        animation.update()
+
     # Create large title font for dramatic effect
     try:
         title_font_large = pygame.font.SysFont('timesnewroman', 68, bold=True, italic=True)
@@ -43,6 +61,7 @@ def draw_title_screen(surface, game_state, fonts, images=None):
                          (1024 - title_font_large.size("REDSTONE")[0]) // 2, 
                          title_y + 80, YELLOW, BROWN, 4)
     
+
     # Subtitle
     subtitle_y = title_y + 180
     draw_centered_text(surface, "A Classic RPG Adventure", 
@@ -59,7 +78,9 @@ def draw_title_screen(surface, game_state, fonts, images=None):
     pygame.draw.rect(surface, WHITE, (100, 150, 1024-200, 400), 3)
     pygame.draw.rect(surface, GRAY, (105, 155, 1024-210, 390), 1)
 
-
+    campfire_x = (800)
+    campfire_y = 450
+    game_state.title_animations['campfire'].draw(surface, campfire_x, campfire_y)
 
 
 def draw_company_splash_screen(surface, game_state, fonts, images=None):

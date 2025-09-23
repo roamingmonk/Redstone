@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-09-13 13:33)
+﻿## Repository Structure (generated 2025-09-22 06:54)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -22,6 +22,7 @@ C:.
 |       |   
 |       +---backgrounds
 |       |   +---locations
+|       |   |       patron_selection.jpg
 |       |   |       tavern_interior.jpg
 |       |   |       town_welcome.jpg
 |       |   |       
@@ -63,42 +64,59 @@ C:.
 |       |   |       axe.PNG
 |       |   |       battleaxe.png
 |       |   |       bedroll.PNG
+|       |   |       broken_compass.jpg
+|       |   |       carved_bone_dice.jpg
 |       |   |       Carved_bone_dice.PNG
 |       |   |       chainmail.PNG
-|       |   |       Crystal_pendant.jpg
+|       |   |       crystal_pendant.jpg
+|       |   |       empty_small_leather_pouch_that_jingles.jpg
 |       |   |       feathered_dream_catcher.jpg
-|       |   |       Glass_vial_with_swirling_mist.jpg
+|       |   |       feathered_dream_catcher.png
+|       |   |       glass_vial_with_swirling_mist.png
 |       |   |       healing_potion.PNG
 |       |   |       hemp_rope.PNG
 |       |   |       holy_symbol.png
 |       |   |       iron_ring_with_strange_symbols.jpg
-|       |   |       leather_armor.PNG
+|       |   |       leather_armor2.PNG
 |       |   |       leather_pouch_with_dried_herbs.jpg
 |       |   |       light_crossbow.png
 |       |   |       longsword.PNG
 |       |   |       mace.png
 |       |   |       plate_armor.PNG
-|       |   |       Polished_obsidian_shard.jpg
+|       |   |       polished_obsidian_shard.jpg
+|       |   |       pressed_flower.jpg
 |       |   |       quarterstaff.png
 |       |   |       rapier.png
-|       |   |       Shield.PNG
+|       |   |       shield.PNG
 |       |   |       shield_plus_1.PNG
+|       |   |       small_brass_key.jpg
 |       |   |       small_bronze_mirror.jpg
 |       |   |       smooth_river_stone_with_runes.jpg
 |       |   |       splint_armor.png
+|       |   |       star_map_fragment.jpg
 |       |   |       strong_ale.png
 |       |   |       tarnished_silver_locket.jpg
 |       |   |       thieves_tools.png
+|       |   |       tinderbox.png
 |       |   |       torch.PNG
 |       |   |       trail_rations.PNG
 |       |   |       twisted_driftwood_wand.jpg
+|       |   |       wooden_dice.jpg
+|       |   |       wooden_dice.png
 |       |   |       wooden_doll_with_button_eyes.jpg
 |       |   |       
 |       |   \---ui
-|       \---sprites
-|           +---effects
-|           +---enemies
-|           \---player
+|       +---sprites
+|       |   +---effects
+|       |   +---enemies
+|       |   \---player
+|       \---tiles
+|           +---characters
+|           |   \---player
+|           +---decorations
+|           \---terrain
+|                   cobblestone_street.png
+|                   
 +---core
 |   |   game_controller.py
 |   |   __init__.py
@@ -111,50 +129,62 @@ C:.
 |   |   __init__.py
 |   |   
 |   +---dialogues
-|   |       broken_blade_elara.json
-|   |       broken_blade_gareth.json
 |   |       broken_blade_garrick.json
-|   |       broken_blade_mayor.json
 |   |       broken_blade_meredith.json
+|   |       patron_selection_elara.json
+|   |       patron_selection_gareth.json
+|   |       patron_selection_lyra.json
+|   |       patron_selection_mayor.json
+|   |       patron_selection_pete.json
+|   |       patron_selection_thorman.json
 |   |       
 |   +---locations
 |   |       broken_blade.json
 |   |       patron_selection.json
 |   |       __init__.py
 |   |       
+|   +---maps
+|   |   |   redstone_town_map.py
+|   |   |   
+|   |           
 |   +---narrative
 |   |       intro_sequence.json
 |   |       
 |   +---npcs
 |   |       aldwin_goldenbottem.json
 |   |       bernard_mugsworth.json
-|   |       elara_moonwhisper.json
-|   |       gareth_ironwill.json
+|   |       elara.json
+|   |       gareth.json
 |   |       garrick_ironbrew.json
-|   |       lyra_quickfingers.json
+|   |       lyra.json
 |   |       meredith_whisperwind.json
 |   |       pete_stumblefoot.json
-|   |       thorman_stormhammer.json
+|   |       thorman.json
 |   |       
 |   +---player
-|   |       character_classes.py
+|   |       character_classes.json
+|   |       character_classesd.py
 |   |       character_names.json
 |   |       current_character.json
 |   |       low_stats_comments.json
 |   |       trinkets.json
 |   |       
-|   \---templates
-|           player_template.json
+|   +---templates
+|   |       player_template.json
+|   |       
 |           
 +---docs
 |       decisions.md
+|       project_context copy.md
 |       project_context.md
+|       Repository_Structure.md
 |       
 +---game_logic
 |   |   character_engine.py
 |   |   commerce_engine.py
 |   |   data_manager.py
 |   |   dialogue_engine.py
+|   |   dice_game_engine.py
 |   |   event_manager.py
 |   |   inventory_engine.py
 |   |   item_manager.py
@@ -181,8 +211,8 @@ C:.
 |   |   inventory_overlay.py
 |   |   load_game.py
 |   |   quest_overlay.py
+|   |   redstone_town_navigation.py
 |   |   save_game.py
-|   |   shopping.py
 |   |   title_menu.py
 |   |   __init__.py
 |   |   
@@ -195,6 +225,7 @@ C:.
 |   |   generic_dialogue_handler.py
 |   |   screen_handlers.py
 |   |   screen_manager.py
+|   |   shopping_overlay.py
 |   |   __init__.py
 |   |   
 |           
@@ -210,6 +241,8 @@ C:.
 |   |   party_display.py
 |   |   quest_system.py
 |   |   tabbed_overlay_utils.py
+|   |   tile_graphics.py
+|   |   xp_manager.py
 |   |   __init__.py
 |   |   
 |           

@@ -434,6 +434,15 @@ INTRO_BUILDING_SILHOUETTE = (70, 60, 85)  # Lighter buildings
 INTRO_WARM_LIGHT = (255, 200, 120)  # Brighter warm light
 INTRO_DISTANT_LIGHT = (255, 255, 180)  # Brighter distant lights
 
+# === ANIMATION SYSTEM CONSTANTS ===
+ANIMATION_SPEED = 300  # milliseconds per frame
+TITLE_SPRITE_SIZE = (64, 64)  # Your campfire size
+
+# Sprite paths for title screen (update path to match yours)
+TITLE_ANIMATIONS = {
+    'campfire': 'assets/images/sprites/fire/campfire_animation.png'
+}
+
 
 # Screen exclusion lists - centralized for maintainability
 # Overlay exclusion - screens where overlays should not appear

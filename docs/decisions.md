@@ -56,8 +56,6 @@
 - **Decision:** Add pytest unit tests for engine logic before UI wiring.
 - **Consequences:** Safer refactors; higher upfront cost.
 
----
-
 **ADR-009:** Patron screen add
 
 **Status:** Accepted
@@ -1330,60 +1328,36 @@ Professional foundation: Industry-standard graphics management ready for commerc
 # ADR-083 itemManager API unification
 # Status: Accepted
 # Date: Sep 21, 2025
-**Context** The item system had multiple competing lookup methods and inconsistent data storage, causing icon loading failures and sellable item logic errors. Different parts of the codebase used mixed ID/name conventions.
-**Problem**Multiple ItemManager methods: get_item_by_id(), get_item_by_name(), get_item_icon_by_name(),Inconsistent inventory storage: some items stored as IDs ('longsword'), others as names ('Strong Ale'),CharacterEngine, CommerceEngine, and inventory display used different data formats,Shopping sell tab showed "No items to sell" despite having sellable inventory
-**Decision** Implement unified ID-based item system with single data authority pattern: ItemManager API Cleanup
-Keep: get_item_by_id(item_id) - single lookup method
-Keep: get_item_icon(item_id) - direct icon access
-Remove: get_item_by_name() and get_item_icon_by_name() - eliminated confusion
-Add: get_display_name(item_id) - ID to name conversion for UI
-**Data Storage Standardization**
-CharacterEngine: Store starting equipment as IDs ('longsword', 'leather_armor')
-CommerceEngine: Store purchased items as IDs ('strong_ale', 'trail_rations')
-Inventory Display: Convert IDs to display names only for rendering
-Shopping System: Use IDs internally, names only for user display
-**Implementation**
-Simplified ItemManager to single lookup pattern
-Updated CharacterEngine equipment finalization to store IDs
-Fixed CommerceEngine purchase logic to append IDs instead of names
-Updated inventory_overlay.py and shopping_overlay.py to use get_item_icon(item_id)
-Modified sellable items logic to work with consistent ID-based data
-**Results**
-Functional: Sellable items display correctly with proper quantities and pricing
-Consistent: All inventory storage uses lowercase_underscore IDs
-Maintainable: Single ItemManager API eliminates lookup confusion
-Extensible: Adding new items requires only JSON updates, no code changes
-**Files Modified**
-game_logic/item_manager.py - API simplification
-game_logic/character_engine.py - ID-based equipment storage
-game_logic/commerce_engine.py - ID-based purchase storage
-screens/inventory_overlay.py - Updated icon calls
-screens/shopping_overlay.py - Fixed sellable items rendering
-**Validation**
-Character creation stores equipment as IDs
-Purchased items appear as sellable with correct pricing
-Inventory display shows proper item names converted from IDs
-Shopping cart and sell cart functionality operational
-
+**Context** The item system used competing lookups and mixed ID/name storage, causing icon-load failures and sellable-item logic errors across the codebase.
+**Problem** Multiple ItemManager methods (e.g., get_item_by_id, get_item_by_name, get_item_icon_by_name) and mixed ID/name inventory formats led CharacterEngine, CommerceEngine, and UI overlays to disagree, producing “No items to sell” despite valid inventory.
+**Decision** Adopt a unified ID-only ItemManager API as the single source of truth by keeping get_item_by_id(item_id) and get_item_icon(item_id), adding get_display_name(item_id), and removing get_item_by_name() and get_item_icon_by_name().
+**Data Storage** Standardization Store all equipment and purchases as lowercase_underscore IDs in CharacterEngine and CommerceEngine, use IDs internally throughout shopping/inventory flows, and convert to display names only at render time.
+**Implementation** Refactor ItemManager to a single-lookup pattern, update CharacterEngine to persist IDs, adjust CommerceEngine to append IDs, change inventory_overlay.py and shopping_overlay.py to call get_item_icon(item_id), and unify sellable-items logic to operate on IDs.
+**Results** Sellable items display with correct quantities and prices; all inventory uses consistent lowercase_underscore IDs; the API surface is simpler to maintain; and new items require only JSON updates.
+**Files Modified** game_logic/item_manager.py, game_logic/character_engine.py, game_logic/commerce_engine.py, screens/inventory_overlay.py, and screens/shopping_overlay.py.
+**Validation** Character creation persists equipment as IDs, purchased items appear with correct pricing for selling, inventory displays human-readable names derived from IDs, and shopping/sell carts function end-to-end.
 
 ## ADR-084: DiceGameEngine Architecture Implementation
 - **Status:** Accepted
 - **Date:** Sep 21, 2025
-- **Context:** Dice game logic was scattered across GameState methods (roll_dice_gambling, analyze_dice_results, etc.) violating Single Data Authority and separation of concerns principles
+- **Context:** Dice game logic scattered across GameState methods violating Single Data Authority principle
 - **Decision:** Extract dice game business logic into dedicated DiceGameEngine following established engine patterns
-- **Implementation:**
-  - Created `game_logic/dice_game_engine.py` as pure business logic processor
-  - Moved gambling stats from `game_state.dice_game` to `game_state.character['gambling_stats']`
-  - Added dice click handlers to ScreenManager following event-driven patterns
-  - DiceGameEngine initialized by GameController with EventManager integration
-  - Backward compatibility helper in gambling_dice.py for smooth transition
-- **Consequences:**
-  - GameState no longer contains dice business logic (6 methods removed)
-  - Gambling statistics properly tracked in character data for save/load persistence
-  - Event flow: UI → Events → DiceGameEngine → GameState data updates
-  - Dice game follows same architectural patterns as other engines
-  - Foundation established for additional gambling game variants
-- **Files Modified:** Created dice_game_engine.py, updated game_controller.py, screen_manager.py, screen_handlers.py, gambling_dice.py, removed methods from game_state.py
+- **Implementation:** Created dice_game_engine.py, moved stats to character['gambling_stats'], added event handlers
+- **Consequences:** Clean separation of concerns, proper statistics tracking, event-driven architecture compliance
+- **Files Modified:** dice_game_engine.py, game_controller.py, screen_manager.py, screen_handlers.py, gambling_dice.py, game_state.py
+
+## ADR-085: Added simple animation on title screen
+**Status:** Accepted
+**Date:** Sep 22, 2025
+**Context:** Added animated pixel art sprites to title screen for professional atmosphere.
+**Decision:** Implement reusable SpriteAnimation class with timing control and transparency support.
+**Implementation:** Created utils/animation.py with frame extraction, timing updates, and drawing methods.
+**Integration:** Added 64x64 campfire animation to title screen with proper alpha channel handling.
+**Architecture:** Animation states stored in game_state for persistence across screen refreshes.
+**Benefits:** Scalable system ready for tavern torches, spell effects, and character animations.
+**Files:** utils/animation.py, constants.py, title_menu.py, assets/images/sprites/fire/campfire_animation.png.
+**Result:** Professional animated title screen foundation for all future game animations.
+
 
 ```
 ## ADR-XXX: <Short title>

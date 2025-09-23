@@ -327,8 +327,6 @@ class GameState:
         """Check if party is at maximum size (4 members)"""
         return self.get_party_size() >= 4
 
- #TODO Review all this DIce Game logic in the gamestate.  Why is this in gamestate?  shouldnt logic be elsewhere?
-
     def can_afford_bet(self, bet_amount):
         """Check if player can afford a bet - GameState Authority"""
         return self.character.get('gold', 0) >= bet_amount
