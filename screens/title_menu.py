@@ -20,22 +20,27 @@ def draw_text_with_shadow(surface, text, font, x, y, text_color=WHITE, shadow_co
     surface.blit(text_surface, (x, y))
     return text_surface.get_rect(x=x, y=y)
 
-
-
 def draw_title_screen(surface, game_state, fonts, images=None):
     """Draw the game splash screen"""
     surface.fill(BLACK)
-    # Temporary - change this line in draw_title_screen:
-    #surface.fill((50, 50, 50))  
     
-    # Initialize animations if not already done
     if not hasattr(game_state, 'title_animations'):
         game_state.title_animations = {
             'campfire': SpriteAnimation(
                 'assets/images/sprites/fire/campfire_animation.png', 
-                10,  # Adjust this to match your actual frame count
-                (64, 64),  # Your campfire size
-                300  # Animation speed in milliseconds
+                10, (64, 64), 300
+            ),
+            'torch_left': SpriteAnimation(
+                'assets/images/sprites/fire/torch_animation.png', 
+                4,  # Adjust to your torch frame count
+                (32, 32),  # Typical torch size - adjust if different
+                350  # Slightly different timing for natural feel
+            ),
+            'torch_right': SpriteAnimation(
+                'assets/images/sprites/fire/torch_animation.png', 
+                4,  # Same frame count
+                (32, 32),  # Same size
+                280  # Different timing for organic atmosphere
             )
         }
     
@@ -78,21 +83,36 @@ def draw_title_screen(surface, game_state, fonts, images=None):
     pygame.draw.rect(surface, WHITE, (100, 150, 1024-200, 400), 3)
     pygame.draw.rect(surface, GRAY, (105, 155, 1024-210, 390), 1)
 
-    campfire_x = (800)
-    campfire_y = 450
-    game_state.title_animations['campfire'].draw(surface, campfire_x, campfire_y)
 
+
+    # Draw torches flanking the title
+    torch_left_x = 200  # Left side of border area
+    torch_left_y = 250  # Near title level
+    game_state.title_animations['torch_left'].draw(surface, torch_left_x, torch_left_y)
+
+    torch_right_x = 1024 - 180 - 32  # Right side, accounting for torch width
+    torch_right_y = 250  # Same height as left torch
+    game_state.title_animations['torch_right'].draw(surface, torch_right_x, torch_right_y)
 
 def draw_company_splash_screen(surface, game_state, fonts, images=None):
     """
     Draw the company/developer splash screen - simple and clean
     """
     surface.fill(BLACK)
+    if not hasattr(game_state, 'title_animations'):
+            game_state.title_animations = {
+                'campfire': SpriteAnimation(
+                    'assets/images/sprites/fire/campfire_animation.png', 
+                    10, (64, 64), 300
+                )
+            }
     
+    # Update animations
+    for animation in game_state.title_animations.values():
+        animation.update()
+
     # Simple company presentation
     company_y = 300
-   
-   
     
     draw_centered_text(surface, "A Game by", 
                       fonts.get('fantasy_medium', fonts['normal']), 
@@ -115,6 +135,11 @@ def draw_company_splash_screen(surface, game_state, fonts, images=None):
     draw_centered_text(surface, "Press any key to continue...", 
                       fonts.get('fantasy_small', fonts['normal']), 
                       continue_y, (128, 128, 128))  # Gray text    
+    
+
+    campfire_x = (1024 - 64)  //2 
+    campfire_y = 500
+    game_state.title_animations['campfire'].draw(surface, campfire_x, campfire_y)
 
 def draw_main_menu(surface, game_state, fonts, images=None):
     """

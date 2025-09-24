@@ -21,6 +21,7 @@ from game_logic.commerce_engine import initialize_commerce_engine
 from game_logic.dialogue_engine import initialize_dialogue_engine
 from game_logic.quest_engine import initialize_quest_engine
 from game_logic.dice_game_engine import initialize_dice_game_engine
+from game_logic.combat_engine import initialize_combat_engine, set_combat_engine
 from utils.quest_system import integrate_quest_system, update_quest_system
 from ui.screen_manager import ScreenManager
 from input_handler import InputHandler
@@ -208,6 +209,11 @@ class GameController:
         self.dialogue_engine = initialize_dialogue_engine(self.game_state, self.event_manager)
         self.quest_engine = initialize_quest_engine(self.game_state, self.event_manager)
         self.dice_game_engine = initialize_dice_game_engine(self.game_state, self.event_manager)
+        self.combat_engine = initialize_combat_engine(self.event_manager, self.game_state, self.data_manager)
+        set_combat_engine(self.combat_engine)
+        self._mark_system_created("combat_engine")
+
+
 
         # Make QuestEngine discoverable by helpers (e.g., update_quest_system -> scan)
         self.game_state.quest_engine = self.quest_engine
@@ -221,13 +227,16 @@ class GameController:
         self.event_manager.register_service('character_engine', self.character_engine)
         self.event_manager.register_service('inventory_engine', self.inventory_engine)
         self.event_manager.register_service('screen_manager', self.screen_manager)
+        self.event_manager.register_service('combat_engine', self.combat_engine)
 
         self._mark_system_created("character_engine")
         self._mark_system_created("inventory_engine")
         self._mark_system_created("commerce_engine")
         self._mark_system_created("dialogue_engine")
         self._mark_system_created("quest_engine")
-        
+
+
+
         # Step 6: SaveManager (requires: GameState, CharacterEngine, EventManager)
         self._validate_dependency("character_engine", self.character_engine)
         self._validate_dependency("event_manager", self.event_manager)

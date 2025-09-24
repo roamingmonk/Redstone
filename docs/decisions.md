@@ -1358,6 +1358,21 @@ Professional foundation: Industry-standard graphics management ready for commerc
 **Files:** utils/animation.py, constants.py, title_menu.py, assets/images/sprites/fire/campfire_animation.png.
 **Result:** Professional animated title screen foundation for all future game animations.
 
+## ADR-086: Combat system setup
+# Date: September 24, 2025
+**Decision:** Integrate combat system following established engine/UI separation pattern
+**Context** Need to add combat encounters to Terror in Redstone while maintaining architectural consistency with existing BaseLocation and DialogueEngine patterns.
+**Decision** Implement two-layer combat system: CombatEngine (business logic) + CombatSystem (UI presentation) with JSON-driven encounter configuration.
+**Implementation** 
+**CombatEngine:** Loads encounters from JSON, processes combat logic, manages state
+** CombatSystem:** Generic UI renderer, delegates all logic to CombatEngine
+**Integration:** ScreenManager registration, InputHandler clickable registration, EventManager action routing
+**Configuration:** JSON encounter files in data/combat/encounters/ directory
+**Consequences:** Positive: Maintains architectural consistency, enables JSON-only encounter creation, clean separation of concerns, follows established patterns
+Negative: Requires dual-file structure for combat features
+Risk Mitigation: Extensive logging and error handling implemented
+**Technical Details**
+Fixed draw_button() parameter mismatch, implemented InputHandler registration via register_combat_clickables(), integrated with existing event system for 
 
 ```
 ## ADR-XXX: <Short title>

@@ -440,7 +440,8 @@ TITLE_SPRITE_SIZE = (64, 64)  # Your campfire size
 
 # Sprite paths for title screen (update path to match yours)
 TITLE_ANIMATIONS = {
-    'campfire': 'assets/images/sprites/fire/campfire_animation.png'
+    'campfire': 'assets/images/sprites/fire/campfire_animation.png',
+    'torch': 'assets/images/sprites/fire/torch_animation.png'  
 }
 
 

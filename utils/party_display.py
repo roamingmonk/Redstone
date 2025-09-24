@@ -17,6 +17,7 @@ FRAME_THICKNESS = 3
 def draw_party_status_panel(surface, game_state, fonts):
     """
     Draw party status panel on right side of screen
+    Used for main game party displays
     """
         
     # Draw panel background

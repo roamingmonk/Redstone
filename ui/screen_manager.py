@@ -968,6 +968,7 @@ class ScreenManager:
             )
             
             from screens.redstone_town_navigation import render_town_navigation
+            from ui.combat_system import setup_combat_system_integration
 
             # Title and menu screens
             self.register_render_function("game_title", draw_title_screen)
@@ -1022,7 +1023,7 @@ class ScreenManager:
         
             self._register_npc_dialogue_screens()
 
-            self.register_render_function("broken_blade_basement", self._render_basement_placeholder)
+            self.register_render_function("broken_blade_basement", self._handle_basement_combat_or_placeholder)
 
             # Gambling mini-game screens
             self.register_render_function("dice_bets", draw_dice_bets_screen)
@@ -1030,6 +1031,16 @@ class ScreenManager:
             self.register_render_function("dice_results", draw_dice_results_screen)
             self.register_render_function("dice_rules", draw_dice_rules_screen)
             
+
+            # Combat System - Step 1 (not sure why this is designed differently
+            #TODO Should this be updated?
+            try:
+                setup_combat_system_integration(self, self.event_manager, self._current_game_controller)
+                print("✅ CombatSystem (Step 1) registered!")
+            except Exception as e:
+                print(f"⚠️ CombatSystem registration failed: {e}")
+
+
             print(f"🎨 All screen render functions registered: {len(self.render_functions)} total")
             
             self._register_basic_screen_handlers()
@@ -1125,6 +1136,28 @@ class ScreenManager:
         self.register_render_function(screen_name, location_render_function, enter_hook=location_enter_hook)
         #print(f"🗺️ BaseLocation screen registered: {screen_name} -> {location_id}.{area_id}")
 
+    def _handle_basement_combat_or_placeholder(self, surface, game_state, fonts, images, controller):
+        """Handle basement - try combat first, fallback to placeholder"""
+        
+        print("🎯 Basement screen requested - checking for combat integration")
+        
+        # Try to start combat if combat engine available
+        if controller and hasattr(controller, 'combat_engine'):
+            try:
+                success = controller.combat_engine.start_combat("tavern_basement_rats")
+                if success:
+                    # Redirect to combat screen
+                    controller.game_state.screen = "combat"
+                    print("✅ Redirecting basement to combat screen")
+                    # Return empty dict since we're redirecting
+                    return {}
+            except Exception as e:
+                print(f"❌ Combat start failed: {e}")
+        
+        # Fallback to placeholder screen
+        print("⚠️ Using basement placeholder screen")
+        return self._render_basement_placeholder(surface, game_state, fonts, images, controller)
+
     def _render_basement_placeholder(self, surface, game_state, fonts, images, controller):
         """Temporary basement placeholder screen"""
         from utils.graphics import draw_text_with_shadow, draw_button
@@ -1186,13 +1219,20 @@ class ScreenManager:
         try:
             # Call the screen's render function - THIS REPLACES THE ENTIRE MASSIVE METHOD
             render_function = self.render_functions[self.current_screen]
+            render_result = None
             try:
                 # Try with controller first (for dialogue screens)
                 render_function(self.screen, game_state, self.fonts, self.images, self._current_game_controller)
             except TypeError:
                 # Fallback to 4 parameters (for existing screens)
                 render_function(self.screen, game_state, self.fonts, self.images)
-            
+             
+             # SPECIAL HANDLING FOR COMBAT SCREEN CLICKABLES
+            if self.current_screen == "combat" and isinstance(render_result, dict):
+                input_handler = getattr(self._current_game_controller, 'input_handler', None)
+                if input_handler and hasattr(input_handler, 'register_combat_clickables'):
+                    input_handler.register_combat_clickables(self.current_screen, render_result)
+
             # Reset error count on successful render
             self.error_count = 0
 
@@ -1217,7 +1257,6 @@ class ScreenManager:
         # Render the overlay
         self._shopping_overlay.render(surface, game_state, fonts, images or {})
         return True
-
 
     def sync_with_game_state(self, game_state) -> bool:
         """

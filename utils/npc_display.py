@@ -6,6 +6,7 @@ from utils.graphics import draw_border, draw_text_with_shadow
 def draw_npc_portrait(surface, character_name):
     """
     Draws a scaled NPC portrait on the left side of the image zone.
+    Used for Dialogue Screens
     
     Args:
         surface: The Pygame surface to draw on.

@@ -76,6 +76,38 @@ class InputHandler:
         
         print("🎮 InputHandler initialized - Professional input routing ready!")
 
+    def register_combat_clickables(self, screen_name: str, clickable_areas: Dict):
+        """Register combat screen clickables with InputHandler"""
+        
+        if screen_name != "combat" or not clickable_areas:
+            return
+        
+        regions = []
+        
+        for area_id, rect in clickable_areas.items():
+            if area_id == "test_victory":
+                regions.append({
+                    "action": "COMBAT_TEST_VICTORY",
+                    "rect": (rect.x, rect.y, rect.width, rect.height),
+                    "payload": {}
+                })
+            elif area_id == "test_defeat":
+                regions.append({
+                    "action": "COMBAT_TEST_DEFEAT", 
+                    "rect": (rect.x, rect.y, rect.width, rect.height),
+                    "payload": {}
+                })
+            elif area_id == "back_button":
+                regions.append({
+                    "action": "COMBAT_BACK",
+                    "rect": (rect.x, rect.y, rect.width, rect.height),
+                    "payload": {}
+                })
+        
+        # Register with InputHandler using your existing pattern
+        self.set_interactables(screen_name, regions)
+        print(f"⚔️ Combat clickables registered: {len(regions)} areas")
+        
     def set_interactables(self, screen_name: str, interactables_data):
         """
         NEW SEMANTIC APPROACH: Register clickable regions using semantic actions
