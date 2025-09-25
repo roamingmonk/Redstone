@@ -55,6 +55,11 @@ class RedstoneTownNavigation:
         self.can_move = True
         self.last_move_time = 0  # Track actual time instead of timer
 
+        # Temporary message state
+        self.showing_temp_message = False
+        self.temp_message_text = ""
+        self.temp_message_timer = 0
+
         # Prevent key repeat issues
         self.keys_pressed_last_frame = set()
         
@@ -143,10 +148,17 @@ class RedstoneTownNavigation:
                             self.update_camera(new_x, new_y)
                             self.last_move_time = current_time
                             
-                            # Check for building interaction
-                            self.current_building = get_building_info(new_x, new_y)
+                            # ADD THIS LINE:
+                            self.debug_map_around_player(game_state)
+
+                            # Check if standing at building entrance
+                            from data.maps.redstone_town_map import get_building_at_entrance
+                            self.current_building = get_building_at_entrance(new_x, new_y)
+
                             if self.current_building:
-                                print(f"🏢 Near building: {self.current_building['name']}")
+                                print(f"🚪 At entrance of: {self.current_building['name']}")
+                            else:
+                                print(f"📍 Position: ({new_x}, {new_y}) - No building entrance")
                         else:
                             print(f"🚫 Cannot move to ({new_x}, {new_y}) - blocked")
             
@@ -156,27 +168,32 @@ class RedstoneTownNavigation:
     def handle_interaction_input(self, keys, game_state, controller):
         """Handle building entry and interaction """
         
-        # NEW: ESC key handling - return to tavern or main menu
-        if keys[pygame.K_ESCAPE]:
-            if controller:
-                print("🚪 ESC pressed - returning to tavern")
-                controller.event_manager.emit("SCREEN_CHANGE", {
-                    'target_screen': 'broken_blade_main',  # Return to tavern
-                    'source': 'town_navigation'
-                })
+        # ESC key - only for dismissing overlay
+        if keys[pygame.K_ESCAPE] and self.showing_construction_overlay:
+            self.showing_construction_overlay = False
+            self.construction_building_info = None
+            print("Dismissed construction overlay")
             return
         
-        # Building entry (existing logic)
+       # Building entry - show closed message for unimplemented buildings
         if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and self.current_building:
             building_screen = self.current_building['screen']
-            print(f"🚪 Entering {self.current_building['name']} -> {building_screen}")
+            implemented_screens = ['broken_blade_main']
             
-            if controller:
-                controller.event_manager.emit("SCREEN_CHANGE", {
-                    'target_screen': building_screen,
-                    'source': 'town_navigation'
-                })
-    
+            if building_screen in implemented_screens:
+                print(f"🚪 Entering {self.current_building['name']}")
+                if controller:
+                    controller.event_manager.emit("SCREEN_CHANGE", {
+                        'target_screen': building_screen,
+                        'source': 'town_navigation'
+                    })
+            else:
+                # Show temporary closed message
+                self.showing_temp_message = True
+                self.temp_message_text = "Sorry, It is closed"
+                self.temp_message_timer = pygame.time.get_ticks()
+                print(f"{self.current_building['name']} is closed")
+        
     def draw_town_map(self, surface):
         """Draw town map using shared graphics utility"""
         # Calculate visible tile range
@@ -227,20 +244,24 @@ class RedstoneTownNavigation:
             prompt_y = LAYOUT_IMAGE_Y + LAYOUT_IMAGE_HEIGHT - 50
             
             # Create prompt with enhanced styling
-            prompt_font = fonts.get('fantasy_medium', fonts['normal'])  # Bigger font
+            prompt_font = fonts.get('fantasy_medium', fonts['normal'])
             text_surface = prompt_font.render(action_text, True, YELLOW)
             text_width = text_surface.get_width()
-            
+            text_height = text_surface.get_height()
+
             # Center horizontally in display area
             prompt_x = (self.display_width - text_width) // 2
             
             # Enhanced background box with border
             padding = 15
-            bg_rect = pygame.Rect(prompt_x - padding, prompt_y - 8, text_width + (padding * 2), 35)
+            #Change box height to accommodate the text properly
+            box_height = text_height + (padding * 2)
+            bg_rect = pygame.Rect(prompt_x - padding, prompt_y - padding, text_width + (padding * 2), box_height)
+    
             
             # Draw background with nice border
-            pygame.draw.rect(surface, (20, 20, 20), bg_rect)  # Dark background
-            pygame.draw.rect(surface, YELLOW, bg_rect, 3)     # Yellow border
+            pygame.draw.rect(surface, (20, 20, 20), bg_rect)
+            pygame.draw.rect(surface, YELLOW, bg_rect, 3)
             
             # Draw text
             surface.blit(text_surface, (prompt_x, prompt_y))
@@ -290,11 +311,14 @@ class RedstoneTownNavigation:
         pos_surface = debug_font.render(pos_text, True, WHITE)
         graphics_surface = debug_font.render(graphics_text, True, WHITE)
         
-        surface.blit(pos_surface, (10, LAYOUT_IMAGE_Y + self.display_height + 10))
-        surface.blit(graphics_surface, (10, LAYOUT_IMAGE_Y + self.display_height + 30))
+        surface.blit(pos_surface, (30, LAYOUT_IMAGE_Y + self.display_height + 140))  #org 10
+        surface.blit(graphics_surface, (30, LAYOUT_IMAGE_Y + self.display_height + 160)) # org 30
         
         # Interaction prompt
-        self.draw_interaction_prompt(surface, fonts)
+        if self.showing_temp_message:
+            self.draw_temp_message(surface, fonts)
+        else:
+            self.draw_interaction_prompt(surface, fonts)
         
         # === INSTRUCTIONS ===
         instruction_y = LAYOUT_DIALOG_Y
@@ -322,6 +346,65 @@ class RedstoneTownNavigation:
         
         # Handle interactions
         self.handle_interaction_input(keys, game_state, controller)
+
+    def debug_map_around_player(self, game_state):
+        """Debug the map around player position"""
+        x, y = game_state.town_player_x, game_state.town_player_y
+        print(f"\n🎯 DEBUG MAP AROUND PLAYER ({x}, {y}):")
+        
+        from data.maps.redstone_town_map import get_tile_type, is_walkable, TOWN_MAP
+        
+        # Show 3x3 area around player
+        for dy in range(-1, 2):
+            row_debug = ""
+            for dx in range(-1, 2):
+                check_x, check_y = x + dx, y + dy
+                tile_type = get_tile_type(check_x, check_y)
+                walkable = is_walkable(check_x, check_y)
+                
+                if dx == 0 and dy == 0:
+                    marker = "P"  # Player position
+                elif walkable:
+                    marker = "."  # Walkable
+                else:
+                    marker = "#"  # Blocked
+                    
+                row_debug += f"{marker}({check_x},{check_y}) "
+            
+            print(row_debug)
+        
+        # Also print the raw map data around this area
+        print(f"\nRaw map data around row {y}:")
+        for i in range(max(0, y-1), min(len(TOWN_MAP), y+2)):
+            print(f"Row {i}: {TOWN_MAP[i]}")
+
+    def draw_temp_message(self, surface, fonts):
+        """Draw temporary message (like 'building closed')"""
+        if not self.showing_temp_message:
+            return
+            
+        # Auto-dismiss after 2 seconds
+        if pygame.time.get_ticks() - self.temp_message_timer > 2000:
+            self.showing_temp_message = False
+            return
+        
+        # Draw message in same style as interaction prompt
+        prompt_y = LAYOUT_IMAGE_Y + LAYOUT_IMAGE_HEIGHT - 50
+        prompt_font = fonts.get('fantasy_medium', fonts['normal'])
+        text_surface = prompt_font.render(self.temp_message_text, True, RED)
+        text_width = text_surface.get_width()
+        text_height = text_surface.get_height()
+
+        prompt_x = (self.display_width - text_width) // 2
+        padding = 15
+       # Change box height to accommodate the text properly
+        box_height = text_height + (padding * 2)
+        bg_rect = pygame.Rect(prompt_x - padding, prompt_y - padding, text_width + (padding * 2), box_height)
+    
+        pygame.draw.rect(surface, (20, 20, 20), bg_rect)
+        pygame.draw.rect(surface, RED, bg_rect, 3)
+        surface.blit(text_surface, (prompt_x, prompt_y))
+
 
 # === INTEGRATION FUNCTION FOR SCREEN_MANAGER ===
 def render_town_navigation(surface, game_state, fonts, images, controller=None):

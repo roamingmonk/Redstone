@@ -68,6 +68,54 @@ BUILDING_TILES = {
     }
 }
 
+# === BUILDING/GATE ENTRANCE DEFINITIONS ===
+BUILDING_ENTRANCES = {
+    'tavern': {
+        'building_pos': (3, 5),
+        'entrance_tiles': [(4, 5)],
+        'info': {
+            'name': 'The Broken Blade Tavern',
+            'screen': 'broken_blade_main',
+            'action': 'Enter tavern'
+        }
+    },
+    'general_store': {
+        'building_pos': (12, 5),
+        'entrance_tiles': [(11, 5)],
+        'info': {
+            'name': "Bernard's General Store",
+            'screen': 'general_store',
+            'action': 'Enter store'
+        }
+    },
+    'mayor_office': {
+        'building_pos': (7, 8),
+        'entrance_tiles': [(7, 9), (6, 8)],
+        'info': {
+            'name': "Mayor's Office",
+            'screen': 'mayor_office',
+            'action': 'Enter office'
+        }
+    },
+     'gate': {
+        'building_pos': [(7, 0), (7,11)],
+        'entrance_tiles': [(7, 1), (7,10)],
+        'info': {
+            'name': "Town Gate",
+            'screen': 'world_map',
+            'action': 'Exit to world map'
+        }    
+    }
+}
+
+def get_building_at_entrance(player_x, player_y):
+    """Check if player is standing at a valid building entrance"""
+    for building_id, building_data in BUILDING_ENTRANCES.items():
+        entrance_tiles = building_data['entrance_tiles']
+        if (player_x, player_y) in entrance_tiles:
+            return building_data['info']
+    return None
+
 # === TILE COLORS (Classic VGA Palette) ===
 TILE_COLORS = {
     'wall': (100, 100, 100),        # Gray stone walls
@@ -84,8 +132,8 @@ TILE_COLORS = {
 
 # === TOWN LAYOUT (16x12 grid) ===
 TOWN_MAP = [
-    "################",  # Row 0 - Northern wall
-    "#......G.......#",  # Row 1 - Northern gate
+    "#######G########",  # Row 0 - Northern wall and Gate
+    "#..............#",  # Row 1 - Street
     "#......SSS.....#",  # Row 2 - Town square (top)
     "#..H...SSS..H..#",  # Row 3 - Town square (middle)
     "#......SSS.....#",  # Row 4 - Town square (bottom)
@@ -94,8 +142,8 @@ TOWN_MAP = [
     "#......AAA.....#",  # Row 7 - Back alley
     "#..H...M....H..#",  # Row 8 - Mayor's office row
     "#..............#",  # Row 9 - Street
-    "#......G.......#",  # Row A - Southern gate
-    "################"   # Row B - Southern wall
+    "#..............#",  # Row A - Street
+    "#######G########"   # Row B - Southern wall and Gate
 ]
 
 def get_tile_type(x, y):

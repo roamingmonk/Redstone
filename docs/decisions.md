@@ -1374,6 +1374,19 @@ Risk Mitigation: Extensive logging and error handling implemented
 **Technical Details**
 Fixed draw_button() parameter mismatch, implemented InputHandler registration via register_combat_clickables(), integrated with existing event system for 
 
+## ADR-087: Town Navigation System
+# Date: September 25, 2025
+**Decision:** Implement tile-based town navigation with directional building entrance system
+**Context**  Players needed ability to navigate between buildings and explore town environment for proper RPG progression and world-building.
+**Decision** Implement directional entrance system where buildings have designated entry tiles rather than walkable building tiles or adjacent-tile entry.
+**Implementation** Created data-driven map system with 16x12 tile layout, entrance point definitions per building, visual interaction prompts, and graceful fallback handling for unimplemented buildings.
+**Consequences** Positive: Realistic building interaction, clear visual feedback, professional RPG navigation feel, complete architecture validation of Screen/Event/Input managers
+**Negative:** Requires coordinate precision for entrance positioning
+**Risk Mitigation:** Debug utilities and systematic entrance coordinate validation implemented
+**Technical Details**  Town map data defines building positions and entrance tiles separately, interaction detection uses entrance-point lookup, temporary message system provides user feedback for closed buildings.
+**Validation** Complete navigation loop functional: town exploration → building detection → entrance prompts → tavern entry → return to town → unimplemented building fallback handling.
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

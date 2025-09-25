@@ -47,11 +47,6 @@ def main():
 
         # Check initialization result
         if not init_result.success:
-            #print(f"❌ GameController initialization failed!")
-            #print(f"   Phase reached: {init_result.phase_reached}")
-            #print(f"   Systems created: {init_result.systems_created}")
-            #print(f"   Errors: {init_result.errors}")
-            #print(f"   Total time: {init_result.total_time:.2f}s")
             
             # Log detailed error information
             for error in init_result.errors:
@@ -59,13 +54,6 @@ def main():
             
             pygame.quit()
             sys.exit(1)
-
-        # Success! Log initialization details
-        #print(f"✅ GameController fully initialized!")
-        #print(f"   Phase: {init_result.phase_reached}")
-        #print(f"   Systems: {len(init_result.systems_created)}")
-        #print(f"   Time: {init_result.total_time:.2f}s")
-        #print(f"   Validations: {sum(init_result.validation_results.values())}/{len(init_result.validation_results)} passed")
 
         # Log any validation failures (non-fatal)
         failed_validations = [k for k, v in init_result.validation_results.items() if not v]
