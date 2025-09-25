@@ -90,7 +90,7 @@ BUILDING_ENTRANCES = {
     },
     'mayor_office': {
         'building_pos': (7, 8),
-        'entrance_tiles': [(7, 9), (6, 8)],
+        'entrance_tiles': [(6, 8)],
         'info': {
             'name': "Mayor's Office",
             'screen': 'mayor_office',

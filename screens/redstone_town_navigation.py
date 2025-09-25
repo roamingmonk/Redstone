@@ -1,430 +1,155 @@
 # screens/redstone_town_navigation.py
 """
-Redstone Town Navigation - Tile-Based Movement System
-Professional implementation integrating with Terror in Redstone architecture
-
-This screen handles tile-based movement around the town, building interactions,
-and transitions to your existing dialogue/shopping systems.
+Redstone Town Navigation - Using shared NavigationRenderer utility
 """
 
 import pygame
-import sys
+from ui.base_location_navigation import NavigationRenderer
 from utils.constants import *
-from utils.graphics import draw_border, draw_button, draw_centered_text
-from utils.party_display import draw_party_status_panel, PARTY_PANEL_WIDTH
+from utils.graphics import draw_border, draw_centered_text
+from utils.party_display import draw_party_status_panel
 from utils.tile_graphics import get_tile_graphics_manager
 
-# Import our town map data
+# Import town map data
 try:
     from data.maps.redstone_town_map import *
 except ImportError:
-    print("⚠️ Town map data not found - create data/maps/redstone_town_map.py")
-    # Fallback minimal data
+    # Fallback data
     TOWN_WIDTH, TOWN_HEIGHT = 16, 12
     TOWN_SPAWN_X, TOWN_SPAWN_Y = 8, 6
-    TILE_SIZE = 64
-    WALKABLE_TILES = {'street'}
     def get_tile_type(x, y): return 'street'
     def is_walkable(x, y): return True
     def get_building_info(x, y): return None
-    def get_tile_color(x, y): return (80, 60, 40)
 
 class RedstoneTownNavigation:
-    """
-    Town exploration with scrolling camera system
-    
-    INTEGRATION POINTS:
-    - Uses existing GameState for player position
-    - Integrates with ScreenManager for building transitions
-    - Works with InputHandler for movement keys
-    - Maintains party status display consistency
-    """
-    
     def __init__(self):
-        # Calculate display area (accounting for party panel)
-        self.display_width = SCREEN_WIDTH - PARTY_PANEL_WIDTH - 10
-        self.display_height = LAYOUT_IMAGE_HEIGHT
+        # Configure the shared renderer
+        config = {
+            'map_width': TOWN_WIDTH,
+            'map_height': TOWN_HEIGHT,
+            'map_functions': {
+                'get_tile_type': get_tile_type,
+                'is_walkable': is_walkable,
+                'get_building_info': get_building_at_entrance
+            }
+        }
         
-        # Camera system
-        self.camera_x = 0
-        self.camera_y = 0
-        
-        # Movement timing (prevents key repeat madness)
-        self.move_timer = 0
-        self.move_delay = 150  # ms between moves
-        self.can_move = True
-        self.last_move_time = 0  # Track actual time instead of timer
-
-        # Temporary message state
+        self.renderer = NavigationRenderer(config)
+        self.current_building = None
         self.showing_temp_message = False
         self.temp_message_text = ""
         self.temp_message_timer = 0
 
-        # Prevent key repeat issues
-        self.keys_pressed_last_frame = set()
-        
-        # Current building interaction
-        self.current_building = None
-        
-        # Player state
-        self.player_direction = 'down'
-        
         # Use shared graphics manager (singleton)
         self.graphics_manager = get_tile_graphics_manager()
 
-        print("🏘️ Town exploration system initialized")
+        print("Town navigation initialized with shared renderer")
     
     def update_player_position(self, game_state):
-        """Initialize or update player position in town"""
+        """Initialize player position if needed"""
         if not hasattr(game_state, 'town_player_x'):
-            # First time in town - set spawn position
             game_state.town_player_x = TOWN_SPAWN_X
             game_state.town_player_y = TOWN_SPAWN_Y
-            print(f"🚶 Player spawned in town at ({TOWN_SPAWN_X}, {TOWN_SPAWN_Y})")
+            print(f"Player spawned at ({TOWN_SPAWN_X}, {TOWN_SPAWN_Y})")
         
-        self.update_camera(game_state.town_player_x, game_state.town_player_y)
+        self.renderer.update_camera(game_state.town_player_x, game_state.town_player_y)
     
-    def update_camera(self, player_x, player_y):
-        """Center camera on player with bounds checking"""
-        # Calculate player pixel position
-        player_pixel_x = player_x * TILE_SIZE
-        player_pixel_y = player_y * TILE_SIZE
+    def update(self, dt, keys, game_state, controller=None):
+        """Update town navigation state"""
+        # Handle movement using shared renderer
+        new_x, new_y = self.renderer.handle_movement(
+            keys, game_state.town_player_x, game_state.town_player_y
+        )
         
-        # Calculate display area for centering
-        visible_width = self.display_width
-        visible_height = self.display_height
-        
-        # Center camera on player
-        self.camera_x = player_pixel_x - visible_width // 2
-        self.camera_y = player_pixel_y - visible_height // 2
-        
-        # Keep camera within map bounds
-        max_camera_x = (TOWN_WIDTH * TILE_SIZE) - visible_width
-        max_camera_y = (TOWN_HEIGHT * TILE_SIZE) - visible_height
-        
-        self.camera_x = max(0, min(self.camera_x, max_camera_x))
-        self.camera_y = max(0, min(self.camera_y, max_camera_y))
-    
-    def handle_movement_input(self, keys, game_state, dt):
-            """Enhanced movement with direction tracking"""
-            current_time = pygame.time.get_ticks()
+        # Update position if moved
+        if new_x != game_state.town_player_x or new_y != game_state.town_player_y:
+            game_state.town_player_x = new_x
+            game_state.town_player_y = new_y
+            self.renderer.update_camera(new_x, new_y)
             
-            # Track keys pressed this frame
-            keys_pressed_this_frame = set()
-            movement_attempted = False
-            new_x, new_y = game_state.town_player_x, game_state.town_player_y
-            
-            # Check movement keys and update direction
-            if keys[pygame.K_UP] or keys[pygame.K_w]:
-                keys_pressed_this_frame.add('up')
-                self.player_direction = 'up'  # Update sprite direction
-                new_y -= 1
-                movement_attempted = True
-            if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-                keys_pressed_this_frame.add('down')
-                self.player_direction = 'down'
-                new_y += 1
-                movement_attempted = True
-            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-                keys_pressed_this_frame.add('left')
-                self.player_direction = 'left'
-                new_x -= 1
-                movement_attempted = True
-            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-                keys_pressed_this_frame.add('right')
-                self.player_direction = 'right'
-                new_x += 1
-                movement_attempted = True
-            
-            # Process movement with timing
-            if movement_attempted and (current_time - self.last_move_time >= self.move_delay):
-                new_key_pressed = bool(keys_pressed_this_frame - self.keys_pressed_last_frame)
-                
-                if new_key_pressed or (current_time - self.last_move_time >= self.move_delay * 2):
-                    if (new_x != game_state.town_player_x or new_y != game_state.town_player_y):
-                        if is_walkable(new_x, new_y):
-                            game_state.town_player_x = new_x
-                            game_state.town_player_y = new_y
-                            self.update_camera(new_x, new_y)
-                            self.last_move_time = current_time
-                            
-                            # ADD THIS LINE:
-                            self.debug_map_around_player(game_state)
-
-                            # Check if standing at building entrance
-                            from data.maps.redstone_town_map import get_building_at_entrance
-                            self.current_building = get_building_at_entrance(new_x, new_y)
-
-                            if self.current_building:
-                                print(f"🚪 At entrance of: {self.current_building['name']}")
-                            else:
-                                print(f"📍 Position: ({new_x}, {new_y}) - No building entrance")
-                        else:
-                            print(f"🚫 Cannot move to ({new_x}, {new_y}) - blocked")
-            
-            # Update key state for next frame
-            self.keys_pressed_last_frame = keys_pressed_this_frame
-    
-    def handle_interaction_input(self, keys, game_state, controller):
-        """Handle building entry and interaction """
+            # Check for building interaction
+            self.current_building = get_building_at_entrance(new_x, new_y)
         
-        # ESC key - only for dismissing overlay
-        if keys[pygame.K_ESCAPE] and self.showing_construction_overlay:
-            self.showing_construction_overlay = False
-            self.construction_building_info = None
-            print("Dismissed construction overlay")
-            return
-        
-       # Building entry - show closed message for unimplemented buildings
+        # Handle building entry
         if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and self.current_building:
-            building_screen = self.current_building['screen']
-            implemented_screens = ['broken_blade_main']
-            
-            if building_screen in implemented_screens:
-                print(f"🚪 Entering {self.current_building['name']}")
+            if self.current_building.get('screen') == 'broken_blade_main':
                 if controller:
                     controller.event_manager.emit("SCREEN_CHANGE", {
-                        'target_screen': building_screen,
+                        'target_screen': 'broken_blade_main',
                         'source': 'town_navigation'
                     })
             else:
-                # Show temporary closed message
                 self.showing_temp_message = True
-                self.temp_message_text = "Sorry, It is closed"
+                self.temp_message_text = "Sorry, it is closed."
                 self.temp_message_timer = pygame.time.get_ticks()
-                print(f"{self.current_building['name']} is closed")
-        
-    def draw_town_map(self, surface):
-        """Draw town map using shared graphics utility"""
-        # Calculate visible tile range
-        start_tile_x = max(0, self.camera_x // TILE_SIZE)
-        start_tile_y = max(0, self.camera_y // TILE_SIZE)
-        end_tile_x = min(TOWN_WIDTH, (self.camera_x + self.display_width) // TILE_SIZE + 1)
-        end_tile_y = min(TOWN_HEIGHT, (self.camera_y + self.display_height) // TILE_SIZE + 1)
-        
-        # Draw visible tiles using shared graphics manager
-        for map_y in range(start_tile_y, end_tile_y):
-            for map_x in range(start_tile_x, end_tile_x):
-                # Get tile type from map data
-                tile_type = get_tile_type(map_x, map_y)
-                
-                # Get tile image from shared graphics manager
-                tile_image = self.graphics_manager.get_tile_image(tile_type)
-                
-                # Calculate screen position
-                screen_x = (map_x * TILE_SIZE) - self.camera_x
-                screen_y = (map_y * TILE_SIZE) - self.camera_y
-                
-                # Draw tile (graphic or colored fallback)
-                surface.blit(tile_image, (screen_x, screen_y))
     
-    def draw_player(self, surface, game_state):
-        """Draw player using shared graphics utility"""
-        # Calculate player screen position
-        player_screen_x = (game_state.town_player_x * TILE_SIZE) - self.camera_x
-        player_screen_y = (game_state.town_player_y * TILE_SIZE) - self.camera_y
-        
-        # Get player sprite from shared graphics manager
-        player_sprite = self.graphics_manager.get_player_sprite(self.player_direction)
-        
-        # Center 32x32 sprite on 64x64 tile
-        sprite_x = player_screen_x + (TILE_SIZE - 32) // 2
-        sprite_y = player_screen_y + (TILE_SIZE - 32) // 2
-        
-        # Draw player sprite
-        surface.blit(player_sprite, (sprite_x, sprite_y))
-    
-    def draw_interaction_prompt(self, surface, fonts):
-        """Enhanced building interaction prompt with better visibility"""
-        if self.current_building:
-            building_name = self.current_building['name']
-            action_text = f"Press ENTER to enter {building_name}"
-            
-            # Position prompt at bottom of display area with better styling
-            prompt_y = LAYOUT_IMAGE_Y + LAYOUT_IMAGE_HEIGHT - 50
-            
-            # Create prompt with enhanced styling
-            prompt_font = fonts.get('fantasy_medium', fonts['normal'])
-            text_surface = prompt_font.render(action_text, True, YELLOW)
-            text_width = text_surface.get_width()
-            text_height = text_surface.get_height()
-
-            # Center horizontally in display area
-            prompt_x = (self.display_width - text_width) // 2
-            
-            # Enhanced background box with border
-            padding = 15
-            #Change box height to accommodate the text properly
-            box_height = text_height + (padding * 2)
-            bg_rect = pygame.Rect(prompt_x - padding, prompt_y - padding, text_width + (padding * 2), box_height)
-    
-            
-            # Draw background with nice border
-            pygame.draw.rect(surface, (20, 20, 20), bg_rect)
-            pygame.draw.rect(surface, YELLOW, bg_rect, 3)
-            
-            # Draw text
-            surface.blit(text_surface, (prompt_x, prompt_y))
-
-    def draw_building_highlight(self, surface, game_state):
-        """Highlight the building player is standing on"""
-        if self.current_building:
-            # Calculate building tile screen position
-            building_screen_x = (game_state.town_player_x * TILE_SIZE) - self.camera_x
-            building_screen_y = (game_state.town_player_y * TILE_SIZE) - self.camera_y
-            
-            # Draw subtle highlight around building tile
-            highlight_rect = pygame.Rect(building_screen_x - 2, building_screen_y - 2, 
-                                    TILE_SIZE + 4, TILE_SIZE + 4)
-            pygame.draw.rect(surface, YELLOW, highlight_rect, 3)
-
-    def render(self, surface, game_state, fonts, images, controller=None):
-        """Enhanced render with shared graphics"""
+    def render(self, surface, fonts, game_state):
+        """Render town navigation screen"""
         surface.fill(BLACK)
         self.update_player_position(game_state)
         
-        # === PARTY STATUS PANEL ===
+        # Draw party status panel
         draw_party_status_panel(surface, game_state, fonts)
         
-        # === TOWN MAP AREA ===
-        draw_border(surface, 0, LAYOUT_IMAGE_Y, self.display_width, self.display_height)
+        # Draw map area border
+        draw_border(surface, 0, LAYOUT_IMAGE_Y, 
+                   self.renderer.display_width, self.renderer.display_height)
         
-        # Create subsurface for map rendering
-        map_surface = surface.subsurface(6, LAYOUT_IMAGE_Y + 6, 
-                                        self.display_width - 12, self.display_height - 12)
+        # Create map surface and draw using shared renderer
+        map_surface = surface.subsurface(6, LAYOUT_IMAGE_Y + 6,
+                                        self.renderer.display_width - 12, 
+                                        self.renderer.display_height - 12)
         
-        # Draw with shared graphics
-        self.draw_town_map(map_surface)
-        self.draw_player(map_surface, game_state)
-        
-        # === UI ELEMENTS ===
-        title_font = fonts.get('fantasy_large', fonts['header'])
-        draw_centered_text(surface, "REDSTONE TOWN", title_font, 
-                          LAYOUT_IMAGE_Y - 30, YELLOW, screen_width=self.display_width)
-        
-        # Enhanced debug info with graphics stats
-        stats = self.graphics_manager.get_graphics_stats()
-        pos_text = f"Position: ({game_state.town_player_x}, {game_state.town_player_y}) Facing: {self.player_direction}"
-        graphics_text = f"Graphics: {stats['total_tiles']} tiles, {stats['player_sprites']} player sprites loaded"
-        
-        debug_font = fonts.get('fantasy_tiny', fonts['small'])
-        pos_surface = debug_font.render(pos_text, True, WHITE)
-        graphics_surface = debug_font.render(graphics_text, True, WHITE)
-        
-        surface.blit(pos_surface, (30, LAYOUT_IMAGE_Y + self.display_height + 140))  #org 10
-        surface.blit(graphics_surface, (30, LAYOUT_IMAGE_Y + self.display_height + 160)) # org 30
-        
-        # Interaction prompt
+        self.renderer.draw_map(map_surface, fonts, game_state.town_player_x, game_state.town_player_y, surface)
+
+        # Draw interaction prompts
         if self.showing_temp_message:
-            self.draw_temp_message(surface, fonts)
+            still_showing = self.renderer.draw_temp_message(
+                surface, fonts, self.temp_message_text, self.temp_message_timer
+            )
+            if not still_showing:
+                self.showing_temp_message = False
         else:
-            self.draw_interaction_prompt(surface, fonts)
+            building_name = self.current_building.get('name') if self.current_building else None
+            self.renderer.draw_interaction_prompt(surface, fonts, building_name)
         
-        # === INSTRUCTIONS ===
-        instruction_y = LAYOUT_DIALOG_Y
-        draw_border(surface, 20, instruction_y, SCREEN_WIDTH - 40, LAYOUT_DIALOG_HEIGHT)
+        # Instructions
+        #=== DIALOG ZONE (FULL SCREEN WIDTH) ===
+        dialog_y = LAYOUT_DIALOG_Y
+        dialog_height = LAYOUT_DIALOG_HEIGHT
+        dialog_margin = 0
+
+        # Use full 1024 width for dialog box
+        draw_border(surface, dialog_margin, dialog_y, 1024 - (dialog_margin * 2), dialog_height) 
         
         instructions = [
             "Use ARROW KEYS or WASD to move around town",
             "Press ENTER near buildings to enter them",
-            "Press ESC to return to tavern",
-            "Graphics system: Loads images or uses colored fallbacks"
+            "Press ESC to return to tavern"
         ]
-        
-        text_y = instruction_y + 20
+        text_y = dialog_y + 20
         for instruction in instructions:
             draw_centered_text(surface, instruction, fonts.get('fantasy_small', fonts['normal']),
                              text_y, WHITE)
             text_y += 25
         
         return {}
-    
-    def update(self, dt, keys, game_state, controller=None):
-        """Update game state - called by main game loop"""
-        # Handle movement
-        self.handle_movement_input(keys, game_state, dt)
-        
-        # Handle interactions
-        self.handle_interaction_input(keys, game_state, controller)
 
-    def debug_map_around_player(self, game_state):
-        """Debug the map around player position"""
-        x, y = game_state.town_player_x, game_state.town_player_y
-        print(f"\n🎯 DEBUG MAP AROUND PLAYER ({x}, {y}):")
-        
-        from data.maps.redstone_town_map import get_tile_type, is_walkable, TOWN_MAP
-        
-        # Show 3x3 area around player
-        for dy in range(-1, 2):
-            row_debug = ""
-            for dx in range(-1, 2):
-                check_x, check_y = x + dx, y + dy
-                tile_type = get_tile_type(check_x, check_y)
-                walkable = is_walkable(check_x, check_y)
-                
-                if dx == 0 and dy == 0:
-                    marker = "P"  # Player position
-                elif walkable:
-                    marker = "."  # Walkable
-                else:
-                    marker = "#"  # Blocked
-                    
-                row_debug += f"{marker}({check_x},{check_y}) "
-            
-            print(row_debug)
-        
-        # Also print the raw map data around this area
-        print(f"\nRaw map data around row {y}:")
-        for i in range(max(0, y-1), min(len(TOWN_MAP), y+2)):
-            print(f"Row {i}: {TOWN_MAP[i]}")
+# Integration function for ScreenManager
+_town_navigation_instance = None
 
-    def draw_temp_message(self, surface, fonts):
-        """Draw temporary message (like 'building closed')"""
-        if not self.showing_temp_message:
-            return
-            
-        # Auto-dismiss after 2 seconds
-        if pygame.time.get_ticks() - self.temp_message_timer > 2000:
-            self.showing_temp_message = False
-            return
-        
-        # Draw message in same style as interaction prompt
-        prompt_y = LAYOUT_IMAGE_Y + LAYOUT_IMAGE_HEIGHT - 50
-        prompt_font = fonts.get('fantasy_medium', fonts['normal'])
-        text_surface = prompt_font.render(self.temp_message_text, True, RED)
-        text_width = text_surface.get_width()
-        text_height = text_surface.get_height()
-
-        prompt_x = (self.display_width - text_width) // 2
-        padding = 15
-       # Change box height to accommodate the text properly
-        box_height = text_height + (padding * 2)
-        bg_rect = pygame.Rect(prompt_x - padding, prompt_y - padding, text_width + (padding * 2), box_height)
-    
-        pygame.draw.rect(surface, (20, 20, 20), bg_rect)
-        pygame.draw.rect(surface, RED, bg_rect, 3)
-        surface.blit(text_surface, (prompt_x, prompt_y))
-
-
-# === INTEGRATION FUNCTION FOR SCREEN_MANAGER ===
 def render_town_navigation(surface, game_state, fonts, images, controller=None):
-    """
-    Function for ScreenManager integration
-    
-    USAGE: Register this with your ScreenManager like:
-    screen_manager.register_render_function("redstone_town_navigation", render_town_navigation)
-    """
+    """ScreenManager integration function"""
     global _town_navigation_instance
     
-    # Create singleton instance
-    if '_town_navigation_instance' not in globals():
+    if _town_navigation_instance is None:
         _town_navigation_instance = RedstoneTownNavigation()
     
-    # Handle input if keys are available
+    # Handle input
     if hasattr(pygame, 'key') and pygame.get_init():
         keys = pygame.key.get_pressed()
-        dt = 16  # Approximate 60 FPS
+        dt = 16
         _town_navigation_instance.update(dt, keys, game_state, controller)
     
-    # Render the screen
-    return _town_navigation_instance.render(surface, game_state, fonts, images, controller)
+    # Render
+    return _town_navigation_instance.render(surface, fonts, game_state)

@@ -1386,6 +1386,14 @@ Fixed draw_button() parameter mismatch, implemented InputHandler registration vi
 **Technical Details**  Town map data defines building positions and entrance tiles separately, interaction detection uses entrance-point lookup, temporary message system provides user feedback for closed buildings.
 **Validation** Complete navigation loop functional: town exploration → building detection → entrance prompts → tavern entry → return to town → unimplemented building fallback handling.
 
+## ADR-088: Shared Navigation Renderer
+# Date: September 25, 2025
+**Status:** Accepted
+**Context:** Town navigation worked but created code duplication concerns for future locations.
+**Decision:** Implemented NavigationRenderer utility class in ui/base_location_navigation.py with location-specific wrappers.
+**Implementation:** Extracted camera, movement, rendering, collision, and debug logic to shared utility; town navigation reduced to configuration + location-specific behavior.
+**Consequences:** New locations require ~50 lines vs 300+ lines; shared movement/rendering logic; automatic debug info on all navigation screens.
+**Files:** Created ui/base_location_navigation.py, refactored screens/redstone_town_navigation.py
 
 ```
 ## ADR-XXX: <Short title>
