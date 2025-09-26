@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-09-22 06:54)
+﻿## Repository Structure (generated 2025-09-26 09:07)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -33,6 +33,7 @@ C:.
 |       +---icons
 |       |   +---characters
 |       |   |   +---npc_portraits
+|       |   |   |       bernard_portrait.jpg
 |       |   |   |       elara_portrait.jpg
 |       |   |   |       gareth_portrait.jpg
 |       |   |   |       garrick_portrait.jpg
@@ -70,14 +71,13 @@ C:.
 |       |   |       chainmail.PNG
 |       |   |       crystal_pendant.jpg
 |       |   |       empty_small_leather_pouch_that_jingles.jpg
-|       |   |       feathered_dream_catcher.jpg
 |       |   |       feathered_dream_catcher.png
 |       |   |       glass_vial_with_swirling_mist.png
 |       |   |       healing_potion.PNG
 |       |   |       hemp_rope.PNG
 |       |   |       holy_symbol.png
 |       |   |       iron_ring_with_strange_symbols.jpg
-|       |   |       leather_armor2.PNG
+|       |   |       leather_armor.PNG
 |       |   |       leather_pouch_with_dried_herbs.jpg
 |       |   |       light_crossbow.png
 |       |   |       longsword.PNG
@@ -109,8 +109,14 @@ C:.
 |       +---sprites
 |       |   +---effects
 |       |   +---enemies
+|       |   +---fire
+|       |   |       campfire_animation.png
+|       |   |       torch_animation.png
+|       |   |       
 |       |   \---player
 |       \---tiles
+|           |       stone_wall.png
+|           |       
 |           +---characters
 |           |   \---player
 |           +---decorations
@@ -137,6 +143,8 @@ C:.
 |   |       patron_selection_mayor.json
 |   |       patron_selection_pete.json
 |   |       patron_selection_thorman.json
+|   |       redstone_town_bernard.json
+|   |       redstone_town_jenna.json
 |   |       
 |   +---locations
 |   |       broken_blade.json
@@ -181,6 +189,7 @@ C:.
 |       
 +---game_logic
 |   |   character_engine.py
+|   |   combat_engine.py
 |   |   commerce_engine.py
 |   |   data_manager.py
 |   |   dialogue_engine.py
@@ -198,7 +207,6 @@ C:.
 |       autosave.json
 |       quicksave.json
 |       save_slot_1.json
-|       save_slot_2.json
 |       save_slot_3.json
 |       
 +---screens
@@ -211,7 +219,7 @@ C:.
 |   |   inventory_overlay.py
 |   |   load_game.py
 |   |   quest_overlay.py
-|   |   redstone_town_navigation.py
+|   |   redstone_town.py
 |   |   save_game.py
 |   |   title_menu.py
 |   |   __init__.py
@@ -222,6 +230,8 @@ C:.
 |       
 +---ui
 |   |   base_location.py
+|   |   base_location_navigation.py
+|   |   combat_system.py
 |   |   generic_dialogue_handler.py
 |   |   screen_handlers.py
 |   |   screen_manager.py
@@ -230,6 +240,7 @@ C:.
 |   |   
 |           
 +---utils
+|   |   animation.py
 |   |   constants.py
 |   |   debug_manager.py
 |   |   dialogue_ui_utils.py

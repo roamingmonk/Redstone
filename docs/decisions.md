@@ -1395,7 +1395,7 @@ Fixed draw_button() parameter mismatch, implemented InputHandler registration vi
 **Consequences:** New locations require ~50 lines vs 300+ lines; shared movement/rendering logic; automatic debug info on all navigation screens.
 **Files:** Created ui/base_location_navigation.py, refactored screens/redstone_town_navigation.py
 
-# ADR-088: Direct NPC Dialogue Integration from Town Navigation
+# ADR-088A: Direct NPC Dialogue Integration from Town Navigation
 # Status: Implemented  
 # Date: Sep 26, 2025
 **Context:** Adding new merchant NPCs required hardcoded elif chains in town navigation and separate screen creation.
@@ -1410,6 +1410,20 @@ Fixed draw_button() parameter mismatch, implemented InputHandler registration vi
 **Files Modified:** redstone_town_navigation.py (now redstone_town.py) screen_manager.py, narrative_schema.py, redstone_town_map.py
 **Architecture Validation:** Direct town navigation → NPC dialogue → shopping → return navigation working end-to-end
 
+# ADR-088 B:  Merchant Category Filtering & Shopping Pagination System
+# Status: Complete
+# Date: Sep 26, 2025
+**Context:** Merchant inventory showed only hardcoded include_ids items instead of category-based filtering. Shopping interface couldn't handle large inventories (42+ items) requiring pagination across BUY/SELL tabs.
+**Decision:** Fix category filtering logic in ItemManager and implement multi-tab pagination with keyboard navigation for shopping interface scalability.
+**Implementation:**
+- Removed duplicate inventory logic from ScreenManager, delegated to ItemManager.get_merchant_inventory()
+- Category filtering now works properly for merchants using stock_categories instead of include_ids
+- Added pagination state per tab (buy_page, sell_page) with UP/DOWN + P/N keyboard navigation
+- Extended BaseTabbedOverlay with previous_page()/next_page() methods for reusable pagination
+- Shopping tabs independently paginate with "Page X of Y" display
+**Root Cause:** ScreenManager had hardcoded include_ids-only filtering that bypassed ItemManager's category system.
+**Result:** Merchants display full category-based inventory (weapons, armor, consumables, items). Shopping interface scales to unlimited items with professional pagination. Architecture supports future tabbed interfaces requiring pagination.
+**Files Modified:** screen_manager.py, item_manager.py, base_tabbed_overlay.py, shopping_overlay.py
 
 
 ```

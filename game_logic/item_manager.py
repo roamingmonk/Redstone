@@ -120,8 +120,7 @@ class ItemLoader:
             if item['id'] == item_id:
                 return item
         return None
-        
-    
+            
     def get_item_icon(self, item_id):
         """Get the icon surface for a specific item"""
         return self.item_icons.get(item_id, self.create_placeholder_icon())
@@ -135,7 +134,6 @@ class ItemLoader:
         """Get item description by ID"""
         item = self.get_item_by_id(item_id)
         return item.get('description', '') if item else ''
-
 
     def get_item_price(self, item_id, merchant=None, merchant_modifier: float = 1.0) -> int:
         """
@@ -162,7 +160,6 @@ class ItemLoader:
         # Fallback: no merchant provided, just apply given modifier
         return int(round(base * merchant_modifier))
 
-
     def get_merchant_pricing(self, merchant_type="standard"):
         """Get pricing modifier for different merchant types"""
         modifiers = {
@@ -175,7 +172,6 @@ class ItemLoader:
         }
         return modifiers.get(merchant_type, 1.0)
 
-    
     def load_merchant_data(self):
         """Load merchant configurations from JSON"""
         try:
@@ -190,72 +186,83 @@ class ItemLoader:
         except json.JSONDecodeError as e:
             self.merchant_data = {"merchants": {}}
 
-def get_merchant_inventory(self, merchant_id):
-    """
-    Materialize a merchant's inventory from declarative config
-    """
-    merchant = self.merchant_data.get('merchants', {}).get(merchant_id)
-    if not merchant:
-        print(f"❌ No merchant found for ID: {merchant_id}")
-        return None
+    def get_merchant_inventory(self, merchant_id):
+        """Materialize a merchant's inventory from declarative config"""
+        merchant = self.merchant_data.get('merchants', {}).get(merchant_id)
+        
+        print(f"🔧 DEBUG: GMI: Bernard merchant config: {merchant}")
+        
+        if not merchant:
+            print(f"❌ DEBUG: GMI: No merchant found for ID: {merchant_id}")
+            return None
 
-    # Build candidate item ids from filters
-    include_ids = set(merchant.get('stock_filter', {}).get('include_ids', []))
-    print(f"🔧 Merchant {merchant_id} include_ids: {include_ids}")
-    allowed_cats = set(merchant.get('stock_categories', []))
-    max_rarity = merchant.get('stock_filter', {}).get('max_rarity')
+        # Build candidate item ids from filters
+        include_ids = set(merchant.get('stock_filter', {}).get('include_ids', []))
+        print(f"🔧 DEBUG: GMI: Bernard include_ids: {include_ids}")
+        print(f"🔧 DEBUG: GMI: include_ids is empty: {len(include_ids) == 0}")
+        
+        print(f"🔧 DEBUG: GMI: Merchant {merchant_id} include_ids: {include_ids}")
+        
+        allowed_cats = set(merchant.get('stock_categories', []))
+        print(f"🔧 DEBUG: GMI: Bernard allowed categories: {allowed_cats}")
+        max_rarity = merchant.get('stock_filter', {}).get('max_rarity')
 
-    # Collect items - prioritize include_ids over categories
-    candidates = []
-    seen = set()
-    
-    for item in self.get_all_items():
-        if item['id'] in seen:
-            continue
+        # Collect items - prioritize include_ids over categories
+        candidates = []
+        seen = set()
+        
+        for item in self.get_all_items():
+            item_category = item.get('category', 'NONE')
+            print(f"📦 DEBUG: GMI: Item: {item['id']}, category: '{item_category}', allowed: {item_category in allowed_cats}")
             
-        # If include_ids is specified, ONLY use those items
-        if include_ids:
-            if item['id'] in include_ids:
+            
+            if item['id'] in seen:
+                continue
+                
+            # If include_ids is specified, ONLY use those items
+            if include_ids:
+                if item['id'] in include_ids:
+                    candidates.append(item)
+                    seen.add(item['id'])
+                    print(f"✅ DEBUG: GMI: Included specific item: {item['id']}")
+            # Otherwise fall back to category filtering
+            elif allowed_cats and item.get('category') in allowed_cats:
                 candidates.append(item)
                 seen.add(item['id'])
-                print(f"✅ Included specific item: {item['id']}")
-        # Otherwise fall back to category filtering
-        elif allowed_cats and item.get('category') in allowed_cats:
-            candidates.append(item)
-            seen.add(item['id'])
-            print(f"✅ Included category item: {item['id']}")
+                print(f"✅ DEBUG: GMI: Included category item: {item['id']}")
+            else:
+                print(f"❌ DEBUG: GMI: Skipped item: {item['id']} (category: {item.get('category', 'NONE')}, allowed: {allowed_cats})")
 
-    print(f"🔧 Final filtered items: {[item['id'] for item in candidates]}")
+        print(f"🔧 DEBUG: GMI: Final filtered items: {[item['id'] for item in candidates]}")
 
-    # Rest of the method for pricing and formatting...
-    mtype = merchant.get('merchant_type', 'standard')
-    fallback_modifier = self.get_merchant_pricing(mtype)
-    default_stock = int(merchant.get('default_stock_quantity', 5))
-    stock_over = merchant.get('stock_overrides', {})
+        # Rest of the method for pricing and formatting...
+        mtype = merchant.get('merchant_type', 'standard')
+        fallback_modifier = self.get_merchant_pricing(mtype)
+        default_stock = int(merchant.get('default_stock_quantity', 5))
+        stock_over = merchant.get('stock_overrides', {})
 
-    formatted_items = []
-    for item in candidates:
-        item_id = item['id']
-        cat = self._normalize_category(item.get('category', 'items'))
-        price = self.get_item_price(item_id, merchant=merchant, merchant_modifier=fallback_modifier)
-        formatted_items.append({
-            'item_id': item_id,
-            'name': item['name'],
-            'type': cat,
-            'description': item.get('description', ''),
-            'cost': price,
-            'stock': int(stock_over.get(item_id, default_stock)),
-        })
+        formatted_items = []
+        for item in candidates:
+            item_id = item['id']
+            cat = self._normalize_category(item.get('category', 'items'))
+            price = self.get_item_price(item_id, merchant=merchant, merchant_modifier=fallback_modifier)
+            formatted_items.append({
+                'item_id': item_id,
+                'name': item['name'],
+                'type': cat,
+                'description': item.get('description', ''),
+                'cost': price,
+                'stock': int(stock_over.get(item_id, default_stock)),
+            })
 
-    return {
-        'merchant_id': merchant_id,
-        'merchant_name': merchant.get('name', merchant_id),
-        'greeting': merchant.get('greeting', ''),
-        'price_modifier': float(merchant.get('price_modifier', fallback_modifier)),
-        'default_stock_quantity': default_stock,
-        'items': formatted_items
-    }
+        return {
+            'merchant_id': merchant_id,
+            'merchant_name': merchant.get('name', merchant_id),
+            'greeting': merchant.get('greeting', ''),
+            'price_modifier': float(merchant.get('price_modifier', fallback_modifier)),
+            'default_stock_quantity': default_stock,
+            'items': formatted_items
+        }
    
-
 # Global item manager instance
 item_manager = ItemLoader()

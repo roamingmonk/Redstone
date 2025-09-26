@@ -118,6 +118,14 @@ class BaseTabbedOverlay:
                 return self.switch_to_tab(i)
         return False
     
+    def previous_page(self) -> bool:
+        """Override in subclasses that support pagination"""
+        return False
+
+    def next_page(self) -> bool:
+        """Override in subclasses that support pagination"""
+        return False
+
     def handle_keyboard_input(self, key: int) -> bool:
         """
         Handle keyboard input for tab navigation
@@ -140,6 +148,13 @@ class BaseTabbedOverlay:
             new_index = (self.active_tab_index + 1) % len(self.tabs)
             return self.switch_to_tab(new_index)
         
+            # Add page navigation
+        elif key == pygame.K_UP or key == pygame.K_p:
+            return self.previous_page()
+            
+        elif key == pygame.K_DOWN or key == pygame.K_n:
+            return self.next_page()
+    
         # Check for tab-specific hotkeys
         else:
             for i, tab in enumerate(self.tabs):

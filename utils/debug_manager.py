@@ -89,9 +89,9 @@ class DebugManager:
         print(f"Basement Quest Offered: {getattr(self.game_state, 'garrick_offered_basement', False)}")
         print(f"Basement Quest Accepted: {getattr(self.game_state, 'accepted_basement_quest', False)}")
         print(f"Completed Rat Combat: {getattr(self.game_state, 'completed_basement_combat', False)}")
-        print(f"Vistory Reported to Garrick: {getattr(self.game_state, 'reported_basement_victory', False)}")
+        print(f"Victory Reported to Garrick: {getattr(self.game_state, 'reported_basement_victory', False)}")
         print(f"Garrick Paid player: {getattr(self.game_state, 'garrick_paid', False)}")
-        print(f"Acknowled Payment: {getattr(self.game_state, 'post_payment_acknowledged', False)}")
+        print(f"Acknowledged Payment: {getattr(self.game_state, 'post_payment_acknowledged', False)}")
 
         # Quest manager status
         if hasattr(self.game_state, 'quest_manager'):

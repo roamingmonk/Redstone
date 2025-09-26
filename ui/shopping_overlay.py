@@ -54,7 +54,8 @@ class ShoppingOverlay(BaseTabbedOverlay):
         self.buy_page = 0
         self.sell_page = 0
         self.items_per_page = 6
-        
+        #self.info_page = 0
+
         # Click tracking
         self.merchant_item_rects = []
         self.sell_item_rects = []
@@ -298,7 +299,35 @@ class ShoppingOverlay(BaseTabbedOverlay):
         item_y = header_y + 30
         line_height = 32
         
-        for i, item_data in enumerate(sellable_items[:self.items_per_page]):  # Pagination later
+        # Add pagination calculations (after getting sellable_items)
+        total_items = len(sellable_items)
+
+        # Pagination calculations
+        total_pages = max(1, (total_items + self.items_per_page - 1) // self.items_per_page)
+        if self.sell_page >= total_pages:
+            self.sell_page = total_pages - 1
+
+        start_idx = self.sell_page * self.items_per_page
+        end_idx = min(start_idx + self.items_per_page, total_items)
+        page_items = sellable_items[start_idx:end_idx]
+
+        # Update the item loop
+        for i, item_data in enumerate(page_items):
+            current_y = item_y + i * line_height
+            
+            # Create clickable rect
+            item_rect = pygame.Rect(icon_x - 5, current_y - 5,
+                                qty_x - icon_x + 100, line_height)
+            
+            # Hover highlight
+            mouse_pos = pygame.mouse.get_pos()
+            if item_rect.collidepoint(mouse_pos):
+                pygame.draw.rect(surface, CORNFLOWER_BLUE, item_rect)
+            
+            # Store for click detection (with original index)
+            self.sell_item_rects.append((item_rect, start_idx + i))
+            
+            # Rest of item rendering code stays the same...
             current_y = item_y + i * line_height
             
             # Create clickable rect
@@ -315,7 +344,7 @@ class ShoppingOverlay(BaseTabbedOverlay):
             # Draw item details
             item_name = item_data['name']
             
-            # Get icon directly from ItemManager  ##OPTION 1
+            # Get icon directly from ItemManager  
             item_id = item_data['item_id']  # Use the ID field from merchant data
             icon = game_state.item_manager.get_item_icon(item_id)
             
@@ -343,7 +372,12 @@ class ShoppingOverlay(BaseTabbedOverlay):
                 cart_surface = item_font.render(str(cart_qty), True, BRIGHT_GREEN)
                 surface.blit(cart_surface, (cart_x + 20, current_y))
 
-        
+        # Pagination controls 
+        if total_pages > 1:
+            page_y = item_y + (self.items_per_page * line_height) + 10
+            page_text = f"Page {self.sell_page + 1} of {total_pages}"
+            draw_centered_text(surface, page_text, fonts['normal'], page_y, YELLOW)
+
         if not sellable_items:
             no_items_y = content_rect.centery
             draw_centered_text(surface, f"No items to sell to {merchant_data['merchant_name']}",
@@ -604,6 +638,8 @@ class ShoppingOverlay(BaseTabbedOverlay):
         
         return sellable
 
+    
+    
     def _process_sell_cart(self):
         """Process the sell cart - actually sell the items"""
         if not self.sell_cart:
@@ -663,7 +699,31 @@ class ShoppingOverlay(BaseTabbedOverlay):
             self.screen_manager.event_manager.emit("SCREEN_CHANGE", {
                 'target_screen': return_dialogue,
                 'source_screen': "merchant_shop"
-            })        
+            })
+
+    def previous_page(self) -> bool:
+        """Navigate to previous page based on active tab"""
+        if self.active_tab_index == 0:  # BUY tab
+            if self.buy_page > 0:
+                self.buy_page -= 1
+                return True
+        elif self.active_tab_index == 1:  # SELL tab
+            if self.sell_page > 0:
+                self.sell_page -= 1
+                return True
+        # Add more tabs as needed
+        return False
+
+    def next_page(self) -> bool:
+        """Navigate to next page based on active tab"""
+        if self.active_tab_index == 0:  # BUY tab
+            self.buy_page += 1
+            return True
+        elif self.active_tab_index == 1:  # SELL tab
+            self.sell_page += 1
+            return True
+        # Add more tabs as needed
+        return False
 
 ###  Keep for fallback, Need to be moved to utils/graphics.py ###
 def draw_border(surface, x, y, width, height):

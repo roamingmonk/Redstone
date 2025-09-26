@@ -34,6 +34,7 @@
       "stock_categories": ["weapons", "armor", "consumables", "items"],
       "buy_categories": ["weapons", "armor", "consumables", "items"],
       "stock_filter": {
+
         "max_rarity": "uncommon"
       },
       "default_stock_quantity": 3,

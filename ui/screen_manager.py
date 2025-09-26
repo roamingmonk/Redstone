@@ -681,27 +681,19 @@ class ScreenManager:
                     # Filter using the JSON configuration
                     merchant_items = []
                     for item in all_items:
-                        if item.get('id') in include_ids:
-                            item_id = item.get('id')
-        
-                            # Get stock from merchant config
-                            #TODO-enhance to remember totals and delay replinishment 
-                            stock_overrides = merchant_config.get('stock_overrides', {})
-                            default_stock = merchant_config.get('default_stock_quantity', 5)
-                            stock_quantity = stock_overrides.get(item_id, default_stock)
-                            
-                            merchant_items.append({
-                                'name': item.get('name'),
-                                'description': item.get('description'), 
-                                'cost': item.get('base_cost', 1),
-                                'item_id': item.get('id'),
-                                'stock': stock_quantity
-                            })
+                        # Get merchant inventory using proper ItemManager method
+                        merchant_inventory = item_manager.get_merchant_inventory(merchant_id)
+                        if merchant_inventory:
+                            merchant_items = merchant_inventory.get('items', [])
+                            merchant_name = merchant_inventory.get('merchant_name', merchant_id)
+                        else:
+                            print(f"❌ No inventory returned for {merchant_id}")
+                            return
                     
                     # Create the merchant data structure
                     merchant_data = {
                         'merchant_id': merchant_id,
-                        'merchant_name': merchant_config.get('name', merchant_id),
+                        'merchant_name': merchant_name,  # Use the name from ItemManager
                         'items': merchant_items
                     }
                     
