@@ -300,17 +300,34 @@ class ScreenManager:
         location = event_data.get('location')
         
         if npc_id:
-            # Navigate to the NPC's dialogue screen
-            dialogue_screen = f"{npc_id}_dialogue"
-            #print(f"🗣️ ScreenManager: NPC clicked: {npc_id}, navigating to {dialogue_screen}")
+            # Construct screen name using location_npc pattern
+            location = location or 'unknown'
+            dialogue_screen = f"{location}_{npc_id}"  # Creates "redstone_town_bernard"
+            print(f"📍 ScreenManager: NPC clicked: {npc_id}, navigating to {dialogue_screen}")
             
-            # Use our existing transition method
+            # Use existing transition method
             if hasattr(self, '_current_game_state'):
-                self.transition_to(dialogue_screen, self._current_game_state)
-            else:
-                print("⚠️ ScreenManager: No game state context available for NPC transition")
-        else:
-            print(f"⚠️ ScreenManager: NPC_CLICKED event missing npc_id: {event_data}")
+                return self.transition_to(dialogue_screen, self._current_game_state)
+        
+        return False
+
+    # def _handle_npc_clicked(self, event_data):
+    #     """Handle NPC_CLICKED events by navigating to dialogue screen"""
+    #     npc_id = event_data.get('npc_id')
+    #     location = event_data.get('location')
+        
+    #     if npc_id:
+    #         # Navigate to the NPC's dialogue screen
+    #         dialogue_screen = f"{npc_id}_dialogue"
+    #         #print(f"🗣️ ScreenManager: NPC clicked: {npc_id}, navigating to {dialogue_screen}")
+            
+    #         # Use our existing transition method
+    #         if hasattr(self, '_current_game_state'):
+    #             self.transition_to(dialogue_screen, self._current_game_state)
+    #         else:
+    #             print("⚠️ ScreenManager: No game state context available for NPC transition")
+    #     else:
+    #         print(f"⚠️ ScreenManager: NPC_CLICKED event missing npc_id: {event_data}")
 
     def register_stats_screen_clickables(self):
         """Register stats screen clickables when entering stats screen"""
@@ -967,7 +984,7 @@ class ScreenManager:
                 draw_dice_results_screen, draw_dice_rules_screen
             )
             
-            from screens.redstone_town_navigation import render_town_navigation
+            from screens.redstone_town import render_town_navigation
             from ui.combat_system import setup_combat_system_integration
 
             # Title and menu screens
@@ -1019,7 +1036,7 @@ class ScreenManager:
             self.register_render_function("merchant_shop", self._render_shopping_overlay,
                 enter_hook=lambda _: self.register_shopping_overlay_clickables())
 
-            self.register_render_function("redstone_town_navigation", render_town_navigation)
+            self.register_render_function("redstone_town", render_town_navigation)
         
             self._register_npc_dialogue_screens()
 

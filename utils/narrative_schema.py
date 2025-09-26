@@ -49,6 +49,11 @@ class NarrativeSchema:
         npc_data = self.schema.get("npcs", {}).get(npc_id, {})
         return npc_data.get("dialogue_file", f"broken_blade_{npc_id}")
     
+    def get_npc_location(self, npc_id: str, default: str = None) -> str:
+        """Get the location where an NPC is found"""
+        npc_data = self.schema.get("npcs", {}).get(npc_id, {})
+        return npc_data.get("location", default)
+
     # Location Management  
     def get_location_discovery_flag(self, location_id: str) -> str:
         """Get GameState flag name for location discovery"""
@@ -64,6 +69,7 @@ class NarrativeSchema:
         """Get user-facing location name"""
         location_data = self.schema.get("locations", {}).get(location_id, {})
         return location_data.get("display_name", location_id.replace("_", " ").title())
+    
     
     # Quest System Integration
     def get_quest_trigger_for_flag(self, flag_name: str) -> Optional[Dict[str, Any]]:

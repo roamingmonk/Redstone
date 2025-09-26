@@ -1,4 +1,4 @@
-# screens/redstone_town_navigation.py
+# screens/redstone_town.py
 """
 Redstone Town Navigation - Using shared NavigationRenderer utility
 """
@@ -9,6 +9,7 @@ from utils.constants import *
 from utils.graphics import draw_border, draw_centered_text
 from utils.party_display import draw_party_status_panel
 from utils.tile_graphics import get_tile_graphics_manager
+from utils.narrative_schema import narrative_schema
 
 # Import town map data
 try:
@@ -72,16 +73,30 @@ class RedstoneTownNavigation:
         
         # Handle building entry
         if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and self.current_building:
-            if self.current_building.get('screen') == 'broken_blade_main':
-                if controller:
+            interaction_type = self.current_building.get('interaction_type')
+            
+            if interaction_type == 'npc_dialogue':
+                npc_id = self.current_building.get('npc_id')
+                if npc_id and controller:
+                    # Get location from narrative schema
+                    location = narrative_schema.get_npc_location(npc_id, 'redstone_town')
+                    controller.event_manager.emit("NPC_CLICKED", {
+                        'npc_id': npc_id,
+                        'location': location
+                    })
+            
+            elif interaction_type == 'screen_transition':
+                screen = self.current_building.get('screen')
+                if screen and controller:
                     controller.event_manager.emit("SCREEN_CHANGE", {
-                        'target_screen': 'broken_blade_main',
+                        'target_screen': screen,
                         'source': 'town_navigation'
                     })
+            
             else:
+                # Default closed message
                 self.showing_temp_message = True
                 self.temp_message_text = "Sorry, it is closed."
-                self.temp_message_timer = pygame.time.get_ticks()
     
     def render(self, surface, fonts, game_state):
         """Render town navigation screen"""

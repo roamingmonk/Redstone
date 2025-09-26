@@ -1395,6 +1395,23 @@ Fixed draw_button() parameter mismatch, implemented InputHandler registration vi
 **Consequences:** New locations require ~50 lines vs 300+ lines; shared movement/rendering logic; automatic debug info on all navigation screens.
 **Files:** Created ui/base_location_navigation.py, refactored screens/redstone_town_navigation.py
 
+# ADR-088: Direct NPC Dialogue Integration from Town Navigation
+# Status: Implemented  
+# Date: Sep 26, 2025
+**Context:** Adding new merchant NPCs required hardcoded elif chains in town navigation and separate screen creation.
+**Decision:** Implement data-driven building interactions with direct dialogue integration using narrative schema location lookup and standardized event routing.
+**Implementation:**
+- Town map BUILDING_ENTRANCES defines interaction_type (npc_dialogue vs screen_transition)
+- NPC_CLICKED events use narrative_schema.get_npc_location() for proper screen routing
+- Automatic dialogue screen registration from JSON files ({location}_{npc} pattern)
+- Shopping integration via dialogue effects (open_shop) with post_shopping states
+- Screen naming convention: location screen name must match location_id for proper return navigation
+**Result:** Adding new merchant NPCs requires only JSON configuration - no code changes. Eliminates elif proliferation and enables unlimited NPC scaling through pure content creation. Complete dialogue-to-shopping-to-navigation flow working seamlessly.
+**Files Modified:** redstone_town_navigation.py (now redstone_town.py) screen_manager.py, narrative_schema.py, redstone_town_map.py
+**Architecture Validation:** Direct town navigation → NPC dialogue → shopping → return navigation working end-to-end
+
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

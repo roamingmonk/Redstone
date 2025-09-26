@@ -48,7 +48,7 @@ WALKABLE_TILES = {
 BUILDING_TILES = {
     'tavern': {
         'name': 'The Broken Blade Tavern',
-        'screen': 'broken_blade_tavern',
+        'screen': 'broken_blade_',
         'action': 'Enter tavern'
     },
     'general_store': {
@@ -75,6 +75,7 @@ BUILDING_ENTRANCES = {
         'entrance_tiles': [(4, 5)],
         'info': {
             'name': 'The Broken Blade Tavern',
+            'interaction_type': 'screen_transition',
             'screen': 'broken_blade_main',
             'action': 'Enter tavern'
         }
@@ -84,8 +85,9 @@ BUILDING_ENTRANCES = {
         'entrance_tiles': [(11, 5)],
         'info': {
             'name': "Bernard's General Store",
-            'screen': 'general_store',
-            'action': 'Enter store'
+            'interaction_type': 'npc_dialogue',
+            'npc_id': 'bernard',
+            'action': 'Talk to Bernard'
         }
     },
     'mayor_office': {
@@ -93,15 +95,17 @@ BUILDING_ENTRANCES = {
         'entrance_tiles': [(6, 8)],
         'info': {
             'name': "Mayor's Office",
-            'screen': 'mayor_office',
-            'action': 'Enter office'
+            'interaction_type': 'npc_dialogue',  # Or screen_transition
+            'npc_id': 'mayor',                   # If direct dialogue
+            'action': 'Talk to Mayor'
         }
     },
-     'gate': {
+    'gate': {
         'building_pos': [(7, 0), (7,11)],
         'entrance_tiles': [(7, 1), (7,10)],
         'info': {
             'name': "Town Gate",
+            'interaction_type': 'screen_transition',
             'screen': 'world_map',
             'action': 'Exit to world map'
         }    
