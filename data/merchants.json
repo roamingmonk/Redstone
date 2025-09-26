@@ -22,6 +22,30 @@
         "strong_ale": 20,
         "bedroll": 2
       }  
+    },
+    "bernard": {
+      "merchant_id": "bernard",
+      "name": "Bernard Mugsworth",
+      "location": "redstone_town",
+      "greeting": "Welcome to my store! Quality goods for quality folk.",
+      "merchant_type": "general_trader",
+      "price_modifier": 1.1,
+      "sell_multiplier": 0.5,
+      "stock_categories": ["weapons", "armor", "consumables", "items"],
+      "buy_categories": ["weapons", "armor", "consumables", "items"],
+      "stock_filter": {
+        "max_rarity": "uncommon"
+      },
+      "default_stock_quantity": 3,
+      "price_overrides": {
+        "longsword": 45,
+        "leather_armor": 35
+      },
+      "stock_overrides": {
+        "trail_rations": 10,
+        "torch": 15,
+        "healing_potion": 2
+      }
     }
   }
 }

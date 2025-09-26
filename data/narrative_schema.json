@@ -196,7 +196,7 @@
     },
     "general_store": {
       "display_name": "General Store",
-      "system_id": "general_store",
+      "system_id": "redstone_town",
       "discovery_flag": "visited_general_store", 
       "quest_id": null,
       "source_npc": "bernard",

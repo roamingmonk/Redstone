@@ -1,0 +1,151 @@
+{
+  "id": "redstone_town_bernard",
+  "npc_name": "Bernard Mugsworth",
+  "states": {
+    "first_meeting": {
+      "introduction": [
+        "Bernard Mugsworth, at your service!",
+        "I run the finest general store in Redstone - weapons, armor, supplies, you name it."
+      ],
+      "options": [
+        {
+          "id": "about_store",
+          "text": "Tell me about your store.",
+          "next_state": "store_info"
+        },
+        {
+          "id": "browse_now", 
+          "text": "I'd like to browse your goods.",
+          "effects": [{"type": "open_shop", "merchant_id": "bernard"}],
+          "next_state": "post_shopping"
+        },
+        {
+          "id": "just_looking",
+          "text": "Just looking around town.",
+          "effects": [{"type": "set_flag", "flag": "bernard_talked", "value": true}],
+          "next_state": "post_shopping"
+        }
+      ]
+    },
+    "post_shopping": {
+        "introduction": ["Take your time looking around."],
+        "options": [
+            { "id": "back_to_talk", "text": "Let's talk more.", "next_state": "first_meeting" },
+            { "id": "goodbye", "text": "Thanks for your time.", "next_state": "exit" }
+        ]
+        },
+    "store_info": {
+      "introduction": [
+        "Been in business for twenty years! Started with just a few swords and some dried meat.",
+        "Now I stock everything an adventurer needs - weapons, armor, potions, camping gear.",
+        "Jenna here helps me keep track of it all."
+      ],
+      "options": [
+        {
+          "id": "shop_bernard",
+          "text": "Sounds good. Show me what you have.",
+          "effects": [{"type": "open_shop", "merchant_id": "bernard"}],
+          "next_state": "post_shopping"
+        },
+        {
+          "id": "talk_more",
+          "text": "How's business been?",
+          "next_state": "business_talk"
+        },
+        {
+          "id": "thanks_bernard",
+          "text": "Thanks for the information.",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "business_talk": {
+      "introduction": [
+        "Oh, can't complain! Lot of new faces in town lately.",
+        "Adventurers, travelers, even some refugees from the outer settlements.",
+        "Good for business, though I worry about what's driving folks to town."
+      ],
+      "options": [
+        {
+          "id": "about_refugees",
+          "text": "Refugees? What's happening?",
+          "next_state": "refugee_info"
+        },
+        {
+          "id": "shop_now",
+          "text": "Well, let me see your goods.",
+          "effects": [{"type": "open_shop", "merchant_id": "bernard"}],
+          "next_state": "post_shopping"
+        },
+        {
+          "id": "farewell",
+          "text": "Interesting. I'll be going now.",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "refugee_info": {
+      "introduction": [
+        "Folks coming in from the hill settlements, mostly.",
+        "Talk of strange happenings - missing livestock, weird lights at night.",
+        "Mayor's been trying to organize some kind of investigation."
+      ],
+      "options": [
+        {
+          "id": "investigate",
+          "text": "Maybe I could help investigate.",
+          "effects": [{"type": "set_flag", "flag": "bernard_shared_rumors", "value": true}],
+          "next_state": "helpful_customer"
+        },
+        {
+          "id": "shop_after_info",
+          "text": "I see. Now about those goods...",
+          "effects": [{"type": "open_shop", "merchant_id": "bernard"}],
+          "next_state": "exit"
+        }
+      ]
+    },
+    "helpful_customer": {
+      "introduction": [
+        "That's the spirit! We need more folks like you.",
+        "Tell you what - since you're willing to help, I'll give you a discount on gear."
+      ],
+      "options": [
+        {
+          "id": "take_discount",
+          "text": "Much appreciated!",
+          "effects": [
+            {"type": "set_flag", "flag": "bernard_gave_discount", "value": true},
+            {"type": "open_shop", "merchant_id": "bernard"}
+          ],
+          "next_state": "post_shopping"
+        },
+        {
+          "id": "maybe_later",
+          "text": "Thanks, but I'm not shopping right now.",
+          "effects": [{"type": "set_flag", "flag": "bernard_gave_discount", "value": true}],
+          "next_state": "exit"
+        }
+      ]
+    },
+    "regular_customer": {
+      "introduction": [
+        "Back again? Always good to see a familiar face!",
+        "What can I do for you today?"
+      ],
+      "options": [
+        {
+          "id": "shop_regular",
+          "text": "Let me see what's new.",
+          "effects": [{"type": "open_shop", "merchant_id": "bernard"}],
+          "next_state": "post_shopping"
+        },
+        {
+          "id": "just_visiting",
+          "text": "Just saying hello.",
+          "next_state": "exit"
+        }
+      ]
+    }
+  }
+}

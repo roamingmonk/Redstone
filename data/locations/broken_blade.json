@@ -45,7 +45,7 @@
             },
             "leave": {
                 "type": "navigate",
-                "target": "redstone_town_navigation",
+                "target": "redstone_town",
                 "label": "leave"
               }
         },
