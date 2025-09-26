@@ -4,6 +4,7 @@ Shared functions for popup screens (inventory, quest log, character sheet)
 """
 
 import pygame
+from utils.graphics import draw_centered_text
 
 # Colors for popup screens
 BLACK = (0, 0, 0)
@@ -78,13 +79,6 @@ def draw_item_row(surface, x, y, width, height, selected=False):
     pygame.draw.rect(surface, DARK_GRAY, (x, y, width, height), 1)
     
     return pygame.Rect(x, y, width, height)
-
-def draw_centered_text(surface, text, font, y_position, color=WHITE, screen_width=1024):
-    """Draw text centered horizontally"""
-    text_surface = font.render(text, True, color)
-    text_rect = text_surface.get_rect(center=(screen_width//2, y_position))
-    surface.blit(text_surface, text_rect)
-    return text_rect
 
 def draw_button(surface, x, y, width, height, text, font, pressed=False, selected=False, enabled=True):
     """Draw a retro-style button"""

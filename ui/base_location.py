@@ -16,7 +16,6 @@ from utils.graphics import draw_border, draw_button, draw_centered_text
 from utils.party_display import draw_party_status_panel, PARTY_PANEL_WIDTH
 from utils.constants import wrap_text
 from utils.constants import LOCATION_BACKGROUNDS_PATH, BUTTON_SIZES, NPC_BUTTON_HEIGHT, NPC_BUTTON_SPACING, NPC_BUTTONS_PER_ROW, NPC_BUTTON_WIDTH
-from utils.graphics import draw_button
 from utils.constants import calculate_button_layout, calculate_button_font
 
 def calculate_npc_button_positions(num_npcs, available_width=1024):

@@ -6,6 +6,7 @@ Reusable merchant screen for all shops in the game
 import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay, TabDefinition
 from collections import Counter
+from utils.graphics import draw_centered_text
 from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, 
                            LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
                            LAYOUT_BUTTON_Y, LAYOUT_DIALOG_TEXT_Y, LAYOUT_BUTTON_CENTER_Y)
@@ -53,7 +54,7 @@ class ShoppingOverlay(BaseTabbedOverlay):
         # Tab-specific pagination state
         self.buy_page = 0
         self.sell_page = 0
-        self.items_per_page = 6
+        self.items_per_page = 7
         #self.info_page = 0
 
         # Click tracking
@@ -85,10 +86,8 @@ class ShoppingOverlay(BaseTabbedOverlay):
                              content_rect.centery, WHITE)
     
     def _render_buy_tab(self, surface, content_rect, game_state, fonts, images):
-        """
-        BUY tab - Show merchant stock with purchase options
-        Reuses existing shopping logic with pagination
-        """
+        """ BUY tab - Show merchant stock with purchase options
+        Reuses existing shopping logic with pagination  """
         merchant_data = getattr(game_state, 'current_merchant_data', None)
         if not merchant_data:
             draw_centered_text(surface, "No merchant data available", 
@@ -99,7 +98,7 @@ class ShoppingOverlay(BaseTabbedOverlay):
         merchant_id = merchant_data.get('merchant_id')
         
         # Title
-        title_y = content_rect.y + 10
+        title_y = content_rect.y + 20
         draw_centered_text(surface, f"{merchant_data['merchant_name']}'s Stock",
                           fonts.get('fantasy_medium', fonts['normal']), title_y, YELLOW)
         
@@ -168,7 +167,6 @@ class ShoppingOverlay(BaseTabbedOverlay):
             item_id = item['item_id']
             
             # Icon
-            # WITH THIS:
             icon = game_state.item_manager.get_item_icon(item_id)
             surface.blit(icon, (icon_x + 5, current_y - 5))
             
@@ -203,11 +201,11 @@ class ShoppingOverlay(BaseTabbedOverlay):
         player_gold = game_state.character.get('gold', 0)
         cart_total = commerce.get_cart_total(merchant_id)
         
-        draw_centered_text(surface, f"Your Gold: {player_gold} gp",
-                          fonts.get('fantasy_medium', fonts['normal']), bottom_y, BRIGHT_GREEN)
+        draw_centered_text(surface, f"Your Gold: {player_gold} gp  --  Cart Total: {cart_total} gp",
+                          fonts.get('fantasy_medium', fonts['normal']), bottom_y + 25, BRIGHT_GREEN)
         
-        draw_centered_text(surface, f"Cart Total: {cart_total} gp",
-                          fonts.get('fantasy_small', fonts['normal']), bottom_y + 25, YELLOW)
+        #draw_centered_text(surface, f"Cart Total: {cart_total} gp",
+        #                  fonts.get('fantasy_small', fonts['normal']), bottom_y + 25, YELLOW)
         
         # Action buttons
         button_y = bottom_y + 60
@@ -638,8 +636,6 @@ class ShoppingOverlay(BaseTabbedOverlay):
         
         return sellable
 
-    
-    
     def _process_sell_cart(self):
         """Process the sell cart - actually sell the items"""
         if not self.sell_cart:
@@ -754,13 +750,6 @@ def draw_button(surface, x, y, width, height, text, font, pressed=False, selecte
     surface.blit(text_surface, text_rect)
     
     return pygame.Rect(x, y, width, height) if enabled else None
-###  Keep for fallback, Need to be moved to utils/graphics.py ###
-def draw_centered_text(surface, text, font, y_position, color=WHITE, screen_width=1024):
-    """Draw text centered horizontally on the screen"""
-    text_surface = font.render(text, True, color)
-    text_rect = text_surface.get_rect(center=(screen_width//2, y_position))
-    surface.blit(text_surface, text_rect)
-    return text_rect
 
 # ==========================================
 # COMPATIBILITY LAYER (ADD AT THE VERY END)

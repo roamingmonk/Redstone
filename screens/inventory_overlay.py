@@ -6,10 +6,10 @@ Converted to Universal Overlay System using BaseTabbedOverlay
 import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay
 from utils.constants import *
-from utils.graphics import draw_text
+from utils.graphics import draw_centered_text, draw_text
 from utils.overlay_utils import (
     draw_popup_background, draw_chunky_border, draw_tab_button,
-    draw_item_row, draw_centered_text, draw_button, SELECTION_COLOR
+    draw_item_row, draw_button, SELECTION_COLOR
 )
 
 class InventoryOverlay(BaseTabbedOverlay):

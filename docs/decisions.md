@@ -1425,6 +1425,13 @@ Fixed draw_button() parameter mismatch, implemented InputHandler registration vi
 **Result:** Merchants display full category-based inventory (weapons, armor, consumables, items). Shopping interface scales to unlimited items with professional pagination. Architecture supports future tabbed interfaces requiring pagination.
 **Files Modified:** screen_manager.py, item_manager.py, base_tabbed_overlay.py, shopping_overlay.py
 
+# ADR-089: consolidated draw_centered_text 
+# Status: Complete
+# Date: Sep 26, 2025
+- def draw_centered_text method was found across numerous files. moved all to link to graphics.py - def draw_centered_text
+- Removing duplication saves code and easier imports
+
+
 
 ```
 ## ADR-XXX: <Short title>

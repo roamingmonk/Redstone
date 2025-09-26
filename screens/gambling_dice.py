@@ -5,6 +5,7 @@ The complete gambling experience with betting, rolling, and results
 
 import pygame
 import random
+from utils.graphics import draw_centered_text
 
 # Colors (local copy to avoid import issues)
 BLACK = (0, 0, 0)
@@ -80,13 +81,6 @@ def draw_button(surface, x, y, width, height, text, font, pressed=False, selecte
     surface.blit(text_surface, text_rect)
     
     return pygame.Rect(x, y, width, height) if enabled else None
-
-def draw_centered_text(surface, text, font, y_position, color=WHITE, screen_width=1024):
-    """Draw text centered horizontally on the screen"""
-    text_surface = font.render(text, True, color)
-    text_rect = text_surface.get_rect(center=(screen_width//2, y_position))
-    surface.blit(text_surface, text_rect)
-    return text_rect
 
 def draw_dice(surface, x, y, size, value, rolling=False):
     """Draw a single die with proper retro styling"""

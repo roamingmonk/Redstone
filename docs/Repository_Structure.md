@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-09-26 09:07)
+﻿## Repository Structure (generated 2025-09-26 16:10)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -47,6 +47,8 @@ C:.
 |       |   |   |       
 |       |   |   \---player_portraits
 |       |   |       +---active
+|       |   |       |       player.jpg
+|       |   |       |       
 |       |   |       +---female
 |       |   |       |       player_female_01.jpg
 |       |   |       |       player_female_02.jpg
@@ -182,6 +184,7 @@ C:.
 |   |       
 |           
 +---docs
+|       adding_npc_dialogue.md
 |       decisions.md
 |       project_context copy.md
 |       project_context.md
@@ -207,6 +210,7 @@ C:.
 |       autosave.json
 |       quicksave.json
 |       save_slot_1.json
+|       save_slot_2.json
 |       save_slot_3.json
 |       
 +---screens

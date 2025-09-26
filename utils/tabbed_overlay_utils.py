@@ -14,8 +14,8 @@ DESIGN PHILOSOPHY:
 import pygame
 from typing import List, Dict, Any, Optional, Tuple
 from utils.overlay_utils import *
-from utils.constants import SPACING
-from utils.constants import DARK_GRAY
+from utils.constants import SPACING, DARK_GRAY
+from utils.graphics import draw_centered_text
 
 # ========================================
 # STANDARD OVERLAY BUTTON ACTIONS
@@ -69,7 +69,7 @@ class BaseTabbedOverlay:
         self._register_with_input_handler()
 
         # Layout constants
-        self.popup_width = 800
+        self.popup_width = 1024
         self.popup_height = 600
         self.header_height = 60
         self.tab_bar_height = 40

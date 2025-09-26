@@ -18,8 +18,7 @@ from utils.constants import (
     INTRO_SKY_DUSK, INTRO_SKY_NIGHT, INTRO_MOUNTAIN_SILHOUETTE, 
     INTRO_BUILDING_SILHOUETTE, INTRO_WARM_LIGHT, INTRO_DISTANT_LIGHT
 )
-from utils.graphics import draw_button
-from utils.overlay_utils import draw_centered_text
+from utils.graphics import draw_button, draw_centered_text
 
 # Global variable to cache loaded intro data
 _intro_data = None

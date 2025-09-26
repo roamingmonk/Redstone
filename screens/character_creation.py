@@ -6,6 +6,7 @@ Contains all the character creation screen drawing functions
 import pygame
 import json
 import os
+from utils.graphics import draw_centered_text
 # Import layout constants for new standardized system  
 from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, 
                            LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
@@ -66,13 +67,6 @@ def calculate_best_font_for_button(text, max_width, fonts_to_try):
         if text_surface.get_width() <= max_width - 10:  # 10px padding
             return font
     return fonts_to_try[-1]  # Return smallest font if none fit
-
-def draw_centered_text(surface, text, font, y_position, color=WHITE, screen_width=1024):
-    """Draw text centered horizontally on the screen"""
-    text_surface = font.render(text, True, color)
-    text_rect = text_surface.get_rect(center=(screen_width//2, y_position))
-    surface.blit(text_surface, text_rect)
-    return text_rect
 
 def create_input_box(surface, x, y, width, height, text, font, active=False, placeholder=""):
     """Draw a text input box with cursor support"""

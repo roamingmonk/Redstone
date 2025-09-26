@@ -106,12 +106,30 @@ def draw_button(surface, x, y, width, height, text, font, pressed=False, selecte
     # Return clickable area
     return pygame.Rect(x, y, width, height)
 
-def draw_centered_text(surface, text, font, y_position, color, screen_width=1024):
+def draw_centered_text(surface, text, font, y_position, color=WHITE, screen_width=1024):
+    """
+    Draw text centered horizontally on the screen
+    
+    Industry standard implementation with consistent parameters and return value.
+    This is the ONE TRUE draw_centered_text function - all others should be removed.
+    
+    Args:
+        surface: pygame surface to draw on
+        text: text string to render
+        font: pygame font object
+        y_position: vertical position for the text
+        color: text color (default WHITE)
+        screen_width: width of screen for centering calculation (default 1024)
+    
+    Returns:
+        pygame.Rect: rectangle of the rendered text for collision detection
+    """
     text_surface = font.render(text, True, color)
-    text_rect = text_surface.get_rect()
-    text_rect.centerx = screen_width // 2
-    text_rect.y = y_position
+    text_rect = text_surface.get_rect(center=(screen_width//2, y_position))
     surface.blit(text_surface, text_rect)
+    return text_rect
+
+
 
 def draw_text(surface, text, font, x_position, y_position, color):
     """
@@ -137,7 +155,6 @@ def draw_text(surface, text, font, x_position, y_position, color):
     text_rect.y = y_position
     surface.blit(text_surface, text_rect)
     
-
 def draw_image_with_border(surface, image, x, y, width, height):
     """
     Draw an image with a matching chunky border
