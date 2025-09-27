@@ -194,7 +194,7 @@ class QuestEngine:
             objective_id = event_data.get('objective_id')
             success = self.quest_manager.complete_objective(quest_id, objective_id)
             if success:
-                print(f"✅ Objective completed: {quest_id}.{objective_id}")
+                #print(f"✅ Objective completed: {quest_id}.{objective_id}")
                 self._check_quest_completion(quest_id)
     
     def _handle_party_recruitment(self, event_data):

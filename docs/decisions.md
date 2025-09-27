@@ -1443,6 +1443,34 @@ Integrated calculations into character overlay preserving existing layout
 **Result:** Character sheet now displays professional combat statistics (AC: 15, Attacks: 2, Weapon: 1d8+2) with industry-standard calculations. System handles finesse weapons, armor types, level progression, and item bonuses through pure JSON configuration.
 **Files:** utils/stats_calculator.py, enhanced data/items.json, enhanced data/player/character_classes.json, modified character_overlay.py
 
+# ADR-091: Added debug overlay
+# Status: Accepted
+# Date: September 27, 2025
+- Updated debug Manager to include the green F1 overlay.
+- can now add key info for troubleshooting.
+
+# ADR-092: Setup for quest refactor
+# Status: Accepted
+# Date: September 27, 2025
+-modified the jsons dialogue to setup for all json support.
+- next step is to remove all hardcoded quest flags.
+
+# ADR-093: Quest System Restructuring & Pagination Implementation
+# Status: Implemented
+# Date: September 27, 2025
+**Context:** Main story quest cluttered with 12 objectives including granular detailed intelligence gathering. Quest overlay lacked pagination for multiple quests. 
+Decision: Split main story into focused core progression and separate intelligence gathering quest. Implement pagination system for quest overlay using existing BaseTabbedOverlay patterns.
+Implementation: Moved detailed intel objectives from main_story to new intelligence_gathering quest, Added quest pagination with UP/DOWN + P/N navigation (5 quests per page), Fixed text wrapping using existing wrap_text utility from constants.py, Added quest triggers for intelligence gathering with individual XP rewards
+Updated dialogue_state_mapping to support post-intelligence gathering states
+**Technical Details:**
+Individual quest triggers require "dialogue_flag" field (unlike grouped recruitment triggers)
+Quest pagination follows shopping overlay pattern with per-tab page tracking
+Text rendering optimized with smaller fonts and professional wrap_text function
+**Result:** Clean 9-objective main story quest, separate 3-objective intelligence quest, scalable quest UI with pagination, proper XP rewards for both discovery types. Quest system now handles unlimited quest growth through pagination.
+**Files Modified:** narrative_schema.json, quest_overlay.py, dialogue files
+Architecture: Maintains schema-driven quest design while improving UX and separating concerns between core story progression and optional detailed investigation.
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

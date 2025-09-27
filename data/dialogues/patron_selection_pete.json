@@ -22,6 +22,7 @@
           "effects": [
             { "type": "set_flag", "flag": "pete_gave_refugee_info", "value": true },
             { "type": "set_flag", "flag": "pete_mentioned_refugees", "value": true },
+            { "type": "set_flag", "flag": "refugee_camp_details_known", "value": true },
             { "type": "set_flag", "flag": "learned_about_refugees", "value": true }
         ],
           "next_state": "refugee_hint"
@@ -46,6 +47,7 @@
           "effects": [
             { "type": "set_flag", "flag": "pete_gave_refugee_info", "value": true },
             { "type": "set_flag", "flag": "pete_mentioned_refugees", "value": true },
+            { "type": "set_flag", "flag": "refugee_camp_details_known", "value": true },
             { "type": "set_flag", "flag": "learned_about_refugees", "value": true }
         ],
 
@@ -99,6 +101,45 @@
       "options": [
         { "id": "hint_back", "text": "Noted.", "next_state": "post_comedy" },
         { "id": "bye_hint",  "text": "Thanks, Pete.", "next_state": "exit" }
+      ]
+    },
+    "post_info_comedy": {
+      "introduction": [
+        "Right, right. Team needs focus.", 
+        "I will protect this bar from sobriety and boredom.",
+        "Already told you about those refugees, didn't I?"
+      ],
+      "options": [
+        {
+          "id": "general_chat",
+          "text": "How's the tavern watch going?",
+          "next_state": "tavern_banter"
+        },
+        { 
+          "id": "bye_post_info", 
+          "text": "Keep the stool warm.", 
+          "next_state": "exit" 
+        }
+      ]
+    },
+
+    "tavern_banter": {
+      "introduction": [
+        "Oh, vigilant as always! ", "Spotted three suspicious ale thieves today.",
+        "Turned out to be paying customers,", "but you can never be too careful.",
+        "This stool gives me an excellent view of...", "well, mostly beer mugs."
+      ],
+      "options": [
+        { 
+          "id": "banter_back", 
+          "text": "Essential work.", 
+          "next_state": "post_info_comedy" 
+        },
+        { 
+          "id": "bye_banter", 
+          "text": "Carry on, Pete.", 
+          "next_state": "exit" 
+        }
       ]
     }
   }

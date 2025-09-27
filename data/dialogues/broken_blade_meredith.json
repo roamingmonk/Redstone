@@ -48,7 +48,7 @@
 
     "knows_about_swamp": {
       "introduction": [
-        "There’s an old church out in the swamp. ", "Folks say lights move out there at night.",
+        "There is an old church out in the swamp. ", "Folks say lights move out there at night.",
         "People who go poking around sometimes do not come back."
       ],
       "options": [
@@ -61,7 +61,13 @@
           ],
           "next_state": "gave_mayor_directions"
         },
-        { "id": "more_details", "text": "What have you heard exactly?", "next_state": "swamp_details" },
+        { "id": "more_details", 
+        "text": "What have you heard exactly?", 
+        "effects": [
+          { "type": "set_flag", "flag": "swamp_church_details_known", "value": true }
+        ],
+        "next_state": "swamp_details" 
+        },
         { "id": "bye_warned",   "text": "Thanks for the warning.",      "next_state": "exit" }
       ]
     },
@@ -69,6 +75,7 @@
     "swamp_details": {
       "introduction": [
         "Hunters talk about chanting when the wind dies", "and shapes in the fog.",
+        "Heard murmurs of Cultist, or something like that",
         "Could be stories. Could be trouble."
       ],
       "options": [

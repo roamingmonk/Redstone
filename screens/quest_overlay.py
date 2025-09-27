@@ -27,6 +27,12 @@ class QuestOverlay(BaseTabbedOverlay):
         # Quest selection state
         self.selected_quest = None
         self.quest_rects = []
+
+         # ADD THESE PAGINATION VARIABLES:
+        self.active_page = 0
+        self.completed_page = 0
+        self.quests_per_page = 5  # Show 5 quests per page 
+        
         
         print("🗒️ QuestOverlay initialized with 2 tabs")
     
@@ -142,7 +148,7 @@ class QuestOverlay(BaseTabbedOverlay):
                         objective_data = {
                             'id': f"{quest.id}.{obj.id}",
                             'title': f"✅ {obj.description}",
-                            #'description': f"Discovered from: {quest.title}",
+                            'description': f"Discovered from: {quest.title}",
                             'completed': True,
                             'progress': "COMPLETE",
                             'objectives': []  # Individual objectives don't have sub-objectives
@@ -216,6 +222,26 @@ class QuestOverlay(BaseTabbedOverlay):
                         (quest_list_x + 10, header_line_y), 
                         (quest_list_x + quest_list_width - 10, header_line_y), 2)
         
+        # PAGINATION CALCULATIONS:
+        total_quests = len(quests)
+        active_tab = self.get_active_tab()
+        current_page = self.active_page if active_tab.tab_id == "active_quests" else self.completed_page
+        total_pages = max(1, (total_quests + self.quests_per_page - 1) // self.quests_per_page)
+
+        # Ensure current page is valid (clamp page numbers)
+        if current_page >= total_pages:
+            if active_tab.tab_id == "active_quests":
+                self.active_page = total_pages - 1
+                current_page = self.active_page
+            else:
+                self.completed_page = total_pages - 1
+                current_page = self.completed_page
+
+        # Get quests for current page
+        start_idx = current_page * self.quests_per_page
+        end_idx = min(start_idx + self.quests_per_page, total_quests)
+        page_quests = quests[start_idx:end_idx]
+        
         # Draw quest rows
         current_y = header_line_y + 10
         
@@ -270,6 +296,25 @@ class QuestOverlay(BaseTabbedOverlay):
             
             current_y += row_height
         
+        # PAGE NAVIGATION DISPLAY:
+        if total_pages > 1:
+            page_y = current_y + 20
+            page_text = f"Page {current_page + 1} of {total_pages}"
+            
+            # Center the page text in the quest list area
+            page_font = fonts.get('fantasy_small', fonts['normal'])
+            page_surface = page_font.render(page_text, True, YELLOW)
+            page_x = quest_list_x + (quest_list_width - page_surface.get_width()) // 2
+            surface.blit(page_surface, (page_x, page_y))
+            
+            # Add navigation hint
+            hint_y = page_y + 20
+            hint_text = "UP/DOWN or P/N to navigate pages"
+            hint_font = fonts.get('fantasy_tiny', fonts['small'])
+            hint_surface = hint_font.render(hint_text, True, WHITE)
+            hint_x = quest_list_x + (quest_list_width - hint_surface.get_width()) // 2
+            surface.blit(hint_surface, (hint_x, hint_y))
+
         # Draw quest details
         if self.selected_quest:
             quest_data = next((q for q in quests if q['id'] == self.selected_quest), None)
@@ -290,43 +335,28 @@ class QuestOverlay(BaseTabbedOverlay):
         
         # Quest title
         title_y = y + 20
-        title_surface = font.render(quest_data['title'], True, BRIGHT_GREEN)
+        title_surface = small_font.render(quest_data['title'], True, BRIGHT_GREEN)
         surface.blit(title_surface, (x + 20, title_y))
         
         # Quest description with word wrapping
         desc_y = title_y + 40
         description = quest_data['description']
         
-        # Simple word wrapping
-        words = description.split(' ')
-        lines = []
-        current_line = ''
-        
-        for word in words:
-            test_line = current_line + word + ' '
-            test_surface = small_font.render(test_line, True, WHITE)
-            
-            if test_surface.get_width() > width - 40:
-                if current_line:
-                    lines.append(current_line.strip())
-                    current_line = word + ' '
-                else:
-                    lines.append(word)
-                    current_line = ''
-            else:
-                current_line = test_line
-        
-        if current_line:
-            lines.append(current_line.strip())
-        
-        # Draw description lines
+        # Quest description with professional word wrapping using constants.py utility
+        desc_y = title_y + 40
+        description = quest_data['description']
+
+        # Use the established wrap_text function from constants.py
+        max_width = width - 40  # Leave margins
+        wrapped_lines = wrap_text(description, small_font, max_width)
+
+        # Draw wrapped description lines
         line_height = 25
         current_y = desc_y
-        
-        for line in lines:
+
+        for line_surface in wrapped_lines:
             if current_y + line_height > y + height - 100:  # Leave room for objectives
                 break
-            line_surface = small_font.render(line, True, WHITE)
             surface.blit(line_surface, (x + 20, current_y))
             current_y += line_height
         
@@ -346,7 +376,7 @@ class QuestOverlay(BaseTabbedOverlay):
                 status_color = BRIGHT_GREEN if objective['completed'] else WHITE
                 
                 # Use smaller font
-                tiny_font = fonts.get('fantasy_small', fonts['small'])
+                tiny_font = fonts.get('fantasy_tiny', fonts.get ('fantasy.micro', fonts['small']))
                 obj_text = f"{status_char} {objective['description']}"
                 
                 # Manual wrapping with color preservation
@@ -374,7 +404,27 @@ class QuestOverlay(BaseTabbedOverlay):
                     line_surface = tiny_font.render(line, True, status_color)
                     surface.blit(line_surface, (x + 40, current_y))
                     current_y += 20
-    
+
+    def previous_page(self):
+        """Navigate to previous page (called by BaseTabbedOverlay)"""
+        active_tab = self.get_active_tab()
+        if active_tab.tab_id == "active_quests" and self.active_page > 0:
+            self.active_page -= 1
+        elif active_tab.tab_id == "completed_quests" and self.completed_page > 0:
+            self.completed_page -= 1
+
+    def next_page(self):
+        """Navigate to next page (called by BaseTabbedOverlay)"""
+        active_tab = self.get_active_tab()
+        if active_tab.tab_id == "active_quests":
+            self.active_page += 1
+        elif active_tab.tab_id == "completed_quests":
+            self.completed_page += 1
+
+
+
+
+
     def _render_empty_quest_list(self, surface, content_rect, fonts, message):
         """Render empty quest list message"""
         # Center the message

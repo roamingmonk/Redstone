@@ -144,7 +144,7 @@ class DebugManager:
         
         # Key game state flags
         #lines.append("=== KEY FLAGS ===")
-        #lines.append(f"Quest Active: {getattr(self.game_state, 'quest_active', False)}")
+        
         #lines.append(f"Mayor Talked: {getattr(self.game_state, 'mayor_talked', False)}")
         #lines.append(f"Party Size: {len(getattr(self.game_state, 'party_members', []))}")
         
@@ -158,25 +158,26 @@ class DebugManager:
         investigations = {
             'Swamp Church': getattr(self.game_state, 'learned_about_swamp_church', False),
             'Hill Ruins': getattr(self.game_state, 'learned_about_ruins', False),
-            'Refugee Camp': getattr(self.game_state, 'learned_about_refugees', False)
+            'Refugee Camp': getattr(self.game_state, 'learned_about_refugees', False),
+            'Detail Refugee': getattr(self.game_state, 'refugee_detailed_intel', False)
         }
         completed_investigations = [name for name, completed in investigations.items() if completed]
         lines.append(f"Discovered: {', '.join(completed_investigations) if completed_investigations else 'none'}")
         lines.append(f"Progress: {len(completed_investigations)}/3")
         
-        # This after the Investigation Sites section:
-        lines.append("")  # Blank line
-        lines.append("=== QUEST OBJECTIVES DEBUG ===")
-        if hasattr(self.game_state, 'quest_manager'):
-            quest_manager = self.game_state.quest_manager
-            for quest_id, quest in quest_manager.quests.items():
-                if quest.status == "active":
-                    lines.append(f"{quest_id}:")
-                    for obj in quest.objectives:
-                        status = "✅" if obj.completed else "❌"
-                        lines.append(f"  {status} {obj.id}: {obj.description}")
-        else:
-            lines.append("No quest manager found")
+        # # This after the Investigation Sites section:
+        # lines.append("")  # Blank line
+        # lines.append("=== QUEST OBJECTIVES DEBUG ===")
+        # if hasattr(self.game_state, 'quest_manager'):
+        #     quest_manager = self.game_state.quest_manager
+        #     for quest_id, quest in quest_manager.quests.items():
+        #         if quest.status == "active":
+        #             lines.append(f"{quest_id}:")
+        #             for obj in quest.objectives:
+        #                 status = "✅" if obj.completed else "❌"
+        #                 lines.append(f"  {status} {obj.id}: {obj.description}")
+        # else:
+        #     lines.append("No quest manager found")
 
         return lines
     
@@ -214,6 +215,11 @@ class DebugManager:
         print(f"learned_about_swamp_church: {getattr(self.game_state, 'learned_about_swamp_church', False)}")
         print(f"learned_about_ruins: {getattr(self.game_state, 'learned_about_ruins', False)}")
         print(f"learned_about_refugees: {getattr(self.game_state, 'learned_about_refugees', False)}")
+        print(f"refugee_camp_details_known: {getattr(self.game_state, 'refugee_camp_details_known', False)}")
+        print(f"refugee_detailed_intel: {getattr(self.game_state, 'refugee_detailed_intel', False)}")
+        print(f"hill_ruins_details_known: {getattr(self.game_state, 'hill_ruins_details_known', False)}")
+        print(f"swamp_church_details_known: {getattr(self.game_state, 'swamp_church_details_known', False)}")
+
 
         # Recruitment flags (narrative schema style)
         print(f"\n🎯 RECRUITMENT FLAGS:")

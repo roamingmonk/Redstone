@@ -16,6 +16,51 @@
       "requirements": [0, 300, 900, 2700, 6500]
     }
   },
+  "quest_definitions": {
+    "main_story": {
+      "title": "Terror in Redstone",
+      "description": "Investigate the mysterious disappearances plaguing Redstone",
+      "type": "primary"
+    },
+    "party_building": {
+      "title": "Assemble Your Party",
+      "description": "Build a capable adventuring party for dangerous missions", 
+      "type": "secondary"
+    },
+    "basement_rat_combat": {
+      "title": "Clear the Basement",
+      "description": "Help Garrick eliminate the rats infesting his tavern basement",
+      "type": "secondary"
+    },
+    "intelligence_gathering": {
+      "title": "Local Intelligence", 
+      "description": "Gather detailed information about the mysterious locations",
+      "type": "secondary"
+   }
+  },
+
+  "objective_descriptions": {
+    "talk_to_npcs": "Gather information from tavern patrons",
+    "meet_mayor": "Speak with Mayor about the crisis", 
+    "recruit_party": "Recruit at least one companion",
+    "learn_swamp_church": "Learn about the Swamp Church",
+    "learn_hill_ruins": "Learn about the Hill Ruins",
+    "learn_refugee_camp": "Learn about the Refugee Camp",
+    "swamp_detailed_intel": "Gather detailed info about Swamp Church",
+    "ruins_detailed_intel": "Gather detailed info about Hill Ruins", 
+    "refugee_detailed_intel": "Gather detailed info about Refugee Camp",
+    
+    "explore_swamp_church": "Explore the Swamp Church",
+    "explore_hill_ruins": "Explore the Hill Ruins",
+    "explore_refugee_camp": "Explore the Refugee Camp",
+    "recruit_warrior": "Recruit a warrior (Gareth)",
+    "recruit_mage": "Recruit a mage (Elara)",
+    "recruit_cleric": "Recruit a cleric (Thorman)", 
+    "recruit_rogue": "Recruit a rogue (Lyra)",
+    "accept_challenge": "Accept Garrick's basement job",
+    "clear_basement": "Defeat all rats in the basement",
+    "report_success": "Report success to Garrick"
+  },
 
   "npcs": {
     "meredith": {
@@ -65,6 +110,7 @@
       "story_flags": {
         "attempted_recruitment": "pete_attempted_recruitment",
         "showed_comedy": "pete_showing_comedy",
+        "comedy_complete": "pete_comedy_complete",
         "gave_refugee_hints": "pete_gave_refugee_info"
       }
     },
@@ -327,7 +373,26 @@
         "event_type": "PARTY_MEMBER_RECRUITED",
         "xp_reward": "quest_multipliers.secondary"
       }
-    },
+      },
+      "swamp_church_details_known": {
+        "dialogue_flag": "swamp_church_details_known",
+        "quest_objective": "intelligence_gathering.swamp_detailed_intel",
+        "event_type": "DETAILED_INFORMATION",
+        "xp_reward": "discovery_base"
+      },
+      "hill_ruins_details_known": {
+        "dialogue_flag": "hill_ruins_details_known",
+        "quest_objective": "intelligence_gathering.ruins_detailed_intel",
+        "event_type": "DETAILED_INFORMATION", 
+        "xp_reward": "discovery_base"
+      },
+      "refugee_camp_details_known": {
+        "dialogue_flag": "refugee_camp_details_known",
+        "quest_objective": "intelligence_gathering.refugee_detailed_intel",
+        "event_type": "DETAILED_INFORMATION",
+        "xp_reward": "discovery_base"
+      },
+    
     "quest_completion_triggers": {
       "party_building_complete": {
         "quest_id": "party_building",
@@ -354,10 +419,6 @@
         "learn_hill_ruins": ["garrick_gave_ruins_info"], 
         "learn_refugee_camp": ["pete_gave_refugee_info"],
         
-        "swamp_detailed_intel": ["mayor_gave_swamp_info"],
-        "ruins_detailed_intel": ["mayor_gave_ruins_info"],
-        "refugee_detailed_intel": ["mayor_gave_refugee_info"],
-        
         "explore_swamp_church": ["learned_about_swamp_church", "explored_swamp_church"],
         "explore_hill_ruins": ["learned_about_ruins", "explored_hill_ruins"],
         "explore_refugee_camp": ["learned_about_refugees", "gathered_refugee_info"]
@@ -381,10 +442,24 @@
         "clear_basement": ["completed_basement_combat"],
         "report_success": ["reported_basement_victory"]
       }
+    },
+    "intelligence_gathering": {
+      "type": "secondary", 
+      "activation_flag": "quest_active",
+      "objectives": {
+        "swamp_detailed_intel": ["swamp_church_details_known"],
+        "ruins_detailed_intel": ["hill_ruins_details_known"],
+        "refugee_detailed_intel": ["refugee_camp_details_known"]
+      }
     }
   },
 
   "dialogue_state_mapping": {
+    "_comment0": "//// Determines dialoguge entry point based on states known. order is very important///", 
+    "_comment1": "//// as the first true item is what is selected.  /////////////////////////////////////",
+    "_comment2": "//// Only levels or key entry points, not all dialogue states should be used.  ////////",
+    "_comment3": "////  Note:  ! = false,  && = AND ,  || = OR //////////////////////////////////////////",
+    
     "meredith": {
       "first_meeting": "!meredith_talked",
       "return_visits": "meredith_talked && !mayor_talked",
@@ -405,7 +480,8 @@
     "pete": {
       "first_meeting": "!pete_talked",
       "comedy_sequence": "pete_attempted_recruitment && !pete_comedy_complete",
-      "post_comedy": "pete_comedy_complete",
+      "post_info_comedy": "pete_comedy_complete && pete_gave_refugee_info",
+      "post_comedy": "pete_comedy_complete && !pete_gave_refugee_info",
       "pre_recruitment_comedy": "pete_talked && !pete_attempted_recruitment"
     },
     "mayor": {
