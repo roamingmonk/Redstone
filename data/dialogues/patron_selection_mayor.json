@@ -7,7 +7,7 @@
       "introduction": [
         "*The halfling looks up with desperate hope.*",
         "Thank the gods! I'm Mayor Goldenbottom, and I need help.",
-        "My wife and daughter vanished... and others have gone missing too."
+        "My wife and daughter vanished... ", "and others have gone missing too."
       ],
       "options": [
         {
@@ -26,7 +26,7 @@
 
     "story_details": {
       "introduction": [
-        "It began with a few vagrants, then townsfolk, then my own family.",
+        "It began with a few vagrants, then townsfolk,", "then my own family... Gone.",
         "No struggle. No ransom. Just gone."
       ],
       "options": [
@@ -45,8 +45,10 @@
 
     "quest_given": {
       "introduction": [
-        "Three hotspots keep coming up: the Refugee Camp, the Hill Ruins, and the old Swamp Church.",
-        "Talk to the tavern folk if you need background. I'll authorize supplies where I can."
+        "Three hotspots keep coming up: the Refugee Camp,",
+        "the Hill Ruins, and the old Swamp Church.",
+        "Talk to the tavern folk if you need more background.", 
+        "I'll authorize supplies where I can."
       ],
       "options": [
         { "id": "lead_swamp", "text": "Tell me about the Swamp Church.", "next_state": "brief_swamp" },
@@ -58,14 +60,16 @@
 
     "brief_swamp": {
       "introduction": [
-        "Old chapel out in the marsh. Reports of lights and chanting at night.",
-        "Be careful. The ground swallows fools."
+        "There is an old chapel out in the marsh.",
+        "Reports of lights and chanting at night.",
+        "Be careful. The ground can swallow fools."
       ],
       "options": [
         {
           "id": "mark_swamp",
           "text": "Mark it on my map.",
           "effects": [
+            { "type": "set_flag", "flag": "mayor_gave_swamp_info", "value": true },
             { "type": "set_flag", "flag": "learned_about_swamp_church", "value": true }
           ],
           "next_state": "quest_given"
@@ -75,7 +79,8 @@
 
     "brief_ruins": {
       "introduction": [
-        "Crumbling stones up on the hill. Hunters say people vanish near the old arch.",
+        "Old and crumbling stones up on the nearby hill.",
+        "Hunters say people vanish near the old arch.",
         "If there's a pattern, it may start there."
       ],
       "options": [
@@ -83,6 +88,7 @@
           "id": "mark_ruins",
           "text": "Mark it on my map.",
           "effects": [
+            { "type": "set_flag", "flag": "mayor_gave_ruins_info", "value": true },
             { "type": "set_flag", "flag": "learned_about_ruins", "value": true }
           ],
           "next_state": "quest_given"
@@ -92,7 +98,9 @@
 
     "brief_refugees": {
       "introduction": [
-        "Camp by the south road. Frightened people, strange dreams, missing campers.",
+        "There is a camp by the south road.", 
+        "Full of frightened people having strange dreams.", 
+        "There are missing campers, as well.",
         "Someone there knows more than they say."
       ],
       "options": [
@@ -100,6 +108,7 @@
           "id": "mark_refugees",
           "text": "Mark it on my map.",
           "effects": [
+            { "type": "set_flag", "flag": "mayor_gave_refugee_info", "value": true },
             { "type": "set_flag", "flag": "learned_about_refugees", "value": true }
           ],
           "next_state": "quest_given"
@@ -110,7 +119,8 @@
     "progress_updates": {
       "introduction": [
         "Any news? Every hour counts.",
-        "Follow the leads: the Swamp Church, the Hill Ruins, the Refugee Camp."
+        "Remember to follow the leads:",
+        "the Swamp Church, the Hill Ruins, the Refugee Camp."
       ],
       "options": [
         { "id": "where_again", "text": "Remind me of the leads.", "next_state": "quest_given" },
@@ -121,7 +131,8 @@
     "post_completion_reward": {
       "introduction": [
         "*He exhales, relief breaking through the worry.*",
-        "You did it. Redstone owes you more than coin, but take this with my thanks."
+        "You did it. You.. You really did it.",
+        "Redstone owes you more than coin, but take this with my thanks."
       ],
       "options": [
         {
@@ -138,7 +149,9 @@
 
     "post_completion_idle": {
       "introduction": [
-        "We'll rebuild. If anything else threatens Redstone, you'll hear from me."
+        "We will rebuild. Bigge and Better!",
+        "If anything else threatens Redstone",
+        "you'll hear from me."
       ],
       "options": [
         { "id": "bye4", "text": "Stay safe.", "next_state": "exit" }

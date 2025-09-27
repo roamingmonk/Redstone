@@ -14,7 +14,10 @@
         {
           "id": "ask_rumors",
           "text": "Heard anything unusual lately?",
-          "effects": [{ "type": "set_flag", "flag": "learned_about_swamp_church", "value": true }],
+          "effects": [
+            { "type": "set_flag", "flag": "meredith_gave_swamp_info", "value": true },
+            { "type": "set_flag", "flag": "learned_about_swamp_church", "value": true }
+        ],
           "next_state": "knows_about_swamp"
         },
         { "id": "bye_first", "text": "Just looking around. Goodbye.", "next_state": "exit" }
@@ -23,7 +26,7 @@
 
     "about_tavern": {
       "introduction": [
-        "Oldest alehouse in Redstone. Miners, hunters, and travelers keep us busy.",
+        "Oldest alehouse in Redstone. Miners, hunters, and", "travelers keep us busy.",
         "If you need gear, the general store is on the square."
       ],
       "options": [
@@ -45,7 +48,7 @@
 
     "knows_about_swamp": {
       "introduction": [
-        "There’s an old church out in the swamp. Folks say lights move out there at night.",
+        "There’s an old church out in the swamp. ", "Folks say lights move out there at night.",
         "People who go poking around sometimes do not come back."
       ],
       "options": [
@@ -65,7 +68,7 @@
 
     "swamp_details": {
       "introduction": [
-        "Hunters talk about chanting when the wind dies, and shapes in the fog.",
+        "Hunters talk about chanting when the wind dies", "and shapes in the fog.",
         "Could be stories. Could be trouble."
       ],
       "options": [
@@ -100,7 +103,7 @@
 
     "business_smalltalk": {
       "introduction": [
-        "Busy enough. Outsiders passing through, asking the same questions.",
+        "Busy enough. Outsiders passing through, ", "asking the same questions.",
         "You are not the only one curious about the outskirts."
       ],
       "options": [

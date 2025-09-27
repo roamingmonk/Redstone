@@ -22,6 +22,11 @@
           "effects": [
             {
               "type": "set_flag",
+              "flag": "garrick_gave_ruins_info",
+              "value": true
+            },
+            {
+              "type": "set_flag",
               "flag": "learned_about_ruins",
               "value": true
             }
@@ -91,6 +96,11 @@
           "effects": [
             {
               "type": "set_flag",
+              "flag": "garrick_gave_ruins_info",
+              "value": true
+            },
+            {
+              "type": "set_flag",
               "flag": "learned_about_ruins",
               "value": true
             }
@@ -134,7 +144,7 @@
     },
     
     "gave_mayor_directions": {
-      "introduction": ["Talk to the Mayor about the disappearances.", "His office is across the square - big building with the town banner.", "Tell him I sent you if you need an introduction."],
+      "introduction": ["Talk to the Mayor about the disappearances.", "His office is across the square -", "Big building with the town banner.", "Tell him I sent you if you need an introduction."],
       "options": [
         {
           "id": "thank_directions",
@@ -259,7 +269,7 @@
     },
     
     "ruins_details": {
-      "introduction": ["The ruins are old - older than the town.", "Strange carvings on the stones, symbols nobody can read.", "The few who came back... they won't talk about what they saw."],
+      "introduction": ["The ruins are old - older than the town.", "Strange carvings on the stones,","symbols nobody can read.", "The few who came back... ", "they won't talk about what they saw."],
       "options": [
         {
           "id": "ask_about_survivors",
@@ -280,7 +290,7 @@
     },
     
     "survivor_info": {
-      "introduction": ["Old Henrik made it back, but he's... different now.", "Sits in the corner most days, staring at nothing.", "Won't say a word about what he saw up there."],
+      "introduction": ["Old Henrik made it back, but he's... different now.", "Sits in the corner most days,","staring at nothing.", "Won't say a word about what he saw up there."],
       "options": [
         {
           "id": "where_is_henrik",
@@ -301,7 +311,7 @@
     },
     
     "henrik_location": {
-      "introduction": ["Henrik's usually at the market during the day.", "Sells what few vegetables his hands can still tend.", "But like I said, he won't talk about the ruins."],
+      "introduction": ["Henrik's usually at the market during the day.", "Sells what few vegetables his hands can still tend.", "But like I said,","he won't talk about the ruins."],
       "options": [
         {
           "id": "ill_try",
@@ -317,7 +327,7 @@
     },
 
     "other_survivors": {
-      "introduction": ["A few others made it back over the years.", "Most won't talk about it.", "Those that do... well, their stories don't match."],
+      "introduction": ["A few others made it back over the years.", "Most won't talk about it.", "Those that do... well,", "their stories don't match."],
       "options": [
         {
           "id": "conflicting_stories",
@@ -333,7 +343,7 @@
     },
 
     "conflicting_accounts": {
-      "introduction": ["Some say they saw lights in the darkness.", "Others swear the stones moved on their own.", "One fellow claimed he heard voices... calling his name."],
+      "introduction": ["Some say they saw lights in the darkness.", "Others swear the stones moved on their own.", "One fellow claimed he heard voices", "... calling his name."],
       "options": [
         {
           "id": "voices_detail",
@@ -354,7 +364,7 @@
     },
 
     "voice_mystery": {
-      "introduction": ["Poor Aldric. Swore something was calling to him from deep below.", "Said it knew things about him no one else could know.", "Haven't seen him since he tried to go back."],
+      "introduction": ["Poor Aldric.", "Swore something was calling to him from deep below.", "Said it knew things about him no one else could know.", "Haven't seen him since he tried to go back."],
       "options": [
         {
           "id": "went_back",
@@ -370,7 +380,7 @@
     },
 
     "aldric_fate": {
-      "introduction": ["Three months ago. Said he had to know what was calling him.", "We organized a search party after a week.", "Found his torch at the entrance. Nothing else."],
+      "introduction": ["Three months ago. ", "Said he had to know what was calling him.", "We organized a search party after a week.", "Found his torch at the entrance.", "Nothing else."],
       "options": [
         {
           "id": "recent_disappearance",
@@ -402,7 +412,7 @@
     },
 
     "mayor_efforts": {
-      "introduction": ["Talk to him yourself. He's got ideas about hiring proper adventurers.", "Folk with experience dealing with... unusual problems.", "That's all I know."],
+      "introduction": ["Talk to him yourself. ", "He's got ideas about hiring proper adventurers.", "Folk with experience dealing with", "... unusual problems.", "That's all I know."],
       "options": [
         {
           "id": "thank_info",
@@ -413,7 +423,7 @@
     },
     
     "symbol_description": {
-      "introduction": ["Spirals and sharp angles, carved deep into the stone.", "Some say they're just old tribal markings.", "Others think they're something... else."],
+      "introduction": ["Spirals and sharp angles, ", "carved deep into the stone.", "Some say they're just old tribal markings.", "Others think they're something... else."],
       "options": [
         {
           "id": "what_else",
@@ -429,7 +439,7 @@
     },
     
     "symbol_theories": {
-      "introduction": ["Some of the older folk whisper about dark magic.", "Others say they're warnings, left by whoever built the place.", "All I know is they give me the shivers."],
+      "introduction": ["Some of the older folk whisper about dark magic.", "Others say they're warnings,", "left by whoever built the place.", "All I know is they give me the shivers."],
       "options": [
         {
           "id": "dark_magic",
@@ -450,7 +460,7 @@
     },
 
     "magic_opinion": {
-      "introduction": ["I've seen enough strange things in my years.", "Magic's real, whether folk want to believe it or not.", "The question is what kind of magic made those symbols."],
+      "introduction": ["I've seen enough strange things in my years.", "Magic's real, whether folk want to believe it or not.", "The question is what kind of magic", "made those symbols."],
       "options": [
         {
           "id": "what_kind",
@@ -466,7 +476,7 @@
     },
 
     "dark_magic_theory": {
-      "introduction": ["The kind that hungers. That calls to people.", "The kind that doesn't let go once it has hold of you.", "Stay away from those ruins, if you're smart."],
+      "introduction": ["The kind that hungers. ", "That calls to people.", "The kind that doesn't let go once it has hold of you.", "Stay away from those ruins,", "if you're smart."],
       "options": [
         {
           "id": "final_warning",
@@ -509,7 +519,7 @@
     },
 
     "underground_details": {
-      "introduction": ["Tunnels. Chambers. Things carved from living rock.", "The few who've been down there and lived... they won't describe it.", "They can't. The words won't come."],
+      "introduction": ["Tunnels. Chambers. ", "Things carved from living rock.", "The few who've been down there and lived...", "they won't describe it.", "They can't. The words won't come."],
       "options": [
         {
           "id": "cant_describe",
@@ -525,7 +535,7 @@
     },
 
     "description_curse": {
-      "introduction": ["Try to ask them and they just... stop talking.", "Look at you with empty eyes.", "Like something took the words right out of their heads."],
+      "introduction": ["Try to ask them and they just...", "stop talking.", "Look at you with empty eyes.", "Like something took the words right out of their heads."],
       "options": [
         {
           "id": "truly_final",

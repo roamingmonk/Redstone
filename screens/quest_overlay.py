@@ -108,13 +108,13 @@ class QuestOverlay(BaseTabbedOverlay):
         return []
     
     def _get_completed_quests(self, game_state):
-        """Get completed quests from quest system"""
+        """Get completed quests AND completed objectives from quest system"""
         if hasattr(game_state, 'quest_manager'):
             quest_manager = game_state.quest_manager
-            completed_quests = quest_manager.get_completed_quests()
-            
-            # Convert to display format
             quest_list = []
+            
+            # Get fully completed quests
+            completed_quests = quest_manager.get_completed_quests()
             for quest in completed_quests:
                 completed, total = quest.get_progress()
                 quest_data = {
@@ -122,7 +122,7 @@ class QuestOverlay(BaseTabbedOverlay):
                     'title': quest.title,
                     'description': quest.description,
                     'completed': True,
-                    'progress': "COMPLETE" if quest.status == "completed" else f"{completed}/{total}",
+                    'progress': "COMPLETE",
                     'objectives': [
                         {
                             'description': obj.description,
@@ -133,6 +133,22 @@ class QuestOverlay(BaseTabbedOverlay):
                 }
                 quest_list.append(quest_data)
             
+            # Get completed individual objectives from active quests
+            active_quests = quest_manager.get_active_quests()
+            for quest in active_quests:
+                for obj in quest.objectives:
+                    if obj.completed and not getattr(obj, 'hidden', False):
+                        # Create a quest-like entry for completed objectives
+                        objective_data = {
+                            'id': f"{quest.id}.{obj.id}",
+                            'title': f"✅ {obj.description}",
+                            #'description': f"Discovered from: {quest.title}",
+                            'completed': True,
+                            'progress': "COMPLETE",
+                            'objectives': []  # Individual objectives don't have sub-objectives
+                        }
+                        quest_list.append(objective_data)
+            
             return quest_list
         
         print("⚠️ Quest manager not found in game state")
@@ -140,6 +156,10 @@ class QuestOverlay(BaseTabbedOverlay):
     
     def _render_quest_content(self, surface, content_rect, quests, game_state, fonts, section_title):
         """Render quest list and details using the classic 2-column layout"""
+        #Refresh quest states
+        if hasattr(game_state, 'quest_manager'):
+            game_state.quest_manager.update_from_game_state() 
+        
         # Calculate layout areas (preserving original quest_log.py layout)
         quest_list_x = content_rect.x + 20
         quest_list_y = content_rect.y + 20

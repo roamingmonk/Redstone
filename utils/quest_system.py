@@ -266,6 +266,24 @@ class QuestManager:
                 if quest.status == "active":
                     self.active_quest_ids.add(quest_id)
 
+    def get_completed_objectives(self):
+            """Get all completed objectives from all quests for display"""
+            completed_objectives = []
+            
+            for quest in self.quests.values():
+                for objective in quest.objectives:
+                    if objective.completed:
+                        completed_obj = {
+                            'id': f"{quest.id}.{objective.id}",
+                            'title': objective.description,
+                            'quest_title': quest.title,
+                            'completed': True,
+                            'quest_type': 'discovery' if 'learn_' in objective.id or 'discover_' in objective.id else 'main'
+                        }
+                        completed_objectives.append(completed_obj)
+            
+            return completed_objectives
+        
 ###### New Quest system methods ############
     def get_completed_quests(self):
         """Return list of completed quests for display"""

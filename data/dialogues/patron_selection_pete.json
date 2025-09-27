@@ -20,6 +20,7 @@
           "id": "ask_refugees",
           "text": "Heard anything about the refugee camp?",
           "effects": [
+            { "type": "set_flag", "flag": "pete_gave_refugee_info", "value": true },
             { "type": "set_flag", "flag": "pete_mentioned_refugees", "value": true },
             { "type": "set_flag", "flag": "learned_about_refugees", "value": true }
         ],
@@ -30,7 +31,7 @@
 
     "pre_recruitment_comedy": {
       "introduction": [
-        "You again! Ready to witness greatness? Or at least survivable enthusiasm?"
+        "You again! Ready to witness greatness?", "Or at least survivable enthusiasm?"
       ],
       "options": [
         {
@@ -43,6 +44,7 @@
           "id": "pre_refugees",
           "text": "Any tips about the refugees?",
           "effects": [
+            { "type": "set_flag", "flag": "pete_gave_refugee_info", "value": true },
             { "type": "set_flag", "flag": "pete_mentioned_refugees", "value": true },
             { "type": "set_flag", "flag": "learned_about_refugees", "value": true }
         ],
@@ -54,9 +56,9 @@
 
     "comedy_sequence": {
       "introduction": [
-        "*Pete leaps onto a stool, strikes a heroic pose, wobbles, and salutes with an empty hand.*",
+        "*Pete leaps onto a stool, strikes a heroic pose, wobbles", "and salutes with an empty hand.*",
         "\"Fear not! Pete Stumblefoot rides!\"",
-        "*He tries to draw a sword that does not exist, spins, and almost wins a fight with gravity.*",
+        "*He tries to draw a sword that does not exist, spins,", "and almost wins a fight with gravity.*",
         "..... Ahem. Maybe I am better as your tavern scout."
       ],
       "options": [
@@ -71,7 +73,7 @@
 
     "post_comedy": {
       "introduction": [
-        "Right, right. Team needs focus. I will protect this bar from sobriety and boredom."
+        "Right, right. Team needs focus.", "I will protect this bar from sobriety and boredom."
       ],
       "options": [
         {
@@ -90,8 +92,9 @@
 
     "refugee_hint": {
       "introduction": [
-        "Refugee camp's south by the road. Lots of nightmares, lots of whispers.",
-        "One fella swore he saw figures in the fog at night. Might be nothing. Might be trouble."
+        "Refugee camp's south by the road. ", "Lots of nightmares, lots of whispers.",
+        "One fella swore he saw figures...", 
+        "in the night fog. Might be nothing. Might be trouble."
       ],
       "options": [
         { "id": "hint_back", "text": "Noted.", "next_state": "post_comedy" },

@@ -101,7 +101,7 @@ class SaveManager:
                 'equipped_shield': getattr(self.game_state, 'equipped_shield', None),
             }
             
-            # *** ADD: Save all narrative schema flags dynamically ***
+            # *** Save all narrative schema flags dynamically ***
             narrative_flags = {}
             try:
                 from utils.narrative_schema import narrative_schema
@@ -144,7 +144,7 @@ class SaveManager:
             # Add narrative flags to save data
             save_data['narrative_flags'] = narrative_flags
             
-            # *** ADD: Also save computed properties for verification ***
+            # *** Also save computed properties for verification ***
             save_data['computed_data'] = {
                 'recruited_count': len(getattr(self.game_state, 'party_members', [])),
                 'party_members': getattr(self.game_state, 'party_members', []),

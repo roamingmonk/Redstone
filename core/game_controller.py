@@ -303,7 +303,7 @@ class GameController:
         self.screen_manager.transition_to(self.game_state.screen, self.game_state, save_history=False)
         
     # --- DEBUG: temporary event tap to see XP awards in the console ---
-    # Remove once you confirm XP events are flowing.
+    # TODO Remove once you confirm XP events are flowing.
         try:
             self.event_manager.register("XP_AWARDED",
                 lambda d: print(f"[TAP] XP_AWARDED {d}"))

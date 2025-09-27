@@ -152,7 +152,32 @@ class DebugManager:
         #recruitment_flags = ['gareth_recruited', 'elara_recruited', 'thorman_recruited', 'lyra_recruited']
         #recruited = [flag for flag in recruitment_flags if getattr(self.game_state, flag, False)]
         #lines.append(f"Recruited: {', '.join(recruited) if recruited else 'none'}")
+
+        lines.append("")  # Blank line
+        lines.append("=== INVESTIGATION SITES ===")
+        investigations = {
+            'Swamp Church': getattr(self.game_state, 'learned_about_swamp_church', False),
+            'Hill Ruins': getattr(self.game_state, 'learned_about_ruins', False),
+            'Refugee Camp': getattr(self.game_state, 'learned_about_refugees', False)
+        }
+        completed_investigations = [name for name, completed in investigations.items() if completed]
+        lines.append(f"Discovered: {', '.join(completed_investigations) if completed_investigations else 'none'}")
+        lines.append(f"Progress: {len(completed_investigations)}/3")
         
+        # This after the Investigation Sites section:
+        lines.append("")  # Blank line
+        lines.append("=== QUEST OBJECTIVES DEBUG ===")
+        if hasattr(self.game_state, 'quest_manager'):
+            quest_manager = self.game_state.quest_manager
+            for quest_id, quest in quest_manager.quests.items():
+                if quest.status == "active":
+                    lines.append(f"{quest_id}:")
+                    for obj in quest.objectives:
+                        status = "✅" if obj.completed else "❌"
+                        lines.append(f"  {status} {obj.id}: {obj.description}")
+        else:
+            lines.append("No quest manager found")
+
         return lines
     
     def _get_navigation_debug(self):

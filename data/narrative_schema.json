@@ -28,7 +28,7 @@
       "story_flags": {
         "mentioned_mayor": "meredith_mentioned_mayor",
         "directed_to_mayor": "meredith_directed_to_mayor",
-        "gave_swamp_location": "learned_about_swamp_church"
+        "gave_swamp_location": "meredith_gave_swamp_info"
       }
     },
     "garrick": {
@@ -39,7 +39,7 @@
     "location": "broken_blade",
     "role": "bartender",
     "story_flags": {
-      "gave_ruins_location": "learned_about_ruins",
+      "gave_ruins_location": "garrick_gave_ruins_info",
       "offered_basement_quest": "garrick_offered_basement",
       "mentioned_mayor": "garrick_mentioned_mayor",
       "basement_quest_accepted": "accepted_basement_quest",
@@ -65,7 +65,7 @@
       "story_flags": {
         "attempted_recruitment": "pete_attempted_recruitment",
         "showed_comedy": "pete_showing_comedy",
-        "gave_refugee_hints": "pete_mentioned_refugees"
+        "gave_refugee_hints": "pete_gave_refugee_info"
       }
     },
     "mayor": {
@@ -78,9 +78,9 @@
       "story_flags": {
         "gave_main_quest": "quest_active",
         "mentioned_family": "mayor_mentioned_family",
-        "gave_swamp_location": "learned_about_swamp_church",
-        "gave_ruins_location": "learned_about_ruins",
-        "gave_refugee_location": "learned_about_refugees",
+        "gave_swamp_location": "mayor_gave_swamp_info",
+        "gave_ruins_location": "mayor_gave_ruins_info",
+        "gave_refugee_location": "mayor_gave_refugee_info",
         "main_quest_completed": "main_quest_completed",
         "main_quest_reported": "reported_main_quest",
         "main_quest_paid": "mayor_paid_main_quest"
@@ -247,21 +247,39 @@
 
   "quest_triggers": {
     "meredith_swamp_discovery": {
-      "dialogue_flag": "learned_about_swamp_church",
-      "quest_objective": "main_story.investigate_swamp_church",
+      "dialogue_flag": "meredith_gave_swamp_info",
+      "quest_objective": "main_story.learn_swamp_church",
       "event_type": "INFORMATION_DISCOVERED",
       "xp_reward": "discovery_base"
     },
     "garrick_ruins_discovery": {
-      "dialogue_flag": "learned_about_ruins", 
-      "quest_objective": "main_story.investigate_hill_ruins",
+      "dialogue_flag": "garrick_gave_ruins_info",
+      "quest_objective": "main_story.learn_hill_ruins",
       "event_type": "INFORMATION_DISCOVERED",
       "xp_reward": "discovery_base"
     },
-    "pete_mentioned_refugees": {
-      "dialogue_flag": "learned_about_refugees", 
-      "quest_objective": "main_story.investigate_refugees",
+    "pete_refugee_discovery": {
+      "dialogue_flag": "pete_gave_refugee_info",
+      "quest_objective": "main_story.learn_refugee_camp",
       "event_type": "INFORMATION_DISCOVERED",
+      "xp_reward": "discovery_base"
+    },
+    "mayor_swamp_details": {
+      "dialogue_flag": "mayor_gave_swamp_info",
+      "quest_objective": "main_story.swamp_detailed_intel",
+      "event_type": "DETAILED_INFORMATION",
+      "xp_reward": "discovery_base"
+    },
+    "mayor_ruins_details": {
+      "dialogue_flag": "mayor_gave_ruins_info",
+      "quest_objective": "main_story.ruins_detailed_intel",
+      "event_type": "DETAILED_INFORMATION",
+      "xp_reward": "discovery_base"
+    },
+    "mayor_refugee_details": {
+      "dialogue_flag": "mayor_gave_refugee_info",
+      "quest_objective": "main_story.refugee_detailed_intel",
+      "event_type": "DETAILED_INFORMATION",
       "xp_reward": "discovery_base"
     },
     "mayor_main_quest": {
@@ -331,10 +349,18 @@
         "talk_to_npcs": ["meredith_talked", "garrick_talked"],
         "meet_mayor": ["mayor_talked"],
         "recruit_party": ["recruited_count >= 1"],
-        "investigate_swamp_church": ["learned_about_swamp_church", "explored_swamp_church"],
-        "investigate_hill_ruins": ["learned_about_ruins", "explored_hill_ruins"],
-        "investigate_refugee_camp": ["learned_about_refugees", "gathered_refugee_info"],
-        "solve_mystery": ["found_swamp_evidence", "found_ruins_evidence", "gathered_refugee_info"]
+        
+        "learn_swamp_church": ["meredith_gave_swamp_info"],
+        "learn_hill_ruins": ["garrick_gave_ruins_info"], 
+        "learn_refugee_camp": ["pete_gave_refugee_info"],
+        
+        "swamp_detailed_intel": ["mayor_gave_swamp_info"],
+        "ruins_detailed_intel": ["mayor_gave_ruins_info"],
+        "refugee_detailed_intel": ["mayor_gave_refugee_info"],
+        
+        "explore_swamp_church": ["learned_about_swamp_church", "explored_swamp_church"],
+        "explore_hill_ruins": ["learned_about_ruins", "explored_hill_ruins"],
+        "explore_refugee_camp": ["learned_about_refugees", "gathered_refugee_info"]
       }
     },
     "party_building": {
