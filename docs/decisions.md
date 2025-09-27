@@ -1431,7 +1431,17 @@ Fixed draw_button() parameter mismatch, implemented InputHandler registration vi
 - def draw_centered_text method was found across numerous files. moved all to link to graphics.py - def draw_centered_text
 - Removing duplication saves code and easier imports
 
-
+# ADR-090: RPG Combat Statistics Integration
+# Status: Accepted
+# Date: September 26, 2025
+**Context:** Character overlay displayed basic stats but lacked professional RPG combat information (AC, attacks per round, weapon damage with modifiers).
+Decision: Implement StatsCalculator utility with complete JSON-driven combat stat system integrating D&D-style calculations into existing character display.
+**Implementation:** Enhanced items.json with combat_stats (damage_dice, armor_class, weapon_properties) for all 40+ items
+Added character_classes.json combat progression (base_attack_bonus, attacks_per_round arrays)
+Created StatsCalculator utility calculating AC, attack bonuses, damage with ability modifiers
+Integrated calculations into character overlay preserving existing layout
+**Result:** Character sheet now displays professional combat statistics (AC: 15, Attacks: 2, Weapon: 1d8+2) with industry-standard calculations. System handles finesse weapons, armor types, level progression, and item bonuses through pure JSON configuration.
+**Files:** utils/stats_calculator.py, enhanced data/items.json, enhanced data/player/character_classes.json, modified character_overlay.py
 
 ```
 ## ADR-XXX: <Short title>

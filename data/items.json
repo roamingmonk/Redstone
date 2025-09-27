@@ -9,7 +9,15 @@
       "icon_file": "axe.png",
       "consumable": false,
       "weight": 4,
-      "rarity": "common"
+      "rarity": "common",
+      "combat_stats": {
+        "damage_dice": "1d6",
+        "damage_type": "slashing",
+        "attack_bonus": 0,
+        "range": "melee",
+        "weapon_properties": ["light"],
+        "abilities_used": ["strength"]
+      }
     },
     {
       "id": "bedroll",
@@ -29,11 +37,14 @@
       "base_cost": 1,
       "category": "items",
       "subcategory": "trinket",
-      "special_effect": "navigation_bonus",
       "icon_file": "broken_compass.jpg",
       "consumable": false,
       "weight": 7,
-      "rarity": "rare"
+      "rarity": "rare",
+      "special_effects": {
+        "navigation_bonus": 2,
+        "description": "Detects magical auras within 30 feet"
+      }
     },
     {
       "id": "carved_bone_dice",
@@ -42,11 +53,14 @@
       "base_cost": 1,
       "category": "items",
       "subcategory": "trinket",
-      "special_effect": "gambling_luck",
       "icon_file": "carved_bone_dice.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "common"
+      "rarity": "common",
+      "special_effects": {
+        "gambling_luck": 1,
+        "description": "Provides a small bonus to gambling attempts"
+      }
     },
     {
       "id": "chainmail",
@@ -58,7 +72,14 @@
       "icon_file": "chainmail.png",
       "consumable": false,
       "weight": 55,
-      "rarity": "common"
+      "rarity": "common",
+      "combat_stats": {
+        "armor_class": 16,
+        "armor_type": "heavy",
+        "dex_modifier": "none",
+        "stealth_disadvantage": true,
+        "strength_requirement": 13
+      }
     },
     {
       "id": "leather_armor",
@@ -70,7 +91,13 @@
       "icon_file": "leather_armor.png",
       "consumable": false,
       "weight": 30,
-      "rarity": "common"
+      "rarity": "common",
+      "combat_stats": {
+        "armor_class": 11,
+        "armor_type": "light",
+        "dex_modifier": "full",
+        "stealth_disadvantage": false
+      }
     },
     {
       "id": "crystal_pendant",
@@ -92,7 +119,15 @@
       "icon_file": "dagger.png",
       "consumable": false,
       "weight": 1,
-      "rarity": "common"
+      "rarity": "common",
+      "combat_stats": {
+        "damage_dice": "1d4",
+        "damage_type": "piercing",
+        "attack_bonus": 0,
+        "range": "melee",
+        "weapon_properties": ["finesse", "light", "thrown"],
+        "abilities_used": ["strength", "dexterity"]
+      }
     },
     {
       "id": "empty_small_leather_pouch_that_jingles",
@@ -101,11 +136,17 @@
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
-      "special_effect": "ac_bonus",
       "icon_file": "empty_small_leather_pouch_that_jingles.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "rare"
+      "rarity": "rare",
+      "combat_stats": {
+        "armor_class": 1
+      },
+      "special_effects": {
+        "ac_bonus": 1,
+        "description": "The mysterious jingling provides inexplicable protection"
+      }
     },
     {
       "id": "feathered_dream_catcher",
@@ -114,11 +155,14 @@
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
-      "special_effect": "resistance_sleep",
       "icon_file": "feathered_dream_catcher.png",
       "consumable": false,
       "weight": 0,
-      "rarity": "uncommon"
+      "rarity": "uncommon",
+      "special_effects": {
+        "resistance_sleep": 1,
+        "description": "Provides resistance to sleep and charm effects"
+      }
     },
     {
       "id": "glass_vial_with_swirling_mist",
@@ -127,11 +171,14 @@
       "base_cost": 1,
       "category": "items",
       "subcategory": "trinket",
-      "special_effect": "morale_bonus",
       "icon_file": "glass_vial_with_swirling_mist.png",
       "consumable": false,
       "weight": 0,
-      "rarity": "rare"
+      "rarity": "rare",
+      "special_effects": {
+        "morale_bonus": 1,
+        "description": "The swirling mist bolsters courage in dangerous situations"
+      }
     },
     {
       "id": "greataxe",
@@ -142,7 +189,15 @@
       "icon_file": "greataxe.png",
       "consumable": false,
       "weight": 7,
-      "rarity": "common"
+      "rarity": "common",
+      "combat_stats": {
+        "damage_dice": "1d12",
+        "damage_type": "slashing",
+        "attack_bonus": 0,
+        "range": "melee",
+        "weapon_properties": ["heavy", "two_handed"],
+        "abilities_used": ["strength"]
+      }
     },
     {
       "id": "healing_potion",
@@ -155,7 +210,11 @@
       "weight": 0.5,
       "rarity": "common",
       "stackable": true,
-      "max_stack": 10
+      "max_stack": 10,
+      "consumable_effects": {
+        "healing": "2d4+2",
+        "description": "Restores 2d4+2 hit points when consumed"
+      }
     },
     {
       "id": "hemp_rope",
@@ -186,23 +245,33 @@
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
-      "special_effect": "ac_bonus",
       "icon_file": "iron_ring_with_strange_symbols.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "uncommon"
+      "rarity": "uncommon",
+      "combat_stats": {
+        "armor_class": 1
+      },
+      "special_effects": {
+        "ac_bonus": 1,
+        "description": "The strange symbols provide mystical protection"
+      }
     },
     {
       "id": "shield",
       "name": "Shield",
-      "description": "Basic leather protection.",
+      "description": "Basic wooden protection.",
       "base_cost": 10,
       "category": "armor",
       "subcategory": "shield",
       "icon_file": "shield.png",
       "consumable": false,
       "weight": 10,
-      "rarity": "common"
+      "rarity": "common",
+      "combat_stats": {
+        "armor_class": 2,
+        "armor_type": "shield"
+      }
     },
     {
       "id": "leather_pouch_with_dried_herbs",
@@ -211,11 +280,14 @@
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
-      "special_effect": "morale_bonus",
       "icon_file": "leather_pouch_with_dried_herbs.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "common"
+      "rarity": "common",
+      "special_effects": {
+        "morale_bonus": 1,
+        "description": "The pleasant scent calms nerves in stressful situations"
+      }
     },
     {
       "id": "light_crossbow",
@@ -226,18 +298,36 @@
       "icon_file": "light_crossbow.png",
       "consumable": false,
       "weight": 5,
-      "rarity": "common"
+      "rarity": "common",
+      "combat_stats": {
+        "damage_dice": "1d8",
+        "damage_type": "piercing",
+        "attack_bonus": 0,
+        "range": "ranged",
+        "range_normal": 80,
+        "range_long": 320,
+        "weapon_properties": ["ammunition", "loading", "two_handed"],
+        "abilities_used": ["dexterity"]
+      }
     },
     {
       "id": "longsword",
       "name": "Longsword",
-      "description": "A sturdy, two-handed sword.",
+      "description": "A sturdy, versatile sword.",
       "base_cost": 15,
       "category": "weapons",
       "icon_file": "longsword.png",
       "consumable": false,
       "weight": 3,
-      "rarity": "common"
+      "rarity": "common",
+      "combat_stats": {
+        "damage_dice": "1d8",
+        "damage_type": "slashing",
+        "attack_bonus": 0,
+        "range": "melee",
+        "weapon_properties": ["versatile"],
+        "abilities_used": ["strength"]
+      }
     },
     {
       "id": "mace",
@@ -248,7 +338,15 @@
       "icon_file": "mace.png",
       "consumable": false,
       "weight": 4,
-      "rarity": "common"
+      "rarity": "common",
+      "combat_stats": {
+        "damage_dice": "1d6",
+        "damage_type": "bludgeoning",
+        "attack_bonus": 0,
+        "range": "melee",
+        "weapon_properties": [],
+        "abilities_used": ["strength"]
+      }
     },
     {
       "id": "plate_armor",
@@ -260,7 +358,14 @@
       "icon_file": "plate_armor.png",
       "consumable": false,
       "weight": 65,
-      "rarity": "rare"
+      "rarity": "rare",
+      "combat_stats": {
+        "armor_class": 18,
+        "armor_type": "heavy",
+        "dex_modifier": "none",
+        "stealth_disadvantage": true,
+        "strength_requirement": 15
+      }
     },
     {
       "id": "polished_obsidian_shard",
@@ -269,11 +374,14 @@
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
-      "special_effect": "constitution_bonus",
       "icon_file": "polished_obsidian_shard.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "uncommon"
+      "rarity": "uncommon",
+      "special_effects": {
+        "constitution_bonus": 1,
+        "description": "The obsidian's volcanic energy bolsters physical resilience"
+      }
     },
     {
       "id": "quarterstaff",
@@ -284,7 +392,15 @@
       "icon_file": "quarterstaff.png",
       "consumable": false,
       "weight": 4,
-      "rarity": "common"
+      "rarity": "common",
+      "combat_stats": {
+        "damage_dice": "1d6",
+        "damage_type": "bludgeoning",
+        "attack_bonus": 0,
+        "range": "melee",
+        "weapon_properties": ["versatile"],
+        "abilities_used": ["strength"]
+      }
     },
     {
       "id": "rapier",
@@ -295,7 +411,15 @@
       "icon_file": "rapier.png",
       "consumable": false,
       "weight": 2,
-      "rarity": "common"
+      "rarity": "common",
+      "combat_stats": {
+        "damage_dice": "1d8",
+        "damage_type": "piercing",
+        "attack_bonus": 0,
+        "range": "melee",
+        "weapon_properties": ["finesse"],
+        "abilities_used": ["strength", "dexterity"]
+      }
     },
     {
       "id": "shield_plus_1",
@@ -307,7 +431,11 @@
       "icon_file": "shield_plus_1.png",
       "consumable": false,
       "weight": 6,
-      "rarity": "uncommon"
+      "rarity": "uncommon",
+      "combat_stats": {
+        "armor_class": 3,
+        "armor_type": "shield"
+      }
     },
     {
       "id": "shortbow",
@@ -318,7 +446,17 @@
       "icon_file": "shortbow.png",
       "consumable": false,
       "weight": 2,
-      "rarity": "common"
+      "rarity": "common",
+      "combat_stats": {
+        "damage_dice": "1d6",
+        "damage_type": "piercing",
+        "attack_bonus": 0,
+        "range": "ranged",
+        "range_normal": 80,
+        "range_long": 320,
+        "weapon_properties": ["ammunition", "two_handed"],
+        "abilities_used": ["dexterity"]
+      }
     },
     {
       "id": "small_bronze_mirror",
@@ -327,11 +465,14 @@
       "base_cost": 5,
       "category": "items",
       "subcategory": "trinket",
-      "special_effect": "charisma_bonus",
       "icon_file": "small_bronze_mirror.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "common"
+      "rarity": "common",
+      "special_effects": {
+        "charisma_bonus": 1,
+        "description": "Checking your appearance boosts confidence"
+      }
     },
     {
       "id": "smooth_river_stone_with_runes",
@@ -340,10 +481,17 @@
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
-      "special_effect": "ac_bonus",
       "icon_file": "smooth_river_stone_with_runes.jpg",
       "consumable": false,
-      "rarity": "rare"
+      "weight": 0,
+      "rarity": "rare",
+      "combat_stats": {
+        "armor_class": 1
+      },
+      "special_effects": {
+        "ac_bonus": 1,
+        "description": "Ancient runes ward against harm"
+      }
     },
     {
       "id": "splint_armor",
@@ -355,7 +503,14 @@
       "icon_file": "splint_armor.png",
       "consumable": false,
       "weight": 60,
-      "rarity": "common"
+      "rarity": "common",
+      "combat_stats": {
+        "armor_class": 17,
+        "armor_type": "heavy",
+        "dex_modifier": "none",
+        "stealth_disadvantage": true,
+        "strength_requirement": 15
+      }
     },
     {
       "id": "strong_ale",
@@ -368,7 +523,12 @@
       "weight": 1,
       "rarity": "common",
       "stackable": true,
-      "max_stack": 10
+      "max_stack": 10,
+      "consumable_effects": {
+        "strength_temp": 1,
+        "duration": "1 hour",
+        "description": "Temporarily increases strength by 1 for 1 hour"
+      }
     },
     {
       "id": "tarnished_silver_locket",
@@ -377,11 +537,14 @@
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
-      "special_effect": "morale_bonus",
       "icon_file": "tarnished_silver_locket.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "uncommon"
+      "rarity": "uncommon",
+      "special_effects": {
+        "morale_bonus": 1,
+        "description": "Memories within provide emotional strength"
+      }
     },
     {
       "id": "thieves_tools",
@@ -429,7 +592,11 @@
       "weight": 2,
       "rarity": "common",
       "stackable": true,
-      "max_stack": 10
+      "max_stack": 10,
+      "consumable_effects": {
+        "sustenance": 1,
+        "description": "Provides nourishment for one day of travel"
+      }
     },
     {
       "id": "twisted_driftwood_wand",
@@ -438,76 +605,14 @@
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
-      "special_effect": "navigation_bonus",
-      "icon_file": "twisted_driftwood_wand.png",
+      "icon_file": "twisted_driftwood_wand.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "uncommon"
-    },
-    {
-      "id": "small_brass_key",
-      "name": "Small brass key with no lock in sight",
-      "description": "A mysterious key that opens opportunities when you least expect it.",
-      "base_cost": 0,
-      "category": "items",
-      "subcategory": "trinket",
-      "special_effect": "lockpicking_bonus",
-      "icon_file": "small_brass_key.jpg",
-      "consumable": false,
-      "weight": 0,
-      "rarity": "rare"
-    },
-    {
-      "id": "wooden_dice_same_number",
-      "name": "Wooden dice that always show the same number",
-      "description": "These dice seem to have a mind of their own.",
-      "base_cost": 0,
-      "category": "items", 
-      "subcategory": "trinket",
-      "special_effect": "gambling_luck",
-      "icon_file": "wooden_dice.jpg",
-      "consumable": false,
-      "weight": 0,
-      "rarity": "rare"
-    },
-    {
-      "id": "star_map_fragment",
-      "name": "Fragment of a star map drawn on worn parchment",
-      "description": "Ancient celestial knowledge that guides the lost.",
-      "base_cost": 0,
-      "category": "items",
-      "subcategory": "trinket", 
-      "special_effect": "navigation_bonus",
-      "icon_file": "star_map_fragment.jpg",
-      "consumable": false,
-      "weight": 0,
-      "rarity": "rare"
-    },
-    {
-      "id": "pressed_flower",
-      "name": "Pressed flower from your childhood home",
-      "description": "A reminder of simpler times that bolsters your spirit.",
-      "base_cost": 0,
-      "category": "items",
-      "subcategory": "trinket",
-      "special_effect": "morale_bonus", 
-      "icon_file": "pressed_flower.jpg",
-      "consumable": false,
-      "weight": 0,
-      "rarity": "rare"
-    },
-    {
-      "id": "wooden_doll_with_button_eyes",
-      "name": "Wooden doll with button eyes",
-      "description": "A quaint wooden doll.",
-      "base_cost": 0,
-      "category": "items",
-      "subcategory": "trinket",
-      "special_effect": "morale_bonus",
-      "icon_file": "wooden_doll_with_button_eyes.jpg",
-      "consumable": false,
-      "weight": 0,
-      "rarity": "common"
+      "rarity": "rare",
+      "special_effects": {
+        "magic_detection": 1,
+        "description": "The wand tingles in the presence of magic"
+      }
     }
   ]
 }

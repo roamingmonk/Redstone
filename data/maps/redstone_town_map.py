@@ -162,11 +162,13 @@ def is_walkable(x, y):
     tile_type = get_tile_type(x, y)
     return tile_type in WALKABLE_TILES
 
+#TODO not being called consider use
 def get_building_info(x, y):
     """Get building information if tile is a building"""
     tile_type = get_tile_type(x, y)
     return BUILDING_TILES.get(tile_type, None)
 
+#TODO not being called consider use
 def get_tile_color(x, y):
     """Get color for tile at coordinates"""
     tile_type = get_tile_type(x, y)

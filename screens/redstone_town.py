@@ -75,29 +75,64 @@ class RedstoneTownNavigation:
         if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and self.current_building:
             interaction_type = self.current_building.get('interaction_type')
             
+            print(f"DEBUG: RT: hit return to go somewhere")
+            
             if interaction_type == 'npc_dialogue':
+                print(f"DEBUG: RT: NPC Dialogue")
                 npc_id = self.current_building.get('npc_id')
                 if npc_id and controller:
                     # Get location from narrative schema
                     location = narrative_schema.get_npc_location(npc_id, 'redstone_town')
+                    target_screen = location  # This becomes something like 'broken_blade_mayor'
+                
+                # CHECK: Is the target dialogue screen implemented?
+                if hasattr(controller, 'screen_manager') and target_screen in controller.screen_manager.render_functions:
+                    # Screen exists, proceed with NPC dialogue
                     controller.event_manager.emit("NPC_CLICKED", {
                         'npc_id': npc_id,
                         'location': location
                     })
+                else:
+                    # NPC dialogue screen not implemented yet
+                    self.showing_temp_message = True
+                    self.temp_message_timer = pygame.time.get_ticks()
+                    
+                    # Contextual messages based on NPC
+                    if npc_id == 'mayor':
+                        self.temp_message_text = "The mayor is in an important meeting and cannot be disturbed."
+                    else:
+                        self.temp_message_text = "They seem too busy to talk right now."
+        
             
             elif interaction_type == 'screen_transition':
+                print(f"DEBUG: RT: Screen Transition")
                 screen = self.current_building.get('screen')
                 if screen and controller:
-                    controller.event_manager.emit("SCREEN_CHANGE", {
-                        'target_screen': screen,
-                        'source': 'town_navigation'
-                    })
-            
+                    # CHECK: Is this screen actually implemented?
+                    if hasattr(controller, 'screen_manager') and screen in controller.screen_manager.render_functions:
+                        # Screen exists, proceed with transition
+                        controller.event_manager.emit("SCREEN_CHANGE", {
+                            'target_screen': screen,
+                            'source': 'town_navigation'
+                        })
+                    else:
+                        # Screen not implemented yet - show contextual message
+                        self.showing_temp_message = True
+                        self.temp_message_timer = pygame.time.get_ticks()
+                        
+                        # Contextual messages based on screen type
+                        if screen == 'world_map':
+                            self.temp_message_text = "The town gates are sealed. The guards won't let anyone leave right now."
+                        else:
+                            self.temp_message_text = "Sorry, it's closed."
+
             else:
                 # Default closed message
+                print(f"DEBUG: RT: Sorry it is closed message!")
                 self.showing_temp_message = True
                 self.temp_message_text = "Sorry, it is closed."
-    
+                self.temp_message_timer = pygame.time.get_ticks()
+        
     def render(self, surface, fonts, game_state):
         """Render town navigation screen"""
         surface.fill(BLACK)

@@ -17,10 +17,12 @@ import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay
 from utils.overlay_utils import *
 from utils.graphics import draw_text
-from utils.constants import SPACING
+from utils.constants import *
 from utils.party_display import load_portrait, get_character_color
 from game_logic.character_engine import CharacterEngine
 from utils.narrative_schema import narrative_schema
+from utils.stats_calculator import get_stats_calculator
+
 
 class CharacterOverlay(BaseTabbedOverlay):
     """
@@ -176,32 +178,36 @@ class CharacterOverlay(BaseTabbedOverlay):
         weapon_label = normal_font.render("Weapon:", True, WHITE)
         surface.blit(weapon_label, (left_section_x, current_y))
         
-        weapon_text = normal_font.render(weapon_name, True, WHITE)
+        if weapon_name and weapon_name != 'None':
+            from utils.stats_calculator import get_stats_calculator
+            calculator = get_stats_calculator()
+            weapon_damage, _ = calculator.calculate_weapon_damage(game_state)
+            weapon_display = f"{weapon_name.replace('_', ' ').title()} ({weapon_damage})"
+        else:
+            weapon_display = "None"
+        weapon_text = normal_font.render(weapon_display, True, WHITE)
         surface.blit(weapon_text, (left_section_x + 100, current_y))
         current_y += 32
         
         # Armor
         armor_name = getattr(game_state, 'equipped_armor', 'None')
-        armor_ac = self._get_armor_ac(armor_name)
-        
         armor_label = normal_font.render("Armor:", True, WHITE)
         surface.blit(armor_label, (left_section_x, current_y))
-        
-        armor_text = normal_font.render(f"{armor_name} {armor_ac}", True, WHITE)
+
+        armor_display = armor_name.replace('_', ' ').title() if armor_name and armor_name != 'None' else "None"
+        armor_text = normal_font.render(armor_display, True, WHITE)
         surface.blit(armor_text, (left_section_x + 100, current_y))
         current_y += 32
-        
+
         # Shield
         shield_name = getattr(game_state, 'equipped_shield', 'None')
-        shield_ac = self._get_shield_ac(shield_name)
-        
         shield_label = normal_font.render("Shield:", True, WHITE)
         surface.blit(shield_label, (left_section_x, current_y))
-        
-        shield_text = normal_font.render(f"{shield_name} {shield_ac}", True, WHITE)
+
+        shield_display = shield_name.replace('_', ' ').title() if shield_name and shield_name != 'None' else "None"
+        shield_text = normal_font.render(shield_display, True, WHITE)
         surface.blit(shield_text, (left_section_x + 100, current_y))
         current_y += 50
-        
         # Gold
         gold_amount = character.get('gold', 0)
         
@@ -211,6 +217,22 @@ class CharacterOverlay(BaseTabbedOverlay):
         gold_value = header_font.render(str(gold_amount), True, BRIGHT_GREEN)
         surface.blit(gold_value, (left_section_x + 120, current_y - 3))
         
+        # Combat Stats (add after gold, before RIGHT SECTION)
+        current_y += 25
+        combat_header = header_font.render("Combat Stats", True, CYAN)
+        surface.blit(combat_header, (left_section_x, current_y+10))
+        current_y += 30
+
+        ac, _ = calculator.calculate_armor_class(game_state)
+        attacks, _ = calculator.calculate_attacks_per_round(game_state)
+
+        ac_text = normal_font.render(f"AC: {ac}", True, WHITE)
+        surface.blit(ac_text, (left_section_x, current_y+10))
+        current_y += 25
+
+        attacks_text = normal_font.render(f"Attacks: {attacks}", True, WHITE)
+        surface.blit(attacks_text, (left_section_x, current_y+10))
+
         # RIGHT SECTION: Attributes
         attr_x = right_section_x
         attr_y = right_section_y
@@ -269,14 +291,6 @@ class CharacterOverlay(BaseTabbedOverlay):
         pygame.draw.rect(surface, WHITE, 
                         (portrait_x, portrait_y, portrait_size, portrait_size), 2)
         
-        # Conditions Section (bottom of left section)
-        conditions_y = content_rect.y + content_rect.height - 80
-        conditions_header = normal_font.render("Conditions:", True, WHITE)
-        surface.blit(conditions_header, (left_section_x, conditions_y))
-        
-        # For now, just show "None" - future expansion for status effects
-        conditions_text = small_font.render("None", True, WHITE)
-        surface.blit(conditions_text, (left_section_x + 160, conditions_y + 5))
 
     def _render_abilities_tab(self, surface: pygame.Surface, content_rect: pygame.Rect, 
                          game_state, fonts, images):

@@ -387,32 +387,6 @@ class GameController:
         
         return validation_results
     
-    def get_initialization_status(self) -> Dict[str, Any]:
-        """Get detailed initialization status for debugging"""
-        total_time = None
-        if self.initialization_start_time:
-            total_time = (datetime.now() - self.initialization_start_time).total_seconds()
-        
-        return {
-            "phase": self.current_phase.value,
-            "systems_created": len(self.systems_created),
-            "systems_list": self.systems_created.copy(),
-            "error_count": len(self.initialization_errors),
-            "errors": self.initialization_errors.copy(),
-            "total_time": total_time,
-            "memory_usage": {
-                "event_manager": self.event_manager is not None,
-                "save_manager": self.save_manager is not None,
-                "engines": {
-                    "character": self.character_engine is not None,
-                    "inventory": self.inventory_engine is not None,
-                    "commerce": self.commerce_engine is not None,
-                    "quest_engine": self.quest_engine is not None,
-                    "dialogue": self.dialogue_engine is not None
-                }
-            }
-        }
-    
     def handle_screen_advance(self, event_data):
         """Handle screen advance events from InputHandler"""
         current_screen = event_data.get("current_screen", self.game_state.screen)

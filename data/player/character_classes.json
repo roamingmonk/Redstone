@@ -5,34 +5,6 @@
       "description": "A master of martial combat, skilled with a variety of weapons and armor",
       "hit_die": 10,
       "primary_abilities": ["strength", "dexterity"],
-      
-       "level_progression": {
-          "level_2": {
-            "features": ["Combat Surge"],
-            "description": "Gain Combat Surge - take an extra action once per day"
-          },
-          "level_3": {
-            "features": ["Extra Attack"],
-            "ability_score_choice": true,
-            "description": "Choose +2 to one ability (max 18). Gain Extra Attack - make 2 attacks per round"
-          },
-          "level_4": {
-            "features": ["Shield Focus"],
-            "description": "Gain Shield Focus - activate once per day for +1 AC during one combat"
-          },
-          "level_5": {
-            "features": ["Terror Resistance"],
-            "description": "Gain Terror Resistance - +1 bonus vs fear effects"
-          }
-        },
-
-        "feature_descriptions": {
-          "Combat Surge": "Once per day, take an additional action during combat. Resets after rest.",
-          "Extra Attack": "Make 2 attacks per combat round instead of 1.",
-          "Shield Focus": "Once per day, gain +1 AC for one entire combat encounter.",
-          "Terror Resistance": "+1 bonus to saving throws against fear effects."
-        },
-  
       "saving_throw_proficiencies": ["strength", "constitution"],
       "starting_gold": {
         "dice": 5,
@@ -40,24 +12,61 @@
         "multiplier": 10,
         "description": "5d6 × 10 gold pieces"
       },
+      "combat_progression": {
+        "base_attack_bonus": [0, 1, 2, 3, 4],
+        "attacks_per_round": [1, 1, 2, 2, 2],
+        "proficiency_bonus": [2, 2, 2, 2, 3]
+      },
       "armor_class_bonus": 0,
       "stat_adjustments": {
-        "strength": 1,
-        "constitution": 1
+        "strength": 2
       },
       "starting_equipment": {
         "weapons": ["longsword"],
-        "armor": ["leather_armor", "shield"], 
-        "items": [],
-        "consumables": []
+        "armor": ["leather_armor", "shield"],
+        "tools": [],
+        "items": []
       },
       "skill_options": [
         "Acrobatics", "Animal Handling", "Athletics", "History", 
         "Insight", "Intimidation", "Perception", "Survival"
       ],
+      "skills_to_choose": 2,
+      "level_1_features": [
+        "Fighting Style",
+        "Second Wind"
+      ],
+      "level_progression": {
+        "level_2": {
+          "features": ["Combat Surge"],
+          "description": "Gain Combat Surge - take an extra action once per day"
+        },
+        "level_3": {
+          "features": ["Extra Attack"],
+          "ability_score_choice": true,
+          "description": "Choose +2 to one ability (max 18). Gain Extra Attack - make 2 attacks per round"
+        },
+        "level_4": {
+          "features": ["Shield Focus"],
+          "description": "Gain Shield Focus - activate once per day for +1 AC during one combat"
+        },
+        "level_5": {
+          "features": ["Terror Resistance"],
+          "description": "Gain Terror Resistance - +1 bonus vs fear effects"
+        }
+      },
+      "feature_descriptions": {
+        "Fighting Style": "Choose a specialized combat technique that enhances your martial prowess.",
+        "Second Wind": "Regain hit points equal to 1d10 + fighter level once per short rest.",
+        "Combat Surge": "Once per day, take an additional action during combat. Resets after rest.",
+        "Extra Attack": "Make 2 attacks per combat round instead of 1.",
+        "Shield Focus": "Once per day, gain +1 AC for one entire combat encounter.",
+        "Terror Resistance": "+1 bonus to saving throws against fear effects."
+      },
       "proficiencies": {
         "armor": ["Light Armor", "Medium Armor", "Heavy Armor", "Shields"],
-        "weapons": ["Simple Weapons", "Martial Weapons"]
+        "weapons": ["Simple Weapons", "Martial Weapons"],
+        "tools": []
       }
     },
     "wizard": {
@@ -72,20 +81,49 @@
         "multiplier": 10,
         "description": "4d6 × 10 gold pieces"
       },
+      "combat_progression": {
+        "base_attack_bonus": [0, 0, 1, 1, 2],
+        "attacks_per_round": [1, 1, 1, 1, 1],
+        "proficiency_bonus": [2, 2, 2, 2, 3]
+      },
       "armor_class_bonus": 0,
       "stat_adjustments": {
         "intelligence": 2
       },
       "starting_equipment": {
-        "weapons": ["quarterstaff", "dagger"],
+        "weapons": ["quarterstaff"],
         "armor": [],
-        "items": [],
-        "consumables": []
+        "tools": [],
+        "items": []
       },
       "skill_options": [
         "Arcana", "History", "Insight", "Investigation", 
         "Medicine", "Religion"
       ],
+      "skills_to_choose": 2,
+      "level_1_features": [
+        "Spellcasting",
+        "Arcane Recovery"
+      ],
+      "level_progression": {
+        "level_2": {
+          "features": ["Arcane Tradition"],
+          "description": "Choose your school of magic specialization"
+        },
+        "level_3": {
+          "features": ["Cantrip Formulas"],
+          "ability_score_choice": true,
+          "description": "Choose +2 to one ability (max 18). Learn additional cantrip versatility"
+        },
+        "level_4": {
+          "features": ["Spell Focus"],
+          "description": "Gain Spell Focus - +1 to spell attack rolls and save DCs"
+        },
+        "level_5": {
+          "features": ["Arcane Ward"],
+          "description": "Gain Arcane Ward - magical protection against damage"
+        }
+      },
       "spellcasting": {
         "cantrips_known": 3,
         "spells_known": 6,
@@ -97,7 +135,8 @@
       },
       "proficiencies": {
         "armor": [],
-        "weapons": ["Daggers", "Darts", "Slings", "Quarterstaffs", "Light Crossbows"]
+        "weapons": ["Daggers", "Darts", "Slings", "Quarterstaffs", "Light Crossbows"],
+        "tools": []
       }
     },
     "rogue": {
@@ -112,15 +151,20 @@
         "multiplier": 10,
         "description": "4d6 × 10 gold pieces"
       },
+      "combat_progression": {
+        "base_attack_bonus": [0, 1, 1, 2, 2],
+        "attacks_per_round": [1, 1, 1, 1, 1],
+        "proficiency_bonus": [2, 2, 2, 2, 3]
+      },
       "armor_class_bonus": 0,
       "stat_adjustments": {
         "dexterity": 2
       },
       "starting_equipment": {
-        "weapons": ["rapier", "shortbow"],
-        "armor": "leather_armor",
-        "items": ["hemp_rope", "thieves_tools"],
-        "consumables": []
+        "weapons": ["shortbow"],
+        "armor": ["leather_armor"],
+        "tools": ["thieves_tools"],
+        "items": []
       },
       "skill_options": [
         "Acrobatics", "Athletics", "Deception", "Insight", "Intimidation", 
@@ -133,10 +177,29 @@
         "Sneak Attack",
         "Thieves' Cant"
       ],
+      "level_progression": {
+        "level_2": {
+          "features": ["Cunning Action"],
+          "description": "Gain Cunning Action - dash, disengage, or hide as bonus action"
+        },
+        "level_3": {
+          "features": ["Roguish Archetype"],
+          "ability_score_choice": true,
+          "description": "Choose +2 to one ability (max 18). Choose your roguish specialization"
+        },
+        "level_4": {
+          "features": ["Improved Sneak Attack"],
+          "description": "Sneak Attack damage increases to 2d6"
+        },
+        "level_5": {
+          "features": ["Uncanny Dodge"],
+          "description": "Gain Uncanny Dodge - halve damage from one attack per turn"
+        }
+      },
       "proficiencies": {
         "armor": ["Light Armor"],
         "weapons": ["Simple Weapons", "Hand Crossbows", "Longswords", "Rapiers", "Shortswords"],
-        "items": ["Thieves' Tools"]
+        "tools": ["Thieves' Tools"]
       }
     },
     "cleric": {
@@ -151,19 +214,48 @@
         "multiplier": 10,
         "description": "5d6 × 10 gold pieces"
       },
+      "combat_progression": {
+        "base_attack_bonus": [0, 1, 1, 2, 2],
+        "attacks_per_round": [1, 1, 1, 1, 1],
+        "proficiency_bonus": [2, 2, 2, 2, 3]
+      },
       "armor_class_bonus": 0,
       "stat_adjustments": {
         "wisdom": 2
       },
       "starting_equipment": {
         "weapons": ["mace"],
-        "armor": ["scale_mail", "shield"],
-        "items": ["holy_symbol"],
-        "consumables": []
+        "armor": ["chainmail"],
+        "tools": [],
+        "items": ["holy_symbol"]
       },
       "skill_options": [
         "History", "Insight", "Medicine", "Persuasion", "Religion"
       ],
+      "skills_to_choose": 2,
+      "level_1_features": [
+        "Spellcasting",
+        "Divine Domain"
+      ],
+      "level_progression": {
+        "level_2": {
+          "features": ["Channel Divinity"],
+          "description": "Gain Channel Divinity - harness divine energy once per rest"
+        },
+        "level_3": {
+          "features": ["Destroy Undead"],
+          "ability_score_choice": true,
+          "description": "Choose +2 to one ability (max 18). Channel Divinity can destroy undead"
+        },
+        "level_4": {
+          "features": ["Divine Strike"],
+          "description": "Weapon attacks deal additional radiant damage"
+        },
+        "level_5": {
+          "features": ["Blessed Recovery"],
+          "description": "Regain spell slots more efficiently during rest"
+        }
+      },
       "spellcasting": {
         "cantrips_known": 3,
         "spells_known": "all_domain_spells",
@@ -175,7 +267,8 @@
       },
       "proficiencies": {
         "armor": ["Light Armor", "Medium Armor", "Shields"],
-        "weapons": ["Simple Weapons"]
+        "weapons": ["Simple Weapons"],
+        "tools": []
       }
     }
   },

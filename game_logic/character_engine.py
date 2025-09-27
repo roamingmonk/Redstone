@@ -122,12 +122,12 @@ class CharacterEngine:
         self.roll_stats(reroll_ones=True)  # Use existing method!
         self.game_state.stats_rolled = True
 
-    def _handle_keep_stats(self, event_data):
-        """Handle KEEP_STATS - finalize and navigate"""
-        print("✅ CharacterEngine: KEEP_STATS event received")
-        # Emit navigation event
-        if self.event_manager:
-            self.event_manager.emit('SCREEN_CHANGE', {'target': 'gender'})
+    # def _handle_keep_stats(self, event_data):
+    #     """Handle KEEP_STATS - finalize and navigate"""
+    #     print("✅ CharacterEngine: KEEP_STATS event received")
+    #     # Emit navigation event
+    #     if self.event_manager:
+    #         self.event_manager.emit('SCREEN_CHANGE', {'target': 'gender'})
 
     def register_character_creation_events(self, event_manager):
         """Register this engine for all character creation events"""
@@ -963,8 +963,8 @@ class CharacterEngine:
     # CHARACTER PROGRESSION OPERATIONS
     # ==========================================
     
-    def get_level_requirements(self):
-        return list(self._level_requirements)
+    # def get_level_requirements(self):
+    #     return list(self._level_requirements)
 
     def can_level_up(self):
         """
@@ -1381,37 +1381,37 @@ class CharacterEngine:
         print("✅ Character data validated successfully")
         return True
 #TODO where is this character summary used???    
-    def get_character_summary(self):
-        """
-        Get formatted character summary for display
+    # def get_character_summary(self):
+    #     """
+    #     Get formatted character summary for display
         
-        Returns:
-            dict: Character summary data
-        """
-        char = self.game_state.character
+    #     Returns:
+    #         dict: Character summary data
+    #     """
+    #     char = self.game_state.character
         
-        summary = {
-            'name': char.get('name', 'Unknown'),
-            'class': char.get('class', 'fighter').title(),
-            'level': char.get('level', 1),
-            'hit_points': char.get('hit_points', 10),
-            'experience': char.get('experience', 0),
-            'stats': {
-                'Strength': char.get('strength', 10),
-                'Dexterity': char.get('dexterity', 10),
-                'Constitution': char.get('constitution', 10),
-                'Intelligence': char.get('intelligence', 10),
-                'Wisdom': char.get('wisdom', 10),
-                'Charisma': char.get('charisma', 10)
-            },
-            'equipment': {
-                'weapon': char.get('equipped_weapon', None),
-                'armor': char.get('equipped_armor', None),
-                'shield': char.get('equipped_shield', None)
-            }
-        }
+    #     summary = {
+    #         'name': char.get('name', 'Unknown'),
+    #         'class': char.get('class', 'fighter').title(),
+    #         'level': char.get('level', 1),
+    #         'hit_points': char.get('hit_points', 10),
+    #         'experience': char.get('experience', 0),
+    #         'stats': {
+    #             'Strength': char.get('strength', 10),
+    #             'Dexterity': char.get('dexterity', 10),
+    #             'Constitution': char.get('constitution', 10),
+    #             'Intelligence': char.get('intelligence', 10),
+    #             'Wisdom': char.get('wisdom', 10),
+    #             'Charisma': char.get('charisma', 10)
+    #         },
+    #         'equipment': {
+    #             'weapon': char.get('equipped_weapon', None),
+    #             'armor': char.get('equipped_armor', None),
+    #             'shield': char.get('equipped_shield', None)
+    #         }
+    #     }
         
-        return summary
+    #     return summary
 
     def _handle_xp_award(self, event_data):
         """Handle XP_AWARDED events from quest/combat/discovery systems"""

@@ -486,12 +486,6 @@ class SaveManager:
             callback(save_slot, save_info)
             print(f"SaveManager: Sent save info response for slot {save_slot}")
 
-    def auto_save(self):
-        """
-        Perform automatic save (shorthand for save_game(0))
-        """
-        return self.save_game(save_slot=0)
-
     def delete_save(self, save_slot):
         """
         Delete a save file
