@@ -1321,34 +1321,34 @@ class CharacterEngine:
         
         return effects
 
-    def get_party_member_info(self, member_id):
-        """Get complete info for a party member"""
-        if 'party_xp' not in self.game_state.__dict__:
-            return None
+    # def get_party_member_info(self, member_id):
+    #     """Get complete info for a party member"""
+    #     if 'party_xp' not in self.game_state.__dict__:
+    #         return None
         
-        if member_id not in self.game_state.party_xp:
-            return None
+    #     if member_id not in self.game_state.party_xp:
+    #         return None
         
-        member_data = self.game_state.party_xp[member_id]
+    #     member_data = self.game_state.party_xp[member_id]
         
 
-        #TODO   Don;t we need to update this hardcoded xp requirements as well??
-        # Calculate XP to next level
-        current_level = member_data.get('level', 1)
-        current_xp = member_data.get('experience', 0)
-        xp_requirements = {1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500}
+    #     #TODO   Don;t we need to update this hardcoded xp requirements as well??
+    #     # Calculate XP to next level
+    #     current_level = member_data.get('level', 1)
+    #     current_xp = member_data.get('experience', 0)
+    #     xp_requirements = {1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500}
         
-        next_level_xp = xp_requirements.get(current_level + 1, 999999)
-        xp_to_next = max(0, next_level_xp - current_xp)
+    #     next_level_xp = xp_requirements.get(current_level + 1, 999999)
+    #     xp_to_next = max(0, next_level_xp - current_xp)
         
-        return {
-            'id': member_id,
-            'level': current_level,
-            'experience': current_xp,
-            'hit_points': member_data.get('hit_points', 10),
-            'xp_to_next_level': xp_to_next,
-            'can_level_up': self.can_party_member_level_up(member_id)
-        }
+    #     return {
+    #         'id': member_id,
+    #         'level': current_level,
+    #         'experience': current_xp,
+    #         'hit_points': member_data.get('hit_points', 10),
+    #         'xp_to_next_level': xp_to_next,
+    #         'can_level_up': self.can_party_member_level_up(member_id)
+    #     }
 
     # ==========================================
     # CHARACTER VALIDATION & UTILITY

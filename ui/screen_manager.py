@@ -1205,15 +1205,9 @@ class ScreenManager:
         return {'back': back_button}
 
     def render_current_screen(self, game_state) -> bool:
-        """
-        NEW: Render the current screen
-        This REPLACES the massive 1700-line draw_current_screen() method!
-        
-        Args:
-            game_state: Current game state
-            
-        Returns:
-            True if render successful, False if failed
+        """Render the current screen
+        game_state: Current game state
+        Returns: True if render successful, False if failed
         """
         self._current_game_state = game_state
         
@@ -1235,8 +1229,8 @@ class ScreenManager:
             except TypeError:
                 # Fallback to 4 parameters (for existing screens)
                 render_function(self.screen, game_state, self.fonts, self.images)
-             
-             # SPECIAL HANDLING FOR COMBAT SCREEN CLICKABLES
+            
+            # SPECIAL HANDLING FOR COMBAT SCREEN CLICKABLES
             if self.current_screen == "combat" and isinstance(render_result, dict):
                 input_handler = getattr(self._current_game_controller, 'input_handler', None)
                 if input_handler and hasattr(input_handler, 'register_combat_clickables'):
@@ -1245,8 +1239,17 @@ class ScreenManager:
             # Reset error count on successful render
             self.error_count = 0
 
-            # NEW: Render overlays on top of main screen
+            # Render overlays on top of main screen
             self._render_overlays(game_state)
+            
+            # ===== ADD DEBUG OVERLAY RENDERING HERE =====
+            # Always render debug overlay last (if registered and enabled)
+            if hasattr(self, 'debug_overlay_renderer') and self.debug_overlay_renderer:
+                try:
+                    self.debug_overlay_renderer(self.screen, self.fonts)
+                except Exception as e:
+                    print(f"⚠️ Debug overlay render error: {e}")
+            # ===== END DEBUG OVERLAY ADDITION =====
 
             return True
                     
@@ -1496,6 +1499,11 @@ class ScreenManager:
         print(f"   Current screen: {getattr(self, 'current_screen', 'None')}")
         if hasattr(self, 'render_functions'):
             print(f"   Registered renders: {list(self.render_functions.keys())}")
+
+    def set_debug_overlay_renderer(self, renderer_function):
+        """Register debug overlay renderer to be called on every screen"""
+        self.debug_overlay_renderer = renderer_function
+        print("🔧 Debug overlay renderer registered")
 
     def register_overlay_events(self):
         """Register ScreenManager as the proper overlay coordinator"""

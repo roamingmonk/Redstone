@@ -83,7 +83,9 @@ class CharacterOverlay(BaseTabbedOverlay):
             draw_text(surface, "ERROR: No character data", error_font,
                      content_rect.centerx, content_rect.centery, WHITE)
             return
-        
+
+        calculator = get_stats_calculator()
+         
         # Get character data
         character = game_state.character
         character_name = character.get('name', 'Adventurer')
@@ -179,8 +181,6 @@ class CharacterOverlay(BaseTabbedOverlay):
         surface.blit(weapon_label, (left_section_x, current_y))
         
         if weapon_name and weapon_name != 'None':
-            from utils.stats_calculator import get_stats_calculator
-            calculator = get_stats_calculator()
             weapon_damage, _ = calculator.calculate_weapon_damage(game_state)
             weapon_display = f"{weapon_name.replace('_', ' ').title()} ({weapon_damage})"
         else:

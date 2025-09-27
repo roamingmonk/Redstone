@@ -322,6 +322,11 @@ class GameController:
         # Register debug manager as a service for other systems
         self.event_manager.register_service('debug_manager', self.debug_manager)
         
+        # Register debug overlay rendering with ScreenManager
+        if hasattr(self, 'screen_manager') and self.screen_manager:
+            self.screen_manager.set_debug_overlay_renderer(self.debug_manager.render_debug_overlay)
+            print("🔧 Debug overlay registered with ScreenManager")
+        
         print("🔧 Debug system initialized")
 
 

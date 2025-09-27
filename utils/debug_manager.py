@@ -1,8 +1,9 @@
-# NEW FILE: utils/debug_manager.py
+# utils/debug_manager.py
 """
 Debug Manager - Professional Debug Infrastructure
 Handles all debugging functionality, keeping GameController lean
 """
+
 
 class DebugManager:
     """
@@ -51,6 +52,129 @@ class DebugManager:
         print("💾 F3 - Save State Debug Requested")
         self._debug_save_state()
     
+    def render_debug_overlay(self, surface, fonts):
+        
+        """Render on-screen debug overlay - F1 toggle"""
+        if not self.debug_mode:
+            return
+        import pygame
+
+        # Get font - use normal font instead of small
+        debug_font = fonts.get('small', None)
+        if not debug_font:
+            return
+        
+        # Semi-transparent background
+        overlay_width = 320
+        overlay_height = 320
+        overlay_surface = pygame.Surface((overlay_width, overlay_height))
+        overlay_surface.set_alpha(200)
+        overlay_surface.fill((0, 0, 0))  # Black background
+        
+        # Position in top-right corner
+        x_pos = surface.get_width() - overlay_width - 0
+        y_pos = 10
+        
+        # Draw background
+        surface.blit(overlay_surface, (x_pos, y_pos))
+        
+        # Draw border
+        #import pygame
+        #pygame.draw.rect(surface, (0, 255, 0), 
+        #                (x_pos, y_pos, overlay_width, overlay_height), 2)
+        
+        # Draw debug info
+        self._draw_debug_lines(surface, debug_font, x_pos + 15, y_pos + 15)
+    
+    def _draw_debug_lines(self, surface, font, start_x, start_y):
+        """Draw all debug information lines"""
+        import pygame
+        y_offset = 0
+        line_height = 25
+        
+        # Core system info
+        debug_lines = self._get_debug_lines()
+        
+        for line in debug_lines:
+            color = (0, 255, 0)  # Green text like you had before
+            if line.startswith("ERROR"):
+                color = (255, 0, 0)  # Red for errors
+            elif line.startswith("WARN"):
+                color = (255, 255, 0)  # Yellow for warnings
+            
+            text_surface = font.render(line, True, color)
+            surface.blit(text_surface, (start_x, start_y + y_offset))
+            y_offset += line_height
+    
+    def _get_debug_lines(self):
+        """Generate all debug information lines"""
+        lines = []
+        
+        # Header
+        lines.append("=== DEBUG INFO (F1) ===")
+        lines.append("")
+        
+        # Core system status
+        lines.append(f"Screen: {self.game_state.screen}")
+        lines.append(f"FPS: {getattr(self.game_state, 'current_fps', 'N/A')}")
+        lines.append(f"Errors: {getattr(self.game_state, 'error_count', 0)}")
+        
+        # Overlay status
+        overlays_active = []
+        if getattr(self.game_state, 'inventory_open', False):
+            overlays_active.append("inventory")
+        if getattr(self.game_state, 'quest_log_open', False):
+            overlays_active.append("quest")
+        if getattr(self.game_state, 'character_sheet_open', False):
+            overlays_active.append("character")
+        if getattr(self.game_state, 'help_screen_open', False):
+            overlays_active.append("help")
+            
+        lines.append(f"Overlays: {', '.join(overlays_active) if overlays_active else 'none'}")
+        #lines.append("")
+        
+        # Player position (if in town navigation)
+        if hasattr(self.game_state, 'town_player_x'):
+            lines.append(f"Town Pos: ({self.game_state.town_player_x}, {self.game_state.town_player_y})")
+            # Get navigation debug info if available
+            nav_info = self._get_navigation_debug()
+            lines.extend(nav_info)
+        
+        lines.append("")
+        
+        # Key game state flags
+        #lines.append("=== KEY FLAGS ===")
+        #lines.append(f"Quest Active: {getattr(self.game_state, 'quest_active', False)}")
+        #lines.append(f"Mayor Talked: {getattr(self.game_state, 'mayor_talked', False)}")
+        #lines.append(f"Party Size: {len(getattr(self.game_state, 'party_members', []))}")
+        
+        # Recruitment flags
+        #recruitment_flags = ['gareth_recruited', 'elara_recruited', 'thorman_recruited', 'lyra_recruited']
+        #recruited = [flag for flag in recruitment_flags if getattr(self.game_state, flag, False)]
+        #lines.append(f"Recruited: {', '.join(recruited) if recruited else 'none'}")
+        
+        return lines
+    
+    def _get_navigation_debug(self):
+        """Get navigation-specific debug info"""
+        lines = []
+        
+        # Try to get current building info from navigation instance
+        try:
+            from screens.redstone_town import _town_navigation_instance
+            if _town_navigation_instance:
+                current_building = _town_navigation_instance.current_building
+                if current_building:
+                    lines.append(f"Building: {current_building.get('name', 'Unknown')}")
+                    lines.append(f"Screen: {current_building.get('screen', 'N/A')}")
+                else:
+                    lines.append("Building: none")
+        except Exception as e:
+            lines.append(f"Nav Debug: Error - {str(e)[:20]}")
+        
+        return lines
+
+
     def _debug_quest_state(self):
         """Print current quest-relevant flags for debugging"""
         print("\n" + "="*50)
