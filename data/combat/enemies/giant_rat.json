@@ -1,0 +1,41 @@
+{
+  "enemy_id": "giant_rat",
+  "name": "Giant Rat", 
+  "description": "A vicious rodent the size of a small dog, with yellow teeth and red eyes.",
+  "stats": {
+    "hp": 8,
+    "max_hp": 8,
+    "ac": 12,
+    "strength": 8,
+    "dexterity": 15,
+    "constitution": 11,
+    "intelligence": 2,
+    "wisdom": 10,
+    "charisma": 4
+  },
+  "attacks": [
+    {
+      "name": "Bite",
+      "damage_dice": "1d4+1",
+      "attack_bonus": 2,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A vicious bite with diseased fangs"
+    }
+  ],
+  "movement": {
+    "speed": 3,
+    "movement_type": "ground"
+  },
+  "special_abilities": [],
+  "loot": {
+    "xp_value": 25,
+    "gold_range": [0, 2],
+    "items": []
+  },
+  "behavior": {
+    "aggression": "high",
+    "intelligence": "low",
+    "tactics": "rush_player"
+  }
+}

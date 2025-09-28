@@ -1,0 +1,49 @@
+{
+  "encounter_id": "tavern_basement_rats",
+  "name": "Basement Rat Infestation", 
+  "description": "The tavern basement is overrun with giant rats that have been eating the stored food.",
+  "battlefield_id": "small_cellar",
+  "difficulty": "easy",
+  "enemies": [
+    {
+      "enemy_id": "giant_rat",
+      "position": [8, 2],
+      "facing": "west",
+      "ai_behavior": "aggressive"
+    },
+    {
+      "enemy_id": "giant_rat", 
+      "position": [10, 4],
+      "facing": "west",
+      "ai_behavior": "aggressive"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [1, 6],
+      [2, 6], 
+      [3, 6]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 50,
+    "gold": 25,
+    "items": [],
+    "story_progress": {
+      "quest_flags": {
+        "completed_basement_combat": true,
+        "tavern_basement_cleared": true
+      }
+    }
+  },
+  "special_rules": [],
+  "escape_allowed": true,
+  "turn_limit": null
+}

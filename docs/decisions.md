@@ -1470,6 +1470,17 @@ Text rendering optimized with smaller fonts and professional wrap_text function
 **Files Modified:** narrative_schema.json, quest_overlay.py, dialogue files
 Architecture: Maintains schema-driven quest design while improving UX and separating concerns between core story progression and optional detailed investigation.
 
+# ADR-094: Combat Data Layer Foundation Implementation
+# Status: Implemented
+# Date: September 28, 2025
+**Context:** Game needed tactical combat system with professional data management for enemies, encounters, and battlefields.
+**Decision:** Implemented three-layer JSON architecture with coordinate arrays, full D&D stats, and modular encounter composition using CombatDataLoader utility.
+**Implementation:**Created utils/combat_loader.py with validation and caching, Established data/combat/ structure: enemies/, encounters/, battlefields/, Used [x,y] coordinate arrays and disambiguated field names (attack_type, movement_type)
+Built combat instance creation with unique enemy IDs and state tracking
+**Consequences:**
+**Positive:** Content creators can build encounters with zero code changes; enemy templates reusable across multiple encounters; professional validation prevents malformed data
+**Foundation:** Ready for game_logic/combat_engine.py business logic layer and ui/combat_system.py tactical interface
+Files Created: utils/combat_loader.py, data/combat/ structure with giant_rat.json, tavern_basement_rats.json, small_cellar.json
 
 ```
 ## ADR-XXX: <Short title>
