@@ -42,7 +42,9 @@ class GameState:
             # Progression tracking
             'level': 1,
             'experience': 0,
-            'hit_points': 10,
+            'hit_points': 10,   #Max hip points
+            'current_hp': 10,   #Current hip points
+            'max_hp'
             'abilities': [],  # ← THE KEY ADDITION!
             
             # Resources

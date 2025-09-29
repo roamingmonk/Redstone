@@ -1500,6 +1500,14 @@ Visual Feedback: Add movement/attack range highlighting
 Enemy AI: Implement automatic enemy turns after player END_TURN
 Victory Conditions: Wire existing victory detection to screen transitions
 
+# ADR-096 A: HP System Split (Current vs Maximum)
+# Status: Implemented (Untested)
+**Context:** Combat system requires tracking damage separately from maximum HP; original hit_points field served dual purpose causing conflicts. **Decision:** Added current_hp field to track combat damage while hit_points remains maximum HP; minimal breaking changes by preserving existing field names.
+**Files Modified:** game_state.py, character_engine.py, character_overlay.py, combat_system.py, combat_engine.py, save_manager.py
+Implementation: current_hp initialized on character creation, synced during level-ups, modified during combat; migration logic added for old saves; display format changed to "X/Y" pattern.
+**Consequences:** Combat can now track damage without losing max HP; old saves auto-migrate; HP displays show current/max split; requires actual combat testing to verify damage application works correctly.
+Technical Debt Eliminated: Removed dual-purpose hit_points confusion; added proper save migration for backward compatibility.
+
 
 ```
 ## ADR-XXX: <Short title>

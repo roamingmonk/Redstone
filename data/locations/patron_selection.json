@@ -4,7 +4,7 @@
     "name": "Tavern Patrons",
     "type": "npc_selection",
     "areas": {
-      "main_area": {
+      "main": {
         "type": "npc_selection",
         "title": "TAVERN PATRONS",
         "description": {

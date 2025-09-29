@@ -534,7 +534,7 @@ class InputHandler:
                 if game_state.screen in ["game_title", "developer_splash"]:
                     self.event_manager.emit("SCREEN_ADVANCE", {"current_screen": game_state.screen})
                     return True
-            # NEW: Handle BaseLocation keyboard navigation (generic)
+            # Handle BaseLocation keyboard navigation (generic)
             current_screen = game_state.screen
 
             # Detect BaseLocation screens by common patterns
@@ -558,14 +558,14 @@ class InputHandler:
                     # Parse screen to determine location and area
                     if current_screen == 'patron_selection':
                         location_id = 'patron_selection'
-                        area_id = 'main_area'
+                        area_id = 'main'
                     elif '_' in current_screen:
                         screen_parts = current_screen.split('_')
                         location_id = '_'.join(screen_parts[:-1])  # Everything except last part
                         area_id = screen_parts[-1]  # Last part (like "main")
                     else:
                         location_id = current_screen
-                        area_id = 'main_area'
+                        area_id = 'main'
                     
                     self.event_manager.emit("LOCATION_ACTION", {
                         'action': 'back',

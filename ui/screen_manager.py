@@ -1024,7 +1024,7 @@ class ScreenManager:
 
            # Broken Blade Tavern - BaseLocation System
             self._register_base_location_screen("broken_blade_main", "broken_blade", "main")
-            self._register_base_location_screen("patron_selection", "patron_selection", "main_area")
+            self._register_base_location_screen("patron_selection", "patron_selection", "main")
 
             # Utility screens
             self.register_render_function("inventory", draw_inventory_screen,

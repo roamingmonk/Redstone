@@ -37,40 +37,6 @@ class CombatEncounter:
         self.combat_loader = get_combat_loader()
         
         #print(f"🎯 Enhanced CombatEncounter UI created for: {encounter_id}")
-    
-    # def render(self, surface: pygame.Surface, game_state, fonts: Dict, images: Dict, 
-    #           controller=None) -> Dict[str, Any]:
-    #     """
-    #     Main combat screen rendering - follows BaseLocation pattern
-        
-    #     Args:
-    #         surface: Pygame surface to render on
-    #         game_state: GameState instance
-    #         fonts: Font dictionary
-    #         images: Image dictionary  
-    #         controller: GameController with combat_engine
-            
-    #     Returns:
-    #         Dict of clickable areas for InputHandler registration
-    #     """
-        
-    #     # Get CombatEngine (business logic)
-    #     combat_engine = getattr(controller, 'combat_engine', None) if controller else None
-        
-    #     if not combat_engine:
-    #         return self._render_engine_error(surface, fonts)
-        
-    #     # Get combat data from engine
-    #     try:
-    #         combat_data = combat_engine.get_combat_data_for_ui()
-    #     except Exception as e:
-    #         return self._render_data_error(surface, fonts, str(e))
-        
-    #     # Clear screen
-    #     surface.fill(BLACK)
-        
-    #     # Render combat interface
-    #     return self._render_tactical_combat_interface(surface, combat_data, fonts, controller)
 
     def render(self, surface: pygame.Surface, game_state, fonts: Dict, images: Dict, controller=None) -> Dict[str, Any]:
         """Main combat screen rendering - follows BaseLocation pattern"""
@@ -107,25 +73,6 @@ class CombatEncounter:
             return self._handle_action_button(action_type.lower(), game_state, event_manager)
 
         return None
-    
-    # def _register_with_input_handler(self):
-    #     """Register combat clickables with InputHandler"""
-    #     if hasattr(self, 'screen_manager') and hasattr(self.screen_manager, 'input_handler'):
-    #         input_handler = self.screen_manager.input_handler
-    #         input_handler.clear_clickables('combat')
-            
-    #         # Get current clickable areas
-    #         # You'll need to store these during render
-    #         if hasattr(self, 'current_clickable_areas'):
-    #             for area_id, area_data in self.current_clickable_areas.items():
-    #                 if isinstance(area_data, dict) and 'rect' in area_data:
-    #                     input_handler.register_clickable(
-    #                         screen_name='combat',
-    #                         rect=area_data['rect'],
-    #                         event_type='COMBAT_ACTION',
-    #                         event_data=area_data
-    #                     )
-    #         print("Combat clickables registered with InputHandler")
 
     def _register_with_input_handler(self, clickable_areas: Dict, controller):
         #print(f"🔍 Total clickable areas to register: {len(clickable_areas)}")
@@ -183,7 +130,7 @@ class CombatEncounter:
         self._render_tile_overlays(surface, combat_data)
         
         # Render right panel UI
-        panel_areas = self._render_combat_ui_panel(surface, fonts, combat_data)
+        panel_areas = self._render_combat_ui_panel(surface, fonts, combat_data, controller)
         clickable_areas.update(panel_areas)
         
         return clickable_areas
@@ -198,16 +145,21 @@ class CombatEncounter:
         # Combat title
         encounter_name = encounter.get('name', 'Combat Encounter')
         draw_centered_text(surface, encounter_name, title_font, 40, BRIGHT_GREEN)
-        
+
+        panel_x = 675  # Right side of screen
+        panel_y = 80
+
         # Current turn indicator
+        #TODO  Should show the name of the enemy (ex.rat 1)
         current_actor = combat_data.get('current_actor', 'Setup Phase')
-        turn_text = f"Current: {current_actor}"
-        draw_centered_text(surface, turn_text, text_font, 80, YELLOW)
+        turn_text = f"Turn: {current_actor}"
+        draw_text(surface, turn_text, text_font, panel_x, panel_y, YELLOW)
         
         # Combat phase
+        #TODO define this more clearly  
         phase = combat_data.get('combat_phase', 'setup')
         phase_text = f"Phase: {phase.title()}"
-        draw_centered_text(surface, phase_text, text_font, 100, CYAN)
+        draw_text(surface, phase_text, text_font, panel_x, panel_y + 25 , CYAN)
     
     def _render_battlefield_grid(self, surface: pygame.Surface, battlefield: Dict, 
                                combat_data: Dict, fonts: Dict) -> Dict[str, Any]:
@@ -318,21 +270,33 @@ class CombatEncounter:
     def _render_tile_overlays(self, surface: pygame.Surface, combat_data: Dict):
         """Render movement/targeting overlays on grid tiles"""
         
-        # TODO: Render highlighted tiles based on selected action
-        # Green for movement range, red for attack targets, orange for spell areas
-        for tile_pos in self.highlighted_tiles:
+        # Get highlighted tiles from combat engine
+        highlighted_tiles = combat_data.get('highlighted_tiles', [])
+        
+        # Get action mode to determine border color
+        current_action = combat_data.get('current_action_mode')
+    
+        # Determine border color based on action mode
+        if current_action == "attack":
+            border_color = (255, 0, 0)  # Red for attack targets
+            border_width = 3
+        elif current_action == "movement":
+            border_color = (0, 255, 0)  # Green for movement
+            border_width = 3
+        else:
+            return  # No highlighting if no action selected
+        
+        for tile_pos in highlighted_tiles:
             x, y = tile_pos
             screen_x = self.grid_offset_x + (x * self.tile_size)
             screen_y = self.grid_offset_y + (y * self.tile_size)
             
-            # Draw semi-transparent overlay
-            overlay_rect = pygame.Rect(screen_x, screen_y, self.tile_size, self.tile_size)
-            overlay_surface = pygame.Surface((self.tile_size, self.tile_size), pygame.SRCALPHA)
-            overlay_surface.fill((0, 255, 0, 128))  # Green with alpha
-            surface.blit(overlay_surface, overlay_rect)
+            # Draw border around tile
+            tile_rect = pygame.Rect(screen_x, screen_y, self.tile_size, self.tile_size)
+            pygame.draw.rect(surface, border_color, tile_rect, border_width)
     
     def _render_combat_ui_panel(self, surface: pygame.Surface, fonts: Dict, 
-                              combat_data: Dict) -> Dict[str, Any]:
+                              combat_data: Dict, controller) -> Dict[str, Any]:
         """Render right panel with actions, status, and combat log"""
         
         clickable_areas = {}
@@ -343,52 +307,68 @@ class CombatEncounter:
         text_font = fonts.get('fantasy_micro', fonts['normal'])
         
         # Current unit status
+        #TODO what is this suppose to show?  just a black space?
         current_y = panel_y
         draw_text(surface, "Current Unit:", text_font, 750, current_y, CYAN)
-        
         current_y += 30
 
-        # TODO: Show current unit stats (HP, actions remaining, etc.)
-        draw_text(surface, "HP: 20/20", text_font, 750, current_y, WHITE)
+        # Show current player HP
+        game_state = controller.game_state
+        current_hp = game_state.character.get('current_hp', 20)
+        max_hp = game_state.character.get('hit_points', 20)
+        hp_display = f"HP: {current_hp}/{max_hp}"
+        draw_text(surface, hp_display, text_font, 750, current_y, WHITE)
         current_y += 50
         
-        # Action buttons
-        action_buttons = ["MOVE", "ATTACK", "SPELL", "END_TURN"]
-        button_width = 80
+        # Action_buttons = ["MOVE", "ATTACK", "SPELL", "END_TURN"]
+        action_buttons = [
+            {"id": "move", "label": "Move"},
+            {"id": "attack", "label": "Attack"},
+            {"id": "spell", "label": "Cast Spell"},
+            {"id": "end_turn", "label": "End Turn"}
+        ]
+        
+        button_width = 90
         button_height = 30
         
-        for i, action in enumerate(action_buttons):
-            button_y = current_y + (i * (button_height + 10))
-            button_rect = pygame.Rect(panel_x - (button_width // 2), button_y, button_width, button_height)
-            
-            # Determine button state (active, disabled, etc.)
-            if action != "SPELL":
-                button_state = "active"
-            else:
-                button_state = "disabled"  # Disable spell for now
+        for i, action_data in enumerate(action_buttons):
+            try:
+                action_id = action_data.get("id", "unknown")
+                action_label = action_data.get("label", "Unknown")
 
-            draw_combat_button(surface, button_rect.x, button_rect.y, button_width, button_height,
-                    action, button_font, button_state)
-            
-            if action != "SPELL":  # Don't register disabled buttons
-                button_id = f"button_{action.lower()}"
-                clickable_areas[f"button_{action.lower()}"] = {
-                    "rect": button_rect,
-                    "action": action.upper(),
-                    "button_type": action.lower()
-                }
+                button_y = current_y + (i * (button_height + 10))
+                button_rect = pygame.Rect(panel_x - (button_width // 2), button_y, button_width, button_height)
+                
+                # Use action_id for logic checks
+                button_state = "disabled" if action_id == "spell" else "active"
+                
+                draw_combat_button(surface, button_rect.x, button_rect.y, button_width, button_height,
+                        action_label, button_font, button_state)
+
+                if action_id != "spell":  # Don't register disabled buttons
+
+                    clickable_areas[f"button_{action_id}"] = {
+                        "rect": button_rect,
+                        "action": action_id.upper(),
+                        "button_type": action_id
+                    }
+            except Exception as e:
+                print(f"❌ Error rendering button {i}: {e}")
+                continue
                 
         current_y += len(action_buttons) * (button_height + 10) + 30
         
         # Combat log
-        draw_text(surface, "Combat Log:", text_font, 750, current_y, CYAN)
+        draw_text(surface, "Combat Log:", text_font, 680, current_y, CYAN)
         current_y += 25
-        
-        # TODO: Show combat log messages
-        log_messages = ["Combat begins!", "Waiting for player action..."]
-        for message in log_messages[-4:]:  # Show last 4 messages
-            draw_text(surface, message[:30], text_font, 750, current_y, WHITE)
-            current_y += 120
+
+        # Get combat log from combat_data
+        log_messages = combat_data.get('combat_log', ["Combat begins!"])
+
+        # Display last 8 messages (fit in panel)
+        for message in log_messages[-8:]:
+            draw_text(surface, message, text_font, 680, current_y, WHITE)
+            current_y += 18  # Line spacing
         
         # Back button
         back_y = 680
@@ -437,28 +417,6 @@ class CombatEncounter:
         elif y1 == y2:  # Horizontal line
             return py == y1 and min(x1, x2) <= px <= max(x1, x2)
         return False
-    
-    # ==========================================
-    # ACTION HANDLERS
-    # ==========================================
-    
-    # def _handle_grid_click(self, grid_pos: List[int], game_state, event_manager) -> Optional[str]:
-    #     """Handle clicks on battlefield grid"""
-    #     if not grid_pos or len(grid_pos) != 2:
-    #         return None
-        
-    #     x, y = grid_pos
-    #     print(f"🎯 Grid clicked: [{x}, {y}]")
-        
-    #     # TODO: Handle based on selected action
-    #     if self.selected_action == "move":
-    #         # Validate movement and emit move event
-    #         event_manager.emit("COMBAT_MOVE_UNIT", {"target_position": [x, y]})
-    #     elif self.selected_action == "attack":
-    #         # Validate attack target and emit attack event
-    #         event_manager.emit("COMBAT_ATTACK_TARGET", {"target_position": [x, y]})
-        
-    #     return None
     
     def _handle_action_button(self, button_type: str, game_state, event_manager) -> Optional[str]:
         """Handle action button clicks"""
@@ -578,10 +536,9 @@ def register_combat_system_events(event_manager, game_controller):
         """Handle END_TURN button click"""
         print("END_TURN button clicked")
         if game_controller:
-            # Import the enum at the top of combat_system.py
-            from game_logic.combat_engine import CombatPhase
-            game_controller.current_phase = CombatPhase.ENEMY_TURN
-            print("Player turn ended, enemy turn begins")
+            # Call the proper combat engine method
+            game_controller.end_player_turn()
+            print("Player turn ended via combat engine")
         
     def handle_combat_back(event_data):
         """Handle return to previous screen"""

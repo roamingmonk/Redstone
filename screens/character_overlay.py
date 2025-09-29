@@ -165,8 +165,10 @@ class CharacterOverlay(BaseTabbedOverlay):
             surface.blit(xp_text, (left_section_x, current_y))
             current_y += 35
         
-        # Hit Points  
-        hp_text = normal_font.render(f"Hit Points: {character.get('hit_points', 10)}", True, WHITE)
+        # Hit Points (current/max format)
+        current_hp = character.get('current_hp', 10)
+        max_hp = character.get('hit_points', 10)
+        hp_text = normal_font.render(f"Hit Points: {current_hp}/{max_hp}", True, WHITE)
         surface.blit(hp_text, (left_section_x, current_y))
         current_y += 50
         

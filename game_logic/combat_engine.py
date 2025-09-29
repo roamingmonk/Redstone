@@ -50,33 +50,37 @@ class CombatEngine:
         self.player_position = None
         self.player_has_moved = False
         self.player_has_acted = False
-        
+        self.player_attacks_used = 0 
+
         #Register combat events (following SaveManager pattern)
         if event_manager:
             from ui.combat_system import register_combat_system_events
             register_combat_system_events(event_manager, self)
-            # event_manager.register("COMBAT_BACK", self._handle_combat_back)
-            # event_manager.register("COMBAT_MOVE_UNIT", self._handle_move_unit)
-            # event_manager.register("COMBAT_ATTACK_TARGET", self._handle_attack_target)
-            # event_manager.register("COMBAT_END_TURN", self._handle_end_turn)
             print("Combat events registered with EventManager")
     
         print("CombatEngine initialized")
     
+    def _get_movement_range(self) -> int:
+        """Get current actor's movement range from stats"""
+        # TODO: Eventually read from game_state.character['movement_range']
+        return 3  # Base movement for now
+
     def start_encounter(self, encounter_id: str, combat_context: Dict = None) -> bool:
         """
         Load encounter data and initialize combat state
-        
-        Args:
-            encounter_id: ID of encounter to load
+        Args:encounter_id: ID of encounter to load
             combat_context: Location-specific context from calling screen
-            
-        Returns:
-            bool: True if combat started successfully
+        Returns: bool: True if combat started successfully
         """
         try:
             print(f"🎯 Starting combat encounter: {encounter_id}")
-            
+             
+            # SAFETY: Ensure current_hp exists before combat
+            if 'current_hp' not in self.game_state.character:
+                max_hp = self.game_state.character.get('hit_points', 10)
+                self.game_state.character['current_hp'] = max_hp
+                print(f"⚠️ Initialized missing current_hp to {max_hp}")
+                
             # Load complete combat instance
             self.combat_data = self.combat_loader.create_combat_instance(encounter_id, combat_context)
             if not self.combat_data:
@@ -122,9 +126,7 @@ class CombatEngine:
     def get_combat_data_for_ui(self) -> Dict:
         """
         Return all data needed for UI rendering
-        
-        Returns:
-            Dict containing complete combat state for UI
+        Returns:Dict containing complete combat state for UI
         """
         if not self.combat_data:
             return {
@@ -145,40 +147,9 @@ class CombatEngine:
             "turn_number": self.combat_data.get("turn_number", 0),
             "combat_log": self.combat_log[-10:],  # Last 10 messages
             "player_actions": self._get_available_player_actions(),
+            "current_action_mode": self.current_action_mode, 
             "highlighted_tiles": self._get_highlighted_tiles()
         }
-
-    # def _handle_combat_back(self, event_data):
-    #     """Handle return to previous screen"""
-    #     print("COMBAT_BACK EVENT HANDLER CALLED!")
-        
-    #     if hasattr(self.game_state, 'previous_screen') and self.game_state.previous_screen:
-    #         self.game_state.screen = self.game_state.previous_screen
-    #     else:
-    #         self.game_state.screen = "broken_blade_main"
-    #     print(f"Returning to: {self.game_state.screen}")
-
-    # def _handle_move_unit(self, event_data):
-    #     """Handle unit movement"""
-    #     target_pos = event_data.get("target_position", [0, 0])
-    #     print(f"Moving unit to: {target_pos}")
-    #     action_data = {"action_type": "move", "target_position": target_pos}
-    #     return self.execute_player_action(action_data)
-
-    # def _handle_attack_target(self, event_data):
-    #     """Handle attack actions"""  
-    #     target_pos = event_data.get("target_position", [0, 0])
-    #     print(f"Attacking target at: {target_pos}")
-    #     action_data = {"action_type": "attack", "target_position": target_pos}
-    #     return self.execute_player_action(action_data)
-
-    # def _handle_end_turn(self, event_data):
-    #     """Handle end turn"""
-    #     print("Ending current turn")
-    #     # Use existing turn management
-    #     self.current_phase = CombatPhase.ENEMY_TURN
-    #     # TODO: Trigger enemy AI turns
-
 
     def set_action_mode(self, mode: str):
         """Set current action mode for UI interaction"""
@@ -256,14 +227,9 @@ class CombatEngine:
         return targets
     
     def execute_player_move(self, target_position: List[int]) -> bool:
-        """
-        Execute player movement to target position
-        
-        Args:
-            target_position: Destination [x, y] position
-            
-        Returns:
-            bool: True if move was successful
+        """ Execute player movement to target position
+        Args: target_position: Destination [x, y] position
+        Returns:bool: True if move was successful
         """
         if self.current_phase != CombatPhase.PLAYER_TURN:
             self._add_to_combat_log("Not player's turn!")
@@ -274,7 +240,7 @@ class CombatEngine:
             return False
         
         # Validate movement
-        movement_range = 3  # TODO: Get from character stats
+        movement_range = self._get_movement_range()  # uses helper
         valid_moves = self.get_valid_moves(self.player_position, movement_range)
         
         if target_position not in valid_moves:
@@ -286,6 +252,9 @@ class CombatEngine:
         self.player_position = target_position
         self.player_has_moved = True
         
+        # Clear action mode after successful move
+        self.current_action_mode = None  
+
         self._add_to_combat_log(f"Player moves to ({target_position[0]}, {target_position[1]})")
         
         # Emit movement event for UI
@@ -300,17 +269,19 @@ class CombatEngine:
     def execute_player_attack(self, target_position: List[int]) -> bool:
         """
         Execute player attack on target position
-        
-        Args:
-            target_position: Target [x, y] position
-            
-        Returns:
-            bool: True if attack was executed
+        Args: target_position: Target [x, y] position
+        Returns:bool: True if attack was executed
         """
         if self.current_phase != CombatPhase.PLAYER_TURN:
             self._add_to_combat_log("Not player's turn!")
             return False
         
+         # Check attacks remaining
+        attacks_per_round = self._get_attacks_per_round()
+        if self.player_attacks_used >= attacks_per_round:
+            self._add_to_combat_log("No attacks remaining!")
+            return False
+
         if self.player_has_acted:
             self._add_to_combat_log("Already acted this turn!")
             return False
@@ -345,6 +316,12 @@ class CombatEngine:
         if success:
             self.player_has_acted = True
             
+            # Only clear action mode if all attacks are used
+            if self.player_attacks_used >= attacks_per_round:
+                self.player_has_acted = True
+                self.current_action_mode = None
+                self._add_to_combat_log("All attacks used")
+
             # Check if target was defeated
             if target_enemy.get("current_hp", 0) <= 0:
                 target_name = target_enemy.get("name", "Enemy")
@@ -357,6 +334,12 @@ class CombatEngine:
         
         return success
     
+    def _get_attacks_per_round(self) -> int:
+        """Get number of attacks player gets per round"""
+        # TODO: Eventually read from character progression/class features
+        attacks, _ = self.stats_calculator.calculate_attacks_per_round(self.game_state)
+        return attacks
+
     def end_player_turn(self):
         """End the player's turn and advance to next actor"""
         if self.current_phase != CombatPhase.PLAYER_TURN:
@@ -398,6 +381,7 @@ class CombatEngine:
         current_actor = self.turn_order[self.current_actor_index]
         if current_actor == "player":
             self.current_phase = CombatPhase.PLAYER_TURN
+            self.player_attacks_used = 0  # Reset attack counter
             self._add_to_combat_log("Player's turn")
         else:
             self.current_phase = CombatPhase.ENEMY_TURN
@@ -424,6 +408,10 @@ class CombatEngine:
         # Simple AI: Move toward player and attack if in range
         self._execute_basic_ai(enemy)
         
+        # Log enemy turn end
+        enemy_name = enemy.get("name", "Enemy") if enemy else "Enemy"
+        self._add_to_combat_log(f"{enemy_name} ends turn")
+
         # End enemy turn
         self._advance_turn()
     
@@ -523,10 +511,13 @@ class CombatEngine:
                     self._add_to_combat_log(f"{target_name}: {new_hp}/{target_data.get('stats', {}).get('hp', 0)} HP")
                 else:
                     # Damage player
-                    current_hp = self.game_state.character.get("hit_points", 0)
+                    current_hp = self.game_state.character.get("current_hp", 0)
                     new_hp = max(0, current_hp - damage)
-                    self.game_state.character["hit_points"] = new_hp
-                    self._add_to_combat_log(f"{target_name}: {new_hp} HP")
+                    self.game_state.character["current_hp"] = new_hp
+                    
+                    #Show current/max HP in combat log
+                    max_hp = self.game_state.character.get("hit_points", 0)
+                    self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
                     
                     # Check if player defeated
                     if new_hp <= 0:
@@ -722,9 +713,9 @@ class CombatEngine:
         if defeat_consequences:
             hp_loss_pct = defeat_consequences.get("hp_loss_percentage", 0)
             if hp_loss_pct > 0:
-                max_hp = self.game_state.character.get("hit_points", 20)  # TODO: Get max HP properly
+                max_hp = self.game_state.character.get("hit_points", 10)  
                 new_hp = max(1, int(max_hp * (100 - hp_loss_pct) / 100))
-                self.game_state.character["hit_points"] = new_hp
+                self.game_state.character["current_hp"] = new_hp
         
         # Emit defeat event
         self.event_manager.emit("COMBAT_DEFEAT", {
@@ -780,9 +771,35 @@ class CombatEngine:
         return actions
     
     def _get_highlighted_tiles(self) -> List[List[int]]:
-        """Get tiles to highlight in UI"""
-        # TODO: Return appropriate tiles based on selected action
-        return []
+        """Get tiles to highlight in UI based on current action mode"""
+        highlighted_tiles = []
+        
+        #print(f"🎯 Getting highlighted tiles - Phase: {self.current_phase}, Mode: {self.current_action_mode}")
+
+        # Only highlight during player turn
+        if self.current_phase != CombatPhase.PLAYER_TURN:
+            print(f"❌ Not player turn, returning empty")
+            return highlighted_tiles
+        
+        if self.current_action_mode == "movement":
+            movement_range = self._get_movement_range()  # ← Use helper
+            highlighted_tiles = self.get_valid_moves(self.player_position, movement_range)
+            # print(f"✅ Movement mode: calculated {len(highlighted_tiles)} valid tiles")
+            # print(f"   Player position: {self.player_position}")
+            # print(f"   Sample tiles: {highlighted_tiles[:5]}")
+
+
+        # Attack mode - show valid attack targets
+        elif self.current_action_mode == "attack":
+            attack_range = 1  # Melee range for now
+            attack_targets = self.get_attack_targets(self.player_position, attack_range)
+            print(f"🎯 Attack mode: found {len(attack_targets)} targets")
+            print(f"   Attack targets: {attack_targets}")
+            # Extract just the positions from the target dictionaries
+            highlighted_tiles = [target["position"] for target in attack_targets]
+            print(f"   Highlighted tile positions: {highlighted_tiles}")
+        
+        return highlighted_tiles
     
     def _add_to_combat_log(self, message: str):
         """Add message to combat log"""

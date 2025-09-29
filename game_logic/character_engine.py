@@ -739,7 +739,8 @@ class CharacterEngine:
         hit_points = max(1, hit_points)
         
         # Update GameState directly (Single Data Authority)
-        self.game_state.character['hit_points'] = hit_points
+        self.game_state.character['hit_points'] = hit_points #max hit points
+        self.game_state.character['current_hp'] = hit_points 
         
         return hit_points
     
@@ -963,8 +964,6 @@ class CharacterEngine:
     # CHARACTER PROGRESSION OPERATIONS
     # ==========================================
     
-    # def get_level_requirements(self):
-    #     return list(self._level_requirements)
 
     def can_level_up(self):
         """
@@ -1046,8 +1045,13 @@ class CharacterEngine:
         # Ensure experience field exists and is preserved (don't consume XP)
         self.game_state.character.setdefault('experience', 0)
         
-        current_hp = self.game_state.character.get('hit_points', 10)
-        self.game_state.character['hit_points'] = current_hp + hp_gain
+        # Increase max HP
+        current_max = self.game_state.character.get('hit_points', 10)
+        self.game_state.character['hit_points'] = current_max + hp_gain
+
+        # Also heal by the amount gained (leveling heals you)
+        current_hp = self.game_state.character.get('current_hp', current_max)
+        self.game_state.character['current_hp'] = min(current_hp + hp_gain, self.game_state.character['hit_points'])
         
         # Track abilities gained
         if 'abilities' not in self.game_state.character:
