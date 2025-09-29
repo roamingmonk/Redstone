@@ -21,7 +21,7 @@ from game_logic.commerce_engine import initialize_commerce_engine
 from game_logic.dialogue_engine import initialize_dialogue_engine
 from game_logic.quest_engine import initialize_quest_engine
 from game_logic.dice_game_engine import initialize_dice_game_engine
-from game_logic.combat_engine import initialize_combat_engine, set_combat_engine
+from game_logic.combat_engine import initialize_combat_engine
 from utils.quest_system import integrate_quest_system, update_quest_system
 from ui.screen_manager import ScreenManager
 from input_handler import InputHandler
@@ -96,6 +96,7 @@ class GameController:
         self.commerce_engine = None
         self.dialogue_engine = None
         self.quest_engine = None
+        self.combat_engine = None
         self.intro_sequence_manager = None
         
         # Navigation state
@@ -209,17 +210,16 @@ class GameController:
         self.dialogue_engine = initialize_dialogue_engine(self.game_state, self.event_manager)
         self.quest_engine = initialize_quest_engine(self.game_state, self.event_manager)
         self.dice_game_engine = initialize_dice_game_engine(self.game_state, self.event_manager)
-        self.combat_engine = initialize_combat_engine(self.event_manager, self.game_state, self.data_manager)
-        set_combat_engine(self.combat_engine)
-        self._mark_system_created("combat_engine")
-
-
+        self.combat_engine = initialize_combat_engine(self.game_state,self.event_manager)
+        # self.combat_engine = initialize_combat_engine(self.event_manager, self.game_state, self.data_manager)
+        # set_combat_engine(self.combat_engine)
+        # self._mark_system_created("combat_engine")
 
         # Make QuestEngine discoverable by helpers (e.g., update_quest_system -> scan)
         self.game_state.quest_engine = self.quest_engine
 
         self.commerce_engine.register_event_handlers(self.event_manager)
-        
+        self.event_manager.register_service('combat_engine', self.combat_engine)
         # Register engines as services in EventManager
         self.event_manager.register_service('dialogue_engine', self.dialogue_engine)
         self.event_manager.register_service('commerce_engine', self.commerce_engine)
@@ -234,7 +234,7 @@ class GameController:
         self._mark_system_created("commerce_engine")
         self._mark_system_created("dialogue_engine")
         self._mark_system_created("quest_engine")
-
+        self._mark_system_created("combat_engine")
 
 
         # Step 6: SaveManager (requires: GameState, CharacterEngine, EventManager)
@@ -301,7 +301,10 @@ class GameController:
         
         # Sync ScreenManager with current game state
         self.screen_manager.transition_to(self.game_state.screen, self.game_state, save_history=False)
-        
+
+        self.combat_engine = initialize_combat_engine(self.game_state, self.event_manager)
+        self._mark_system_created("combat_engine")
+
     # --- DEBUG: temporary event tap to see XP awards in the console ---
     # TODO Remove once you confirm XP events are flowing.
         try:

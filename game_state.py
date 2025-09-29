@@ -146,6 +146,19 @@ class GameState:
         for flag in key_flags:
             if flag in valid_flags:
                 print(f"   ✓ {flag}: {getattr(self, flag)}")
+
+        # Combat state tracking
+        self.in_combat = False
+        self.combat_data = {
+            "encounter_id": None,
+            "battlefield": None,
+            "current_turn": 0,
+            "phase": "movement",  # "movement", "action", "resolution"
+            "player_position": {"x": 0, "y": 0},
+            "enemy_positions": {},
+            "defeated_enemies": [],
+            "combat_log": []
+        }
                 
         
     # Add computed property for recruitment tracking
@@ -211,6 +224,26 @@ class GameState:
         
         print(f"✅ Added character data for {character_data['name']}")
         return True
+
+    def start_combat(self, encounter_id: str):
+        """Initialize combat state for new encounter"""
+        self.in_combat = True
+        self.combat_data["encounter_id"] = encounter_id
+        self.combat_data["combat_log"] = [f"Combat begins: {encounter_id}"]
+
+    def end_combat(self, victory: bool):
+        """Clean up combat state and return to exploration"""
+        self.in_combat = False
+        self.combat_data = {
+            "encounter_id": None,
+            "battlefield": None,
+            "current_turn": 0,
+            "phase": "movement",
+            "player_position": {"x": 0, "y": 0},
+            "enemy_positions": {},
+            "defeated_enemies": [],
+            "combat_log": []
+        }
 
     def get_party_member_data(self, npc_id):
         """Get full character data for party member"""

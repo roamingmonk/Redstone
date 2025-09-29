@@ -242,7 +242,6 @@ class ActionHubLocation(BaseLocation):
         #print(f"✅ All requirements satisfied")
         return True
     
-    
     def render(self, surface: pygame.Surface, game_state, fonts: Dict, images: Dict, 
            controller=None) -> Dict[str, Any]:
 
@@ -437,6 +436,30 @@ class ActionHubLocation(BaseLocation):
                     "source_screen": f"{self.location_id}_{self.current_area}"
                 })
                 return "shopping_success"
+            
+        elif action_type == 'combat':
+            encounter_id = action_data.get('combat_encounter')
+            combat_context = action_data.get('combat_context')
+            target = action_data.get('target', 'combat')
+            
+            if encounter_id:
+                # Save current screen before transitioning to combat
+                game_state.previous_screen = f"{self.location_id}_{self.current_area}"
+                # Store combat data in game state
+                game_state.current_combat_encounter = encounter_id
+                if combat_context:
+                    game_state.combat_context = combat_context
+                print(f"🎯 Starting combat encounter: {encounter_id}")
+                
+                # Navigate to combat screen
+                event_manager.emit("SCREEN_CHANGE", {
+                    "target_screen": target,
+                    "source_screen": f"{self.location_id}_{self.current_area}"
+                })
+                return "combat_success"
+            else:
+                print("❌ Combat action missing encounter_id")
+                return None
         
         # Handle special actions (like 'back' buttons)
         elif action_name:

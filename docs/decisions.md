@@ -1481,6 +1481,25 @@ Built combat instance creation with unique enemy IDs and state tracking
 **Positive:** Content creators can build encounters with zero code changes; enemy templates reusable across multiple encounters; professional validation prevents malformed data
 **Foundation:** Ready for game_logic/combat_engine.py business logic layer and ui/combat_system.py tactical interface
 Files Created: utils/combat_loader.py, data/combat/ structure with giant_rat.json, tavern_basement_rats.json, small_cellar.json
+# ADR-095 Combat System Event Integration
+# Date: September 28, 2025
+# Status: Implemented
+**Problem** Combat system UI was generating events but had no listeners - buttons clicked but nothing happened. Multiple event registration systems were conflicting, causing 0 listeners for core combat actions.
+Root Causes Identified Event Name Mismatch: UI emitted MOVE/ATTACK/END_TURN but handlers expected COMBAT_MOVE_UNIT/COMBAT_ATTACK_TARGET
+BaseLocation System Incomplete: Screen registration used unimplemented BaseLocation architecture
+Duplicate Registration: Two separate event registration functions conflicted
+**Solution Implemented** Event Handler Integration, Decision: Use single event registration in combat_engine.py init() method
+python# Register combat events; Event Name Alignment-Decision: Align event handlers with actual UI emissions; Method Name Resolution
+Decision: Use existing CombatEngine methods
+**Architecture Benefits** Clean Event Flow: UI → EventManager → CombatEngine business logic
+Proper Separation: UI handles presentation, CombatEngine handles game rules
+Existing Method Reuse: Leveraged comprehensive CombatEngine methods
+**Integration:** Follows established SaveManager event registration pattern
+**Future Considerations** Duplicate Listeners: Currently shows "2 listeners" - investigate and resolve
+Visual Feedback: Add movement/attack range highlighting
+Enemy AI: Implement automatic enemy turns after player END_TURN
+Victory Conditions: Wire existing victory detection to screen transitions
+
 
 ```
 ## ADR-XXX: <Short title>

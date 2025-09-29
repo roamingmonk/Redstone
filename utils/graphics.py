@@ -4,10 +4,11 @@ Contains all drawing functions for UI elements, borders, buttons, etc.
 """
 
 import pygame
-from .constants import (
-    WHITE, GRAY, DARK_GRAY, DARK_BROWN, YELLOW, BLACK,
-    BORDER_THICKNESS
-)
+# from .constants import (
+#     WHITE, GRAY, DARK_GRAY, DARK_BROWN, YELLOW, BLACK,
+#     BORDER_THICKNESS
+# )
+from utils.constants import *
 
 def draw_text_with_shadow(surface, text, font, x, y, text_color=WHITE, shadow_color=DARK_GRAY, shadow_offset=3):
     """
@@ -66,6 +67,49 @@ def calculate_best_font_for_button(text, max_width, fonts_to_try):
         if text_surface.get_width() <= max_width - 10:  # 10px padding
             return font
     return fonts_to_try[-1]  # Return smallest font if none fit
+
+def draw_combat_button(surface, x, y, width, height, text, font, button_state="normal"):
+    """
+    Draw combat-specific buttons with proper visual states
+    
+    Args:
+        surface: Pygame surface to draw on
+        x, y: Button position
+        width, height: Button dimensions
+        text: Button text
+        font: Font to use
+        button_state: "normal", "active", "disabled"
+    """
+    import pygame
+
+    # Define colors based on state
+    if button_state == "active":
+        bg_color = DARK_GREEN
+        text_color = BRIGHT_GREEN
+        border_color = BRIGHT_GREEN
+        border_width = 2
+    elif button_state == "disabled":
+        bg_color = DARK_GRAY
+        text_color = GRAY
+        border_color = GRAY
+        border_width = 1
+    else:  # normal
+        bg_color = BLACK
+        text_color = WHITE
+        border_color = WHITE
+        border_width = 1
+    
+    # Draw button background
+    button_rect = pygame.Rect(x, y, width, height)
+    pygame.draw.rect(surface, bg_color, button_rect)
+    pygame.draw.rect(surface, border_color, button_rect, border_width)
+    
+    # Draw button text
+    text_surface = font.render(text, True, text_color)
+    text_rect = text_surface.get_rect(center=button_rect.center)
+    surface.blit(text_surface, text_rect)
+    
+    return button_rect
 
 def draw_button(surface, x, y, width, height, text, font, pressed=False, selected=False):
     """

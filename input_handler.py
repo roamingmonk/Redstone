@@ -80,33 +80,57 @@ class InputHandler:
         """Register combat screen clickables with InputHandler"""
         
         if screen_name != "combat" or not clickable_areas:
+            print(f"⚠️ Invalid combat registration: screen={screen_name}, areas={len(clickable_areas) if clickable_areas else 0}")
             return
         
         regions = []
         
-        for area_id, rect in clickable_areas.items():
-            if area_id == "test_victory":
+        for area_id, area_data in clickable_areas.items():
+            #if area_id.startswith("button_"):
+                #print(f"🔍 Processing button: {area_id} -> action: {area_data.get('action')}")
+            
+            # Handle grid clicks
+            if area_id.startswith("grid_"):
                 regions.append({
-                    "action": "COMBAT_TEST_VICTORY",
-                    "rect": (rect.x, rect.y, rect.width, rect.height),
+                    "action": area_data.get("action", "GRID_CLICK"),
+                    "rect": (area_data["rect"].x, area_data["rect"].y, 
+                            area_data["rect"].width, area_data["rect"].height),
+                    "payload": {"grid_pos": area_data.get("grid_pos", [0, 0])}
+                })
+            
+            # Handle action buttons
+            elif area_id.startswith("button_"):
+                action = area_data.get("action", "UNKNOWN")
+                regions.append({
+                    "action": action,
+                    "rect": (area_data["rect"].x, area_data["rect"].y,
+                            area_data["rect"].width, area_data["rect"].height),
                     "payload": {}
                 })
-            elif area_id == "test_defeat":
-                regions.append({
-                    "action": "COMBAT_TEST_DEFEAT", 
-                    "rect": (rect.x, rect.y, rect.width, rect.height),
-                    "payload": {}
-                })
+
             elif area_id == "back_button":
                 regions.append({
                     "action": "COMBAT_BACK",
-                    "rect": (rect.x, rect.y, rect.width, rect.height),
+                    "rect": (area_data["rect"].x, area_data["rect"].y,
+                            area_data["rect"].width, area_data["rect"].height),
                     "payload": {}
-                })
+                })    
+
         
         # Register with InputHandler using your existing pattern
         self.set_interactables(screen_name, regions)
-        print(f"⚔️ Combat clickables registered: {len(regions)} areas")
+        if not hasattr(self, '_last_combat_register_time'):
+            self._last_combat_register_time = 0
+            
+        import time
+        current_time = time.time()
+        if current_time - self._last_combat_register_time > 1.0:  # Only print once per second
+            print(f"⚔️ Combat clickables registered: {len(regions)} areas")
+            self._last_combat_register_time = current_time
+        
+        # Debug output
+        #for i, region in enumerate(regions[:5]):  # Show first 5 for debugging
+            #print(f"  {i+1}. Action: {region['action']}, Rect: {region['rect']}")
         
     def set_interactables(self, screen_name: str, interactables_data):
         """
@@ -226,9 +250,9 @@ class InputHandler:
         """
         
         # ADD DEBUG LOGGING HERE:
-        #print(f"🖱️ DEBUG: IH: Mouse click detected at {mouse_pos}")
-        #print(f"🖱️ DEBUG: IH: Current screen: {current_screen}")
-        
+        print(f"🖱️ DEBUG: IH: Mouse click detected at {mouse_pos}")
+        print(f"🖱️ DEBUG: IH: Current screen: {current_screen}")
+    
         # Record click for debugging
         self.click_history.append({
             'pos': mouse_pos,
@@ -270,6 +294,9 @@ class InputHandler:
                         #print(f"🎯 DEBUG: IH: HIT! Event: {region.event_type}, Data: {region.event_data}")
 
                     # Emit the event instead of calling methods directly
+                    
+                    print(f"🚀 EMIT: {region.event_type}")
+                    print(f"🚀 Emitting event: {region.event_type} with data: {region.event_data}")
                     self.event_manager.emit(region.event_type, region.event_data)
                     #print(f"✅ DEBUG: IH: Event emitted successfully")
 

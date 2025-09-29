@@ -4,7 +4,7 @@
     "name": "The Broken Blade Tavern",
     "type": "action_hub",
     "areas": {
-      "main_room": {
+      "main": {
         "type": "action_hub",
         "title": "THE BROKEN BLADE TAVERN",
         "description": {
@@ -34,14 +34,22 @@
                 "label": "server"
             },
             "basement": {
-                "type": "navigate",
-                "target": "broken_blade_basement",
-                "label": "basement",
-                "requirements": {
-                  "flags": {
-                    "accepted_basement_quest": true
+              "type": "combat",
+              "target": "combat",
+              "label": "Basement",
+              "requirements": {
+                "flags": {
+                  "accepted_basement_quest": true
+                }
+              },
+              "combat_encounter": "tavern_basement_rats",
+              "combat_context": {
+                  "location_name": "Tavern Basement",
+                  "victory_description": "You clear the basement of the rat infestation.",
+                  "victory_quest_flags": {
+                      "completed_basement_combat": true
                   }
-                }    
+              }
             },
             "leave": {
                 "type": "navigate",

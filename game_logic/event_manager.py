@@ -47,6 +47,7 @@ class EventManager:
         print("🎯 EventManager initialized - Professional event system ready!")
     
     def emit(self, event_type: str, data: Optional[Dict[str, Any]] = None) -> bool:
+        print(f"🔍 EM ID: {id(self)} emitting {event_type} to {len(self.listeners[event_type])} listeners")
         """
         Emit an event to all registered listeners
         
