@@ -331,6 +331,12 @@ class CombatEncounter:
         button_width = 90
         button_height = 30
         
+        # Get player state for button disabling
+        player_state = combat_data.get('player_state', {})
+        has_moved = player_state.get('has_moved', False)
+        attacks_used = player_state.get('attacks_used', 0)
+        attacks_per_round = player_state.get('attacks_per_round', 1)
+
         for i, action_data in enumerate(action_buttons):
             try:
                 action_id = action_data.get("id", "unknown")
@@ -339,8 +345,21 @@ class CombatEncounter:
                 button_y = current_y + (i * (button_height + 10))
                 button_rect = pygame.Rect(panel_x - (button_width // 2), button_y, button_width, button_height)
                 
-                # Use action_id for logic checks
-                button_state = "disabled" if action_id == "spell" else "active"
+                # Determine button state based on player actions
+                if action_id == "move":
+                    button_state = "disabled" if has_moved else "active"
+                elif action_id == "attack":
+                    has_attack_targets = player_state.get('has_attack_targets', False)
+                    if attacks_used >= attacks_per_round or not has_attack_targets:
+                        button_state = "disabled"
+                    else:
+                        button_state = "active"
+                elif action_id == "spell":
+                    button_state = "disabled"  # Not implemented yet
+                elif action_id == "end_turn":
+                    button_state = "active"  # Always available
+                else:
+                    button_state = "active"
                 
                 draw_combat_button(surface, button_rect.x, button_rect.y, button_width, button_height,
                         action_label, button_font, button_state)

@@ -1501,6 +1501,7 @@ Enemy AI: Implement automatic enemy turns after player END_TURN
 Victory Conditions: Wire existing victory detection to screen transitions
 
 # ADR-096 A: HP System Split (Current vs Maximum)
+# Date: September 29, 2025
 # Status: Implemented (Untested)
 **Context:** Combat system requires tracking damage separately from maximum HP; original hit_points field served dual purpose causing conflicts. **Decision:** Added current_hp field to track combat damage while hit_points remains maximum HP; minimal breaking changes by preserving existing field names.
 **Files Modified:** game_state.py, character_engine.py, character_overlay.py, combat_system.py, combat_engine.py, save_manager.py
@@ -1508,6 +1509,33 @@ Implementation: current_hp initialized on character creation, synced during leve
 **Consequences:** Combat can now track damage without losing max HP; old saves auto-migrate; HP displays show current/max split; requires actual combat testing to verify damage application works correctly.
 Technical Debt Eliminated: Removed dual-purpose hit_points confusion; added proper save migration for backward compatibility.
 
+# ADR-096 B: Combat Movement & Targeting System
+# Date: September 29, 2025
+# Status: Implemented
+**Context:** Combat required visual feedback for valid movement and attack targeting; needed to prevent action mode persistence after actions completed; required single source of truth for movement range calculations.
+**Decision:** Implemented colored border overlays (green=movement, red=attack) triggered by action buttons; centralized movement range in _get_movement_range() method; action mode clears after successful move/attack to prevent stale UI state.
+Files Modified: combat_engine.py (_get_highlighted_tiles, _get_movement_range, execute_player_move, execute_player_attack), combat_system.py (_render_tile_overlays), game_state.py (combat_data structure)
+**Implementation:** MOVE button sets mode, calculates valid tiles, renders green borders; click executes move, clears mode; ATTACK button shows red borders on enemy positions; both use shared tile calculation preventing misalignment.
+Technical Debt Addressed: Eliminated dual hardcoded movement range values; prevented green/red overlay persistence bug; established pattern for future action types (spells, items).
+
+
+# ADR-097: Enemy Multi-Attack System (Deferred)
+# Date: September 29, 2025
+**Status:** Deferred to Session 7
+**Context:** During combat implementation discovered enemy attack design requires clarification: does attacks array represent attack count, attack options, or specific multi-attack sequences?
+**Decision:** Defer complex attack logic to Session 7 (Character Abilities & Spell Integration); implement simple system now where array length = number of identical attacks using first attack definition.
+**Rationale:** Same session handling player spell choices and action economy should handle enemy attack variety and AI selection logic; premature optimization before basic combat flow complete.
+**Current Implementation:** Enemy attacks all use first attack in array; multi-attack = repeat same attack multiple times; no weapon selection or range-based choice.
+Future Enhancement (Session 7): Add multiattack definitions, attack selection AI (melee vs ranged), special attack conditions, weapon switching logic.
+
+# ADR-098: Combat Button State Management
+# Date: September 29, 2025
+# Status: Implemented
+**Context:** Action buttons remained active after player exhausted actions; attack button showed even when no enemies in range; needed visual feedback for action availability.
+**Decision:** Button states reflect player action state (has_moved, attacks_used) and tactical situation (enemies in range); buttons gray out when unavailable; attack counter increments on hit or miss following D&D rules.
+**Files Modified:** combat_engine.py (get_combat_data_for_ui, execute_player_attack, _get_attacks_per_round), combat_system.py (_render_combat_ui_panel button state logic)
+**Implementation:** Combat engine returns player_state dict with action flags and attack availability; UI checks both action limits and valid targets; MOVE grays after moving, ATTACK grays when attacks exhausted or no targets in range.
+Consequences: Players receive immediate visual feedback on available actions; prevents clicking disabled buttons; supports multi-attack characters properly; attack attempts count regardless of hit/miss result.
 
 ```
 ## ADR-XXX: <Short title>

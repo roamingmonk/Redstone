@@ -147,6 +147,13 @@ class CombatEngine:
             "turn_number": self.combat_data.get("turn_number", 0),
             "combat_log": self.combat_log[-10:],  # Last 10 messages
             "player_actions": self._get_available_player_actions(),
+            "player_state": {  # ADD THIS BLOCK
+                "has_moved": self.player_has_moved,
+                "has_acted": self.player_has_acted,
+                "attacks_used": self.player_attacks_used,
+                "attacks_per_round": self._get_attacks_per_round(),
+                "has_attack_targets": len(self.get_attack_targets(self.player_position, 1)) > 0  
+            },
             "current_action_mode": self.current_action_mode, 
             "highlighted_tiles": self._get_highlighted_tiles()
         }
@@ -313,15 +320,17 @@ class CombatEngine:
             target_data=target_enemy
         )
         
-        if success:
-            self.player_has_acted = True
-            
-            # Only clear action mode if all attacks are used
-            if self.player_attacks_used >= attacks_per_round:
-                self.player_has_acted = True
-                self.current_action_mode = None
-                self._add_to_combat_log("All attacks used")
+        # Increment attack counter regardless of hit/miss
+        self.player_attacks_used += 1  # ← MOVE THIS HERE
 
+        # Check if all attacks used
+        attacks_per_round = self._get_attacks_per_round()
+        if self.player_attacks_used >= attacks_per_round:
+            self.player_has_acted = True
+            self.current_action_mode = None
+            self._add_to_combat_log("All attacks used")
+
+        if success:
             # Check if target was defeated
             if target_enemy.get("current_hp", 0) <= 0:
                 target_name = target_enemy.get("name", "Enemy")
@@ -331,7 +340,7 @@ class CombatEngine:
                 if self._check_victory_conditions():
                     self._handle_combat_victory()
                     return True
-        
+
         return success
     
     def _get_attacks_per_round(self) -> int:
@@ -778,7 +787,7 @@ class CombatEngine:
 
         # Only highlight during player turn
         if self.current_phase != CombatPhase.PLAYER_TURN:
-            print(f"❌ Not player turn, returning empty")
+            #print(f"❌ Not player turn, returning empty")
             return highlighted_tiles
         
         if self.current_action_mode == "movement":
@@ -793,18 +802,18 @@ class CombatEngine:
         elif self.current_action_mode == "attack":
             attack_range = 1  # Melee range for now
             attack_targets = self.get_attack_targets(self.player_position, attack_range)
-            print(f"🎯 Attack mode: found {len(attack_targets)} targets")
-            print(f"   Attack targets: {attack_targets}")
+            #print(f"🎯 Attack mode: found {len(attack_targets)} targets")
+            #print(f"   Attack targets: {attack_targets}")
             # Extract just the positions from the target dictionaries
             highlighted_tiles = [target["position"] for target in attack_targets]
-            print(f"   Highlighted tile positions: {highlighted_tiles}")
+            #print(f"   Highlighted tile positions: {highlighted_tiles}")
         
         return highlighted_tiles
     
     def _add_to_combat_log(self, message: str):
         """Add message to combat log"""
         self.combat_log.append(message)
-        print(f"🎯 {message}")  # Also print to console for debugging
+        #print(f"🎯 {message}")  # Also print to console for debugging
 
 def initialize_combat_engine(game_state, event_manager):
     """
