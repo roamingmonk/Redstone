@@ -152,7 +152,9 @@ class CombatEngine:
                 "has_acted": self.player_has_acted,
                 "attacks_used": self.player_attacks_used,
                 "attacks_per_round": self._get_attacks_per_round(),
-                "has_attack_targets": len(self.get_attack_targets(self.player_position, 1)) > 0  
+                "has_attack_targets": len(self.get_attack_targets(self.player_position, 1)) > 0,
+                "current_hp": self.game_state.character.get("current_hp", 10),
+                "max_hp": self.game_state.character.get("hit_points", 10)
             },
             "current_action_mode": self.current_action_mode, 
             "highlighted_tiles": self._get_highlighted_tiles()
@@ -701,10 +703,20 @@ class CombatEngine:
         rewards = self.combat_data.get("encounter", {}).get("rewards", {})
         self._award_rewards(rewards)
         
-        # Set quest flags
-        victory_quest_flags = self.combat_data.get("victory_quest_flags", {})
-        for flag, value in victory_quest_flags.items():
-            self.game_state.quest_flags[flag] = value
+        # Set quest flags from rewards.story_progress.quest_flags
+        story_progress = rewards.get("story_progress", {})
+        quest_flags = story_progress.get("quest_flags", {})
+        
+        # Flag display names for combat log
+        flag_display_names = { 
+            "completed_basement_combat": "Basement Cleared, go see Garrick",
+        }
+        
+        for flag, value in quest_flags.items():
+            setattr(self.game_state, flag, value)  # Direct attribute
+            display_name = flag_display_names.get(flag, flag)
+            self._add_to_combat_log(f"Quest Updated: {display_name}")
+            print(f"✅ Quest flag set: {flag} = {value}")
         
         # Emit victory event
         self.event_manager.emit("COMBAT_VICTORY", {

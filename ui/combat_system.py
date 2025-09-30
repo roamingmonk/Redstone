@@ -211,8 +211,9 @@ class CombatEncounter:
         player_position = combat_data.get("player_position")
         if player_position and len(player_position) == 2:
             x, y = player_position
+            # Shift sprite up in the tile by reducing the offset
             screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
-            screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2)
+            screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6  # Move up 6 pixels
             
             # Draw player as blue circle with "P" label
             pygame.draw.circle(surface, BLUE, (screen_x, screen_y), self.tile_size // 3)
@@ -222,6 +223,11 @@ class CombatEncounter:
             text_surface = font.render("P", True, WHITE)
             text_rect = text_surface.get_rect(center=(screen_x, screen_y))
             surface.blit(text_surface, text_rect)
+            
+            # Draw player HP bar
+            current_hp = combat_data.get("player_state", {}).get("current_hp", 10)
+            max_hp = combat_data.get("player_state", {}).get("max_hp", 10)
+            self._draw_hp_bar(surface, screen_x, screen_y, current_hp, max_hp)
         
         # Render enemy units
         enemy_instances = combat_data.get("enemy_instances", [])
@@ -229,8 +235,9 @@ class CombatEncounter:
             position = enemy.get("position", [])
             if len(position) == 2:
                 x, y = position
+                # Shift sprite up in the tile
                 screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
-                screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2)
+                screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6  # Move up 6 pixels
                 
                 # Draw enemy as red circle with first letter of name
                 pygame.draw.circle(surface, RED, (screen_x, screen_y), self.tile_size // 3)
@@ -242,30 +249,35 @@ class CombatEncounter:
                 text_surface = font.render(label, True, WHITE)
                 text_rect = text_surface.get_rect(center=(screen_x, screen_y))
                 surface.blit(text_surface, text_rect)
+                
+                # Draw enemy HP bar
+                current_hp = enemy.get("current_hp", 0)
+                max_hp = enemy.get("stats", {}).get("hp", 1)
+                self._draw_hp_bar(surface, screen_x, screen_y, current_hp, max_hp)
     
-    def _render_unit_sprite(self, surface: pygame.Surface, unit: Dict, enemy_color: tuple):
-        """Render a single unit sprite on the grid"""
+    # def _render_unit_sprite(self, surface: pygame.Surface, unit: Dict, enemy_color: tuple):
+    #     """Render a single unit sprite on the grid"""
         
-        position = unit.get("position", [0, 0])
-        x, y = position
+    #     position = unit.get("position", [0, 0])
+    #     x, y = position
         
-        # Calculate screen position
-        screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 4)
-        screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 4)
+    #     # Calculate screen position
+    #     screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 4)
+    #     screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 4)
         
-        # Draw unit circle
-        radius = self.tile_size // 3
-        pygame.draw.circle(surface, enemy_color, (screen_x + radius, screen_y + radius), radius)
-        pygame.draw.circle(surface, WHITE, (screen_x + radius, screen_y + radius), radius, 2)
+    #     # Draw unit circle
+    #     radius = self.tile_size // 3
+    #     pygame.draw.circle(surface, enemy_color, (screen_x + radius, screen_y + radius), radius)
+    #     pygame.draw.circle(surface, WHITE, (screen_x + radius, screen_y + radius), radius, 2)
         
-        # Draw unit label
-        name = unit.get("name", "Unit")
-        if len(name) > 0:
-            label = name[0].upper()  # First letter
-            font = pygame.font.Font(None, 24)
-            text_surface = font.render(label, True, WHITE)
-            text_rect = text_surface.get_rect(center=(screen_x + radius, screen_y + radius))
-            surface.blit(text_surface, text_rect)
+    #     # Draw unit label
+    #     name = unit.get("name", "Unit")
+    #     if len(name) > 0:
+    #         label = name[0].upper()  # First letter
+    #         font = pygame.font.Font(None, 24)
+    #         text_surface = font.render(label, True, WHITE)
+    #         text_rect = text_surface.get_rect(center=(screen_x + radius, screen_y + radius))
+    #         surface.blit(text_surface, text_rect)
     
     def _render_tile_overlays(self, surface: pygame.Surface, combat_data: Dict):
         """Render movement/targeting overlays on grid tiles"""
@@ -455,6 +467,30 @@ class CombatEncounter:
         
         return None
     
+    def _draw_hp_bar(self, surface: pygame.Surface, center_x: int, center_y: int, 
+                 current_hp: int, max_hp: int):
+        """Draw HP bar below unit sprite with black background for visibility"""
+        bar_width = 32
+        bar_height = 4
+        
+        # Position below sprite but closer (only 2 pixels gap)
+        bar_x = center_x - (bar_width // 2)
+        bar_y = center_y + (self.tile_size // 3) + 2  # Closer to sprite
+        
+        # Black background for contrast
+        pygame.draw.rect(surface, BLACK, (bar_x - 1, bar_y - 1, bar_width + 2, bar_height + 2))
+        
+        # Background (dark red = missing HP)
+        pygame.draw.rect(surface, (139, 0, 0), (bar_x, bar_y, bar_width, bar_height))
+        
+        # Foreground (green = current HP)
+        if max_hp > 0:
+            hp_percent = current_hp / max_hp
+            green_width = int(bar_width * hp_percent)
+            pygame.draw.rect(surface, (0, 255, 0), (bar_x, bar_y, green_width, bar_height))
+        
+        # White border
+        pygame.draw.rect(surface, WHITE, (bar_x, bar_y, bar_width, bar_height), 1)
     # ==========================================
     # ERROR HANDLING
     # ==========================================

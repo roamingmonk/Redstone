@@ -1537,6 +1537,15 @@ Future Enhancement (Session 7): Add multiattack definitions, attack selection AI
 **Implementation:** Combat engine returns player_state dict with action flags and attack availability; UI checks both action limits and valid targets; MOVE grays after moving, ATTACK grays when attacks exhausted or no targets in range.
 Consequences: Players receive immediate visual feedback on available actions; prevents clicking disabled buttons; supports multi-attack characters properly; attack attempts count regardless of hit/miss result.
 
+# ADR-099 Combat Victory Quest Flag Integration
+# Date: September 29, 2025
+# Status: Implemented
+Context: Combat victory awarded XP/gold but quest flags weren't propagating to game systems; narrative schema and dialogue system check direct attributes on game_state, but combat was setting flags in quest_flags dictionary causing architecture mismatch.
+Decision: Set quest flags as direct attributes on game_state using setattr() to match existing dialogue/narrative schema architecture; abandoned quest_flags dictionary pattern in favor of direct attribute access used throughout codebase.
+Files Modified: combat_engine.py (_handle_combat_victory method)
+Implementation: Victory reads quest_flags from encounter JSON rewards.story_progress.quest_flags, iterates through flags using setattr() to create direct attributes on game_state; added display name lookup for user-friendly combat log messages.
+Consequences: Quest flags now propagate correctly to dialogue system, narrative schema, and debug output; Garrick recognizes completed basement combat and pays player; single consistent storage pattern across all game systems; future encounters automatically integrate with quest system.
+Technical Debt Eliminated: Removed competing storage locations (quest_flags dict vs direct attributes); unified flag access pattern across dialogue, combat, and debug systems.
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected
