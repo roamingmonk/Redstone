@@ -1637,7 +1637,6 @@ Implemented professional asset loading architecture with centralized configurati
 - Improved error messages with specific file paths and clear descriptions
 - Easy asset pipeline expansion: add new images by adding one dictionary entry
 - Follows industry-standard separation of concerns (data vs. logic)
-
 **Technical Benefits:**
 - DRY principle applied: one helper function instead of repeated try/except blocks
 - Single Responsibility: each helper does one thing well
@@ -1654,7 +1653,15 @@ Implemented professional asset loading architecture with centralized configurati
 **Related ADRs:** 
 This refactor establishes patterns that should be applied to future asset loading systems (audio, animations, etc.)
 
-
+# ADR-103: Text Wrapping Consolidation & Data-Driven Combat Messages
+# Date: October 1, 2025
+# Status: Implemented
+**Context:** Two duplicate `wrap_text()` implementations existed (constants.py and dialogue_ui_utils.py) with different hardcoded colors and slightly different algorithms; combat quest messages were hardcoded in combat_engine.py preventing data-driven content creation.
+**Decision:** Consolidated into single optimized `wrap_text()` in constants.py with flexible color parameter; moved combat quest flag display messages into encounter JSON files for data-driven architecture.
+**Implementation:** Merged best practices from both implementations (list-based efficiency + explicit long-word handling); added color parameter defaulting to WHITE; dialogue_ui_utils.py now wraps constants version with DIALOGUE_TEXT_COLOR; encounter JSON quest_flags changed from `"flag": true` to `"flag": {"value": true, "display_message": "text"}` format; combat_engine reads display messages from JSON instead of hardcoded dictionary.
+**Files Modified:** constants.py (optimized wrap_text function), dialogue_ui_utils.py (wrapper function), combat_system.py (combat log wrapping), tavern_basement_rats.json (data-driven messages), combat_engine.py (removed hardcoded display names).
+**Consequences:** Single source of truth for text wrapping eliminates code duplication; flexible color parameter allows any UI context (combat=WHITE, dialogue=custom); content designers can add encounters with custom quest messages without touching Python; combat log properly wraps long messages; backward compatible with legacy boolean flag format.
+**Technical Benefits:** Eliminated duplicate code; optimized algorithm handles edge cases; professional data-driven content pipeline; fully backward compatible; follows established architectural patterns.
 
 
 ```

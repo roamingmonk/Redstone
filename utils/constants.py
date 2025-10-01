@@ -273,25 +273,56 @@ def calculate_button_font(fonts, text, button_width, padding=20):
     available_width = button_width - padding
     return get_fitting_font(fonts, text, available_width)
 
-def wrap_text(text, font, max_width):
-    lines = []
-    if not text:
-        return lines
+def wrap_text(text, font, max_width, color=(255, 255, 255)):
+    """
+    Word wrapping utility - OPTIMIZED VERSION for ANY UI context
+    Combines best practices from multiple implementations:
+    - Efficient list-based building
+    - Explicit long-word handling
+    - Flexible color parameter
+    - Safety checks for edge cases
+    Args:
+        text: String to wrap
+        font: pygame.Font object
+        max_width: Maximum pixel width before wrapping
+        color: Text color tuple (default WHITE for general use)
+    Returns:
+        List of rendered pygame.Surface objects, one per line
+    Usage:
+        # Combat log (white text)
+        wrapped = wrap_text(message, font, 320, (255, 255, 255))
+        # Dialogue (custom color)
+        wrapped = wrap_text(text, font, 600, DIALOGUE_TEXT_COLOR)
+    """
+    if not text:  # Safety check for empty/None text
+        return []
+    
     words = text.split(' ')
-    current_line = []
+    lines = []
+    current_line = []  # Use list for efficient joining
+    
     for word in words:
         test_line = ' '.join(current_line + [word])
         if font.size(test_line)[0] <= max_width:
             current_line.append(word)
         else:
+            # Save current line if it exists
             if current_line:
                 lines.append(' '.join(current_line))
-            current_line = [word]
-    lines.append(' '.join(current_line))
+            
+            # Handle words longer than max_width explicitly
+            if font.size(word)[0] > max_width:
+                lines.append(word)  # Let it overflow - no other choice
+                current_line = []
+            else:
+                current_line = [word]
     
-    # Render each line into a surface
-    rendered_lines = [font.render(line, True, (255, 255, 255)) for line in lines]
-    return rendered_lines
+    # Don't forget the last line
+    if current_line:
+        lines.append(' '.join(current_line))
+    
+    # Render all lines at once with specified color
+    return [font.render(line, True, color) for line in lines]
 
 # === IMAGE LOADING HELPER FUNCTIONS ===
 

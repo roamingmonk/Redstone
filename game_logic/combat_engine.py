@@ -773,7 +773,7 @@ class CombatEngine:
         quest_flags = story_progress.get("quest_flags", {})
         
         for flag, flag_data in quest_flags.items():
-            # Support both old format (bool) and new format (dict with value + message)
+            # Support both new format (dict with value + message) and legacy format (bool)
             if isinstance(flag_data, dict):
                 flag_value = flag_data.get("value", True)
                 display_message = flag_data.get("display_message", flag)
@@ -782,7 +782,7 @@ class CombatEngine:
                 flag_value = flag_data
                 display_message = flag.replace("_", " ").title()  # Auto-generate from flag name
             
-            setattr(self.game_state, flag, flag_value)  # Direct attribute
+            setattr(self.game_state, flag, flag_value)  # Set flag on game_state
             self._add_to_combat_log(f"Quest Updated: {display_message}")
             print(f"✅ Quest flag set: {flag} = {flag_value}")
         

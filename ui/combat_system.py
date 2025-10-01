@@ -399,21 +399,26 @@ class CombatEncounter:
                 
         current_y += len(action_buttons) * (button_height + 10) + 30
         
-        # Combat log
-        draw_text(surface, "Combat Log:", text_font, 680, current_y, CYAN)
-        current_y += 25
-
         # Get combat log from combat_data
         log_messages = combat_data.get('combat_log', ["Combat begins!"])
-
-        # Display last 12 messages (fit in panel)
-        for message in log_messages[-12:]:
-            draw_text(surface, message, text_font, 680, current_y, WHITE)
-            current_y += 18  # Line spacing
+        
+        # Display last 10 messages with text wrapping
+        recent_messages = log_messages[-10:]
+        log_y = current_y
+        log_max_width = 320  # Width of combat log panel area
+        
+        for message in recent_messages:
+            # Wrap long messages to fit in panel using optimized wrap_text
+            wrapped_lines = wrap_text(message, text_font, log_max_width, WHITE)
+            
+            for line_surface in wrapped_lines:
+                surface.blit(line_surface, (680, log_y))
+                log_y += 18  # Line spacing
         
         # Back button
         back_y = 680
         back_rect = pygame.Rect(panel_x - 60, back_y, 120, 40)
+        
         draw_combat_button(surface, back_rect.x, back_rect.y, 120, 40, "BACK", button_font)
         clickable_areas["back_button"] = {
             "rect": back_rect,

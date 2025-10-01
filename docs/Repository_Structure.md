@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-09-26 16:10)
+﻿## Repository Structure (generated 2025-10-01 19:32)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -7,6 +7,7 @@ C:.
 |   input_handler.py
 |   main.py
 |   README.md
+|   test_combat_data_loading.py
 |   
 +---.vscode
 |       settings.json
@@ -47,8 +48,6 @@ C:.
 |       |   |   |       
 |       |   |   \---player_portraits
 |       |   |       +---active
-|       |   |       |       player.jpg
-|       |   |       |       
 |       |   |       +---female
 |       |   |       |       player_female_01.jpg
 |       |   |       |       player_female_02.jpg
@@ -136,6 +135,16 @@ C:.
 |   |   narrative_schema.json
 |   |   __init__.py
 |   |   
+|   +---combat
+|   |   +---battlefields
+|   |   |       small_cellar.json
+|   |   |       
+|   |   +---encounters
+|   |   |       tavern_basement_rats.json
+|   |   |       
+|   |   \---enemies
+|   |           giant_rat.json
+|   |           
 |   +---dialogues
 |   |       broken_blade_garrick.json
 |   |       broken_blade_meredith.json
@@ -158,6 +167,7 @@ C:.
 |   |   |   
 |   |           
 |   +---narrative
+|   |       death_quotes.json
 |   |       intro_sequence.json
 |   |       
 |   +---npcs
@@ -192,6 +202,7 @@ C:.
 |       
 +---game_logic
 |   |   character_engine.py
+|   |   combat_engine copy.py
 |   |   combat_engine.py
 |   |   commerce_engine.py
 |   |   data_manager.py
@@ -224,6 +235,7 @@ C:.
 |   |   load_game.py
 |   |   quest_overlay.py
 |   |   redstone_town.py
+|   |   redstone_town_navigation.py
 |   |   save_game.py
 |   |   title_menu.py
 |   |   __init__.py
@@ -236,6 +248,7 @@ C:.
 |   |   base_location.py
 |   |   base_location_navigation.py
 |   |   combat_system.py
+|   |   death_overlay.py
 |   |   generic_dialogue_handler.py
 |   |   screen_handlers.py
 |   |   screen_manager.py
@@ -245,6 +258,7 @@ C:.
 |           
 +---utils
 |   |   animation.py
+|   |   combat_loader.py
 |   |   constants.py
 |   |   debug_manager.py
 |   |   dialogue_ui_utils.py
@@ -255,6 +269,7 @@ C:.
 |   |   overlay_utils.py
 |   |   party_display.py
 |   |   quest_system.py
+|   |   stats_calculator.py
 |   |   tabbed_overlay_utils.py
 |   |   tile_graphics.py
 |   |   xp_manager.py
