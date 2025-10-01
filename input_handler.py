@@ -125,7 +125,7 @@ class InputHandler:
         import time
         current_time = time.time()
         if current_time - self._last_combat_register_time > 1.0:  # Only print once per second
-            print(f"⚔️ Combat clickables registered: {len(regions)} areas")
+            #print(f"⚔️ Combat clickables registered: {len(regions)} areas")
             self._last_combat_register_time = current_time
         
         # Debug output

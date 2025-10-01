@@ -210,10 +210,7 @@ class GameController:
         self.dialogue_engine = initialize_dialogue_engine(self.game_state, self.event_manager)
         self.quest_engine = initialize_quest_engine(self.game_state, self.event_manager)
         self.dice_game_engine = initialize_dice_game_engine(self.game_state, self.event_manager)
-        self.combat_engine = initialize_combat_engine(self.game_state,self.event_manager)
-        # self.combat_engine = initialize_combat_engine(self.event_manager, self.game_state, self.data_manager)
-        # set_combat_engine(self.combat_engine)
-        # self._mark_system_created("combat_engine")
+        #self.combat_engine = initialize_combat_engine(self.game_state, self.event_manager, self.save_manager)
 
         # Make QuestEngine discoverable by helpers (e.g., update_quest_system -> scan)
         self.game_state.quest_engine = self.quest_engine
@@ -234,7 +231,7 @@ class GameController:
         self._mark_system_created("commerce_engine")
         self._mark_system_created("dialogue_engine")
         self._mark_system_created("quest_engine")
-        self._mark_system_created("combat_engine")
+        #self._mark_system_created("combat_engine")
 
 
         # Step 6: SaveManager (requires: GameState, CharacterEngine, EventManager)
@@ -248,6 +245,15 @@ class GameController:
             quest_engine=self.quest_engine
         )
         self._mark_system_created("save_manager")
+
+        # Step 6.5: CombatEngine (requires: SaveManager)
+        self._validate_dependency("save_manager", self.save_manager)
+        self.combat_engine = initialize_combat_engine(
+            self.game_state, 
+            self.event_manager, 
+            self.save_manager  
+        )
+        self._mark_system_created("combat_engine")
         
         # Step 7: IntroSequenceManager (requires: EventManager, SaveManager)
         self._validate_dependency("save_manager", self.save_manager)
@@ -302,8 +308,8 @@ class GameController:
         # Sync ScreenManager with current game state
         self.screen_manager.transition_to(self.game_state.screen, self.game_state, save_history=False)
 
-        self.combat_engine = initialize_combat_engine(self.game_state, self.event_manager)
-        self._mark_system_created("combat_engine")
+        # self.combat_engine = initialize_combat_engine(self.game_state, self.event_manager)
+        # self._mark_system_created("combat_engine")
 
     # --- DEBUG: temporary event tap to see XP awards in the console ---
     # TODO Remove once you confirm XP events are flowing.

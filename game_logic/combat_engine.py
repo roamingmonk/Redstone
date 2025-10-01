@@ -4,6 +4,8 @@ Combat Engine - Turn-based tactical combat business logic
 Follows existing game_logic pattern for core game systems
 """
 
+import json
+import os
 import random
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
@@ -31,10 +33,11 @@ class CombatEngine:
     - Victory condition checking
     """
     
-    def __init__(self, event_manager, game_state):
+    def __init__(self, event_manager, game_state, save_manager=None):
         """Initialize with existing game systems"""
         self.event_manager = event_manager
         self.game_state = game_state
+        self.save_manager = save_manager
         self.combat_loader = get_combat_loader()
         self.stats_calculator = get_stats_calculator()
         
@@ -56,8 +59,12 @@ class CombatEngine:
         if event_manager:
             from ui.combat_system import register_combat_system_events
             register_combat_system_events(event_manager, self)
-            print("Combat events registered with EventManager")
-    
+
+            event_manager.register("DEATH_ACTION_LOAD_GAME", self._handle_death_load_game)
+            event_manager.register("DEATH_ACTION_RESTART_COMBAT", self._handle_death_restart_combat)
+            event_manager.register("DEATH_ACTION_RETURN_TO_TITLE", self._handle_death_return_to_title)
+            print("💀 Death overlay events registered in CombatEngine")
+        
         print("CombatEngine initialized")
     
     def _get_movement_range(self) -> int:
@@ -72,6 +79,64 @@ class CombatEngine:
             combat_context: Location-specific context from calling screen
         Returns: bool: True if combat started successfully
         """
+        # CRITICAL: Clear any existing combat data first
+        self.combat_data = None
+        self.combat_log = []
+        self.player_position = None
+        self.player_has_moved = False
+        self.player_has_acted = False
+        self.player_attacks_used = 0
+        self.turn_order = []
+        self.current_actor_index = 0
+
+
+
+        
+        # ========== DYNAMIC AUTOSAVE ==========
+        try:
+            if self.save_manager:
+                print("💾 Creating autosave before combat...")
+                 
+                # Store current screen (will be 'combat')
+                combat_screen = self.game_state.screen
+                
+                # Get the screen player was on before combat started
+                previous_screen = getattr(self.game_state, 'previous_screen', None)
+                
+                if previous_screen:
+                    # Store encounter ID for restart
+                    self.game_state.pending_combat_encounter = encounter_id
+                    
+                    # CRITICAL: Store current HP and restore to max for the save
+                    original_hp = self.game_state.character.get("current_hp", 0)
+                    max_hp = self.game_state.character.get("hit_points", 10)
+                    
+                    # Temporarily restore to full HP for the autosave
+                    self.game_state.character["current_hp"] = max_hp
+                    
+                    # Temporarily set screen to pre-combat location
+                    self.game_state.screen = previous_screen
+                    
+                    # Create autosave WITH full HP
+                    self.save_manager.save_game(save_slot=0)
+                    
+                    # Restore original HP and screen
+                    self.game_state.character["current_hp"] = original_hp
+                    self.game_state.pending_combat_encounter = None
+                    self.game_state.screen = combat_screen
+                    
+                    print(f"✅ Combat autosave created (slot 0) at {previous_screen} with full HP")
+                else:
+                    print("⚠️ No previous_screen available - skipping autosave")
+                    print("   Combat was likely triggered without proper screen transition")
+            else:
+                print("⚠️ SaveManager not available - skipping autosave")
+        except Exception as e:
+            print(f"⚠️ Autosave failed: {e}")
+            import traceback
+            traceback.print_exc()
+        # ========== END AUTOSAVE BLOCK ==========
+        
         try:
             print(f"🎯 Starting combat encounter: {encounter_id}")
              
@@ -738,11 +803,105 @@ class CombatEngine:
                 new_hp = max(1, int(max_hp * (100 - hp_loss_pct) / 100))
                 self.game_state.character["current_hp"] = new_hp
         
+            # Generate death quote ONCE here
+
+        try:
+            quotes_path = os.path.join('data', 'narrative', 'death_quotes.json')
+            print(f"🔍 Looking for death quotes at: {quotes_path}")
+            print(f"🔍 File exists: {os.path.exists(quotes_path)}")
+            
+            if os.path.exists(quotes_path):
+                with open(quotes_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    quotes = data.get('death_quotes', [])
+                    print(f"🔍 Loaded {len(quotes)} quotes from file")
+                    
+                    if quotes:
+                        quote = random.choice(quotes)
+                        self.game_state.death_quote = f'"{quote["text"]}" - {quote["author"]}'
+                        print(f"✅ Selected quote: {self.game_state.death_quote[:50]}...")
+                    else:
+                        print("⚠️ No quotes found in JSON")
+                        self.game_state.death_quote = '"Even in defeat, honor remains." - Unknown'
+            else:
+                print(f"❌ Death quotes file not found at: {quotes_path}")
+                self.game_state.death_quote = '"The battle is lost, but the war continues." - Unknown'
+                
+        except Exception as e:
+            print(f"❌ Error loading death quotes: {e}")
+            import traceback
+            traceback.print_exc()
+            self.game_state.death_quote = '"The adventure ends here." - Unknown'
+
+        # Show death overlay
+        self.game_state.death_overlay_active = True
+        print("💀 Death overlay activated")
+        
         # Emit defeat event
         self.event_manager.emit("COMBAT_DEFEAT", {
             "encounter_id": self.combat_data.get("encounter", {}).get("encounter_id")
         })
-    
+
+    def cleanup_combat(self):
+        """Clear all combat state data"""
+        self.combat_data = None
+        self.current_phase = CombatPhase.SETUP
+        self.turn_order = []
+        self.current_actor_index = 0
+        self.combat_log = []
+        self.current_action_mode = None
+        self.player_position = None
+        self.player_has_moved = False
+        self.player_has_acted = False
+        self.player_attacks_used = 0
+        print("🧹 Combat state cleared")
+
+    def _handle_death_load_game(self, event_data):
+        """Handle Load Game button from death overlay"""
+        print("💀 Death action: Opening load screen")
+        
+        # Set flag to open load screen
+        self.game_state.death_overlay_active = False
+        self.game_state.load_screen_open = True
+
+    def _handle_death_restart_combat(self, event_data):
+        """Handle Restart Combat button - reload autosave and restart combat"""
+        print("💀 Death action: Restarting combat from autosave")
+        
+        # Clear current combat state FIRST
+        self.cleanup_combat()
+        
+        if self.save_manager:
+            # Load autosave (slot 0)
+            success = self.save_manager.load_game(save_slot=0)
+            
+            if success:
+                # Check for pending combat encounter from autosave
+                encounter_id = getattr(self.game_state, 'pending_combat_encounter', None)
+                
+                if encounter_id:
+                    print(f"🔄 Auto-restarting combat: {encounter_id}")
+                    # Start combat immediately with fresh state
+                    self.start_encounter(encounter_id)
+                    self.game_state.screen = 'combat'  # Force to combat screen
+                else:
+                    print("⚠️ No pending combat encounter - staying at tavern")
+                
+                self.game_state.death_overlay_active = False
+            else:
+                print("❌ Failed to load autosave")
+                self.game_state.death_overlay_active = False
+        else:
+            print("⚠️ SaveManager not available")
+            self.game_state.death_overlay_active = False
+
+    def _handle_death_return_to_title(self, event_data):
+        """Handle Return to Title button"""
+        print("💀 Death action: Returning to title screen")
+        
+        self.game_state.death_overlay_active = False
+        self.event_manager.emit("SCREEN_CHANGE", {'target': 'game_title'})
+
     def _award_rewards(self, rewards: Dict):
         """Award combat rewards to player"""
         # Award XP
@@ -827,7 +986,7 @@ class CombatEngine:
         self.combat_log.append(message)
         #print(f"🎯 {message}")  # Also print to console for debugging
 
-def initialize_combat_engine(game_state, event_manager):
+def initialize_combat_engine(game_state, event_manager, save_manager=None):
     """
     Initialize CombatEngine following established engine pattern
     
@@ -838,4 +997,4 @@ def initialize_combat_engine(game_state, event_manager):
     Returns:
         CombatEngine: Initialized combat engine
     """
-    return CombatEngine(event_manager, game_state)
+    return CombatEngine(event_manager, game_state, save_manager)

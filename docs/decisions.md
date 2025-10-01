@@ -1546,6 +1546,28 @@ Files Modified: combat_engine.py (_handle_combat_victory method)
 Implementation: Victory reads quest_flags from encounter JSON rewards.story_progress.quest_flags, iterates through flags using setattr() to create direct attributes on game_state; added display name lookup for user-friendly combat log messages.
 Consequences: Quest flags now propagate correctly to dialogue system, narrative schema, and debug output; Garrick recognizes completed basement combat and pays player; single consistent storage pattern across all game systems; future encounters automatically integrate with quest system.
 Technical Debt Eliminated: Removed competing storage locations (quest_flags dict vs direct attributes); unified flag access pattern across dialogue, combat, and debug systems.
+
+# ADR-100: Combat Death System with Autosave and Recovery
+# Date: September 30, 2025
+# Status: Implemented
+**Context:** Combat needed player death handling with save/restore options and visual feedback.
+**Decision:** Implemented three-component death system: autosave on combat entry, death overlay with recovery options, and random death quotes for atmosphere.
+**Implementation:**
+- Autosave (slot 0) created at tavern before combat using `previous_screen` tracking
+- Death overlay displays "YOU DIED", character name, random literary quote, and three buttons
+- Buttons: Load Game (opens load overlay), Restart Combat (reloads autosave + auto-restarts combat), Return to Title
+- Quote system loads from `data/narrative/death_quotes.json` (20 quotes) at moment of death
+- Combat state cleanup prevents mid-combat resume on restart
+**Files Modified:** 
+`combat_engine.py` (autosave, death detection, quote generation, cleanup), 
+`screen_manager.py` (death overlay rendering, clickable registration), 
+`save_manager.py` (pending_combat_encounter flag persistence)
+**Files Created:** 
+`ui/death_overlay.py`, 
+`data/narrative/death_quotes.json`
+**Consequences:** Players can recover from death without losing progress; restart returns to fresh combat at spawn; literary quotes add atmosphere; autosave system prevents frustration.
+**Technical Notes:** Quote generated once per death in combat_engine, stored in game_state; overlay renders from stored quote to prevent cycling; high-priority clickables (200) override combat grid clicks.
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

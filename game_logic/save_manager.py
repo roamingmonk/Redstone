@@ -60,6 +60,7 @@ class SaveManager:
                 'current_screen': self.game_state.screen,
                 'screen_history': [],  # Screen history not tracked by SaveManager
                 'previous_screen': getattr(self.game_state, 'previous_screen', None),
+                'pending_combat_encounter': getattr(self.game_state, 'pending_combat_encounter', None), 
                 
                 # World state
                 'party_members': getattr(self.game_state, 'party_members', []),
@@ -233,8 +234,11 @@ class SaveManager:
                 print(f"   💰 Gold: {self.game_state.character.get('gold', 0)}")
             
             # Restore game progression
+            #TODO do we need the broken blade hard code?
             self.game_state.screen = save_data.get('current_screen', 'broken_blade_main')
-            
+            self.game_state.previous_screen = save_data.get('previous_screen', None)
+            self.game_state.pending_combat_encounter = save_data.get('pending_combat_encounter', None)
+
             # Restore world state
             self.game_state.party_members = save_data.get('party_members', [])
             self.game_state.tavern_visits = save_data.get('tavern_visits', 0)

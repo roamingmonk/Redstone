@@ -605,14 +605,18 @@ class ScreenManager:
             )
            
             if result:
-                # Register slot selection areas
+                # Get current screen name (where load overlay is displayed)
+                current_screen = getattr(self._current_game_state, 'screen', 'combat')
+                
+                # Register slot selection areas with HIGHER priority than underlying screen
                 for slot_rect, slot_num in result['slot_rects']:
                     self.input_handler.register_clickable(
-                        'load_overlay', 
+                        current_screen,  # Register on current screen, not 'load_overlay'
                         slot_rect, 
                         'LOAD_SLOT_SELECTED', 
-                        {'slot_num': slot_num}
-            )
+                        {'slot_num': slot_num},
+                        priority=200  # Higher than death overlay (100), higher than combat grid
+                    )
                       
             # Register buttons at fixed positions - always register, check state in handlers
             button_y = 650
@@ -631,11 +635,10 @@ class ScreenManager:
 
             for button_x, event_type in buttons:
                 button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
-                self.input_handler.register_clickable('load_overlay', button_rect, event_type, {})
+                self.input_handler.register_clickable(current_screen, button_rect, event_type, {}, priority=200)
                 
-                print("🔍 Load screen clickables registered")
-            else:
-                print("⚠️ Could not get load screen button coordinates")
+                #print("🔍 Load screen clickables registered")
+            
         else:
             print("⚠️ No InputHandler available for load screen registration")
 
@@ -1584,14 +1587,13 @@ class ScreenManager:
         # Load screen overlay
         if getattr(game_state, 'load_screen_open', False):
             from screens.load_game import draw_load_game_screen
-            
             # Get save_manager from game_controller
             save_manager = None
             if hasattr(self, '_current_game_controller') and self._current_game_controller:
                 save_manager = getattr(self._current_game_controller, 'save_manager', None)
-            
             draw_load_game_screen(self.screen, game_state, self.fonts, self.images, save_manager)
-        
+            self.register_load_screen_clickables()
+
         # Save screen overlay
         if getattr(game_state, 'save_screen_open', False):
             from screens.save_game import draw_save_game_screen
@@ -1620,3 +1622,45 @@ class ScreenManager:
             elif active_overlay_id == "inventory_key":
                 from screens.inventory_overlay import draw_inventory_screen
                 draw_inventory_screen(self.screen, game_state, self.fonts, self.images)
+        
+        #DEATH OVERLAY
+        if getattr(game_state, 'death_overlay_active', False):
+            from ui.death_overlay import create_death_overlay
+            
+            if not hasattr(self, '_death_overlay'):
+                self._death_overlay = create_death_overlay()
+            
+            # Get the pre-generated quote from game_state
+            death_quote = getattr(game_state, 'death_quote', '')
+            character_name = game_state.character.get('name', 'Unknown Hero')
+            
+            # Only show if not already showing
+            if not self._death_overlay.active:
+                self._death_overlay.show(character_name, death_quote)
+            
+            death_buttons = self._death_overlay.render(self.screen, self.fonts)
+            
+            # Register death overlay buttons with correct signature
+            if death_buttons and hasattr(self, 'input_handler'):
+                # Get current screen name
+                current_screen = getattr(game_state, 'screen', 'combat')
+                
+                for button_name, button_rect in death_buttons.items():
+                    # Determine event type based on button
+                    if button_name == 'load_game':
+                        event_type = "DEATH_ACTION_LOAD_GAME"
+                    elif button_name == 'restart_combat':
+                        event_type = "DEATH_ACTION_RESTART_COMBAT"
+                    elif button_name == 'return_to_title':
+                        event_type = "DEATH_ACTION_RETURN_TO_TITLE"
+                    else:
+                        continue
+                    
+                    # Register with correct signature
+                    self.input_handler.register_clickable(
+                        screen_name=current_screen,
+                        rect=button_rect,
+                        event_type=event_type,
+                        event_data={'button': button_name},
+                        priority=100  # High priority - overlay on top
+                    )
