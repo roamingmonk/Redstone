@@ -772,16 +772,19 @@ class CombatEngine:
         story_progress = rewards.get("story_progress", {})
         quest_flags = story_progress.get("quest_flags", {})
         
-        # Flag display names for combat log
-        flag_display_names = { 
-            "completed_basement_combat": "Basement Cleared, go see Garrick",
-        }
-        
-        for flag, value in quest_flags.items():
-            setattr(self.game_state, flag, value)  # Direct attribute
-            display_name = flag_display_names.get(flag, flag)
-            self._add_to_combat_log(f"Quest Updated: {display_name}")
-            print(f"✅ Quest flag set: {flag} = {value}")
+        for flag, flag_data in quest_flags.items():
+            # Support both old format (bool) and new format (dict with value + message)
+            if isinstance(flag_data, dict):
+                flag_value = flag_data.get("value", True)
+                display_message = flag_data.get("display_message", flag)
+            else:
+                # Legacy support: if just a boolean, use that
+                flag_value = flag_data
+                display_message = flag.replace("_", " ").title()  # Auto-generate from flag name
+            
+            setattr(self.game_state, flag, flag_value)  # Direct attribute
+            self._add_to_combat_log(f"Quest Updated: {display_message}")
+            print(f"✅ Quest flag set: {flag} = {flag_value}")
         
         # Emit victory event
         self.event_manager.emit("COMBAT_VICTORY", {

@@ -202,7 +202,10 @@ class QuestEngine:
         member_id = (event_data or {}).get('member_id') or (event_data or {}).get('member')
         if not member_id:
             return
-
+        #Set flag for first recruitment
+        if self.game_state.recruited_count >= 1:
+            self.game_state.first_party_member_recruited = True
+        #Trigger quest evaluation
         if member_id == "gareth":
             self.quest_manager.complete_objective("party_building", "recruit_warrior")
         elif member_id == "elara":
@@ -391,6 +394,8 @@ class QuestEngine:
         Unlock the tavern basement rat quest after party is assembled
         Called when party size >= 2 and player talks to Garrick
         """
+        #TODO  is this orphaned or is is still valid and used?  I can run the rat quest without 
+        #a party member so I think this is a dead method.
         if len(self.game_state.party_members) >= 1:  # At least one party member
             # Add the rat basement quest dynamically
             from utils.quest_system import Quest

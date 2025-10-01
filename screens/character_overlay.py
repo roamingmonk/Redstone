@@ -646,7 +646,7 @@ class CharacterOverlay(BaseTabbedOverlay):
                 
                 character_engine = CharacterEngine(game_state)
                 
-                print(f"DEBUG: Checking can_level_up...")
+                #print(f"DEBUG: Checking can_level_up...")
                 if character_engine.can_level_up():
                     print("DEBUG: can_level_up = True, calling level_up()")
                     

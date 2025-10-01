@@ -177,7 +177,7 @@ def render_dialogue_screen_directly(surface, npc_id, conversation_data, game_sta
         
         # Keyboard hints
         hint_font = fonts.get('fantasy_small', fonts['normal'])
-        hint_text = "Choose Number Option  [Enter] First Option  [B/Backspace] Back"
+        hint_text = "Choose Number[1,2,..] [Enter] First Option [B/Backspace] Back"
         hint_surface = hint_font.render(hint_text, True, DIALOGUE_OPTION_COLOR)
         surface.blit(hint_surface, (195, dialogue_area.bottom - 40))
         

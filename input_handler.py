@@ -247,10 +247,6 @@ class InputHandler:
         Returns:
             bool: True if click was handled, False otherwise
         """
-        
-        # ADD DEBUG LOGGING HERE:
-        print(f"🖱️ DEBUG: IH: Mouse click detected at {mouse_pos}")
-        print(f"🖱️ DEBUG: IH: Current screen: {current_screen}")
     
         # Record click for debugging
         self.click_history.append({
@@ -281,9 +277,8 @@ class InputHandler:
         # Check clickable regions for current screen
         if current_screen in self.clickable_regions:
             regions = self.clickable_regions[current_screen]
-            regions_checked = 0
             
-            #print(f"🖱️ DEBUG: IH: Found {len(regions)} clickable regions for {current_screen}")
+            regions_checked = 0
 
             for region in regions:
                 regions_checked += 1
@@ -639,36 +634,36 @@ class InputHandler:
         return False
 
     def _handle_overlay_clicks(self, mouse_pos, current_screen):
-        """Handle clicks on active overlays"""
-        game_state = self.game_controller.game_state
-        
-      # Load screen overlay - use registered clickables with correct attributes
-        if getattr(game_state, 'load_screen_open', False):
-            clickables = self.clickable_regions.get('load_overlay', [])
+            """Handle clicks on active overlays"""
+            game_state = self.game_controller.game_state
             
-            for clickable in clickables:
-                if clickable.rect.collidepoint(mouse_pos):
-                    print(f"🎯 Load overlay clickable hit: {clickable.event_type}")
-                    self.event_manager.emit(clickable.event_type, clickable.event_data)
-                    return True
-            
-            # If no clickable hit, still consume the click to prevent fall-through
-            return True
-    
-        # Save screen overlay - use registered clickables  
-        if getattr(game_state, 'save_screen_open', False):
-            clickables = self.clickable_regions.get('save_overlay', [])
-            
-            for clickable in clickables:
-                if clickable.rect.collidepoint(mouse_pos):
-                    print(f"💾 Save overlay clickable hit: {clickable.event_type}")
-                    self.event_manager.emit(clickable.event_type, clickable.event_data)
-                    return True
-            
-            # If no clickable hit, still consume the click to prevent fall-through
-            return True
+        # Load screen overlay - use registered clickables with correct attributes
+            if getattr(game_state, 'load_screen_open', False):
+                clickables = self.clickable_regions.get('load_overlay', [])
                 
-        return False
+                for clickable in clickables:
+                    if clickable.rect.collidepoint(mouse_pos):
+                        print(f"🎯 Load overlay clickable hit: {clickable.event_type}")
+                        self.event_manager.emit(clickable.event_type, clickable.event_data)
+                        return True
+                
+                # If no clickable hit, still consume the click to prevent fall-through
+                return True
+        
+            # Save screen overlay - use registered clickables  
+            if getattr(game_state, 'save_screen_open', False):
+                clickables = self.clickable_regions.get('save_overlay', [])
+                
+                for clickable in clickables:
+                    if clickable.rect.collidepoint(mouse_pos):
+                        print(f"💾 Save overlay clickable hit: {clickable.event_type}")
+                        self.event_manager.emit(clickable.event_type, clickable.event_data)
+                        return True
+                
+                # If no clickable hit, still consume the click to prevent fall-through
+                return True
+                    
+            return False
 
     def register_overlay(self, overlay_instance, state_flag: str) -> bool:
         """

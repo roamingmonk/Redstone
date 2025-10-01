@@ -28,10 +28,10 @@ class QuestOverlay(BaseTabbedOverlay):
         self.selected_quest = None
         self.quest_rects = []
 
-         # ADD THESE PAGINATION VARIABLES:
+         #PAGINATION VARIABLES:
         self.active_page = 0
         self.completed_page = 0
-        self.quests_per_page = 5  # Show 5 quests per page 
+        self.quests_per_page = 7  # Show Number of quests per page 
         
         
         print("🗒️ QuestOverlay initialized with 2 tabs")
@@ -161,10 +161,12 @@ class QuestOverlay(BaseTabbedOverlay):
         return []
     
     def _render_quest_content(self, surface, content_rect, quests, game_state, fonts, section_title):
-        """Render quest list and details using the classic 2-column layout"""
-        #Refresh quest states
+        """Render quest list and details using the classic 2-column layout"""        
+       #Refresh quest states
         if hasattr(game_state, 'quest_manager'):
-            game_state.quest_manager.update_from_game_state() 
+            game_state.quest_manager.update_from_game_state()
+        else:
+            print(f"❌ No quest_manager found!")
         
         # Calculate layout areas (preserving original quest_log.py layout)
         quest_list_x = content_rect.x + 20
@@ -245,11 +247,14 @@ class QuestOverlay(BaseTabbedOverlay):
         # Draw quest rows
         current_y = header_line_y + 10
         
-        for quest in quests:
+        for quest in page_quests:
             quest_rect = pygame.Rect(quest_list_x + 5, current_y - 5, 
                                    quest_list_width - 10, row_height)
             self.quest_rects.append((quest_rect, quest['id']))
             
+            # DEBUG: Print rectangle info
+            print(f"📋 Quest rect created: {quest['title'][:20]} at y={current_y}, rect={quest_rect}")
+
             # Highlight selected quest
             if self.selected_quest == quest['id']:
                 pygame.draw.rect(surface, SELECTION_COLOR, quest_rect)
@@ -295,6 +300,9 @@ class QuestOverlay(BaseTabbedOverlay):
             surface.blit(progress_surface, (progress_text_x, current_y + 5))
             
             current_y += row_height
+        
+        # DEBUG: Print total rects after loop
+        print(f"📋 Total quest_rects created: {len(self.quest_rects)}")
         
         # PAGE NAVIGATION DISPLAY:
         if total_pages > 1:

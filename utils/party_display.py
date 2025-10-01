@@ -3,16 +3,19 @@ import pygame
 import os
 from utils.constants import (
     WHITE, YELLOW, BRIGHT_GREEN, RED, BLACK, GRAY,
-    NPC_PORTRAITS_PATH, PLAYER_PORTRAITS_PATH
+    NPC_PORTRAITS_PATH, PLAYER_PORTRAITS_PATH,
+    PARTY_PANEL_WIDTH, PARTY_PANEL_X,  
+    PORTRAIT_SIZE, PORTRAIT_SPACING,   
+    FRAME_THICKNESS, MALE_PORTRAITS_PATH           
 )
 from utils.graphics import draw_centered_text
 
-# Party display constants
-PARTY_PANEL_WIDTH = 138
-PARTY_PANEL_X = 1024 - PARTY_PANEL_WIDTH
-PORTRAIT_SIZE = 110
-PORTRAIT_SPACING = 10
-FRAME_THICKNESS = 3
+# # Party display constants
+# PARTY_PANEL_WIDTH = 138
+# PARTY_PANEL_X = 1024 - PARTY_PANEL_WIDTH
+# PORTRAIT_SIZE = 110
+# PORTRAIT_SPACING = 10
+#FRAME_THICKNESS = 3
 
 def draw_party_status_panel(surface, game_state, fonts):
     """
@@ -86,7 +89,6 @@ def load_portrait(character_name, is_player=False):
     try:
         if is_player:
             # Use same path logic as game_state.py for consistency
-            from utils.constants import MALE_PORTRAITS_PATH
             active_dir = os.path.join(os.path.dirname(MALE_PORTRAITS_PATH), "active")
             active_path = os.path.join(active_dir, "player.jpg")
             

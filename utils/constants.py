@@ -16,7 +16,7 @@ BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 CYAN = (0, 255, 255)
 MAGENTA = (255, 0, 255)
-BRIGHT_GREEN = (0, 255, 0)
+BRIGHT_GREEN = GREEN
 BRIGHT_RED = (255, 100, 100)
 GRAY = (128, 128, 128)
 DARK_GRAY = (169, 169, 169)
@@ -30,6 +30,21 @@ DARK_RED = (128, 0, 0)
 BROWN = (128, 128, 0)
 PURPLE = (128, 0, 128)
 DARK_CYAN = (0, 128, 128)
+
+# === IMAGE LOADING CONFIGURATION ===
+# Standardized image dimensions (makes resizing consistent)
+IMAGE_STANDARD_WIDTH = 1024
+IMAGE_STANDARD_HEIGHT = 510
+IMAGE_CHARACTER_TABLE_WIDTH = 1024
+IMAGE_CHARACTER_TABLE_MAX_HEIGHT = 300
+ICON_SIZE = 32  # Item icon standard size
+
+# Party display constants
+PARTY_PANEL_WIDTH = 138
+PARTY_PANEL_X = 1024 - PARTY_PANEL_WIDTH
+PORTRAIT_SIZE = 110
+PORTRAIT_SPACING = 10
+FRAME_THICKNESS = 3
 
 # === DIALOGUE SYSTEM CONSTANTS ===
 DIALOGUE_PORTRAIT_SIZE = 200
@@ -125,50 +140,102 @@ ANIMATED_TILES_PATH = os.path.join(TILES_PATH, "animated")
 
 # === FONT LOADING SYSTEM ===
 
+# Font Configuration - CHANGE THESE TO SWAP FONTS!
+GAME_FONT_FILE = "MedievalSharp-Regular.ttf"  # ← Change this to swap fonts!
+GAME_FONT_NAME = "MedievalSharp"  # ← Update this for the console message
+
+# Font size constants (industry standard: define sizes once)
+FONT_SIZE_LARGE = 32
+FONT_SIZE_MEDIUM = 26
+FONT_SIZE_SMALL = 22
+FONT_SIZE_TINY = 18
+FONT_SIZE_MICRO = 16
+
+# Font size list (for utilities)
+FONT_SIZES = {
+    'large': FONT_SIZE_LARGE,
+    'medium': FONT_SIZE_MEDIUM,
+    'small': FONT_SIZE_SMALL,
+    'tiny': FONT_SIZE_TINY,
+    'micro': FONT_SIZE_MICRO
+}
+
+def _create_font(font_path, size, use_system_fallback=True):
+    """
+    Helper function to create a single font with fallback
+    
+    Args:
+        font_path: Path to the .ttf file (or None for system font)
+        size: Font size in pixels
+        use_system_fallback: If True, fall back to pygame default font
+    
+    Returns:
+        pygame.font.Font object
+    """
+    try:
+        if font_path and os.path.exists(font_path):
+            return pygame.font.Font(font_path, size)
+        elif use_system_fallback:
+            return pygame.font.Font(None, size)
+        else:
+            raise FileNotFoundError(f"Font file not found: {font_path}")
+    except Exception as e:
+        if use_system_fallback:
+            print(f"   Warning: Using system font fallback for size {size}")
+            return pygame.font.Font(None, size)
+        raise
+
 def load_fonts():
     """
     Load all game fonts with fallback support
     Returns a dictionary of font objects
+    
+    To change fonts: Modify GAME_FONT_FILE constant above!
     """
     fonts = {}
     
-    # Try to load MedievalSharp font
-    try:
-        font_path = os.path.join(FONTS_PATH, "MedievalSharp-Regular.ttf")
-        
-        # Different sizes for different UI elements
-        fonts['fantasy_large'] = pygame.font.Font(font_path, 32)
-        fonts['fantasy_medium'] = pygame.font.Font(font_path, 28)
-        fonts['fantasy_small'] = pygame.font.Font(font_path, 24)
-        fonts['fantasy_tiny'] = pygame.font.Font(font_path, 20)
-        fonts['fantasy_micro'] = pygame.font.Font(font_path, 16)
-        
-        # Standard fonts for different purposes
-        fonts['header'] = fonts['fantasy_large']
-        fonts['normal'] = fonts['fantasy_medium']
-        fonts['small'] = fonts['fantasy_small']
-        fonts['tiny'] = fonts['fantasy_tiny']
-        
-        # Help text font
-        fonts['help_text'] = pygame.font.Font(font_path, 16)
-        
-        print("✓ MedievalSharp font loaded successfully!")
-        
-    except:
-        # Fallback to default fonts if MedievalSharp not found
-        print("✗ MedievalSharp font not found, using default fonts")
-        fonts['fantasy_large'] = pygame.font.Font(None, 32)
-        fonts['fantasy_medium'] = pygame.font.Font(None, 28)
-        fonts['fantasy_small'] = pygame.font.Font(None, 24)
-        fonts['fantasy_tiny'] = pygame.font.Font(None, 20)
-        fonts['fantasy_micro'] = pygame.font.Font(None, 16)
-        fonts['help_text'] = pygame.font.Font(None, 16)
-        
-        # Standard font aliases
-        fonts['header'] = fonts['fantasy_large']
-        fonts['normal'] = fonts['fantasy_medium']
-        fonts['small'] = fonts['fantasy_small']
-        fonts['tiny'] = fonts['fantasy_tiny']
+    # Build full path to font file
+    font_path = os.path.join(FONTS_PATH, GAME_FONT_FILE)
+    
+    # Check if custom font exists
+    font_loaded = False
+    if os.path.exists(font_path):
+        try:
+            # Load all font sizes using helper function
+            fonts['fantasy_large'] = _create_font(font_path, FONT_SIZE_LARGE, use_system_fallback=False)
+            fonts['fantasy_medium'] = _create_font(font_path, FONT_SIZE_MEDIUM, use_system_fallback=False)
+            fonts['fantasy_small'] = _create_font(font_path, FONT_SIZE_SMALL, use_system_fallback=False)
+            fonts['fantasy_tiny'] = _create_font(font_path, FONT_SIZE_TINY, use_system_fallback=False)
+            fonts['fantasy_micro'] = _create_font(font_path, FONT_SIZE_MICRO, use_system_fallback=False)
+            fonts['help_text'] = fonts['fantasy_micro']  # Alias
+            
+            print(f"✓ {GAME_FONT_NAME} font loaded successfully!")
+            font_loaded = True
+            
+        except FileNotFoundError as e:
+            print(f"✗ Font file not found: {GAME_FONT_FILE}")
+            print(f"   Expected location: {font_path}")
+        except Exception as e:
+            print(f"✗ Error loading font: {e}")
+    else:
+        print(f"✗ Font file not found: {GAME_FONT_FILE}")
+        print(f"   Expected location: {font_path}")
+    
+    # Fallback to system fonts if custom font failed
+    if not font_loaded:
+        print("   Loading system font fallbacks...")
+        fonts['fantasy_large'] = _create_font(None, FONT_SIZE_LARGE)
+        fonts['fantasy_medium'] = _create_font(None, FONT_SIZE_MEDIUM)
+        fonts['fantasy_small'] = _create_font(None, FONT_SIZE_SMALL)
+        fonts['fantasy_tiny'] = _create_font(None, FONT_SIZE_TINY)
+        fonts['fantasy_micro'] = _create_font(None, FONT_SIZE_MICRO)
+        fonts['help_text'] = fonts['fantasy_micro']
+    
+    # Standard font aliases (for backwards compatibility)
+    fonts['header'] = fonts['fantasy_large']
+    fonts['normal'] = fonts['fantasy_medium']
+    fonts['small'] = fonts['fantasy_small']
+    fonts['tiny'] = fonts['fantasy_tiny']
     
     return fonts
 
@@ -179,11 +246,18 @@ def get_scaled_font(fonts, base_font_key, scale_factor=1.0):
     base_font = fonts.get(base_font_key, fonts['normal'])
     if hasattr(base_font, 'get_height'):
         new_size = max(12, int(base_font.get_height() * scale_factor))
+        
+        # Use the same font configuration as load_fonts()
+        font_path = os.path.join(FONTS_PATH, GAME_FONT_FILE)
+        
         try:
-            font_path = os.path.join(FONTS_PATH, "MedievalSharp-Regular.ttf")
-            return pygame.font.Font(font_path, new_size)
-        except:
-            return pygame.font.Font(None, new_size)
+            if os.path.exists(font_path):
+                return pygame.font.Font(font_path, new_size)
+        except Exception as e:
+            print(f"Warning: Could not scale font, using system fallback: {e}")
+        
+        # Fallback to system font
+        return pygame.font.Font(None, new_size)
     return base_font
 
 def get_fitting_font(fonts, text, max_width, font_sizes=['fantasy_large', 'fantasy_medium', 'fantasy_small', 'fantasy_tiny', 'fantasy_micro']):
@@ -219,143 +293,194 @@ def wrap_text(text, font, max_width):
     rendered_lines = [font.render(line, True, (255, 255, 255)) for line in lines]
     return rendered_lines
 
+# === IMAGE LOADING HELPER FUNCTIONS ===
 
+def _create_placeholder_image(width, height, title_text, subtitle_text="Missing Asset"):
+    """
+    Create professional placeholder for missing images
+    
+    Args:
+        width: Placeholder width in pixels
+        height: Placeholder height in pixels
+        title_text: Main text (e.g., "TAVERN")
+        subtitle_text: Subtitle text (e.g., "Missing: tavern.jpg")
+    
+    Returns:
+        pygame.Surface with placeholder graphics
+    """
+    placeholder = pygame.Surface((width, height))
+    placeholder.fill((40, 40, 40))  # Dark gray background
+    pygame.draw.rect(placeholder, WHITE, (0, 0, width, height), 3)  # White border
+    
+    try:
+        font_large = pygame.font.Font(None, 48)
+        font_small = pygame.font.Font(None, 24)
+        
+        # Draw title
+        title_surface = font_large.render(title_text, True, WHITE)
+        title_rect = title_surface.get_rect(center=(width//2, height//2 - 20))
+        placeholder.blit(title_surface, title_rect)
+        
+        # Draw subtitle
+        subtitle_surface = font_small.render(subtitle_text, True, (200, 200, 200))
+        subtitle_rect = subtitle_surface.get_rect(center=(width//2, height//2 + 20))
+        placeholder.blit(subtitle_surface, subtitle_rect)
+    except:
+        pass  # If font rendering fails, just show blank placeholder
+    
+    return placeholder
+
+
+def _load_single_image(filepath, target_size, create_placeholder=True, placeholder_title=""):
+    """
+    Load and scale a single image with professional error handling
+    
+    Args:
+        filepath: Full path to image file
+        target_size: Tuple of (width, height) for scaling
+        create_placeholder: If True, generate placeholder on failure
+        placeholder_title: Title for placeholder image (e.g., "TAVERN")
+    
+    Returns:
+        pygame.Surface (loaded image or placeholder) or None
+    """
+    try:
+        # Check if file exists first
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Image file not found: {filepath}")
+        
+        # Load and scale the image
+        image = pygame.image.load(filepath)
+        scaled_image = pygame.transform.scale(image, target_size)
+        return scaled_image
+    
+    except FileNotFoundError as e:
+        # File doesn't exist - create placeholder if requested
+        if create_placeholder:
+            return _create_placeholder_image(
+                target_size[0], 
+                target_size[1], 
+                placeholder_title.upper().replace('_', ' '),
+                f"Missing: {os.path.basename(filepath)}"
+            )
+        return None
+    
+    except Exception as e:
+        # Some other error (corrupt file, etc.)
+        print(f"   Error loading image {filepath}: {e}")
+        if create_placeholder:
+            return _create_placeholder_image(
+                target_size[0], 
+                target_size[1], 
+                placeholder_title.upper().replace('_', ' '),
+                "Load Error"
+            )
+        return None
+    
 # === PROFESSIONAL IMAGE LOADING SYSTEM ===
 
 def load_images():
     """
-    Professional game studio image loading system with progress tracking
-    Organized by asset type for easy maintenance and expansion
+    Professional image loading system with progress tracking
+    Uses helper functions for consistent error handling
     """
     print("🎮 Starting asset loading...")
     images = {}
     
-    # Asset loading progress tracking
-    total_assets = 14 + 19  # backgrounds + icons (update as you add more)
+    # Progress tracking
+    total_assets = 12  # Will be calculated dynamically below
     loaded_count = 0
     
     def update_progress(asset_name, success=True):
+        """Update and display loading progress"""
         nonlocal loaded_count
         loaded_count += 1
         progress = (loaded_count / total_assets) * 100
         status = "✓" if success else "✗"
         print(f"  {status} [{progress:5.1f}%] {asset_name}")
     
-    def create_placeholder_image(width, height, title_text, subtitle_text="Missing Asset"):
-        """Create professional placeholder for missing images"""
-        placeholder = pygame.Surface((width, height))
-        placeholder.fill((40, 40, 40))  # Dark gray
-        pygame.draw.rect(placeholder, WHITE, (0, 0, width, height), 3)
-        
-        try:
-            font_large = pygame.font.Font(None, 48)
-            font_small = pygame.font.Font(None, 24)
-            
-            title_surface = font_large.render(title_text, True, WHITE)
-            title_rect = title_surface.get_rect(center=(width//2, height//2 - 20))
-            placeholder.blit(title_surface, title_rect)
-            
-            subtitle_surface = font_small.render(subtitle_text, True, (200, 200, 200))
-            subtitle_rect = subtitle_surface.get_rect(center=(width//2, height//2 + 20))
-            placeholder.blit(subtitle_surface, subtitle_rect)
-        except:
-            pass
-    
-        return placeholder
-    
-
-#TODO this is greyed out... is it an issue????
-    def create_item_fallback_icon(item_name):
-        """Create professional fallback icon for missing item images"""
-        icon = pygame.Surface((32, 32))
-        icon.fill((60, 60, 60))  # Dark background
-        pygame.draw.rect(icon, WHITE, (0, 0, 32, 32), 2)  # White border
-        
-        # Get first letter of item for icon
-        letter = item_name[0].upper() if item_name else "?"
-        
-        try:
-            font = pygame.font.Font(None, 20)
-            text = font.render(letter, True, WHITE)
-            text_rect = text.get_rect(center=(16, 16))
-            icon.blit(text, text_rect)
-        except:
-            pass
-        
-        return icon
-
-
-    # === UI BACKGROUND IMAGES ===
-    
-    # Character creation table
+    # === CHARACTER TABLE (Special Case) ===
+    # This one has unique dimensions, so handle separately
     try:
         character_table = pygame.image.load(TABLE_IMAGE)
         original_width, original_height = character_table.get_size()
-        target_width = 1024
-        target_height = min(300, int(target_width * original_height / original_width))
-        images['character_table'] = pygame.transform.scale(character_table, (target_width, target_height))
+        target_width = IMAGE_CHARACTER_TABLE_WIDTH
+        target_height = min(IMAGE_CHARACTER_TABLE_MAX_HEIGHT, 
+                          int(target_width * original_height / original_width))
+        images['character_table'] = pygame.transform.scale(character_table, 
+                                                          (target_width, target_height))
         update_progress("Character table image")
     except:
         images['character_table'] = None
         update_progress("Character table image", False)
     
     # === LOCATION BACKGROUND IMAGES ===
-    
+    # Dictionary of location key -> filename
     location_images = {
-        'welcome': WELCOME_IMAGE,
-        'tavern': TAVERN_IMAGE,
-        'swamp_church': SWAMP_CHURCH_IMAGE,
-        'hill_ruins': HILL_RUINS_IMAGE,
-        'refugee_camp': REFUGEE_CAMP_IMAGE,
-        'mayor_office': MAYOR_OFFICE_IMAGE,
-        'broken_blade_main': TAVERN_IMAGE
+        'welcome': 'town_welcome.jpg',
+        'tavern': 'tavern_interior.jpg',
+        'swamp_church': 'swamp_church_exterior.jpg',
+        'hill_ruins': 'hill_ruins_entrance.jpg',
+        'refugee_camp': 'refugee_camp_overview.jpg',
+        'mayor_office': 'mayor_office.jpg',
+        'broken_blade_main': 'tavern_interior.jpg'  # Reuses tavern image
     }
     
-    for key, image_path in location_images.items():
-        try:
-            location_img = pygame.image.load(image_path)
-            images[key] = pygame.transform.scale(location_img, (1024, 510))
-            update_progress(f"{key.title()} background")
-        except Exception as e:
-                update_progress(f"{key.title()} background", False)
-                images[key] = create_placeholder_image(1024, 510, key.upper().replace('_', ' '), f"Missing: {os.path.basename(image_path)}")
+    # Update total assets count
+    total_assets = 1 + len(location_images) + 3  # table + locations + shops
+    
+    # Load all location backgrounds using helper function
+    for key, filename in location_images.items():
+        filepath = os.path.join(LOCATION_BACKGROUNDS_PATH, filename)
+        images[key] = _load_single_image(
+            filepath, 
+            (IMAGE_STANDARD_WIDTH, IMAGE_STANDARD_HEIGHT),
+            create_placeholder=True,
+            placeholder_title=key
+        )
+        update_progress(f"{key.title().replace('_', ' ')} background", 
+                       success=(images[key] is not None))
     
     # === SHOP BACKGROUND IMAGES ===
-    
     shop_images = {
-        'general_store': GENERAL_STORE_IMAGE,
-        'gambling_den': GAMBLING_DEN_IMAGE,
-        'armorer_shop': ARMORER_SHOP_IMAGE
+        'general_store': 'general_store.jpg',
+        'gambling_den': 'gambling_den.jpg',
+        'armorer_shop': 'armorer_shop.jpg'
     }
     
-    for key, image_path in shop_images.items():
-        try:
-            shop_img = pygame.image.load(image_path)
-            images[key] = pygame.transform.scale(shop_img, (1024, 510))
-            update_progress(f"{key.title()} shop background")
-        except:
-            images[key] = None
-            update_progress(f"{key.title()} shop background", False)
+    # Load all shop backgrounds using helper function
+    for key, filename in shop_images.items():
+        filepath = os.path.join(SHOP_BACKGROUNDS_PATH, filename)
+        images[key] = _load_single_image(
+            filepath,
+            (IMAGE_STANDARD_WIDTH, IMAGE_STANDARD_HEIGHT),
+            create_placeholder=True,
+            placeholder_title=key
+        )
+        update_progress(f"{key.title().replace('_', ' ')} shop background",
+                       success=(images[key] is not None))
     
     # === FUTURE ASSET CATEGORIES ===
-    
     # Initialize empty dictionaries for future expansion
+    images['item_icons'] = {}
     images['character_portraits'] = {}
     images['enemy_sprites'] = {}
     images['player_sprites'] = {}
     images['spell_effects'] = {}
     images['ui_icons'] = {}
     
-    # === ASSET LOADING SUMMARY ===
-    total_backgrounds = len([k for k in images.keys() if k not in ['item_icons', 'character_portraits']])
-    total_icons = len(images.get('item_icons', {}))
-    missing_backgrounds = len([k for k, v in images.items() if v is None and k != 'item_icons'])
-
+    # === LOADING SUMMARY ===
+    total_backgrounds = len(location_images) + len(shop_images) + 1  # +1 for table
+    successful_loads = sum(1 for k, v in images.items() 
+                          if v is not None and k not in ['item_icons', 'character_portraits', 
+                                                          'enemy_sprites', 'player_sprites',
+                                                          'spell_effects', 'ui_icons'])
+    
     print(f"\n🎮 Asset Loading Summary:")
-    print(f"  ✓ Background images: {total_backgrounds - missing_backgrounds}/{total_backgrounds}")
-    print(f"  ✓ Item icons: {total_icons} loaded")
+    print(f"  ✓ Background images: {successful_loads}/{total_backgrounds}")
+    print(f"  ✓ Item icons: {len(images.get('item_icons', {}))} loaded")
     print(f"  📁 Asset pipeline ready for expansion!")
-   
+    
     return images
 
 # === BUTTON SIZE STANDARDS ===

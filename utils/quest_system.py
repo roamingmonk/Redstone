@@ -56,180 +56,6 @@ class Quest:
         completed = sum(1 for obj in self.objectives if obj.completed)
         return (completed, len(self.objectives))
 
-# class QuestManager:
-#     """Central quest management system for the entire game"""
-#     def __init__(self, game_state):
-#         self.game_state = game_state
-#         self.quests = {}
-#         self.active_quest_ids = set()
-#         self._initialize_game_quests()
-        
-#     def _initialize_game_quests(self):
-#         """Initialize quests from narrative schema"""
-#         from utils.narrative_schema import narrative_schema
-        
-#         quest_mappings = narrative_schema.schema.get("quest_mappings", {})
-        
-#         for quest_id, quest_data in quest_mappings.items():
-#             # Create quest from schema
-#             quest_type = quest_data.get("type", "secondary")
-            
-#             # Get quest metadata (we'll need to add this to schema)
-#             title = self._get_quest_title(quest_id)
-#             description = self._get_quest_description(quest_id)
-            
-#             quest = Quest(quest_id, title, description)
-            
-#             # Add objectives from schema
-#             objectives = quest_data.get("objectives", {})
-#             for obj_id, required_flags in objectives.items():
-#                 obj_description = self._get_objective_description(obj_id)
-#                 quest.add_objective(obj_id, obj_description)
-            
-#             self.quests[quest_id] = quest
-            
-#             # Auto-activate primary quests
-#             if quest_type == "primary":
-#                 self.activate_quest(quest_id)
-        
-#         print(f"📋 Schema-driven quest system initialized with {len(self.quests)} quests")
-        
-#     def activate_quest(self, quest_id):
-#         """Activate a quest and make it trackable"""
-#         if quest_id in self.quests:
-#             self.quests[quest_id].status = "active"
-#             self.active_quest_ids.add(quest_id)
-#             return True
-#         return False
-        
-#     def complete_objective(self, quest_id, objective_id):
-#         """Complete a specific objective"""
-#         if quest_id in self.quests:
-#             return self.quests[quest_id].complete_objective(objective_id)
-#         return False
-        
-#     def update_from_game_state(self):
-#         """Update quest progress based on narrative schema"""
-#         from utils.narrative_schema import narrative_schema
-        
-#         quest_mappings = narrative_schema.schema.get("quest_mappings", {})
-        
-#         for quest_id, quest_data in quest_mappings.items():
-#             quest = self.quests.get(quest_id)
-#             if not quest:
-#                 continue
-                
-#             # Handle quest activation
-#             activation_flag = quest_data.get("activation_flag")
-#             if activation_flag and getattr(self.game_state, activation_flag, False):
-#                 if quest.status == "inactive":
-#                     self.activate_quest(quest_id)
-            
-#             # Update objectives
-#             objectives = quest_data.get("objectives", {})
-#             for obj_id, required_flags in objectives.items():
-#                 if isinstance(required_flags, list):
-#                     # Check if all required flags are true
-#                     all_flags_true = all(getattr(self.game_state, flag, False) for flag in required_flags)
-#                     if all_flags_true:
-#                         self.complete_objective(quest_id, obj_id)
-
-#     def get_active_quests(self):
-#         """Return list of active quests for display"""
-#         active_quests = []
-#         for quest_id in self.active_quest_ids:
-#             if quest_id in self.quests:
-#                 quest = self.quests[quest_id]
-#                 if quest.status == "active":
-#                     active_quests.append(quest)
-#         return active_quests
-        
-#     def get_quest_data_for_save(self):
-#         """Return quest data in format suitable for save files"""
-#         save_data = {}
-#         for quest_id, quest in self.quests.items():
-#             quest_save = {
-#                 'status': quest.status,
-#                 'objectives': [
-#                     {'id': obj.id, 'completed': obj.completed} 
-#                     for obj in quest.objectives
-#                 ]
-#             }
-#             save_data[quest_id] = quest_save
-#         return save_data
-        
-#     def load_from_save_data(self, save_data):
-#         """Restore quest state from save file"""
-#         for quest_id, quest_save in save_data.items():
-#             if quest_id in self.quests:
-#                 quest = self.quests[quest_id]
-#                 quest.status = quest_save.get('status', 'inactive')
-                
-#                 # Restore objective completion status
-#                 saved_objectives = {obj['id']: obj['completed'] 
-#                                   for obj in quest_save.get('objectives', [])}
-                
-#                 for objective in quest.objectives:
-#                     if objective.id in saved_objectives:
-#                         objective.completed = saved_objectives[objective.id]
-                
-#                 # Update active quest set
-#                 if quest.status == "active":
-#                     self.active_quest_ids.add(quest_id)
-
-#     def get_completed_objectives(self):
-#             """Get all completed objectives from all quests for display"""
-#             completed_objectives = []
-            
-#             for quest in self.quests.values():
-#                 for objective in quest.objectives:
-#                     if objective.completed:
-#                         completed_obj = {
-#                             'id': f"{quest.id}.{objective.id}",
-#                             'title': objective.description,
-#                             'quest_title': quest.title,
-#                             'completed': True,
-#                             'quest_type': 'discovery' if 'learn_' in objective.id or 'discover_' in objective.id else 'main'
-#                         }
-#                         completed_objectives.append(completed_obj)
-            
-#             return completed_objectives
-        
-# ###### New Quest system methods ############
-#     def get_completed_quests(self):
-#         """Return list of completed quests for display"""
-#         completed_quests = []
-#         for quest in self.quests.values():
-#             if quest.status == "completed":
-#                 completed_quests.append(quest)
-#         return completed_quests
-    
-#     def is_quest_complete(self, quest_id):
-#         """Check if a specific quest is completed"""
-#         quest = self.quests.get(quest_id)
-#         return quest.status == "completed" if quest else False
-    
-#     def get_quest_progress(self, quest_id):
-#         """Get progress for a specific quest"""
-#         quest = self.quests.get(quest_id)
-#         if quest:
-#             completed, total = quest.get_progress()
-#             return {
-#                 'completed_objectives': completed,
-#                 'total_objectives': total,
-#                 'progress_percent': int((completed / total) * 100) if total > 0 else 0
-#             }
-#         return None
-    
-#     def add_dynamic_quest(self, quest_id, title, description):
-#         """Add a quest dynamically (for special unlocks like rat basement)"""
-#         if quest_id not in self.quests:
-#             new_quest = Quest(quest_id, title, description)
-#             self.quests[quest_id] = new_quest
-#             print(f"➕ Dynamic quest added: {title}")
-#             return new_quest
-#         return None
-
 class QuestManager:
     """Schema-driven quest management system"""
     def __init__(self, game_state):
@@ -311,14 +137,20 @@ class QuestManager:
                 if quest.status == "inactive":
                     self.activate_quest(quest_id)
             
-            # Update objectives based on flag requirements
+             # Update objectives based on flag requirements
             objectives = quest_data.get("objectives", {})
             for obj_id, required_flags in objectives.items():
                 if isinstance(required_flags, list):
-                    # Check if all required flags are true
-                    all_flags_true = all(getattr(self.game_state, flag, False) for flag in required_flags)
-                    if all_flags_true:
-                        self.complete_objective(quest_id, obj_id)
+                    # Check if it's a single-item list with a condition string
+                    if len(required_flags) == 1 and ">=" in required_flags[0]:
+                        # Treat as condition string
+                        if self._evaluate_condition(required_flags[0]):
+                            self.complete_objective(quest_id, obj_id)
+                    else:
+                        # Normal list of flags - check if all required flags are true
+                        all_flags_true = all(getattr(self.game_state, flag, False) for flag in required_flags)
+                        if all_flags_true:
+                            self.complete_objective(quest_id, obj_id)
                 elif isinstance(required_flags, str):
                     # Handle complex conditions like "recruited_count >= 1"
                     if self._evaluate_condition(required_flags):
@@ -330,7 +162,10 @@ class QuestManager:
             # Handle recruitment count condition
             if "recruited_count >= " in condition:
                 required_count = int(condition.split(">=")[1].strip())
-                current_count = getattr(self.game_state, 'recruited_count', 0)
+                if hasattr(self.game_state, 'recruited_count'):      #recaluclate recreuited_count to avoid cached/stale value
+                    current_count = self.game_state.recruited_count  # This triggers @property
+                else:
+                    current_count = 0
                 return current_count >= required_count
             
             # Handle other dynamic conditions here as needed

@@ -352,6 +352,12 @@
       "event_type": "QUEST_COMPLETED",
       "xp_reward": "quest_multipliers.side_task"
     },
+    "first_recruitment_complete": {
+      "dialogue_flag": "first_party_member_recruited",
+      "quest_objective": "main_story.recruit_party",
+      "event_type": "QUEST_PROGRESS",
+      "xp_reward": 0
+    },
     "party_recruitment_triggers": {
       "gareth_recruited": {
         "quest_objective": "party_building.recruit_warrior",

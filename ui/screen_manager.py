@@ -9,6 +9,7 @@ from typing import Dict, Callable, Any, Optional
 import pygame
 import traceback
 from utils.constants import OVERLAY_RESTRICTED_SCREENS, MAIN_MENU_ALLOWED_OVERLAYS, ALL_OVERLAY_ATTRIBUTES
+from screens.load_game import draw_load_game_screen
 
 class ScreenManager:
     """
@@ -583,10 +584,13 @@ class ScreenManager:
     def register_load_screen_clickables(self):
         """Register load screen clickables when load overlay opens"""
         if hasattr(self, 'input_handler') and self.input_handler:
+           
+           # Clear old clickables first
+            self.input_handler.clear_clickables('load_overlay')
             
             # Get button coordinates from the draw function
             temp_surface = pygame.Surface((1024, 768))
-            from screens.load_game import draw_load_game_screen
+           
             
             # Get save_manager from game_controller
             save_manager = None
@@ -606,12 +610,14 @@ class ScreenManager:
            
             if result:
                 # Get current screen name (where load overlay is displayed)
-                current_screen = getattr(self._current_game_state, 'screen', 'combat')
+                #current_screen = getattr(self._current_game_state, 'screen', 'combat')
+                
+                screen_key = 'load_overlay'
                 
                 # Register slot selection areas with HIGHER priority than underlying screen
                 for slot_rect, slot_num in result['slot_rects']:
                     self.input_handler.register_clickable(
-                        current_screen,  # Register on current screen, not 'load_overlay'
+                        screen_key,  
                         slot_rect, 
                         'LOAD_SLOT_SELECTED', 
                         {'slot_num': slot_num},
@@ -635,7 +641,7 @@ class ScreenManager:
 
             for button_x, event_type in buttons:
                 button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
-                self.input_handler.register_clickable(current_screen, button_rect, event_type, {}, priority=200)
+                self.input_handler.register_clickable(screen_key, button_rect, event_type, {}, priority=200)
                 
                 #print("🔍 Load screen clickables registered")
             

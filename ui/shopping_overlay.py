@@ -498,7 +498,6 @@ class ShoppingOverlay(BaseTabbedOverlay):
                     return True
             
             # Handle item clicks
-            print(f"🛒 DEBUG: Checking {len(self.merchant_item_rects)} item rects")
             for item_rect, item_index in self.merchant_item_rects:
                 if item_rect.collidepoint(mouse_pos):
                     print(f"🎯 DEBUG: Item {item_index} clicked!")

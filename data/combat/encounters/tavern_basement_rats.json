@@ -39,7 +39,10 @@
     "items": [],
     "story_progress": {
       "quest_flags": {
-        "completed_basement_combat": true
+        "completed_basement_combat": {
+          "value": true,
+          "display_message": "Basement cleared! Report to Garrick for payment"
+        }
         
       }
     }

@@ -1143,7 +1143,7 @@ Architecture: Eliminated register_shopping_screen_clickables() and related metho
 
 # ADR-071: Quest System Completion Logic & UI Enhancement
 # Date: Sep 16, 2025
-# Status: Accepted
+# Status: Partly superceedd by ADR 101
 **Context:** Party building quest showed as incomplete despite having full party (3 members). Rat basement quest missing from quest log. Quest UI had text overflow and inconsistent sizing issues.
 **Decision:** Implemented smart quest completion logic and professional UI improvements.
 **Implementation:**
@@ -1577,6 +1577,85 @@ Technical Debt Eliminated: Removed competing storage locations (quest_flags dict
 **Consequences:** Self-contained logic with no schema changes, no flag triggers, backward compatible with old saves, works with current 3-slot party design.
 **Files Modified:** `utils/quest_system.py`
 **Reverses:** ADR-071 party_ready objective pattern
+
+ADR-102 A: Fix Quest Objective Condition Evaluation for List-Wrapped Conditions
+# Date: October 1, 2025
+# Status: Accepted
+**Context:** Quest objective `recruit_party` defined as `["recruited_count >= 1"]` (list) was never completing because code only evaluated conditions when type was string, not list containing condition string.
+**Decision:** Enhanced objective checking logic to detect single-item lists containing condition operators (>=, <=, etc.) and evaluate them as conditions rather than flag names.
+**Implementation:** Modified `QuestManager.update_from_game_state()` to check if list has one item with ">=" operator, then pass to `_evaluate_condition()` method instead of treating as flag name.
+**Technical Changes:** Added conditional branch: `if len(required_flags) == 1 and ">=" in required_flags[0]` before standard flag checking logic.
+**Result:** Quest objectives with computed conditions (recruited_count, party_size, etc.) now work correctly whether defined as string or single-item list, maintaining schema consistency.
+**Files Modified:** `utils/quest_system.py`
+
+ADR-102 B: Load Screen Clickable Registration Bug Fix
+# Status: Accepted
+# Date: October 1, 2025
+**Context:** 
+Quest overlay clicks were failing when many quests were loaded. Investigation revealed load screen clickables were being registered to the current background screen ('broken_blade_main') instead of to 'load_overlay', causing clickable pollution. Each time the load screen opened, it added another set of clickables to the background screen, accumulating 519+ clickables that intercepted overlay clicks.
+**Problem:**
+- `register_load_screen_clickables()` used `current_screen` variable to register clickables
+- Clickables accumulated on background screens and were never cleared
+- Quest overlay clicks fell through to background screen load clickables
+- Issue only manifested with large quest lists (more clickable overlap)
+**Decision:**
+Fixed `register_load_screen_clickables()` in `screen_manager.py` to:
+1. Use fixed screen key `'load_overlay'` instead of `current_screen`
+2. Clear old clickables before registering new ones
+3. Applied same fix to `register_save_screen_clickables()`
+
+# ADR-102 C: Font & Image Loading System Refactor
+# Status: Accepted
+# Date: October 1, 2025
+**Context:** 
+Font and image loading systems contained duplicate code, magic numbers, and inconsistent error handling. Changing font files or image dimensions required editing code in multiple locations. Missing assets had inconsistent fallback behavior across different asset types.
+**Decision:** 
+Implemented professional asset loading architecture with centralized configuration, reusable helper functions, and consistent error handling following DRY principles.
+**Implementation:**
+**Font System Refactor:**
+- Added centralized font configuration constants: `GAME_FONT_FILE`, `GAME_FONT_NAME`, and size constants (`FONT_SIZE_LARGE`, `FONT_SIZE_MEDIUM`, etc.)
+- Created `_create_font()` helper function for consistent font loading with fallback support
+- Refactored `load_fonts()` to eliminate duplicate code between success and fallback paths
+- Enhanced error handling with specific exceptions (FileNotFoundError) instead of bare except blocks
+- Fixed `get_scaled_font()` to use centralized font configuration
+**Image System Refactor:**
+- Added image dimension constants: `IMAGE_STANDARD_WIDTH`, `IMAGE_STANDARD_HEIGHT`, `IMAGE_CHARACTER_TABLE_WIDTH`, etc.
+- Created `_load_single_image()` helper function for consistent image loading with error handling
+- Created `_create_placeholder_image()` helper function for professional missing asset visualization
+- Refactored `load_images()` to use helper functions, eliminating 100+ lines of duplicate try/except blocks
+- Simplified image definitions to use filenames instead of full paths in dictionaries
+**Constants Consolidation:**
+- Moved party display constants (`PARTY_PANEL_WIDTH`, `PORTRAIT_SIZE`, etc.) from `party_display.py` to `constants.py`
+- Established pattern: configuration data in `constants.py`, behavior logic in feature modules
+- Fixed duplicate color definition: `BRIGHT_GREEN` now aliases `GREEN` instead of duplicating value
+**Consequences:**
+**Positive:**
+- Single-point font swapping: Change one constant to swap fonts across entire game
+- Single-point dimension control: Change image sizes in one location
+- 60% code reduction in asset loading (200+ lines → ~80 lines)
+- Consistent professional placeholders for missing assets
+- Improved error messages with specific file paths and clear descriptions
+- Easy asset pipeline expansion: add new images by adding one dictionary entry
+- Follows industry-standard separation of concerns (data vs. logic)
+
+**Technical Benefits:**
+- DRY principle applied: one helper function instead of repeated try/except blocks
+- Single Responsibility: each helper does one thing well
+- Better debugging: specific exceptions provide clear error information
+- Maintainability: future developers can understand asset loading at a glance
+**Pattern Established:**
+- Configuration constants at top of file for easy adjustment
+- Helper functions (prefixed with `_`) for reusable operations
+- Feature modules import constants but don't duplicate them
+- Clear separation: `constants.py` = data, feature modules = behavior
+**Files Modified:** 
+- `utils/constants.py` (font/image loading refactor, added configuration constants)
+- `utils/party_display.py` (removed duplicate constants, added imports from constants.py)
+**Related ADRs:** 
+This refactor establishes patterns that should be applied to future asset loading systems (audio, animations, etc.)
+
+
+
 
 ```
 ## ADR-XXX: <Short title>
