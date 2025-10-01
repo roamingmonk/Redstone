@@ -48,7 +48,6 @@ class InputHandler:
             pygame.K_q: ("OVERLAY_TOGGLE", {"overlay_id": "quest_key"}),
             pygame.K_c: ("OVERLAY_TOGGLE", {"overlay_id": "character_key"}),
             pygame.K_h: ("OVERLAY_TOGGLE", {"overlay_id": "help_key"}),
-            pygame.K_p: ("OVERLAY_TOGGLE", {"overlay_id": "party_key"}),
             
             # Game controls (corrected)
             pygame.K_F1: ("DEBUG_TOGGLE", {}),

@@ -156,7 +156,7 @@ class RedstoneTownNavigation:
     def handle_interaction_input(self, keys, game_state, controller):
         """Handle building entry and interaction """
         
-        # NEW: ESC key handling - return to tavern or main menu
+        # ESC key handling - return to tavern or main menu
         if keys[pygame.K_ESCAPE]:
             if controller:
                 print("🚪 ESC pressed - returning to tavern")

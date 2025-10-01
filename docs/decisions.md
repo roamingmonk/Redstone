@@ -1568,6 +1568,16 @@ Technical Debt Eliminated: Removed competing storage locations (quest_flags dict
 **Consequences:** Players can recover from death without losing progress; restart returns to fresh combat at spawn; literary quotes add atmosphere; autosave system prevents frustration.
 **Technical Notes:** Quote generated once per death in combat_engine, stored in game_state; overlay renders from stored quote to prevent cycling; high-priority clickables (200) override combat grid clicks.
 
+# ADR-101: Simplify Party Building Quest Completion Logic
+# Date: October 1, 2025
+# Status: Accepted (Supersedes ADR-071)
+**Context:** Party building quest used `party_ready` objective that was removed from narrative schema, causing quest to never complete despite having 3/4 recruits.
+**Decision:** Replace `party_ready` check with simple count-based completion: quest completes when any 3+ recruitment objectives are done.
+**Implementation:** Modified `Quest._check_quest_completion()` in `quest_system.py` to count completed objectives instead of checking for non-existent `party_ready` flag.**Technical Changes:** Changed from `if party_ready_obj and party_ready_obj.completed` to `if completed_count >= 3` in party_building special case.
+**Consequences:** Self-contained logic with no schema changes, no flag triggers, backward compatible with old saves, works with current 3-slot party design.
+**Files Modified:** `utils/quest_system.py`
+**Reverses:** ADR-071 party_ready objective pattern
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

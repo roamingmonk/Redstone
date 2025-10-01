@@ -136,7 +136,7 @@ class CombatEncounter:
         return clickable_areas
     
     def _render_combat_header(self, surface: pygame.Surface, encounter: Dict, 
-                            combat_data: Dict, fonts: Dict):
+                                combat_data: Dict, fonts: Dict):
         """Render combat title and turn information"""
         
         title_font = fonts.get('fantasy_medium', fonts.get('medium', fonts['normal']))
@@ -149,18 +149,37 @@ class CombatEncounter:
         panel_x = 675  # Right side of screen
         panel_y = 80
 
-        # Current turn indicator
-        #TODO  Should show the name of the enemy (ex.rat 1)
-        current_actor = combat_data.get('current_actor', 'Setup Phase')
-        turn_text = f"Turn: {current_actor}"
-        draw_text(surface, turn_text, text_font, panel_x, panel_y, YELLOW)
+        # Get current actor name (player or enemy)
+        current_phase = combat_data.get('combat_phase', 'setup')
         
-        # Combat phase
-        #TODO define this more clearly  
-        phase = combat_data.get('combat_phase', 'setup')
-        phase_text = f"Phase: {phase.title()}"
-        draw_text(surface, phase_text, text_font, panel_x, panel_y + 25 , CYAN)
-    
+        if current_phase == 'player_turn':
+            actor_name = combat_data.get('player_name', 'Player')
+            turn_text = f"Turn: {actor_name}"
+            phase_text = "Phase: Player Turn"
+        elif current_phase == 'enemy_turn':
+            # Get actual enemy name from current actor
+            current_actor_id = combat_data.get('current_actor_id', 'Enemy')
+            enemies = combat_data.get('enemy_instances', [])
+            actor_name = 'Enemy'
+            for enemy in enemies:
+                if enemy.get('instance_id') == current_actor_id:
+                    actor_name = enemy.get('name', 'Enemy')
+                    break
+            turn_text = f"Turn: {actor_name}"
+            phase_text = "Phase: Enemy Turn"
+        elif current_phase == 'victory':
+            turn_text = "Turn: Victory"
+            phase_text = "Phase: Victory"
+        elif current_phase == 'defeat':
+            turn_text = "Turn: Defeat"
+            phase_text = "Phase: Defeat"
+        else:
+            turn_text = "Turn: Setup"
+            phase_text = "Phase: Setup"
+        
+        draw_text(surface, turn_text, text_font, panel_x, panel_y, YELLOW)
+        draw_text(surface, phase_text, text_font, panel_x, panel_y + 25, CYAN)
+
     def _render_battlefield_grid(self, surface: pygame.Surface, battlefield: Dict, 
                                combat_data: Dict, fonts: Dict) -> Dict[str, Any]:
         """Render the tactical battlefield grid"""
@@ -340,7 +359,7 @@ class CombatEncounter:
             {"id": "end_turn", "label": "End Turn"}
         ]
         
-        button_width = 90
+        button_width = 100
         button_height = 30
         
         # Get player state for button disabling

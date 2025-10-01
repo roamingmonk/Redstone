@@ -39,8 +39,8 @@
     "items": [],
     "story_progress": {
       "quest_flags": {
-        "completed_basement_combat": true,
-        "tavern_basement_cleared": true
+        "completed_basement_combat": true
+        
       }
     }
   },

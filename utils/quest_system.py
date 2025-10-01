@@ -36,12 +36,16 @@ class Quest:
         
     def _check_quest_completion(self):
         """Check if all objectives are complete"""
-        # Special case for party_building: complete when party_ready is done
+        # Special case for party_building: complete when ANY 3 of 4 recruits are done
         if self.id == "party_building":
-            party_ready_obj = next((obj for obj in self.objectives if obj.id == "party_ready"), None)
-            if party_ready_obj and party_ready_obj.completed:
+            completed_count = sum(1 for obj in self.objectives if obj.completed)
+            if completed_count >= 3:
                 self.status = "completed"
                 return
+        
+        # Default: all objectives must be complete
+        if all(obj.completed for obj in self.objectives):
+            self.status = "completed"
         
         # Default: all objectives must be complete
         if all(obj.completed for obj in self.objectives):
