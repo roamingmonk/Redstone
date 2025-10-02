@@ -50,10 +50,13 @@ class CombatEngine:
         self.current_action_mode = None  # Track current UI interaction mode
         
         # Player combat state
-        self.player_position = None
-        self.player_has_moved = False
-        self.player_has_acted = False
-        self.player_attacks_used = 0 
+        # self.player_position = None
+        # self.player_has_moved = False
+        # self.player_has_acted = False
+        # self.player_attacks_used = 0 
+        self.character_states = {}  # Dict of character_id -> state
+        self.active_character_id = None  # Currently acting character
+
 
         #Register combat events (following SaveManager pattern)
         if event_manager:
@@ -68,9 +71,17 @@ class CombatEngine:
         print("CombatEngine initialized")
     
     def _get_movement_range(self) -> int:
-        """Get current actor's movement range from stats"""
-        # TODO: Eventually read from game_state.character['movement_range']
-        return 3  # Base movement for now
+        """Get movement range for active character"""
+        if not self.active_character_id:
+            return 3  # Default fallback
+        
+        char_state = self.character_states.get(self.active_character_id)
+        if not char_state:
+            return 3  # Default fallback
+        
+        # TODO: Eventually read from character class/equipment
+        # For now, all characters have 3 movement
+        return 3
 
     def start_encounter(self, encounter_id: str, combat_context: Dict = None) -> bool:
         """
@@ -79,7 +90,11 @@ class CombatEngine:
             combat_context: Location-specific context from calling screen
         Returns: bool: True if combat started successfully
         """
-        # CRITICAL: Clear any existing combat data first
+        # Ensure party member data is synced before combat
+        self.game_state.sync_party_member_data()
+        print(f"🔄 Synced party data before combat")
+       
+       # CRITICAL: Clear any existing combat data first
         self.combat_data = None
         self.combat_log = []
         self.player_position = None
@@ -152,13 +167,35 @@ class CombatEngine:
                 print(f"❌ Failed to load combat encounter: {encounter_id}")
                 return False
             
-            # Initialize player position
+            # Initialize party member positions
             player_positions = self.combat_data.get("player_positions", [])
-            if player_positions:
-                self.player_position = player_positions[0]  # Use first position for now
-            else:
-                print(f"❌ No player starting positions defined")
+            if not player_positions or len(player_positions) < 4:
+                print(f"⚠️ Encounter needs exactly 4 starting positions")
                 return False
+            
+            # Get active party members from game_state
+            party_members = self._get_active_party_members()
+            
+            # Assign positions to party members (shuffle positions randomly)
+            import random
+            shuffled_positions = player_positions.copy()
+            random.shuffle(shuffled_positions)
+            
+            for idx, member in enumerate(party_members):
+                character_id = member['id']
+                position = shuffled_positions[idx] if idx < len(shuffled_positions) else [0, 0]
+                
+                self.character_states[character_id] = {
+                    'name': member['name'],
+                    'position': position,
+                    'has_moved': False,
+                    'attacks_used': 0,
+                    'is_alive': True,
+                    'dexterity': member.get('stats', {}).get('dexterity', 10),
+                    'character_data': member  # Store full character data
+                }
+            
+            print(f"✅ Initialized {len(party_members)} party members")
             
             # Set up turn order (simple: player first, then enemies)
             self._initialize_turn_order()
@@ -167,9 +204,15 @@ class CombatEngine:
             self.current_phase = CombatPhase.PLAYER_TURN
             self.current_actor_index = 0
             
-            # Reset turn flags
-            self.player_has_moved = False
-            self.player_has_acted = False
+            # Set the first active character
+            if self.turn_order:
+                first_actor_id = self.turn_order[0]
+                if first_actor_id in self.character_states:
+                    self.active_character_id = first_actor_id
+                    char_state = self.character_states[first_actor_id]
+                    char_state['has_moved'] = False
+                    char_state['attacks_used'] = 0
+                    print(f"🎯 First turn: {char_state['name']}")
             
             # Add initial combat log entry
             encounter_name = self.combat_data["encounter"]["name"]
@@ -187,6 +230,42 @@ class CombatEngine:
         except Exception as e:
             print(f"❌ Error starting combat: {e}")
             return False
+    
+    def _get_active_party_members(self):
+        """Get all active party members including player character"""
+        party = []
+        
+        # Add player character first
+        player_char = {
+            'id': 'player',
+            'name': self.game_state.character.get('name', 'Hero'),
+            'class': self.game_state.character.get('class', 'Fighter'),
+            'level': self.game_state.character.get('level', 1),
+            'stats': {
+                'dexterity': self.game_state.character.get('dexterity', 10),
+                'strength': self.game_state.character.get('strength', 10),
+                'constitution': self.game_state.character.get('constitution', 10),
+            },
+            'current_hp': self.game_state.character.get('current_hp', 
+                                                        self.game_state.character.get('hit_points', 20)),
+            'max_hp': self.game_state.character.get('hit_points', 20)
+        }
+        party.append(player_char)
+        
+        # Add recruited party members
+        for member_data in self.game_state.party_member_data:
+            party_member = {
+                'id': member_data['id'],
+                'name': member_data['name'],
+                'class': member_data['class'],
+                'level': member_data['level'],
+                'stats': member_data.get('stats', {}),
+                'current_hp': member_data.get('current_hp', member_data.get('hit_points', 20)),
+                'max_hp': member_data.get('hit_points', 20)
+            }
+            party.append(party_member)
+        
+        return party
     
     def get_combat_data_for_ui(self) -> Dict:
         """
@@ -206,23 +285,60 @@ class CombatEngine:
             "encounter": self.combat_data.get("encounter", {}),
             "battlefield": self.combat_data.get("battlefield", {}),
             "enemy_instances": self.combat_data.get("enemy_instances", []),
-            "player_position": self.player_position,
+            "character_states": self.character_states,
+            "active_character_id": self.active_character_id,
+            #"player_position": self.player_position,
             "current_actor": current_actor,
             "combat_phase": self.current_phase.value,
             "turn_number": self.combat_data.get("turn_number", 0),
             "combat_log": self.combat_log[-10:],  # Last 10 messages
             "player_actions": self._get_available_player_actions(),
-            "player_state": {  # ADD THIS BLOCK
-                "has_moved": self.player_has_moved,
-                "has_acted": self.player_has_acted,
-                "attacks_used": self.player_attacks_used,
-                "attacks_per_round": self._get_attacks_per_round(),
-                "has_attack_targets": len(self.get_attack_targets(self.player_position, 1)) > 0,
-                "current_hp": self.game_state.character.get("current_hp", 10),
-                "max_hp": self.game_state.character.get("hit_points", 10)
-            },
+            "player_state": self._get_active_character_state(),
             "current_action_mode": self.current_action_mode, 
             "highlighted_tiles": self._get_highlighted_tiles()
+        }
+
+    def _get_active_character_state(self) -> Dict:
+        """Get the active character's state for UI display"""
+        if not self.active_character_id:
+            # Fallback to default state
+            return {
+                "has_moved": False,
+                "has_acted": False,
+                "attacks_used": 0,
+                "attacks_per_round": 1,
+                "has_attack_targets": False,
+                "current_hp": 10,
+                "max_hp": 10
+            }
+        
+        char_state = self.character_states.get(self.active_character_id)
+        if not char_state:
+            return {
+                "has_moved": False,
+                "has_acted": False,
+                "attacks_used": 0,
+                "attacks_per_round": 1,
+                "has_attack_targets": False,
+                "current_hp": 10,
+                "max_hp": 10
+            }
+        
+        # Get character data
+        char_data = char_state.get('character_data', {})
+        char_position = char_state.get('position', [0, 0])
+        
+        # Check for attack targets
+        attack_targets = self.get_attack_targets(char_position, 1)
+        
+        return {
+            "has_moved": char_state.get('has_moved', False),
+            "has_acted": char_state.get('has_acted', False),
+            "attacks_used": char_state.get('attacks_used', 0),
+            "attacks_per_round": self._get_attacks_per_round(char_data),
+            "has_attack_targets": len(attack_targets) > 0,
+            "current_hp": char_data.get('current_hp', 10),
+            "max_hp": char_data.get('max_hp', 10)
         }
 
     def set_action_mode(self, mode: str):
@@ -266,13 +382,9 @@ class CombatEngine:
     def get_attack_targets(self, actor_position: List[int], attack_range: int = 1) -> List[Dict]:
         """
         Find valid attack targets within range
-        
-        Args:
-            actor_position: Attacker's [x, y] position
+        Args:actor_position: Attacker's [x, y] position
             attack_range: Attack range in tiles
-            
-        Returns:
-            List of target dictionaries with position and target info
+        Returns:List of target dictionaries with position and target info
         """
         targets = []
         start_x, start_y = actor_position
@@ -296,40 +408,66 @@ class CombatEngine:
                             "distance": distance
                         })
         
-        # TODO: For enemy attacks, check player position
+        # For enemy attacks, check all party member positions
+        else:
+            for char_id, char_state in self.character_states.items():
+                if char_state.get('is_alive', True):
+                    char_pos = char_state['position']
+                    char_x, char_y = char_pos
+                    
+                    # Check if in range (Manhattan distance)
+                    distance = abs(start_x - char_x) + abs(start_y - char_y)
+                    if distance <= attack_range:
+                        targets.append({
+                            "position": char_pos,
+                            "target_type": "player",
+                            "target_id": char_id,
+                            "target_name": char_state['name'],
+                            "distance": distance
+                        })
         
         return targets
     
     def execute_player_move(self, target_position: List[int]) -> bool:
-        """ Execute player movement to target position
-        Args: target_position: Destination [x, y] position
-        Returns:bool: True if move was successful
-        """
+        """Execute active character movement to target position"""
+        print(f"🔍 DEBUG execute_player_move called")
+        print(f"   Phase: {self.current_phase}")
+        print(f"   Active character ID: {self.active_character_id}")
         if self.current_phase != CombatPhase.PLAYER_TURN:
-            self._add_to_combat_log("Not player's turn!")
             return False
         
-        if self.player_has_moved:
+        if not self.active_character_id:
+            print(f"   ❌ No active character ID!")
+            return False
+        
+        char_state = self.character_states[self.active_character_id]
+        print(f"   Character: {char_state.get('name')}")
+        print(f"   Current position: {char_state['position']}")
+        print(f"   Target position: {target_position}")
+        print(f"   Has moved: {char_state['has_moved']}")
+        if char_state['has_moved']:
             self._add_to_combat_log("Already moved this turn!")
             return False
         
         # Validate movement
         movement_range = self._get_movement_range()  # uses helper
-        valid_moves = self.get_valid_moves(self.player_position, movement_range)
+        valid_moves = self.get_valid_moves(char_state['position'], movement_range)
         
         if target_position not in valid_moves:
             self._add_to_combat_log("Invalid movement target!")
             return False
         
-        # Execute movement
-        old_pos = self.player_position.copy()
-        self.player_position = target_position
-        self.player_has_moved = True
+        # Execute move
+        old_pos = char_state['position']
+        char_state['position'] = target_position
+        char_state['has_moved'] = True
+        
+        char_name = char_state['name']
         
         # Clear action mode after successful move
         self.current_action_mode = None  
 
-        self._add_to_combat_log(f"Player moves to ({target_position[0]}, {target_position[1]})")
+        self._add_to_combat_log(f"{char_name} moved to [{target_position[0]}, {target_position[1]}]")
         
         # Emit movement event for UI
         self.event_manager.emit("COMBAT_UNIT_MOVED", {
@@ -341,39 +479,29 @@ class CombatEngine:
         return True
     
     def execute_player_attack(self, target_position: List[int]) -> bool:
-        """
-        Execute player attack on target position
-        Args: target_position: Target [x, y] position
-        Returns:bool: True if attack was executed
-        """
+        """Execute active character attack on target enemy"""
         if self.current_phase != CombatPhase.PLAYER_TURN:
-            self._add_to_combat_log("Not player's turn!")
             return False
         
-         # Check attacks remaining
-        attacks_per_round = self._get_attacks_per_round()
-        if self.player_attacks_used >= attacks_per_round:
-            self._add_to_combat_log("No attacks remaining!")
-            return False
-
-        if self.player_has_acted:
-            self._add_to_combat_log("Already acted this turn!")
+        if not self.active_character_id:
             return False
         
-        # Find target at position
-        target_enemy = None
+        char_state = self.character_states[self.active_character_id]
+        
+        # Find target enemy
         enemy_instances = self.combat_data.get("enemy_instances", [])
+        target_enemy = None
         for enemy in enemy_instances:
             if enemy.get("position") == target_position and enemy.get("current_hp", 0) > 0:
                 target_enemy = enemy
                 break
         
         if not target_enemy:
-            self._add_to_combat_log("No valid target at that position!")
+            self._add_to_combat_log("No valid target!")
             return False
         
         # Validate range
-        attack_targets = self.get_attack_targets(self.player_position)
+        attack_targets = self.get_attack_targets(char_state['position'])
         valid_target = any(t["position"] == target_position for t in attack_targets)
         
         if not valid_target:
@@ -383,19 +511,20 @@ class CombatEngine:
         # Execute attack
         success = self._resolve_attack(
             attacker_type="player",
-            attacker_data=self.game_state.character,
+            attacker_data=char_state['character_data'],
             target_data=target_enemy
         )
         
         # Increment attack counter regardless of hit/miss
-        self.player_attacks_used += 1  # ← MOVE THIS HERE
+        char_state['attacks_used'] += 1
 
         # Check if all attacks used
-        attacks_per_round = self._get_attacks_per_round()
-        if self.player_attacks_used >= attacks_per_round:
-            self.player_has_acted = True
+        attacks_per_round = self._get_attacks_per_round(char_state['character_data'])
+        if char_state['attacks_used'] >= attacks_per_round:
+            char_state['has_acted'] = True
             self.current_action_mode = None
-            self._add_to_combat_log("All attacks used")
+            char_name = char_state['name']
+            self._add_to_combat_log(f"{char_name}: All attacks used")
 
         if success:
             # Check if target was defeated
@@ -410,37 +539,78 @@ class CombatEngine:
 
         return success
     
-    def _get_attacks_per_round(self) -> int:
-        """Get number of attacks player gets per round"""
-        # TODO: Eventually read from character progression/class features
-        attacks, _ = self.stats_calculator.calculate_attacks_per_round(self.game_state)
-        return attacks
+    def _get_attacks_per_round(self, character_data=None) -> int:
+        """Get number of attacks character gets per round"""
+        # If no character data provided or player character, use game_state
+        if character_data is None or character_data.get('id') == 'player':
+            attacks, _ = self.stats_calculator.calculate_attacks_per_round(self.game_state)
+            return attacks
+        
+        # For party members, simple class-based calculation
+        # TODO: Eventually integrate party members with stats_calculator
+        char_class = character_data.get('class', 'Fighter').lower()
+        level = character_data.get('level', 1)
+        
+        # Fighters get 2 attacks at level 5+
+        if char_class == 'fighter' and level >= 5:
+            return 2
+        
+        # Everyone else gets 1 attack
+        return 1
 
     def end_player_turn(self):
-        """End the player's turn and advance to next actor"""
+        """End the active character's turn and advance to next actor"""
         if self.current_phase != CombatPhase.PLAYER_TURN:
             return
         
-        self._add_to_combat_log("Player ends turn")
+        if not self.active_character_id:
+            return
         
-        # Reset turn flags
-        self.player_has_moved = False
-        self.player_has_acted = False
+        char_state = self.character_states.get(self.active_character_id)
+        if char_state:
+            char_name = char_state['name']
+            self._add_to_combat_log(f"{char_name} ends turn")
         
-        # Advance to next actor (enemies)
+        # Advance to next actor
         self._advance_turn()
     
     def _initialize_turn_order(self):
-        """Set up turn order for combat"""
-        # Simple turn order: Player first, then all enemies
-        self.turn_order = ["player"]
+        """Set up turn order based on DEX-based initiative"""
+        combatants = []
         
+        # Add all party members with their DEX
+        for char_id, char_state in self.character_states.items():
+            combatants.append({
+                'id': char_id,
+                'name': char_state['name'],
+                'dex': char_state['dexterity'],
+                'type': 'player'
+            })
+        
+        # Add all enemies with their DEX
         enemy_instances = self.combat_data.get("enemy_instances", [])
         for enemy in enemy_instances:
             if enemy.get("current_hp", 0) > 0:
-                self.turn_order.append(enemy.get("instance_id"))
+                combatants.append({
+                    'id': enemy.get("instance_id"),
+                    'name': enemy.get("name", "Enemy"),
+                    'dex': enemy.get("stats", {}).get("dexterity", 10),
+                    'type': 'enemy'
+                })
         
-        print(f"🎯 Turn order: {self.turn_order}")
+        # Sort by DEX (highest first), then by random roll for ties
+        import random
+        for c in combatants:
+            c['initiative'] = c['dex'] + random.randint(1, 20)
+        
+        combatants.sort(key=lambda x: x['initiative'], reverse=True)
+        
+        # Build turn order list
+        self.turn_order = [c['id'] for c in combatants]
+        
+        print(f"🎯 Initiative Order:")
+        for c in combatants:
+            print(f"   {c['name']}: {c['initiative']} (DEX {c['dex']})")
     
     def _advance_turn(self):
         """Advance to next actor in turn order"""
@@ -453,15 +623,26 @@ class CombatEngine:
             self.combat_data["turn_number"] = turn_number
             self._add_to_combat_log(f"--- Turn {turn_number} ---")
         
-        # Set phase based on current actor
-        current_actor = self.turn_order[self.current_actor_index]
-        if current_actor == "player":
+# Set phase based on current actor
+        current_actor_id = self.turn_order[self.current_actor_index]
+        
+        # Check if current actor is a party member or enemy
+        if current_actor_id in self.character_states:
+            # Party member's turn
             self.current_phase = CombatPhase.PLAYER_TURN
-            self.player_attacks_used = 0  # Reset attack counter
-            self._add_to_combat_log("Player's turn")
+            self.active_character_id = current_actor_id
+            
+            # Reset action flags for this character
+            char_state = self.character_states[current_actor_id]
+            char_state['has_moved'] = False
+            char_state['attacks_used'] = 0
+            
+            char_name = char_state['name']
+            self._add_to_combat_log(f"{char_name}'s turn")
+        #TODO CHECK is this else statement is correct
         else:
             self.current_phase = CombatPhase.ENEMY_TURN
-            self._execute_enemy_turn(current_actor)
+            self._execute_enemy_turn(current_actor_id)
     
     def _execute_enemy_turn(self, enemy_id: str):
         """Execute AI turn for enemy"""
@@ -496,32 +677,63 @@ class CombatEngine:
         enemy_pos = enemy.get("position", [0, 0])
         enemy_name = enemy.get("name", "Enemy")
         
-        # Check if player is in attack range
+        # Check if any party member is in attack range
         attack_targets = self._get_enemy_attack_targets(enemy_pos)
         if attack_targets:
-            # Attack player
-            self._add_to_combat_log(f"{enemy_name} attacks!")
-            self._resolve_attack(
-                attacker_type="enemy",
-                attacker_data=enemy,
-                target_data=self.game_state.character
-            )
-        else:
-            # Move toward player
-            movement_speed = enemy.get("movement", {}).get("speed", 3)
-            new_position = self._find_best_move_toward_target(enemy_pos, self.player_position, movement_speed)
+            # Attack closest target
+            closest_target = min(attack_targets, key=lambda t: t['distance'])
+            target_char_id = closest_target['target_id']
+            target_char_state = self.character_states.get(target_char_id)
             
-            if new_position != enemy_pos:
-                enemy["position"] = new_position
-                self._add_to_combat_log(f"{enemy_name} moves to ({new_position[0]}, {new_position[1]})")
+            if target_char_state:
+                target_name = target_char_state['name']
+                self._add_to_combat_log(f"{enemy_name} attacks {target_name}!")
                 
-                # Emit movement event
-                self.event_manager.emit("COMBAT_UNIT_MOVED", {
-                    "unit_type": "enemy",
-                    "unit_id": enemy.get("instance_id"),
-                    "old_position": enemy_pos,
-                    "new_position": new_position
-                })
+                # Get the actual character data for attack resolution
+                target_char_data = target_char_state['character_data']
+                
+                self._resolve_attack(
+                    attacker_type="enemy",
+                    attacker_data=enemy,
+                    target_data=target_char_data
+                )
+        else:
+            # Find nearest party member to move toward
+            nearest_target_pos = self._find_nearest_party_member(enemy_pos)
+            
+            if nearest_target_pos:
+                movement_speed = enemy.get("movement", {}).get("speed", 3)
+                new_position = self._find_best_move_toward_target(enemy_pos, nearest_target_pos, movement_speed)
+                
+                if new_position != enemy_pos:
+                    enemy["position"] = new_position
+                    self._add_to_combat_log(f"{enemy_name} moves to ({new_position[0]}, {new_position[1]})")
+                    
+                    # Emit movement event
+                    self.event_manager.emit("COMBAT_UNIT_MOVED", {
+                        "unit_type": "enemy",
+                        "unit_id": enemy.get("instance_id"),
+                        "old_position": enemy_pos,
+                        "new_position": new_position
+                    })
+    
+    def _find_nearest_party_member(self, enemy_pos: List[int]) -> List[int]:
+        """Find the position of the nearest living party member"""
+        nearest_pos = None
+        nearest_distance = float('inf')
+        
+        for char_id, char_state in self.character_states.items():
+            if not char_state.get('is_alive', True):
+                continue
+            
+            char_pos = char_state['position']
+            distance = abs(enemy_pos[0] - char_pos[0]) + abs(enemy_pos[1] - char_pos[1])
+            
+            if distance < nearest_distance:
+                nearest_distance = distance
+                nearest_pos = char_pos
+        
+        return nearest_pos
     
     def _resolve_attack(self, attacker_type: str, attacker_data: Dict, target_data: Dict) -> bool:
         """
@@ -732,16 +944,25 @@ class CombatEngine:
         """Get attack targets for enemy at position"""
         targets = []
         enemy_x, enemy_y = enemy_pos
-        player_x, player_y = self.player_position
         
-        # Check if player is in melee range (distance 1)
-        distance = abs(enemy_x - player_x) + abs(enemy_y - player_y)
-        if distance <= 1:
-            targets.append({
-                "position": self.player_position,
-                "target_type": "player",
-                "distance": distance
-            })
+        # Check all party members for targets in melee range
+        for char_id, char_state in self.character_states.items():
+            if not char_state.get('is_alive', True):
+                continue  # Skip dead characters
+            
+            char_pos = char_state['position']
+            char_x, char_y = char_pos
+            
+            # Check if character is in melee range (distance 1)
+            distance = abs(enemy_x - char_x) + abs(enemy_y - char_y)
+            if distance <= 1:
+                targets.append({
+                    "position": char_pos,
+                    "target_type": "player",
+                    "target_id": char_id,
+                    "target_name": char_state['name'],
+                    "distance": distance
+                })
         
         return targets
     
@@ -965,19 +1186,29 @@ class CombatEngine:
             return highlighted_tiles
         
         if self.current_action_mode == "movement":
-            movement_range = self._get_movement_range()  # ← Use helper
-            highlighted_tiles = self.get_valid_moves(self.player_position, movement_range)
-            # print(f"✅ Movement mode: calculated {len(highlighted_tiles)} valid tiles")
-            # print(f"   Player position: {self.player_position}")
-            # print(f"   Sample tiles: {highlighted_tiles[:5]}")
+            if not self.active_character_id:
+                return highlighted_tiles
+            
+            char_state = self.character_states.get(self.active_character_id)
+            if not char_state:
+                return highlighted_tiles
+            
+            movement_range = self._get_movement_range()
+            highlighted_tiles = self.get_valid_moves(char_state['position'], movement_range)
 
 
         # Attack mode - show valid attack targets
         elif self.current_action_mode == "attack":
+            if not self.active_character_id:
+                return highlighted_tiles
+            
+            char_state = self.character_states.get(self.active_character_id)
+            if not char_state:
+                return highlighted_tiles
+            
             attack_range = 1  # Melee range for now
-            attack_targets = self.get_attack_targets(self.player_position, attack_range)
-            #print(f"🎯 Attack mode: found {len(attack_targets)} targets")
-            #print(f"   Attack targets: {attack_targets}")
+            attack_targets = self.get_attack_targets(char_state['position'], attack_range)
+
             # Extract just the positions from the target dictionaries
             highlighted_tiles = [target["position"] for target in attack_targets]
             #print(f"   Highlighted tile positions: {highlighted_tiles}")

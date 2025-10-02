@@ -217,27 +217,46 @@ class CombatEncounter:
     def _render_battlefield_units(self, surface: pygame.Surface, combat_data: Dict):
         """Render player and enemy units on the battlefield"""
         
-        # Render player unit
-        player_position = combat_data.get("player_position")
-        if player_position and len(player_position) == 2:
-            x, y = player_position
-            # Shift sprite up in the tile by reducing the offset
-            screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
-            screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6  # Move up 6 pixels
+        # Render all party members
+        character_states = combat_data.get("character_states", {})
+        active_character_id = combat_data.get("active_character_id")
+        
+        for char_id, char_state in character_states.items():
+            if not char_state.get('is_alive', True):
+                continue  # Skip dead characters
             
-            # Draw player as blue circle with "P" label
-            pygame.draw.circle(surface, BLUE, (screen_x, screen_y), self.tile_size // 3)
-            
-            # Player label
-            font = pygame.font.Font(None, 24)
-            text_surface = font.render("P", True, WHITE)
-            text_rect = text_surface.get_rect(center=(screen_x, screen_y))
-            surface.blit(text_surface, text_rect)
-            
-            # Draw player HP bar
-            current_hp = combat_data.get("player_state", {}).get("current_hp", 10)
-            max_hp = combat_data.get("player_state", {}).get("max_hp", 10)
-            self._draw_hp_bar(surface, screen_x, screen_y, current_hp, max_hp)
+            position = char_state.get('position')
+            if position and len(position) == 2:
+                x, y = position
+                # Shift sprite up in the tile by reducing the offset
+                screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
+                screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6  # Move up 6 pixels
+                
+                # Determine color - CYAN for active character, BLUE for others
+                is_active = (char_id == active_character_id)
+                char_color = CYAN if is_active else BLUE
+                
+                # Draw character circle
+                pygame.draw.circle(surface, char_color, (screen_x, screen_y), self.tile_size // 3)
+                
+                # Draw extra highlight border for active character
+                if is_active:
+                    pygame.draw.circle(surface, CYAN, (screen_x, screen_y), 
+                                     self.tile_size // 3 + 2, 3)  # Thicker border
+                
+                # Character label (first letter of name)
+                name = char_state.get('name', 'P')
+                label = name[0].upper()
+                font = pygame.font.Font(None, 24)
+                text_surface = font.render(label, True, WHITE)
+                text_rect = text_surface.get_rect(center=(screen_x, screen_y))
+                surface.blit(text_surface, text_rect)
+                
+                # Draw HP bar
+                char_data = char_state.get('character_data', {})
+                current_hp = char_data.get('current_hp', 10)
+                max_hp = char_data.get('max_hp', 10)
+                self._draw_hp_bar(surface, screen_x, screen_y, current_hp, max_hp)
         
         # Render enemy units
         enemy_instances = combat_data.get("enemy_instances", [])
@@ -264,30 +283,6 @@ class CombatEncounter:
                 current_hp = enemy.get("current_hp", 0)
                 max_hp = enemy.get("stats", {}).get("hp", 1)
                 self._draw_hp_bar(surface, screen_x, screen_y, current_hp, max_hp)
-    
-    # def _render_unit_sprite(self, surface: pygame.Surface, unit: Dict, enemy_color: tuple):
-    #     """Render a single unit sprite on the grid"""
-        
-    #     position = unit.get("position", [0, 0])
-    #     x, y = position
-        
-    #     # Calculate screen position
-    #     screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 4)
-    #     screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 4)
-        
-    #     # Draw unit circle
-    #     radius = self.tile_size // 3
-    #     pygame.draw.circle(surface, enemy_color, (screen_x + radius, screen_y + radius), radius)
-    #     pygame.draw.circle(surface, WHITE, (screen_x + radius, screen_y + radius), radius, 2)
-        
-    #     # Draw unit label
-    #     name = unit.get("name", "Unit")
-    #     if len(name) > 0:
-    #         label = name[0].upper()  # First letter
-    #         font = pygame.font.Font(None, 24)
-    #         text_surface = font.render(label, True, WHITE)
-    #         text_rect = text_surface.get_rect(center=(screen_x + radius, screen_y + radius))
-    #         surface.blit(text_surface, text_rect)
     
     def _render_tile_overlays(self, surface: pygame.Surface, combat_data: Dict):
         """Render movement/targeting overlays on grid tiles"""
@@ -328,19 +323,37 @@ class CombatEncounter:
         button_font = fonts.get('fantasy_small', fonts['normal'])
         text_font = fonts.get('fantasy_micro', fonts['normal'])
         
-        # Current unit status
-        #TODO what is this suppose to show?  just a black space?
+        # Active character status
         current_y = panel_y
-        draw_text(surface, "Current Unit:", text_font, 750, current_y, CYAN)
-        current_y += 30
-
-        # Show current player HP
-        game_state = controller.game_state
-        current_hp = game_state.character.get('current_hp', 20)
-        max_hp = game_state.character.get('hit_points', 20)
-        hp_display = f"HP: {current_hp}/{max_hp}"
-        draw_text(surface, hp_display, text_font, 750, current_y, WHITE)
-        current_y += 50
+        
+        # Get active character info
+        active_character_id = combat_data.get('active_character_id')
+        character_states = combat_data.get('character_states', {})
+        
+        if active_character_id and active_character_id in character_states:
+            char_state = character_states[active_character_id]
+            char_name = char_state.get('name', 'Unknown')
+            
+            # Display active character name
+            draw_text(surface, f"Active: {char_name}", text_font, 750, current_y, CYAN)
+            current_y += 30
+            
+            # Show active character HP
+            char_data = char_state.get('character_data', {})
+            current_hp = char_data.get('current_hp', 20)
+            max_hp = char_data.get('max_hp', 20)
+            hp_display = f"HP: {current_hp}/{max_hp}"
+            draw_text(surface, hp_display, text_font, 750, current_y, WHITE)
+            current_y += 30
+            
+            # Show class
+            char_class = char_data.get('class', 'Fighter')
+            draw_text(surface, f"Class: {char_class}", text_font, 750, current_y, WHITE)
+            current_y += 30
+        else:
+            # Fallback if no active character
+            draw_text(surface, "Current Unit:", text_font, 750, current_y, CYAN)
+            current_y += 30
         
         # Action_buttons = ["MOVE", "ATTACK", "SPELL", "END_TURN"]
         action_buttons = [
@@ -353,11 +366,15 @@ class CombatEncounter:
         button_width = 120
         button_height = 30
         
-        # Get player state for button disabling
+        # Get active character state for button disabling
+        active_char_state = character_states.get(active_character_id, {})
+        has_moved = active_char_state.get('has_moved', False)
+        attacks_used = active_char_state.get('attacks_used', 0)
+        
+        # Get attacks per round from combat engine via player_state (temporary)
         player_state = combat_data.get('player_state', {})
-        has_moved = player_state.get('has_moved', False)
-        attacks_used = player_state.get('attacks_used', 0)
         attacks_per_round = player_state.get('attacks_per_round', 1)
+        has_attack_targets = player_state.get('has_attack_targets', False)
 
         for i, action_data in enumerate(action_buttons):
             try:

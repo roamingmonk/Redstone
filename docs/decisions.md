@@ -1663,6 +1663,25 @@ This refactor establishes patterns that should be applied to future asset loadin
 **Consequences:** Single source of truth for text wrapping eliminates code duplication; flexible color parameter allows any UI context (combat=WHITE, dialogue=custom); content designers can add encounters with custom quest messages without touching Python; combat log properly wraps long messages; backward compatible with legacy boolean flag format.
 **Technical Benefits:** Eliminated duplicate code; optimized algorithm handles edge cases; professional data-driven content pipeline; fully backward compatible; follows established architectural patterns.
 
+# ADR-104: Multi-Party Tactical Combat System
+# Date: October 1, 2025
+# Status: Implemented
+**Context:** Combat system only supported single player character; needed full party (player + recruited NPCs) with initiative-based turn order for tactical depth.
+**Decision:** Implemented DEX-based initiative system with character_states dict tracking individual party member positions/actions; interleaved player/enemy turn order; CYAN visual highlighting for active character.
+**Implementation:** 
+- Replaced single player_position with character_states dict keyed by character_id
+- Added _get_active_party_members() loading player + party_member_data from game_state
+- Initiative calculation: DEX + d20 roll, sorted descending for turn_order list
+- Active character tracked via active_character_id, automatically advanced through turn_order
+- Enemy AI updated to target nearest living party member for movement/attacks
+- UI renders all party members with CYAN highlight border for active character
+- Encounter JSON requires 4 starting_positions for full party placement
+**Files Modified:** combat_engine.py (character state tracking, initiative, turn management), combat_system.py (_render_battlefield_units with multi-character support, UI panel shows active character), tavern_basement_rats.json (4 starting positions)
+**Consequences:** 
+- Positive: Full party combat with proper initiative order; tactical positioning matters; enemies intelligently target nearest threats; clear visual feedback on active character
+- Technical: Each party member has independent action tracking; stats_calculator integration ready for party member abilities
+- Foundation: Ready for spell system (mages/clerics), ranged attacks (rogues), and class-specific abilities
+**Future Enhancements:** Party member spell casting, ranged weapon attacks, formation strategies, character-specific equipment effects in combat
 
 ```
 ## ADR-XXX: <Short title>
