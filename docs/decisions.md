@@ -1683,6 +1683,26 @@ This refactor establishes patterns that should be applied to future asset loadin
 - Foundation: Ready for spell system (mages/clerics), ranged attacks (rogues), and class-specific abilities
 **Future Enhancements:** Party member spell casting, ranged weapon attacks, formation strategies, character-specific equipment effects in combat
 
+# ADR-105: Multi-Party Combat Bug Fixes & Collision Detection
+# Date: October 2, 2025
+# Status: Implemented
+**Context:** Multi-party combat system (ADR-104) had critical bugs: turn display showed wrong character names, collision detection missing causing unit overlap, initiative messaging not appearing in combat log, enemy turns executing twice causing skipped player turns.
+**Decision:** Fixed turn sequence logic, implemented unit collision detection, corrected character name display from active character state rather than generic current_actor.
+**Implementation:** 
+- Fixed _get_current_actor_name() to read active_character_id instead of always returning main player name
+- Removed duplicate _advance_turn() call after first enemy turn preventing double-execution
+- Added _is_tile_occupied(x, y) checking both party and enemy positions
+- Integrated collision check into get_valid_moves() and _is_tile_walkable()
+- Fixed method signature conflicts (tuple vs separate arguments)
+- Moved initiative messages after COMBAT_STARTED event emission
+- Updated combat header to display active character from character_states dict
+**Files Modified:** combat_engine.py (_get_current_actor_name, _is_tile_occupied, get_valid_moves, start_encounter turn logic), combat_system.py (_render_combat_header dynamic character display, _render_combat_ui_panel removed "Active:" prefix)
+**Consequences:** 
+- Positive: Turn display accurately shows current actor; units cannot overlap; combat flow smooth with proper turn sequencing; collision creates tactical positioning decisions
+- Bug fixes: Eliminated turn skipping, double-execution, stale character names from old saves
+- User experience: Clear visual feedback on whose turn it is; tactical depth from blocking/positioning
+**Remaining issues:** Enemy attack logic needs review (sometimes fails to attack when adjacent); UI polish needed (spacing, enemy turn visual indicators, and more)
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

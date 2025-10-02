@@ -149,28 +149,29 @@ class CombatEncounter:
         panel_x = 675 
         panel_y = 80
 
-        # ========== CORRECTED CODE STARTS HERE ==========
-        # Get turn info directly from combat_data (not from nested 'turn_info')
-        current_actor = combat_data.get('current_actor', 'Unknown')
         phase = combat_data.get('combat_phase', 'setup')
-        # ========== CORRECTED CODE ENDS HERE ==========
         
-        # Get player name
-        player_name = combat_data.get('player_name', 'Player')
-        
-        # Determine what to display
+        # Determine what to display based on phase
         if phase == 'victory':
             turn_text = "Victory"
         elif phase == 'defeat':
             turn_text = "Defeat"
-        elif current_actor and current_actor != 'Unknown':
-            # Show actual actor name (already the display name)
-            turn_text = f"Turn: {current_actor}"
         else:
-            turn_text = "Turn: Setup"
+            # Get active character name from character_states
+            active_character_id = combat_data.get('active_character_id')
+            character_states = combat_data.get('character_states', {})
+            
+            if active_character_id and active_character_id in character_states:
+                char_state = character_states[active_character_id]
+                char_name = char_state.get('name', 'Unknown')
+                turn_text = f"Turn: {char_name}"
+            else:
+                # Fallback during enemy turns
+                current_actor = combat_data.get('current_actor', 'Unknown')
+                turn_text = f"Turn: {current_actor}"
         
         draw_text(surface, turn_text, text_font, panel_x, panel_y, YELLOW)
-
+        
     def _render_battlefield_grid(self, surface: pygame.Surface, battlefield: Dict, 
                                combat_data: Dict, fonts: Dict) -> Dict[str, Any]:
         """Render the tactical battlefield grid"""

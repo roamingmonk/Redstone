@@ -204,15 +204,34 @@ class CombatEngine:
             self.current_phase = CombatPhase.PLAYER_TURN
             self.current_actor_index = 0
             
-            # Set the first active character
+           # Set the first active character and add initiative message
             if self.turn_order:
                 first_actor_id = self.turn_order[0]
+                
+                # If first actor is a player character, set as active
                 if first_actor_id in self.character_states:
                     self.active_character_id = first_actor_id
                     char_state = self.character_states[first_actor_id]
                     char_state['has_moved'] = False
                     char_state['attacks_used'] = 0
-                    print(f"🎯 First turn: {char_state['name']}")
+                    char_name = char_state['name']
+                    print(f"🎯 First turn: {char_name}")
+                    self._add_to_combat_log(f"{char_name} has initiative!")
+                # If first actor is an enemy, execute their turn immediately
+                else:
+                    # Find enemy name
+                    enemy_name = "Enemy"
+                    enemy_instances = self.combat_data.get("enemy_instances", [])
+                    for enemy in enemy_instances:
+                        if enemy.get("instance_id") == first_actor_id:
+                            enemy_name = enemy.get("name", "Enemy")
+                            break
+                    
+                    print(f"🎯 First turn: {enemy_name}")
+                    self._add_to_combat_log(f"{enemy_name} has initiative and attacks first!")
+                    self.current_phase = CombatPhase.ENEMY_TURN
+                    self._execute_enemy_turn(first_actor_id)
+                    # Enemy turn will handle advancing via _advance_turn() internally
             
             # Add initial combat log entry
             encounter_name = self.combat_data["encounter"]["name"]
@@ -349,11 +368,8 @@ class CombatEngine:
     def get_valid_moves(self, actor_position: List[int], movement_range: int) -> List[List[int]]:
         """
         Calculate valid movement squares considering obstacles and other units
-        
-        Args:
-            actor_position: Current [x, y] position
+        Args:actor_position: Current [x, y] position
             movement_range: Number of tiles actor can move
-            
         Returns:
             List of valid [x, y] positions
         """
@@ -373,10 +389,11 @@ class CombatEngine:
                     
                     # Check bounds
                     if 0 <= new_x < dimensions["width"] and 0 <= new_y < dimensions["height"]:
-                        # Check if tile is walkable
+                        # Check if tile is walkable AND not occupied
                         if self._is_tile_walkable(new_x, new_y):
-                            valid_moves.append([new_x, new_y])
-        
+                            if not self._is_tile_occupied(new_x, new_y):
+                                valid_moves.append([new_x, new_y])
+            
         return valid_moves
     
     def get_attack_targets(self, actor_position: List[int], attack_range: int = 1) -> List[Dict]:
@@ -734,7 +751,7 @@ class CombatEngine:
                 nearest_pos = char_pos
         
         return nearest_pos
-    
+
     def _resolve_attack(self, attacker_type: str, attacker_data: Dict, target_data: Dict) -> bool:
         """
         Resolve attack using StatsCalculator integration
@@ -899,18 +916,23 @@ class CombatEngine:
         return False
     
     def _is_tile_occupied(self, x: int, y: int) -> bool:
-        """Check if tile is occupied by a unit"""
-        # Check player position
-        if self.player_position == [x, y]:
-            return True
-        
-        # Check enemy positions
-        enemy_instances = self.combat_data.get("enemy_instances", [])
-        for enemy in enemy_instances:
-            if enemy.get("current_hp", 0) > 0 and enemy.get("position") == [x, y]:
-                return True
-        
-        return False
+            """Check if a tile is occupied by any unit (party member or enemy)"""
+            position = [x, y]
+            
+            # Check party member positions
+            for char_id, char_state in self.character_states.items():
+                if char_state.get('is_alive', True):
+                    if char_state['position'] == position:
+                        return True
+            
+            # Check enemy positions
+            enemy_instances = self.combat_data.get("enemy_instances", [])
+            for enemy in enemy_instances:
+                if enemy.get("current_hp", 0) > 0:  # Only living enemies
+                    if enemy.get("position") == position:
+                        return True
+            
+            return False
     
     def _point_on_line_segment(self, px: int, py: int, x1: int, y1: int, x2: int, y2: int) -> bool:
         """Check if point is on line segment"""
@@ -1149,6 +1171,9 @@ class CombatEngine:
         if self.current_phase == CombatPhase.SETUP:
             return "Setup"
         elif self.current_phase == CombatPhase.PLAYER_TURN:
+            # Get active party member name
+            if self.active_character_id and self.active_character_id in self.character_states:
+                return self.character_states[self.active_character_id]['name']
             return self.game_state.character.get("name", "Player")
         elif self.current_phase == CombatPhase.ENEMY_TURN:
             current_actor = self.turn_order[self.current_actor_index]
