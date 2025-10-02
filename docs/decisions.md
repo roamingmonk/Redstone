@@ -1703,6 +1703,19 @@ This refactor establishes patterns that should be applied to future asset loadin
 - User experience: Clear visual feedback on whose turn it is; tactical depth from blocking/positioning
 **Remaining issues:** Enemy attack logic needs review (sometimes fails to attack when adjacent); UI polish needed (spacing, enemy turn visual indicators, and more)
 
+# ADR-106: Fixed enemy attack bug and pulled correct npc hp and ac
+# Date: October 2, 2025
+# Status: Implemented
+**Context:** enemy attacks showed npc was using player hp, ac was also wrong for npc
+**Decision:** aligned hp and ac to json file and put in gamestate.  fixed save and load files with npc data
+**Implementation:** 
+- ✅ Fixed npc using wrong ac an hp
+- ✅ Implemented proper NPC HP/AC from JSON files
+- ✅ Added party_member_data to save/load system
+- ✅ Verified damage persistence across save/load cycles
+- ✅ Elara now has proper wizard stats (18 HP, 12 AC)
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

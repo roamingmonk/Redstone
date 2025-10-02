@@ -64,6 +64,7 @@ class SaveManager:
                 
                 # World state
                 'party_members': getattr(self.game_state, 'party_members', []),
+                'party_member_data': getattr(self.game_state, 'party_member_data', []),
                 'tavern_visits': getattr(self.game_state, 'tavern_visits', 0),
                 'locations_discovered': getattr(self.game_state, 'locations_discovered', []),
                 
@@ -241,6 +242,13 @@ class SaveManager:
 
             # Restore world state
             self.game_state.party_members = save_data.get('party_members', [])
+            self.game_state.party_member_data = save_data.get('party_member_data', [])
+            
+            # Rebuild the party lookup dictionary
+            self.game_state._party_lookup = {}
+            for member in self.game_state.party_member_data:  
+                self.game_state._party_lookup[member['id']] = member  
+
             self.game_state.tavern_visits = save_data.get('tavern_visits', 0)
             self.game_state.locations_discovered = save_data.get('locations_discovered', [])
             

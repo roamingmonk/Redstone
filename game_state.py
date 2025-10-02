@@ -207,18 +207,24 @@ class GameState:
             return False
         
         # Create character data object
+        npc_hp = npc_template.get('hp', 20)  # Read HP from NPC JSON
+        npc_ac = npc_template.get('ac', 10)  # Read AC from NPC JSON
+
         character_data = {
             'id': npc_id,
             'name': npc_template.get('name', npc_id.title()),
             'class': npc_template.get('class', 'Fighter'),
             'level': npc_template.get('level', 1),
             'experience': 0,  # Start at 0 XP
-            'hit_points': npc_template.get('hp', 20),
-            'max_hit_points': npc_template.get('hp', 20),
+            'hp': npc_hp,  # Use 'hp' to match NPC JSON format
+            'hit_points': npc_hp,  # Also store as hit_points for compatibility
+            'current_hp': npc_hp,  # Initialize current HP to max! ← CRITICAL FIX
+            'max_hit_points': npc_hp,
+            'ac': npc_ac,  # Store AC from NPC JSON
             'stats': npc_template.get('stats', {}).copy(),
             'equipment': npc_template.get('equipment', {}).copy(),
             'effects': []
-        }
+}
         
         # Add to collections
         self.party_member_data.append(character_data)

@@ -273,14 +273,19 @@ class CombatEngine:
         
         # Add recruited party members
         for member_data in self.game_state.party_member_data:
+            # Read HP from member data (initialized in game_state)
+            max_hp = member_data.get('hp', member_data.get('hit_points', 20))
+            current_hp = member_data.get('current_hp', max_hp)
+            
             party_member = {
                 'id': member_data['id'],
                 'name': member_data['name'],
                 'class': member_data['class'],
                 'level': member_data['level'],
                 'stats': member_data.get('stats', {}),
-                'current_hp': member_data.get('current_hp', member_data.get('hit_points', 20)),
-                'max_hp': member_data.get('hit_points', 20)
+                'current_hp': current_hp,
+                'max_hp': max_hp,
+                'ac': member_data.get('ac', 10)  # Add AC for combat resolution
             }
             party.append(party_member)
         
@@ -755,12 +760,10 @@ class CombatEngine:
     def _resolve_attack(self, attacker_type: str, attacker_data: Dict, target_data: Dict) -> bool:
         """
         Resolve attack using StatsCalculator integration
-        
         Args:
             attacker_type: "player" or "enemy"
             attacker_data: Attacker's data (character or enemy instance)
             target_data: Target's data (character or enemy instance)
-            
         Returns:
             bool: True if attack hit
         """
@@ -778,7 +781,7 @@ class CombatEngine:
                 target_ac = target_data.get("stats", {}).get("ac", 10)
                 
             else:
-                # Enemy attacking player
+                # Enemy attacking player/party
                 attacker_name = attacker_data.get("name", "Enemy")
                 target_name = target_data.get("name", "Player")
                 
@@ -792,8 +795,18 @@ class CombatEngine:
                     attack_bonus = 0
                     damage_string = "1d4"
                 
-                # Player AC from StatsCalculator
-                target_ac = self.stats_calculator.calculate_armor_class(self.game_state)[0]
+                # Get target AC - check if it's a party member or player
+                target_char_id = None
+                for char_id, char_state in self.character_states.items():
+                    if char_state.get('character_data') == target_data:
+                        target_char_id = char_id
+                        break
+                
+                # Use party member AC or player AC
+                if target_char_id and target_char_id != 'player':
+                    target_ac = target_data.get('ac', 10)
+                else:
+                    target_ac = self.stats_calculator.calculate_armor_class(self.game_state)[0]
             
             # Roll attack (d20 + bonus vs AC)
             attack_roll = random.randint(1, 20)
@@ -802,31 +815,84 @@ class CombatEngine:
             self._add_to_combat_log(f"{attacker_name} attacks {target_name}")
             self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
             
+            # Check if attack hits
             if total_attack >= target_ac:
                 # Hit! Roll damage
                 damage = self._roll_damage(damage_string)
                 self._add_to_combat_log(f"Hit! {damage} damage")
                 
-                # Apply damage
+                # Apply damage based on attacker type
                 if attacker_type == "player":
-                    # Damage enemy
+                    # Player hitting enemy
                     current_hp = target_data.get("current_hp", 0)
                     new_hp = max(0, current_hp - damage)
                     target_data["current_hp"] = new_hp
                     self._add_to_combat_log(f"{target_name}: {new_hp}/{target_data.get('stats', {}).get('hp', 0)} HP")
                 else:
-                    # Damage player
-                    current_hp = self.game_state.character.get("current_hp", 0)
-                    new_hp = max(0, current_hp - damage)
-                    self.game_state.character["current_hp"] = new_hp
+                    # Enemy hitting party member
+                    # Find the correct character state to damage
+                    target_char_id = None
+                    for char_id, char_state in self.character_states.items():
+                        if char_state.get('character_data') == target_data:
+                            target_char_id = char_id
+                            break
                     
-                    #Show current/max HP in combat log
-                    max_hp = self.game_state.character.get("hit_points", 0)
-                    self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
-                    
-                    # Check if player defeated
-                    if new_hp <= 0:
-                        self._handle_combat_defeat()
+                    if target_char_id:
+                        char_state = self.character_states[target_char_id]
+                        
+                        # Check if targeting main player or party member
+                        if target_char_id == 'player':
+                            # Damage main player character
+                            current_hp = self.game_state.character.get("current_hp", 0)
+                            new_hp = max(0, current_hp - damage)
+                            self.game_state.character["current_hp"] = new_hp
+                            
+                            # Show current/max HP in combat log
+                            max_hp = self.game_state.character.get("hit_points", 0)
+                            self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
+                            
+                            # Check if player defeated
+                            if new_hp <= 0:
+                                char_state['is_alive'] = False
+                                char_state['is_conscious'] = False
+                                self._add_to_combat_log(f"{target_name} is knocked unconscious!")
+                                
+                                # Check if ALL party members are knocked out
+                                all_unconscious = all(
+                                    not cs.get('is_alive', True) 
+                                    for cs in self.character_states.values()
+                                )
+                                if all_unconscious:
+                                    self._handle_combat_defeat()
+                        else:
+                            # Damage party member (NPC)
+                            for member in self.game_state.party_member_data:
+                                if member['id'] == target_char_id:
+                                    current_hp = member.get("current_hp", member.get('hp', 0))
+                                    new_hp = max(0, current_hp - damage)
+                                    member["current_hp"] = new_hp
+                                    
+                                    # Also update character_data in combat state
+                                    target_data["current_hp"] = new_hp
+                                    
+                                    # Show current/max HP in combat log
+                                    max_hp = member.get('hp', member.get('hit_points', 0))
+                                    self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
+                                    
+                                    # Check if character defeated (knocked out, not dead!)
+                                    if new_hp <= 0:
+                                        char_state['is_alive'] = False
+                                        char_state['is_conscious'] = False
+                                        self._add_to_combat_log(f"{target_name} is knocked unconscious!")
+                                        
+                                        # Check if ALL party members are knocked out (defeat)
+                                        all_unconscious = all(
+                                            not cs.get('is_alive', True) 
+                                            for cs in self.character_states.values()
+                                        )
+                                        if all_unconscious:
+                                            self._handle_combat_defeat()
+                                    break
                 
                 return True
             else:
@@ -836,6 +902,8 @@ class CombatEngine:
                 
         except Exception as e:
             print(f"❌ Error resolving attack: {e}")
+            import traceback
+            traceback.print_exc()
             self._add_to_combat_log("Attack failed!")
             return False
     
