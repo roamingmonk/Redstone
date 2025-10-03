@@ -1715,6 +1715,17 @@ This refactor establishes patterns that should be applied to future asset loadin
 - ✅ Verified damage persistence across save/load cycles
 - ✅ Elara now has proper wizard stats (18 HP, 12 AC)
 
+# ADR-107 Ranged Targeting & Mode Reset
+# Status: Accepted.
+# Date: 2025-10-02.
+**Context:** Ranged attacks existed but highlights and clicks failed due to missing UI wiring and permissive defaults.
+**Problem:** Entering ranged mode didn’t highlight valid targets and non-ranged actors inherited ranged mode.
+**Decision:** Route grid clicks in ranged_attack to execute_player_ranged_attack, add ranged branch in _get_highlighted_tiles, and reset action mode on actor change.
+**Alternatives:** Keep per-mode logic in UI; compute highlights client-side; defer LOS to later—all rejected for duplication and drift risk.
+**Consequences:** Single-source targeting (get_attack_targets) governs range/LOS; actors without ranged weapons show no cyan tiles; UX is consistent per turn.
+**Implementation:** Add UI branch for "ranged_attack", engine highlight branch using get_attack_targets(..., requires_los=True), guard with has_ranged_weapon, and call _reset_action_mode_for_active() in start_combat() and _advance_turn().
+**Verification:** Manual test shows cyan highlights only for ranged actors, valid shots resolve, blocked LOS removes highlights; unit tests cover edge-of-range, blocked LOS, and mode reset.
+**Follow-ups:** Add dotted LOS preview helper, unify has_ranged_weapon truth source across UI/engine, and later extend to cover/elevation modifiers. different color for selection buttons for each stage.
 
 ```
 ## ADR-XXX: <Short title>

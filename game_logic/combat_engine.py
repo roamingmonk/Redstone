@@ -33,7 +33,7 @@ class CombatEngine:
     - Victory condition checking
     """
     
-    def __init__(self, event_manager, game_state, save_manager=None):
+    def __init__(self, event_manager, game_state, save_manager=None, item_manager=None):
         """Initialize with existing game systems"""
         self.event_manager = event_manager
         self.game_state = game_state
@@ -48,15 +48,10 @@ class CombatEngine:
         self.current_actor_index = 0
         self.combat_log = []
         self.current_action_mode = None  # Track current UI interaction mode
-        
-        # Player combat state
-        # self.player_position = None
-        # self.player_has_moved = False
-        # self.player_has_acted = False
-        # self.player_attacks_used = 0 
+        self.item_manager = item_manager
+
         self.character_states = {}  # Dict of character_id -> state
         self.active_character_id = None  # Currently acting character
-
 
         #Register combat events (following SaveManager pattern)
         if event_manager:
@@ -82,6 +77,12 @@ class CombatEngine:
         # TODO: Eventually read from character class/equipment
         # For now, all characters have 3 movement
         return 3
+
+    def _reset_action_mode_for_active(self):
+        """Safe default when a new actor becomes active."""
+        # pick your default; movement is usually nicest for UX
+        self.current_action_mode = "movement"
+
 
     def start_encounter(self, encounter_id: str, combat_context: Dict = None) -> bool:
         """
@@ -186,6 +187,7 @@ class CombatEngine:
                 position = shuffled_positions[idx] if idx < len(shuffled_positions) else [0, 0]
                 
                 self.character_states[character_id] = {
+                    'id': character_id, 
                     'name': member['name'],
                     'position': position,
                     'has_moved': False,
@@ -211,6 +213,7 @@ class CombatEngine:
                 # If first actor is a player character, set as active
                 if first_actor_id in self.character_states:
                     self.active_character_id = first_actor_id
+                    self._reset_action_mode_for_active() 
                     char_state = self.character_states[first_actor_id]
                     char_state['has_moved'] = False
                     char_state['attacks_used'] = 0
@@ -249,7 +252,51 @@ class CombatEngine:
         except Exception as e:
             print(f"❌ Error starting combat: {e}")
             return False
-    
+
+    def _has_ranged_weapon_equipped(self, char_state: Dict) -> bool:
+        """Check if character has ranged weapon equipped by checking item data"""
+        char_data = char_state.get('character_data', {})
+        #print(f"🔍 DEBUG char_data keys: {char_data.keys()}")
+        #print(f"🔍 DEBUG char_data: {char_data}")  
+        
+        equipment = char_data.get('equipment', {})
+        #print(f"🔍 DEBUG equipment: {equipment}")
+        
+        weapon_id = equipment.get('weapon', '')
+        
+        #print(f"🏹 DEBUG: Checking ranged weapon for {char_state.get('id', 'unknown')}")
+        #print(f"   Weapon ID: {weapon_id}")
+
+        if not weapon_id:
+            print(f"   ❌ No weapon equipped")
+            return False
+        
+        # For player character, check item manager
+        char_id = char_state.get('id')
+        if char_id == 'player' and hasattr(self, 'item_manager'):
+            weapon_data = self.item_manager.get_item_by_id(weapon_id.lower())
+            if weapon_data:
+                combat_stats = weapon_data.get('combat_stats', {})
+                is_ranged = combat_stats.get('range') == 'ranged'
+                print(f"   Player weapon data found: range={combat_stats.get('range')}, is_ranged={is_ranged}")
+                # Check the range field from JSON
+                return combat_stats.get('range') == 'ranged'
+        
+        # For NPCs, also check item data if available
+        if hasattr(self, 'item_manager'):
+            weapon_data = self.item_manager.get_item_by_id(weapon_id.lower())
+            if weapon_data:
+                combat_stats = weapon_data.get('combat_stats', {})
+                is_ranged = combat_stats.get('range') == 'ranged'
+                #print(f"   NPC weapon data found: range={combat_stats.get('range')}, is_ranged={is_ranged}")
+                return combat_stats.get('range') == 'ranged'
+            else:
+                print(f"   ❌ Weapon '{weapon_id}' not found in item_manager")
+        
+        # Fallback: if no item manager, assume not ranged
+        print(f"   ❌ No item_manager available")
+        return False
+
     def _get_active_party_members(self):
         """Get all active party members including player character"""
         party = []
@@ -283,6 +330,7 @@ class CombatEngine:
                 'class': member_data['class'],
                 'level': member_data['level'],
                 'stats': member_data.get('stats', {}),
+                'equipment': member_data.get('equipment', {}),  
                 'current_hp': current_hp,
                 'max_hp': max_hp,
                 'ac': member_data.get('ac', 10)  # Add AC for combat resolution
@@ -353,14 +401,23 @@ class CombatEngine:
         char_position = char_state.get('position', [0, 0])
         
         # Check for attack targets
-        attack_targets = self.get_attack_targets(char_position, 1)
+        melee_targets = self.get_attack_targets(char_position, 1, requires_los=False)
+        ranged_targets = self.get_attack_targets(char_position, 8, requires_los=True)   
         
+        has_ranged_weapon = self._has_ranged_weapon_equipped(char_state)
+        #print(f"🎯 DEBUG player_state for {char_state.get('name', 'unknown')}:")
+        #print(f"   has_ranged_weapon: {has_ranged_weapon}")
+        #print(f"   ranged_targets: {len(ranged_targets)}")
+        #print(f"   attacks_used: {char_state.get('attacks_used', 0)}")
+
         return {
             "has_moved": char_state.get('has_moved', False),
             "has_acted": char_state.get('has_acted', False),
             "attacks_used": char_state.get('attacks_used', 0),
             "attacks_per_round": self._get_attacks_per_round(char_data),
-            "has_attack_targets": len(attack_targets) > 0,
+            "has_attack_targets": len(melee_targets) > 0,
+            "has_ranged_weapon": self._has_ranged_weapon_equipped(char_state),
+            "has_ranged_targets": len(ranged_targets) > 0,
             "current_hp": char_data.get('current_hp', 10),
             "max_hp": char_data.get('max_hp', 10)
         }
@@ -400,13 +457,56 @@ class CombatEngine:
                                 valid_moves.append([new_x, new_y])
             
         return valid_moves
-    
-    def get_attack_targets(self, actor_position: List[int], attack_range: int = 1) -> List[Dict]:
+
+    def _can_use_ranged_attack(self) -> bool:
+        """Check if active character can use ranged attacks"""
+        if not self.active_character_id:
+            return False
+        
+        char_state = self.character_states.get(self.active_character_id)
+        if not char_state:
+            return False
+        
+        # Check attacks remaining
+        if char_state.get('attacks_used', 0) >= self._get_attacks_per_round(char_state.get('character_data')):
+            self._add_to_combat_log("All attacks used this turn!")
+            return False
+        
+        # Check for ranged weapon
+        char_data = char_state.get('character_data', {})
+        equipment = char_data.get('equipment', {})
+        weapon_id = equipment.get('weapon', '')
+        
+        if not weapon_id:
+            self._add_to_combat_log(f"{char_state['name']} has no weapon equipped!")
+            return False
+        
+        # Simple check: does weapon name contain "bow"?
+        if 'bow' not in weapon_id.lower():
+            self._add_to_combat_log(f"{char_state['name']} has no ranged weapon equipped!")
+            return False
+        
+        # Check for valid targets
+        char_pos = char_state['position']
+        ranged_targets = self.get_attack_targets(char_pos, 8, requires_los=True)
+        
+        if not ranged_targets:
+            self._add_to_combat_log("No valid ranged targets!")
+            return False
+        
+        return True
+
+    def get_attack_targets(self, actor_position: List[int], attack_range: int = 1, requires_los: bool = False) -> List[Dict]:
         """
         Find valid attack targets within range
-        Args:actor_position: Attacker's [x, y] position
+        
+        Args:
+            actor_position: Attacker's [x, y] position
             attack_range: Attack range in tiles
-        Returns:List of target dictionaries with position and target info
+            requires_los: Whether line of sight is required (for ranged attacks)
+            
+        Returns:
+            List of target dictionaries with position and target info
         """
         targets = []
         start_x, start_y = actor_position
@@ -421,14 +521,27 @@ class CombatEngine:
                     
                     # Check if in range (Manhattan distance)
                     distance = abs(start_x - enemy_x) + abs(start_y - enemy_y)
-                    if distance <= attack_range:
-                        targets.append({
-                            "position": enemy_pos,
-                            "target_type": "enemy",
-                            "target_id": enemy.get("instance_id"),
-                            "target_name": enemy.get("name", "Enemy"),
-                            "distance": distance
-                        })
+                    if distance <= attack_range and distance > 0:
+                        # Check line of sight for ranged attacks
+                        if requires_los:
+                            if self._has_line_of_sight(start_x, start_y, enemy_x, enemy_y):
+                                targets.append({
+                                    "position": enemy_pos,
+                                    "target_type": "enemy",
+                                    "target_id": enemy.get("instance_id"),
+                                    "target_name": enemy.get("name", "Enemy"),
+                                    "distance": distance
+                                })
+                        else:
+                            # Melee attack - only adjacent
+                            if distance == 1:
+                                targets.append({
+                                    "position": enemy_pos,
+                                    "target_type": "enemy",
+                                    "target_id": enemy.get("instance_id"),
+                                    "target_name": enemy.get("name", "Enemy"),
+                                    "distance": distance
+                                })
         
         # For enemy attacks, check all party member positions
         else:
@@ -439,17 +552,114 @@ class CombatEngine:
                     
                     # Check if in range (Manhattan distance)
                     distance = abs(start_x - char_x) + abs(start_y - char_y)
-                    if distance <= attack_range:
-                        targets.append({
-                            "position": char_pos,
-                            "target_type": "player",
-                            "target_id": char_id,
-                            "target_name": char_state['name'],
-                            "distance": distance
-                        })
+                    if distance <= attack_range and distance > 0:
+                        # Check line of sight for ranged attacks
+                        if requires_los:
+                            if self._has_line_of_sight(start_x, start_y, char_x, char_y):
+                                targets.append({
+                                    "position": char_pos,
+                                    "target_type": "player",
+                                    "target_id": char_id,
+                                    "target_name": char_state['name'],
+                                    "distance": distance
+                                })
+                        else:
+                            # Melee attack - only adjacent
+                            if distance == 1:
+                                targets.append({
+                                    "position": char_pos,
+                                    "target_type": "player",
+                                    "target_id": char_id,
+                                    "target_name": char_state['name'],
+                                    "distance": distance
+                                })
         
         return targets
-    
+
+    def _has_line_of_sight(self, x1: int, y1: int, x2: int, y2: int) -> bool:
+        """
+        Check if there's a clear line of sight between two positions
+        Uses Bresenham's line algorithm
+        
+        Args:
+            x1, y1: Starting position
+            x2, y2: Ending position
+            
+        Returns:
+            bool: True if line of sight exists
+        """
+        # Use Bresenham's line algorithm
+        dx = abs(x2 - x1)
+        dy = abs(y2 - y1)
+        
+        x, y = x1, y1
+        
+        x_inc = 1 if x2 > x1 else -1
+        y_inc = 1 if y2 > y1 else -1
+        
+        if dx > dy:
+            # More horizontal than vertical
+            error = dx / 2
+            while x != x2:
+                x += x_inc
+                error -= dy
+                if error < 0:
+                    y += y_inc
+                    error += dx
+                
+                # Don't check the final destination square
+                if x == x2 and y == y2:
+                    break
+                    
+                # Check for blocking terrain or characters
+                if self._is_tile_blocked_for_los(x, y):
+                    return False
+        else:
+            # More vertical than horizontal
+            error = dy / 2
+            while y != y2:
+                y += y_inc
+                error -= dx
+                if error < 0:
+                    x += x_inc
+                    error += dy
+                
+                # Don't check the final destination square
+                if x == x2 and y == y2:
+                    break
+                    
+                # Check for blocking terrain or characters
+                if self._is_tile_blocked_for_los(x, y):
+                    return False
+        
+        return True
+
+    def _is_tile_blocked_for_los(self, x: int, y: int) -> bool:
+        """Check if tile blocks line of sight (walls and characters)"""
+        battlefield = self.combat_data.get("battlefield", {})
+        
+        # Check walls
+        if self._is_wall_tile(x, y, battlefield):
+            return True
+        
+        # Check if any character is on this tile
+        # Check party members
+        for char_state in self.character_states.values():
+            if char_state.get('is_alive', True):
+                char_pos = char_state.get('position', [0, 0])
+                if char_pos == [x, y]:
+                    return True
+        
+        # Check enemies
+        enemy_instances = self.combat_data.get("enemy_instances", [])
+        for enemy in enemy_instances:
+            if enemy.get("current_hp", 0) > 0:
+                enemy_pos = enemy.get("position", [0, 0])
+                if enemy_pos == [x, y]:
+                    return True
+        
+        return False
+
     def execute_player_move(self, target_position: List[int]) -> bool:
         """Execute active character movement to target position"""
         print(f"🔍 DEBUG execute_player_move called")
@@ -467,7 +677,7 @@ class CombatEngine:
         print(f"   Current position: {char_state['position']}")
         print(f"   Target position: {target_position}")
         print(f"   Has moved: {char_state['has_moved']}")
-        if char_state['has_moved']:
+        if char_state.get('has_moved', False):
             self._add_to_combat_log("Already moved this turn!")
             return False
         
@@ -560,7 +770,111 @@ class CombatEngine:
                     return True
 
         return success
-    
+
+    def execute_player_ranged_attack(self, target_position: List[int]) -> bool:
+        """Execute active character ranged attack on target enemy"""
+        if self.current_phase != CombatPhase.PLAYER_TURN:
+            return False
+        
+        if not self.active_character_id:
+            return False
+        
+        char_state = self.character_states[self.active_character_id]
+        
+        # Check attacks remaining
+        if char_state.get('attacks_used', 0) >= self._get_attacks_per_round(char_state.get('character_data')):
+            self._add_to_combat_log("All attacks used this turn!")
+            return False  # ← Validation at execution time
+            
+        # Find target enemy
+        enemy_instances = self.combat_data.get("enemy_instances", [])
+        target_enemy = None
+        for enemy in enemy_instances:
+            if enemy.get("position") == target_position and enemy.get("current_hp", 0) > 0:
+                target_enemy = enemy
+                break
+        
+        if not target_enemy:
+            self._add_to_combat_log("No valid target!")
+            return False
+        
+        # Get weapon data and range
+        char_data = char_state.get('character_data', {})
+        equipment = char_data.get('equipment', {})
+        weapon_id = equipment.get('weapon', '')
+        
+        weapon_range = 8
+        damage_string = "1d6"
+        
+        if weapon_id:
+            if self.active_character_id == 'player' and hasattr(self, 'item_manager'):
+                weapon_data = self.item_manager.get_item_by_id(weapon_id.lower())
+                if weapon_data:
+                    combat_stats = weapon_data.get('combat_stats', {})
+                    weapon_range = combat_stats.get('range_grid', 8)
+                    damage_string = combat_stats.get('damage_dice', '1d6')
+        
+        # Validate range and LOS
+        char_pos = char_state['position']
+        distance = abs(char_pos[0] - target_position[0]) + abs(char_pos[1] - target_position[1])
+        
+        if distance > weapon_range:
+            self._add_to_combat_log("Target out of range!")
+            return False
+        
+        if not self._has_line_of_sight(char_pos[0], char_pos[1], target_position[0], target_position[1]):
+            self._add_to_combat_log("No line of sight!")
+            return False
+        
+        # Execute attack
+        char_name = char_state['name']
+        self._add_to_combat_log(f"{char_name} shoots at {target_enemy['name']}!")
+        
+        # Calculate attack bonus
+        if self.active_character_id == 'player':
+            attack_bonus = self.stats_calculator.calculate_attack_bonus(self.game_state)[0]
+            damage_string = self.stats_calculator.calculate_weapon_damage(self.game_state)[0]
+        else:
+            # NPC ranged attack - use DEX modifier
+            char_dex = char_data.get('stats', {}).get('dexterity', 10)
+            dex_mod = (char_dex - 10) // 2
+            attack_bonus = dex_mod + 2  # +2 proficiency
+        
+        # Roll attack
+        attack_roll = random.randint(1, 20)
+        target_ac = target_enemy.get("stats", {}).get("ac", 10)
+        total_attack = attack_roll + attack_bonus
+        
+        self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
+        
+        if total_attack >= target_ac:
+            # Hit!
+            damage = self._roll_damage(damage_string)
+            self._add_to_combat_log(f"Hit! {damage} damage")
+            
+            current_hp = target_enemy.get("current_hp", 0)
+            new_hp = max(0, current_hp - damage)
+            target_enemy["current_hp"] = new_hp
+            self._add_to_combat_log(f"{target_enemy['name']}: {new_hp}/{target_enemy.get('stats', {}).get('hp', 0)} HP")
+            
+            if new_hp <= 0:
+                self._add_to_combat_log(f"{target_enemy['name']} defeated!")
+                if self._check_victory_conditions():
+                    self._handle_combat_victory()
+                    return True
+        else:
+            self._add_to_combat_log("Miss!")
+        
+        # Increment attack counter
+        char_state['attacks_used'] += 1
+        
+        attacks_per_round = self._get_attacks_per_round(char_data)
+        if char_state['attacks_used'] >= attacks_per_round:
+            char_state['has_acted'] = True
+            self._add_to_combat_log(f"{char_name}: All attacks used")
+        
+        return True
+
     def _get_attacks_per_round(self, character_data=None) -> int:
         """Get number of attacks character gets per round"""
         # If no character data provided or player character, use game_state
@@ -653,6 +967,7 @@ class CombatEngine:
             # Party member's turn
             self.current_phase = CombatPhase.PLAYER_TURN
             self.active_character_id = current_actor_id
+            self._reset_action_mode_for_active()
             
             # Reset action flags for this character
             char_state = self.character_states[current_actor_id]
@@ -902,6 +1217,113 @@ class CombatEngine:
                 
         except Exception as e:
             print(f"❌ Error resolving attack: {e}")
+            import traceback
+            traceback.print_exc()
+            self._add_to_combat_log("Attack failed!")
+            return False
+    
+    def _resolve_attack_with_weapon(self, attacker_type: str, attacker_data: Dict, target_data: Dict, weapon_attack: Dict) -> bool:
+        """
+        Resolve attack using specific weapon data (for enemies with multiple attacks)
+        
+        Args:
+            attacker_type: "player" or "enemy"
+            attacker_data: Attacker's data
+            target_data: Target's data
+            weapon_attack: Specific weapon attack dict with damage_dice, attack_bonus, etc.
+            
+        Returns:
+            bool: True if attack hit
+        """
+        try:
+            attacker_name = attacker_data.get("name", "Enemy")
+            target_name = target_data.get("name", "Target")
+            
+            # Use weapon-specific attack bonus and damage
+            attack_bonus = weapon_attack.get("attack_bonus", 0)
+            damage_string = weapon_attack.get("damage_dice", "1d4")
+            
+            # Get target AC
+            target_char_id = None
+            for char_id, char_state in self.character_states.items():
+                if char_state.get('character_data') == target_data:
+                    target_char_id = char_id
+                    break
+            
+            if target_char_id and target_char_id != 'player':
+                target_ac = target_data.get('ac', 10)
+            else:
+                target_ac = self.stats_calculator.calculate_armor_class(self.game_state)[0]
+            
+            # Roll attack
+            attack_roll = random.randint(1, 20)
+            total_attack = attack_roll + attack_bonus
+            
+            self._add_to_combat_log(f"{attacker_name} attacks {target_name}")
+            self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
+            
+            if total_attack >= target_ac:
+                # Hit! Roll damage
+                damage = self._roll_damage(damage_string)
+                self._add_to_combat_log(f"Hit! {damage} damage")
+                
+                # Apply damage (same logic as _resolve_attack)
+                if target_char_id == 'player':
+                    # Damage main player
+                    current_hp = self.game_state.character.get("current_hp", 0)
+                    new_hp = max(0, current_hp - damage)
+                    self.game_state.character["current_hp"] = new_hp
+                    
+                    max_hp = self.game_state.character.get("hit_points", 0)
+                    self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
+                    
+                    if new_hp <= 0:
+                        char_state = self.character_states.get(target_char_id)
+                        if char_state:
+                            char_state['is_alive'] = False
+                            char_state['is_conscious'] = False
+                            self._add_to_combat_log(f"{target_name} is knocked unconscious!")
+                        
+                        all_unconscious = all(
+                            not cs.get('is_alive', True) 
+                            for cs in self.character_states.values()
+                        )
+                        if all_unconscious:
+                            self._handle_combat_defeat()
+                else:
+                    # Damage party member
+                    for member in self.game_state.party_member_data:
+                        if member['id'] == target_char_id:
+                            current_hp = member.get("current_hp", member.get('hp', 0))
+                            new_hp = max(0, current_hp - damage)
+                            member["current_hp"] = new_hp
+                            target_data["current_hp"] = new_hp
+                            
+                            max_hp = member.get('hp', member.get('hit_points', 0))
+                            self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
+                            
+                            if new_hp <= 0:
+                                char_state = self.character_states.get(target_char_id)
+                                if char_state:
+                                    char_state['is_alive'] = False
+                                    char_state['is_conscious'] = False
+                                    self._add_to_combat_log(f"{target_name} is knocked unconscious!")
+                                
+                                all_unconscious = all(
+                                    not cs.get('is_alive', True) 
+                                    for cs in self.character_states.values()
+                                )
+                                if all_unconscious:
+                                    self._handle_combat_defeat()
+                            break
+                
+                return True
+            else:
+                self._add_to_combat_log("Miss!")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Error resolving weapon attack: {e}")
             import traceback
             traceback.print_exc()
             self._add_to_combat_log("Attack failed!")
@@ -1267,53 +1689,191 @@ class CombatEngine:
         
         return actions
     
-    def _get_highlighted_tiles(self) -> List[List[int]]:
-        """Get tiles to highlight in UI based on current action mode"""
-        highlighted_tiles = []
+    # def _get_highlighted_tiles(self) -> List[List[int]]:
+    #     """Get tiles to highlight in UI based on current action mode"""
+    #     highlighted_tiles = []
         
-        #print(f"🎯 Getting highlighted tiles - Phase: {self.current_phase}, Mode: {self.current_action_mode}")
+    #     #print(f"🎯 Getting highlighted tiles - Phase: {self.current_phase}, Mode: {self.current_action_mode}")
 
-        # Only highlight during player turn
-        if self.current_phase != CombatPhase.PLAYER_TURN:
-            #print(f"❌ Not player turn, returning empty")
-            return highlighted_tiles
+    #     # Only highlight during player turn
+    #     if self.current_phase != CombatPhase.PLAYER_TURN:
+    #         #print(f"❌ Not player turn, returning empty")
+    #         return highlighted_tiles
         
-        if self.current_action_mode == "movement":
-            if not self.active_character_id:
-                return highlighted_tiles
+    #     if self.current_action_mode == "movement":
+    #         if not self.active_character_id:
+    #             return highlighted_tiles
             
-            char_state = self.character_states.get(self.active_character_id)
-            if not char_state:
-                return highlighted_tiles
+    #         char_state = self.character_states.get(self.active_character_id)
+    #         if not char_state:
+    #             return highlighted_tiles
             
-            movement_range = self._get_movement_range()
-            highlighted_tiles = self.get_valid_moves(char_state['position'], movement_range)
+    #         movement_range = self._get_movement_range()
+    #         highlighted_tiles = self.get_valid_moves(char_state['position'], movement_range)
 
 
-        # Attack mode - show valid attack targets
-        elif self.current_action_mode == "attack":
-            if not self.active_character_id:
-                return highlighted_tiles
+    #     # Attack mode - show valid attack targets
+    #     elif self.current_action_mode == "attack":
+    #         if not self.active_character_id:
+    #             return highlighted_tiles
             
-            char_state = self.character_states.get(self.active_character_id)
-            if not char_state:
-                return highlighted_tiles
+    #         char_state = self.character_states.get(self.active_character_id)
+    #         if not char_state:
+    #             return highlighted_tiles
             
-            attack_range = 1  # Melee range for now
-            attack_targets = self.get_attack_targets(char_state['position'], attack_range)
+    #         attack_range = 1  # Melee range for now
+    #         attack_targets = self.get_attack_targets(char_state['position'], attack_range)
 
-            # Extract just the positions from the target dictionaries
-            highlighted_tiles = [target["position"] for target in attack_targets]
-            #print(f"   Highlighted tile positions: {highlighted_tiles}")
+    #         # Extract just the positions from the target dictionaries
+    #         highlighted_tiles = [target["position"] for target in attack_targets]
+    #         #print(f"   Highlighted tile positions: {highlighted_tiles}")
         
-        return highlighted_tiles
+    #     elif self.current_action_mode == "ranged_attack":   # ← NEW
+    #         if not self.active_character_id:
+    #             return highlighted_tiles
+
+    #         char_state = self.character_states.get(self.active_character_id)
+    #         if not char_state:
+    #             return highlighted_tiles
+
+    #         # Default/fallbacks
+    #         weapon_range = 8
+    #         requires_los = True
+
+    #         # Try to read equipped weapon range from item data
+    #         weapon_id = char_state.get('character_data', {}).get('equipment', {}).get('weapon', '')
+    #         if weapon_id and hasattr(self, 'item_manager'):
+    #             weapon_data = self.item_manager.get_item_by_id(weapon_id.lower())
+    #             if weapon_data:
+    #                 combat_stats = weapon_data.get('combat_stats', {})
+    #                 weapon_range = combat_stats.get('range_grid', weapon_range)
+
+    #         # Ask existing helper for valid targets
+    #         attack_targets = self.get_attack_targets(
+    #             char_state['position'],
+    #             attack_range=weapon_range,
+    #             requires_los=requires_los
+    #         )
+    #         highlighted_tiles = [t["position"] for t in attack_targets]
+
+
+
+    #     return highlighted_tiles
     
+    from typing import List
+
+    def _get_highlighted_tiles(self) -> List[List[int]]:
+        """Return grid positions to highlight based on current action mode."""
+        tiles: List[List[int]] = []
+
+        if self.current_phase != CombatPhase.PLAYER_TURN or not self.active_character_id:
+            return tiles
+
+        char_state = self.character_states.get(self.active_character_id)
+        if not char_state:
+            return tiles
+
+        pos = char_state['position']
+        mode = self.current_action_mode
+
+        # MOVEMENT
+        if mode == "movement":
+            movement_range = self._get_movement_range()
+            return self.get_valid_moves(pos, movement_range)
+
+        # MELEE
+        if mode == "attack":
+            targets = self.get_attack_targets(pos, attack_range=1, requires_los=False)
+            return [t["position"] for t in targets]
+
+        # RANGED ATTACK (infinite ammo, but only if weapon is actually ranged)
+        if mode == "ranged_attack":
+            weapon_id = (char_state.get('character_data', {})
+                                .get('equipment', {})
+                                .get('weapon'))
+
+            weapon_data = None
+            if isinstance(weapon_id, str) and hasattr(self, 'item_manager'):
+                weapon_data = self.item_manager.get_item_by_id(weapon_id.lower())
+
+            # Must be ranged; otherwise no highlights
+            is_ranged = False
+            weapon_range = 0  # force empty unless confirmed ranged
+            if weapon_data:
+                cs = weapon_data.get('combat_stats', {}) or {}
+                # treat as ranged if explicitly marked or has >1 tile reach
+                is_ranged = (cs.get('range') == 'ranged') or (cs.get('range_grid', 0) > 1)
+                if is_ranged:
+                    weapon_range = cs.get('range_grid', 8)
+
+            if not is_ranged:
+                return []  # fighter w/no bow -> no cyan tiles
+
+            targets = self.get_attack_targets(
+                pos, attack_range=weapon_range, requires_los=True
+            )
+            return [t["position"] for t in targets]
+
+        return tiles
+
+
+    def get_line_cells(self, start: List[int], end: List[int]) -> List[List[int]]:
+        x0, y0 = start
+        x1, y1 = end
+        dx = abs(x1 - x0)
+        dy = abs(y1 - y0)
+        sx = 1 if x0 < x1 else -1
+        sy = 1 if y0 < y1 else -1
+        err = dx - dy
+        cells: List[List[int]] = []
+        while True:
+            cells.append([x0, y0])
+            if x0 == x1 and y0 == y1:
+                break
+            e2 = 2 * err
+            if e2 > -dy:
+                err -= dy
+                x0 += sx
+            if e2 < dx:
+                err += dx
+                y0 += sy
+        return cells
+
+    def get_ranged_preview(self, origin: List[int], target: List[int]) -> dict:
+        """
+        Returns a dict the UI can use to draw a dotted line:
+        {
+            "cells": [[x,y], ...],          # line cells origin→target inclusive
+            "blocked_at": idx_or_None,      # first index in cells that is blocked
+            "in_range": True/False,         # distance check using same metric as attacks
+            "has_los": True/False
+        }
+        """
+        line = self.get_line_cells(origin, target)
+        blocked_idx = None
+        for i, cell in enumerate(line[1:-1], start=1):  # ignore origin & target for blockers
+            if self._is_obstacle(cell):                 # use your existing map/LOS blocker test
+                blocked_idx = i
+                break
+
+        # Reuse your attack distance rule (or call the same internal function)
+        in_range = self._distance_rule(origin, target)  # Manhattan/Chebyshev/etc.
+        has_los = blocked_idx is None
+
+        return {
+            "cells": line,
+            "blocked_at": blocked_idx,
+            "in_range": in_range,
+            "has_los": has_los
+        }
+
+
     def _add_to_combat_log(self, message: str):
         """Add message to combat log"""
         self.combat_log.append(message)
         #print(f"🎯 {message}")  # Also print to console for debugging
 
-def initialize_combat_engine(game_state, event_manager, save_manager=None):
+def initialize_combat_engine(game_state, event_manager, save_manager=None, item_manager=None):
     """
     Initialize CombatEngine following established engine pattern
     
@@ -1324,4 +1884,4 @@ def initialize_combat_engine(game_state, event_manager, save_manager=None):
     Returns:
         CombatEngine: Initialized combat engine
     """
-    return CombatEngine(event_manager, game_state, save_manager)
+    return CombatEngine(event_manager, game_state, save_manager, item_manager)

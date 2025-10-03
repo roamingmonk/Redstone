@@ -16,7 +16,13 @@
       "position": [10, 4],
       "facing": "west",
       "ai_behavior": "aggressive"
-    }
+    },
+    {
+    "enemy_id": "ogre_archer",
+    "position": [10, 1],
+    "facing": "west",
+    "ai_behavior": "ranged_sniper"
+  }
   ],
   "player_party": {
     "starting_positions": [

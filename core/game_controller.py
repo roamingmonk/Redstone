@@ -210,7 +210,6 @@ class GameController:
         self.dialogue_engine = initialize_dialogue_engine(self.game_state, self.event_manager)
         self.quest_engine = initialize_quest_engine(self.game_state, self.event_manager)
         self.dice_game_engine = initialize_dice_game_engine(self.game_state, self.event_manager)
-        #self.combat_engine = initialize_combat_engine(self.game_state, self.event_manager, self.save_manager)
 
         # Make QuestEngine discoverable by helpers (e.g., update_quest_system -> scan)
         self.game_state.quest_engine = self.quest_engine
@@ -231,8 +230,6 @@ class GameController:
         self._mark_system_created("commerce_engine")
         self._mark_system_created("dialogue_engine")
         self._mark_system_created("quest_engine")
-        #self._mark_system_created("combat_engine")
-
 
         # Step 6: SaveManager (requires: GameState, CharacterEngine, EventManager)
         self._validate_dependency("character_engine", self.character_engine)
@@ -251,7 +248,8 @@ class GameController:
         self.combat_engine = initialize_combat_engine(
             self.game_state, 
             self.event_manager, 
-            self.save_manager  
+            self.save_manager,
+            self.data_manager.item_manager
         )
         self._mark_system_created("combat_engine")
         

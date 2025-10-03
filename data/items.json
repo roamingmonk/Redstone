@@ -454,6 +454,7 @@
         "range": "ranged",
         "range_normal": 80,
         "range_long": 320,
+        "range_grid": 8,
         "weapon_properties": ["ammunition", "two_handed"],
         "abilities_used": ["dexterity"]
       }

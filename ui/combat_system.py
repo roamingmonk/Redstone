@@ -68,7 +68,7 @@ class CombatEncounter:
             grid_pos = payload.get('grid_pos')
             return self._handle_grid_click(grid_pos, game_state, event_manager)
         
-        elif action_type in ["MOVE", "ATTACK", "END_TURN"]:
+        elif action_type in ["MOVE", "ATTACK", "RANGED", "END_TURN"]:  
             # Handle direct button actions
             return self._handle_action_button(action_type.lower(), game_state, event_manager)
 
@@ -301,6 +301,9 @@ class CombatEncounter:
         elif current_action == "movement":
             border_color = (0, 255, 0)  # Green for movement
             border_width = 3
+        elif current_action == "ranged_attack":      
+            border_color = (0, 200, 255)             # cyan-ish for ranged
+            border_width = 3
         else:
             return  # No highlighting if no action selected
         
@@ -360,6 +363,7 @@ class CombatEncounter:
         action_buttons = [
             {"id": "move", "label": "Move"},
             {"id": "attack", "label": "Attack"},
+            {"id": "ranged", "label": "Ranged"},
             {"id": "spell", "label": "Cast Spell"},
             {"id": "end_turn", "label": "End Turn"}
         ]
@@ -394,6 +398,16 @@ class CombatEncounter:
                         button_state = "disabled"
                     else:
                         button_state = "active"
+                
+                elif action_id == "ranged":  
+                    has_ranged_weapon = player_state.get('has_ranged_weapon', False)
+                    has_ranged_targets = player_state.get('has_ranged_targets', False)
+                    
+                    if not has_ranged_weapon or attacks_used >= attacks_per_round or not has_ranged_targets:
+                        button_state = "disabled"
+                    else:
+                        button_state = "active"
+                
                 elif action_id == "spell":
                     button_state = "disabled"  # Not implemented yet
                 elif action_id == "end_turn":
@@ -404,8 +418,7 @@ class CombatEncounter:
                 draw_combat_button(surface, button_rect.x, button_rect.y, button_width, button_height,
                         action_label, button_font, button_state)
 
-                if action_id != "spell":  # Don't register disabled buttons
-
+                if action_id not in ["spell"]:  # Register all buttons including ranged
                     clickable_areas[f"button_{action_id}"] = {
                         "rect": button_rect,
                         "action": action_id.upper(),
@@ -497,6 +510,9 @@ class CombatEncounter:
         elif button_type == "end_turn":
             event_manager.emit("COMBAT_END_TURN", {})
             self.selected_action = None
+        
+        elif button_type == "ranged":                
+            self.selected_action = "ranged_attack"   
         
         return None
     
@@ -597,8 +613,14 @@ def register_combat_system_events(event_manager, game_controller):
     def handle_attack_action(event_data):
         """Handle ATTACK button click"""  
         print("ATTACK button clicked - switching to attack mode")
-        if game_controller:  # game_controller is actually the CombatEngine
+        if game_controller: 
             game_controller.set_action_mode("attack")
+
+    def handle_ranged_action(event_data):
+        """Handle RANGED button click"""
+        print("RANGED button clicked - switching to ranged attack mode")
+        if game_controller:
+            game_controller.set_action_mode("ranged_attack")
 
     def handle_move_action(event_data):
         """Handle MOVE button click"""
@@ -619,6 +641,9 @@ def register_combat_system_events(event_manager, game_controller):
             elif current_mode == "attack":
                 result = game_controller.execute_player_attack(grid_pos)
                 print(f"Attack result: {result}")
+            elif current_mode == "ranged_attack":                     
+                result = game_controller.execute_player_ranged_attack(grid_pos)
+                print(f"Ranged attack result: {result}")              
 
     def handle_end_turn_action(event_data):
         """Handle END_TURN button click"""
@@ -640,6 +665,7 @@ def register_combat_system_events(event_manager, game_controller):
     # Register the actual event names being emitted
     event_manager.register("MOVE", handle_move_action)
     event_manager.register("ATTACK", handle_attack_action)
+    event_manager.register("RANGED", handle_ranged_action)
     event_manager.register("END_TURN", handle_end_turn_action)
     event_manager.register("GRID_CLICK", handle_grid_click)
     event_manager.register("COMBAT_BACK", handle_combat_back)

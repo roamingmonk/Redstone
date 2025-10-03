@@ -1,0 +1,49 @@
+{
+  "enemy_id": "ogre_archer",
+  "name": "Ogre Archer",
+  "description": "A cowardly ogre armed with a crude shortbow.",
+  "stats": {
+    "hp": 7,
+    "max_hp": 7,
+    "ac": 13,
+    "strength": 8,
+    "dexterity": 14,
+    "constitution": 10,
+    "intelligence": 10,
+    "wisdom": 8,
+    "charisma": 8
+  },
+  "attacks": [
+    {
+      "name": "Shortbow",
+      "damage_dice": "1d6+2",
+      "attack_bonus": 4,
+      "attack_type": "ranged",
+      "range": 8,
+      "description": "Fires a crude arrow from distance"
+    },
+    {
+      "name": "Dagger",
+      "damage_dice": "1d4+2",
+      "attack_bonus": 4,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "Desperate melee strike"
+    }
+  ],
+  "movement": {
+    "speed": 4,
+    "movement_type": "ground"
+  },
+  "special_abilities": [],
+  "loot": {
+    "xp_value": 50,
+    "gold_range": [1, 4],
+    "items": []
+  },
+  "behavior": {
+    "aggression": "medium",
+    "intelligence": "low",
+    "tactics": "ranged_preferred"
+  }
+}

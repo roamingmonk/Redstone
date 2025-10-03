@@ -21,6 +21,7 @@ from game_logic.inventory_engine import initialize_inventory_engine
 from game_logic.commerce_engine import initialize_commerce_engine
 from game_logic.dialogue_engine import initialize_dialogue_engine
 from game_logic.dice_game_engine import initialize_dice_game_engine
+from game_logic.combat_engine import initialize_combat_engine
 
 #from game_logic.quest_engine import initialize_quest_engine
 
@@ -42,7 +43,8 @@ class DataManager:
             'npcs': False,
             'inventory_engine': False,
             'commerce_engine': False,
-            'character_engine': False
+            'character_engine': False,
+            'combat_engine': False
         }
         
         # Data manager instances
@@ -57,13 +59,13 @@ class DataManager:
         """Initialize all game engines with proper dependencies"""
         print("DataManager: Initializing all game engines...")
         
-        self.character_engine = initialize_character_engine(game_state_ref, event_manager)  # Fixed typo
+        self.character_engine = initialize_character_engine(game_state_ref, event_manager)  
         self.inventory_engine = initialize_inventory_engine(game_state_ref, self.item_manager)
         self.commerce_engine = initialize_commerce_engine(game_state_ref, self.item_manager) 
         self.dialogue_engine = initialize_dialogue_engine(game_state_ref, event_manager)
         #self.quest_engine = initialize_dialogue_engine(game_state_ref)
         self.dice_game_engine = initialize_dice_game_engine(game_state_ref, event_manager)
-
+        self.combat_engine = initialize_combat_engine(game_state_ref, self.item_manager)
 
         print("DataManager: All engines initialized successfully")
 

@@ -818,6 +818,20 @@ class CharacterEngine:
             print(f"Error loading class data for {character_class}: {e}")
             return {}
 
+    @staticmethod
+    def _roll_hit_point_gain(hit_die: int, constitution_score: Optional[int]) -> Tuple[int, int, int]:
+        """Roll hit point gains using class hit die and constitution modifier."""
+
+        hit_die = max(1, int(hit_die) if hit_die else 1)
+        if constitution_score is None:
+            constitution_score = 10
+
+        constitution_modifier = (constitution_score - 10) // 2
+        dice_roll = random.randint(1, hit_die)
+        hp_gain = max(1, dice_roll + constitution_modifier)
+
+        return hp_gain, dice_roll, constitution_modifier
+
     def apply_class_stat_adjustments(self, character_class=None):
         """
         Apply class-specific stat adjustments from JSON data
@@ -1028,11 +1042,14 @@ class CharacterEngine:
         hit_die = class_data.get('hit_die', 10) if class_data else 10
         
         # Roll for HP gain (class hit die + con modifier per level)
-        constitution_modifier = (self.game_state.character.get('constitution', 10) - 10) // 2
-        dice_roll = random.randint(1, hit_die)  # Define dice_roll first
-        hp_gain = dice_roll + constitution_modifier
-        hp_gain = max(1, hp_gain)  # Minimum 1 HP per level
+        # constitution_modifier = (self.game_state.character.get('constitution', 10) - 10) // 2
+        # dice_roll = random.randint(1, hit_die)  # Define dice_roll first
+        # hp_gain = dice_roll + constitution_modifier
+        # hp_gain = max(1, hp_gain)  # Minimum 1 HP per level
+        constitution_score = self.game_state.character.get('constitution', 10)
+        hp_gain, dice_roll, constitution_modifier = self._roll_hit_point_gain(hit_die, constitution_score)
         print(f"DEBUG: HP Roll - 1d{hit_die}({dice_roll}) + CON({constitution_modifier}) = {hp_gain}")
+        
         # Get new abilities for this level
         new_abilities = []
         if class_data and 'level_progression' in class_data:
@@ -1049,10 +1066,14 @@ class CharacterEngine:
         current_max = self.game_state.character.get('hit_points', 10)
         self.game_state.character['hit_points'] = current_max + hp_gain
 
-        # Also heal by the amount gained (leveling heals you)
-        current_hp = self.game_state.character.get('current_hp', current_max)
-        self.game_state.character['current_hp'] = min(current_hp + hp_gain, self.game_state.character['hit_points'])
-        
+        # # Also heal by the amount gained (leveling heals you)
+        # current_hp = self.game_state.character.get('current_hp', current_max)
+        # self.game_state.character['current_hp'] = min(current_hp + hp_gain, self.game_state.character['hit_points'])
+         
+         # Level ups fully restore health to the new maximum
+        self.game_state.character['current_hp'] = self.game_state.character['hit_points']
+
+
         # Track abilities gained
         if 'abilities' not in self.game_state.character:
             self.game_state.character['abilities'] = []
@@ -1263,17 +1284,46 @@ class CharacterEngine:
         if not member_data:
             return False
         current_level = member_data.get('level', 1)
-        current_xp = member_data.get('experience', 0)
+        # current_xp = member_data.get('experience', 0)
         
-        #TODO   Don;t we need to update this hardcoded xp requirements as well??
-        # Use same XP table as player
-        xp_requirements = {1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500}
+        # #TODO   Don;t we need to update this hardcoded xp requirements as well??
+        # # Use same XP table as player
+        # xp_requirements = {1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500}
+        current_xp = member_data.get('experience', member_data.get('xp', 0))
+
+        # Mirror the player's XP table pulled from the narrative schema configuration
+        xp_requirements = self._level_requirements or [0, 300, 900, 2700, 6500]
         
         next_level = current_level + 1
-        if next_level <= 5 and current_xp >= xp_requirements.get(next_level, 999999):
-            return True
+        # if next_level <= 5 and current_xp >= xp_requirements.get(next_level, 999999):
+        #     return True
         
-        return False
+        # return False
+
+        if next_level < 1:
+            return False
+
+        # Translate the level into a zero-based index for the requirements list
+        requirement_index = next_level - 1
+        required_xp = None
+
+        if isinstance(xp_requirements, dict):
+            required_xp = xp_requirements.get(str(next_level))
+            if required_xp is None:
+                required_xp = xp_requirements.get(next_level)
+            if required_xp is None and xp_requirements:
+                required_xp = max(xp_requirements.values())
+        else:
+            try:
+                required_xp = xp_requirements[requirement_index]
+            except (IndexError, TypeError):
+                required_xp = None
+
+        if required_xp is None:
+            # Fall back to a high requirement if the level table is missing entries
+            required_xp = 999_999
+
+        return current_xp >= required_xp
     
     def level_up_party_member(self, member_id):
         """Level up a specific party member"""
@@ -1283,22 +1333,53 @@ class CharacterEngine:
         current_level = member_data.get('level', 1)
         new_level = current_level + 1
         
-        # Get class-specific HP gain (simplified)
-        hp_gain_by_class = {
-            "gareth": 8,     # Fighter - d10 average
-            "elara": 4,      # Wizard - d6 average  
-            "thorman": 6,    # Cleric - d8 average
-            "lyra": 5        # Rogue - d6+1 average
-        }
+        # # Get class-specific HP gain (simplified)
+        # hp_gain_by_class = {
+        #     "gareth": 8,     # Fighter - d10 average
+        #     "elara": 4,      # Wizard - d6 average  
+        #     "thorman": 6,    # Cleric - d8 average
+        #     "lyra": 5        # Rogue - d6+1 average
+        # }
         
-        hp_gain = hp_gain_by_class.get(member_id, 5)
+        # hp_gain = hp_gain_by_class.get(member_id, 5)
         
+        # Ensure the NPC is actually in the active party before leveling
+        if member_id not in getattr(self.game_state, 'party_members', []):
+            print(f"⚠️ Cannot level {member_id}: not in active party")
+            return False
+
+        # Load class data so we can roll HP the same way the player does
+        class_name = str(member_data.get('class', '')).lower() or 'fighter'
+        class_data = self._load_class_data_from_json(class_name)
+        hit_die = class_data.get('hit_die', 10) if class_data else 10
+
+        # Determine constitution modifier from stored stats
+        constitution_score = member_data.get('constitution')
+        if constitution_score is None:
+            constitution_score = member_data.get('stats', {}).get('constitution', 10)
+
+        hp_gain, dice_roll, constitution_modifier = self._roll_hit_point_gain(
+            hit_die, constitution_score
+        )
+        print(
+            f"DEBUG: NPC HP Roll - 1d{hit_die}({dice_roll}) + CON({constitution_modifier}) = {hp_gain}"
+        )
+
         # Update party member stats
         member_data['level'] = new_level
-        current_hp = member_data.get('hit_points', 10)
-        member_data['hit_points'] = current_hp + hp_gain
         
-        print(f"🎊 {member_id.title()} leveled up! Now level {new_level}, gained {hp_gain} HP")
+        # current_hp = member_data.get('hit_points', 10)
+        # member_data['hit_points'] = current_hp + hp_gain
+        
+        current_hp = member_data.get('hit_points', member_data.get('hp', 10))
+        new_max_hp = current_hp + hp_gain
+        member_data['hit_points'] = new_max_hp
+        member_data['hp'] = new_max_hp
+        member_data['max_hit_points'] = new_max_hp
+        current_hp_value = member_data.get('current_hp', current_hp)
+        member_data['current_hp'] = min(current_hp_value + hp_gain, new_max_hp)
+
+        print(f"🎊 {member_id.title()} leveled up! Now level {new_level}, gained {hp_gain} HP to Max HP {new_max_hp}")
         
         return {
             'member_id': member_id,
