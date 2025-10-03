@@ -83,7 +83,6 @@ class CombatEngine:
         # pick your default; movement is usually nicest for UX
         self.current_action_mode = "movement"
 
-
     def start_encounter(self, encounter_id: str, combat_context: Dict = None) -> bool:
         """
         Load encounter data and initialize combat state
@@ -352,14 +351,14 @@ class CombatEngine:
         
         current_actor = self._get_current_actor_name()
         
-        return {
+        # 1) Build the payload
+        data = {
             "combat_active": True,
             "encounter": self.combat_data.get("encounter", {}),
             "battlefield": self.combat_data.get("battlefield", {}),
             "enemy_instances": self.combat_data.get("enemy_instances", []),
             "character_states": self.character_states,
             "active_character_id": self.active_character_id,
-            #"player_position": self.player_position,
             "current_actor": current_actor,
             "combat_phase": self.current_phase.value,
             "turn_number": self.combat_data.get("turn_number", 0),
@@ -369,6 +368,34 @@ class CombatEngine:
             "current_action_mode": self.current_action_mode, 
             "highlighted_tiles": self._get_highlighted_tiles()
         }
+
+        # 2) Add cover-aware targets only for ranged mode (opt-in)
+        try:
+            if self.current_phase == CombatPhase.PLAYER_TURN and self.current_action_mode == "ranged_attack":
+                char_state = self.character_states.get(self.active_character_id)
+                if char_state:
+                    # Reuse your weapon-range logic (same as in _get_highlighted_tiles)
+                    weapon_range = 8
+                    weapon_id = (char_state.get('character_data', {})
+                                            .get('equipment', {})
+                                            .get('weapon'))
+                    if isinstance(weapon_id, str) and hasattr(self, 'item_manager'):
+                        wd = self.item_manager.get_item_by_id(weapon_id.lower())
+                        if wd:
+                            weapon_range = (wd.get('combat_stats', {}) or {}).get('range_grid', weapon_range)
+
+                    targets = self.get_attack_targets(
+                        actor_position=char_state['position'],
+                        attack_range=weapon_range,
+                        requires_los=True,
+                        include_cover=True,              # ← NEW param (see part B)
+                    )
+                    data["highlighted_targets"] = targets  # each has {"position", ..., "cover"}
+        except Exception as e:
+            # Keep UI resilient; fall back to classic highlights if anything hiccups
+            print(f"[get_combat_data_for_ui] cover enrich failed: {e}")
+
+        return data
 
     def _get_active_character_state(self) -> Dict:
         """Get the active character's state for UI display"""
@@ -496,84 +523,77 @@ class CombatEngine:
         
         return True
 
-    def get_attack_targets(self, actor_position: List[int], attack_range: int = 1, requires_los: bool = False) -> List[Dict]:
+    def get_attack_targets(self, actor_position: List[int], attack_range: int = 1,
+                       requires_los: bool = False, include_cover: bool = False) -> List[Dict]:
         """
-        Find valid attack targets within range
-        
-        Args:
-            actor_position: Attacker's [x, y] position
-            attack_range: Attack range in tiles
-            requires_los: Whether line of sight is required (for ranged attacks)
-            
-        Returns:
-            List of target dictionaries with position and target info
+        Find valid attack targets within range.
+        If include_cover=True, attach 'cover' to each target and suppress full cover when LOS is required.
         """
         targets = []
         start_x, start_y = actor_position
-        
-        # For player attacks, check enemy positions
+
         if self.current_phase == CombatPhase.PLAYER_TURN:
             enemy_instances = self.combat_data.get("enemy_instances", [])
-            for enemy in enemy_instances:
-                if enemy.get("current_hp", 0) > 0:  # Only living enemies
-                    enemy_pos = enemy.get("position", [0, 0])
-                    enemy_x, enemy_y = enemy_pos
-                    
-                    # Check if in range (Manhattan distance)
-                    distance = abs(start_x - enemy_x) + abs(start_y - enemy_y)
-                    if distance <= attack_range and distance > 0:
-                        # Check line of sight for ranged attacks
-                        if requires_los:
-                            if self._has_line_of_sight(start_x, start_y, enemy_x, enemy_y):
-                                targets.append({
-                                    "position": enemy_pos,
-                                    "target_type": "enemy",
-                                    "target_id": enemy.get("instance_id"),
-                                    "target_name": enemy.get("name", "Enemy"),
-                                    "distance": distance
-                                })
-                        else:
-                            # Melee attack - only adjacent
-                            if distance == 1:
-                                targets.append({
-                                    "position": enemy_pos,
-                                    "target_type": "enemy",
-                                    "target_id": enemy.get("instance_id"),
-                                    "target_name": enemy.get("name", "Enemy"),
-                                    "distance": distance
-                                })
-        
-        # For enemy attacks, check all party member positions
+            pool = [
+                e for e in enemy_instances
+                if e.get("current_hp", 0) > 0
+            ]
+            for enemy in pool:
+                pos_t = enemy.get("position", [0, 0])
+                ex, ey = pos_t
+                dist = abs(start_x - ex) + abs(start_y - ey)
+                if 0 < dist <= attack_range:
+                    if requires_los:
+                        # coarse LOS first (fast)
+                        has_los = self._has_line_of_sight(start_x, start_y, ex, ey)
+                        if not has_los:
+                            continue
+                    cover_level = "none"
+                    if include_cover:
+                        cover_info = self._compute_cover([start_x, start_y], pos_t)
+                        cover_level = cover_info["level"]
+                        if requires_los and cover_level == "full":
+                            # fully blocked rays → not targetable
+                            continue
+                    elif requires_los:
+                        # when not computing cover but LOS is required, keep the basic LOS decision already made
+                        pass
+
+                    # melee (requires_los=False) already constrained by dist==1 in your call site
+                    targets.append({
+                        "position": pos_t,
+                        "target_type": "enemy",
+                        "target_id": enemy.get("instance_id"),
+                        "target_name": enemy.get("name", "Enemy"),
+                        "distance": dist,
+                        "cover": cover_level
+                    })
         else:
+            # Enemy turn: scan party members
             for char_id, char_state in self.character_states.items():
-                if char_state.get('is_alive', True):
-                    char_pos = char_state['position']
-                    char_x, char_y = char_pos
-                    
-                    # Check if in range (Manhattan distance)
-                    distance = abs(start_x - char_x) + abs(start_y - char_y)
-                    if distance <= attack_range and distance > 0:
-                        # Check line of sight for ranged attacks
-                        if requires_los:
-                            if self._has_line_of_sight(start_x, start_y, char_x, char_y):
-                                targets.append({
-                                    "position": char_pos,
-                                    "target_type": "player",
-                                    "target_id": char_id,
-                                    "target_name": char_state['name'],
-                                    "distance": distance
-                                })
-                        else:
-                            # Melee attack - only adjacent
-                            if distance == 1:
-                                targets.append({
-                                    "position": char_pos,
-                                    "target_type": "player",
-                                    "target_id": char_id,
-                                    "target_name": char_state['name'],
-                                    "distance": distance
-                                })
-        
+                if not char_state.get('is_alive', True):
+                    continue
+                pos_t = char_state['position']
+                tx, ty = pos_t
+                dist = abs(start_x - tx) + abs(start_y - ty)
+                if 0 < dist <= attack_range:
+                    if requires_los:
+                        if not self._has_line_of_sight(start_x, start_y, tx, ty):
+                            continue
+                    cover_level = "none"
+                    if include_cover:
+                        cover_info = self._compute_cover([start_x, start_y], pos_t)
+                        cover_level = cover_info["level"]
+                        if requires_los and cover_level == "full":
+                            continue
+                    targets.append({
+                        "position": pos_t,
+                        "target_type": "player",
+                        "target_id": char_id,
+                        "target_name": char_state['name'],
+                        "distance": dist,
+                        "cover": cover_level
+                    })
         return targets
 
     def _has_line_of_sight(self, x1: int, y1: int, x2: int, y2: int) -> bool:
@@ -634,30 +654,250 @@ class CombatEngine:
         
         return True
 
-    def _is_tile_blocked_for_los(self, x: int, y: int) -> bool:
-        """Check if tile blocks line of sight (walls and characters)"""
-        battlefield = self.combat_data.get("battlefield", {})
+    def _tile_center_f(self, p: list[int]) -> tuple[float, float]:
+        return (p[0] + 0.5, p[1] + 0.5)
+
+    def _line_cells_supercover_f(self, a: tuple[float, float], b: tuple[float, float]) -> list[list[int]]:
+        """
+        Float supercover Bresenham: returns all grid cells a→b touches (inclusive), mapped to int [x,y].
+        """
+        x0, y0 = a
+        x1, y1 = b
+        xi0, yi0 = int(x0), int(y0)
+        xi1, yi1 = int(x1), int(y1)   # ← the missing piece
+
+        cells: list[list[int]] = []
+        dx = abs(x1 - x0)
+        dy = abs(y1 - y0)
+        sx = 1 if x0 < x1 else -1
+        sy = 1 if y0 < y1 else -1
+        err = dx - dy
+        x, y = x0, y0
+
+        # generous cap to prevent runaway; worst case is width+height steps
+        step_cap = 2 + abs(xi1 - xi0) + abs(yi1 - yi0)
+        for _ in range(step_cap):
+            ci, cj = int(x), int(y)
+            if not cells or cells[-1] != [ci, cj]:
+                cells.append([ci, cj])
+            if ci == xi1 and cj == yi1:
+                break
+            e2 = 2 * err
+            if e2 > -dy:
+                err -= dy
+                x += sx
+            if e2 < dx:
+                err += dx
+                y += sy
+        return cells
+
+    def _is_cover_blocker(self, gx: int, gy: int) -> bool:
+        """
+        Treat only walls/columns as cover. Ignore creatures and floor.
+        If your map has a tile property or layer name for pillars, use that here.
+        Fallback: keep using your LOS blocker but subtract unit cells.
+        """
+        # Example if you have a tile-layer lookup (preferred):
+        if hasattr(self, "_is_world_tile_solid"):
+            return self._is_world_tile_solid(gx, gy)  # walls/columns only
+
+        # Fallback: LOS blocker minus units
+        if self._is_tile_blocked_for_los(gx, gy):
+            # Check if any character/enemy occupies this cell; if so, don't count as cover
+            for st in self.character_states.values():
+                if st.get("position") == [gx, gy]:
+                    return False
+            for e in self.combat_data.get("enemy_instances", []):
+                if e.get("position") == [gx, gy] and e.get("current_hp", 0) > 0:
+                    return False
+            return True
+        return False
+
+    def _compute_cover(self, origin: list[int], target: list[int], *, creatures_grant_cover: bool = False) -> dict:
+        """
+        Return {'level': 'none'|'half'|'three_quarters'|'full', 'blocked_rays': int}
+        Uses true sub-tile rays: center + 4 corners of the *target tile*.
+        """
+        # 0) Adjacent targets never get cover (clean, obvious UX)
+        if abs(origin[0] - target[0]) + abs(origin[1] - target[1]) <= 1:
+            return {"level": "none", "blocked_rays": 0}
         
-        # Check walls
+        # 1) Shooter/target points in float tile space
+        sx, sy = origin[0] + 0.5, origin[1] + 0.5
+        cx, cy = target[0], target[1]
+
+        # Nudge corners inward so we don't skim exact tile borders
+        eps = 0.22        # adjust to 0.2 if still get false half-cover or lower if miss legit cover
+        samples = [
+            (cx + 0.5, cy + 0.5),             # center
+            (cx + eps, cy + eps),             # TL
+            (cx + 1 - eps, cy + eps),         # TR
+            (cx + eps, cy + 1 - eps),         # BL
+            (cx + 1 - eps, cy + 1 - eps),     # BR
+        ]
+
+        # def line_cells(a, b):
+        #     return self._line_cells_supercover_f(a, b)  # your float supercover tracer
+
+        # # def is_blocker(gx, gy):
+        # #     # If you don't want creatures to grant cover, change this to wall/column layer check.
+        # #     return self._is_cover_blocker(gx, gy)
+
+        # def ray_blocked(pt):
+        #     cells = line_cells((sx, sy), pt)
+        #     # ignore origin & target tiles
+        #     for i in range(1, len(cells) - 1):
+        #         gx, gy = cells[i]
+        #         # Corner-touch tolerance: if this cell is diagonally adjacent
+        #         # to both neighbors along the path, treat as a corner graze.
+        #         prevx, prevy = cells[i - 1]
+        #         nextx, nexty = cells[i + 1]
+        #         if (abs(prevx - gx) == 1 and abs(prevy - gy) == 1 and
+        #             abs(nextx - gx) == 1 and abs(nexty - gy) == 1):
+        #             continue
+        #         if self._is_cover_blocker(gx, gy):
+        #             return True
+        #     return False
+
+        # blocked = sum(1 for pt in samples if ray_blocked(pt))
+        # total = len(samples)
+        # if blocked >= 5:
+        #     level = "full"
+        # elif blocked >= 3:
+        #     level = "three_quarters"
+        # elif blocked >= 1:
+        #     level = "half"
+        # else:
+        #     level = "none"
+
+        # print(f"[COVER] shooter={origin} target={target} blocked={blocked} level={level}")
+        # return {"level": level, "blocked_rays": blocked}
+        def ray_kind(to_pt) -> str:
+            cells = self._line_cells_supercover_f((sx, sy), to_pt)
+            # ignore origin & final target tile
+            for i in range(1, len(cells) - 1):
+                gx, gy = cells[i]
+
+                # Corner-touch tolerance: skip a lone diagonal graze
+                px, py = cells[i - 1]; nx, ny = cells[i + 1]
+                if (abs(px - gx) == 1 and abs(py - gy) == 1 and
+                    abs(nx - gx) == 1 and abs(ny - gy) == 1):
+                    continue
+
+                # Classify blocker type
+                if self._is_terrain_blocker(gx, gy):
+                    return "terrain"                   # hard blocker
+                soft = self._tile_soft_cover(gx, gy)
+                if soft:
+                    return "soft_" + soft              # 'soft_half' / 'soft_three_quarters' / 'soft_full'
+                if creatures_grant_cover and self._cell_has_creature(gx, gy):
+                    return "creature"                  # creature grants cover (not hard LOS)
+            return "clear"
+
+        terrain_hits = 0
+        soft_half_hits = 0
+        soft_3q_hits = 0
+        creature_hits = 0
+
+        for pt in samples:
+            k = ray_kind(pt)
+            if k == "terrain":
+                terrain_hits += 1
+            elif k == "soft_half":
+                soft_half_hits += 1
+            elif k == "soft_three_quarters":
+                soft_3q_hits += 1
+            elif k == "creature":
+                creature_hits += 1
+
+        # Decide cover tier
+        # Hard terrain decides the top tiers.
+        if terrain_hits >= 5:
+            level = "full"
+        elif terrain_hits >= 3:
+            level = "three_quarters"
+        elif terrain_hits >= 1:
+            level = "half"
+        else:
+            # No hard terrain rays → aggregate soft & creatures
+            if soft_3q_hits >= 2:
+                level = "three_quarters"
+            elif soft_3q_hits >= 1 or soft_half_hits >= 1 or creature_hits >= 1:
+                level = "half"
+            else:
+                level = "none"
+
+        # Optional debug:
+        # print(f"[COVER] shooter={origin} target={target} terr={terrain_hits} soft½={soft_half_hits} soft¾={soft_3q_hits} cre={creature_hits} -> {level}")
+
+        return {
+            "level": level,
+            "blocked_rays": terrain_hits + soft_half_hits + soft_3q_hits + creature_hits,
+            "terrain_rays": terrain_hits,
+            "soft_half_rays": soft_half_hits,
+            "soft_three_quarters_rays": soft_3q_hits,
+            "creature_rays": creature_hits,
+        }
+    def _is_obstacle(self, cell):
+        x, y = cell
+        return self._is_tile_blocked_for_los(x, y)
+
+    def _get_obstacle_at(self, x: int, y: int) -> dict | None:
+        bf = self.combat_data.get("battlefield", {})
+        terrain = bf.get("terrain", {})
+        for ob in terrain.get("obstacles", []):
+            if ob.get("position") == [x, y]:
+                return ob
+        return None
+
+    def _is_terrain_blocker(self, x: int, y: int) -> bool:
+        """Hard LOS blocker: only things with blocks_sight=True (and walls, if you have them)."""
+        ob = self._get_obstacle_at(x, y)
+        if ob and ob.get("blocks_sight", False):
+            return True
+        # If your LOS also considers outer walls, keep your existing wall check here:
+        # return self._is_tile_blocked_for_los(x, y)
+        return False
+
+    def _tile_soft_cover(self, x: int, y: int) -> str | None:
+        """Soft terrain cover (doesn't block LOS): 'half' | 'three_quarters' | 'full' or None."""
+        ob = self._get_obstacle_at(x, y)
+        if not ob:
+            return None
+        tag = ob.get("provides_cover")
+        return tag if tag in ("half", "three_quarters", "full") else None
+
+    def _cell_has_creature(self, x: int, y: int) -> bool:
+        for st in self.character_states.values():
+            if st.get('is_alive', True) and st.get('position') == [x, y]:
+                return True
+        for e in self.combat_data.get("enemy_instances", []):
+            if e.get("current_hp", 0) > 0 and e.get("position") == [x, y]:
+                return True
+        return False
+
+    def _is_tile_blocked_for_los(self, x: int, y: int) -> bool:
+        """Hard LOS blocker: walls, sight-blocking terrain, and (optionally) creatures."""
+        battlefield = self.combat_data.get("battlefield", {})
+
+        # Walls (you already have this)
         if self._is_wall_tile(x, y, battlefield):
             return True
-        
-        # Check if any character is on this tile
-        # Check party members
+
+        # NEW: terrain that explicitly blocks sight (pillars/support beams, etc.)
+        terrain = battlefield.get('terrain', {})
+        for ob in terrain.get('obstacles', []):
+            if ob.get('position') == [x, y] and ob.get('blocks_sight', False):
+                return True
+
+        # Creatures (leave as-is if you want creatures to block LOS; otherwise see note below)
         for char_state in self.character_states.values():
-            if char_state.get('is_alive', True):
-                char_pos = char_state.get('position', [0, 0])
-                if char_pos == [x, y]:
-                    return True
-        
-        # Check enemies
-        enemy_instances = self.combat_data.get("enemy_instances", [])
-        for enemy in enemy_instances:
-            if enemy.get("current_hp", 0) > 0:
-                enemy_pos = enemy.get("position", [0, 0])
-                if enemy_pos == [x, y]:
-                    return True
-        
+            if char_state.get('is_alive', True) and char_state.get('position') == [x, y]:
+                return True
+        for enemy in self.combat_data.get("enemy_instances", []):
+            if enemy.get("current_hp", 0) > 0 and enemy.get("position") == [x, y]:
+                return True
+
         return False
 
     def execute_player_move(self, target_position: List[int]) -> bool:
@@ -845,6 +1085,15 @@ class CombatEngine:
         target_ac = target_enemy.get("stats", {}).get("ac", 10)
         total_attack = attack_roll + attack_bonus
         
+        # Cover bump (+2 half, +5 three-quarters); full cover never reaches here (filtered)
+        cover_level = self._compute_cover(char_pos, target_position)["level"]
+        if cover_level == "half":
+            target_ac += 2
+        elif cover_level == "three_quarters":
+            target_ac += 5
+        # (optional) add a log line so players learn the rule
+        self._add_to_combat_log(f"Cover: {cover_level.replace('_',' ')} → AC {target_ac}")
+
         self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
         
         if total_attack >= target_ac:
@@ -959,7 +1208,7 @@ class CombatEngine:
             self.combat_data["turn_number"] = turn_number
             self._add_to_combat_log(f"--- Turn {turn_number} ---")
         
-# Set phase based on current actor
+        # Set phase based on current actor
         current_actor_id = self.turn_order[self.current_actor_index]
         
         # Check if current actor is a party member or enemy
@@ -1689,78 +1938,7 @@ class CombatEngine:
         
         return actions
     
-    # def _get_highlighted_tiles(self) -> List[List[int]]:
-    #     """Get tiles to highlight in UI based on current action mode"""
-    #     highlighted_tiles = []
-        
-    #     #print(f"🎯 Getting highlighted tiles - Phase: {self.current_phase}, Mode: {self.current_action_mode}")
-
-    #     # Only highlight during player turn
-    #     if self.current_phase != CombatPhase.PLAYER_TURN:
-    #         #print(f"❌ Not player turn, returning empty")
-    #         return highlighted_tiles
-        
-    #     if self.current_action_mode == "movement":
-    #         if not self.active_character_id:
-    #             return highlighted_tiles
-            
-    #         char_state = self.character_states.get(self.active_character_id)
-    #         if not char_state:
-    #             return highlighted_tiles
-            
-    #         movement_range = self._get_movement_range()
-    #         highlighted_tiles = self.get_valid_moves(char_state['position'], movement_range)
-
-
-    #     # Attack mode - show valid attack targets
-    #     elif self.current_action_mode == "attack":
-    #         if not self.active_character_id:
-    #             return highlighted_tiles
-            
-    #         char_state = self.character_states.get(self.active_character_id)
-    #         if not char_state:
-    #             return highlighted_tiles
-            
-    #         attack_range = 1  # Melee range for now
-    #         attack_targets = self.get_attack_targets(char_state['position'], attack_range)
-
-    #         # Extract just the positions from the target dictionaries
-    #         highlighted_tiles = [target["position"] for target in attack_targets]
-    #         #print(f"   Highlighted tile positions: {highlighted_tiles}")
-        
-    #     elif self.current_action_mode == "ranged_attack":   # ← NEW
-    #         if not self.active_character_id:
-    #             return highlighted_tiles
-
-    #         char_state = self.character_states.get(self.active_character_id)
-    #         if not char_state:
-    #             return highlighted_tiles
-
-    #         # Default/fallbacks
-    #         weapon_range = 8
-    #         requires_los = True
-
-    #         # Try to read equipped weapon range from item data
-    #         weapon_id = char_state.get('character_data', {}).get('equipment', {}).get('weapon', '')
-    #         if weapon_id and hasattr(self, 'item_manager'):
-    #             weapon_data = self.item_manager.get_item_by_id(weapon_id.lower())
-    #             if weapon_data:
-    #                 combat_stats = weapon_data.get('combat_stats', {})
-    #                 weapon_range = combat_stats.get('range_grid', weapon_range)
-
-    #         # Ask existing helper for valid targets
-    #         attack_targets = self.get_attack_targets(
-    #             char_state['position'],
-    #             attack_range=weapon_range,
-    #             requires_los=requires_los
-    #         )
-    #         highlighted_tiles = [t["position"] for t in attack_targets]
-
-
-
-    #     return highlighted_tiles
-    
-    from typing import List
+    #from typing import List
 
     def _get_highlighted_tiles(self) -> List[List[int]]:
         """Return grid positions to highlight based on current action mode."""
@@ -1816,7 +1994,6 @@ class CombatEngine:
 
         return tiles
 
-
     def get_line_cells(self, start: List[int], end: List[int]) -> List[List[int]]:
         x0, y0 = start
         x1, y1 = end
@@ -1866,7 +2043,6 @@ class CombatEngine:
             "in_range": in_range,
             "has_los": has_los
         }
-
 
     def _add_to_combat_log(self, message: str):
         """Add message to combat log"""

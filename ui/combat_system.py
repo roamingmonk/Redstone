@@ -100,7 +100,6 @@ class CombatEncounter:
         except Exception as e:
             print(f"❌ Error registering combat clickables: {e}")
 
-
     # ==========================================
     # MAIN RENDERING METHODS
     # ==========================================
@@ -287,35 +286,68 @@ class CombatEncounter:
     
     def _render_tile_overlays(self, surface: pygame.Surface, combat_data: Dict):
         """Render movement/targeting overlays on grid tiles"""
-        
-        # Get highlighted tiles from combat engine
-        highlighted_tiles = combat_data.get('highlighted_tiles', [])
-        
-        # Get action mode to determine border color
+        """Render movement/targeting overlays on grid tiles (cover-aware in ranged mode)."""
+
         current_action = combat_data.get('current_action_mode')
-    
-        # Determine border color based on action mode
+
+        # 1) Cover-aware ranged branch (preferred)
+        if current_action == "ranged_attack":
+            color = (0, 200, 255); border_width = 3
+            targets = combat_data.get("highlighted_targets")
+
+            if targets:  # data path with cover info
+                for t in targets:
+                    x, y = t["position"]
+                    rect = pygame.Rect(
+                        self.grid_offset_x + x * self.tile_size,
+                        self.grid_offset_y + y * self.tile_size,
+                        self.tile_size, self.tile_size
+                    )
+                    cover = t.get("cover", "none")
+                    if cover == "none":
+                        pygame.draw.rect(surface, color, rect, border_width)          # solid
+                    else:
+                        self._draw_dotted_border(surface, rect, color, width=border_width)  # dotted
+                # LOS line to hovered tile
+                if getattr(self, "_hover_grid", None):
+                    origin = combat_data["character_states"][combat_data["active_character_id"]]["position"]
+                    preview = self.game_controller.combat_engine.get_ranged_preview(origin, self._hover_grid)
+                    cells = preview.get("cells", [])
+                    line_color = (0, 200, 255) if preview.get("has_los", False) else (255, 64, 64)
+                    self._draw_dotted_los(surface, cells, line_color, width=2, gap=6)
+                return
+
+            # 1b) Fallback if engine didn’t provide highlighted_targets
+            #     (keeps you from drawing nothing in ranged mode)
+            highlighted_tiles = combat_data.get('highlighted_tiles', [])
+            if highlighted_tiles:
+                for x, y in highlighted_tiles:
+                    rect = pygame.Rect(
+                        self.grid_offset_x + x * self.tile_size,
+                        self.grid_offset_y + y * self.tile_size,
+                        self.tile_size, self.tile_size
+                    )
+                    pygame.draw.rect(surface, color, rect, border_width)              # solid cyan
+                return
+            # If no targets and no tiles, just fall through and return
+
+        # 2) Movement &  melee paths 
+        highlighted_tiles = combat_data.get('highlighted_tiles', [])
         if current_action == "attack":
-            border_color = (255, 0, 0)  # Red for attack targets
-            border_width = 3
+            border_color = (255, 0, 0); border_width = 3
         elif current_action == "movement":
-            border_color = (0, 255, 0)  # Green for movement
-            border_width = 3
-        elif current_action == "ranged_attack":      
-            border_color = (0, 200, 255)             # cyan-ish for ranged
-            border_width = 3
+            border_color = (0, 255, 0); border_width = 3
         else:
-            return  # No highlighting if no action selected
+            return
+
+        for x, y in highlighted_tiles:
+            rect = pygame.Rect(
+                self.grid_offset_x + x * self.tile_size,
+                self.grid_offset_y + y * self.tile_size,
+                self.tile_size, self.tile_size
+            )
+            pygame.draw.rect(surface, border_color, rect, border_width)
         
-        for tile_pos in highlighted_tiles:
-            x, y = tile_pos
-            screen_x = self.grid_offset_x + (x * self.tile_size)
-            screen_y = self.grid_offset_y + (y * self.tile_size)
-            
-            # Draw border around tile
-            tile_rect = pygame.Rect(screen_x, screen_y, self.tile_size, self.tile_size)
-            pygame.draw.rect(surface, border_color, tile_rect, border_width)
-    
     def _render_combat_ui_panel(self, surface: pygame.Surface, fonts: Dict, 
                               combat_data: Dict, controller) -> Dict[str, Any]:
         """Render right panel with actions, status, and combat log"""
@@ -485,7 +517,7 @@ class CombatEncounter:
             if len(obs_pos) == 2 and obs_pos[0] == x and obs_pos[1] == y:
                 return True
         return False
-    
+
     def _point_on_line_segment(self, px: int, py: int, x1: int, y1: int, x2: int, y2: int) -> bool:
         """Check if point (px, py) is on line segment from (x1,y1) to (x2,y2)"""
         # For grid-based walls, check if point is exactly on the line
@@ -515,7 +547,27 @@ class CombatEncounter:
             self.selected_action = "ranged_attack"   
         
         return None
-    
+
+    def _draw_dotted_border(self, surface, rect, color, width=3, gap=4):
+        # draw dotted lines on four edges
+        def dotted_line(p1, p2):
+            dx = p2[0] - p1[0]; dy = p2[1] - p1[1]
+            length = max(abs(dx), abs(dy))
+            if length <= 0: return
+            steps = max(1, int(length // (gap)))
+            for i in range(0, steps, 2):  # draw, skip, draw...
+                t0 = i / steps
+                t1 = min((i + 1) / steps, 1.0)
+                q0 = (p1[0] + dx * t0, p1[1] + dy * t0)
+                q1 = (p1[0] + dx * t1, p1[1] + dy * t1)
+                pygame.draw.line(surface, color, q0, q1, width)
+
+        r = rect
+        dotted_line((r.left,  r.top),    (r.right, r.top))
+        dotted_line((r.right, r.top),    (r.right, r.bottom))
+        dotted_line((r.right, r.bottom), (r.left,  r.bottom))
+        dotted_line((r.left,  r.bottom), (r.left,  r.top))
+
     def _draw_hp_bar(self, surface: pygame.Surface, center_x: int, center_y: int, 
                  current_hp: int, max_hp: int):
         """Draw HP bar below unit sprite with black background for visibility"""

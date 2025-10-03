@@ -1725,7 +1725,19 @@ This refactor establishes patterns that should be applied to future asset loadin
 **Consequences:** Single-source targeting (get_attack_targets) governs range/LOS; actors without ranged weapons show no cyan tiles; UX is consistent per turn.
 **Implementation:** Add UI branch for "ranged_attack", engine highlight branch using get_attack_targets(..., requires_los=True), guard with has_ranged_weapon, and call _reset_action_mode_for_active() in start_combat() and _advance_turn().
 **Verification:** Manual test shows cyan highlights only for ranged actors, valid shots resolve, blocked LOS removes highlights; unit tests cover edge-of-range, blocked LOS, and mode reset.
-**Follow-ups:** Add dotted LOS preview helper, unify has_ranged_weapon truth source across UI/engine, and later extend to cover/elevation modifiers. different color for selection buttons for each stage.
+
+# ADR-108 Ranged Cover & LOS Refinement
+# Accepted
+# Date: 2025-10-03
+Context: Ranged highlights ignored soft cover and inconsistently treated blockers (pillars vs barrels vs creatures).
+Problem: Players could target through sight-blocking terrain or received universal half cover due to coarse sampling and obstacle conflation.
+Decision: Centralize cover in CombatEngine using float supercover rays (center+corners), hard blockers from blocks_sight, soft cover from provides_cover, optional creatures-as-cover, and expose highlighted_targets with cover.
+Alternatives: Compute cover in UI; rely solely on LOS; tile-adjacent sampling; discard soft cover—rejected for drift, opacity, and poor UX.
+Consequences: Solid cyan = no cover; dotted cyan = half/¾ cover; no highlight = full cover; AC is adjusted (+2/+5) during resolution; controller remains logic-free.
+Implementation: Add _get_obstacle_at, _is_terrain_blocker, _tile_soft_cover, _cell_has_creature, _line_cells_supercover_f, refactor _compute_cover(origin, target, *, creatures_grant_cover=False), extend get_attack_targets(..., include_cover=True), enrich get_combat_data_for_ui() with highlighted_targets, and apply cover AC bump in execute_player_ranged_attack.
+Validation: Visual cases (open/peek/full behind pillar), barrels with provides_cover, optional creatures-as-cover, and unit tests for edge-of-range and corner-graze tolerance.
+Risks: Performance on large maps (mitigated by caching); data inconsistency if blocks_sight/provides_cover aren’t set correctly.
+Follow-ups: Optional LOS hover line, per-source cover logging, precomputed terrain index, and rules toggle for creatures granting cover.
 
 ```
 ## ADR-XXX: <Short title>
