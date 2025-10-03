@@ -82,6 +82,8 @@ class CombatEngine:
         """Safe default when a new actor becomes active."""
         # pick your default; movement is usually nicest for UX
         self.current_action_mode = "movement"
+        # Start idle; buttons set an explicit mode
+        self.current_action_mode = None
 
     def start_encounter(self, encounter_id: str, combat_context: Dict = None) -> bool:
         """
@@ -727,7 +729,7 @@ class CombatEngine:
         cx, cy = target[0], target[1]
 
         # Nudge corners inward so we don't skim exact tile borders
-        eps = 0.22        # adjust to 0.2 if still get false half-cover or lower if miss legit cover
+        eps = 0.20       # adjust to 0.2 if still get false half-cover or lower if miss legit cover
         samples = [
             (cx + 0.5, cy + 0.5),             # center
             (cx + eps, cy + eps),             # TL
