@@ -1778,6 +1778,16 @@ Files Modified: game_controller.py, data_manager.py, character_engine.py | Files
 **Consequences:** Clean architectural separation achieved - UI → EventManager → InventoryEngine → GameState data; trinkets cannot be discarded (blocked with user feedback); proper dependency injection throughout inventory system; future inventory features centralized in single engine; eliminates technical debt from ADR-043.
 **Files Modified:** game_logic/inventory_engine.py (added 4 business logic methods, fixed category mapping), game_state.py (removed 4 business logic methods)
 
+# ADR-112: Fixed Button Click Region Mismatch in ActionHubLocation
+# Date: Oct 4, 2025
+# Status: Resolved
+**Context:** Basement button appeared after accepting quest but click regions overlapped with other buttons
+**Decision:** Removed duplicate action filtering from register_with_input_handler(); render() method already filters based on requirements
+Implementation: Registration now trusts button_rects from render() instead of re-filtering actions with potentially different game_state
+Consequence: Click regions perfectly match visual buttons; conditional buttons work correctly; eliminated state synchronization bug
+Files Modified: ui/base_location.py (register_with_input_handler method)
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

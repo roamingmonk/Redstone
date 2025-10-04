@@ -82,10 +82,8 @@ class BaseLocation(ABC):
         controller = getattr(screen_manager, '_current_game_controller', None)
         
         # Create minimal fonts and images dictionaries
-        # Use the same fonts that the actual rendering will use
         if controller and hasattr(controller, 'fonts'):
             dummy_fonts = controller.fonts
-            #print(f"DEBUG: BL: Using controller fonts for registration")
         else:
             dummy_fonts = {
                 'normal': pygame.font.Font(None, 24),
@@ -102,6 +100,7 @@ class BaseLocation(ABC):
         dummy_images = {}
         
         try:
+            # Render gets the filtered button_rects based on current game_state
             result = self.render(temp_surface, game_state, dummy_fonts, dummy_images, controller)
             button_rects = result.get('button_rects', {})
             
@@ -109,24 +108,22 @@ class BaseLocation(ABC):
                 print(f"⚠️ No button rects found for {screen_name}")
                 return
             
-            # Get action data from JSON for each button
+            # Get actions for action data (but DON'T re-filter - trust the render!)
             area_data = self.get_current_area_data()
-            actions = area_data.get('actions', {})
-
-
+            all_actions = area_data.get('actions', {})
             
-            # Register each button with LOCATION_ACTION event
+            # Register each button that was actually rendered
             registered_count = 0
             for action_name, button_rect in button_rects.items():
                 
-                # Include full action data from JSON in the event
-                action_data_from_json = actions.get(action_name, {})
+                # Get action data from JSON (it's already been filtered by render)
+                action_data_from_json = all_actions.get(action_name, {})
                 
                 event_data = {
                     'action': action_name,
                     'location_id': self.location_id,
                     'area_id': self.current_area,
-                    'action_data': action_data_from_json  # Complete JSON action definition
+                    'action_data': action_data_from_json
                 }
                 
                 input_handler.register_clickable(
@@ -137,9 +134,8 @@ class BaseLocation(ABC):
                 )
                 
                 registered_count += 1
-                #print(f"  📋 Registered {action_name}: {action_data_from_json.get('type', 'special')} -> {action_data_from_json.get('target', 'N/A')}")
             
-            #print(f"🎯 BaseLocation registered {registered_count} buttons for {screen_name}")
+            print(f"🎯 BaseLocation registered {registered_count} buttons for {screen_name}")
             
         except Exception as e:
             print(f"❌ Error registering BaseLocation buttons for {screen_name}: {e}")
