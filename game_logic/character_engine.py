@@ -551,12 +551,11 @@ class CharacterEngine:
         if current_trinket and current_trinket != '':
             # Trinket already rolled, advance to summary screen
             print("✨ Trinket already rolled, advancing to summary screen")
-            print(f"🔍 DEBUG: Current character data: {self.game_state.character}")
             self.event_manager.emit("SCREEN_CHANGE", {"target": "summary"})
         else:
             # Roll for trinket
             trinket = self.roll_trinket()
-            print(f"🔍 DEBUG: Character data after trinket roll: {self.game_state.character}")
+            #print(f"🔍 DEBUG: Character data after trinket roll: {self.game_state.character}")
             # Stay on trinket screen so button changes to "CONTINUE"
 
     def handle_start_game(self, event_data):

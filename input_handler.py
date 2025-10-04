@@ -848,8 +848,8 @@ class InputHandler:
                     pygame.K_6: 5, pygame.K_7: 6, pygame.K_8: 7, pygame.K_9: 8
                 }
 
-                if self.debug_input:
-                    print(f"🔍 DEBUG: In CHOICE mode for {npc_id} (showing_{npc_id}_response = False)")
+                #if self.debug_input:
+                    #print(f"🔍 DEBUG: In CHOICE mode for {npc_id} (showing_{npc_id}_response = False)")
                     #print(f"🔍 DEBUG: Available keys: 1-9=choices, Enter=first choice, B/Backspace=exit")
                                         
                 # CHOICE MODE - 1-9 keys for choices (plus ENTER = first/primary)

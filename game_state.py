@@ -362,26 +362,18 @@ class GameState:
 #TODO  is this needed anymore?? why is it in gamestate?
     def get_garrick_inventory(self):
         """Get Garrick's merchant inventory (now fully data-driven!)"""
-        print("🔍 DEBUG: get_garrick_inventory() called")
+        
         #from game_logic.item_manager import item_manager  
         from game_logic.data_manager import get_data_manager
         item_manager = self.item_manager
 
-        #print(f"🔍 DEBUG: item_manager object id: {id(item_manager)}")
-        #print(f"🔍 DEBUG: item_manager.merchant_data keys: {list(item_manager.merchant_data.keys())}")
-        #print(f"🔍 DEBUG: item_manager.merchant_data contents: {item_manager.merchant_data}")
-
-        
-        print(f"🔍 DEBUG: Using DataManager's item_manager")    
         merchant_inventory = item_manager.get_merchant_inventory('garrick_barkeep')
         
-        #print("🔍 DEBUG: DataManager or item_manager not available")
         merchant_inventory = None
-        print(f"🔍 DEBUG: merchant_inventory result: {merchant_inventory}")
 
         # Fallback if merchant data not found
         if merchant_inventory is None:
-            print("🔍 DEBUG: Using fallback - merchant_inventory is None")
+
             return {
                 'merchant_name': 'Garrick the Barkeep',
                 'greeting': "What can I get for you? I keep basic adventuring gear in stock:",
@@ -390,7 +382,6 @@ class GameState:
     
         return merchant_inventory
 
-
     def get_items_by_category(self, category):
         """Get all items in a specific category"""
         return self.inventory.get(category, [])
@@ -398,51 +389,8 @@ class GameState:
     def is_item_equipped(self, item_name):
         """Check if an item is currently equipped"""
         return (item_name == self.character.get('equipped_weapon') or 
-                item_name == self.character.get('equipped_armor') or
+                item_name == self.character.get('equipped_armor') or 
                 item_name == self.character.get('equipped_shield'))
 
-    def equip_item(self, item_name, category):
-        """Equip an item using InventoryEngine for subcategory lookup"""
-        if category == "weapons":
-            self.character['equipped_weapon'] = item_name
-        elif category == "armor":
-            # Ask InventoryEngine for subcategory (proper architecture)
-            if hasattr(self, 'inventory_engine') and self.inventory_engine:
-                subcategory = self.inventory_engine.get_item_subcategory(item_name)
-            else:
-                # Fallback
-                subcategory = "shield" if "shield" in item_name.lower() else "body_armor"
-            
-            if subcategory == "shield":
-                self.character['equipped_shield'] = item_name
-            else:
-                self.character['equipped_armor'] = item_name
 
-    def unequip_item(self, item_name):
-        """Unequip an item"""
-        if item_name == self.character.get('equipped_weapon'):
-            self.character['equipped_weapon'] = None
-        elif item_name == self.character.get('equipped_armor'):
-            self.character['equipped_armor'] = None
-        elif item_name == self.character.get('equipped_shield'):
-            self.character['equipped_shield'] = None
-
-    def consume_item(self, item_name):
-        """Consume an item (remove one from inventory)"""
-        for category in ['consumables', 'items']:  # Check both categories
-            if item_name in self.inventory[category]:
-                self.inventory[category].remove(item_name)
-                return True
-        return False
-    
-    def discard_item(self, item_name):
-        """Remove an item from inventory completely"""
-        for category in ['weapons', 'armor', 'items', 'consumables']:
-            if item_name in self.inventory[category]:
-                # Unequip if currently equipped
-                self.unequip_item(item_name)
-                # Remove from inventory
-                self.inventory[category].remove(item_name)
-                return True
-        return False
     

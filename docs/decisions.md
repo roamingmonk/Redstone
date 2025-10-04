@@ -1769,6 +1769,15 @@ Implementation: Fixed ItemManager dependency injection in CharacterEngine initia
 Consequences: Adding new trinkets now requires only updating items.json - no separate sync needed; reduced maintenance overhead; proper dependency injection established for all engines; Single Source of Truth pattern enforced.
 Files Modified: game_controller.py, data_manager.py, character_engine.py | Files Deleted: data/player/trinkets.json
 
+# ADR-111: Inventory Business Logic Refactored to InventoryEngine - Professional Architecture Achieved
+# Status: Accepted
+# Date: October 4, 2025
+**Context:** GameState contained inventory business logic (equip/unequip/consume/discard) violating Single Data Authority pattern; InventoryEngine event handlers called GameState methods instead of containing logic themselves.
+**Decision:** Move all inventory business logic from GameState into InventoryEngine; GameState retains only data storage and simple getters; InventoryEngine validates operations and includes trinket discard protection.
+**Implementation:** Added equip_item(), unequip_item(), consume_item(), discard_item() methods to InventoryEngine with full validation; removed duplicate methods from GameState; fixed _get_inventory_category_key() bug (was adding 's' to already-plural categories); added _find_item_id_by_name() for display name to ID conversion; trinket protection implemented via subcategory check in discard_item().
+**Consequences:** Clean architectural separation achieved - UI → EventManager → InventoryEngine → GameState data; trinkets cannot be discarded (blocked with user feedback); proper dependency injection throughout inventory system; future inventory features centralized in single engine; eliminates technical debt from ADR-043.
+**Files Modified:** game_logic/inventory_engine.py (added 4 business logic methods, fixed category mapping), game_state.py (removed 4 business logic methods)
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected
