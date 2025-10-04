@@ -26,6 +26,8 @@ class InventoryOverlay(BaseTabbedOverlay):
         self.item_rects = []
         self.item_names_in_order = []
         self.button_rects = {}
+        self.status_message = ""
+        self.status_message_time = 0
     
     def render_tab_content(self, surface, active_tab, game_state, fonts, images):
         """REQUIRED: Render content for the active tab"""
@@ -88,6 +90,27 @@ class InventoryOverlay(BaseTabbedOverlay):
                       table_x, table_y + header_height + 10, table_width, 
                       item_manager=self.item_manager)
         
+        # Display items for current tab
+        self._render_item_list(surface, game_state, fonts, images, current_tab, 
+                      table_x, table_y + header_height + 10, table_width, 
+                      item_manager=self.item_manager)
+        
+        # Draw status message (if any) 
+        if hasattr(game_state, 'inventory_status_message') and game_state.inventory_status_message:
+            current_time = pygame.time.get_ticks()
+            message_time = getattr(game_state, 'inventory_status_time', 0)
+            
+            # Show message for 3 seconds
+            if current_time - message_time < 3000:
+                status_font = fonts.get('fantasy_small', fonts['normal'])
+                status_color = YELLOW if "Cannot" in game_state.inventory_status_message else WHITE
+                status_surface = status_font.render(game_state.inventory_status_message, True, status_color)
+                
+                # Position below item list, above buttons
+                status_x = content_x + (content_width - status_surface.get_width()) // 2
+                status_y = content_y + content_height - 30
+                surface.blit(status_surface, (status_x, status_y))
+
         # Draw action buttons
         self._render_action_buttons(surface, game_state, fonts, current_tab, 
                                    content_x, content_y + content_height + 10, content_width)

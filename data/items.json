@@ -614,6 +614,22 @@
         "magic_detection": 1,
         "description": "The wand tingles in the presence of magic"
       }
+    },
+    {
+      "id": "pressed_flowers",
+      "name": "Colorful pressed flowers",
+      "description": "A sleeve of colorful pressed flowers from your childhood.",
+      "base_cost": 0,
+      "category": "items",
+      "subcategory": "trinket",
+      "icon_file": "pressed_flowers.png",
+      "consumable": false,
+      "weight": 0,
+      "rarity": "special",
+      "special_effects": {
+        "morale_bonus": 1,
+        "description": "Memories within provide emotional strength"
+      }
     }
   ]
 }

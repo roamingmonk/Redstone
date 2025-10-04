@@ -13,6 +13,7 @@ ARCHITECTURE BREAKTHROUGH:
 
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime
+import pygame
 
 class InventoryEngine:
     """
@@ -244,12 +245,8 @@ class InventoryEngine:
     def consume_item(self, item_id: str) -> bool:
         """
         Consume an item (remove one from inventory)
-        
-        Args:
-            item_id: ID of item to consume
-            
-        Returns:
-            bool: True if successful
+        Args:item_id: ID of item to consume
+        Returns:bool: True if successful
         """
         try:
             # Check consumables and items categories
@@ -356,12 +353,25 @@ class InventoryEngine:
         """Handle INVENTORY_DISCARD_ITEM event"""
         selected_item_name = getattr(self.game_state, 'inventory_selected', None)
         if selected_item_name:
-            item_id = self._find_item_id_by_name(selected_item_name)  # FIXED TYPO
+            item_id = self._find_item_id_by_name(selected_item_name)
             if item_id:
+                # Get item info for message
+                item_def = self._get_item_template(item_id)
+                display_name = item_def.get('name', selected_item_name) if item_def else selected_item_name
+                
                 success = self.discard_item(item_id)
-                if success:  # Now this only executes if discard_item() returned True
+                if success:
                     self.game_state.inventory_selected = None
-    
+                    self.game_state.inventory_status_message = f"Discarded {display_name}"
+                    self.game_state.inventory_status_time = pygame.time.get_ticks()
+                else:
+                    # Check why it failed
+                    if item_def and item_def.get('subcategory') == 'trinket':
+                        self.game_state.inventory_status_message = "Cannot discard special trinkets"
+                    else:
+                        self.game_state.inventory_status_message = "Item not found"
+                    self.game_state.inventory_status_time = pygame.time.get_ticks()
+        
     # ==========================================
     # INVENTORY QUERIES (PURE READ OPERATIONS)
     # ==========================================
