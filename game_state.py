@@ -77,10 +77,10 @@ class GameState:
         self.current_npc = None
         self.tavern_visits = 0
         
-        # Equipment system (game mechanics)
-        self.equipped_weapon = None
-        self.equipped_armor = None  
-        self.equipped_shield = None
+        # # Equipment system (game mechanics)
+        # self.equipped_weapon = None
+        # self.equipped_armor = None  
+        # self.equipped_shield = None
         
         # Inventory UI state (game mechanics)
         self.inventory_selected = None
@@ -437,14 +437,14 @@ class GameState:
 
     def is_item_equipped(self, item_name):
         """Check if an item is currently equipped"""
-        return (item_name == self.equipped_weapon or 
-                item_name == self.equipped_armor or
-                item_name == self.equipped_shield)
+        return (item_name == self.character.get('equipped_weapon') or 
+                item_name == self.character.get('equipped_armor') or
+                item_name == self.character.get('equipped_shield'))
 
     def equip_item(self, item_name, category):
         """Equip an item using InventoryEngine for subcategory lookup"""
         if category == "weapons":
-            self.equipped_weapon = item_name
+            self.character['equipped_weapon'] = item_name
         elif category == "armor":
             # Ask InventoryEngine for subcategory (proper architecture)
             if hasattr(self, 'inventory_engine') and self.inventory_engine:
@@ -454,18 +454,18 @@ class GameState:
                 subcategory = "shield" if "shield" in item_name.lower() else "body_armor"
             
             if subcategory == "shield":
-                self.equipped_shield = item_name
+                self.character['equipped_shield'] = item_name
             else:
-                self.equipped_armor = item_name
+                self.character['equipped_armor'] = item_name
 
     def unequip_item(self, item_name):
         """Unequip an item"""
-        if item_name == self.equipped_weapon:
-            self.equipped_weapon = None
-        elif item_name == self.equipped_armor:
-            self.equipped_armor = None
-        elif item_name == self.equipped_shield:
-            self.equipped_shield = None
+        if item_name == self.character.get('equipped_weapon'):
+            self.character['equipped_weapon'] = None
+        elif item_name == self.character.get('equipped_armor'):
+            self.character['equipped_armor'] = None
+        elif item_name == self.character.get('equipped_shield'):
+            self.character['equipped_shield'] = None
 
     def consume_item(self, item_name):
         """Consume an item (remove one from inventory)"""

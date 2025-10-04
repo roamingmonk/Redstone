@@ -466,7 +466,7 @@ class CombatEncounter:
         log_messages = combat_data.get('combat_log', ["Combat begins!"])
         
         # Display last 10 messages with text wrapping
-        recent_messages = log_messages[-10:]
+        recent_messages = log_messages[-12:]
         log_y = current_y
         log_max_width = 320  # Width of combat log panel area
         

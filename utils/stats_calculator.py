@@ -64,7 +64,7 @@ class StatsCalculator:
         dex_mod = self.get_ability_modifier(dex_score)
         
         # Check equipped armor
-        equipped_armor = game_state.equipped_armor
+        equipped_armor = game_state.character.get('equipped_armor')
         armor_item = self.get_item_by_name(equipped_armor) if equipped_armor else None
         
         if armor_item and 'combat_stats' in armor_item:
@@ -92,7 +92,7 @@ class StatsCalculator:
             breakdown.append(f"DEX mod: +{dex_mod}")
         
         # Check equipped shield
-        equipped_shield = game_state.equipped_shield
+        equipped_shield = game_state.character.get('equipped_shield')
         shield_item = self.get_item_by_name(equipped_shield) if equipped_shield else None
         
         if shield_item and 'combat_stats' in shield_item:
@@ -179,7 +179,7 @@ class StatsCalculator:
             breakdown.append(f"Base Attack: +{base_attack_bonus}")
         
         # Ability modifier (depends on weapon)
-        equipped_weapon = game_state.equipped_weapon
+        equipped_weapon = game_state.character.get('equipped_weapon')
         weapon_item = self.get_item_by_name(equipped_weapon) if equipped_weapon else None
         
         if weapon_item and 'combat_stats' in weapon_item:
@@ -226,7 +226,7 @@ class StatsCalculator:
         Calculate weapon damage with modifiers
         Returns: (damage_string, breakdown_list)
         """
-        equipped_weapon = game_state.equipped_weapon
+        equipped_weapon = game_state.character.get('equipped_weapon')
         weapon_item = self.get_item_by_name(equipped_weapon) if equipped_weapon else None
         
         if not weapon_item or 'combat_stats' not in weapon_item:

@@ -11,7 +11,7 @@
       "stock_categories": ["consumables", "items"],
       "buy_categories": ["consumables", "items"],
       "stock_filter": {
-        "include_ids": ["strong_ale", "trail_rations", "torch"],
+        "include_ids": ["strong_ale", "trail_rations", "torch", "shortbow"],
         "max_rarity": "common"
       },
       "default_stock_quantity": 5,

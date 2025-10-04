@@ -13,6 +13,7 @@ NO MORE 500+ line input handling functions!
 """
 
 import pygame
+import traceback
 from typing import Dict, List, Tuple, Callable, Optional, Any
 from dataclasses import dataclass
 
@@ -463,6 +464,8 @@ class InputHandler:
                             
                     except Exception as e:
                         print(f"❌ Error in overlay {active_overlay_id} input handling: {e}")
+                        
+                        traceback.print_exc() 
                         break
         
         return False

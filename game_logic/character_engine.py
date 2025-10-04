@@ -818,19 +818,25 @@ class CharacterEngine:
             print(f"Error loading class data for {character_class}: {e}")
             return {}
 
-    @staticmethod
-    def _roll_hit_point_gain(hit_die: int, constitution_score: Optional[int]) -> Tuple[int, int, int]:
-        """Roll hit point gains using class hit die and constitution modifier."""
-
-        hit_die = max(1, int(hit_die) if hit_die else 1)
-        if constitution_score is None:
-            constitution_score = 10
-
+    #@staticmethod
+    def _roll_hit_point_gain(self, hit_die, constitution_score):
+        """
+        Roll HP gain for level up using hit die + CON modifier
+        Args:    hit_die: Class hit die (d6, d8, d10, d12)
+                 constitution_score: Character's CON score
+        Returns: tuple: (hp_gain, dice_roll, con_modifier)
+        """
         constitution_modifier = (constitution_score - 10) // 2
+        # CON modifier can't reduce HP gain below 0
+        con_bonus = max(0, constitution_modifier)
+        
         dice_roll = random.randint(1, hit_die)
-        hp_gain = max(1, dice_roll + constitution_modifier)
-
-        return hp_gain, dice_roll, constitution_modifier
+        
+        # Apply minimum average: (hit_die / 2) + 1, rounded up
+        minimum_hp = (hit_die // 2) + 0  # d10=5, d8=4, d6=3, d12=6
+        hp_gain = max(minimum_hp, dice_roll + con_bonus)
+        
+        return hp_gain, dice_roll, con_bonus
 
     def apply_class_stat_adjustments(self, character_class=None):
         """
@@ -1022,18 +1028,8 @@ class CharacterEngine:
         current_xp = self.game_state.character.get('experience', 0)
         new_level = current_level + 1
         character_class = self.game_state.character.get('class', 'fighter')
-        
-        # Get XP requirements - consume XP for level-up
-        #from utils.narrative_schema import narrative_schema
+     
         xp_requirements = narrative_schema.schema.get('xp_balance', {}).get('level_progression', {}).get('requirements', [0, 300, 900, 2700, 6500])
-        
-        # Consume XP for this level (optional - some games keep cumulative XP)
-        # # Comment this out if you want to keep cumulative XP like modern RPGs
-        # if new_level <= len(xp_requirements):
-        #     xp_consumed = xp_requirements[new_level - 1]  # XP required for this level
-        #     remaining_xp = current_xp - xp_consumed
-        #     self.game_state.character['experience'] = max(0, remaining_xp)  # Don't go negative
-        #     print(f"🔄 Consumed {xp_consumed} XP for level-up, {remaining_xp} XP remaining")
         print(f"🎊 Level-up! XP remains at {current_xp} (cumulative system)")
 
 
@@ -1041,14 +1037,13 @@ class CharacterEngine:
         class_data = self._load_class_data_from_json(character_class)
         hit_die = class_data.get('hit_die', 10) if class_data else 10
         
-        # Roll for HP gain (class hit die + con modifier per level)
-        # constitution_modifier = (self.game_state.character.get('constitution', 10) - 10) // 2
-        # dice_roll = random.randint(1, hit_die)  # Define dice_roll first
-        # hp_gain = dice_roll + constitution_modifier
-        # hp_gain = max(1, hp_gain)  # Minimum 1 HP per level
         constitution_score = self.game_state.character.get('constitution', 10)
+        print(f"🔍 DEBUG: About to call _roll_hit_point_gain with hit_die={hit_die}, constitution_score={constitution_score}")
+        print(f"🔍 DEBUG: Method exists? {hasattr(self, '_roll_hit_point_gain')}")
+        print(f"🔍 DEBUG: Method callable? {callable(getattr(self, '_roll_hit_point_gain', None))}")
         hp_gain, dice_roll, constitution_modifier = self._roll_hit_point_gain(hit_die, constitution_score)
         print(f"DEBUG: HP Roll - 1d{hit_die}({dice_roll}) + CON({constitution_modifier}) = {hp_gain}")
+
         
         # Get new abilities for this level
         new_abilities = []
@@ -1066,13 +1061,8 @@ class CharacterEngine:
         current_max = self.game_state.character.get('hit_points', 10)
         self.game_state.character['hit_points'] = current_max + hp_gain
 
-        # # Also heal by the amount gained (leveling heals you)
-        # current_hp = self.game_state.character.get('current_hp', current_max)
-        # self.game_state.character['current_hp'] = min(current_hp + hp_gain, self.game_state.character['hit_points'])
-         
          # Level ups fully restore health to the new maximum
         self.game_state.character['current_hp'] = self.game_state.character['hit_points']
-
 
         # Track abilities gained
         if 'abilities' not in self.game_state.character:
@@ -1333,16 +1323,6 @@ class CharacterEngine:
         current_level = member_data.get('level', 1)
         new_level = current_level + 1
         
-        # # Get class-specific HP gain (simplified)
-        # hp_gain_by_class = {
-        #     "gareth": 8,     # Fighter - d10 average
-        #     "elara": 4,      # Wizard - d6 average  
-        #     "thorman": 6,    # Cleric - d8 average
-        #     "lyra": 5        # Rogue - d6+1 average
-        # }
-        
-        # hp_gain = hp_gain_by_class.get(member_id, 5)
-        
         # Ensure the NPC is actually in the active party before leveling
         if member_id not in getattr(self.game_state, 'party_members', []):
             print(f"⚠️ Cannot level {member_id}: not in active party")
@@ -1354,30 +1334,36 @@ class CharacterEngine:
         hit_die = class_data.get('hit_die', 10) if class_data else 10
 
         # Determine constitution modifier from stored stats
+        print(f"🔍 DEBUG: member_data keys: {member_data.keys()}")
+        print(f"🔍 DEBUG: member_data['constitution']: {member_data.get('constitution')}")
+        print(f"🔍 DEBUG: member_data['stats']: {member_data.get('stats')}")
+
+        # Determine constitution modifier from stored stats
         constitution_score = member_data.get('constitution')
         if constitution_score is None:
             constitution_score = member_data.get('stats', {}).get('constitution', 10)
 
-        hp_gain, dice_roll, constitution_modifier = self._roll_hit_point_gain(
-            hit_die, constitution_score
-        )
-        print(
-            f"DEBUG: NPC HP Roll - 1d{hit_die}({dice_roll}) + CON({constitution_modifier}) = {hp_gain}"
-        )
+        print(f"🔍 DEBUG: Final constitution_score: {constitution_score}")
+
+        hp_gain, dice_roll, constitution_modifier = self._roll_hit_point_gain(hit_die, constitution_score)
+        print(f"DEBUG: NPC HP Roll - 1d{hit_die}({dice_roll}) + CON({constitution_modifier}) = {hp_gain}")
 
         # Update party member stats
         member_data['level'] = new_level
         
-        # current_hp = member_data.get('hit_points', 10)
-        # member_data['hit_points'] = current_hp + hp_gain
-        
-        current_hp = member_data.get('hit_points', member_data.get('hp', 10))
-        new_max_hp = current_hp + hp_gain
+        # Get OLD max HP (not current HP!)
+        old_max_hp = member_data.get('hit_points', member_data.get('hp', 10))
+
+        # Calculate NEW max HP
+        new_max_hp = old_max_hp + hp_gain
+
+        # Update all HP fields to new maximum
         member_data['hit_points'] = new_max_hp
         member_data['hp'] = new_max_hp
         member_data['max_hit_points'] = new_max_hp
-        current_hp_value = member_data.get('current_hp', current_hp)
-        member_data['current_hp'] = min(current_hp_value + hp_gain, new_max_hp)
+
+        # Full heal on level up (same as player)
+        member_data['current_hp'] = new_max_hp
 
         print(f"🎊 {member_id.title()} leveled up! Now level {new_level}, gained {hp_gain} HP to Max HP {new_max_hp}")
         

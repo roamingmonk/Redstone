@@ -278,8 +278,8 @@ class CombatEngine:
             weapon_data = self.item_manager.get_item_by_id(weapon_id.lower())
             if weapon_data:
                 combat_stats = weapon_data.get('combat_stats', {})
-                is_ranged = combat_stats.get('range') == 'ranged'
-                print(f"   Player weapon data found: range={combat_stats.get('range')}, is_ranged={is_ranged}")
+                #is_ranged = combat_stats.get('range') == 'ranged'
+                #print(f"   Player weapon data found: range={combat_stats.get('range')}, is_ranged={is_ranged}")
                 # Check the range field from JSON
                 return combat_stats.get('range') == 'ranged'
         
@@ -315,8 +315,14 @@ class CombatEngine:
             },
             'current_hp': self.game_state.character.get('current_hp', 
                                                         self.game_state.character.get('hit_points', 20)),
-            'max_hp': self.game_state.character.get('hit_points', 20)
+            'max_hp': self.game_state.character.get('hit_points', 20),
+            'equipment': {
+                'weapon': self.game_state.character.get('equipped_weapon'),
+                'armor': self.game_state.character.get('equipped_armor'),
+                'shield': self.game_state.character.get('equipped_shield')
         }
+    }
+
         party.append(player_char)
         
         # Add recruited party members
@@ -501,18 +507,10 @@ class CombatEngine:
             self._add_to_combat_log("All attacks used this turn!")
             return False
         
-        # Check for ranged weapon
-        char_data = char_state.get('character_data', {})
-        equipment = char_data.get('equipment', {})
-        weapon_id = equipment.get('weapon', '')
-        
-        if not weapon_id:
-            self._add_to_combat_log(f"{char_state['name']} has no weapon equipped!")
-            return False
-        
-        # Simple check: does weapon name contain "bow"?
-        if 'bow' not in weapon_id.lower():
-            self._add_to_combat_log(f"{char_state['name']} has no ranged weapon equipped!")
+        # Use the proper ranged weapon check that validates against items.json
+        if not self._has_ranged_weapon_equipped(char_state):
+            char_name = char_state.get('name', 'Character')
+            self._add_to_combat_log(f"{char_name} has no ranged weapon equipped!")
             return False
         
         # Check for valid targets
@@ -1200,37 +1198,62 @@ class CombatEngine:
             print(f"   {c['name']}: {c['initiative']} (DEX {c['dex']})")
     
     def _advance_turn(self):
-        """Advance to next actor in turn order"""
-        self.current_actor_index += 1
+        """Advance to next actor in turn order, skipping dead/unconscious characters"""
+        max_iterations = len(self.turn_order) + 1  # Safety limit to prevent infinite loops
+        iterations = 0
         
-        # If we've gone through all actors, start new round
-        if self.current_actor_index >= len(self.turn_order):
-            self.current_actor_index = 0
-            turn_number = self.combat_data.get("turn_number", 0) + 1
-            self.combat_data["turn_number"] = turn_number
-            self._add_to_combat_log(f"--- Turn {turn_number} ---")
-        
-        # Set phase based on current actor
-        current_actor_id = self.turn_order[self.current_actor_index]
-        
-        # Check if current actor is a party member or enemy
-        if current_actor_id in self.character_states:
-            # Party member's turn
-            self.current_phase = CombatPhase.PLAYER_TURN
-            self.active_character_id = current_actor_id
-            self._reset_action_mode_for_active()
+        while iterations < max_iterations:
+            self.current_actor_index += 1
+            iterations += 1
             
-            # Reset action flags for this character
-            char_state = self.character_states[current_actor_id]
-            char_state['has_moved'] = False
-            char_state['attacks_used'] = 0
+            # If we've gone through all actors, start new round
+            if self.current_actor_index >= len(self.turn_order):
+                self.current_actor_index = 0
+                turn_number = self.combat_data.get("turn_number", 0) + 1
+                self.combat_data["turn_number"] = turn_number
+                self._add_to_combat_log(f"--- Turn {turn_number} ---")
             
-            char_name = char_state['name']
-            self._add_to_combat_log(f"{char_name}'s turn")
-        #TODO CHECK is this else statement is correct
-        else:
-            self.current_phase = CombatPhase.ENEMY_TURN
-            self._execute_enemy_turn(current_actor_id)
+            # Get current actor
+            current_actor_id = self.turn_order[self.current_actor_index]
+            
+            # Check if this actor is still alive/conscious
+            is_alive = False
+            
+            # Check if it's a party member
+            if current_actor_id in self.character_states:
+                char_state = self.character_states[current_actor_id]
+                is_alive = char_state.get('is_alive', True)
+                
+                if is_alive:
+                    # Party member's turn
+                    self.current_phase = CombatPhase.PLAYER_TURN
+                    self.active_character_id = current_actor_id
+                    self._reset_action_mode_for_active()
+                    
+                    # Reset action flags for this character
+                    char_state['has_moved'] = False
+                    char_state['attacks_used'] = 0
+                    
+                    char_name = char_state['name']
+                    self._add_to_combat_log(f"{char_name}'s turn")
+                    return  # Found a living actor, exit loop
+            else:
+                # Check if it's a living enemy
+                enemy_instances = self.combat_data.get("enemy_instances", [])
+                for enemy in enemy_instances:
+                    if enemy.get("instance_id") == current_actor_id:
+                        if enemy.get("current_hp", 0) > 0:
+                            is_alive = True
+                            self.current_phase = CombatPhase.ENEMY_TURN
+                            self._execute_enemy_turn(current_actor_id)
+                            return  # Found a living actor, exit loop
+                        break
+            
+            # If we get here, actor was dead/unconscious, loop continues to next actor
+        
+        # If we exhausted all actors and none are alive, combat should end
+        # This shouldn't happen as victory/defeat should trigger first
+        print("⚠️ WARNING: All actors in turn order are unconscious/dead!")
     
     def _execute_enemy_turn(self, enemy_id: str):
         """Execute AI turn for enemy"""
@@ -1417,19 +1440,12 @@ class CombatEngine:
                             max_hp = self.game_state.character.get("hit_points", 0)
                             self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
                             
-                            # Check if player defeated
+                            # Check if player defeated - INSTANT DEATH!
                             if new_hp <= 0:
                                 char_state['is_alive'] = False
-                                char_state['is_conscious'] = False
-                                self._add_to_combat_log(f"{target_name} is knocked unconscious!")
-                                
-                                # Check if ALL party members are knocked out
-                                all_unconscious = all(
-                                    not cs.get('is_alive', True) 
-                                    for cs in self.character_states.values()
-                                )
-                                if all_unconscious:
-                                    self._handle_combat_defeat()
+                                self._add_to_combat_log(f"{target_name} has fallen!")
+                                # Player death triggers immediate defeat
+                                self._handle_combat_defeat()
                         else:
                             # Damage party member (NPC)
                             for member in self.game_state.party_member_data:
@@ -1520,26 +1536,21 @@ class CombatEngine:
                 
                 # Apply damage (same logic as _resolve_attack)
                 if target_char_id == 'player':
-                    # Damage main player
-                    current_hp = self.game_state.character.get("current_hp", 0)
-                    new_hp = max(0, current_hp - damage)
-                    self.game_state.character["current_hp"] = new_hp
-                    
-                    max_hp = self.game_state.character.get("hit_points", 0)
-                    self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
-                    
-                    if new_hp <= 0:
-                        char_state = self.character_states.get(target_char_id)
-                        if char_state:
-                            char_state['is_alive'] = False
-                            char_state['is_conscious'] = False
-                            self._add_to_combat_log(f"{target_name} is knocked unconscious!")
+                        # Damage main player
+                        current_hp = self.game_state.character.get("current_hp", 0)
+                        new_hp = max(0, current_hp - damage)
+                        self.game_state.character["current_hp"] = new_hp
                         
-                        all_unconscious = all(
-                            not cs.get('is_alive', True) 
-                            for cs in self.character_states.values()
-                        )
-                        if all_unconscious:
+                        max_hp = self.game_state.character.get("hit_points", 0)
+                        self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
+                        
+                        # Check if player defeated - INSTANT DEATH!
+                        if new_hp <= 0:
+                            char_state = self.character_states.get(target_char_id)
+                            if char_state:
+                                char_state['is_alive'] = False
+                            self._add_to_combat_log(f"{target_name} has fallen!")
+                            # Player death triggers immediate defeat
                             self._handle_combat_defeat()
                 else:
                     # Damage party member
@@ -1748,6 +1759,30 @@ class CombatEngine:
         self.current_phase = CombatPhase.VICTORY
         self._add_to_combat_log("VICTORY!")
         
+        # Stabilize unconscious party members at 1 HP
+        for char_id, char_state in self.character_states.items():
+            if char_id == 'player':
+                continue  # Player can't be unconscious in victory (they'd be dead)
+            
+            if not char_state.get('is_alive', True):
+                # This NPC was knocked unconscious - restore to 1 HP
+                char_name = char_state.get('name', 'Party member')
+                
+                # Update in party_member_data (persistent game state)
+                for member in self.game_state.party_member_data:
+                    if member['id'] == char_id:
+                        member['current_hp'] = 1
+                        # Also restore in combat state
+                        char_data = char_state.get('character_data', {})
+                        char_data['current_hp'] = 1
+                        # Mark as alive again
+                        char_state['is_alive'] = True
+                        char_state['is_conscious'] = True
+                        
+                        self._add_to_combat_log(f"{char_name} stabilized at 1 HP")
+                        print(f"💚 {char_name} restored to 1 HP after victory")
+                        break
+
         # Award rewards
         rewards = self.combat_data.get("encounter", {}).get("rewards", {})
         self._award_rewards(rewards)

@@ -97,10 +97,6 @@ class SaveManager:
                 'gambling_wins': getattr(self.game_state, 'gambling_wins', 0),
                 'gambling_losses': getattr(self.game_state, 'gambling_losses', 0),
                 
-                # Equipment state
-                'equipped_weapon': getattr(self.game_state, 'equipped_weapon', None),
-                'equipped_armor': getattr(self.game_state, 'equipped_armor', None),
-                'equipped_shield': getattr(self.game_state, 'equipped_shield', None),
             }
             
             # *** Save all narrative schema flags dynamically ***
@@ -344,11 +340,6 @@ class SaveManager:
             self.game_state.house_money = save_data.get('house_money', 50)
             self.game_state.gambling_wins = save_data.get('gambling_wins', 0)
             self.game_state.gambling_losses = save_data.get('gambling_losses', 0)
-            
-            # Restore equipment state
-            self.game_state.equipped_weapon = save_data.get('equipped_weapon')
-            self.game_state.equipped_armor = save_data.get('equipped_armor')
-            self.game_state.equipped_shield = save_data.get('equipped_shield')
                 
             # Restore shopping cart (with safety check)
             shopping_cart_data = save_data.get('shopping_cart', {})

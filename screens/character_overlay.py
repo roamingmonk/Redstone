@@ -178,21 +178,17 @@ class CharacterOverlay(BaseTabbedOverlay):
         current_y += 30
         
         # Weapon
-        weapon_name = getattr(game_state, 'equipped_weapon', 'None')
+        weapon_name = game_state.character.get('equipped_weapon', 'None')
         weapon_label = normal_font.render("Weapon:", True, WHITE)
         surface.blit(weapon_label, (left_section_x, current_y))
-        
-        if weapon_name and weapon_name != 'None':
-            weapon_damage, _ = calculator.calculate_weapon_damage(game_state)
-            weapon_display = f"{weapon_name.replace('_', ' ').title()} ({weapon_damage})"
-        else:
-            weapon_display = "None"
+
+        weapon_display = weapon_name.replace('_', ' ').title() if weapon_name and weapon_name != 'None' else "None"
         weapon_text = normal_font.render(weapon_display, True, WHITE)
         surface.blit(weapon_text, (left_section_x + 100, current_y))
         current_y += 32
-        
+
         # Armor
-        armor_name = getattr(game_state, 'equipped_armor', 'None')
+        armor_name = game_state.character.get('equipped_armor', 'None')
         armor_label = normal_font.render("Armor:", True, WHITE)
         surface.blit(armor_label, (left_section_x, current_y))
 
@@ -202,7 +198,7 @@ class CharacterOverlay(BaseTabbedOverlay):
         current_y += 32
 
         # Shield
-        shield_name = getattr(game_state, 'equipped_shield', 'None')
+        shield_name = game_state.character.get('equipped_shield', 'None')
         shield_label = normal_font.render("Shield:", True, WHITE)
         surface.blit(shield_label, (left_section_x, current_y))
 
@@ -544,39 +540,84 @@ class CharacterOverlay(BaseTabbedOverlay):
             # Draw portrait border
             pygame.draw.rect(surface, WHITE, (portrait_x, portrait_y, portrait_size, portrait_size), 2)
             
-            # Draw NPC information to the right of portrait
-            info_x = portrait_x + info_x_offset
+            # Draw NPC information to the right of portrait - TWO COLUMN LAYOUT
+            info_x = portrait_x + portrait_size + 30  # Left column start
             info_y = portrait_y
-            
+            column_spacing = 200  # Space between left and right columns
+
             # Get NPC data (with fallbacks)
             npc_info = game_state.get_party_member_data(npc_id)
             if not npc_info:
                 npc_info = {'name': npc_id.title(), 'class': 'Adventurer', 'level': 1}
-            
-            # NPC Name
+
+            # NPC Name (spans both columns)
             name_text = header_font.render(npc_info['name'], True, CYAN)
             surface.blit(name_text, (info_x, info_y))
-            info_y += 25
-            
-            # NPC Class
+            info_y += 30
+
+            # --- LEFT COLUMN ---
+            left_x = info_x
+            left_y = info_y
+
+            # Class
             class_text = normal_font.render(f"Class: {npc_info['class']}", True, WHITE)
-            surface.blit(class_text, (info_x, info_y))
-            info_y += 20
-            
-            # NPC Level
+            surface.blit(class_text, (left_x, left_y))
+            left_y += 25
+
+            # Level
             level_text = normal_font.render(f"Level: {npc_info['level']}", True, WHITE)
-            surface.blit(level_text, (info_x, info_y))
-            info_y += 20
-            
-            # Status
-            status_text = normal_font.render("Status: Ready", True, BRIGHT_GREEN)
-            surface.blit(status_text, (info_x, info_y))
-        
-        # Party summary at bottom
-        summary_y = content_rect.y + content_rect.height - 40
-        party_size = 1 + len(party_members)  # Player + NPCs
-        summary_text = normal_font.render(f"Total Party Size: {party_size}/4", True, YELLOW)
-        surface.blit(summary_text, (content_rect.x + 20, summary_y))
+            surface.blit(level_text, (left_x, left_y))
+            left_y += 25
+
+            # HP with color coding
+            current_hp = npc_info.get('current_hp', npc_info.get('hp', 0))
+            max_hp = npc_info.get('hp', npc_info.get('hit_points', 0))
+            hp_percent = (current_hp / max_hp * 100) if max_hp > 0 else 0
+
+            # Color code HP
+            if hp_percent > 66:
+                hp_color = BRIGHT_GREEN
+            elif hp_percent > 33:
+                hp_color = YELLOW
+            else:
+                hp_color = RED
+
+            hp_text = normal_font.render(f"HP: {current_hp}/{max_hp}", True, hp_color)
+            surface.blit(hp_text, (left_x, left_y))
+
+            # --- RIGHT COLUMN ---
+            right_x = info_x + column_spacing
+            right_y = info_y
+
+            # AC (Armor Class)
+            ac = npc_info.get('ac', 10)
+            ac_text = normal_font.render(f"AC: {ac}", True, WHITE)
+            surface.blit(ac_text, (right_x, right_y))
+            right_y += 25
+
+            # Equipped Weapon
+            weapon_id = npc_info.get('equipment', {}).get('weapon', 'None')
+            weapon_display = weapon_id.replace('_', ' ').title() if weapon_id else 'None'
+            weapon_text = normal_font.render(f"Weapon: {weapon_display}", True, WHITE)
+            surface.blit(weapon_text, (right_x, right_y))
+            right_y += 25
+
+            # Status with dynamic color
+            if hp_percent > 66:
+                status_msg = "Ready"
+                status_color = BRIGHT_GREEN
+            elif hp_percent > 33:
+                status_msg = "Wounded"
+                status_color = YELLOW
+            elif current_hp > 0:
+                status_msg = "Critical"
+                status_color = RED
+            else:
+                status_msg = "Unconscious"
+                status_color = GRAY
+
+            status_text = normal_font.render(f"Status: {status_msg}", True, status_color)
+            surface.blit(status_text, (right_x, right_y))
         
 #TODO this armor class ac needs to be pulled from somewhere else and not hard coded.
     def _get_armor_ac(self, armor_name):
