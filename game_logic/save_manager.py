@@ -542,11 +542,8 @@ class SaveManager:
             print(f"🚫 Save/Load disabled on screen: {self.game_state.screen}")
             return False
         
-        # Check if any overlay screens are open that should block save/load
-        if hasattr(self.game_state, 'save_screen_open') and self.game_state.save_screen_open:
-            return False
-        
-        if hasattr(self.game_state, 'load_screen_open') and self.game_state.load_screen_open:
+        # Check if any overlay is open that should block save/load
+        if hasattr(self.game_state, 'overlay_state') and self.game_state.overlay_state.has_any_overlay_open():
             return False
         
         return True
@@ -631,11 +628,16 @@ class SaveManager:
         if not hasattr(self.game_state, 'load_selected_slot') or self.game_state.load_selected_slot is None:
             print("No slot selected for loading")
             return
-        success = self.load_game(self.game_state.load_selected_slot)  # Use existing method!
+        
+        success = self.load_game(self.game_state.load_selected_slot)
         if success:
-            # Close load screen and emit success event
-            self.game_state.load_screen_open = False
+            # Clear selection
             self.game_state.load_selected_slot = None
+            
+            # Close the load overlay
+            if hasattr(self.game_state, 'overlay_state'):
+                self.game_state.overlay_state.close_overlay()
+            
             if self.event_manager:
                 self.event_manager.emit("GAME_LOADED", {
                     'slot_num': self.game_state.load_selected_slot
@@ -663,9 +665,14 @@ class SaveManager:
             print("❌ SaveManager: Delete failed")
     
     def _handle_load_cancel(self, event_data):
-        """Handle LOAD_SCREEN_CANCEL events"""
-        self.game_state.load_screen_open = False
-        self.game_state.load_selected_slot = None
+        """Handle load screen cancellation"""
+        # Clear selection
+        self.load_selected_slot = None
+        
+        # Close the load overlay
+        if hasattr(self.game_state, 'overlay_state'):
+            self.game_state.overlay_state.close_overlay()
+        
         print("❌ SaveManager: Load screen cancelled")
 
     def _handle_save_slot_selection(self, event_data):
@@ -696,7 +703,7 @@ class SaveManager:
         success = self.save_game(self.game_state.save_selected_slot)  # Use existing method!
         if success:
             # Close save screen and emit success event
-            self.game_state.save_screen_open = False
+            self.game_state.overlay_state.close_overlay()
             self.game_state.save_selected_slot = None
             if self.event_manager:
                 self.event_manager.emit("GAME_SAVED", {
@@ -710,8 +717,13 @@ class SaveManager:
 
     def _handle_save_cancel(self, event_data):
         """Handle SAVE_SCREEN_CANCEL events"""
-        self.game_state.save_screen_open = False
+        # Clear selection
         self.game_state.save_selected_slot = None
+        
+        # Close the save overlay
+        if hasattr(self.game_state, 'overlay_state'):
+            self.game_state.overlay_state.close_overlay()
+        
         print("❌ SaveManager: Save screen cancelled")
 
     def _handle_save_and_quit_confirm(self, event_data):
@@ -726,7 +738,7 @@ class SaveManager:
         if success:
             print("✅ SaveManager: Game saved successfully, initiating shutdown...")
             # Close save screen
-            self.game_state.save_screen_open = False
+            self.game_state.overlay_state.close_overlay()
             self.game_state.save_selected_slot = None
             
         if hasattr(self, '_game_controller_ref'):

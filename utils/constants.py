@@ -608,7 +608,6 @@ TITLE_ANIMATIONS = {
     'torch': 'assets/images/sprites/fire/torch_animation.png'  
 }
 
-
 # Screen exclusion lists - centralized for maintainability
 # Overlay exclusion - screens where overlays should not appear
 OVERLAY_RESTRICTED_SCREENS = {
@@ -627,11 +626,5 @@ SAVE_LOAD_RESTRICTED_SCREENS = {
 }
 
 # Overlay access control - centralized configuration
-MAIN_MENU_ALLOWED_OVERLAYS = ['load_screen_open']
+MAIN_MENU_ALLOWED_OVERLAYS = ['load_game']  
 
-# All overlay attributes for checking (maintain this list as overlays are added)
-ALL_OVERLAY_ATTRIBUTES = [
-    'inventory_open', 'quest_log_open', 'character_sheet_open', 
-    'help_screen_open', 'save_screen_open', 'load_screen_open'
-    # Add new overlay attributes here as they're created
-]

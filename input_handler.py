@@ -263,6 +263,17 @@ class InputHandler:
         #if self.debug_input:
             #print(f"🖱️ IH:  Mouse click at {mouse_pos} on screen '{current_screen}'")
         
+        # PRIORITY 1: Check overlay clickables FIRST (overlays render on top)
+        if hasattr(self, '_get_active_overlay_screen'):
+            overlay_screen = self._get_active_overlay_screen()
+            if overlay_screen and overlay_screen in self.clickable_regions:
+                regions = self.clickable_regions[overlay_screen]
+                for region in regions:
+                    if region.rect.collidepoint(mouse_pos):
+                        print(f"🎯 Overlay clickable hit: {region.event_type}")
+                        self.event_manager.emit(region.event_type, region.event_data)
+                        return True
+
         if self._handle_location_action_events(mouse_pos, current_screen):
             return True
 
@@ -619,20 +630,6 @@ class InputHandler:
                 print(f"🔙 ESC closed overlay: {active_overlay_id}")
             return True
         
-        # Fallback: Check old-style boolean flags for legacy overlays
-        legacy_overlay_attrs = [
-            'character_advancement_open',
-            'save_screen_open', 
-            'load_screen_open'
-        ]
-        
-        for attr in legacy_overlay_attrs:
-            if hasattr(game_state, attr) and getattr(game_state, attr):
-                setattr(game_state, attr, False)
-                if self.debug_input:
-                    print(f"🔙 ESC closed legacy overlay: {attr}")
-                return True
-        
         # No overlays were open
         return False
 
@@ -885,6 +882,18 @@ class InputHandler:
                         'choice_index': choice_index
                     })
                     return True
+    
+    def _get_active_overlay_screen(self):
+        """Get the screen name for active overlay clickables"""
+        if hasattr(self, 'game_controller') and self.game_controller:
+            game_state = self.game_controller.game_state
+            if hasattr(game_state, 'overlay_state'):
+                active = game_state.overlay_state.get_active_overlay()
+                if active == "load_game":
+                    return "load_overlay"
+                elif active == "save_game":
+                    return "save_overlay"
+        return None
 
 def register_stats_screen_actions(self):
     """Register clickable regions for the stats screen"""

@@ -1739,6 +1739,27 @@ Validation: Visual cases (open/peek/full behind pillar), barrels with provides_c
 Risks: Performance on large maps (mitigated by caching); data inconsistency if blocks_sight/provides_cover aren’t set correctly.
 Follow-ups: Optional LOS hover line, per-source cover logging, precomputed terrain index, and rules toggle for creatures granting cover.
 
+# ADR-109: Combat System Bug Fixes - Equipment Sync & Death Mechanics
+# Status: Accepted
+# Date: 2025-10-04
+**Context:* Ranged attacks failed for player; NPCs took turns while unconscious; player treated as unconscious instead of dead; equipment stored in multiple conflicting locations.
+**Decision:** Unified equipment storage in game_state.character['equipped_*']; fixed player instant-death vs NPC unconscious logic; added unconscious actor skip in turn advancement; stabilize unconscious NPCs to 1 HP on victory; removed duplicate _can_use_ranged_attack() string check; fixed HP roll calculation with CON floor and minimum average; removed erroneous @staticmethod decorator from _roll_hit_point_gain().
+**Consequences:** Player ranged attacks functional; equipment persists through save/load/combat; player death triggers defeat overlay; unconscious NPCs skip turns and stabilize at 1 HP post-combat; HP rolls guarantee minimum average with non-negative CON modifier; party members show HP/AC/weapon/status in two-column layout.
+**Files Modified:** combat_engine.py, game_state.py, stats_calculator.py, character_overlay.py, save_manager.py, character_engine.py
+**Validation:** Player shortbow works in combat; Lyra unconscious at 0 HP restored to 1 HP after victory; player death shows death overlay; turn advancement skips dead actors.
+
+# ADR-110: Unified Overlay State Management System
+# Status: Accepted
+# Date: 2025-10-04
+**Context:** Save/load overlays used separate boolean flags while other overlays used OverlayState, causing dual state tracking and preventing proper overlay exclusivity.
+**Decision:** Migrate all overlays (I/Q/C/H/F7/F10) to use centralized OverlayState system exclusively.
+**Changes:**game_state.py: Removed toggle methods (toggle_inventory, toggle_quest_log, toggle_character_sheet, toggle_help) and old flag initialization; added OverlayState initialization in init
+screen_manager.py: Rewrote _render_overlays() to check OverlayState.get_active_overlay() instead of individual boolean flags; updated _handle_load_game() and _handle_save_game() to use overlay_state.open_overlay(); added register_save_screen_clickables() call after rendering
+input_handler.py: Added _get_active_overlay_screen() helper; added overlay clickable priority check in process_mouse_click(); removed legacy boolean flag fallback from _handle_escape_key()
+constants.py: Removed ALL_OVERLAY_ATTRIBUTES list; updated MAIN_MENU_ALLOWED_OVERLAYS to use overlay_id 'load_game' instead of flag name
+save_manager.py: Updated all event handlers (_handle_load_cancel, _handle_load_confirm, _handle_save_cancel, _handle_save_confirm, _handle_save_and_quit_confirm) to close overlay via overlay_state.close_overlay() instead of setting boolean flags; updated can_save_load() to check overlay_state.has_any_overlay_open()
+**Consequences:** Single source of truth for overlay state; automatic enforcement of single-overlay behavior; F7/F10 now properly close other overlays when opened; ESC key works uniformly across all overlays; cleaner architecture with ~50 lines of code removed.
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

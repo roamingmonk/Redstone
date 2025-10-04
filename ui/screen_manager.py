@@ -8,8 +8,9 @@ Replaces hardcoded screen logic with data-driven approach + massive draw_current
 from typing import Dict, Callable, Any, Optional
 import pygame
 import traceback
-from utils.constants import OVERLAY_RESTRICTED_SCREENS, MAIN_MENU_ALLOWED_OVERLAYS, ALL_OVERLAY_ATTRIBUTES
+from utils.constants import OVERLAY_RESTRICTED_SCREENS, MAIN_MENU_ALLOWED_OVERLAYS
 from screens.load_game import draw_load_game_screen
+from utils.overlay_utils import OverlayState
 
 class ScreenManager:
     """
@@ -169,20 +170,28 @@ class ScreenManager:
             })
 
     def _handle_load_game(self, event_data):
-        """Handle LOAD_GAME - open load overlay and register clickables"""
+        """Handle LOAD_GAME - open load overlay via unified state"""
         print("📂 ScreenManager: Opening load screen")
         if hasattr(self, '_current_game_state'):
-            self._current_game_state.load_screen_open = True
-            # Register clickables when opening
-            self.register_load_screen_clickables()
+            # Use unified overlay state system
+            if not hasattr(self._current_game_state, 'overlay_state'):
+                
+                self._current_game_state.overlay_state = OverlayState()
+            
+            self._current_game_state.overlay_state.open_overlay("load_game")
+            print(f"🔍 DEBUG: Overlay state set to: {self._current_game_state.overlay_state.get_active_overlay()}")
 
     def _handle_save_game(self, event_data):
-        """Handle SAVE_GAME - open save overlay and register clickables"""
+        """Handle SAVE_GAME - open save overlay via unified state"""
         print("💾 ScreenManager: Opening save screen")
         if hasattr(self, '_current_game_state'):
-            self._current_game_state.save_screen_open = True
-            # Register clickables when opening
-            self.register_save_screen_clickables()
+            # Use unified overlay state system
+            if not hasattr(self._current_game_state, 'overlay_state'):
+                
+                self._current_game_state.overlay_state = OverlayState()
+            
+            self._current_game_state.overlay_state.open_overlay("save_game")
+            print(f"🔍 DEBUG: Overlay state set to: {self._current_game_state.overlay_state.get_active_overlay()}")
 
     def register_save_screen_clickables(self):
         """Register save screen clickables when save overlay opens"""
@@ -1547,22 +1556,21 @@ class ScreenManager:
         
         overlay_state = self._current_game_state.overlay_state
         
-        # Special handling for load/save screens (different rendering system)
+        # Special handling for load/save screens (need clickable registration)
         if overlay_id == "load_game":
-            current_state = getattr(self._current_game_state, 'load_screen_open', False)
-            
-            if current_state:
-                self._current_game_state.load_screen_open = False
-                overlay_state.close_overlay()  # Sync with centralized state
-                #print(f"📂 ScreenManager: Load screen closed")
+            if overlay_state.is_open("load_game"):
+                overlay_state.close_overlay()
             else:
-                overlay_state.close_overlay()  # Close any active overlay first
-                self._current_game_state.load_screen_open = True
-                
-                if self._current_game_state.load_screen_open:
-                    self.register_load_screen_clickables()
-                
-                #print(f"📂 ScreenManager: Load screen opened")
+                overlay_state.open_overlay("load_game")
+                self.register_load_screen_clickables()
+            return
+
+        if overlay_id == "save_game":
+            if overlay_state.is_open("save_game"):
+                overlay_state.close_overlay()
+            else:
+                overlay_state.open_overlay("save_game")
+                self.register_save_screen_clickables()
             return
         
         # Universal overlay handling with centralized state
@@ -1575,61 +1583,62 @@ class ScreenManager:
 
     def _render_overlays(self, game_state):
         """Render any active overlays on top of the main screen"""
-         # SELECTIVE OVERLAY RESTRICTIONS  
+        print(f"🎨 DEBUG: _render_overlays called, screen = {game_state.screen}")
+        print(f"🔍 DEBUG: game_state id: {id(game_state)}")
+        
+        # SELECTIVE OVERLAY RESTRICTIONS  
         if game_state.screen == 'main_menu':
-            # Main menu: ONLY allow specific overlays
-            for overlay_attr in ALL_OVERLAY_ATTRIBUTES:
-                if getattr(game_state, overlay_attr, False):
-                    if overlay_attr not in MAIN_MENU_ALLOWED_OVERLAYS:
-                        #print(f"🚫 Overlay {overlay_attr} blocked on main menu (not in allowlist)")
-                        return
-                        
+            # Main menu: ONLY allow load_game overlay
+            if hasattr(game_state, 'overlay_state'):
+                active = game_state.overlay_state.get_active_overlay()
+                if active and active != 'load_game':
+                    return
+                    
         elif game_state.screen in OVERLAY_RESTRICTED_SCREENS:
             # All other restricted screens: Block ALL overlays
-            #print(f"🚫 All overlays blocked on restricted screen: {game_state.screen}")
             return
         
-        
-        # Load screen overlay
-        if getattr(game_state, 'load_screen_open', False):
-            from screens.load_game import draw_load_game_screen
-            # Get save_manager from game_controller
-            save_manager = None
-            if hasattr(self, '_current_game_controller') and self._current_game_controller:
-                save_manager = getattr(self._current_game_controller, 'save_manager', None)
-            draw_load_game_screen(self.screen, game_state, self.fonts, self.images, save_manager)
-            self.register_load_screen_clickables()
-
-        # Save screen overlay
-        if getattr(game_state, 'save_screen_open', False):
-            from screens.save_game import draw_save_game_screen
-            
-            # Get save_manager from game_controller
-            save_manager = None
-            if hasattr(self, '_current_game_controller') and self._current_game_controller:
-                save_manager = getattr(self._current_game_controller, 'save_manager', None)
-            
-            draw_save_game_screen(self.screen, game_state, self.fonts, self.images, save_manager)
-
-        # Check centralized overlay state
-        if hasattr(game_state, 'overlay_state') and game_state.overlay_state.has_any_overlay_open():
+       # Get active overlay from unified state
+        if hasattr(game_state, 'overlay_state'):
             active_overlay_id = game_state.overlay_state.get_active_overlay()
+            print(f"🎨 DEBUG: active_overlay_id = {active_overlay_id}")
             
-            # Explicit overlay rendering with _key naming
-            if active_overlay_id == "quest_key":
-                from screens.quest_overlay import draw_quest_overlay
-                draw_quest_overlay(self.screen, game_state, self.fonts, self.images)
-            elif active_overlay_id == "character_key":
-                from screens.character_overlay import draw_character_sheet_screen
-                draw_character_sheet_screen(self.screen, game_state, self.fonts, self.images)
-            elif active_overlay_id == "help_key":
-                from screens.help_overlay import draw_help_screen
-                draw_help_screen(self.screen, game_state, self.fonts, self.images)
-            elif active_overlay_id == "inventory_key":
-                from screens.inventory_overlay import draw_inventory_screen
-                draw_inventory_screen(self.screen, game_state, self.fonts, self.images)
+            if active_overlay_id:
+                print(f"🎨 DEBUG: Rendering overlay: {active_overlay_id}")
+                # Render based on overlay type
+                if active_overlay_id == "load_game":
+                    from screens.load_game import draw_load_game_screen
+                    save_manager = None
+                    if hasattr(self, '_current_game_controller') and self._current_game_controller:
+                        save_manager = getattr(self._current_game_controller, 'save_manager', None)
+                    draw_load_game_screen(self.screen, game_state, self.fonts, self.images, save_manager)
+                    self.register_load_screen_clickables()
+                    
+                elif active_overlay_id == "save_game":
+                    from screens.save_game import draw_save_game_screen
+                    save_manager = None
+                    if hasattr(self, '_current_game_controller') and self._current_game_controller:
+                        save_manager = getattr(self._current_game_controller, 'save_manager', None)
+                    draw_save_game_screen(self.screen, game_state, self.fonts, self.images, save_manager)
+                    self.register_save_screen_clickables()
+                    
+                elif active_overlay_id == "inventory_key":
+                    from screens.inventory_overlay import draw_inventory_screen
+                    draw_inventory_screen(self.screen, game_state, self.fonts, self.images)
+                    
+                elif active_overlay_id == "quest_key":
+                    from screens.quest_overlay import draw_quest_overlay
+                    draw_quest_overlay(self.screen, game_state, self.fonts, self.images)
+                    
+                elif active_overlay_id == "character_key":
+                    from screens.character_overlay import draw_character_sheet_screen
+                    draw_character_sheet_screen(self.screen, game_state, self.fonts, self.images)
+                    
+                elif active_overlay_id == "help_key":
+                    from screens.help_overlay import draw_help_screen
+                    draw_help_screen(self.screen, game_state, self.fonts, self.images)
         
-        #DEATH OVERLAY
+        # DEATH OVERLAY (special - always renders on top if active)
         if getattr(game_state, 'death_overlay_active', False):
             from ui.death_overlay import create_death_overlay
             

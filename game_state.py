@@ -9,6 +9,8 @@ from utils.quest_system import integrate_quest_system
 #from game_logic.item_manager import item_manager
 from game_logic.data_manager import get_data_manager
 from game_logic.character_engine import get_character_engine
+from utils.overlay_utils import OverlayState
+from utils.narrative_schema import narrative_schema
 
 class GameState:
     """
@@ -65,6 +67,9 @@ class GameState:
         self.current_names = []
         self.selected_name = ""
         
+        # Overlay state management (unified system)
+        self.overlay_state = OverlayState()
+
         # UI state
         self.stats_rolled = False
         self.custom_name_text = ""
@@ -77,15 +82,9 @@ class GameState:
         self.current_npc = None
         self.tavern_visits = 0
         
-        # # Equipment system (game mechanics)
-        # self.equipped_weapon = None
-        # self.equipped_armor = None  
-        # self.equipped_shield = None
-        
         # Inventory UI state (game mechanics)
         self.inventory_selected = None
         self.inventory_tab = "weapons"
-        self.inventory_open = False
         self.inventory_page = {"weapons": 0, "armor": 0, "items": 0, "consumables": 0}
         self.inventory_selected = None   # Currently selected item name
 
@@ -96,10 +95,8 @@ class GameState:
         self.merchant_stocks = {}
         
         # Save/load system state (game mechanics)
-        self.load_screen_open = False
         self.load_selected_slot = None
         self.load_status_message = "Select a save file to load or delete"
-        self.save_screen_open = False
         self.save_selected_slot = None
         self.save_status_message = "Select a slot to save your game"
 
@@ -120,14 +117,7 @@ class GameState:
             'roll_start_time': 0
         }
 
-        # Quest and overlay UI state (game mechanics)
-        self.quest_log_open = False
-        self.character_sheet_open = False
-        self.help_screen_open = False
-        
         # *** Initialize all narrative schema flags ***
-        
-        from utils.narrative_schema import narrative_schema
         all_flags = narrative_schema.get_all_flags()
         
         # Filter out None values and duplicates
@@ -400,36 +390,6 @@ class GameState:
     
         return merchant_inventory
 
-    def toggle_inventory(self):
-        """Toggle inventory screen open/closed"""
-        self.inventory_open = not self.inventory_open
-        if self.inventory_open:
-            print(f"🔍 DEBUG: toggle -i- button pressed")
-            self.inventory_tab = "weapons"  # Always start with weapons
-            self.inventory_selected = None  # Clear selection
-
-    def toggle_quest_log(self):
-            """Toggle the quest log screen open/closed"""
-            self.quest_log_open = not self.quest_log_open
-            print(f"🔍 DEBUG: toggle -q- button pressed")
-            if not self.quest_log_open:
-                self.selected_quest = None  # Clear selection when closing
-
-    def toggle_help(self):
-            """Toggle the help screen open/closed"""
-            print(f"🔍 DEBUG: toggle -h- button pressed")
-            self.help_screen_open = not self.help_screen_open
-        
-
-    def toggle_character_sheet(self):
-            """Toggle the character sheet screen open/closed"""
-            print(f"🔍 DEBUG: toggle -c- button pressed")
-            self.character_sheet_open = not self.character_sheet_open
-
-    def toggle_character_advancement_open(self):
-                """Toggle the character sheet screen open/closed"""
-                print(f"🔍 DEBUG: toggle -l- button pressed")
-                self.character_advancement_open = not self.character_advanacement_open
 
     def get_items_by_category(self, category):
         """Get all items in a specific category"""
