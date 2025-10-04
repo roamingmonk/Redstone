@@ -918,66 +918,43 @@ class CharacterEngine:
 
     def roll_trinket(self):
         """
-        Roll for a mysterious starting trinket
-        Classic D&D-style random trinket table loaded from JSON
+        Roll for a mysterious starting trinket using Single Source of Truth pattern
+        Trinkets are automatically discovered from items.json (subcategory='trinket')
+        No separate trinket table needed - items.json is authoritative
         
         IMPORTANT: Only sets character['trinket'] field - does NOT add to inventory yet
         Inventory addition happens later in finalize_character_creation()
         
         Returns:
-            str: Description of the rolled trinket
+            str: Display name of the rolled trinket
         """
-        #import json
-        #import os
-        #import random
+        # Verify ItemManager is available (it should be after our initialization fix!)
+        if not self.item_manager:
+            print("ERROR: ItemManager not available in CharacterEngine - initialization problem!")
+            # Emergency fallback
+            self.game_state.character['trinket'] = "Small brass key with no lock in sight"
+            return self.game_state.character['trinket']
         
-        # Load trinket data from JSON file
-        trinket_file = os.path.join("data", "player", "trinkets.json")
-        try:
-            with open(trinket_file, 'r') as f:
-                trinket_data = json.load(f)
-            trinket_ids = trinket_data["trinket_table"]
-        except FileNotFoundError:
-            print("Warning: Trinket data file not found, using fallback")
-            trinket_ids = ["small_brass_key", "broken_compass", "glass_vial_with_swirling_mist"]
+        # Query items.json for ALL items with subcategory='trinket'
+        all_trinkets = [
+            item for item in self.item_manager.items_data.get('merchant_items', [])
+            if item.get('subcategory') == 'trinket'
+        ]
         
-        # Roll for random trinket ID
-        trinket_id = random.choice(trinket_ids)
+        if not all_trinkets:
+            print("ERROR: No trinkets found in items.json! Check data file.")
+            # Emergency fallback
+            self.game_state.character['trinket'] = "Small brass key with no lock in sight"
+            return self.game_state.character['trinket']
         
-       # Get the actual item data to find the proper name
-        trinket_name = trinket_id  # Default fallback
-
-        # Try multiple paths to get ItemManager
-        item_manager = None
-        if hasattr(self, 'item_manager') and self.item_manager:
-            item_manager = self.item_manager
-        elif hasattr(self, 'game_state') and hasattr(self.game_state, 'data_manager'):
-            item_manager = self.game_state.data_manager.item_manager
-        else:
-            # Try to get global data manager
-            try:
-                from game_logic.data_manager import get_data_manager
-                data_manager = get_data_manager()
-                item_manager = data_manager.item_manager
-            except:
-                pass
-
-        if item_manager and hasattr(item_manager, 'items_data'):
-            merchant_items = item_manager.items_data.get('merchant_items', [])
-            for item in merchant_items:
-                if item.get('id') == trinket_id:
-                    trinket_name = item.get('name', trinket_id)
-                    print(f"DEBUG: Trinket name lookup successful: {trinket_id} -> {trinket_name}")
-                    break
-        else:
-            print("Warning: No ItemManager available for trinket name lookup")
+        # Roll for random trinket 
+        selected_trinket = random.choice(all_trinkets)
+        trinket_name = selected_trinket.get('name', selected_trinket.get('id', 'Unknown Trinket'))
         
-        # ONLY store the trinket name in character data - do NOT add to inventory here
+        # Store in character data
         self.game_state.character['trinket'] = trinket_name
         
-        print(f"✨ Rolled trinket: {trinket_name}")
-        print(f"DEBUG: CE: Trinket stored in character data only (not added to inventory yet)")
-        
+        print(f"🎲 Rolled trinket: {trinket_name}")
         return trinket_name
 
     # ==========================================
@@ -1772,12 +1749,12 @@ def get_character_engine():
     """
     return character_engine
 
-def initialize_character_engine(game_state_ref, event_manager=None):
+def initialize_character_engine(game_state_ref, event_manager=None, item_manager_ref=None):
     """
     Initialize the global character engine with event management
     """
     global character_engine
-    character_engine = CharacterEngine(game_state_ref)
+    character_engine = CharacterEngine(game_state_ref, event_manager, item_manager_ref)
     
     # Register for stat events if event manager provided
     if event_manager:

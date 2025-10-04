@@ -1760,6 +1760,15 @@ constants.py: Removed ALL_OVERLAY_ATTRIBUTES list; updated MAIN_MENU_ALLOWED_OVE
 save_manager.py: Updated all event handlers (_handle_load_cancel, _handle_load_confirm, _handle_save_cancel, _handle_save_confirm, _handle_save_and_quit_confirm) to close overlay via overlay_state.close_overlay() instead of setting boolean flags; updated can_save_load() to check overlay_state.has_any_overlay_open()
 **Consequences:** Single source of truth for overlay state; automatic enforcement of single-overlay behavior; F7/F10 now properly close other overlays when opened; ESC key works uniformly across all overlays; cleaner architecture with ~50 lines of code removed.
 
+# ADR-110: Eliminated trinkets.json - Single Source of Truth for Trinket System
+# Status: Accepted
+# Date: October 4, 2025
+**Context:** Character creation used separate trinkets.json requiring manual sync with items.json, causing maintenance overhead and potential data inconsistencies.
+**Decision:** Query items.json directly for all items with subcategory='trinket' instead of maintaining separate trinket list file.
+Implementation: Fixed ItemManager dependency injection in CharacterEngine initialization (game_controller.py, data_manager.py, character_engine.py); modified roll_trinket() to query ItemManager.items_data directly; deleted obsolete data/player/trinkets.json file.
+Consequences: Adding new trinkets now requires only updating items.json - no separate sync needed; reduced maintenance overhead; proper dependency injection established for all engines; Single Source of Truth pattern enforced.
+Files Modified: game_controller.py, data_manager.py, character_engine.py | Files Deleted: data/player/trinkets.json
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

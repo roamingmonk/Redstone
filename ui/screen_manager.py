@@ -1583,9 +1583,6 @@ class ScreenManager:
 
     def _render_overlays(self, game_state):
         """Render any active overlays on top of the main screen"""
-        print(f"🎨 DEBUG: _render_overlays called, screen = {game_state.screen}")
-        print(f"🔍 DEBUG: game_state id: {id(game_state)}")
-        
         # SELECTIVE OVERLAY RESTRICTIONS  
         if game_state.screen == 'main_menu':
             # Main menu: ONLY allow load_game overlay
@@ -1601,10 +1598,8 @@ class ScreenManager:
        # Get active overlay from unified state
         if hasattr(game_state, 'overlay_state'):
             active_overlay_id = game_state.overlay_state.get_active_overlay()
-            print(f"🎨 DEBUG: active_overlay_id = {active_overlay_id}")
             
             if active_overlay_id:
-                print(f"🎨 DEBUG: Rendering overlay: {active_overlay_id}")
                 # Render based on overlay type
                 if active_overlay_id == "load_game":
                     from screens.load_game import draw_load_game_screen

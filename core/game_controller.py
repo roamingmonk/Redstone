@@ -204,7 +204,7 @@ class GameController:
         self._validate_dependency("event_manager", self.event_manager)
         self._validate_dependency("data_manager", self.data_manager)
         
-        self.character_engine = initialize_character_engine(self.game_state, self.event_manager)
+        self.character_engine = initialize_character_engine(self.game_state, self.event_manager, self.data_manager.item_manager)
         self.inventory_engine = initialize_inventory_engine(self.game_state, self.data_manager.item_manager, self.event_manager)
         self.commerce_engine = initialize_commerce_engine(self.game_state, self.data_manager.item_manager)
         self.dialogue_engine = initialize_dialogue_engine(self.game_state, self.event_manager)

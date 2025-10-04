@@ -59,11 +59,10 @@ class DataManager:
         """Initialize all game engines with proper dependencies"""
         print("DataManager: Initializing all game engines...")
         
-        self.character_engine = initialize_character_engine(game_state_ref, event_manager)  
+        self.character_engine = initialize_character_engine(game_state_ref, event_manager, self.item_manager)
         self.inventory_engine = initialize_inventory_engine(game_state_ref, self.item_manager)
         self.commerce_engine = initialize_commerce_engine(game_state_ref, self.item_manager) 
         self.dialogue_engine = initialize_dialogue_engine(game_state_ref, event_manager)
-        #self.quest_engine = initialize_dialogue_engine(game_state_ref)
         self.dice_game_engine = initialize_dice_game_engine(game_state_ref, event_manager)
         self.combat_engine = initialize_combat_engine(game_state_ref, self.item_manager)
 
