@@ -198,15 +198,12 @@ class ItemLoader:
 
         # Build candidate item ids from filters
         include_ids = set(merchant.get('stock_filter', {}).get('include_ids', []))
-        print(f"🔧 DEBUG: GMI: Bernard include_ids: {include_ids}")
-        print(f"🔧 DEBUG: GMI: include_ids is empty: {len(include_ids) == 0}")
-        
-        print(f"🔧 DEBUG: GMI: Merchant {merchant_id} include_ids: {include_ids}")
         
         allowed_cats = set(merchant.get('stock_categories', []))
-        print(f"🔧 DEBUG: GMI: Bernard allowed categories: {allowed_cats}")
+        
         max_rarity = merchant.get('stock_filter', {}).get('max_rarity')
-
+        excluded_subcats = set(merchant.get('exclude_subcategories', []))
+        
         # Collect items - prioritize include_ids over categories
         candidates = []
         seen = set()
@@ -215,8 +212,13 @@ class ItemLoader:
             item_category = item.get('category', 'NONE')
             print(f"📦 DEBUG: GMI: Item: {item['id']}, category: '{item_category}', allowed: {item_category in allowed_cats}")
             
-            
             if item['id'] in seen:
+                continue
+            
+            # Check if item's subcategory is excluded
+            item_subcat = item.get('subcategory', '')
+            if item_subcat and item_subcat in excluded_subcats:
+                print(f"🚫 Excluded by subcategory: '{item_subcat}': {item['id']}")
                 continue
                 
             # If include_ids is specified, ONLY use those items
@@ -224,12 +226,12 @@ class ItemLoader:
                 if item['id'] in include_ids:
                     candidates.append(item)
                     seen.add(item['id'])
-                    print(f"✅ DEBUG: GMI: Included specific item: {item['id']}")
+                    print(f"✅ Included specific item: {item['id']}")
             # Otherwise fall back to category filtering
             elif allowed_cats and item.get('category') in allowed_cats:
                 candidates.append(item)
                 seen.add(item['id'])
-                print(f"✅ DEBUG: GMI: Included category item: {item['id']}")
+                print(f"✅ Included category item: {item['id']}")
             else:
                 print(f"❌ DEBUG: GMI: Skipped item: {item['id']} (category: {item.get('category', 'NONE')}, allowed: {allowed_cats})")
 

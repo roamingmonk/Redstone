@@ -40,7 +40,7 @@
       "icon_file": "broken_compass.jpg",
       "consumable": false,
       "weight": 7,
-      "rarity": "rare",
+      "rarity": "special",
       "special_effects": {
         "navigation_bonus": 2,
         "description": "Detects magical auras within 30 feet"
@@ -56,7 +56,7 @@
       "icon_file": "carved_bone_dice.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "common",
+      "rarity": "special",
       "special_effects": {
         "gambling_luck": 1,
         "description": "Provides a small bonus to gambling attempts"
@@ -139,7 +139,7 @@
       "icon_file": "empty_small_leather_pouch_that_jingles.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "rare",
+      "rarity": "special",
       "combat_stats": {
         "armor_class": 1
       },
@@ -158,7 +158,7 @@
       "icon_file": "feathered_dream_catcher.png",
       "consumable": false,
       "weight": 0,
-      "rarity": "uncommon",
+      "rarity": "special",
       "special_effects": {
         "resistance_sleep": 1,
         "description": "Provides resistance to sleep and charm effects"
@@ -174,7 +174,7 @@
       "icon_file": "glass_vial_with_swirling_mist.png",
       "consumable": false,
       "weight": 0,
-      "rarity": "rare",
+      "rarity": "special",
       "special_effects": {
         "morale_bonus": 1,
         "description": "The swirling mist bolsters courage in dangerous situations"
@@ -248,7 +248,7 @@
       "icon_file": "iron_ring_with_strange_symbols.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "uncommon",
+      "rarity": "special",
       "combat_stats": {
         "armor_class": 1
       },
@@ -283,7 +283,7 @@
       "icon_file": "leather_pouch_with_dried_herbs.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "common",
+      "rarity": "special",
       "special_effects": {
         "morale_bonus": 1,
         "description": "The pleasant scent calms nerves in stressful situations"
@@ -377,7 +377,7 @@
       "icon_file": "polished_obsidian_shard.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "uncommon",
+      "rarity": "special",
       "special_effects": {
         "constitution_bonus": 1,
         "description": "The obsidian's volcanic energy bolsters physical resilience"
@@ -469,7 +469,7 @@
       "icon_file": "small_bronze_mirror.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "common",
+      "rarity": "special",
       "special_effects": {
         "charisma_bonus": 1,
         "description": "Checking your appearance boosts confidence"
@@ -485,7 +485,7 @@
       "icon_file": "smooth_river_stone_with_runes.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "rare",
+      "rarity": "special",
       "combat_stats": {
         "armor_class": 1
       },
@@ -541,7 +541,7 @@
       "icon_file": "tarnished_silver_locket.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "uncommon",
+      "rarity": "special",
       "special_effects": {
         "morale_bonus": 1,
         "description": "Memories within provide emotional strength"
@@ -609,7 +609,7 @@
       "icon_file": "twisted_driftwood_wand.jpg",
       "consumable": false,
       "weight": 0,
-      "rarity": "rare",
+      "rarity": "special",
       "special_effects": {
         "magic_detection": 1,
         "description": "The wand tingles in the presence of magic"

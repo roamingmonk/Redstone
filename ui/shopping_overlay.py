@@ -620,7 +620,14 @@ class ShoppingOverlay(BaseTabbedOverlay):
             # RESTRICTION: Skip quest items
             if item_def.get('quest_item', False):
                 continue
-            
+            # RESTRICTION: Skip excluded subcategories (e.g., trinkets)
+            merchant_config = game_state.item_manager.merchant_data.get('merchants', {}).get(merchant_id, {})
+            excluded_buy_subcats = set(merchant_config.get('exclude_buy_subcategories', []))
+            item_subcat = item_def.get('subcategory', '')
+            if item_subcat and item_subcat in excluded_buy_subcats:
+                print(f"🚫 Merchant won't buy trinket: {item_def.get('name')}")
+                continue
+
             base_cost = item_def.get('base_cost', item_def.get('cost', 1))
             sell_price = max(1, int(base_cost * sell_multiplier))
             
