@@ -111,6 +111,10 @@ class InventoryOverlay(BaseTabbedOverlay):
                 status_y = content_y + content_height - 30
                 surface.blit(status_surface, (status_x, status_y))
 
+        player_gold = game_state.character.get('gold', 0)
+        draw_text(surface, f"Gold: {player_gold} gp",
+                          fonts.get('fantasy_small', fonts['normal']), 670, 580, BRIGHT_GREEN)
+
         # Draw action buttons
         self._render_action_buttons(surface, game_state, fonts, current_tab, 
                                    content_x, content_y + content_height + 10, content_width)

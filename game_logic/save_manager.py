@@ -180,8 +180,9 @@ class SaveManager:
             print(f"   Party size: {len(self.game_state.party_members) + 1}")
             print(f"   Narrative flags: {len(narrative_flags)}")
 
-            # Track save statistics
-            self.game_state.player_statistics['times_saved'] += 1
+            # Track save statistics (safe access for backward compatibility)
+            current_saves = self.game_state.player_statistics.get('times_saved', 0)
+            self.game_state.player_statistics['times_saved'] = current_saves + 1
         
             # Update GameController state tracking
             self.last_save_time = datetime.now()

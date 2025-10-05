@@ -66,8 +66,7 @@ class GameState:
             # Player tab
             'areas_visited': 0,
             'npcs_met': 0,
-            'drinks_consumed': 0,
-            'potions_consumed': 0,
+            'items_consumed': 0,
             'items_discarded': 0,
             'xp_from_combat': 0,
             'xp_from_noncombat': 0,
@@ -89,7 +88,9 @@ class GameState:
             'critical_misses': 0,       
             'biggest_hit': 0,           
             'party_knockouts': 0,       
-            
+            'enemy_defeats': {},        # NEW: Track kills per enemy type: {'giant_rat': 5, 'goblin': 2}
+            'total_damage_dealt': 0,    # NEW: Cumulative damage by player character only
+
             # Other tab
             'times_saved': 0
         }

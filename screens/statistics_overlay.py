@@ -75,15 +75,14 @@ class StatisticsOverlay(BaseTabbedOverlay):
         left_column_x = start_x + 40
         left_stats = [
             f"NPCs Met: {stats['npcs_met']}",
-            f"Drinks Consumed: {stats['drinks_consumed']}",
-            f"Potions Consumed: {stats['potions_consumed']}",
+            f"items Consumed: {stats['items_consumed']}",
             f"Items Discarded: {stats['items_discarded']}",
             "",  # Spacer
-            f"Total Gold Earned: {stats['total_gold_earned']}",  # NEW
+            f"Total Gold Earned: {stats.get('total_gold_earned', 0)}",  
             "",  # Spacer
-            f"XP from Combat: {stats['xp_from_combat']}",
-            f"XP from Non-Combat: {stats['xp_from_noncombat']}",
-            f"Total XP: {stats['xp_from_combat'] + stats['xp_from_noncombat']}"
+            f"XP from Combat: {stats.get('xp_from_combat', 0)}",
+            f"XP from Non-Combat: {stats.get('xp_from_noncombat', 0)}",
+            f"Total XP: {stats.get('xp_from_combat', 0) + stats.get('xp_from_noncombat', 0)}"
         ]
         
         # Right column stats
@@ -99,11 +98,11 @@ class StatisticsOverlay(BaseTabbedOverlay):
             winnings_text = f"Dice Winnings: 0 gold"
         
         right_stats = [
-            f"Dice Games Played: {stats['dice_games_played']}",
+            f"Dice Games Played: {stats.get('dice_games_played', 0)}",
             winnings_text,
-            f"Longest Win Streak: {stats['longest_win_streak']}",
-            f"Longest Losing Streak: {stats['longest_losing_streak']}",
-            f"Best Single Win: {stats['highest_winning_roll']} gold"  
+            f"Longest Win Streak: {stats.get('longest_win_streak',0)}",
+            f"Longest Losing Streak: {stats.get('longest_losing_streak', 0)}",
+            f"Best Single Win: {stats.get('highest_winning_roll', 0)} gold"  
         ]
         
         # Render left column
@@ -137,9 +136,13 @@ class StatisticsOverlay(BaseTabbedOverlay):
         
         # Left column - Kills and weapons
         left_column_x = start_x + 40
+        
+        # Get player character name for dynamic label
+        player_name = game_state.character.get('name', 'Player')
+        
         left_stats = [
-            f"Player Kills: {stats['player_kills']}",
-            f"Party Kills: {stats['party_kills']}",
+            f"{player_name} Kills: {stats['player_kills']}",  # ← Dynamic name!
+            f"NPC Ally Kills: {stats['party_kills']}",        # ← Renamed!
             f"Total Kills: {stats['player_kills'] + stats['party_kills']}",
             "",  # Spacer
         ]
@@ -153,14 +156,26 @@ class StatisticsOverlay(BaseTabbedOverlay):
         else:
             left_stats.append(f"Favorite Weapon: None yet")
         
+        # Most Defeated Enemy (NEW!)
+        enemy_defeats = stats.get('enemy_defeats', {})
+        if enemy_defeats:
+            most_defeated = max(enemy_defeats.items(), key=lambda x: x[1])
+            left_stats.append(f"Most Defeated: {most_defeated[0]} ({most_defeated[1]})")
+        else:
+            left_stats.append(f"Most Defeated: None yet")
+        
+        # Total Damage Dealt (NEW!)
+        total_damage = stats.get('total_damage_dealt', 0)
+        left_stats.append(f"Total Damage Dealt: {total_damage}")
+        
         # Party kill leader
         party_kills_dict = stats.get('party_member_kills', {})
         if party_kills_dict:
             kill_leader = max(party_kills_dict.items(), key=lambda x: x[1])
             leader_name = kill_leader[0].replace('_', ' ').title()
-            left_stats.append(f"Party Kill Leader: {leader_name} ({kill_leader[1]} kills)")
+            left_stats.append(f"NPC Kill Leader: {leader_name} ({kill_leader[1]} kills)")  # ← Renamed!
         else:
-            left_stats.append(f"Party Kill Leader: None yet")
+            left_stats.append(f"NPC Kill Leader: None yet")
         
         # Right column - Hit stats and criticals
         right_column_x = start_x + 450
@@ -171,15 +186,15 @@ class StatisticsOverlay(BaseTabbedOverlay):
         if total_attacks > 0:
             hit_percent = (stats['hits'] / total_attacks) * 100
             right_stats.extend([
-                f"Hits: {stats['hits']}",
-                f"Misses: {stats['misses']}",
+                f"Hits: {stats.get('hits', 0)}",
+                f"Misses: {stats.get('misses', 0)}",
                 f"Hit Rate: {hit_percent:.1f}%",
                 "",  # Spacer
-                f"Critical Hits: {stats['critical_hits']}",
-                f"Critical Misses: {stats['critical_misses']}",
+                f"Critical Hits: {stats.get('critical_hits', 0)}",
+                f"Critical Misses: {stats.get('critical_misses', 0)}",
                 "",  # Spacer
-                f"Biggest Hit: {stats['biggest_hit']} damage",
-                f"Party Knockouts: {stats['party_knockouts']}"
+                f"Biggest Hit: {stats.get('biggest_hit', 0)} damage",
+                f"Party Knockouts: {stats.get('party_knockouts', 0)}"
             ])
         else:
             right_stats.extend([
@@ -225,7 +240,7 @@ class StatisticsOverlay(BaseTabbedOverlay):
         
         # Other stats
         other_stats = [
-            f"Times Saved Game: {stats['times_saved']}",
+            f"Times Saved Game: {stats.get('times_saved', 0)}",
             "",  # Spacer for future stats
         ]
         

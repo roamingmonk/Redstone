@@ -254,14 +254,9 @@ class InventoryEngine:
                 if item_id in self.game_state.inventory.get(category, []):
                     self.game_state.inventory[category].remove(item_id)
                     
-                    # Track consumption statistics
-                    item_data = self._get_item_template(item_id)
-                    if item_data:
-                        subcategory = item_data.get('subcategory', '')
-                        if subcategory == 'drink':
-                            self.game_state.player_statistics['drinks_consumed'] += 1
-                        elif subcategory == 'potion':
-                            self.game_state.player_statistics['potions_consumed'] += 1
+                    # Track consumption statistics - simplified
+                    current = self.game_state.player_statistics.get('items_consumed', 0)
+                    self.game_state.player_statistics['items_consumed'] = current + 1
                     
                     print(f"🍺 Consumed: {item_id}")
                     return True

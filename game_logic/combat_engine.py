@@ -1115,6 +1115,20 @@ class CombatEngine:
             
             if new_hp <= 0:
                 self._add_to_combat_log(f"{target_enemy['name']} defeated!")
+                
+                # DEBUG: What ID does the killer have?
+                print(f"🔍 KILL DEBUG:")
+                print(f"   active_character_id: '{self.active_character_id}'")
+                print(f"   Type: {type(self.active_character_id)}")
+                print(f"   character_states.keys(): {list(self.character_states.keys())}")
+                
+                                
+                # Track enemy defeats by name (for "most defeated" stat)
+                enemy_name = target_enemy.get('name', 'Unknown')
+                enemy_defeats = self.game_state.player_statistics.get('enemy_defeats', {})
+                enemy_defeats[enemy_name] = enemy_defeats.get(enemy_name, 0) + 1
+                self.game_state.player_statistics['enemy_defeats'] = enemy_defeats
+                
                  # Track kill statistics
                 if self.active_character_id == 'player':
                     # Main player got the kill
@@ -1420,18 +1434,34 @@ class CombatEngine:
             # Roll attack (d20 + bonus vs AC)
             attack_roll = random.randint(1, 20)
             total_attack = attack_roll + attack_bonus
-            
+            # Track critical hits/misses for player attacks
+            if attacker_type == "player":
+                if attack_roll == 20:
+                    current_crits = self.game_state.player_statistics.get('critical_hits', 0)
+                    self.game_state.player_statistics['critical_hits'] = current_crits + 1
+                elif attack_roll == 1:
+                    current_crit_miss = self.game_state.player_statistics.get('critical_misses', 0)
+                    self.game_state.player_statistics['critical_misses'] = current_crit_miss + 1
+
             self._add_to_combat_log(f"{attacker_name} attacks {target_name}")
             self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
             
             # Check if attack hits
             if total_attack >= target_ac:
                 # Hit! Roll damage
-                self.game_state.player_statistics['hits'] += 1 
+                if attacker_type == "player": self.game_state.player_statistics['hits'] += 1 
                 damage = self._roll_damage(damage_string)
-                # Track biggest hit for player
-                if attacker_type == "player" and damage > self.game_state.player_statistics['biggest_hit']:
-                    self.game_state.player_statistics['biggest_hit'] = damage
+                
+                # Track biggest hit and total damage for player
+                if attacker_type == "player":
+                    # Safe access with .get() for backward compatibility with old saves
+                    current_biggest = self.game_state.player_statistics.get('biggest_hit', 0)
+                    if damage > current_biggest:
+                        self.game_state.player_statistics['biggest_hit'] = damage
+                    
+                    # Track cumulative damage dealt
+                    total_damage = self.game_state.player_statistics.get('total_damage_dealt', 0)
+                    self.game_state.player_statistics['total_damage_dealt'] = total_damage + damage
                 
                 self._add_to_combat_log(f"Hit! {damage} damage")
                 
@@ -1442,8 +1472,34 @@ class CombatEngine:
                     new_hp = max(0, current_hp - damage)
                     target_data["current_hp"] = new_hp
                     self._add_to_combat_log(f"{target_name}: {new_hp}/{target_data.get('stats', {}).get('hp', 0)} HP")
+                    
+                    # Track kills when enemy defeated
+                    if new_hp <= 0:
+                        self._add_to_combat_log(f"{target_name} defeated!")
+                        
+                        # Track enemy defeats by name (for "most defeated" stat)
+                        enemy_name = target_data.get('name', 'Unknown')
+                        enemy_defeats = self.game_state.player_statistics.get('enemy_defeats', {})
+                        enemy_defeats[enemy_name] = enemy_defeats.get(enemy_name, 0) + 1
+                        self.game_state.player_statistics['enemy_defeats'] = enemy_defeats
+                        
+                        # Track kill statistics
+                        if self.active_character_id == 'player':
+                            # Main player got the kill
+                            self.game_state.player_statistics['player_kills'] += 1
+                            weapon = self.game_state.character.get('equipped_weapon', 'fists')
+                            weapon_kills = self.game_state.player_statistics.get('weapon_kills', {})
+                            weapon_kills[weapon] = weapon_kills.get(weapon, 0) + 1
+                            self.game_state.player_statistics['weapon_kills'] = weapon_kills
+                        elif self.active_character_id in self.character_states:
+                            # Party member got the kill
+                            self.game_state.player_statistics['party_kills'] += 1
+                            member_kills = self.game_state.player_statistics.get('party_member_kills', {})
+                            member_kills[self.active_character_id] = member_kills.get(self.active_character_id, 0) + 1
+                            self.game_state.player_statistics['party_member_kills'] = member_kills
                 else:
                     # Enemy hitting party member
+
                     # Find the correct character state to damage
                     target_char_id = None
                     for char_id, char_state in self.character_states.items():
@@ -1508,7 +1564,7 @@ class CombatEngine:
             else:
                 # Miss
                 self._add_to_combat_log("Miss!")
-                self.game_state.player_statistics['misses'] += 1
+                if attacker_type == "player": self.game_state.player_statistics['misses'] += 1
                 return False
                 
         except Exception as e:
