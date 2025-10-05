@@ -24,6 +24,7 @@ from game_logic.dice_game_engine import initialize_dice_game_engine
 from game_logic.combat_engine import initialize_combat_engine
 from utils.quest_system import integrate_quest_system, update_quest_system
 from ui.screen_manager import ScreenManager
+from ui.notifications import FloatingTextManager
 from input_handler import InputHandler
 from screens.intro_scenes import IntroSequenceManager
 
@@ -192,6 +193,12 @@ class GameController:
         )
         self._mark_system_created("screen_manager")
         
+        # Floating text notifications available game-wide
+        self.floating_text_manager = FloatingTextManager()
+        self.screen_manager.set_floating_text_manager(self.floating_text_manager)
+        self.event_manager.register("SHOW_FLOATING_TEXT", self.floating_text_manager.handle_show_event)
+        self.event_manager.register_service('floating_text_manager', self.floating_text_manager)
+
         # Step 4: Load all game data (no engine dependencies)
         self.data_manager.load_all_data()
         self._mark_system_created("data_loaded")
@@ -545,12 +552,12 @@ class ScreenRegistry:
         """
 
         # Register character advancement screen
-        try:
-            from screens.character_advancement import draw_character_advancement
-            controller.register_screen("character_advancement", draw_character_advancement)
-            print("✅ Character advancement screen registered!")
-        except ImportError as e:
-            print(f"⚠️ Character advancement screen not available: {e}")
+        # try:
+        #     from screens.character_advancement import draw_character_advancement
+        #     controller.register_screen("character_advancement", draw_character_advancement)
+        #     print("✅ Character advancement screen registered!")
+        # except ImportError as e:
+        #     print(f"⚠️ Character advancement screen not available: {e}")
 
         # Register gambling screens  
         try:

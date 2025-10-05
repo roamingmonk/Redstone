@@ -1091,6 +1091,25 @@ class CharacterEngine:
         print(f"⭐ Awarded {xp_amount} XP! {reason}")
         print(f"   Total XP: {new_xp}")
         
+        if xp_amount > 0 and self.event_manager:
+            #TODO removed reason text for now, review later for better description
+            reason_text = "" #reason.strip() if isinstance(reason, str) else ""  
+            message = f"+{xp_amount} XP"
+            if reason_text:
+                message = f"{message} - {reason_text}"
+
+            try:
+                self.event_manager.emit(
+                    "SHOW_FLOATING_TEXT",
+                    {
+                        "text": message,
+                        "color": (255, 223, 0),
+                        "duration": 2200,
+                    },
+                )
+            except Exception as notification_error:
+                print(f"⚠️ Floating text emit failed: {notification_error}")
+        
         # Check for level up opportunity
         if self.can_level_up():
             print("🎊 Ready to level up!")

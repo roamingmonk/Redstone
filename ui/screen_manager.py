@@ -48,7 +48,8 @@ class ScreenManager:
         self.render_functions = {}  # screen_name -> render_function
         self.enter_hooks = {}       # screen_name -> enter_function
         self.exit_hooks = {}        # screen_name -> exit_function
-        
+        self.floating_text_manager = None
+
         # NEW: Screen state tracking
         self.current_screen = None
         self.previous_screen = None
@@ -1222,6 +1223,12 @@ class ScreenManager:
             # Render overlays on top of main screen
             self._render_overlays(game_state)
             
+            if self.floating_text_manager:
+                try:
+                    self.floating_text_manager.draw(self.screen, self.fonts)
+                except Exception as floating_text_error:
+                    print(f"⚠️ Floating text render error: {floating_text_error}")
+
             # ===== ADD DEBUG OVERLAY RENDERING HERE =====
             # Always render debug overlay last (if registered and enabled)
             if hasattr(self, 'debug_overlay_renderer') and self.debug_overlay_renderer:
@@ -1485,6 +1492,10 @@ class ScreenManager:
         self.debug_overlay_renderer = renderer_function
         print("🔧 Debug overlay renderer registered")
 
+    def set_floating_text_manager(self, floating_text_manager):
+        """Attach a floating text manager for universal notifications."""
+        self.floating_text_manager = floating_text_manager
+        
     def register_overlay_events(self):
         """Register ScreenManager as the proper overlay coordinator"""
         if self.event_manager:

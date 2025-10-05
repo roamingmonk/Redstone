@@ -1808,6 +1808,15 @@ Result: Main menu enhanced with subtle twinkling effect; save system now support
 New file: statistics_overlay.py
 **Result:** cools stats tracking!
 
+# ADR-115: New Statistics Overlay screen with game stats
+# Date: October 5, 2025
+# Status: Implemented
+**Context:**  Needed a way to convey XP gain to player
+**Decision:**  Created an onscreen floating text notification so player is aware action triggered xp earn
+**Implementation:** added ui/notifications.py to draw the message through the character engine trigger when xp is awarded 
+**Files Modified:** character_engine.py, screen_manager.py, game_controller.py
+New file: notifications.py
+**Result:** cool notification!  Consider using for other info
 
 ```
 ## ADR-XXX: <Short title>
