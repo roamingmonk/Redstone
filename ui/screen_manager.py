@@ -11,6 +11,12 @@ import traceback
 from utils.constants import OVERLAY_RESTRICTED_SCREENS, MAIN_MENU_ALLOWED_OVERLAYS
 from screens.load_game import draw_load_game_screen
 from utils.overlay_utils import OverlayState
+from screens.help_overlay import draw_help_screen
+from screens.statistics_overlay import draw_statistics_screen
+from screens.character_overlay import draw_character_sheet_screen
+from screens.quest_overlay import draw_quest_overlay
+from screens.inventory_overlay import draw_inventory_screen
+from screens.save_game import draw_save_game_screen
 
 class ScreenManager:
     """
@@ -246,7 +252,6 @@ class ScreenManager:
                     button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
                     self.input_handler.register_clickable('save_overlay', button_rect, event_type, {})
                     
-                print(f"💾 Save screen clickables registered: {len(result['slot_rects'])} slots + buttons")
             else:
                 print("⚠️ Could not get save screen button coordinates")
         else:
@@ -1175,65 +1180,6 @@ class ScreenManager:
         self.register_render_function(screen_name, location_render_function, enter_hook=location_enter_hook)
         #print(f"🗺️ BaseLocation screen registered: {screen_name} -> {location_id}.{area_id}")
 
-    # def _handle_basement_combat_or_placeholder(self, surface, game_state, fonts, images, controller):
-    #     """Handle basement - try combat first, fallback to placeholder"""
-        
-    #     print("🎯 Basement screen requested - checking for combat integration")
-        
-    #     # Try to start combat if combat engine available
-    #     if controller and hasattr(controller, 'combat_engine'):
-    #         try:
-    #             success = controller.combat_engine.start_combat("tavern_basement_rats")
-    #             if success:
-    #                 # Redirect to combat screen
-    #                 controller.game_state.screen = "combat"
-    #                 print("✅ Redirecting basement to combat screen")
-    #                 # Return empty dict since we're redirecting
-    #                 return {}
-    #         except Exception as e:
-    #             print(f"❌ Combat start failed: {e}")
-        
-    #     # Fallback to placeholder screen
-    #     print("⚠️ Using basement placeholder screen")
-    #     return self._render_basement_placeholder(surface, game_state, fonts, images, controller)
-
-    # def _render_basement_placeholder(self, surface, game_state, fonts, images, controller):
-    #     """Temporary basement placeholder screen"""
-    #     from utils.graphics import draw_text_with_shadow, draw_button
-        
-    #     # Clear screen with dark basement atmosphere
-    #     surface.fill((20, 15, 10))  # Even darker than tavern
-        
-    #     # Title
-    #     title = "BROKEN BLADE BASEMENT"
-    #     draw_text_with_shadow(surface, title, fonts['fantasy_large'], 
-    #                           512 - fonts['fantasy_large'].size(title)[0]//2, 100)
-        
-    #     # Placeholder message
-    #     message = "You descend into the tavern's basement..."
-    #     draw_text_with_shadow(surface, message, fonts['normal'],
-    #                           512 - fonts['normal'].size(message)[0]//2, 300)
-        
-    #     message2 = "(This area is under construction)"
-    #     draw_text_with_shadow(surface, message2, fonts['small'],
-    #                           512 - fonts['small'].size(message2)[0]//2, 350)
-        
-    #     # Back button
-    #     back_button = draw_button(surface, 462, 500, 100, 50, "BACK", fonts['normal'])
-        
-    #     # Register the back button for clicking
-    #     self.input_handler.register_clickable(
-    #         screen_name="broken_blade_basement",
-    #         rect=back_button,
-    #         event_type="SCREEN_CHANGE",
-    #         event_data={
-    #             "target_screen": "broken_blade_main",
-    #             "source_screen": "broken_blade_basement"
-    #         }
-    #     )
-        
-    #     return {'back': back_button}
-
     def render_current_screen(self, game_state) -> bool:
         """Render the current screen
         game_state: Current game state
@@ -1602,36 +1548,28 @@ class ScreenManager:
             if active_overlay_id:
                 # Render based on overlay type
                 if active_overlay_id == "load_game":
-                    from screens.load_game import draw_load_game_screen
+                    
                     save_manager = None
                     if hasattr(self, '_current_game_controller') and self._current_game_controller:
                         save_manager = getattr(self._current_game_controller, 'save_manager', None)
                     draw_load_game_screen(self.screen, game_state, self.fonts, self.images, save_manager)
                     self.register_load_screen_clickables()
-                    
                 elif active_overlay_id == "save_game":
-                    from screens.save_game import draw_save_game_screen
                     save_manager = None
                     if hasattr(self, '_current_game_controller') and self._current_game_controller:
                         save_manager = getattr(self._current_game_controller, 'save_manager', None)
                     draw_save_game_screen(self.screen, game_state, self.fonts, self.images, save_manager)
                     self.register_save_screen_clickables()
-                    
                 elif active_overlay_id == "inventory_key":
-                    from screens.inventory_overlay import draw_inventory_screen
                     draw_inventory_screen(self.screen, game_state, self.fonts, self.images)
-                    
                 elif active_overlay_id == "quest_key":
-                    from screens.quest_overlay import draw_quest_overlay
                     draw_quest_overlay(self.screen, game_state, self.fonts, self.images)
-                    
                 elif active_overlay_id == "character_key":
-                    from screens.character_overlay import draw_character_sheet_screen
                     draw_character_sheet_screen(self.screen, game_state, self.fonts, self.images)
-                    
                 elif active_overlay_id == "help_key":
-                    from screens.help_overlay import draw_help_screen
                     draw_help_screen(self.screen, game_state, self.fonts, self.images)
+                elif active_overlay_id == "statistics_key":
+                    draw_statistics_screen(self.screen, game_state, self.fonts, self.images)
         
         # DEATH OVERLAY (special - always renders on top if active)
         if getattr(game_state, 'death_overlay_active', False):

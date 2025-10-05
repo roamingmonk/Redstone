@@ -1797,6 +1797,18 @@ Files Modified: ui/base_location.py (register_with_input_handler method)
 **Files Modified:** constants.py, title_menu.py, save_manager.py, load_game.py, save_game.py.
 Result: Main menu enhanced with subtle twinkling effect; save system now supports 5 manual slots plus quick save and auto-save.
 
+# ADR-114: New Statistics Overlay screen with game stats
+# Date: October 5, 2025
+# Status: Implemented
+**Context:**  New statistics overlay that grabs data across the program for game stats
+**Decision:**  player statistics on an overlay to inform the player on game activity
+**Implementation:** Added new overlay using 's' key to display 3 tabs of player, combat and other statistics
+**Technical Details:** Needed to add several items to various screens. update gamestate --init-- with tracking
+**Files Modified:** character_engine.py, combat_engine.py, dialogue_engine.py, dice_game_eninge.py, inventory_engine.py, save_manager.py, screen_manager.py, game_state.py, input_handler.py
+New file: statistics_overlay.py
+**Result:** cools stats tracking!
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

@@ -253,6 +253,16 @@ class InventoryEngine:
             for category in ['consumables', 'items']:
                 if item_id in self.game_state.inventory.get(category, []):
                     self.game_state.inventory[category].remove(item_id)
+                    
+                    # Track consumption statistics
+                    item_data = self._get_item_template(item_id)
+                    if item_data:
+                        subcategory = item_data.get('subcategory', '')
+                        if subcategory == 'drink':
+                            self.game_state.player_statistics['drinks_consumed'] += 1
+                        elif subcategory == 'potion':
+                            self.game_state.player_statistics['potions_consumed'] += 1
+                    
                     print(f"🍺 Consumed: {item_id}")
                     return True
             
@@ -288,6 +298,10 @@ class InventoryEngine:
             for category in ['weapons', 'armor', 'items', 'consumables']:
                 if item_id in self.game_state.inventory.get(category, []):
                     self.game_state.inventory[category].remove(item_id)
+                    
+                    # Track discard statistics
+                    self.game_state.player_statistics['items_discarded'] += 1
+                    
                     print(f"🗑️ Discarded: {item_id}")
                     return True
             
@@ -297,6 +311,7 @@ class InventoryEngine:
         except Exception as e:
             print(f"❌ Error discarding item: {e}")
             return False
+        
     def _find_item_id_by_name(self, display_name: str) -> Optional[str]:
         """Convert display name to item ID (case-insensitive)"""
         if self.item_manager:

@@ -1082,6 +1082,13 @@ class CombatEngine:
         
         # Roll attack
         attack_roll = random.randint(1, 20)
+        # Track critical hits/misses for player
+        if self.active_character_id == 'player':
+            if attack_roll == 20:
+                self.game_state.player_statistics['critical_hits'] += 1
+            elif attack_roll == 1:
+                self.game_state.player_statistics['critical_misses'] += 1
+        
         target_ac = target_enemy.get("stats", {}).get("ac", 10)
         total_attack = attack_roll + attack_bonus
         
@@ -1108,6 +1115,19 @@ class CombatEngine:
             
             if new_hp <= 0:
                 self._add_to_combat_log(f"{target_enemy['name']} defeated!")
+                 # Track kill statistics
+                if self.active_character_id == 'player':
+                    # Main player got the kill
+                    self.game_state.player_statistics['player_kills'] += 1
+                    weapon = self.game_state.character.get('equipped_weapon', 'fists')
+                    weapon_kills = self.game_state.player_statistics['weapon_kills']
+                    weapon_kills[weapon] = weapon_kills.get(weapon, 0) + 1
+                elif self.active_character_id in self.character_states:
+                    # Party member got the kill
+                    self.game_state.player_statistics['party_kills'] += 1
+                    member_kills = self.game_state.player_statistics['party_member_kills']
+                    member_kills[self.active_character_id] = member_kills.get(self.active_character_id, 0) + 1
+
                 if self._check_victory_conditions():
                     self._handle_combat_victory()
                     return True
@@ -1407,7 +1427,12 @@ class CombatEngine:
             # Check if attack hits
             if total_attack >= target_ac:
                 # Hit! Roll damage
+                self.game_state.player_statistics['hits'] += 1 
                 damage = self._roll_damage(damage_string)
+                # Track biggest hit for player
+                if attacker_type == "player" and damage > self.game_state.player_statistics['biggest_hit']:
+                    self.game_state.player_statistics['biggest_hit'] = damage
+                
                 self._add_to_combat_log(f"Hit! {damage} damage")
                 
                 # Apply damage based on attacker type
@@ -1466,6 +1491,9 @@ class CombatEngine:
                                         char_state['is_alive'] = False
                                         char_state['is_conscious'] = False
                                         self._add_to_combat_log(f"{target_name} is knocked unconscious!")
+
+                                        # Track party member knockouts
+                                        self.game_state.player_statistics['party_knockouts'] += 1
                                         
                                         # Check if ALL party members are knocked out (defeat)
                                         all_unconscious = all(
@@ -1480,6 +1508,7 @@ class CombatEngine:
             else:
                 # Miss
                 self._add_to_combat_log("Miss!")
+                self.game_state.player_statistics['misses'] += 1
                 return False
                 
         except Exception as e:
@@ -1926,11 +1955,19 @@ class CombatEngine:
 
     def _award_rewards(self, rewards: Dict):
         """Award combat rewards to player"""
-        # Award XP
+        # Award XP through event system for proper tracking
         xp = rewards.get("xp", 0)
         if xp > 0:
-            current_xp = self.game_state.character.get("experience", 0)
-            self.game_state.character["experience"] = current_xp + xp
+            encounter_id = self.combat_data.get("encounter", {}).get("encounter_id", "combat")
+            
+            # Emit XP_AWARDED event - character_engine will handle tracking
+            if self.event_manager:
+                self.event_manager.emit("XP_AWARDED", {
+                    'amount': xp,
+                    'reason': f"defeated enemies in {encounter_id}",
+                    'recipient': 'party'
+                })
+            
             self._add_to_combat_log(f"Gained {xp} XP!")
         
         # Award gold
@@ -1938,6 +1975,10 @@ class CombatEngine:
         if gold > 0:
             current_gold = self.game_state.character.get("gold", 0)
             self.game_state.character["gold"] = current_gold + gold
+
+            # Track total gold earned
+            self.game_state.player_statistics['total_gold_earned'] += gold
+
             self._add_to_combat_log(f"Found {gold} gold!")
         
         # TODO: Award items from rewards["items"]

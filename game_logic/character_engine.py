@@ -1081,6 +1081,13 @@ class CharacterEngine:
         # Update GameState directly (Single Data Authority)
         self.game_state.character['experience'] = new_xp
         
+        # Track XP statistics by source
+        reason_lower = reason.lower()
+        if 'combat' in reason_lower or 'defeated' in reason_lower or 'enemy' in reason_lower or 'enemies' in reason_lower:
+            self.game_state.player_statistics['xp_from_combat'] += xp_amount
+        else:
+            self.game_state.player_statistics['xp_from_noncombat'] += xp_amount
+        
         print(f"⭐ Awarded {xp_amount} XP! {reason}")
         print(f"   Total XP: {new_xp}")
         
@@ -1480,6 +1487,7 @@ class CharacterEngine:
         """Award experience to all party members using GameState data"""
         # Award to player (existing logic)
         current_player_xp = self.game_state.character.get('experience', 0)
+        self.award_experience(xp_amount, reason)
         self.game_state.character['experience'] = current_player_xp + xp_amount
         
         # Award to all party members

@@ -270,10 +270,35 @@ class DiceGameEngine:
         gambling_stats = self.game_state.character['gambling_stats']
         gambling_stats['games_played'] += 1
         
+        # Track player statistics
+        self.game_state.player_statistics['dice_games_played'] += 1
+        winnings = payout - bet_amount if payout > 0 else -bet_amount
+        self.game_state.player_statistics['dice_total_winnings'] += winnings
+        
         if payout > 0:
             gambling_stats['total_winnings'] += payout
+            
+             # Update longest win streak
+            current_win_streak = gambling_stats.get('win_streak', 0)
+            if current_win_streak > self.game_state.player_statistics['longest_win_streak']:
+                self.game_state.player_statistics['longest_win_streak'] = current_win_streak
+            
+            # Track highest gold won in a single game 
+            winnings = payout - bet_amount  # Net winnings on this game
+            if winnings > self.game_state.player_statistics['highest_winning_roll']:
+                self.game_state.player_statistics['highest_winning_roll'] = winnings
+
+            # Update longest win streak if current streak is higher
+            current_win_streak = gambling_stats.get('win_streak', 0)
+            if current_win_streak > self.game_state.player_statistics['longest_win_streak']:
+                self.game_state.player_statistics['longest_win_streak'] = current_win_streak
         else:
             gambling_stats['total_losses'] += bet_amount
+            
+            # Update longest losing streak if current streak is higher
+            current_loss_streak = gambling_stats.get('loss_streak', 0)
+            if current_loss_streak > self.game_state.player_statistics['longest_losing_streak']:
+                self.game_state.player_statistics['longest_losing_streak'] = current_loss_streak
     
     # ==========================================
     # LEGACY COMPATIBILITY METHODS

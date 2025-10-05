@@ -352,6 +352,12 @@ class DialogueEngine:
                 setattr(self.game_state, conv_flag, True)
                 print(f"✅ Set conversation flag: {conv_flag} = True")
 
+                # Track NPC encounter for statistics
+                if npc_id not in self.game_state.npcs_encountered:
+                    self.game_state.npcs_encountered.add(npc_id)
+                    self.game_state.player_statistics['npcs_met'] += 1
+                    print(f"📊 New NPC met: {npc_id} (Total: {self.game_state.player_statistics['npcs_met']})")
+
                 # Call existing business logic method with explicit state
                 result = self.process_dialogue_choice(dialogue_file_id, npc_id, choice_id, current_state)
                 #print(f"🎭 DEBUG: Choice processing result: {result}")

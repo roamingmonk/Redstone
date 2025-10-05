@@ -49,6 +49,7 @@ class InputHandler:
             pygame.K_q: ("OVERLAY_TOGGLE", {"overlay_id": "quest_key"}),
             pygame.K_c: ("OVERLAY_TOGGLE", {"overlay_id": "character_key"}),
             pygame.K_h: ("OVERLAY_TOGGLE", {"overlay_id": "help_key"}),
+            pygame.K_s: ("OVERLAY_TOGGLE", {"overlay_id": "statistics_key"}),
             
             # Game controls (corrected)
             pygame.K_F1: ("DEBUG_TOGGLE", {}),
@@ -656,7 +657,6 @@ class InputHandler:
                 
                 for clickable in clickables:
                     if clickable.rect.collidepoint(mouse_pos):
-                        print(f"💾 Save overlay clickable hit: {clickable.event_type}")
                         self.event_manager.emit(clickable.event_type, clickable.event_data)
                         return True
                 

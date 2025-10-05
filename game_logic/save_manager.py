@@ -53,7 +53,11 @@ class SaveManager:
                 'character': self.game_state.character,
                 'inventory': self.game_state.inventory,
                 
-                # Quest system data (ADD THIS LINE)
+                # Player statistics 
+                'player_statistics': self.game_state.player_statistics,
+                'npcs_encountered': list(self.game_state.npcs_encountered),  
+
+                # Quest system data 
                 'quest_system': quest_system_data,
 
                 # Game progression
@@ -175,6 +179,9 @@ class SaveManager:
             print(f"   Location: {self.game_state.screen}")
             print(f"   Party size: {len(self.game_state.party_members) + 1}")
             print(f"   Narrative flags: {len(narrative_flags)}")
+
+            # Track save statistics
+            self.game_state.player_statistics['times_saved'] += 1
         
             # Update GameController state tracking
             self.last_save_time = datetime.now()
@@ -229,6 +236,14 @@ class SaveManager:
             if 'inventory' in save_data:
                 self.game_state.inventory = save_data['inventory']
                 print(f"   💰 Gold: {self.game_state.character.get('gold', 0)}")
+            
+            # Restore player statistics (ADD THIS)
+            if 'player_statistics' in save_data:
+                self.game_state.player_statistics = save_data['player_statistics']
+                print(f"   📊 Statistics: {self.game_state.player_statistics['npcs_met']} NPCs met")
+            
+            if 'npcs_encountered' in save_data:
+                self.game_state.npcs_encountered = set(save_data['npcs_encountered'])  # Convert list back to set
             
             # Restore game progression
             #TODO do we need the broken blade hard code?

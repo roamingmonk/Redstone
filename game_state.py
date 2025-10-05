@@ -6,7 +6,6 @@ Contains the GameState class and all character data management
 import random
 import pygame
 from utils.quest_system import integrate_quest_system 
-#from game_logic.item_manager import item_manager
 from game_logic.data_manager import get_data_manager
 from game_logic.character_engine import get_character_engine
 from utils.overlay_utils import OverlayState
@@ -61,6 +60,45 @@ class GameState:
             'items': [],
             'consumables': []
         }
+
+        # Player Statistics Tracking System
+        self.player_statistics = {
+            # Player tab
+            'areas_visited': 0,
+            'npcs_met': 0,
+            'drinks_consumed': 0,
+            'potions_consumed': 0,
+            'items_discarded': 0,
+            'xp_from_combat': 0,
+            'xp_from_noncombat': 0,
+            'dice_games_played': 0,
+            'dice_total_winnings': 0,
+            'longest_win_streak': 0,      
+            'longest_losing_streak': 0,
+            'highest_winning_roll': 0,  
+            'total_gold_earned': 0,        
+            
+            # Combat tab
+            'player_kills': 0,
+            'weapon_kills': {},  # Track kills per weapon: {'longsword': 5, 'dagger': 2}
+            'party_kills': 0,
+            'party_member_kills': {},  # Track kills per party member: {'gareth': 3}
+            'hits': 0,
+            'misses': 0,
+            'critical_hits': 0,         
+            'critical_misses': 0,       
+            'biggest_hit': 0,           
+            'party_knockouts': 0,       
+            
+            # Other tab
+            'times_saved': 0
+        }
+        
+        # Track unique NPCs encountered (for npcs_met counter)
+        self.npcs_encountered = set()
+
+        # Name generation system
+        self.used_names = set()
 
         # Name generation system
         self.used_names = set()
@@ -151,6 +189,10 @@ class GameState:
             "defeated_enemies": [],
             "combat_log": []
         }
+
+
+
+
                 
         
     # Add computed property for recruitment tracking
