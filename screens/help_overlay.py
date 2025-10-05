@@ -27,7 +27,7 @@ class HelpOverlay(BaseTabbedOverlay):
         super().__init__("help_key", "KEYBOARD SHORTCUTS", screen_manager)
         
         # Add single tab for help content
-        self.add_tab("help_main", "Help", pygame.K_h)
+        self.add_tab("help_main", "Help", pygame.K_1)
         
         # Help content sections
         self.shortcuts = [

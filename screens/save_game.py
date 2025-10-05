@@ -39,14 +39,16 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
     save_slots = []
     if save_manager:
         all_slots = save_manager.populate_save_slot_cache()
-        # Filter to only show manual save slots (1, 2, 3)
-        save_slots = [slot for slot in all_slots if slot['slot_num'] in [1, 2, 3]]
+        # Filter to only show manual save slots (1, 2, 3, 4, 5)
+        save_slots = [slot for slot in all_slots if slot['slot_num'] in [1, 2, 3, 4, 5]]
     else:
         # Fallback - empty slots
         slots_to_check = [
             (1, "Slot 1"),
             (2, "Slot 2"), 
             (3, "Slot 3"),
+            (4, "Slot 4"),
+            (5, "Slot 5"),
         ]
         save_slots = [{'slot_num': slot_num, 'slot_name': slot_name, 'save_info': None} 
                      for slot_num, slot_name in slots_to_check]

@@ -1787,6 +1787,15 @@ Implementation: Registration now trusts button_rects from render() instead of re
 Consequence: Click regions perfectly match visual buttons; conditional buttons work correctly; eliminated state synchronization bug
 Files Modified: ui/base_location.py (register_with_input_handler method)
 
+# ADR-113: Star Animation and Expanded Save Slots
+# Date: October 4, 2025
+# Status: Implemented
+**Context:**  Main menu needed atmospheric visual effects; players requested more save slots for character experimentation.
+**Decision:**  Added twinkling star sprite animations to main menu; expanded manual save slots from 3 to 5.
+**Implementation:** Updated TITLE_ANIMATIONS constant with star_twinkle path; added star initialization and rendering to draw_main_menu(); updated slots_to_check lists in save_manager.py, load_game.py, and save_game.py to include slots 4 and 5.
+**Technical Details:** Stars use SpriteAnimation class with 13 frames at 32x32 pixels; varied timing (100ms, 120ms, 80ms) for organic effect; positioned at (100,50) and (900,50) for top corners.
+**Files Modified:** constants.py, title_menu.py, save_manager.py, load_game.py, save_game.py.
+Result: Main menu enhanced with subtle twinkling effect; save system now supports 5 manual slots plus quick save and auto-save.
 
 ```
 ## ADR-XXX: <Short title>

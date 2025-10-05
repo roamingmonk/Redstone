@@ -35,7 +35,7 @@ class SaveManager:
         
         """
         Save complete game state to JSON file
-        save_slot: 1-3 for manual saves, 0 for auto-save
+        save_slot: 1-5 for manual saves, 0 for auto-save
         """
        # Quest system data 
         quest_system_data = {}
@@ -588,6 +588,8 @@ class SaveManager:
             (1, "Slot 1"),
             (2, "Slot 2"), 
             (3, "Slot 3"),
+            (4, "Slot 4"),
+            (5, "Slot 5"),
             (0, "Auto-Save")
         ]
         

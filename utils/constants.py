@@ -114,6 +114,7 @@ SPRITES_PATH = os.path.join(IMAGES_PATH, "sprites")
 PLAYER_SPRITES_PATH = os.path.join(SPRITES_PATH, "player")
 ENEMY_SPRITES_PATH = os.path.join(SPRITES_PATH, "enemies")
 EFFECTS_SPRITES_PATH = os.path.join(SPRITES_PATH, "effects")
+LANDSCAPE_SPRITES_PATH = os.path.join(SPRITES_PATH, "landscape")
 
 # Specific file paths (updated to new structure)
 TABLE_IMAGE = os.path.join(UI_BACKGROUNDS_PATH, "character_creation_table.jpg")
@@ -605,7 +606,8 @@ TITLE_SPRITE_SIZE = (64, 64)  # Your campfire size
 # Sprite paths for title screen (update path to match yours)
 TITLE_ANIMATIONS = {
     'campfire': 'assets/images/sprites/fire/campfire_animation.png',
-    'torch': 'assets/images/sprites/fire/torch_animation.png'  
+    'torch': 'assets/images/sprites/fire/torch_animation.png',  
+    'star_twinkle': 'assets/images/sprites/landscape/star_twinkle_1.png' 
 }
 
 # Screen exclusion lists - centralized for maintainability

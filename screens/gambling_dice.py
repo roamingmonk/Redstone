@@ -375,13 +375,13 @@ def draw_dice_results_screen(surface, game_state, fonts, images=None, controller
     if gambling_stats.get('game_active', True) and player_gold > 0:
         play_again_button = draw_button(surface, 350, button_y, 140, 40, "PLAY AGAIN", 
                                        fonts.get('fantasy_small', fonts['normal']))
-        quit_button = draw_button(surface, 510, button_y, 140, 40, "QUIT GAME", 
+        quit_button = draw_button(surface, 510, button_y, 140, 40, "Leave", 
                                  fonts.get('fantasy_small', fonts['normal']))
         return play_again_button, quit_button
     else:
         # Game over
         if not gambling_stats.get('game_active', True):
-            draw_centered_text(surface, "GAME OVER - Casino has closed!", 
+            draw_centered_text(surface, "GAME OVER - Game closed!", 
                               fonts.get('fantasy_medium', fonts['normal']), button_y - 10, RED)
         else:
             draw_centered_text(surface, "You're out of gold!", 

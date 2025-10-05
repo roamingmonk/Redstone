@@ -7,7 +7,6 @@ import pygame
 from utils.constants import *
 from utils.graphics import draw_border, draw_button, draw_centered_text
 from utils.animation import SpriteAnimation
-#from screens.title_menu import draw_title_screen, draw_company_splash_screen, draw_main_menu
 
 BROWN = (170, 85, 0)
 
@@ -23,7 +22,7 @@ def draw_text_with_shadow(surface, text, font, x, y, text_color=WHITE, shadow_co
 def draw_title_screen(surface, game_state, fonts, images=None):
     """Draw the game splash screen"""
     surface.fill(BLACK)
-    
+
     if not hasattr(game_state, 'title_animations'):
         game_state.title_animations = {
             'campfire': SpriteAnimation(
@@ -83,8 +82,6 @@ def draw_title_screen(surface, game_state, fonts, images=None):
     pygame.draw.rect(surface, WHITE, (100, 150, 1024-200, 400), 3)
     pygame.draw.rect(surface, GRAY, (105, 155, 1024-210, 390), 1)
 
-
-
     # Draw torches flanking the title
     torch_left_x = 200  # Left side of border area
     torch_left_y = 250  # Near title level
@@ -98,7 +95,29 @@ def draw_company_splash_screen(surface, game_state, fonts, images=None):
     """
     Draw the company/developer splash screen - simple and clean
     """
-    surface.fill(BLACK)
+    surface.fill(BLACK)    
+            
+    # Initialize star animations if not already done
+    if not hasattr(game_state, 'menu_stars'):
+        game_state.menu_stars = {
+            'star_1': SpriteAnimation(
+                'assets/images/sprites/landscape/star_twinkle_1.png',
+                13, (32, 32), 100  # 13 frames, 32x32 size, 100ms per frame
+            ),
+            'star_2': SpriteAnimation(
+                'assets/images/sprites/landscape/star_twinkle_1.png',
+                13, (32, 32), 120  # Slightly different timing
+            ),
+            'star_3': SpriteAnimation(
+                'assets/images/sprites/landscape/star_twinkle_1.png',
+                13, (32, 32), 80  # Even faster twinkle
+            )
+        }
+    
+    # Update star animations
+    for animation in game_state.menu_stars.values():
+        animation.update()
+
     if not hasattr(game_state, 'title_animations'):
             game_state.title_animations = {
                 'campfire': SpriteAnimation(
@@ -137,6 +156,22 @@ def draw_company_splash_screen(surface, game_state, fonts, images=None):
                       continue_y, (128, 128, 128))  # Gray text    
     
 
+    # Draw twinkling stars
+    star_positions = [
+        (120, 58),   # Top left
+        (810, 60),   # Top right
+        (500, 25),   # Top center
+        (200, 400),   
+        (905, 490)
+    ]
+    
+    for i, (star_x, star_y) in enumerate(star_positions):
+        if i < len(game_state.menu_stars):
+            star_key = f'star_{i+1}'
+            game_state.menu_stars[star_key].draw(surface, star_x, star_y)
+
+
+
     campfire_x = (1024 - 64)  //2 
     campfire_y = 500
     game_state.title_animations['campfire'].draw(surface, campfire_x, campfire_y)
@@ -147,6 +182,28 @@ def draw_main_menu(surface, game_state, fonts, images=None):
     """
     surface.fill(BLACK)
     
+    # Initialize star animations if not already done
+    if not hasattr(game_state, 'menu_stars'):
+        
+        game_state.menu_stars = {
+            'star_1': SpriteAnimation(
+                'assets/images/sprites/landscape/star_twinkle_1.png',
+                13, (32, 32), 100  # 13 frames, 32x32 size, 100ms per frame
+            ),
+            'star_2': SpriteAnimation(
+                'assets/images/sprites/landscape/star_twinkle_1.png',
+                13, (32, 32), 120  # Slightly different timing
+            ),
+            'star_3': SpriteAnimation(
+                'assets/images/sprites/landscape/star_twinkle_1.png',
+                13, (32, 32), 80  # Even faster twinkle
+            )
+        }
+    
+    # Update star animations
+    for animation in game_state.menu_stars.values():
+        animation.update()
+
  # Create large title font for dramatic effect
     try:
         title_font_large = pygame.font.SysFont('timesnewroman', 68, bold=True, italic=True)
@@ -187,6 +244,19 @@ def draw_main_menu(surface, game_state, fonts, images=None):
                              button_width, button_height,
                              "QUIT", fonts.get('fantasy_medium', fonts['normal']))
     
+    # Draw twinkling stars
+    star_positions = [
+        (100, 50),   # Top left
+        (820, 70),   # Top right
+        (512, 25),   # Top center
+    ]
+    
+    for i, (star_x, star_y) in enumerate(star_positions):
+        if i < len(game_state.menu_stars):
+            star_key = f'star_{i+1}'
+            game_state.menu_stars[star_key].draw(surface, star_x, star_y)
+
+
     return new_game_button, load_game_button, quit_button
 
 

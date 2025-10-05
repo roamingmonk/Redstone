@@ -44,6 +44,8 @@ def draw_load_game_screen(surface, game_state, fonts, images, save_manager=None)
         (1, "Slot 1"),
         (2, "Slot 2"), 
         (3, "Slot 3"),
+        (4, "Slot 4"),
+        (5, "Slot 5"),
         (0, "Auto-Save")
     ]
     

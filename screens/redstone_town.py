@@ -175,7 +175,6 @@ class RedstoneTownNavigation:
         instructions = [
             "Use ARROW KEYS or WASD to move around town",
             "Press ENTER near buildings to enter them",
-            "Press ESC to return to tavern"
         ]
         text_y = dialog_y + 20
         for instruction in instructions:
