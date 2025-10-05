@@ -208,7 +208,7 @@ def load_fonts():
             fonts['fantasy_small'] = _create_font(font_path, FONT_SIZE_SMALL, use_system_fallback=False)
             fonts['fantasy_tiny'] = _create_font(font_path, FONT_SIZE_TINY, use_system_fallback=False)
             fonts['fantasy_micro'] = _create_font(font_path, FONT_SIZE_MICRO, use_system_fallback=False)
-            fonts['help_text'] = fonts['fantasy_micro']  # Alias
+            fonts['help_text'] = fonts['fantasy_micro']  
             
             print(f"✓ {GAME_FONT_NAME} font loaded successfully!")
             font_loaded = True

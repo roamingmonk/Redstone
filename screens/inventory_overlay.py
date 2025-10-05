@@ -66,7 +66,7 @@ class InventoryOverlay(BaseTabbedOverlay):
         # Draw title
         title_y = content_rect.y + 30
         draw_centered_text(surface, f"{character_name}'s Inventory", 
-                          fonts.get('fantasy_large', fonts['header']), title_y, BRIGHT_GREEN, 800)
+                          fonts.get('fantasy_large', fonts['header']), title_y, BRIGHT_GREEN, 1024)
         
         # Fill content area with light brown background
         active_tab_color = (180, 160, 140)
@@ -277,16 +277,6 @@ class InventoryOverlay(BaseTabbedOverlay):
         if not getattr(self, '_buttons_registered', False):
             self.register_standard_buttons(self.button_rects, 'inventory')
             self._buttons_registered = True
-
-        # Draw close instruction
-        close_y = button_y + button_height + SPACING['margin'] + 20
-        close_font = fonts.get('help_text', fonts['small'])
-        close_text = "Press I to close"
-        
-        # Center the close instruction
-        close_surface = close_font.render(close_text, True, WHITE)
-        close_x = content_x + (content_width - close_surface.get_width()) // 2
-        surface.blit(close_surface, (close_x, close_y))
     
     def handle_mouse_click(self, mouse_pos):
         """Handle mouse clicks - MUST call parent first for tab functionality"""

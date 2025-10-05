@@ -204,7 +204,7 @@ class BaseTabbedOverlay:
         Returns list of clickable tab rectangles for mouse handling
         """
         
-        # CRITICAL FIX: Get ItemManager if we don't have one
+        # Get ItemManager if we don't have one
         if not hasattr(self, 'item_manager') or self.item_manager is None:
             if hasattr(self, 'screen_manager') and self.screen_manager:
                 if hasattr(self.screen_manager, '_current_game_controller'):
@@ -226,7 +226,7 @@ class BaseTabbedOverlay:
         # Calculate popup area (matching your inventory/quest log pattern)
         popup_x = 50
         popup_y = 120
-        popup_width = 924  # 1024 - 100 (50px margin each side)
+        popup_width = 924  # 924(1024 - 100) (50px margin each side)
         popup_height = 550
 
         # Store popup rect for subclass use
@@ -257,7 +257,7 @@ class BaseTabbedOverlay:
     def _render_header(self, surface: pygame.Surface, fonts: Dict, popup_x: int, popup_y: int, popup_width: int):
         """Render the overlay title header"""
         title_font = fonts.get('fantasy_large', fonts.get('large', fonts['normal']))
-        draw_centered_text(surface, self.title, title_font, popup_y + 30, BRIGHT_GREEN, popup_width)
+        draw_centered_text(surface, self.title, title_font, popup_y + 30, BRIGHT_GREEN, popup_width + 100) #added 100 to make 1024 so centers header
     
     def _render_tab_bar(self, surface: pygame.Surface, fonts: Dict, popup_x: int, popup_y: int, popup_width: int) -> List[Tuple[pygame.Rect, int]]:
         """
@@ -327,19 +327,31 @@ class BaseTabbedOverlay:
     
     def _render_footer(self, surface: pygame.Surface, fonts: Dict, popup_x: int, popup_y: int, popup_width: int):
         """Render footer with instructions"""
-        footer_font = fonts.get('fantasy_small', fonts.get('small', fonts['normal']))
+        #footer_font = fonts.get('fantasy_small', fonts.get('small', fonts['normal']))
+        footer_font = fonts.get('help_text', fonts['small'])
         
         # Build instruction text based on available tabs
         instructions = []
         if len(self.tabs) > 1:
             instructions.append("N/P: Page up/down")
             instructions.append("1-9: Select Tab")
-            instructions.append("← →: Navigate")
+            #instructions.append("← →: Navigate")  # arrows do not render
         instructions.append("ESC: Close")
         
         instruction_text = " | ".join(instructions)
-        draw_centered_text(surface, instruction_text, footer_font, popup_y + 20, GRAY, popup_width)
+        draw_centered_text(surface, instruction_text, footer_font, popup_y - 20, GRAY, popup_width + 100)
     
+
+         # # Draw close instruction
+        # close_y = button_y + button_height + SPACING['margin'] + 20
+        # close_font = fonts.get('help_text', fonts['small'])
+        # close_text = "Press I to close"
+        
+        # # Center the close instruction
+        # close_surface = close_font.render(close_text, True, WHITE)
+        # close_x = content_x + (content_width - close_surface.get_width()) // 2
+        # surface.blit(close_surface, (close_x, close_y))
+
     def _register_with_input_handler(self):
         """Register this overlay with the InputHandler for automatic input routing"""
         try:

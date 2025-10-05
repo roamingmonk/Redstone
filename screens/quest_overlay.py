@@ -39,7 +39,6 @@ class QuestOverlay(BaseTabbedOverlay):
     def render_tab_content(self, surface: pygame.Surface, active_tab, game_state, fonts, images):
         """
         Render tab-specific content based on active tab
-        
         DESIGN PRINCIPLE: 
         Each tab handles its own content rendering while framework manages tabs
         """
@@ -251,9 +250,6 @@ class QuestOverlay(BaseTabbedOverlay):
             quest_rect = pygame.Rect(quest_list_x + 5, current_y - 5, 
                                    quest_list_width - 10, row_height)
             self.quest_rects.append((quest_rect, quest['id']))
-            
-            # DEBUG: Print rectangle info
-            print(f"📋 Quest rect created: {quest['title'][:20]} at y={current_y}, rect={quest_rect}")
 
             # Highlight selected quest
             if self.selected_quest == quest['id']:
@@ -300,9 +296,6 @@ class QuestOverlay(BaseTabbedOverlay):
             surface.blit(progress_surface, (progress_text_x, current_y + 5))
             
             current_y += row_height
-        
-        # DEBUG: Print total rects after loop
-        print(f"📋 Total quest_rects created: {len(self.quest_rects)}")
         
         # PAGE NAVIGATION DISPLAY:
         if total_pages > 1:
@@ -428,10 +421,6 @@ class QuestOverlay(BaseTabbedOverlay):
             self.active_page += 1
         elif active_tab.tab_id == "completed_quests":
             self.completed_page += 1
-
-
-
-
 
     def _render_empty_quest_list(self, surface, content_rect, fonts, message):
         """Render empty quest list message"""

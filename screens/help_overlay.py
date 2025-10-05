@@ -41,6 +41,7 @@ class HelpOverlay(BaseTabbedOverlay):
                 ("I", "Inventory"),
                 ("Q", "Quest log"),
                 ("C", "Character sheet"),
+                ("S", "Game statistics"),
                 
             ]),
             ("NAVIGATION", [
@@ -65,6 +66,7 @@ class HelpOverlay(BaseTabbedOverlay):
             draw_text(surface, category, 
                   fonts.get('fantasy_medium', fonts['normal']), 
                   content_rect.x + 60, current_y, CYAN)
+            
             current_y += 35
         
             # Key bindings
@@ -149,7 +151,7 @@ def handle_help_screen_click(mouse_pos, result):
     return 'close_help'
 
 def handle_help_keyboard_input(key, game_state):
-    """NEW: Handle keyboard input for help overlay"""
+    """Handle keyboard input for help overlay"""
     if getattr(game_state, 'help_screen_open', False):
         overlay = get_help_overlay()
         return overlay.handle_keyboard_input(key)
