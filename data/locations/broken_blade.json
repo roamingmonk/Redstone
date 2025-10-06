@@ -39,7 +39,8 @@
               "label": "Basement",
               "requirements": {
                 "flags": {
-                  "accepted_basement_quest": true
+                  "accepted_basement_quest": true,
+                  "completed_basement_combat": false
                 }
               },
               "combat_encounter": "tavern_basement_rats",
@@ -49,6 +50,17 @@
                   "victory_quest_flags": {
                       "completed_basement_combat": true
                   }
+              }
+            },
+            "basement_visit": {
+              "type": "navigate",
+              "target": "broken_blade_basement_cleared",
+              "label": "Basement",
+              "requirements": {
+                "flags": {
+                  "accepted_basement_quest": true,
+                  "completed_basement_combat": true
+                }
               }
             },
             "leave": {
@@ -62,6 +74,28 @@
         "background_color": [40, 20, 10],
         "lighting": "warm", 
         "safety": "safe"
+        }
+      },
+      "basement_cleared": {
+        "type": "action_hub",
+        "title": "TAVERN BASEMENT",
+        "description": {
+          "subtitle": "A quiet cellar, now free of pests",
+          "atmosphere": "The basement is peaceful. Scattered barrels and broken crates show signs of your recent battle.",
+          "ambient_details": "Dust motes drift in the dim light from above."
+        },
+        "actions": {
+          "leave": {
+            "type": "navigate",
+            "target": "broken_blade_main",
+            "label": "Back Upstairs"
+          }
+        },
+        "properties": {
+          "background_image": "tavern_interior",
+          "background_color": [30, 20, 15],
+          "lighting": "dim",
+          "safety": "safe"
         }
       }
     }

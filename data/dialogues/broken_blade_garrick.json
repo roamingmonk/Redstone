@@ -559,8 +559,13 @@
         {
           "id": "check_basement_quest",
           "text": "About that basement job...",
-          "requirements": { "flags": { "garrick_offered_basement": true } },
-          "next_state": "basement_quest_status"
+          "requirements": { 
+            "flags": { 
+              "garrick_offered_basement": true,
+              "completed_basement_combat": false 
+              } 
+            },
+          "next_state": "post_mayor_basement_offered"
         },
         {
           "id": "ruins_small_talk",

@@ -1818,6 +1818,27 @@ New file: statistics_overlay.py
 New file: notifications.py
 **Result:** cool notification!  Consider using for other info
 
+# ADR-112: BaseLocation Auto-Registration System
+# Status: Implemented
+# Date: October 5, 2025
+**Context:** Adding new areas to location JSON files required manual screen registration in screen_manager.py, violating the zero-code content creation goal of the BaseLocation architecture.
+**Decision:** Implement automatic area discovery and registration - LocationManager scans location JSON files for all areas and ScreenManager auto-registers each as a screen on startup.
+**Implementation:**Added get_all_area_ids() method to LocationManager (15 lines)
+Added _auto_register_location() method to ScreenManager (25 lines)
+Replaced manual registration calls with self._auto_register_location("location_id")
+**Technical Changes:**
+LocationManager parses JSON to extract all area IDs from location data
+ScreenManager iterates through areas and calls _register_base_location_screen() for each
+Console logging shows auto-registered screens for debugging
+**Consequences:**
+Positive: Adding new areas to location JSON now requires zero code changes - areas automatically register as screens on game startup
+Content Velocity: basement_cleared area added with zero code, only JSON edits
+Retroactive: Fully backward compatible - existing broken_blade_main and patron_selection_main continue working
+Foundation: Enables pure JSON dungeon creation with multiple explorable areas
+**Files Modified:** utils/location_loader.py, ui/screen_manager.py
+Example: Adding 5 areas to hill_ruins.json automatically creates 5 navigable screens without touching Python code.
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

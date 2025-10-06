@@ -27,7 +27,8 @@
     ],
     "enemy_spawns": [
       [8, 2], [10, 4], [7, 6]
-    ]
+    ],
+    "exit_point": [1, 6]  
   },
   "lighting": "dim",
   "environmental_effects": [

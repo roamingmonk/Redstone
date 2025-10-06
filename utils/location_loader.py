@@ -36,6 +36,26 @@ class LocationManager:
             print(f"Creating directory: {data_directory}")
             os.makedirs(data_directory, exist_ok=True)
     
+    def get_all_area_ids(self, location_id: str) -> List[str]:
+        """
+        Get list of all area IDs for a location
+        
+        Args:
+            location_id: Location identifier
+            
+        Returns:
+            List of area IDs (e.g., ['main', 'basement_cleared'])
+        """
+        location_data = self.load_location_data(location_id)
+        if not location_data:
+            return []
+        
+        # Get the inner location object
+        location_obj = location_data.get(location_id, {})
+        areas = location_obj.get('areas', {})
+        
+        return list(areas.keys())
+    
     def load_location_data(self, location_id: str) -> Optional[Dict[str, Any]]:
         """
         Load location data from JSON file

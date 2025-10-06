@@ -1047,8 +1047,10 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_intro_scene_clickables("intro_scene_3"))
 
            # Broken Blade Tavern - BaseLocation System
-            self._register_base_location_screen("broken_blade_main", "broken_blade", "main")
-            self._register_base_location_screen("patron_selection", "patron_selection", "main")
+            self._auto_register_location("broken_blade")
+            self._auto_register_location("patron_selection")
+            #self._auto_register_location("redstone_town")
+            self.register_render_function("redstone_town", render_town_navigation)
 
             # Utility screens
             self.register_render_function("inventory", draw_inventory_screen,
@@ -1062,8 +1064,6 @@ class ScreenManager:
             self.register_render_function("merchant_shop", self._render_shopping_overlay,
                 enter_hook=lambda _: self.register_shopping_overlay_clickables())
 
-            self.register_render_function("redstone_town", render_town_navigation)
-        
             self._register_npc_dialogue_screens()
 
             #self.register_render_function("broken_blade_basement", self._handle_basement_combat_or_placeholder)
@@ -1143,6 +1143,32 @@ class ScreenManager:
         #print(f"🔄 Screen transition: {old_screen} → {screen_name}")
         return True
     
+    def _auto_register_location(self, location_id: str):
+        """
+        Automatically register all areas of a location as screens
+        
+        Args:
+            location_id: Location to register (e.g., 'broken_blade')
+        """
+        if not (hasattr(self, '_current_game_controller') and 
+                self._current_game_controller and 
+                hasattr(self._current_game_controller, 'data_manager')):
+            print(f"⚠️ Cannot auto-register {location_id}: DataManager not available")
+            return
+        
+        location_manager = self._current_game_controller.data_manager.location_manager
+        area_ids = location_manager.get_all_area_ids(location_id)
+        
+        if not area_ids:
+            print(f"⚠️ No areas found for location: {location_id}")
+            return
+        
+        # Register each area as a screen
+        for area_id in area_ids:
+            screen_name = f"{location_id}_{area_id}"
+            self._register_base_location_screen(screen_name, location_id, area_id)
+            print(f"📍 Auto-registered: {screen_name}")
+
     def _register_base_location_screen(self, screen_name: str, location_id: str, area_id: str):
         """Register a BaseLocation screen with proper event integration"""
         
