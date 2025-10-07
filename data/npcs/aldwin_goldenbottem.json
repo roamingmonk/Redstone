@@ -1,7 +1,8 @@
 {
     "id": "mayor",
+    "race": "human",
     "name": "Mayor Aldwin Goldenbottom",
-    "description": "*A well-dressed halfling paces nervously behind his ornate desk, worry lines creasing his usually jovial features.*",
+    "description": "*A well-dressed man paces nervously behind his ornate desk, worry lines creasing his usually jovial features.*",
     "level": 1,
     "age": 50,
     "gender": "male",

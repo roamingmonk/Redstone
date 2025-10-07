@@ -1844,8 +1844,8 @@ Example: Adding 5 areas to hill_ruins.json automatically creates 5 navigable scr
 **Context:** Town spawn positions were hardcoded in game_state.py, creating dual maintenance burden and violating data-driven architecture when map files already defined spawn points.
 **Decision:** Removed spawn position initialization from GameState. Each map screen handler initializes player position from its own map file constants on first entry using existing `update_player_position()` pattern.
 **Implementation:** 
-- Deleted `town_player_x` and `town_player_y` initialization from game_state.py `__init__`
-- Map files define spawn via `TOWN_SPAWN_X`, `TOWN_SPAWN_Y` constants
+- Deleted initialization from game_state.py 
+- Map files define spawn constants
 - Screen handlers check `hasattr(game_state, 'map_player_x')` and initialize from map constants if missing
 - Position initialization moved from render to update method to prevent attribute access errors
 **Consequences:** 
@@ -1854,6 +1854,34 @@ Example: Adding 5 areas to hill_ruins.json automatically creates 5 navigable scr
 **Files Modified:** game_state.py (removed lines), redstone_town.py (call order fix)
 **Result:** Map spawn points defined once in map files; architecture scales cleanly to world map, dungeons, and future locations without touching GameState.
 
+# ADR-117: Race System Implementation with Cavia Player Option
+# Status: Accepted
+# Date: October 7, 2025
+Context:
+Game narrative includes Cavia (guinea pig) race as optional player character with unique stat restrictions and dialogue options. Needed systematic race system supporting both player characters and NPCs (Thorman=Dwarf, Lyra=Drow).
+Decision:
+Implemented JSON-driven race system with portrait-based selection and stat modifiers.
+Implementation:
+
+Race Data: Created data/player/races.json defining Human, Cavia, Dwarf, Drow with stat modifiers, abilities, and resistances
+Portrait Selection: Extended to 6 portraits (1-5=Human, 6=Cavia) with warning screen for Cavia
+Character Engine: Added _apply_race_modifiers() method applying stat caps directly to character dict (not nested stats object)
+GameState Integration: Added race field to character initialization for save/load persistence
+Event System: Added CAVIA_WARNING_BACK and CAVIA_WARNING_CONFIRM events
+NPC Support: Race stored in individual NPC JSON files (e.g., "race": "dwarf")
+
+Key Files:
+
+data/player/races.json - Race definitions
+game_logic/character_engine.py - _apply_race_modifiers(), Cavia event handlers
+screens/character_creation.py - draw_cavia_warning_screen(), 6-portrait grid
+ui/screen_manager.py - Cavia warning clickables registration
+core/game_state.py - Race field initialization
+
+Consequences:
+
+Positive: Scalable race system, Cavia stat caps enforced (STR/CON max 10), race persists through save/load, Shadow Blight resistance ready for combat integration
+Future Work: Display race on character sheet, implement race-specific dialogue branches, add race ability mechanics to combat system
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

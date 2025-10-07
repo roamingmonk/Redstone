@@ -29,6 +29,13 @@ class GameState:
             # Core identity
             'name': '',
             'class': 'fighter',
+            'race': {
+                'id': 'human',
+                'display_name': 'Human',
+                'special_abilities': [],
+                'resistances': [],
+                'dialogue_flags': {}
+            },
             'gender': '',
             'trinket': '',
             

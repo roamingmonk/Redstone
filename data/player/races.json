@@ -1,0 +1,182 @@
+{
+  "races": {
+    "human": {
+      "id": "human",
+      "display_name": "Human",
+      "description": "Versatile and adaptable, humans have no inherent limitations.",
+      "stat_modifiers": {
+        "strength": {"min": 3, "max": 18},
+        "dexterity": {"min": 3, "max": 18},
+        "constitution": {"min": 3, "max": 18},
+        "intelligence": {"min": 3, "max": 18},
+        "wisdom": {"min": 3, "max": 18},
+        "charisma": {"min": 3, "max": 18}
+      },
+      "special_abilities": [],
+      "resistances": [],
+      "dialogue_flags": {
+        "is_human": true,
+        "is_cavia": false,
+        "is_dwarf": false,
+        "is_drow": false
+      },
+      "lore": "The primary inhabitants of the Kingdom of Valoria, humans are adaptable survivors who thrive in diverse environments."
+    },
+    
+    "cavia": {
+      "id": "cavia",
+      "display_name": "Cavia",
+      "description": "Large, intelligent guinea pigs created by ancient Aethel experiments. Dimensionally sensitive and mysteriously resilient.",
+      "stat_modifiers": {
+        "strength": {"min": 3, "max": 10},
+        "dexterity": {"min": 3, "max": 18},
+        "constitution": {"min": 3, "max": 10},
+        "intelligence": {"min": 3, "max": 18},
+        "wisdom": {"min": 3, "max": 18},
+        "charisma": {"min": 3, "max": 18}
+      },
+      "special_abilities": [
+        {
+          "id": "dimensional_sensitivity",
+          "name": "Dimensional Sensitivity",
+          "description": "Heightened awareness of Aethel energies and portal activity. Can sense tremors and dimensional instability before others.",
+          "mechanical_effect": "perception_bonus_aethel"
+        },
+        {
+          "id": "shadow_blight_resistance",
+          "name": "Shadow Blight Resistance",
+          "description": "As living artifacts of failed Aethel experiments, Cavia possess an innate resistance to Shadow Blight corruption.",
+          "mechanical_effect": "resistance_shadow_blight",
+          "damage_reduction": 0.25
+        }
+      ],
+      "resistances": [
+        "shadow_blight"
+      ],
+      "dialogue_flags": {
+        "is_human": false,
+        "is_cavia": true,
+        "is_dwarf": false,
+        "is_drow": false
+      },
+      "lore": "Created millennia ago by the Aethel Imperium during unstable dimensional experiments, the Cavia are living, furry artifacts of ancient mistakes. Most people simply accept them as another race, unaware of their tragic origin.",
+      "size_category": "medium",
+      "special_notes": [
+        "Nobody can tell if a Cavia is male or female",
+        "Natural burrowing instincts make them excellent miners",
+        "Fur stands on end near strong dimensional energies"
+      ]
+    },
+    
+    "dwarf": {
+      "id": "dwarf",
+      "display_name": "Dwarf",
+      "description": "Hardy mountain folk known for their craftsmanship, resilience, and deep connection to stone and metal.",
+      "stat_modifiers": {
+        "strength": {"min": 3, "max": 18},
+        "dexterity": {"min": 3, "max": 18},
+        "constitution": {"min": 8, "max": 18, "bonus": 2},
+        "intelligence": {"min": 3, "max": 18},
+        "wisdom": {"min": 3, "max": 18},
+        "charisma": {"min": 3, "max": 16}
+      },
+      "special_abilities": [
+        {
+          "id": "stone_cunning",
+          "name": "Stone Cunning",
+          "description": "Innate knowledge of stonework and underground passages. Can detect unusual stonework, traps, and hidden passages.",
+          "mechanical_effect": "perception_bonus_stone"
+        },
+        {
+          "id": "dwarven_resilience",
+          "name": "Dwarven Resilience",
+          "description": "Legendary fortitude against poison and disease.",
+          "mechanical_effect": "resistance_poison",
+          "damage_reduction": 0.5
+        },
+        {
+          "id": "mining_expertise",
+          "name": "Mining Expertise",
+          "description": "Deep knowledge of ore, minerals, and mining techniques. Can identify valuable deposits and detect structural weaknesses.",
+          "mechanical_effect": "knowledge_mining"
+        }
+      ],
+      "resistances": [
+        "poison",
+        "disease"
+      ],
+      "dialogue_flags": {
+        "is_human": false,
+        "is_cavia": false,
+        "is_dwarf": true,
+        "is_drow": false
+      },
+      "lore": "The stout folk of the Drakon Peak mountains, dwarves are master craftsmen and miners. Their knowledge of stone and metal is unmatched, making them invaluable in the mining regions like the Crimson Reach.",
+      "size_category": "medium",
+      "special_notes": [
+        "Natural affinity for detecting mineral deposits",
+        "Resistant to the effects of underground gases",
+        "Can work longer without rest in mines and caves"
+      ]
+    },
+    
+    "drow": {
+      "id": "drow",
+      "display_name": "Drow",
+      "description": "Dark elves from the deep underground, masters of stealth and shadow magic with keen senses adapted to darkness.",
+      "stat_modifiers": {
+        "strength": {"min": 3, "max": 18},
+        "dexterity": {"min": 8, "max": 18, "bonus": 2},
+        "constitution": {"min": 3, "max": 16},
+        "intelligence": {"min": 3, "max": 18},
+        "wisdom": {"min": 3, "max": 18},
+        "charisma": {"min": 3, "max": 18}
+      },
+      "special_abilities": [
+        {
+          "id": "superior_darkvision",
+          "name": "Superior Darkvision",
+          "description": "Exceptional vision in darkness. Can see in complete darkness as if it were dim light.",
+          "mechanical_effect": "darkvision_120ft"
+        },
+        {
+          "id": "fey_ancestry",
+          "name": "Fey Ancestry",
+          "description": "Innate resistance to magical charm and sleep effects.",
+          "mechanical_effect": "resistance_charm",
+          "advantage_vs": ["charm", "sleep"]
+        },
+        {
+          "id": "shadow_step",
+          "name": "Shadow Step",
+          "description": "Natural affinity for moving unseen in shadows and dim light. Bonus to stealth in darkness.",
+          "mechanical_effect": "stealth_bonus_darkness"
+        }
+      ],
+      "resistances": [
+        "charm",
+        "sleep_magic"
+      ],
+      "dialogue_flags": {
+        "is_human": false,
+        "is_cavia": false,
+        "is_dwarf": false,
+        "is_drow": true
+      },
+      "lore": "Mysterious denizens of the deep caverns beneath Valoria, drow are rarely seen on the surface. Those who do emerge often seek redemption or have been exiled from their underground cities.",
+      "size_category": "medium",
+      "special_notes": [
+        "Sensitive to bright sunlight (no mechanical penalty in this game)",
+        "Natural proficiency with stealth and deception",
+        "Often misunderstood and mistrusted by surface dwellers"
+      ]
+    }
+  },
+  
+  "race_determination": {
+    "portrait_mapping": {
+      "portraits_1_to_5": "human",
+      "portrait_6": "cavia"
+    }
+  }
+}

@@ -1,5 +1,6 @@
 {
     "id": "pete",
+    "race": "human",
     "name": "Pete Stumblefoot",
     "description": "*A disheveled man sways slightly as he clutches his drink, eyes bright with alcohol and mischief.*",
     "level": 1,

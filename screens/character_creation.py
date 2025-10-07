@@ -40,6 +40,51 @@ def draw_border(surface, x, y, width, height):
     pygame.draw.rect(surface, WHITE, (x, y, width, height), 3)
     pygame.draw.rect(surface, GRAY, (x+3, y+3, width-6, height-6), 2)
 
+def draw_cavia_warning_screen(surface, game_state, fonts, images=None):
+    """Draw warning screen when Cavia portrait selected"""
+    surface.fill(BLACK)
+    
+    # Draw character creation table image at bottom
+    if images and images.get('character_table'):
+        image_height = images['character_table'].get_height()
+        surface.blit(images['character_table'], (0, 768 - image_height))
+    
+    # Draw border box above image
+    border_height = 768 - (images['character_table'].get_height() if images and images.get('character_table') else 100) - 40
+    draw_border(surface, 30, 30, 1024-60, border_height)
+    
+    # Title
+    draw_centered_text(surface, "WAIT... IS THAT A GUINEA PIG?!", 
+                      fonts.get('fantasy_large', fonts['header']), 100, YELLOW)
+    
+    # Warning text with humor
+    text_y = 160
+    draw_centered_text(surface, "Uh, just so you know...", 
+                      fonts.get('fantasy_medium', fonts['normal']), text_y, WHITE)
+    draw_centered_text(surface, "If you select this portrait, your Strength and Constitution", 
+                      fonts.get('fantasy_small', fonts['normal']), text_y + 40, WHITE)
+    draw_centered_text(surface, "will be capped at 10. You're a guinea pig, not a barbarian!", 
+                      fonts.get('fantasy_small', fonts['normal']), text_y + 65, WHITE)
+    
+    draw_centered_text(surface, "On the bright side:", 
+                      fonts.get('fantasy_small', fonts['normal']), text_y + 110, BRIGHT_GREEN)
+    draw_centered_text(surface, "• You get unique dialogue options", 
+                      fonts.get('fantasy_tiny', fonts['small']), text_y + 135, WHITE)
+    draw_centered_text(surface, "• NPCs will be... confused", 
+                      fonts.get('fantasy_tiny', fonts['small']), text_y + 155, WHITE)
+    draw_centered_text(surface, "• Nobody can tell if you're male or female (it's hilarious)", 
+                      fonts.get('fantasy_tiny', fonts['small']), text_y + 175, WHITE)
+    
+    # Buttons
+    button_y = text_y + 230
+    back_button = draw_button(surface, 280, button_y, 200, 50, "PICK SOMETHING ELSE", 
+                             fonts.get('fantasy_small', fonts['normal']))
+    
+    confirm_button = draw_button(surface, 520, button_y, 200, 50, "I'M A GUINEA PIG!", 
+                                fonts.get('fantasy_small', fonts['normal']))
+    
+    return back_button, confirm_button
+
 def draw_button(surface, x, y, width, height, text, font, pressed=False, selected=False):
     """Draw a retro-style button"""
     if selected:
@@ -803,9 +848,9 @@ def draw_portrait_selection_screen(surface, game_state, fonts, images=None):
     draw_centered_text(surface, "Click a portrait to select, then click CONTINUE", 
                       fonts.get('fantasy_small', fonts['normal']), desc_y, YELLOW)
     
-    # Portrait grid (5 portraits, load images or show numbered placeholders)
+    # Portrait grid (6 portraits, load images or show numbered placeholders)
     portrait_size = 110
-    total_width = 5 * portrait_size + 4 * 20  # 5 portraits + 4 gaps of 20px
+    total_width = 6 * portrait_size + 5 * 20  # 6 portraits + 5 gaps of 20px
     start_x = (1024 - total_width) // 2  # Center the row
     portrait_y = image_y + 120  # Position in image area
 
@@ -816,7 +861,7 @@ def draw_portrait_selection_screen(surface, game_state, fonts, images=None):
     else:
         portrait_dir = FEMALE_PORTRAITS_PATH
 
-    for i in range(5):
+    for i in range(6):
         portrait_x = start_x + i * (portrait_size + 20)
         portrait_rect = pygame.Rect(portrait_x, portrait_y, portrait_size, portrait_size)
         
@@ -851,8 +896,9 @@ def draw_portrait_selection_screen(surface, game_state, fonts, images=None):
             number_rect = number_text.get_rect(center=portrait_rect.center)
             surface.blit(number_text, number_rect)
         
-        # Draw border (highlight if selected)
-        if getattr(game_state, 'selected_portrait_index', -1) == i:
+       # Draw border (highlight if selected)
+        current_selection = getattr(game_state, 'selected_portrait_index', -1)
+        if current_selection == i:
             border_color = YELLOW
             border_width = 4
         else:
@@ -861,6 +907,13 @@ def draw_portrait_selection_screen(surface, game_state, fonts, images=None):
         
         pygame.draw.rect(surface, border_color, portrait_rect, border_width)
         portrait_buttons.append(portrait_rect)
+        
+        # Label the 6th portrait as CAVIA
+        if i == 5:  # Index 5 = 6th portrait
+            label_surface = fonts.get('fantasy_tiny', fonts['small']).render("CAVIA", True, BRIGHT_GREEN)
+            label_x = portrait_x + (portrait_size - label_surface.get_width()) // 2
+            label_y = portrait_y + portrait_size + 5
+            surface.blit(label_surface, (label_x, label_y))
     
     # Buttons
     from utils.graphics import draw_button

@@ -1,5 +1,6 @@
 {
     "id": "lyra",
+    "race": "drow",
     "name": "Lyra Quickfingers",
     "description": "*A nimble halfling sits in the shadows, daggers glinting as she practices knife tricks with casual expertise.*",
     "level": 1,

@@ -327,24 +327,6 @@ class ScreenManager:
         
         return False
 
-    # def _handle_npc_clicked(self, event_data):
-    #     """Handle NPC_CLICKED events by navigating to dialogue screen"""
-    #     npc_id = event_data.get('npc_id')
-    #     location = event_data.get('location')
-        
-    #     if npc_id:
-    #         # Navigate to the NPC's dialogue screen
-    #         dialogue_screen = f"{npc_id}_dialogue"
-    #         #print(f"🗣️ ScreenManager: NPC clicked: {npc_id}, navigating to {dialogue_screen}")
-            
-    #         # Use our existing transition method
-    #         if hasattr(self, '_current_game_state'):
-    #             self.transition_to(dialogue_screen, self._current_game_state)
-    #         else:
-    #             print("⚠️ ScreenManager: No game state context available for NPC transition")
-    #     else:
-    #         print(f"⚠️ ScreenManager: NPC_CLICKED event missing npc_id: {event_data}")
-
     def register_stats_screen_clickables(self):
         """Register stats screen clickables when entering stats screen"""
         if hasattr(self, 'input_handler') and self.input_handler:
@@ -458,7 +440,30 @@ class ScreenManager:
             #print("✅ Name confirm screen clickables registered")
         else:
             print("⚠️ No InputHandler available for name confirm screen registration")
-    
+        
+    def register_cavia_warning_clickables(self, game_state=None):
+        """Register Cavia warning screen clickables"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            print("🎮 Registering Cavia warning screen clickables")
+            
+            # Button coordinates from draw_cavia_warning_screen
+            # text_y = 160, button_y = text_y + 230 = 390
+            button_y = 390
+            
+            # BACK button: (280, button_y, 200, 50) - "PICK SOMETHING ELSE"
+            back_rect = pygame.Rect(280, button_y, 200, 50)
+            self.input_handler.register_clickable('cavia_warning', back_rect,
+                                                'CAVIA_WARNING_BACK', {'action': 'CAVIA_WARNING_BACK'})
+            
+            # CONFIRM button: (520, button_y, 200, 50) - "I'M A GUINEA PIG!"
+            confirm_rect = pygame.Rect(520, button_y, 200, 50)
+            self.input_handler.register_clickable('cavia_warning', confirm_rect,
+                                                'CAVIA_WARNING_CONFIRM', {'action': 'CAVIA_WARNING_CONFIRM'})
+            
+            print("✅ Cavia warning clickables registered (2 buttons)")
+        else:
+            print("⚠️ No InputHandler available for Cavia warning screen registration")
+
     def register_portrait_screen_clickables(self):
         """Register portrait screen clickables when entering portrait screen"""
         if hasattr(self, 'input_handler') and self.input_handler:
@@ -467,15 +472,15 @@ class ScreenManager:
             from utils.constants import LAYOUT_IMAGE_Y, LAYOUT_BUTTON_CENTER_Y
             
             portrait_size = 110
-            total_width = 5 * portrait_size + 4 * 20  # 5 portraits + 4 gaps of 20px
+            total_width = 6 * portrait_size + 5 * 20  # 6 portraits + 5 gaps of 20px
             start_x = (1024 - total_width) // 2  # Center the row
-            portrait_y = LAYOUT_IMAGE_Y + 100  # Same as draw function
+            portrait_y = LAYOUT_IMAGE_Y + 120  # Same as draw function
             
             # Register each portrait clickable (1-5)
-            for i in range(5):
+            for i in range(6):
                 portrait_x = start_x + i * (portrait_size + 20)
                 portrait_rect = pygame.Rect(portrait_x, portrait_y, portrait_size, portrait_size)
-                action_name = f'SELECT_PORTRAIT_{i+1}'  # 1-5 for semantic actions
+                action_name = f'SELECT_PORTRAIT_{i+1}'  # 1-6 for semantic actions
                 self.input_handler.register_clickable('portrait_selection', portrait_rect, 
                                                     action_name, {'action': action_name})
             
@@ -991,10 +996,11 @@ class ScreenManager:
             # Import all screen drawing functions
             from screens.title_menu import draw_title_screen, draw_company_splash_screen, draw_main_menu
             from screens.character_creation import (
-                draw_stats_screen, draw_gender_screen, draw_portrait_selection_screen,
-                draw_name_screen, draw_custom_name_screen, draw_name_confirm_screen,
-                draw_gold_screen, draw_trinket_screen, draw_summary_screen, 
-                draw_stats_confirm_low_screen
+                draw_stats_screen, draw_gender_screen, draw_name_screen,
+                draw_custom_name_screen, draw_name_confirm_screen, 
+                draw_portrait_selection_screen, draw_cavia_warning_screen,
+                draw_gold_screen, draw_trinket_screen, draw_stats_confirm_low_screen,
+                draw_summary_screen
             )
             
             from screens.intro_scenes import (
@@ -1031,6 +1037,8 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_name_confirm_screen_clickables()) 
             self.register_render_function("portrait_selection", draw_portrait_selection_screen,
                 enter_hook=lambda _: self.register_portrait_screen_clickables())
+            self.register_render_function("cavia_warning", draw_cavia_warning_screen,
+                enter_hook=lambda game_state: self.register_cavia_warning_clickables(game_state))
             self.register_render_function("gold", draw_gold_screen,
                 enter_hook=lambda _: self.register_gold_screen_clickables())
             self.register_render_function("trinket", draw_trinket_screen,

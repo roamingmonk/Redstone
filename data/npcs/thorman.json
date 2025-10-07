@@ -1,5 +1,6 @@
 {
     "id": "thorman",
+    "race":"dwarf",
     "name": "Thorman Stormhammer",
     "description": "*A stout dwarf cleric sits in meditation, his holy symbol glowing softly with divine light.*",
     "level": 1,

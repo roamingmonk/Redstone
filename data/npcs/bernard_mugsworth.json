@@ -1,5 +1,6 @@
 {
     "id": "regular",
+    "race": "human",
     "name": "Bernard Mugsworth",
     "description": "*An older man sits quietly in the corner, nursing his drink and observing the tavern with surprisingly sharp eyes.*",
     "level": 1,
