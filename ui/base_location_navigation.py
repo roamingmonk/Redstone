@@ -22,6 +22,9 @@ class NavigationRenderer:
         self.map_width = config['map_width']
         self.map_height = config['map_height']
         
+        # Store color function from map (data-driven colors)
+        self.get_tile_color = self.map_functions.get('get_tile_color', None)
+
         # Display area calculation
         self.display_width = SCREEN_WIDTH - PARTY_PANEL_WIDTH - 10
         self.display_height = LAYOUT_IMAGE_HEIGHT
@@ -105,18 +108,27 @@ class NavigationRenderer:
         end_tile_x = min(self.map_width, (self.camera_x + self.display_width) // self.tile_size + 1)
         end_tile_y = min(self.map_height, (self.camera_y + self.display_height) // self.tile_size + 1)
         
-        # Draw visible tiles
+                # Draw visible tiles
         for map_y in range(start_tile_y, end_tile_y):
             for map_x in range(start_tile_x, end_tile_x):
                 tile_type = self.map_functions['get_tile_type'](map_x, map_y)
                 screen_x = (map_x * self.tile_size) - self.camera_x
                 screen_y = (map_y * self.tile_size) - self.camera_y
                 
-                # Get tile image or use color fallback
-                tile_image = self.graphics_manager.get_tile_image(tile_type)
+                # CHANGED: Get tile with map-specific color if available
+                if self.get_tile_color:
+                    # Map provides its own colors (data-driven approach)
+                    custom_color = self.get_tile_color(map_x, map_y)
+                    tile_image = self.graphics_manager.get_tile_image(
+                        tile_type, 
+                        custom_color=custom_color
+                    )
+                else:
+                    # Use default TileGraphicsManager colors
+                    tile_image = self.graphics_manager.get_tile_image(tile_type)
+                
                 surface.blit(tile_image, (screen_x, screen_y))
         
-     
         # Draw player sprite using graphics manager
         player_screen_x = (player_x * self.tile_size) - self.camera_x
         player_screen_y = (player_y * self.tile_size) - self.camera_y

@@ -8,53 +8,71 @@ Map Legend:
 . = Street/Walkable  
 T = Tavern (The Broken Blade)
 B = General Store (Bernard's)
+P = Potion Shop
 M = Mayor's Office
 S = Town Square/Fountain
+C = Church
 G = Gate (exit to world map)
 H = House (decorative)
 A = Alley/Back street
 E = Empty lot
+R = Main road (to/from town)
+g = Ground/grass (outside walls)
 """
 
 # === TOWN MAP CONSTANTS ===
-TOWN_WIDTH = 16
-TOWN_HEIGHT = 12
+TOWN_WIDTH = 18
+TOWN_HEIGHT = 14
 TILE_SIZE = 64
 
 # Player starting position (exits tavern)
-TOWN_SPAWN_X = 3  # Just outside tavern door
-TOWN_SPAWN_Y = 5
+TOWN_SPAWN_X = 7  # Just outside tavern door
+TOWN_SPAWN_Y = 7
 
 # === TILE TYPE DEFINITIONS ===
 TILE_TYPES = {
-    '#': 'wall',         # Impassable walls
-    '.': 'street',       # Walkable cobblestone
-    'T': 'tavern',       # The Broken Blade
+    '#': 'wall',          # Impassable walls
+    '.': 'street',        # Walkable cobblestone
+    'T': 'tavern',        # The Broken Blade
     'B': 'general_store', # Bernard's shop
+    'P': 'potion_shop',   # Potion shop
     'M': 'mayor_office',  # Mayor's office
+    'C': 'church',        # Town church
     'S': 'town_square',   # Town square fountain
-    'G': 'gate',         # Town gates
-    'H': 'house',        # Residential buildings
-    'A': 'alley',        # Back streets
-    'E': 'empty_lot'     # Empty areas
+    'G': 'gate',          # Town gates
+    'H': 'house',         # Residential buildings
+    'A': 'alley',         # Back streets
+    'E': 'empty_lot',     # Empty areas
+    'R': 'main_road',     # Main road to/from town
+    'g': 'ground_grass'   # Ground/grass outside walls (lowercase g)
 }
 
 # === WALKABLE TILES ===
 WALKABLE_TILES = {
-    'street', 'town_square', 'alley', 'empty_lot'
+    'street', 'town_square', 'alley', 'empty_lot', 'main_road', 'ground_grass'
 }
 
 # === BUILDING INTERACTION TILES ===
 BUILDING_TILES = {
     'tavern': {
         'name': 'The Broken Blade Tavern',
-        'screen': 'broken_blade_',
+        'screen': 'broken_blade_main',
         'action': 'Enter tavern'
     },
     'general_store': {
         'name': "Bernard's General Store", 
         'screen': 'general_store',
         'action': 'Enter store'
+    },
+    'potion_shop': {
+        'name': "Potion Shop",
+        'screen': 'potion_shop',
+        'action': 'Enter potion shop'
+    },
+    'church': {
+        'name': "Redstone Church",
+        'screen': 'redstone_church',
+        'action': 'Enter church'
     },
     'mayor_office': {
         'name': "Mayor's Office",
@@ -69,10 +87,11 @@ BUILDING_TILES = {
 }
 
 # === BUILDING/GATE ENTRANCE DEFINITIONS ===
+# Column , Row
 BUILDING_ENTRANCES = {
     'tavern': {
-        'building_pos': (3, 5),
-        'entrance_tiles': [(4, 5)],
+        'building_pos': (6, 7),
+        'entrance_tiles': [(7, 7), (6, 8)],  # In front and below tavern
         'info': {
             'name': 'The Broken Blade Tavern',
             'interaction_type': 'screen_transition',
@@ -81,8 +100,8 @@ BUILDING_ENTRANCES = {
         }
     },
     'general_store': {
-        'building_pos': (12, 5),
-        'entrance_tiles': [(11, 5)],
+        'building_pos': (9, 5),
+        'entrance_tiles': [(8, 5), (9, 6)],  # In front and below store
         'info': {
             'name': "Bernard's General Store",
             'interaction_type': 'npc_dialogue',
@@ -90,24 +109,54 @@ BUILDING_ENTRANCES = {
             'action': 'Talk to Bernard'
         }
     },
+    'potion_shop': {
+        'building_pos': (4, 9),
+        'entrance_tiles': [(5, 9)],  #In front 
+        'info': {
+            'name': "Potion Shop",
+            'interaction_type': 'screen_transition',  # Or npc_dialogue
+            'screen': 'potion_shop',
+            'action': 'Enter potion shop'
+        }
+    },
+    'church': {
+        'building_pos': [(11, 7), (10, 7), (11, 8), (10, 8)],  # 2x2 church
+        'entrance_tiles': [(9, 8), (9, 7)],  # front of church
+        'info': {
+            'name': "Redstone Church",
+            'interaction_type': 'screen_transition',
+            'screen': 'redstone_church',
+            'action': 'Enter church'
+        }
+    },
     'mayor_office': {
-        'building_pos': (7, 8),
-        'entrance_tiles': [(6, 8)],
+        'building_pos': (7, 9),
+        'entrance_tiles': [(7, 8), (8, 9)],  # In front and below office
         'info': {
             'name': "Mayor's Office",
-            'interaction_type': 'npc_dialogue',  # Or screen_transition
-            'npc_id': 'mayor',                   # If direct dialogue
+            'interaction_type': 'npc_dialogue',
+            'npc_id': 'mayor',
             'action': 'Talk to Mayor'
         }
     },
-    'gate': {
-        'building_pos': [(7, 0), (7,11)],
-        'entrance_tiles': [(7, 1), (7,10)],
+    'north_gate': {
+        'building_pos': (8, 1),
+        'entrance_tiles': [(8, 2)],  # Tile just south of north gate
         'info': {
-            'name': "Town Gate",
+            'name': "North Town Gate",
             'interaction_type': 'screen_transition',
             'screen': 'world_map',
-            'action': 'Exit to world map'
+            'action': 'Exit to world map (North)'
+        }    
+    },
+    'south_gate': {
+        'building_pos': (7, 12),
+        'entrance_tiles': [(7, 11)],  # Tile just north of south gate
+        'info': {
+            'name': "South Town Gate",
+            'interaction_type': 'screen_transition',
+            'screen': 'world_map',
+            'action': 'Exit to world map (South)'
         }    
     }
 }
@@ -124,30 +173,40 @@ def get_building_at_entrance(player_x, player_y):
 TILE_COLORS = {
     'wall': (100, 100, 100),        # Gray stone walls
     'street': (80, 60, 40),         # Brown cobblestone  
-    'tavern': (139, 69, 19),        # Brown tavern
+    'tavern': (160, 82, 45),        # Lighter brown tavern
     'general_store': (160, 82, 45), # Lighter brown store
+    'potion_shop': (138, 43, 226),  # Purple potion shop
+    'church': (245, 245, 220),      # Beige/cream church
     'mayor_office': (120, 80, 60),  # Tan civic building
     'town_square': (100, 149, 237), # Blue fountain
     'gate': (160, 160, 160),        # Light gray gate
     'house': (139, 69, 19),         # Brown houses
     'alley': (60, 45, 30),          # Darker street
-    'empty_lot': (0, 100, 0)        # Green grass
+    'empty_lot': (0, 100, 0),       # Green grass
+    'main_road': (101, 67, 33),     # Dark brown road
+    'ground_grass': (34, 139, 34)   # Forest green grass
 }
 
-# === TOWN LAYOUT (16x12 grid) ===
+# === TOWN LAYOUT (18x14 grid) ===
+# Corner battlements create fortified town structure
+# g = Ground/grass outside walls between corner towers (lowercase)
+# R = Main roads leading to north/south gates
+# NOTE: Rows 0 and 13 are decorative borders showing ground outside town walls
 TOWN_MAP = [
-    "#######G########",  # Row 0 - Northern wall and Gate
-    "#..............#",  # Row 1 - Street
-    "#......SSS.....#",  # Row 2 - Town square (top)
-    "#..H...SSS..H..#",  # Row 3 - Town square (middle)
-    "#......SSS.....#",  # Row 4 - Town square (bottom)
-    "#..T...E....B..#",  # Row 5 - Main street (Tavern, empty, Bernard's)
-    "#..............#",  # Row 6 - Street
-    "#......AAA.....#",  # Row 7 - Back alley
-    "#..H...M....H..#",  # Row 8 - Mayor's office row
-    "#..............#",  # Row 9 - Street
-    "#..............#",  # Row A - Street
-    "#######G########"   # Row B - Southern wall and Gate
+    "####ggggRggggg####",  # Row 0 - Top border: corner towers, grass, north road (R at col 8)
+    "########G#########",  # Row 1 - Top wall with north gate (G at col 8)
+    "##..............##",  # Row 2 - Street (corner battlements)
+    "##.HH.HH.HHHAHH.##",  # Row 3 - Houses with alley (corner battlements)
+    "g#.HH.HH.HHHAHH.#g",  # Row 4 - Houses with alley + side grass
+    "g#.HH.HH.BHHAHH.#g", # Row 5 - Bernard's store (B at col 9) + side grass
+    "g#.HH.HSSS......#g",  # Row 6 - Town square (S) begins + side grass
+    "g#.HH.TSSSCCH.H.#g",  # Row 7 - Tavern (T at col 5), square, church (C at cols 9-10) + side grass
+    "g#.....SSSCCH.H.#g",  # Row 8 - Square/church continue + side grass
+    "g#.HP.HM.HHHH.H.#g",  # Row 9 - Potion shop (P at col 3), Mayor (M at col 6) + side grass
+    "##.HH.HH.HHHH.E.##",  # Row 10 - Houses, empty lot (E at col 14) (corner battlements)
+    "##..............##",  # Row 11 - Street (corner battlements)
+    "#######G##########",  # Row 12 - Bottom wall with south gate (G at col 7)
+    "####gggRgggggg####"   # Row 13 - Bottom border: corner towers, grass, south road (R at col 7)
 ]
 
 def get_tile_type(x, y):
@@ -162,13 +221,11 @@ def is_walkable(x, y):
     tile_type = get_tile_type(x, y)
     return tile_type in WALKABLE_TILES
 
-#TODO not being called consider use
 def get_building_info(x, y):
     """Get building information if tile is a building"""
     tile_type = get_tile_type(x, y)
     return BUILDING_TILES.get(tile_type, None)
 
-#TODO not being called consider use
 def get_tile_color(x, y):
     """Get color for tile at coordinates"""
     tile_type = get_tile_type(x, y)

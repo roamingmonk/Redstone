@@ -1,156 +1,310 @@
-# Terror in Redstone - Project Context & Status
+# Terror in Redstone — Project Context
 
-## Current Project Status: Professional RPG Framework - Dialogue System Complete
+> **Living overview of the project.** This document provides orientation for developers (human or AI) joining the project. For detailed decisions, see `docs/decisions.md`. For implementation specifics, see individual system documentation.
 
-### System Status Overview Sep 14
+---
 
-**Core Infrastructure**: ✅ FULLY OPERATIONAL
-- Event-driven architecture with professional EventManager
-- Complete screen management with overlay systems
-- Professional asset pipeline and save/load systems
-- Industry-standard separation of concerns
+## 1. Project Snapshot
 
-**Commerce & Character Systems**: ✅ FULLY OPERATIONAL  
-- Complete merchant system with tabbed interface
-- Professional inventory management with icons
-- Character creation and advancement systems
-- Gambling and recruitment mechanics
+**Name:** Terror in Redstone  
+**Genre:** Classic 2D RPG with tactical turn-based combat  
+**Tech Stack:** Python 3.11+, Pygame  
+**Architecture:** Event-driven, JSON-first content system  
+**Development Phase:** Core systems complete, combat integration in progress  
+**Current Date:** October 2025
 
-**Dialogue System**: ✅ FULLY OPERATIONAL *(MAJOR MILESTONE ACHIEVED)*
-- Professional dialogue engine with flag-based state evaluation
-- Natural conversation flow with contextual resets
-- Scalable NPC creation framework (JSON + schema approach)
-- Comprehensive keyboard input support (1-9 choices + shortcuts)
-- Hybrid state management preventing stuck conversations
+**One-Line Pitch:**  
+Professional old-school RPG demonstrating modern game architecture with data-driven content creation.
 
-### Dialogue System Architecture Achievement (Sept 14, 2025)
+---
 
-**Resolution of Complex Architectural Challenge**: Successfully integrated multiple competing design patterns to achieve professional RPG dialogue functionality.
+## 2. What's Built & Working
 
-**Final Architecture Pattern**:
-- **Stored States**: During active conversations for continuity
-- **Dynamic Evaluation**: On fresh NPC interactions for contextual appropriateness  
-- **Casual Chat Integration**: Prevents social interaction dead-ends
-- **Professional Exit Handling**: Natural conversation completion with proper state cleanup
+### ✅ Core Systems (Production-Ready)
+- **Character System:** Creation, advancement, party management (player + 3 NPCs), XP notifications
+- **Dialogue System:** JSON-driven conversations with narrative schema state management
+- **Commerce:** Merchant interactions, item purchasing, inventory management
+- **Quest System:** JSON-driven objectives with pagination, XP rewards, flag-based progression
+- **Save/Load:** Complete persistence (5 manual slots + quicksave + autosave) with portrait restoration and screen resume
+- **Overlay Framework:** Universal self-registering overlays (Character, Quest, Inventory, Statistics, Help, Save/Load)
+- **Tactical Combat:** Multi-party turn-based combat with DEX-based initiative, collision detection, active character highlighting
+- **BaseLocation System:** Auto-registration architecture - new areas require only JSON, zero code changes
 
-**Technical Implementation**:
-- Flag-based condition evaluation using narrative schema
-- Hybrid state management combining best of both approaches
-- Expanded keyboard input handling supporting 1-9 dialogue choices
-- Automatic conversation data clearing on exit preventing stuck states
+### 🔨 In Active Development
+- **Combat Refinement:** Enemy AI improvements, spell system integration, party member abilities
+- **Additional Location Content:** Redstone Town Church, Alley, roaming NPCs using established BaseLocation patterns
 
-**Content Creation Framework**:
-- Single JSON file creation for new NPCs
-- Narrative schema integration for professional state management
-- Updated creation guide with casual chat pattern integration
-- Scalable architecture ready for unlimited NPC expansion
+### 📋 Planned (Foundation Ready)
+- World map tile movement system
+- Key region development (Hill Ruins, Swamp Church, Refugee Camp)
+- Additional location content (Redstone Town Church, Alley, roaming NPCs, etc.)
+- Advanced spell system (mage/cleric abilities)
+- Formation strategies and character-specific equipment effects
 
-### Technical Architecture Status
+---
 
-**File Structure**:
+## 3. Architecture Overview
+
+### Core Principles
+1. **Single Data Authority:** `GameState` is sole source of truth; engines are stateless processors
+2. **Event-Driven:** `EventManager` coordinates all system communication
+3. **JSON-First:** New content = JSON file creation, minimal code changes
+4. **Separation of Concerns:** Clean layers (data / logic / presentation)
+
+### System Layers
+
+```
+┌─────────────────────────────────────────────┐
+│  Presentation (screens/, ui/)              │
+│  - Rendering and user interaction          │
+└─────────────────────────────────────────────┘
+                    ↕ Events
+┌─────────────────────────────────────────────┐
+│  Event Bus (EventManager)                  │
+│  - All system coordination                 │
+└─────────────────────────────────────────────┘
+                    ↕ Events
+┌─────────────────────────────────────────────┐
+│  Game Logic (game_logic/)                  │
+│  - Dialogue, Quest, Combat, Character      │
+│  - Stateless processors                    │
+└─────────────────────────────────────────────┘
+                    ↕ Read/Write
+┌─────────────────────────────────────────────┐
+│  Game State (game_state.py)                │
+│  - Single source of truth                  │
+│  - All game data lives here                │
+└─────────────────────────────────────────────┘
+                    ↕ Loads
+┌─────────────────────────────────────────────┐
+│  Data Files (data/)                        │
+│  - JSON configuration for all content      │
+└─────────────────────────────────────────────┘
+```
+
+### Key Architectural Patterns
+- **BaseLocation:** Data-driven location screens with auto-registration (see `ui/base_location.py`)
+- **BaseTabbedOverlay:** Universal overlay system with self-registration
+- **Narrative Schema:** Centralized flag definitions preventing mismatches (`data/narrative_schema.json`)
+- **Combat Data Loader:** Three-layer JSON system (enemies/encounters/battlefields)
+- **XP Notifications:** Floating text system for real-time player feedback (`ui/notifications.py`)
+
+---
+
+## 4. Major Architectural Decisions
+
+For complete ADR history, see `docs/decisions.md`. Key decisions that shape the codebase:
+
+- **ADR-001:** Single Data Authority (GameState pattern)
+- **ADR-002:** Event System Foundation (EventManager hub)
+- **ADR-015:** ScreenManager Architecture (lifecycle management)
+- **ADR-044:** Universal Self-Registering Overlays
+- **ADR-046:** BaseLocation Core (JSON-driven locations)
+- **ADR-057:** Recruitment System Alignment (party synchronization)
+- **ADR-063:** Dialogue System Architecture (state-based conversations)
+- **ADR-093:** Quest System Restructuring (pagination, JSON-driven)
+- **ADR-094:** Combat Data Layer Foundation (three-file JSON approach)
+- **ADR-104:** Multi-Party Tactical Combat (DEX initiative, character states)
+- **ADR-112:** BaseLocation Auto-Registration (zero-code area creation)
+
+---
+
+## 5. Current Game Flow
+
+### High-Level Player Journey
+```
+Title Screen → Character Creation → Intro Sequence → 
+Broken Blade Tavern → Mayor Quest → NPC Recruitment → 
+[Combat System] → World Exploration → Final Dungeon
+```
+
+### Recruitment Flow Example
+```
+Talk to Mayor → Accept Quest (flag: quest_active) → 
+Talk to Recruitable NPCs → Party Formed (max 3 NPCs) → 
+Party Synchronized to GameState
+```
+
+### Combat Flow (Operational)
+```
+Combat Trigger → Load Encounter Data → 
+Initiative Roll (DEX + d20) → Turn Order Established →
+Tactical Grid Display → Multi-Party Turn-Based Actions →
+Active Character Highlighted (CYAN) → Enemy AI Responds →
+Victory/Defeat Resolution → XP Awards → Return to World
+```
+
+---
+
+## 6. File Organization
+
+### Key Directories
 ```
 redstone/
 ├── core/
-│   └── game_state.py           # ✅ Central state management
-├── game_logic/
-│   ├── event_manager.py        # ✅ Professional event system
-│   ├── dialogue_engine.py      # ✅ Complete dialogue framework
-│   ├── commerce_engine.py      # ✅ Complete merchant system
-│   ├── inventory_engine.py     # ✅ Full item management
-│   └── character_engine.py     # ✅ Character progression
-├── ui/
-│   ├── screen_manager.py       # ✅ Professional screen management
-│   ├── generic_dialogue_handler.py # ✅ Universal dialogue renderer
-│   └── base_tabbed_overlay.py  # ✅ Professional overlay system
-├── utils/
-│   ├── narrative_schema.py     # ✅ Story flag coordination
-│   └── dialogue_ui_utils.py    # ✅ Pure utility functions
-└── data/
-    ├── narrative_schema.json   # ✅ Complete story mapping
-    └── dialogues/              # ✅ Professional dialogue content
+│   ├── game_controller.py      # Main game coordinator
+│   └── game_state.py            # Single data authority
+│
+├── game_logic/                  # Stateless game engines
+│   ├── dialogue_engine.py       # Conversation processing
+│   ├── quest_engine.py          # Objective tracking
+│   ├── combat_engine.py         # Battle mechanics
+│   ├── character_engine.py      # Stats & advancement
+│   └── event_manager.py         # Message bus
+│
+├── screens/                     # Individual screen modules
+│   ├── character_overlay.py     # 4-tab character sheet
+│   ├── quest_overlay.py         # Quest tracking
+│   ├── statistics_overlay.py    # 3-tab game statistics
+│   └── [others]
+│
+├── ui/                          # Presentation layer
+│   ├── screen_manager.py        # Screen lifecycle
+│   ├── base_location.py         # JSON-driven locations
+│   ├── combat_system.py         # Tactical combat UI
+│   └── notifications.py         # Floating XP notifications
+│
+├── utils/                       # Shared utilities
+│   ├── narrative_schema.py      # Story flag coordination
+│   ├── combat_loader.py         # Combat data management
+│   └── constants.py             # Colors, fonts, dimensions
+│
+└── data/                        # JSON content
+    ├── narrative_schema.json    # Master flag definitions
+    ├── dialogues/               # NPC conversations
+    ├── locations/               # Location configurations
+    ├── combat/                  # Enemies, encounters, battlefields
+    └── player/                  # Classes, items, templates
 ```
 
-**Component Status**:
+---
 
-- **EventManager**: ✅ Professional message bus with history tracking
-- **ScreenManager**: ✅ Handles all screen transitions and rendering
-- **DialogueEngine**: ✅ Complete professional dialogue framework
-- **Commerce System**: ✅ Complete buy/sell with transaction processing  
-- **Character System**: ✅ Creation, advancement, party management
-- **Inventory System**: ✅ Icon-based display with full item management
-- **Save/Load System**: ✅ Comprehensive state persistence
+## 7. Content Creation Workflow
 
-### Current Development Readiness
+### Adding a New NPC (Dialogue)
+1. Create `data/dialogues/location_npcname.json` (see `docs/adding_npc_dialogue.md`)
+2. Add NPC to `data/narrative_schema.json` (story flags and mapping)
+3. Reference NPC in location JSON (no code changes needed)
 
-**High Priority - Content Expansion** *(Framework Complete)*:
-1. Create remaining NPC dialogues using established JSON + schema pattern
-2. Implement casual chat states for existing NPCs (Meredith, Pete, recruitment NPCs)
-3. Expand Garrick's dialogue content with additional story branches
-4. Add quest integration triggers based on dialogue progression
+### Adding a New Location
+1. Create `data/locations/location_name.json` (see BaseLocation architecture doc)
+2. Define navigation actions, NPC references, image path
+3. Location auto-loads via LocationManager (no code registration needed)
 
-**Medium Priority - System Integration**:
-1. Complete BaseLocation system implementation
-2. Add world map and location navigation
-3. Implement combat system integration with dialogue triggers
-4. Advanced quest mechanics with dialogue-driven progression
+### Adding a Combat Encounter
+1. Define enemy in `data/combat/enemies/enemy_name.json`
+2. Create encounter in `data/combat/encounters/encounter_name.json`
+3. Define battlefield in `data/combat/battlefields/battlefield_name.json`
+4. Reference encounter from dialogue/location (data-driven trigger)
 
-**Low Priority - Polish & Enhancement**:
-1. Audio system integration
-2. Advanced animation and transition effects
-3. Expanded party management features
-4. Additional game mechanics and systems
+### Adding a Quest
+1. Define quest structure in `data/narrative_schema.json`
+2. Set quest triggers (dialogue flags, discovery flags)
+3. Quest automatically appears in quest overlay with objectives
 
-### Development Methodology Success
+---
 
-The project demonstrates professional game development practices with successful resolution of complex architectural challenges:
+## 8. Getting Oriented as a New Developer
 
-**✅ Infrastructure First**: Solid foundation enabled rapid feature development and complex problem resolution
-**✅ Event-Driven Design**: Clean separation between systems proved essential for dialogue architecture success
-**✅ Professional Debugging**: Comprehensive logging enabled systematic problem diagnosis and resolution
-**✅ Modular Architecture**: System isolation allowed surgical fixes without affecting other components
-**✅ Industry Standards**: Code organization and patterns ready for team development and commercial release
+### If You Want to Understand...
 
-### Educational Value & Learning Outcomes
+**Overall Architecture:**
+- Read this document first (you are here!)
+- Review `docs/decisions.md` for key ADRs (ADR-001, -002, -015, -044, -046)
+- Examine `game_state.py` to see data structure
 
-**Technical Skills Demonstrated**:
-- Complex software architecture problem-solving
-- Multi-pattern integration for optimal solutions
-- Professional debugging and systematic issue resolution
-- Event-driven programming with loose coupling
-- Data-driven design with JSON configuration
-- Advanced state management and persistence
+**The Dialogue System:**
+- Read `docs/NPC Dialogue Creation Sep 14 v2.docx`
+- Examine `game_logic/dialogue_engine.py`
+- Look at `data/dialogues/broken_blade_garrick.json` as example
 
-**Game Development Concepts**:
-- Professional RPG dialogue system architecture
-- Hybrid state management patterns
-- Scalable content creation frameworks
-- User experience design for natural interaction flow
-- Industry-standard development practices
+**The Combat System:**
+- Read `docs/Terror in Redstone - Tactical Combat System V1.0`
+- Examine `utils/combat_loader.py` for data management
+- Review `game_logic/combat_engine.py` for business logic
+- Check `ui/combat_system.py` for presentation
 
-**Architecture Lessons Learned**:
-- Single-pattern solutions may not suit complex requirements
-- Hybrid approaches can provide optimal functionality
-- Professional debugging infrastructure accelerates development
-- Systematic problem diagnosis prevents architectural debt
-- Clean separation of concerns enables surgical problem resolution
+**BaseLocation Pattern:**
+- Read `docs/BaseLocation Architecture Implementation Plan`
+- Examine `ui/base_location.py` for class hierarchy
+- Look at `data/locations/broken_blade.json` as example
 
-### Next Session Objectives
+**Quest System:**
+- Review ADR-093 in `docs/decisions.md`
+- Examine `game_logic/quest_engine.py`
+- Check `data/narrative_schema.json` for quest definitions
 
-1. **Implement casual chat states** for existing NPCs (Meredith, Pete, recruitment NPCs)
-2. **Expand dialogue content** using established creation framework
-3. **Test complete tavern social system** with all NPCs having casual chat options
-4. **Document NPC creation workflow** for future content development
-5. **Plan BaseLocation system implementation** as next major architectural milestone
+### Common Development Tasks
 
-### Project Achievement Summary
+**Debug Game State:**
+- Press F1 (dialogue state), F2 (flags), F3 (quest progress)
+- Check console output for event tracing
 
-**Terror in Redstone** has successfully evolved from basic programming exercises into a **professional RPG framework** demonstrating industry-standard practices and architectural excellence. The dialogue system completion represents a major milestone showcasing:
+**Test a Feature:**
+- F5 = Quick Save
+- F7 = Manual Save Menu
+- F10 = Load Game Menu
 
-- **Complex Problem Resolution**: Successfully integrated competing architectural patterns
-- **Professional Architecture**: Industry-standard dialogue system suitable for commercial development  
-- **Scalable Framework**: Content creation requires only JSON configuration
-- **Educational Excellence**: Demonstrates transition from beginner to professional development practices
+**Hotkeys (In-Game):**
+- I = Inventory Overlay
+- Q = Quest Overlay  
+- C = Character Overlay
+- S = Statistics Overlay
+- H = Help Overlay
+- B/Backspace/ESC = Back/Close
 
-The project now provides a complete foundation for RPG development with professional systems ready for content expansion and team development.
+---
 
-**Status**: Ready for content expansion phase with complete technical infrastructure.
+## 9. Development Standards
+
+### Code Quality Expectations
+- **Modular:** Clean separation between data/logic/presentation
+- **Event-Driven:** Use EventManager, avoid direct coupling
+- **JSON-First:** New content should require minimal/no code changes
+- **Error Handling:** Graceful fallbacks, never crash
+- **Documentation:** ADR for architectural decisions, inline comments for complex logic
+
+### Testing Approach
+- Manual testing with F-key debug overlays
+- Console logging for event tracing
+- Save/load validation for state persistence
+- Incremental feature addition with regression testing
+
+---
+
+## 10. Project Status Summary
+
+**Strengths:**
+- Professional event-driven architecture established
+- JSON-driven content pipeline functional for all major systems
+- Core RPG systems complete, stable, and production-ready
+- Multi-party tactical combat with initiative system operational
+- BaseLocation auto-registration enables zero-code area creation
+- Clean separation of concerns throughout
+- Excellent foundation for rapid content expansion
+
+**Active Work:**
+- Combat refinement (enemy AI, spell integration, party abilities)
+- Additional location content using established patterns
+- Advanced spell system for mage/cleric classes
+
+**Technical Debt:**
+- Code cleanup needed - multiple architectural iterations may have left orphaned code
+- Potential duplicate functions across modules requiring consolidation
+- Legacy patterns may exist alongside modern implementations
+- Full codebase audit recommended to streamline and remove dead code
+- Combat system has minor enhancement opportunities (enemy multi-attack, spell variety)
+- World map tile movement system planned but not started
+
+**Ready for Content Expansion:**
+- Additional NPCs via JSON dialogue files
+- New locations/areas via BaseLocation JSON configs (auto-registers)
+- New quests via narrative schema definitions
+- New combat encounters via three-file JSON system
+- Full party combat scenarios with existing framework
+
+---
+
+**Last Updated:** October 6, 2025  
+**For Detailed Changes:** See `docs/decisions.md`  
+**For Implementation Help:** See system-specific docs in `/docs`

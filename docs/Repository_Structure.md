@@ -1,8 +1,8 @@
-﻿## Repository Structure (generated 2025-10-01 19:32)
+﻿## Repository Structure (generated 2025-10-06 10:45)
 ```text
-Folder PATH listing for volume OS
-Volume serial number is 86A5-907E
-C:.
+Folder PATH listing
+Volume serial number is 36E2-184C
+D:.
 |   game_state.py
 |   input_handler.py
 |   main.py
@@ -13,6 +13,9 @@ C:.
 |       settings.json
 |       
 +---assets
+|   +---borders
+|   |       gold_frame_64_ugly.png
+|   |       
 |   +---fonts
 |   |       MedievalSharp-Regular.ttf
 |   |       
@@ -90,6 +93,7 @@ C:.
 |       |   |       rapier.png
 |       |   |       shield.PNG
 |       |   |       shield_plus_1.PNG
+|       |   |       shortbow.png
 |       |   |       small_brass_key.jpg
 |       |   |       small_bronze_mirror.jpg
 |       |   |       smooth_river_stone_with_runes.jpg
@@ -113,6 +117,9 @@ C:.
 |       |   +---fire
 |       |   |       campfire_animation.png
 |       |   |       torch_animation.png
+|       |   |       
+|       |   +---landscape
+|       |   |       star_twinkle_1.png
 |       |   |       
 |       |   \---player
 |       \---tiles
@@ -144,6 +151,7 @@ C:.
 |   |   |       
 |   |   \---enemies
 |   |           giant_rat.json
+|   |           ogre_archer.json
 |   |           
 |   +---dialogues
 |   |       broken_blade_garrick.json
@@ -187,7 +195,6 @@ C:.
 |   |       character_names.json
 |   |       current_character.json
 |   |       low_stats_comments.json
-|   |       trinkets.json
 |   |       
 |   +---templates
 |   |       player_template.json
@@ -202,7 +209,6 @@ C:.
 |       
 +---game_logic
 |   |   character_engine.py
-|   |   combat_engine copy.py
 |   |   combat_engine.py
 |   |   commerce_engine.py
 |   |   data_manager.py
@@ -223,9 +229,10 @@ C:.
 |       save_slot_1.json
 |       save_slot_2.json
 |       save_slot_3.json
+|       save_slot_4.json
+|       save_slot_5.json
 |       
 +---screens
-|   |   character_advancement.py
 |   |   character_creation.py
 |   |   character_overlay.py
 |   |   gambling_dice.py
@@ -235,8 +242,9 @@ C:.
 |   |   load_game.py
 |   |   quest_overlay.py
 |   |   redstone_town.py
-|   |   redstone_town_navigation.py
+|   |   redstone_town_navigation.py.OLD
 |   |   save_game.py
+|   |   statistics_overlay.py
 |   |   title_menu.py
 |   |   __init__.py
 |   |   
@@ -250,6 +258,7 @@ C:.
 |   |   combat_system.py
 |   |   death_overlay.py
 |   |   generic_dialogue_handler.py
+|   |   notifications.py
 |   |   screen_handlers.py
 |   |   screen_manager.py
 |   |   shopping_overlay.py

@@ -1838,6 +1838,21 @@ Foundation: Enables pure JSON dungeon creation with multiple explorable areas
 **Files Modified:** utils/location_loader.py, ui/screen_manager.py
 Example: Adding 5 areas to hill_ruins.json automatically creates 5 navigable screens without touching Python code.
 
+# ADR-116: Map-Driven Spawn Point Architecture
+# Date: October 6, 2025
+# Status: Implemented
+**Context:** Town spawn positions were hardcoded in game_state.py, creating dual maintenance burden and violating data-driven architecture when map files already defined spawn points.
+**Decision:** Removed spawn position initialization from GameState. Each map screen handler initializes player position from its own map file constants on first entry using existing `update_player_position()` pattern.
+**Implementation:** 
+- Deleted `town_player_x` and `town_player_y` initialization from game_state.py `__init__`
+- Map files define spawn via `TOWN_SPAWN_X`, `TOWN_SPAWN_Y` constants
+- Screen handlers check `hasattr(game_state, 'map_player_x')` and initialize from map constants if missing
+- Position initialization moved from render to update method to prevent attribute access errors
+**Consequences:** 
+- Positive: Each map controls its own spawn point (single source of truth); adding new maps requires zero game_state.py changes; scales to unlimited maps
+- Architecture: Aligns with JSON-first, data-driven philosophy; eliminates hardcoded cross-file dependencies
+**Files Modified:** game_state.py (removed lines), redstone_town.py (call order fix)
+**Result:** Map spawn points defined once in map files; architecture scales cleanly to world map, dungeons, and future locations without touching GameState.
 
 ```
 ## ADR-XXX: <Short title>

@@ -152,10 +152,23 @@ class TileGraphicsManager:
                 print(f"⚠️ Error loading NPC sprite {npc_type}: {e}")
                 self.character_sprites['npcs'][npc_type] = self.create_npc_fallback(npc_type)
     
-    def create_tile_fallback(self, tile_type):
-        """Create colored fallback tiles with universal color mapping"""
+    def create_tile_fallback(self, tile_type, custom_color=None):
+        """
+        Create colored fallback tiles with universal color mapping
         
-        # Universal fallback colors for any tile system
+        Args:
+            tile_type: Type of tile to create
+            custom_color: Optional RGB tuple to override default color
+        """
+        
+        # If custom color provided by map, use it (data-driven approach)
+        if custom_color:
+            surface = pygame.Surface((self.tile_size, self.tile_size))
+            surface.fill(custom_color)
+            pygame.draw.rect(surface, BLACK, (0, 0, self.tile_size, self.tile_size), 1)
+            return surface
+        
+        # Otherwise use universal fallback colors
         fallback_colors = {
             # Terrain
             'street': (80, 60, 40),
@@ -167,12 +180,14 @@ class TileGraphicsManager:
             
             # Buildings
             'wall': (100, 100, 100),
-            'tavern': (139, 69, 19),
+            'tavern': (160, 82, 45),
             'general_store': (160, 82, 45),
             'mayor_office': (120, 80, 60),
             'house': (139, 69, 19),
             'inn': (150, 75, 25),
             'shop': (155, 85, 50),
+            'potion_shop': (138, 43, 226),
+            'church': (245, 245, 220),
             
             # Decorations
             'town_square': (100, 149, 237),
@@ -225,9 +240,22 @@ class TileGraphicsManager:
     # PUBLIC API - Used by all tile systems
     # ========================================
     
-    def get_tile_image(self, tile_type):
-        """Get tile image (graphic or colored fallback)"""
-        return self.tile_images.get(tile_type, self.create_tile_fallback(tile_type))
+    def get_tile_image(self, tile_type, custom_color=None):
+        """
+        Get tile image (graphic or colored fallback)
+        
+        Args:
+            tile_type: Type of tile to get
+            custom_color: Optional RGB tuple to override default fallback color
+        """
+        # If we have a loaded image, use it
+        if tile_type in self.tile_images:
+            return self.tile_images[tile_type]
+        
+        # Create fallback with custom color if provided
+        return self.create_tile_fallback(tile_type, custom_color)
+
+
     
     def get_player_sprite(self, direction='down'):
         """Get player sprite facing specified direction"""

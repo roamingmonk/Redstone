@@ -14,8 +14,10 @@ from utils.narrative_schema import narrative_schema
 # Import town map data
 try:
     from data.maps.redstone_town_map import *
+    print(f"DEBUG: Imported spawn point = ({TOWN_SPAWN_X}, {TOWN_SPAWN_Y})")
 except ImportError:
     # Fallback data
+    print("DEBUG: Using fallback spawn")
     TOWN_WIDTH, TOWN_HEIGHT = 16, 12
     TOWN_SPAWN_X, TOWN_SPAWN_Y = 8, 6
     def get_tile_type(x, y): return 'street'
@@ -31,7 +33,8 @@ class RedstoneTownNavigation:
             'map_functions': {
                 'get_tile_type': get_tile_type,
                 'is_walkable': is_walkable,
-                'get_building_info': get_building_at_entrance
+                'get_building_info': get_building_at_entrance,
+                'get_tile_color': get_tile_color
             }
         }
         
@@ -43,10 +46,11 @@ class RedstoneTownNavigation:
 
         # Use shared graphics manager (singleton)
         self.graphics_manager = get_tile_graphics_manager()
-
+        # After all your imports, before the class definition:
         print("Town navigation initialized with shared renderer")
     
     def update_player_position(self, game_state):
+                
         """Initialize player position if needed"""
         if not hasattr(game_state, 'town_player_x'):
             game_state.town_player_x = TOWN_SPAWN_X
@@ -57,6 +61,9 @@ class RedstoneTownNavigation:
     
     def update(self, dt, keys, game_state, controller=None):
         """Update town navigation state"""
+        # Initialize position FIRST before using it
+        self.update_player_position(game_state)
+        
         # Handle movement using shared renderer
         new_x, new_y = self.renderer.handle_movement(
             keys, game_state.town_player_x, game_state.town_player_y
@@ -136,8 +143,7 @@ class RedstoneTownNavigation:
     def render(self, surface, fonts, game_state):
         """Render town navigation screen"""
         surface.fill(BLACK)
-        self.update_player_position(game_state)
-        
+                
         # Draw party status panel
         draw_party_status_panel(surface, game_state, fonts)
         
