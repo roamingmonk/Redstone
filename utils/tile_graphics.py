@@ -58,25 +58,43 @@ class TileGraphicsManager:
             'grass': 'terrain/grass_square.png',
             'dirt': 'terrain/dirt_alley.png',
             'stone_floor': 'terrain/stone_floor.png',
+            'town_road': 'terrain/town_road.png',
             
             # Building tiles (reusable across towns)
             'wall': 'buildings/stone_wall.png',
+            'wall_north': 'buildings/wall_north.png',
+            'wall_south': 'buildings/wall_south.png',
+            'wall_east': 'buildings/wall_east.png',
+            'wall_west': 'buildings/wall_west.png',
+            'wall_corner_nw': 'buildings/wall_corner_nw.png',
+            'wall_corner_ne': 'buildings/wall_corner_ne.png',
+            'wall_corner_sw': 'buildings/wall_corner_sw.png',
+            'wall_corner_se': 'buildings/wall_corner_se.png',
+            
+            #building exteriors
             'tavern': 'buildings/tavern_exterior.png',
             'general_store': 'buildings/general_store_exterior.png',
             'mayor_office': 'buildings/civic_building.png',
             'house': 'buildings/house_exterior.png',
+            'church_nw': 'buildings/church_nw.png',
+            'church_sw': 'buildings/church_sw.png',
+            'church_ne': 'buildings/church_ne.png',
+            'church_se': 'buildings/church_se.png',
             'inn': 'buildings/inn_exterior.png',
             'shop': 'buildings/shop_exterior.png',
-            
+           
+
             # Decoration tiles (universal)
-            'town_square': 'decorations/town_fountain.png',
-            'gate': 'decorations/town_gate.png',
+            'town_square_fountain': 'decorations/town_fountain.png',
+            'gate_north': 'decorations/gate_north.png',
+            'gate_south': 'decorations/gate_south.png',
             'well': 'decorations/water_well.png',
             'tree': 'decorations/tree.png',
             'rock': 'decorations/rock.png',
             
             # World map tiles (for future use)
             'world_grass': 'world/grass_plains.png',
+            'world_hills': 'world/hills_grass.png',
             'world_forest': 'world/forest_canopy.png',
             'world_mountain': 'world/mountain_peak.png',
             'world_water': 'world/water_surface.png',
@@ -134,7 +152,7 @@ class TileGraphicsManager:
                 self.character_sprites['player'][direction] = self.create_player_fallback()
         
         # NPC sprites (for future use)
-        npc_types = ['guard', 'merchant', 'citizen', 'noble']
+        npc_types = ['guard', 'merchant', 'citizen', 'noble', 'henrik']
         self.character_sprites['npcs'] = {}
         
         for npc_type in npc_types:
@@ -228,7 +246,8 @@ class TileGraphicsManager:
             'guard': (255, 165, 0),      # Orange
             'merchant': (128, 0, 128),   # Purple
             'citizen': (100, 100, 255),  # Blue
-            'noble': (255, 215, 0)       # Gold
+            'noble': (255, 215, 0),        #Gold
+            'henrik': (139, 90, 43)        # Brown
         }
         
         color = npc_colors.get(npc_type, (255, 255, 0))  # Yellow default

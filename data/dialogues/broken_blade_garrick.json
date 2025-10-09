@@ -4,7 +4,7 @@
   
   "states": {
     "first_meeting": {
-      "introduction": ["Name's Garrick. I run this place.", "Keep it civil and we'll get along fine."],
+      "introduction": ["Name's Garrick. I run this place.", "*The floor trembles slightly beneath your feet*", "Keep it civil and we'll get along fine."],
       "options": [
         {
           "id": "ask_supplies",
@@ -116,7 +116,12 @@
     },
     
     "knows_about_ruins": {
-      "introduction": ["You heard about those ruins, eh?", "Dangerous place. People go missing up there."],
+      "introduction": [
+        "You heard about those ruins, eh?",
+        "Dangerous place. People go missing up there.",
+        "*He lowers his voice*",
+        "And with these tremors getting worse...",
+        "Something's stirring that should have stayed buried."],
       "options": [
         {
           "id": "ask_mayor_about_missing",
@@ -191,6 +196,18 @@
           "id": "ask_more_about_ruins",
           "text": "What else can you tell me about the ruins?",
           "next_state": "ruins_details"
+        },
+        { 
+          "id": "ask_tremors",
+          "text": "Have you noticed the tremors getting worse?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "garrick_mentioned_tremors",
+              "value": true
+            }
+          ],
+          "next_state": "tremor_discussion"
         }
       ]
     },
@@ -314,7 +331,13 @@
     },
     
     "henrik_location": {
-      "introduction": ["Henrik's usually at the market during the day.", "Sells what few vegetables his hands can still tend.", "But like I said,","he won't talk about the ruins."],
+      "introduction": [
+        "Henrik's usually in the town square these days.",
+        "Sells vegetables from a cart.",
+        "Used to be the best miner in Redstone.",
+        "*He shakes his head*",
+        "But he won't talk about the ruins.",
+        "Something happened to him up there."],
       "options": [
         {
           "id": "ill_try",
@@ -574,6 +597,19 @@
           "next_state": "knows_about_ruins"
         },
         {
+          "id": "ask_tremors_casual",
+          "text": "These tremors are getting worse.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "garrick_mentioned_tremors",
+              "value": true
+            }
+          ],
+          "next_state": "tremor_discussion"
+        },
+    
+        {
           "id": "goodbye_casual",
           "text": "Just saying hello.",
           "next_state": "exit"
@@ -588,6 +624,162 @@
           "id": "will_be_careful",
           "text": "I will. Thanks again.",
           "next_state": "exit"
+        }
+      ]
+    },
+    "tremor_discussion": {
+      "introduction": [
+        "*Garrick nods grimly*",
+        "Aye. Started about three weeks ago.",
+        "Just small shakes at first. Now?",
+        "*A glass rattles on the bar*",
+        "Getting worse every day.",
+        "And I've got a bad feeling about where they're coming from."
+      ],
+      "options": [
+        {
+          "id": "where_from",
+          "text": "Where do you think they're coming from?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "garrick_linked_tremors_ruins",
+              "value": true
+            }
+          ],
+          "next_state": "tremor_ruins_connection"
+        },
+        {
+          "id": "worrying",
+          "text": "That is concerning.",
+          "next_state": "casual_chat"
+        }
+      ]
+    },
+
+    "tremor_ruins_connection": {
+      "introduction": [
+        "The Hill Ruins. Has to be.",
+        "*He polishes a glass absently*",
+        "They line up too perfectly.",
+        "Every major tremor? Feels like it's coming from that direction.",
+        "And it's not just the ground shaking.",
+        "People are having nightmares. Hearing things."
+      ],
+      "options": [
+        {
+          "id": "hearing_what",
+          "text": "What are they hearing?",
+          "next_state": "tremor_effects"
+        },
+        {
+          "id": "ruins_investigation",
+          "text": "Someone should investigate the ruins.",
+          "next_state": "investigation_agreement"
+        },
+        {
+          "id": "enough_tremors",
+          "text": "I've heard enough.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "tremor_effects": {
+      "introduction": [
+        "Whispers. Voices in the dark.",
+        "*He leans in closer*",
+        "Same thing Henrik described before he stopped talking.",
+        "Before he sealed up Red Hollow Mine and quit.",
+        "Whatever's in those ruins...",
+        "It's connected to what they found in the deep mines."
+      ],
+      "options": [
+        {
+          "id": "what_found",
+          "text": "What did they find in the mines?",
+          "next_state": "mine_discovery_hint"
+        },
+        {
+          "id": "henrik_knows",
+          "text": "Henrik might know more.",
+          "next_state": "henrik_suggestion"
+        },
+        {
+          "id": "too_much_info",
+          "text": "This is getting too strange.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "mine_discovery_hint": {
+      "introduction": [
+        "Some kind of glowing ore. Years back.",
+        "Made people... uneasy. Gave them dreams.",
+        "Henrik was there when they found it.",
+        "*He shrugs*",
+        "He'll tell you himself. Or he won't.",
+        "Man's got his reasons for selling turnips now."
+      ],
+      "options": [
+        {
+          "id": "find_henrik",
+          "text": "I should talk to Henrik.",
+          "next_state": "exit"
+        },
+        {
+          "id": "thanks_info",
+          "text": "Thanks for the information.",
+          "next_state": "casual_chat"
+        }
+      ]
+    },
+
+    "investigation_agreement": {
+      "introduction": [
+        "Aye. Someone should.",
+        "Mayor's been trying to organize something.",
+        "But with these tremors?",
+        "Folk are too scared to go near the place.",
+        "*He looks at you seriously*",
+        "If you're thinking of heading up there...",
+        "Be prepared for the unexpected."
+      ],
+      "options": [
+        {
+          "id": "ill_be_ready",
+          "text": "I'll be ready.",
+          "next_state": "exit"
+        },
+        {
+          "id": "what_expect",
+          "text": "What should I expect?",
+          "next_state": "ruins_details"
+        }
+      ]
+    },
+
+    "henrik_suggestion": {
+      "introduction": [
+        "He's in the town square most days.",
+        "Selling vegetables.",
+        "*Garrick's voice softens*",
+        "Be gentle with him. Whatever he saw...",
+        "It broke something inside.",
+        "But if anyone knows about the connection between",
+        "the mines and the ruins, it's Henrik."
+      ],
+      "options": [
+        {
+          "id": "ill_talk_to_him",
+          "text": "I'll talk to him.",
+          "next_state": "exit"
+        },
+        {
+          "id": "thanks_garrick",
+          "text": "Thanks for the advice.",
+          "next_state": "casual_chat"
         }
       ]
     }

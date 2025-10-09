@@ -32,6 +32,14 @@ TOWN_SPAWN_Y = 7
 # === TILE TYPE DEFINITIONS ===
 TILE_TYPES = {
     '#': 'wall',          # Impassable walls
+    '=': 'wall_north',    # North wall
+    '+': 'wall_south',    # South wall
+    '[': 'wall_west',     # West wall
+    ']': 'wall_east',     # East wall
+    ';': 'wall_corner_nw',# Northwest corner
+    ':': 'wall_corner_sw',# Southwest corner
+    '/': 'wall_corner_ne',# Northeast corner
+    ',': 'wall_corner_se',# Southeast corner
     '.': 'street',        # Walkable cobblestone
     'T': 'tavern',        # The Broken Blade
     'B': 'general_store', # Bernard's shop
@@ -39,12 +47,14 @@ TILE_TYPES = {
     'M': 'mayor_office',  # Mayor's office
     'C': 'church',        # Town church
     'S': 'town_square',   # Town square fountain
-    'G': 'gate',          # Town gates
+    'G': 'gate_north',    # Town gates north
+    't': 'gate_south',    # Town gates south
     'H': 'house',         # Residential buildings
     'A': 'alley',         # Back streets
     'E': 'empty_lot',     # Empty areas
     'R': 'main_road',     # Main road to/from town
-    'g': 'ground_grass'   # Ground/grass outside walls (lowercase g)
+    'g': 'ground_grass',   # Ground/grass outside walls (lowercase g)
+    'V': 'vegetable_cart'   # Ground/grass outside walls (lowercase g)
 }
 
 # === WALKABLE TILES ===
@@ -139,6 +149,16 @@ BUILDING_ENTRANCES = {
             'action': 'Talk to Mayor'
         }
     },
+    'henrik_vegetable_cart': {
+        'building_pos': (5, 8),  # Henrik's cart location at edge of town square
+        'entrance_tiles': [(5, 7), (5, 8), (6, 8)],  # Player can talk from multiple tiles
+        'info': {
+            'name': "Old Henrik's Vegetable Cart",
+            'interaction_type': 'npc_dialogue',
+            'npc_id': 'henrik',
+            'action': 'Talk to Henrik'
+        }
+    },
     'north_gate': {
         'building_pos': (8, 1),
         'entrance_tiles': [(8, 2)],  # Tile just south of north gate
@@ -172,6 +192,10 @@ def get_building_at_entrance(player_x, player_y):
 # === TILE COLORS (Classic VGA Palette) ===
 TILE_COLORS = {
     'wall': (100, 100, 100),        # Gray stone walls
+    'wall_north': (100, 100, 100),        
+    'wall_south': (100, 100, 100),        
+    'wall_east': (100, 100, 100),        
+    'wall_west': (100, 100, 100),        
     'street': (80, 60, 40),         # Brown cobblestone  
     'tavern': (160, 82, 45),        # Lighter brown tavern
     'general_store': (160, 82, 45), # Lighter brown store
@@ -179,12 +203,14 @@ TILE_COLORS = {
     'church': (245, 245, 220),      # Beige/cream church
     'mayor_office': (120, 80, 60),  # Tan civic building
     'town_square': (100, 149, 237), # Blue fountain
-    'gate': (160, 160, 160),        # Light gray gate
+    'gate_north': (160, 160, 160),        # Light gray gate
+    'gate_south': (160, 160, 160),        # Light gray gate
     'house': (139, 69, 19),         # Brown houses
     'alley': (60, 45, 30),          # Darker street
     'empty_lot': (0, 100, 0),       # Green grass
     'main_road': (101, 67, 33),     # Dark brown road
-    'ground_grass': (34, 139, 34)   # Forest green grass
+    'ground_grass': (34, 139, 34),   # Forest green grass
+    'vegetable_cart': (0 , 128, 0)   # Forest green grass
 }
 
 # === TOWN LAYOUT (18x14 grid) ===
@@ -194,18 +220,18 @@ TILE_COLORS = {
 # NOTE: Rows 0 and 13 are decorative borders showing ground outside town walls
 TOWN_MAP = [
     "####ggggRggggg####",  # Row 0 - Top border: corner towers, grass, north road (R at col 8)
-    "########G#########",  # Row 1 - Top wall with north gate (G at col 8)
-    "##..............##",  # Row 2 - Street (corner battlements)
-    "##.HH.HH.HHHAHH.##",  # Row 3 - Houses with alley (corner battlements)
-    "g#.HH.HH.HHHAHH.#g",  # Row 4 - Houses with alley + side grass
-    "g#.HH.HH.BHHAHH.#g", # Row 5 - Bernard's store (B at col 9) + side grass
-    "g#.HH.HSSS......#g",  # Row 6 - Town square (S) begins + side grass
-    "g#.HH.TSSSCCH.H.#g",  # Row 7 - Tavern (T at col 5), square, church (C at cols 9-10) + side grass
-    "g#.....SSSCCH.H.#g",  # Row 8 - Square/church continue + side grass
-    "g#.HP.HM.HHHH.H.#g",  # Row 9 - Potion shop (P at col 3), Mayor (M at col 6) + side grass
-    "##.HH.HH.HHHH.E.##",  # Row 10 - Houses, empty lot (E at col 14) (corner battlements)
-    "##..............##",  # Row 11 - Street (corner battlements)
-    "#######G##########",  # Row 12 - Bottom wall with south gate (G at col 7)
+    "#;======G=======/#",  # Row 1 - Top wall with north gate (G at col 8)
+    "#[..............]#",  # Row 2 - Street (corner battlements)
+    "#[.HH.HH.HHHAHH.]#",  # Row 3 - Houses with alley (corner battlements)
+    "g[.HH.HH.HHHAHH.]g",  # Row 4 - Houses with alley + side grass
+    "g[.HH.HH.BHHAHH.]g", # Row 5 - Bernard's store (B at col 9) + side grass
+    "g[.HH.HSSS......]g",  # Row 6 - Town square (S) begins + side grass
+    "g[.HH.TSSSCCH.H.]g",  # Row 7 - Tavern (T at col 5), square, church (C at cols 9-10) + side grass
+    "g[...V.SSSCCH.H.]g",  # Row 8 - Square/church continue + side grass
+    "g[.HP.HM.HHHH.H.]g",  # Row 9 - Potion shop (P at col 3), Mayor (M at col 6) + side grass
+    "#[.HH.HH.HHHH.E.]#",  # Row 10 - Houses, empty lot (E at col 14) (corner battlements)
+    "#[..............]#",  # Row 11 - Street (corner battlements)
+    "#:+++++t++++++++,#",  # Row 12 - Bottom wall with south gate (G at col 7)
     "####gggRgggggg####"   # Row 13 - Bottom border: corner towers, grass, south road (R at col 7)
 ]
 

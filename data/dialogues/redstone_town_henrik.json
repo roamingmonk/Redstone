@@ -1,0 +1,815 @@
+{
+  "id": "redstone_town_henrik",
+  "npc_name": "Old Henrik",
+  
+  "states": {
+    "first_meeting": {
+      "introduction": [
+        "*A weathered man looks up from his vegetable cart*",
+        "Fresh turnips... carrots... good for traveling.",
+        "Used to mine the deep veins. Now I grow things that see the sun."
+      ],
+      "options": [
+        {
+          "id": "ask_mining",
+          "text": "You were a miner?",
+          "next_state": "mining_background"
+        },
+        {
+          "id": "ask_vegetables",
+          "text": "How much for the vegetables?",
+          "next_state": "vegetable_talk"
+        },
+        {
+          "id": "leave_alone",
+          "text": "Sorry to bother you.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "cavia_first_meeting": {
+      "introduction": [
+        "*The man's eyes widen as he sees you*",
+        "Your fur... it's standing on end.",
+        "*He looks troubled*",
+        "You feel them too, don't you? The tremors in the stone."
+      ],
+      "options": [
+        {
+          "id": "feel_tremors",
+          "text": "Yes, I can feel something wrong underground.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_noticed_cavia_sensitivity",
+              "value": true
+            }
+          ],
+          "next_state": "cavia_sensitivity_discussion"
+        },
+        {
+          "id": "ask_who",
+          "text": "Who are you?",
+          "next_state": "mining_background"
+        },
+        {
+          "id": "nervous_leave",
+          "text": "I... should go.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "cavia_sensitivity_discussion": {
+      "introduction": [
+        "I knew it. Your kind... you sense things we can't.",
+        "Been getting worse these past weeks.",
+        "Whatever's down there... it's waking up."
+      ],
+      "options": [
+        {
+          "id": "what_down_there",
+          "text": "What's down there?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_talked",
+              "value": true
+            }
+          ],
+          "next_state": "ore_discussion"
+        },
+        {
+          "id": "ask_name",
+          "text": "I'm sorry, who are you?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_talked",
+              "value": true
+            }
+          ],
+          "next_state": "mining_background"
+        }
+      ]
+    },
+
+    "mining_background": {
+      "introduction": [
+        "Name's Henrik. Been in Redstone all my life.",
+        "Twenty years working the deep veins.",
+        "Best miner this town ever had.",
+        "*His hands shake slightly*",
+        "That was before."
+      ],
+      "options": [
+        {
+          "id": "before_what",
+          "text": "Before what?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_talked",
+              "value": true
+            }
+          ],
+          "next_state": "ore_discussion"
+        },
+        {
+          "id": "why_quit",
+          "text": "Why did you stop mining?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_talked",
+              "value": true
+            }
+          ],
+          "next_state": "ore_discussion"
+        },
+        {
+          "id": "understand",
+          "text": "I understand. Take care.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_talked",
+              "value": true
+            }
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "vegetable_talk": {
+      "introduction": [
+        "Not selling today. Just... keeping my hands busy.",
+        "Used to work with a pickaxe. Now it's turnips.",
+        "*He looks at his scarred hands*",
+        "Safer this way."
+      ],
+      "options": [
+        {
+          "id": "safer_how",
+          "text": "Safer than what?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_talked",
+              "value": true
+            }
+          ],
+          "next_state": "ore_discussion"
+        },
+        {
+          "id": "leave_him",
+          "text": "I'll leave you to it.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_talked",
+              "value": true
+            }
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "ore_discussion": {
+      "introduction": [
+        "*Henrik's voice drops low*",
+        "Five years ago, we broke through into something old.",
+        "Deep in Red Hollow Mine. Past where any map showed tunnels.",
+        "Found a chamber. Walls smooth as glass.",
+        "And the ore... gods, that ore."
+      ],
+      "options": [
+        {
+          "id": "what_ore",
+          "text": "What kind of ore?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_told_ore_story",
+              "value": true
+            }
+          ],
+          "next_state": "aethel_ore_description"
+        },
+        {
+          "id": "what_happened",
+          "text": "What happened to the chamber?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_told_ore_story",
+              "value": true
+            }
+          ],
+          "next_state": "chamber_consequences"
+        },
+        {
+          "id": "too_much",
+          "text": "Maybe I shouldn't pry.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "aethel_ore_description": {
+      "introduction": [
+        "Glowed with its own light. Blue-white, like frozen lightning.",
+        "Warm to the touch. Hummed when you got close.",
+        "Foreman called it 'Aethel Ore' from some old book.",
+        "Said it was worth a fortune.",
+        "*His voice hardens*",
+        "We should have left it buried."
+      ],
+      "options": [
+        {
+          "id": "why_leave_it",
+          "text": "Why should you have left it?",
+          "next_state": "chamber_consequences"
+        },
+        {
+          "id": "where_ore_now",
+          "text": "Where is the ore now?",
+          "next_state": "ore_fate"
+        },
+        {
+          "id": "enough_ore_talk",
+          "text": "I've heard enough.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "chamber_consequences": {
+      "introduction": [
+        "Night after we opened that chamber, the tremors started.",
+        "Just small ones at first. Figured it was settling.",
+        "But they kept coming. Getting stronger.",
+        "And people started... changing."
+      ],
+      "options": [
+        {
+          "id": "changing_how",
+          "text": "Changing how?",
+          "next_state": "people_changed"
+        },
+        {
+          "id": "tremors_now",
+          "text": "Are the tremors still happening?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_shared_tremor_concern",
+              "value": true
+            }
+          ],
+          "next_state": "tremor_concern"
+        }
+      ]
+    },
+
+    "people_changed": {
+      "introduction": [
+        "Dreams. Terrible dreams of voices underground.",
+        "Some miners refused to leave the shaft.",
+        "Others walked toward the ruins on the hill.",
+        "*He shivers*",
+        "Like something was calling them."
+      ],
+      "options": [
+        {
+          "id": "ruins_connection",
+          "text": "The ruins? Are they connected?",
+          "next_state": "ruins_deflection"
+        },
+        {
+          "id": "tremors_question",
+          "text": "What about the tremors now?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_shared_tremor_concern",
+              "value": true
+            }
+          ],
+          "next_state": "tremor_concern"
+        }
+      ]
+    },
+
+    "ore_fate": {
+      "introduction": [
+        "Town took most of it. Locked in the mayor's vault.",
+        "Said they'd study it. Find out what it was.",
+        "*He laughs bitterly*",
+        "I sealed the chamber. Collapsed the tunnel.",
+        "Left mining for good that day."
+      ],
+      "options": [
+        {
+          "id": "why_seal",
+          "text": "Why seal it?",
+          "next_state": "sealing_reason"
+        },
+        {
+          "id": "tremors_after",
+          "text": "Did the tremors stop after you sealed it?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_shared_tremor_concern",
+              "value": true
+            }
+          ],
+          "next_state": "tremor_concern"
+        }
+      ]
+    },
+
+    "sealing_reason": {
+      "introduction": [
+        "Because I saw what it did to good men.",
+        "Because I felt it in my bones every night.",
+        "That hum. That pull.",
+        "*His eyes are distant*",
+        "And because of what I saw when I went to the ruins."
+      ],
+      "options": [
+        {
+          "id": "what_saw_ruins",
+          "text": "What did you see at the ruins?",
+          "next_state": "ruins_deflection"
+        },
+        {
+          "id": "tremors_sealed",
+          "text": "Did sealing it stop the tremors?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_shared_tremor_concern",
+              "value": true
+            }
+          ],
+          "next_state": "tremor_concern"
+        }
+      ]
+    },
+
+    "ruins_deflection": {
+      "introduction": [
+        "*Henrik's hands start shaking violently*",
+        "I don't... I can't talk about the ruins.",
+        "*He turns away*",
+        "Ask someone else. Anyone else.",
+        "Just not me."
+      ],
+      "options": [
+        {
+          "id": "respect_boundary",
+          "text": "I understand. I'm sorry.",
+          "next_state": "after_ruins_attempt"
+        },
+        {
+          "id": "insist",
+          "text": "It might be important.",
+          "next_state": "insist_ruins"
+        }
+      ]
+    },
+
+    "insist_ruins": {
+      "introduction": [
+        "*Henrik's voice cracks*",
+        "You don't understand. The words won't come.",
+        "I try to remember and it's like... like something takes them.",
+        "Please. Don't ask again."
+      ],
+      "options": [
+        {
+          "id": "apologize",
+          "text": "I'm sorry. I won't ask again.",
+          "next_state": "after_ruins_attempt"
+        }
+      ]
+    },
+
+    "after_ruins_attempt": {
+      "introduction": [
+        "*Henrik takes a shaky breath*",
+        "The mine, though. The old shaft.",
+        "That I can talk about."
+      ],
+      "options": [
+        {
+          "id": "tell_about_shaft",
+          "text": "Tell me about the shaft.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_shared_tremor_concern",
+              "value": true
+            }
+          ],
+          "next_state": "tremor_concern"
+        },
+        {
+          "id": "leave_be",
+          "text": "That's alright. Take care of yourself.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "tremor_concern": {
+      "introduction": [
+        "They're back. The tremors.",
+        "Started again three weeks ago.",
+        "Worse than before. Much worse.",
+        "*He looks at you intently*",
+        "And I've been hearing things from the old shaft."
+      ],
+      "options": [
+        {
+          "id": "what_hearing",
+          "text": "What kind of things?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_mentioned_old_shaft",
+              "value": true
+            }
+          ],
+          "next_state": "shaft_offer"
+        },
+        {
+          "id": "where_shaft",
+          "text": "Where is this shaft?",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_mentioned_old_shaft",
+              "value": true
+            }
+          ],
+          "next_state": "shaft_location"
+        },
+        {
+          "id": "not_my_problem",
+          "text": "Sounds like a problem for the miners.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "shaft_location": {
+      "introduction": [
+        "Red Hollow Mine. Eastern edge of town.",
+        "The entrance I sealed is past the main workings.",
+        "Marked with my old crew's sign - crossed picks.",
+        "*He hesitates*",
+        "But the noises... they're coming from inside."
+      ],
+      "options": [
+        {
+          "id": "what_noises",
+          "text": "What kind of noises?",
+          "next_state": "shaft_offer"
+        },
+        {
+          "id": "investigate_offer",
+          "text": "Do you want me to check it out?",
+          "next_state": "shaft_offer"
+        }
+      ]
+    },
+
+    "shaft_offer": {
+      "introduction": [
+        "Scratching. Digging. And... voices.",
+        "Not human voices.",
+        "*He looks at his shaking hands*",
+        "I can't go back down there. I just can't.",
+        "But someone needs to check what's gotten in.",
+        "Would you... could you investigate?"
+      ],
+      "options": [
+        {
+          "id": "accept_quest",
+          "text": "I'll check it out for you.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_gave_shaft_quest",
+              "value": true
+            }
+          ],
+          "next_state": "quest_accepted"
+        },
+        {
+          "id": "what_expect",
+          "text": "What should I expect down there?",
+          "next_state": "shaft_dangers"
+        },
+        {
+          "id": "decline_quest",
+          "text": "I'm not sure I'm ready for that.",
+          "next_state": "quest_declined"
+        }
+      ]
+    },
+
+    "shaft_dangers": {
+      "introduction": [
+        "Could be cave-ins. Gas pockets. Flooding.",
+        "Or... something worse.",
+        "Whatever's making those noises isn't natural.",
+        "Take weapons. Take light.",
+        "And if you feel that pull... that hum...",
+        "Get out. Don't try to resist it."
+      ],
+      "options": [
+        {
+          "id": "accept_warned",
+          "text": "I understand. I'll do it.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_gave_shaft_quest",
+              "value": true
+            }
+          ],
+          "next_state": "quest_accepted"
+        },
+        {
+          "id": "too_dangerous",
+          "text": "That sounds too dangerous.",
+          "next_state": "quest_declined"
+        }
+      ]
+    },
+
+    "quest_accepted": {
+      "introduction": [
+        "*Henrik's eyes show relief mixed with worry*",
+        "Thank you. Truly.",
+        "Red Hollow Mine, eastern edge. Look for the crossed picks.",
+        "Be careful down there.",
+        "*He hands you a worn mining lantern*",
+        "This kept me safe for twenty years. Maybe it'll help you too."
+      ],
+      "options": [
+        {
+          "id": "head_out",
+          "text": "I'll head there now.",
+          "next_state": "exit"
+        },
+        {
+          "id": "more_info",
+          "text": "Tell me more about what to expect.",
+          "next_state": "shaft_accepted"
+        }
+      ]
+    },
+
+    "quest_declined": {
+      "introduction": [
+        "*Henrik nods slowly*",
+        "I understand. It's not your burden.",
+        "But if you change your mind...",
+        "I'll be here. Selling turnips.",
+        "*He returns to his cart*"
+      ],
+      "options": [
+        {
+          "id": "maybe_later",
+          "text": "I might come back.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "shaft_accepted": {
+      "introduction": [
+        "The old shaft goes deep. Three levels, maybe four.",
+        "I sealed the main tunnel, but there are side passages.",
+        "Things could have dug in from below.",
+        "*He pauses*",
+        "If you find any of that glowing ore... don't touch it.",
+        "And if the tremors start while you're down there...",
+        "Get to the surface. Fast."
+      ],
+      "options": [
+        {
+          "id": "understood",
+          "text": "I'll be careful. Thank you.",
+          "next_state": "exit"
+        },
+        {
+          "id": "ore_question",
+          "text": "What if I find ore samples?",
+          "next_state": "ore_samples_advice"
+        }
+      ]
+    },
+
+    "ore_samples_advice": {
+      "introduction": [
+        "*Henrik looks troubled*",
+        "If you must take samples, use thick cloth.",
+        "Don't let it touch your skin.",
+        "And don't keep it long.",
+        "That stuff... it gets in your head."
+      ],
+      "options": [
+        {
+          "id": "final_thanks",
+          "text": "I'll remember that. Thank you.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "shaft_complete": {
+      "introduction": [
+        "*Henrik looks up as you approach*",
+        "You're back. And alive.",
+        "*He searches your face*",
+        "What did you find down there?"
+      ],
+      "options": [
+        {
+          "id": "report_kobolds",
+          "text": "Kobolds had moved in. I cleared them out.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "reported_shaft_to_henrik",
+              "value": true
+            }
+          ],
+          "next_state": "kobold_report"
+        },
+        {
+          "id": "report_ore",
+          "text": "I found ore samples. [Show them]",
+          "requirements": {
+            "flags": {
+              "retrieved_ore_samples": true
+            }
+          },
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "reported_shaft_to_henrik",
+              "value": true
+            }
+          ],
+          "next_state": "ore_samples_shown"
+        }
+      ]
+    },
+
+    "kobold_report": {
+      "introduction": [
+        "*Henrik lets out a long breath*",
+        "Kobolds. Just kobolds.",
+        "That's... that's good. Normal monsters.",
+        "Not... other things.",
+        "*He counts out coins*",
+        "Here. For your trouble."
+      ],
+      "options": [
+        {
+          "id": "found_ore",
+          "text": "I also found these. [Show ore samples]",
+          "requirements": {
+            "flags": {
+              "retrieved_ore_samples": true
+            }
+          },
+          "next_state": "ore_samples_shown"
+        },
+        {
+          "id": "take_payment",
+          "text": "Thank you. The shaft is clear now.",
+          "next_state": "post_quest_idle"
+        }
+      ]
+    },
+
+    "ore_samples_shown": {
+      "introduction": [
+        "*Henrik recoils from the glowing fragments*",
+        "Gods... you brought them up.",
+        "*His hands shake*",
+        "That's Aethel Ore. Same as before.",
+        "Which means the chamber... it's still there.",
+        "The collapse didn't destroy it. Just buried it."
+      ],
+      "options": [
+        {
+          "id": "what_do",
+          "text": "What should I do with these?",
+          "next_state": "ore_advice"
+        },
+        {
+          "id": "mayor_see",
+          "text": "Should the Mayor see these?",
+          "next_state": "mayor_suggestion"
+        }
+      ]
+    },
+
+    "ore_advice": {
+      "introduction": [
+        "Get rid of them. Bury them. Throw them in the lake.",
+        "*He looks at you seriously*",
+        "Or... take them to someone who knows about old magic.",
+        "The Mayor has scholars. Mages.",
+        "They might know what this ore really is."
+      ],
+      "options": [
+        {
+          "id": "keep_safe",
+          "text": "I'll keep them safe for now.",
+          "next_state": "post_quest_idle"
+        },
+        {
+          "id": "take_mayor",
+          "text": "I'll show the Mayor.",
+          "next_state": "post_quest_idle"
+        }
+      ]
+    },
+
+    "mayor_suggestion": {
+      "introduction": [
+        "Aye. He should know.",
+        "He's been asking about the tremors.",
+        "These ore samples... they're proof.",
+        "Proof that whatever we found five years ago...",
+        "It's not finished with us yet."
+      ],
+      "options": [
+        {
+          "id": "thank_henrik",
+          "text": "Thank you for trusting me with this.",
+          "next_state": "post_quest_idle"
+        }
+      ]
+    },
+
+    "post_quest_idle": {
+      "introduction": [
+        "*Henrik returns to his vegetables*",
+        "Thank you for checking the shaft.",
+        "At least now I know what the noises were.",
+        "*He looks tired*",
+        "Turnips don't ask questions. Turnips don't glow.",
+        "Much better than mining."
+      ],
+      "options": [
+        {
+          "id": "take_care",
+          "text": "Take care of yourself, Henrik.",
+          "next_state": "exit"
+        },
+        {
+          "id": "more_questions",
+          "text": "Can I ask you something else?",
+          "next_state": "casual_questions"
+        }
+      ]
+    },
+
+    "casual_questions": {
+      "introduction": [
+        "What do you want to know?"
+      ],
+      "options": [
+        {
+          "id": "about_ore",
+          "text": "Tell me more about the Aethel Ore.",
+          "next_state": "aethel_ore_description"
+        },
+        {
+          "id": "about_chamber",
+          "text": "What was the chamber like?",
+          "next_state": "chamber_consequences"
+        },
+        {
+          "id": "never_mind",
+          "text": "Never mind. Take care.",
+          "next_state": "exit"
+        }
+      ]
+    }
+  }
+}

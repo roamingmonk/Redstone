@@ -6,7 +6,8 @@
     "first_meeting": {
       "introduction": [
         "Welcome to the Broken Blade. I am Meredith.",
-        "Keep it polite and we will get along fine."
+        "Keep it polite and we will get along fine.",
+        "*A distant rumble shakes the tavern slightly*"
       ],
       "options": [
         { "id": "ask_specials", "text": "What are todays specials?", "next_state": "specials_info" },
@@ -104,6 +105,17 @@
           "requirements": { "flags": { "learned_about_swamp_church": true } },
           "next_state": "swamp_update"
         },
+        {"id": "ask_tremors",
+        "text": "Have you felt the tremors?",
+        "effects": [
+          {
+            "type": "set_flag",
+            "flag": "meredith_worried_tremors",
+            "value": true
+          }
+        ],
+        "next_state": "tremor_discussion"
+        },
         { "id": "bye_casual", "text": "Just saying hello.", "next_state": "exit" }
       ]
     },
@@ -141,7 +153,219 @@
           "requirements": { "flags": { "learned_about_swamp_church": true } },
           "next_state": "swamp_update"
         },
+        {
+          "id": "ring_quest",
+          "text": "You seem troubled about something else.",
+          "requirements": {
+            "flags": {
+              "meredith_talked": true,
+              "mayor_talked": true} },
+          "next_state": "ring_quest_offer"
+        },    
         { "id": "bye_post", "text": "Thanks.", "next_state": "exit" }
+      ]
+    },
+    "ring_quest_offer": {
+      "introduction": [
+        "*Meredith looks worried*",
+        "I hate to ask, but... I lost something precious.",
+        "My grandmother's silver ring.",
+        "*She wrings her hands*",
+        "I lost it near the old Red Hollow Mine. Eastern edge of town.",
+        "I haven't dared go back there with all the strange noises lately."
+      ],
+      "options": [
+        {
+          "id": "accept_ring_quest",
+          "text": "I'll look for your ring.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "meredith_gave_ring_quest",
+              "value": true
+            },
+            {
+              "type": "set_flag",
+              "flag": "meredith_mentioned_old_mine",
+              "value": true
+            }
+          ],
+          "next_state": "ring_quest_accepted"
+        },
+        {
+          "id": "ask_about_noises",
+          "text": "What kind of strange noises?",
+          "next_state": "mine_noises_discussion"
+        },
+        {
+          "id": "decline_ring",
+          "text": "I'm sorry, I can't help right now.",
+          "next_state": "ring_quest_declined"
+        }
+      ]
+    },
+
+    "mine_noises_discussion": {
+      "introduction": [
+        "Scratching. Digging sounds from inside the old shafts.",
+        "Could be nothing. Could be something moved in.",
+        "*She shudders*",
+        "Either way, I'm not going near it."
+      ],
+      "options": [
+        {
+          "id": "accept_after_hearing",
+          "text": "I'll find your ring.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "meredith_gave_ring_quest",
+              "value": true
+            },
+            {
+              "type": "set_flag",
+              "flag": "meredith_mentioned_old_mine",
+              "value": true
+            }
+          ],
+          "next_state": "ring_quest_accepted"
+        },
+        {
+          "id": "too_dangerous",
+          "text": "That sounds too dangerous.",
+          "next_state": "ring_quest_declined"
+        }
+      ]
+    },
+
+    "ring_quest_accepted": {
+      "introduction": [
+        "*Meredith's eyes brighten with hope*",
+        "Thank you! It means the world to me.",
+        "Silver band with a small blue stone. Family heirloom.",
+        "Red Hollow Mine, eastern edge of town.",
+        "Please be careful."
+      ],
+      "options": [
+        {
+          "id": "head_out",
+          "text": "I'll find it.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "ring_quest_declined": {
+      "introduction": [
+        "*Meredith nods sadly*",
+        "I understand. It's a lot to ask.",
+        "If you change your mind, let me know."
+      ],
+      "options": [
+        {
+          "id": "maybe_later",
+          "text": "Maybe later.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "ring_quest_active": {
+      "introduction": [
+        "Any luck finding my ring?",
+        "*She looks hopeful*"
+      ],
+      "options": [
+        {
+          "id": "still_looking",
+          "text": "Still searching.",
+          "next_state": "exit"
+        },
+        {
+          "id": "found_it",
+          "text": "I found it! [Give ring]",
+          "requirements": {
+            "flags": {
+              "returned_meredith_ring": true
+            }
+          },
+          "next_state": "ring_returned_thanks"
+        }
+      ]
+    },
+
+    "ring_returned_thanks": {
+      "introduction": [
+        "*Meredith gasps with joy*",
+        "You found it! Oh, thank you!",
+        "*She holds the ring carefully*",
+        "My grandmother wore this every day of her life.",
+        "Here, please take this. It's not much, but you've earned it."
+      ],
+      "options": [
+        {
+          "id": "accept_reward",
+          "text": "I'm glad I could help.",
+          "next_state": "post_mayor"
+        }
+      ]
+    },
+    "tremor_discussion": {
+      "introduction": [
+        "*Meredith's face grows serious*",
+        "Yes. They started a few weeks ago.",
+        "Getting worse each day.",
+        "Glasses fall off shelves. Pictures tilt on the walls.",
+        "*She lowers her voice*",
+        "Some say it's connected to the old mines."
+      ],
+      "options": [
+        {
+          "id": "ask_mines",
+          "text": "What about the old mines?",
+          "next_state": "mine_connection"
+        },
+        {
+          "id": "worrying",
+          "text": "That is worrying.",
+          "next_state": "return_visits"
+        }
+      ]
+    },
+    "mine_connection": {
+      "introduction": [
+        "Red Hollow Mine. Used to be the main operation.",
+        "They found something strange down there years ago.",
+        "*She glances around nervously*",
+        "Some kind of glowing ore. Made people... uneasy.",
+        "Henrik knows more. He worked those deep veins.",
+        "Now he sells vegetables in the town square."
+      ],
+      "options": [
+        {
+          "id": "thanks_info",
+          "text": "Thanks for the information.",
+          "next_state": "return_visits"
+        },
+        {
+          "id": "henrik_question",
+          "text": "Henrik? I should talk to him.",
+          "next_state": "henrik_suggestion"
+        }
+      ]
+    },
+    "henrik_suggestion": {
+      "introduction": [
+        "He might not want to talk about it.",
+        "Came back from somewhere... changed.",
+        "But he knows the mines better than anyone."
+      ],
+      "options": [
+        {
+          "id": "find_henrik",
+          "text": "I'll find him.",
+          "next_state": "exit"
+        }
       ]
     }
   }

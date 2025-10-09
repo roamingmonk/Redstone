@@ -120,7 +120,20 @@ class CharacterOverlay(BaseTabbedOverlay):
         level_text = header_font.render(f"Level: {current_level}", True, CYAN)
         surface.blit(level_text, (left_section_x, current_y))
         current_y += 32
+
+        # Class and Race
+        character_class = character.get('class', 'fighter')
+        class_text = normal_font.render(f"Class: {character_class.title()}", True, WHITE)
+        surface.blit(class_text, (left_section_x, current_y))
+        current_y += 25
         
+        # Race
+        race_data = character.get('race', {})
+        race_name = race_data.get('display_name', 'Human')
+        race_text = normal_font.render(f"Race: {race_name}", True, WHITE)
+        surface.blit(race_text, (left_section_x, current_y))
+        current_y += 32
+
         # XP Progress Bar (ASCII Style)
         current_xp = character.get('experience', 0)
         from utils.narrative_schema import narrative_schema
@@ -562,6 +575,25 @@ class CharacterOverlay(BaseTabbedOverlay):
             # Class
             class_text = normal_font.render(f"Class: {npc_info['class']}", True, WHITE)
             surface.blit(class_text, (left_x, left_y))
+            left_y += 25
+            
+            # Race
+            race = npc_info.get('race', 'human')
+            # Load race display name from races.json
+            race_display = race.title()  # Default to capitalized version
+            try:
+                import json
+                import os
+                races_path = os.path.join('data', 'player', 'races.json')
+                with open(races_path, 'r', encoding='utf-8') as f:
+                    races_data = json.load(f)
+                    race_info = races_data['races'].get(race, {})
+                    race_display = race_info.get('display_name', race.title())
+            except:
+                pass  # Fall back to capitalized version if file not found
+            
+            race_text = normal_font.render(f"Race: {race_display}", True, WHITE)
+            surface.blit(race_text, (left_x, left_y))
             left_y += 25
 
             # Level

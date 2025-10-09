@@ -36,7 +36,12 @@
       "title": "Local Intelligence", 
       "description": "Gather detailed information about the mysterious locations",
       "type": "secondary"
-   }
+   },
+    "kobold_mine_investigation": {
+      "title": "The Sealed Shaft",
+      "description": "Investigate the old mining shaft where strange noises have been heard",
+      "type": "secondary"
+    }
   },
 
   "objective_descriptions": {
@@ -59,7 +64,13 @@
     "recruit_rogue": "Recruit a rogue (Lyra)",
     "accept_challenge": "Accept Garrick's basement job",
     "clear_basement": "Defeat all rats in the basement",
-    "report_success": "Report success to Garrick"
+    "report_success": "Report success to Garrick",
+
+    "find_old_mine": "Locate the sealed mining shaft",
+    "clear_kobolds": "Clear out the kobold infestation",
+    "recover_ring": "Find Meredith's lost ring",
+    "return_to_henrik": "Report findings to Henrik",
+    "ore_samples_found": "Discover Aethel Ore samples"
   },
 
   "npcs": {
@@ -73,7 +84,11 @@
       "story_flags": {
         "mentioned_mayor": "meredith_mentioned_mayor",
         "directed_to_mayor": "meredith_directed_to_mayor",
-        "gave_swamp_location": "meredith_gave_swamp_info"
+        "gave_swamp_location": "meredith_gave_swamp_info",
+        "ring_quest_given": "meredith_gave_ring_quest",
+        "ring_recovered": "returned_meredith_ring",
+        "mentioned_old_mine": "meredith_mentioned_old_mine",
+        "heard_about_tremors": "meredith_worried_tremors"
       }
     },
     "garrick": {
@@ -91,7 +106,9 @@
       "basement_quest_completed": "completed_basement_combat",
       "basement_victory_reported": "reported_basement_victory",
       "garrick_paid_flag": "garrick_paid",
-      "post_payment_ack": "post_payment_acknowledged"
+      "post_payment_ack": "post_payment_acknowledged",
+      "mentioned_tremors": "garrick_mentioned_tremors",
+      "connected_tremors_to_ruins": "garrick_linked_tremors_ruins"
     }
   },
     "pete": {
@@ -129,7 +146,10 @@
         "gave_refugee_location": "mayor_gave_refugee_info",
         "main_quest_completed": "main_quest_completed",
         "main_quest_reported": "reported_main_quest",
-        "main_quest_paid": "mayor_paid_main_quest"
+        "main_quest_paid": "mayor_paid_main_quest",
+        "expressed_tremor_urgency": "mayor_worried_tremors",
+        "requested_ore_investigation": "mayor_wants_ore_info",
+        "ore_samples_examined": "mayor_examined_ore_samples"
       }
     },
     "gareth": {
@@ -204,6 +224,25 @@
         "explained_inventory": "jenna_explained_shop",
         "offered_special_items": "jenna_offered_specials"
       }
+    },
+    "henrik": {
+      "system_id": "henrik",
+      "full_name": "Old Henrik",
+      "dialogue_file": "redstone_town_henrik",
+      "conversation_flag": "henrik_talked",
+      "location": "redstone_town",
+      "role": "former_miner",
+      "story_flags": {
+        "ore_story_told": "henrik_told_ore_story",
+        "tremor_concern_shared": "henrik_shared_tremor_concern",
+        "old_shaft_mentioned": "henrik_mentioned_old_shaft",
+        "sealed_shaft_quest_given": "henrik_gave_shaft_quest",
+        "shaft_investigated": "investigated_old_shaft",
+        "kobolds_cleared": "cleared_kobold_mine",
+        "ore_samples_retrieved": "retrieved_ore_samples",
+        "henrik_quest_reported": "reported_shaft_to_henrik",
+        "cavia_sensitivity_noticed": "henrik_noticed_cavia_sensitivity"
+      }
     }
   },
 
@@ -255,6 +294,14 @@
       "quest_id": null,
       "source_npc": "mayor",
       "location_type": "authority"
+    },
+    "red_hollow_mine": {
+      "display_name": "Red Hollow Mine - Old Shaft",
+      "system_id": "red_hollow_mine",
+      "discovery_flag": "discovered_old_mine_shaft",
+      "quest_id": "kobold_mine_investigation",
+      "source_npc": "henrik",
+      "location_type": "dungeon_combat"
     }
   },
 
@@ -398,6 +445,54 @@
         "event_type": "DETAILED_INFORMATION",
         "xp_reward": "discovery_base"
       },
+      "henrik_ore_story": {
+      "dialogue_flag": "henrik_told_ore_story",
+      "quest_objective": "kobold_mine_investigation.find_old_mine",
+      "event_type": "INFORMATION_DISCOVERED",
+      "xp_reward": "discovery_base"
+      },
+      "henrik_shaft_quest": {
+        "dialogue_flag": "henrik_gave_shaft_quest",
+        "quest_objective": "kobold_mine_investigation.clear_kobolds",
+        "event_type": "QUEST_ACCEPTED",
+        "xp_reward": "discovery_base"
+      },
+      "meredith_ring_quest": {
+        "dialogue_flag": "meredith_gave_ring_quest",
+        "quest_objective": "kobold_mine_investigation.recover_ring",
+        "event_type": "QUEST_ACCEPTED",
+        "xp_reward": "discovery_base"
+      },
+      "kobolds_defeated": {
+        "dialogue_flag": "cleared_kobold_mine",
+        "quest_objective": "kobold_mine_investigation.clear_kobolds",
+        "event_type": "COMBAT_VICTORY",
+        "xp_reward": "quest_multipliers.side_task"
+      },
+      "ore_samples_discovered": {
+        "dialogue_flag": "retrieved_ore_samples",
+        "quest_objective": "kobold_mine_investigation.ore_samples_found",
+        "event_type": "DISCOVERY",
+        "xp_reward": "discovery_base"
+      },
+      "ring_returned": {
+        "dialogue_flag": "returned_meredith_ring",
+        "quest_objective": "kobold_mine_investigation.recover_ring",
+        "event_type": "QUEST_COMPLETED",
+        "xp_reward": "quest_multipliers.side_task"
+      },
+      "henrik_quest_complete": {
+      "dialogue_flag": "reported_shaft_to_henrik",
+      "quest_objective": "kobold_mine_investigation.return_to_henrik",
+      "event_type": "QUEST_COMPLETED",
+      "xp_reward": "quest_multipliers.side_task"
+      },
+      "mayor_ore_samples_shown": {
+        "dialogue_flag": "mayor_examined_ore_samples",
+        "quest_objective": "kobold_mine_investigation.ore_samples_found",
+        "event_type": "QUEST_BONUS_COMPLETE",
+        "xp_reward": "quest_multipliers.side_task"
+      },
     
     "quest_completion_triggers": {
       "party_building_complete": {
@@ -457,6 +552,17 @@
         "ruins_detailed_intel": ["hill_ruins_details_known"],
         "refugee_detailed_intel": ["refugee_camp_details_known"]
       }
+    },
+    "kobold_mine_investigation": {
+      "type": "secondary",
+      "activation_flag": "henrik_gave_shaft_quest || meredith_gave_ring_quest",
+      "objectives": {
+        "find_old_mine": ["henrik_mentioned_old_shaft || meredith_mentioned_old_mine"],
+        "clear_kobolds": ["cleared_kobold_mine"],
+        "recover_ring": ["returned_meredith_ring"],
+        "return_to_henrik": ["reported_shaft_to_henrik"],
+        "ore_samples_found": ["retrieved_ore_samples"]
+      }
     }
   },
 
@@ -468,9 +574,12 @@
     
     "meredith": {
       "first_meeting": "!meredith_talked",
-      "return_visits": "meredith_talked && !mayor_talked",
+      "ring_returned_thanks": "returned_meredith_ring",
+      "ring_quest_active": "meredith_gave_ring_quest && !returned_meredith_ring",
+      "ring_quest_offer": "meredith_talked && mayor_talked && !meredith_gave_ring_quest && !returned_meredith_ring",
       "knows_about_swamp": "meredith_talked && !mayor_talked && learned_about_swamp_church",
-      "post_mayor": "meredith_talked && mayor_talked"
+      "post_mayor": "meredith_talked && mayor_talked",
+      "return_visits": "meredith_talked && !mayor_talked"
     },
     "garrick": {
       "first_meeting": "!garrick_talked",
@@ -493,6 +602,7 @@
     "mayor": {
       "first_meeting": "!mayor_talked",
       "post_completion_reward": "quest_active && main_quest_completed && !reported_main_quest",
+      "ore_sample_discussion": "reported_main_quest && retrieved_ore_samples && !mayor_examined_ore_samples",
       "post_completion_idle":   "quest_active && main_quest_completed && reported_main_quest",
       "quest_given":       "quest_active && !main_quest_completed && !(learned_about_swamp_church || learned_about_ruins || learned_about_refugees)",
       "progress_updates":  "mayor_talked && quest_active && (learned_about_swamp_church || learned_about_ruins || learned_about_refugees) && !main_quest_completed"
@@ -533,6 +643,17 @@
     "jenna": {
       "first_meeting": "!jenna_talked",
       "returning_customer": "jenna_talked"
+    },
+    "henrik": {
+      "cavia_first_meeting": "!henrik_talked && is_cavia",
+      "first_meeting": "!henrik_talked",
+      "ore_discussion": "henrik_talked && !henrik_told_ore_story",
+      "tremor_concern": "henrik_talked && henrik_told_ore_story && !henrik_shared_tremor_concern",
+      "shaft_offer": "henrik_talked && henrik_shared_tremor_concern && !henrik_gave_shaft_quest",
+      "shaft_accepted": "henrik_gave_shaft_quest && !cleared_kobold_mine",
+      "shaft_complete": "cleared_kobold_mine && !reported_shaft_to_henrik",
+      "post_quest_idle": "reported_shaft_to_henrik",
+      "ruins_deflection": "henrik_talked && (learned_about_ruins || garrick_gave_ruins_info)"
     }
   }
 }

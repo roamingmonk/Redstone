@@ -499,7 +499,15 @@ class CharacterEngine:
             
             # Set dialogue flags for easy access
             for flag, value in race.get('dialogue_flags', {}).items():
-                self.game_state.set_flag(flag, value)
+                # Set in character dict (where it's already working)
+                self.game_state.character[flag] = value
+                
+                # ALSO set in flags dict if it exists
+                if hasattr(self.game_state, 'flags'):
+                    self.game_state.flags[flag] = value
+                    print(f"  🏳️ Set dialogue flag in flags dict: {flag} = {value}")
+                else:
+                    print(f"  🏳️ Set dialogue flag in character: {flag} = {value}")
             
             print(f"✅ Race modifiers applied: {race['display_name']}")
             print(f"  Abilities: {len(race.get('special_abilities', []))}")

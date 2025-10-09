@@ -1857,31 +1857,31 @@ Example: Adding 5 areas to hill_ruins.json automatically creates 5 navigable scr
 # ADR-117: Race System Implementation with Cavia Player Option
 # Status: Accepted
 # Date: October 7, 2025
-Context:
-Game narrative includes Cavia (guinea pig) race as optional player character with unique stat restrictions and dialogue options. Needed systematic race system supporting both player characters and NPCs (Thorman=Dwarf, Lyra=Drow).
-Decision:
-Implemented JSON-driven race system with portrait-based selection and stat modifiers.
-Implementation:
-
-Race Data: Created data/player/races.json defining Human, Cavia, Dwarf, Drow with stat modifiers, abilities, and resistances
-Portrait Selection: Extended to 6 portraits (1-5=Human, 6=Cavia) with warning screen for Cavia
+**Context**:Game narrative includes Cavia (guinea pig) race as optional player character with unique stat restrictions and dialogue options. Needed systematic race system supporting both player characters and NPCs (Thorman=Dwarf, Lyra=Drow).
+**Decision:**  Implemented JSON-driven race system with portrait-based selection and stat modifiers.
+**Implementation:** Race Data: Created data/player/races.json defining Human, Cavia, Dwarf, Drow with stat modifiers, abilities, and resistances
+**Portrait Selection:** Extended to 6 portraits (1-5=Human, 6=Cavia) with warning screen for Cavia
 Character Engine: Added _apply_race_modifiers() method applying stat caps directly to character dict (not nested stats object)
 GameState Integration: Added race field to character initialization for save/load persistence
 Event System: Added CAVIA_WARNING_BACK and CAVIA_WARNING_CONFIRM events
 NPC Support: Race stored in individual NPC JSON files (e.g., "race": "dwarf")
-
-Key Files:
-
-data/player/races.json - Race definitions
+**Key Files:** data/player/races.json - Race definitions
 game_logic/character_engine.py - _apply_race_modifiers(), Cavia event handlers
 screens/character_creation.py - draw_cavia_warning_screen(), 6-portrait grid
 ui/screen_manager.py - Cavia warning clickables registration
 core/game_state.py - Race field initialization
-
-Consequences:
-
-Positive: Scalable race system, Cavia stat caps enforced (STR/CON max 10), race persists through save/load, Shadow Blight resistance ready for combat integration
+**Consequences:**Positive: Scalable race system, Cavia stat caps enforced (STR/CON max 10), race persists through save/load, Shadow Blight resistance ready for combat integration
 Future Work: Display race on character sheet, implement race-specific dialogue branches, add race ability mechanics to combat system
+
+# ADR-1118: Species (Race) Dialogue Flag Integration
+# Status: Accepted
+# Date: Oct 9, 2025
+Context: Cavia race-specific dialogue (is_cavia flag) wasn't accessible to dialogue condition evaluator, causing Henrik's special Cavia introduction to fail with "name 'is_cavia' is not defined" error.
+Decision: Modified dialogue engine's context builder to dynamically include all boolean is_* flags from game_state.character dict alongside narrative schema flags.
+Implementation: Added loop in get_current_dialogue_state() to scan character dict for is_ prefixed booleans and inject into evaluation context; modified _apply_race_modifiers() to set flags in character dict when set_flag() method unavailable.
+Consequences: Race flags now accessible to dialogue conditions without hardcoding; Henrik correctly recognizes Cavia players with unique dialogue; system supports future race-specific dialogue for all races (Dwarf, Drow, Human).
+Files Modified: game_logic/dialogue_engine.py (context building), game_logic/character_engine.py (race flag setting)
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

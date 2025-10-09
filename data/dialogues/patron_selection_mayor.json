@@ -124,7 +124,57 @@
       ],
       "options": [
         { "id": "where_again", "text": "Remind me of the leads.", "next_state": "quest_given" },
+        {
+          "id": "ask_tremors",
+          "text": "These tremors seem to be getting worse.",
+          "effects": [
+            { "type": "set_flag", "flag": "mayor_worried_tremors", "value": true }
+          ],
+          "next_state": "tremor_discussion"
+        },
         { "id": "bye3", "text": "I'm on it.", "next_state": "exit" }
+      ]
+    },
+    
+    "tremor_discussion": {
+      "introduction": [
+        "*The Mayor's face tightens with frustration.*",
+        "The tremors. Yes. Another problem I cannot solve.",
+        "Started a few weeks ago. Getting stronger each day.",
+        "*He rubs his temples.*",
+        "I have miners telling me it is the old shafts settling.",
+        "But the timing... right when people start vanishing?",
+        "I do not believe in coincidences."
+      ],
+      "options": [
+        {
+          "id": "any_leads",
+          "text": "Any idea what is causing them?",
+          "next_state": "tremor_theory"
+        },
+        {
+          "id": "focus_disappearances",
+          "text": "Let's focus on the disappearances first.",
+          "next_state": "progress_updates"
+        }
+      ]
+    },
+    
+    "tremor_theory": {
+      "introduction": [
+        "Some say the old mines. Others blame the ruins.",
+        "*He shakes his head.*",
+        "All I know is the ground shakes, my people are afraid,",
+        "and my family is still missing.",
+        "Find out what is taking our people.",
+        "Maybe that will stop the tremors too."
+      ],
+      "options": [
+        {
+          "id": "back_to_quest",
+          "text": "I will keep investigating.",
+          "next_state": "progress_updates"
+        }
       ]
     },
 
@@ -154,7 +204,42 @@
         "you'll hear from me."
       ],
       "options": [
+        {
+          "id": "show_ore_samples",
+          "text": "I found strange glowing ore in the mine. [Show samples]",
+          "requirements": {
+            "flags": {
+              "retrieved_ore_samples": true,
+              "mayor_examined_ore_samples": false
+            }
+          },
+          "next_state": "ore_sample_discussion"
+        },
         { "id": "bye4", "text": "Stay safe.", "next_state": "exit" }
+      ]
+    },
+
+    "ore_sample_discussion": {
+      "introduction": [
+        "*The Mayor examines the glowing ore samples.*",
+        "By the gods... this is what Henrik found years ago.",
+        "The ore that made the miners uneasy.",
+        "*He looks troubled.*",
+        "Thank you for bringing this to my attention.",
+        "I will have our scholars study it carefully.",
+        "*He hands you a small pouch of coin.*",
+        "For your diligence in this matter."
+      ],
+      "options": [
+        {
+          "id": "accept_ore_reward",
+          "text": "Glad I could help.",
+          "effects": [
+            { "type": "set_flag", "flag": "mayor_examined_ore_samples", "value": true },
+            { "type": "set_flag", "flag": "mayor_wants_ore_info", "value": true }
+          ],
+          "next_state": "post_completion_idle"
+        }
       ]
     }
   }

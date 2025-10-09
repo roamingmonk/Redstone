@@ -101,6 +101,13 @@ class DialogueEngine:
         context = {}
         for flag_name in narrative_schema.get_all_flags():
             context[flag_name] = getattr(self.game_state, flag_name, False)
+        
+        # ALSO check character dict for flags (race flags, etc.)
+        if hasattr(self.game_state, 'character'):
+            for key, value in self.game_state.character.items():
+                # Add any boolean flags from character dict to context
+                if isinstance(value, bool) and key.startswith('is_'):
+                    context[key] = value
 
         # Add computed properties to context
         context['recruited_count'] = getattr(self.game_state, 'recruited_count', 0)
