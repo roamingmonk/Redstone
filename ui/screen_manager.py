@@ -861,7 +861,7 @@ class ScreenManager:
         Returns True if input was handled, False otherwise
         """
         current_screen = game_state.screen
-        
+       #TODO these are not active.  is this an orphaned method?  consider removal 
         # Shopping overlay input handling
         if current_screen == "merchant_shop" and hasattr(self, '_shopping_overlay'):
             if event.type == pygame.KEYDOWN:

@@ -1891,6 +1891,23 @@ Files Modified: game_logic/dialogue_engine.py (context building), game_logic/cha
 **Consequences:** Henrik now correctly recognizes Cavia players with unique dialogue; all portrait selections follow consistent UX pattern; players receive clear quest objective to find Henrik in town square after learning about him; dialogue state system fully operational enabling all NPC-specific dialogue paths.
 **Files Modified:** game_logic/dialogue_engine.py (context building), game_logic/character_engine.py (portrait flow), data/narrative_schema.json (quest + JSON structure), data/dialogues/broken_blade_garrick.json (quest flag triggers)
 
+# ADR-120: Directional Building Entrance System
+# Date: October 10, 2025
+# Status: Implemented
+**Context:** Town navigation allowed building entry from any direction on entrance tiles, lacking spatial awareness and intentional interaction design.
+**Decision:** Implemented directional entrance requirement where players must face toward buildings to interact; visual arrow sprite indicates facing direction; interaction prompts only appear when correctly positioned.
+**Implementation:** 
+- Created `calculate_required_direction()` helper in base_location_navigation.py using Manhattan distance to find closest building tile from entrance position
+- Modified `create_player_fallback()` to generate directional arrow sprites (red filled triangle + tail) for up/down/left/right
+- Added `can_interact` flag validation in redstone_town.py checking player_direction against required_direction before allowing ENTER key
+- Enhanced debug overlay with color-coded entrance status (green=correct facing, red=wrong direction)
+**Consequences:** 
+- Building interaction requires intentional positioning and facing, adding tactical element to navigation
+- Multiple entrance tiles per building provide flexibility while maintaining directional requirement
+- System scales to all future tile-based locations (ruins, swamp church, caves) using shared NavigationRenderer
+- Visual arrow placeholder ready for future sprite graphics replacement
+**Files Modified:** ui/base_location_navigation.py, utils/tile_graphics.py, screens/redstone_town.py
+**Technical Debt Addressed:** Removed duplicate debug rendering; established pattern for directional interactions in all future navigation systems.
 
 ```
 ## ADR-XXX: <Short title>

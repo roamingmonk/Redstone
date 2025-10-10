@@ -439,12 +439,12 @@ class ShoppingOverlay(BaseTabbedOverlay):
             return
         
         # Title - Merchant Name
-        title_y = content_rect.y + 10
+        title_y = content_rect.y + 20
         draw_centered_text(surface, merchant_data['merchant_name'],
                           fonts.get('fantasy_medium', fonts['normal']), title_y, YELLOW)
         
         # Greeting
-        greeting_y = content_rect.y + 60
+        greeting_y = content_rect.y + 70
         greeting = merchant_data.get('greeting', 'Welcome!')
         draw_centered_text(surface, f'"{greeting}"',
                           fonts['normal'], greeting_y, WHITE)
@@ -455,6 +455,12 @@ class ShoppingOverlay(BaseTabbedOverlay):
         merchant_id = merchant_data.get('merchant_id')
         merchant_config = game_state.item_manager.merchant_data.get('merchants', {}).get(merchant_id, {})
         
+        # Greeting
+        greeting = merchant_config.get('greeting', [])
+        if greeting:
+            draw_centered_text(surface, f"' {' '.join(greeting)}",
+                              fonts['small'], info_y, WHITE)
+
         # Stock categories
         categories = merchant_config.get('stock_categories', [])
         if categories:

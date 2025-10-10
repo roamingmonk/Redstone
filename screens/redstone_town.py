@@ -4,12 +4,13 @@ Redstone Town Navigation - Using shared NavigationRenderer utility
 """
 
 import pygame
-from ui.base_location_navigation import NavigationRenderer
+from ui.base_location_navigation import NavigationRenderer, calculate_required_direction
 from utils.constants import *
 from utils.graphics import draw_border, draw_centered_text
 from utils.party_display import draw_party_status_panel
 from utils.tile_graphics import get_tile_graphics_manager
 from utils.narrative_schema import narrative_schema
+
 
 # Import town map data
 try:
@@ -74,12 +75,48 @@ class RedstoneTownNavigation:
             game_state.town_player_x = new_x
             game_state.town_player_y = new_y
             self.renderer.update_camera(new_x, new_y)
-            
-            # Check for building interaction
-            self.current_building = get_building_at_entrance(new_x, new_y)
         
-        # Handle building entry
-        if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and self.current_building:
+        # Check for building interactions with direction validation
+        building_at_entrance = get_building_at_entrance(
+            game_state.town_player_x, 
+            game_state.town_player_y
+        )
+        
+        # Calculate if player is facing the correct direction
+        self.can_interact = False
+        self.required_direction = None
+        
+        if building_at_entrance:
+            # Get building entrance data from BUILDING_ENTRANCES to find building_pos
+            from data.maps.redstone_town_map import BUILDING_ENTRANCES
+            
+            # Find which building this entrance belongs to
+            for building_id, building_data in BUILDING_ENTRANCES.items():
+                entrance_tiles = building_data['entrance_tiles']
+                if (game_state.town_player_x, game_state.town_player_y) in entrance_tiles:
+                    # Found the building - get its position
+                    building_pos = building_data['building_pos']
+                    
+                    # Calculate required direction
+                    self.required_direction = calculate_required_direction(
+                        game_state.town_player_x,
+                        game_state.town_player_y,
+                        building_pos
+                    )
+                    
+                    # Check if player is facing the correct direction
+                    if self.renderer.player_direction == self.required_direction:
+                        self.current_building = building_at_entrance
+                        self.can_interact = True
+                    else:
+                        self.current_building = None
+                        self.can_interact = False
+                    break
+        else:
+            self.current_building = None
+        
+        # Handle building entry (only if facing correct direction)
+        if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and self.current_building and self.can_interact:
             interaction_type = self.current_building.get('interaction_type')
             
             print(f"DEBUG: RT: hit return to go somewhere")
@@ -157,6 +194,14 @@ class RedstoneTownNavigation:
                                         self.renderer.display_height - 12)
         
         self.renderer.draw_map(map_surface, fonts, game_state.town_player_x, game_state.town_player_y, surface)
+        
+        # Draw enhanced debug info with entrance information
+        building_for_debug = self.current_building if self.can_interact else None
+        self.renderer.draw_debug_with_entrance_info(
+            surface, fonts, 
+            game_state.town_player_x, game_state.town_player_y,
+            building_for_debug, self.required_direction
+        )
 
         # Draw interaction prompts
         if self.showing_temp_message:
@@ -167,7 +212,7 @@ class RedstoneTownNavigation:
                 self.showing_temp_message = False
         else:
             building_name = self.current_building.get('name') if self.current_building else None
-            self.renderer.draw_interaction_prompt(surface, fonts, building_name)
+            self.renderer.draw_interaction_prompt(surface, fonts, building_name, self.can_interact)
         
         # Instructions
         #=== DIALOG ZONE (FULL SCREEN WIDTH) ===

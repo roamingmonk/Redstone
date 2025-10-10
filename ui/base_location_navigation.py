@@ -11,6 +11,43 @@ from utils.party_display import draw_party_status_panel, PARTY_PANEL_WIDTH
 from utils.tile_graphics import get_tile_graphics_manager
 #from utils.constants import RED, YELLOW  
 
+def calculate_required_direction(entrance_x, entrance_y, building_pos):
+    """
+    Calculate which direction player must face to enter building from entrance tile
+    
+    Args:
+        entrance_x, entrance_y: Player's current position (entrance tile)
+        building_pos: Either (x, y) tuple or list of (x, y) tuples for multi-tile buildings
+    
+    Returns:
+        String direction ('up', 'down', 'left', 'right') or None if can't determine
+    """
+    # Handle both single position and list of positions
+    if isinstance(building_pos, tuple):
+        building_positions = [building_pos]
+    else:
+        building_positions = building_pos
+    
+    # Find closest building tile to entrance
+    min_distance = float('inf')
+    closest_building_x, closest_building_y = building_positions[0]
+    
+    for bx, by in building_positions:
+        distance = abs(bx - entrance_x) + abs(by - entrance_y)  # Manhattan distance
+        if distance < min_distance:
+            min_distance = distance
+            closest_building_x, closest_building_y = bx, by
+    
+    # Calculate direction from entrance to building
+    dx = closest_building_x - entrance_x
+    dy = closest_building_y - entrance_y
+    
+    # Determine primary direction (prefer horizontal if equal)
+    if abs(dx) >= abs(dy):
+        return 'right' if dx > 0 else 'left'
+    else:
+        return 'down' if dy > 0 else 'up'
+
 class NavigationRenderer:
     """Utility class for shared tile-based navigation logic"""
     
@@ -39,7 +76,25 @@ class NavigationRenderer:
         
         # Graphics manager
         self.graphics_manager = get_tile_graphics_manager()
+
+    def check_valid_entrance(self, player_x, player_y, player_direction):
+        """
+        Check if player is at valid entrance and facing correct direction
         
+        Returns:
+            tuple: (building_info dict or None, required_direction string or None)
+        """
+        # Get building info at current position
+        building_info = self.map_functions.get('get_building_info', lambda x, y: None)(player_x, player_y)
+        
+        if not building_info:
+            return None, None
+        
+        # Check if building_info has entrance data with building position
+        # This requires the map data to pass building_pos through get_building_at_entrance
+        # For now, return building_info and we'll check direction in the calling code
+        return building_info, None
+
     def update_camera(self, player_x, player_y):
         """Center camera on player with bounds checking"""
         player_pixel_x = player_x * self.tile_size
@@ -150,9 +205,18 @@ class NavigationRenderer:
             center_y = player_screen_y + self.tile_size // 2
             pygame.draw.circle(surface, (255, 0, 0), (center_x, center_y), 16)
 
-        # Draw debug info automatically
-        if main_surface:
-            self.draw_debug_info(surface, fonts, player_x, player_y)
+        # # Draw debug info automatically
+        # if main_surface:
+        #     # Check if at valid entrance for debug display
+        #     building_info = self.map_functions.get('get_building_info', lambda x, y: None)(player_x, player_y)
+        #     required_direction = None
+            
+        #     if building_info:
+        #         # Get building entrance data from map to calculate required direction
+        #         # We need to pass this through - will be handled in redstone_town.py
+        #         pass
+            
+        #     self.draw_debug_info(surface, fonts, player_x, player_y, building_info, required_direction)
 
     def draw_temp_message(self, surface, fonts, temp_message_text, temp_message_timer):
         """Draw temporary message """
@@ -166,9 +230,9 @@ class NavigationRenderer:
         
         return True
 
-    def draw_interaction_prompt(self, surface, fonts, building_name):
-        """Draw message """
-        if not building_name:
+    def draw_interaction_prompt(self, surface, fonts, building_name, can_interact=True):
+        """Draw interaction prompt only if player can interact"""
+        if not building_name or not can_interact:
             return
 
         # Center the prompt text
@@ -189,7 +253,7 @@ class NavigationRenderer:
         surface.blit(text_surface, (prompt_x, prompt_y + 30 + LAYOUT_DIALOG_HEIGHT // 2))
 
 
-    def draw_debug_info(self, surface, fonts, player_x, player_y):
+    def draw_debug_info(self, surface, fonts, player_x, player_y, building_info=None, required_direction=None):
         """Draw debug information for development"""
         
         try:
@@ -204,6 +268,21 @@ class NavigationRenderer:
         
         debug_font = fonts.get('fantasy_tiny', fonts['small'])
         
-        # Draw in top-left corner of screen instead
-        surface.blit(debug_font.render(pos_text, True, WHITE), (10, 10))
-        surface.blit(debug_font.render(graphics_text, True, WHITE), (10, 30))
+        # Draw in top-left corner of screen
+        y_offset = 10
+        surface.blit(debug_font.render(pos_text, True, WHITE), (10, y_offset))
+        y_offset += 20
+        surface.blit(debug_font.render(graphics_text, True, WHITE), (10, y_offset))
+        y_offset += 20
+        
+        # Show entrance information if at a building
+        if building_info and required_direction:
+            building_name = building_info.get('name', 'Unknown')
+            entrance_text = f"At entrance: {building_name} (need: {required_direction})"
+            facing_correct = self.player_direction == required_direction
+            color = GREEN if facing_correct else RED
+            surface.blit(debug_font.render(entrance_text, True, color), (10, y_offset))
+
+    def draw_debug_with_entrance_info(self, surface, fonts, player_x, player_y, building_info, required_direction):
+        """Special debug draw that includes entrance information"""
+        self.draw_debug_info(surface, fonts, player_x, player_y, building_info, required_direction)

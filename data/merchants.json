@@ -29,7 +29,7 @@
       "merchant_id": "bernard",
       "name": "Bernard Mugsworth",
       "location": "redstone_town",
-      "greeting": "Welcome to my store! Quality goods for quality folk.",
+      "greeting": "Hello, friends!  I run the finest general store in Redstone - weapons, armor, supplies, you name it.",
       "merchant_type": "general_trader",
       "price_modifier": 1.1,
       "sell_multiplier": 0.5,

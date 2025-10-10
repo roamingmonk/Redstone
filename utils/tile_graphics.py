@@ -144,12 +144,12 @@ class TileGraphicsManager:
                     self.character_sprites['player'][direction] = scaled_sprite
                     print(f"✅ Player sprite loaded: {direction}")
                 else:
-                    self.character_sprites['player'][direction] = self.create_player_fallback()
-                    print(f"🔴 Using red circle for player: {direction}")
+                    self.character_sprites['player'][direction] = self.create_player_fallback(direction)
+                    print(f"🔴 Using red arrow for player: {direction}")
                     
             except Exception as e:
                 print(f"⚠️ Error loading player sprite {direction}: {e}")
-                self.character_sprites['player'][direction] = self.create_player_fallback()
+                self.character_sprites['player'][direction] = self.create_player_fallback(direction)
         
         # NPC sprites (for future use)
         npc_types = ['guard', 'merchant', 'citizen', 'noble', 'henrik']
@@ -231,11 +231,38 @@ class TileGraphicsManager:
         
         return surface
     
-    def create_player_fallback(self):
-        """Create red circle fallback for player"""
+    def create_player_fallback(self, direction='down'):
+        """Create red directional arrow fallback for player"""
         surface = pygame.Surface((32, 32), pygame.SRCALPHA)
-        pygame.draw.circle(surface, RED, (16, 16), 10)
-        pygame.draw.circle(surface, WHITE, (16, 16), 10, 2)
+        
+        # Arrow components based on direction
+        if direction == 'up':
+            # Triangle pointing up
+            triangle = [(16, 6), (10, 16), (22, 16)]
+            # Tail (rectangle below triangle)
+            tail_rect = pygame.Rect(13, 16, 6, 10)
+        elif direction == 'down':
+            # Triangle pointing down
+            triangle = [(16, 26), (10, 16), (22, 16)]
+            # Tail (rectangle above triangle)
+            tail_rect = pygame.Rect(13, 6, 6, 10)
+        elif direction == 'left':
+            # Triangle pointing left
+            triangle = [(6, 16), (16, 10), (16, 22)]
+            # Tail (rectangle to right of triangle)
+            tail_rect = pygame.Rect(16, 13, 10, 6)
+        else:  # 'right'
+            # Triangle pointing right
+            triangle = [(26, 16), (16, 10), (16, 22)]
+            # Tail (rectangle to left of triangle)
+            tail_rect = pygame.Rect(6, 13, 10, 6)
+        
+        # Draw tail (filled red rectangle)
+        pygame.draw.rect(surface, RED, tail_rect)
+        
+        # Draw triangle (filled red)
+        pygame.draw.polygon(surface, RED, triangle)
+        
         return surface
     
     def create_npc_fallback(self, npc_type):
@@ -280,7 +307,7 @@ class TileGraphicsManager:
         """Get player sprite facing specified direction"""
         if 'player' in self.character_sprites and direction in self.character_sprites['player']:
             return self.character_sprites['player'][direction]
-        return self.create_player_fallback()
+        return self.create_player_fallback(direction)
     
     def get_npc_sprite(self, npc_type):
         """Get NPC sprite"""
