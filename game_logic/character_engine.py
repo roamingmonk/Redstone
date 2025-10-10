@@ -248,7 +248,7 @@ class CharacterEngine:
             self.event_manager.emit('SCREEN_CHANGE', {'target': 'portrait_selection'})
     
     def _handle_cavia_warning_confirm(self, event_data):
-        """Handle Cavia warning confirmation - apply race and proceed"""
+        """Handle Cavia warning confirmation - apply species and proceed"""
         print("🐹 Player confirmed Cavia selection!")
         
         # Get current gender for portrait setting (portrait #6 = index 5)
@@ -258,8 +258,8 @@ class CharacterEngine:
         # Set the Cavia portrait
         self.game_state.set_selected_portrait(gender, portrait_index)
         
-        # Apply Cavia race modifiers (includes stat caps and abilities)
-        self._apply_race_modifiers('cavia')
+        # Apply Cavia species modifiers (includes stat caps and abilities)
+        self._apply_species_modifiers('cavia')
         
         # Copy selected portrait to active location
         self.ensure_active_portrait(self.game_state)
@@ -412,17 +412,17 @@ class CharacterEngine:
             self.game_state.character['is_cavia'] = is_cavia
             
             if is_cavia:
-                print(f"🐹 CAVIA portrait selected! Triggering warning screen...")
-                # Trigger Cavia warning screen instead of direct selection
-                if self.event_manager:
-                    self.event_manager.emit('SCREEN_CHANGE', {'target': 'cavia_warning'})
+                print(f"🐹 CAVIA portrait selected! (Will show warning on Continue)")
+                # Store selection but don't apply modifiers yet - wait for Continue
+                gender = self.game_state.character.get('gender', 'male')
+                self.game_state.set_selected_portrait(gender, portrait_index)
             else:
                 # Normal human portrait - use existing GameState method
                 self.game_state.set_selected_portrait(gender, portrait_index)
                 print(f"🎭 Portrait {portrait_index + 1} selected for {gender} (internal index: {portrait_index})")
                 
-                # Apply Human race modifiers for portraits 1-5
-                self._apply_race_modifiers('human')
+                # Apply Human species modifiers for portraits 1-5
+                self._apply_species_modifiers('human')
 
     def _handle_confirm_portrait(self, event_data):
         """Handle CONFIRM_PORTRAIT - finalize selection and navigate to gold screen"""
@@ -434,9 +434,19 @@ class CharacterEngine:
             # Copy selected portrait to active location
             self.ensure_active_portrait(self.game_state)
 
-            # Navigate to next step (gold screen)
-            if self.event_manager:
-                self.event_manager.emit('SCREEN_CHANGE', {'target': 'gold'})
+            # Check if Cavia was selected - show warning before proceeding
+            is_cavia = self.game_state.character.get('is_cavia', False)
+            
+            if is_cavia:
+                print(f"🐹 Cavia confirmed - showing warning screen")
+                # Navigate to Cavia warning instead of gold
+                if self.event_manager:
+                    self.event_manager.emit('SCREEN_CHANGE', {'target': 'cavia_warning'})
+            else:
+                # Normal flow - apply human modifiers and go to gold screen
+                self._apply_species_modifiers('human')
+                if self.event_manager:
+                    self.event_manager.emit('SCREEN_CHANGE', {'target': 'gold'})
         else:
             print("⚠️ No portrait selected to confirm")
 
@@ -452,35 +462,33 @@ class CharacterEngine:
         if self.event_manager:
             self.event_manager.emit('SCREEN_CHANGE', {'target': 'name_confirm'})
 
-    def _apply_race_modifiers(self, race_id):
-        """Apply race-specific stat modifiers and abilities"""
-        print(f"🧬 Applying race modifiers for: {race_id}")
+    def _apply_species_modifiers(self, species_id):
+        """Apply species-specific stat modifiers and abilities"""
+        print(f"🧬 Applying species modifiers for: {species_id}")
         
-        # Load race data
-        import json
-        import os
-        races_path = os.path.join('data', 'player', 'races.json')
+        # Load species data
+        species_path = os.path.join('data', 'player', 'species.json')
         
         try:
-            with open(races_path, 'r', encoding='utf-8') as f:
-                races_data = json.load(f)
+            with open(species_path, 'r', encoding='utf-8') as f:
+                species_data = json.load(f)
             
-            race = races_data['races'].get(race_id)
-            if not race:
-                print(f"⚠️ Race '{race_id}' not found in races.json")
+            species = species_data['species'].get(species_id)
+            if not species:
+                print(f"⚠️ Species '{species_id}' not found in species.json")
                 return
             
-            # Store race information in character
-            self.game_state.character['race'] = {
-                'id': race_id,
-                'display_name': race['display_name'],
-                'special_abilities': race.get('special_abilities', []),
-                'resistances': race.get('resistances', []),
-                'dialogue_flags': race.get('dialogue_flags', {})
+            # Store species information in character
+            self.game_state.character['species'] = {
+                'id': species_id,
+                'display_name': species['display_name'],
+                'special_abilities': species.get('special_abilities', []),
+                'resistances': species.get('resistances', []),
+                'dialogue_flags': species.get('dialogue_flags', {})
             }
             
             # Apply stat modifiers (caps) - stats are stored directly in character dict
-            stat_modifiers = race.get('stat_modifiers', {})
+            stat_modifiers = species.get('stat_modifiers', {})
             
             for stat_name, limits in stat_modifiers.items():
                 # Check if stat exists directly in character dict
@@ -498,7 +506,7 @@ class CharacterEngine:
                         print(f"  📈 {stat_name.capitalize()} raised: {current_val} → {min_val}")
             
             # Set dialogue flags for easy access
-            for flag, value in race.get('dialogue_flags', {}).items():
+            for flag, value in species.get('dialogue_flags', {}).items():
                 # Set in character dict (where it's already working)
                 self.game_state.character[flag] = value
                 
@@ -509,12 +517,12 @@ class CharacterEngine:
                 else:
                     print(f"  🏳️ Set dialogue flag in character: {flag} = {value}")
             
-            print(f"✅ Race modifiers applied: {race['display_name']}")
-            print(f"  Abilities: {len(race.get('special_abilities', []))}")
-            print(f"  Resistances: {', '.join(race.get('resistances', [])) if race.get('resistances') else 'None'}")
+            print(f"✅ Species modifiers applied: {species['display_name']}")
+            print(f"  Abilities: {len(species.get('special_abilities', []))}")
+            print(f"  Resistances: {', '.join(species.get('resistances', [])) if species.get('resistances') else 'None'}")
             
         except Exception as e:
-            print(f"❌ Error loading race data: {e}")
+            print(f"❌ Error loading species data: {e}")
 
     def handle_reroll_from_confirm(self, event_data):
         """Handle reroll from low stats confirmation"""

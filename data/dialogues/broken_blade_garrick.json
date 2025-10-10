@@ -342,11 +342,25 @@
         {
           "id": "ill_try",
           "text": "I'll try talking to him anyway.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "garrick_mentioned_henrik",
+              "value": true
+            }
+          ],
           "next_state": "exit"
         },
         {
           "id": "good_to_know",
           "text": "Good to know. Thanks.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "garrick_mentioned_henrik",
+              "value": true
+            }
+          ],
           "next_state": "exit"
         }
       ]
@@ -774,11 +788,25 @@
         {
           "id": "ill_talk_to_him",
           "text": "I'll talk to him.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "garrick_mentioned_henrik",
+              "value": true
+            }
+          ],
           "next_state": "exit"
         },
         {
           "id": "thanks_garrick",
           "text": "Thanks for the advice.",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "garrick_mentioned_henrik",
+              "value": true
+            }
+          ],
           "next_state": "casual_chat"
         }
       ]

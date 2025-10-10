@@ -1,5 +1,5 @@
 {
-  "races": {
+  "species": {
     "human": {
       "id": "human",
       "display_name": "Human",
@@ -59,7 +59,7 @@
         "is_dwarf": false,
         "is_drow": false
       },
-      "lore": "Created millennia ago by the Aethel Imperium during unstable dimensional experiments, the Cavia are living, furry artifacts of ancient mistakes. Most people simply accept them as another race, unaware of their tragic origin.",
+      "lore": "Created millennia ago by the Aethel Imperium during unstable dimensional experiments, the Cavia are living, furry artifacts of ancient mistakes. Most people simply accept them as another species, unaware of their tragic origin.",
       "size_category": "medium",
       "special_notes": [
         "Nobody can tell if a Cavia is male or female",
@@ -173,7 +173,7 @@
     }
   },
   
-  "race_determination": {
+  "species_determination": {
     "portrait_mapping": {
       "portraits_1_to_5": "human",
       "portrait_6": "cavia"

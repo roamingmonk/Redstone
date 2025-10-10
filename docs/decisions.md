@@ -1873,7 +1873,7 @@ core/game_state.py - Race field initialization
 **Consequences:**Positive: Scalable race system, Cavia stat caps enforced (STR/CON max 10), race persists through save/load, Shadow Blight resistance ready for combat integration
 Future Work: Display race on character sheet, implement race-specific dialogue branches, add race ability mechanics to combat system
 
-# ADR-1118: Species (Race) Dialogue Flag Integration
+# ADR-118: Species (Race) Dialogue Flag Integration
 # Status: Accepted
 # Date: Oct 9, 2025
 Context: Cavia race-specific dialogue (is_cavia flag) wasn't accessible to dialogue condition evaluator, causing Henrik's special Cavia introduction to fail with "name 'is_cavia' is not defined" error.
@@ -1881,6 +1881,16 @@ Decision: Modified dialogue engine's context builder to dynamically include all 
 Implementation: Added loop in get_current_dialogue_state() to scan character dict for is_ prefixed booleans and inject into evaluation context; modified _apply_race_modifiers() to set flags in character dict when set_flag() method unavailable.
 Consequences: Race flags now accessible to dialogue conditions without hardcoding; Henrik correctly recognizes Cavia players with unique dialogue; system supports future race-specific dialogue for all races (Dwarf, Drow, Human).
 Files Modified: game_logic/dialogue_engine.py (context building), game_logic/character_engine.py (race flag setting)
+
+# ADR-119: Species Dialogue Recognition & Henrik Quest Integration
+# Status: Accepted
+# Date: Oct 9, 2025
+**Context:** Cavia players weren't recognized by Henrik's species-specific dialogue due to is_cavia flags stored in character dict not being accessible to dialogue condition evaluator; portrait selection UX was inconsistent (Cavia immediately jumped to warning screen); missing side quest to direct players to Henrik after Garrick mentions him; critical JSON syntax error prevented entire dialogue_state_mapping section from loading.
+**Decision:** Modified dialogue engine's get_current_dialogue_state() to dynamically inject all is_* boolean flags from character dict into evaluation context; standardized portrait selection flow so all portraits (including Cavia) highlight first then advance on Continue button; added "Seek Old Henrik" side quest triggered by garrick_mentioned_henrik flag; fixed missing closing brace in narrative_schema.json between quest_mappings and dialogue_state_mapping.
+**Implementation:** Added species flag context builder loop in dialogue_engine.py; moved Cavia warning screen trigger from portrait selection handler to portrait confirm handler; created quest definition, objectives, triggers, and mappings for Henrik quest in narrative_schema.json; corrected JSON structure so dialogue_state_mapping is root-level sibling to quest_mappings.
+**Consequences:** Henrik now correctly recognizes Cavia players with unique dialogue; all portrait selections follow consistent UX pattern; players receive clear quest objective to find Henrik in town square after learning about him; dialogue state system fully operational enabling all NPC-specific dialogue paths.
+**Files Modified:** game_logic/dialogue_engine.py (context building), game_logic/character_engine.py (portrait flow), data/narrative_schema.json (quest + JSON structure), data/dialogues/broken_blade_garrick.json (quest flag triggers)
+
 
 ```
 ## ADR-XXX: <Short title>

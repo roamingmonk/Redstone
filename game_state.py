@@ -29,7 +29,7 @@ class GameState:
             # Core identity
             'name': '',
             'class': 'fighter',
-            'race': {
+            'species': {
                 'id': 'human',
                 'display_name': 'Human',
                 'special_abilities': [],

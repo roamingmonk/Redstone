@@ -1,6 +1,6 @@
 {
     "id": "bartender",
-    "race": "human",
+    "species": "human",
     "name": "Garrick Ironbrew",
     "description": "*The tavern's proprietor polishes glasses while keeping a watchful eye on his establishment, ready with advice or supplies.*",
     "level": 1,

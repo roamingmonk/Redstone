@@ -70,9 +70,6 @@ class DialogueEngine:
                 dialogue_data = json.load(f)
                 
             self.dialogues[dialogue_id] = dialogue_data
-            #print(f"✅ Loaded dialogue tree: {dialogue_id}")
-            #print(f"🔍 LOAD DEBUG: Successfully loaded {dialogue_id}")
-            #print(f"🔍 LOAD DEBUG: Dialogue data keys: {dialogue_data.keys()}")
             return True
             
         except Exception as e:
@@ -81,19 +78,18 @@ class DialogueEngine:
     
     def get_current_dialogue_state(self, npc_id: str) -> str:
         """Determine current dialogue state for NPC using narrative schema"""
+        
         # Check for stored dialogue state first (from recent transitions)
         stored_state_attr = f'{npc_id}_dialogue_state'
         stored_state = getattr(self.game_state, stored_state_attr, None)
         in_progress = getattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
-
+        
         if in_progress and stored_state:
-            #print(f"DEBUG: DE: GCDS: Using stored dialogue state: {stored_state}")
-            return stored_state        
+            return stored_state
         
         # Use narrative schema dialogue state mapping
         dialogue_states = narrative_schema.schema.get('dialogue_state_mapping', {})
         npc_states = dialogue_states.get(npc_id, {})
-        
         if not npc_states:
             return 'first_meeting'
         
@@ -101,8 +97,7 @@ class DialogueEngine:
         context = {}
         for flag_name in narrative_schema.get_all_flags():
             context[flag_name] = getattr(self.game_state, flag_name, False)
-        
-        # ALSO check character dict for flags (race flags, etc.)
+            
         if hasattr(self.game_state, 'character'):
             for key, value in self.game_state.character.items():
                 # Add any boolean flags from character dict to context

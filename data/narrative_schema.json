@@ -70,7 +70,9 @@
     "clear_kobolds": "Clear out the kobold infestation",
     "recover_ring": "Find Meredith's lost ring",
     "return_to_henrik": "Report findings to Henrik",
-    "ore_samples_found": "Discover Aethel Ore samples"
+    "ore_samples_found": "Discover Aethel Ore samples",
+    "find_henrik_square": "Find out where to find Henrik (town square)",
+    "talk_to_henrik": "Speak with Henrik about the tremors"
   },
 
   "npcs": {
@@ -81,6 +83,7 @@
       "conversation_flag": "meredith_talked",
       "location": "broken_blade",
       "role": "server",
+      "species": "human",
       "story_flags": {
         "mentioned_mayor": "meredith_mentioned_mayor",
         "directed_to_mayor": "meredith_directed_to_mayor",
@@ -98,6 +101,7 @@
     "conversation_flag": "garrick_talked",
     "location": "broken_blade",
     "role": "bartender",
+    "species": "human",
     "story_flags": {
       "gave_ruins_location": "garrick_gave_ruins_info",
       "offered_basement_quest": "garrick_offered_basement",
@@ -118,6 +122,7 @@
       "conversation_flag": "pete_talked",
       "location": "broken_blade",
       "role": "comedy_relief",
+      "species": "human",
       "special_mechanics": {
         "fake_recruitment": true,
         "comedy_sequence": true,
@@ -137,7 +142,8 @@
       "dialogue_file": "broken_blade_mayor",
       "conversation_flag": "mayor_talked",
       "location": "broken_blade",
-      "role": "authority", 
+      "role": "authority",
+      "species": "human", 
       "story_flags": {
         "gave_main_quest": "quest_active",
         "mentioned_family": "mayor_mentioned_family",
@@ -159,6 +165,7 @@
       "conversation_flag": "gareth_talked",
       "location": "patron_selection",
       "role": "recruitable_fighter",
+      "species": "human",
       "story_flags": {
         "recruitment_completed": "gareth_recruited",
         "shared_background": "gareth_shared_story"
@@ -171,6 +178,7 @@
       "conversation_flag": "elara_talked",
       "location": "broken_blade",
       "role": "recruitable_mage",
+      "species": "human",
       "story_flags": {
         "recruitment_completed": "elara_recruited", 
         "shared_magic_knowledge": "elara_shared_magic"
@@ -183,6 +191,7 @@
       "conversation_flag": "thorman_talked",
       "location": "broken_blade",
       "role": "recruitable_cleric",
+      "species": "dwarf",
       "story_flags": {
         "recruitment_completed": "thorman_recruited",
         "shared_faith": "thorman_shared_faith"
@@ -195,6 +204,7 @@
       "conversation_flag": "lyra_talked",
       "location": "broken_blade",
       "role": "recruitable_rogue",
+      "species": "drow",
       "story_flags": {
         "recruitment_completed": "lyra_recruited",
         "shared_skills": "lyra_shared_skills"
@@ -207,6 +217,7 @@
       "conversation_flag": "bernard_talked", 
       "location": "redstone_town",
       "role": "merchant_general",
+      "species": "human",
       "story_flags": {
         "first_shop_visit": "bernard_first_visit",
         "heard_rumors": "bernard_shared_rumors",
@@ -219,6 +230,7 @@
       "dialogue_file": "redstone_town_jenna",
       "conversation_flag": "jenna_talked",
       "location": "redstone_town", 
+      "species": "human",
       "role": "merchant_general_clerk",
       "story_flags": {
         "explained_inventory": "jenna_explained_shop",
@@ -232,6 +244,7 @@
       "conversation_flag": "henrik_talked",
       "location": "redstone_town",
       "role": "former_miner",
+      "species": "human",
       "story_flags": {
         "ore_story_told": "henrik_told_ore_story",
         "tremor_concern_shared": "henrik_shared_tremor_concern",
@@ -494,6 +507,19 @@
         "xp_reward": "quest_multipliers.side_task"
       },
     
+      "garrick_directs_to_henrik": {
+        "dialogue_flag": "garrick_mentioned_henrik",
+        "quest_objective": "find_henrik.find_henrik_square",
+        "event_type": "QUEST_ACCEPTED",
+        "xp_reward": "discovery_base"
+      },
+      "henrik_first_contact": {
+        "dialogue_flag": "henrik_talked",
+        "quest_objective": "find_henrik.talk_to_henrik",
+        "event_type": "QUEST_COMPLETED",
+        "xp_reward": "quest_multipliers.side_task"
+      },
+
     "quest_completion_triggers": {
       "party_building_complete": {
         "quest_id": "party_building",
@@ -562,6 +588,14 @@
         "recover_ring": ["returned_meredith_ring"],
         "return_to_henrik": ["reported_shaft_to_henrik"],
         "ore_samples_found": ["retrieved_ore_samples"]
+      }
+    },
+    "find_henrik": {
+      "type": "side_task",
+      "activation_flag": "garrick_mentioned_henrik",
+      "objectives": {
+        "find_henrik_square": ["garrick_mentioned_henrik"],
+        "talk_to_henrik": ["henrik_talked"]
       }
     }
   },
@@ -654,6 +688,6 @@
       "shaft_complete": "cleared_kobold_mine && !reported_shaft_to_henrik",
       "post_quest_idle": "reported_shaft_to_henrik",
       "ruins_deflection": "henrik_talked && (learned_about_ruins || garrick_gave_ruins_info)"
+     }
     }
   }
-}

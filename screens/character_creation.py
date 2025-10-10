@@ -6,7 +6,8 @@ Contains all the character creation screen drawing functions
 import pygame
 import json
 import os
-from utils.graphics import draw_centered_text
+from utils.graphics import draw_centered_text, draw_border, draw_button
+from game_logic.character_engine import get_character_engine
 # Import layout constants for new standardized system  
 from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, 
                            LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
@@ -194,9 +195,6 @@ def draw_stats_screen(surface, game_state, fonts, images=None):
     draw_centered_text(surface, "ROLL STATS", fonts.get('fantasy_medium', fonts['normal']), 120, YELLOW)
     
     # Load class information from JSON
-    import json
-    import os
-
     class_file = os.path.join("data", "player", "character_classes.json")
     try:
         with open(class_file, 'r') as f:
@@ -737,7 +735,7 @@ def finalize_character_creation(game_state):
     Complete character creation by using CharacterEngine
     """
 
-    from game_logic.character_engine import get_character_engine
+    
     engine = get_character_engine()
     
     if engine:
@@ -817,17 +815,12 @@ def draw_portrait_selection_screen(surface, game_state, fonts, images=None):
     """Draw portrait selection screen"""
     surface.fill(BLACK)
     
-    # Use standardized layout
-    from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, 
-                                LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
-                                LAYOUT_BUTTON_CENTER_Y)
-    
     # Image area with portrait grid
     image_y = LAYOUT_IMAGE_Y
     image_height = LAYOUT_IMAGE_HEIGHT
     
     # Draw border around image area
-    from utils.graphics import draw_border
+
     draw_border(surface, 0, image_y, 1024, image_height)
     
     # Dialog area
@@ -836,7 +829,6 @@ def draw_portrait_selection_screen(surface, game_state, fonts, images=None):
     draw_border(surface, 20, dialog_y, 1024-40, dialog_height)
     
     # Instructions
-    from utils.graphics import draw_centered_text
     text_y = dialog_y + 20
     # Get character name for dynamic text
     character_name = game_state.character.get('name', 'your character')
@@ -916,7 +908,6 @@ def draw_portrait_selection_screen(surface, game_state, fonts, images=None):
             surface.blit(label_surface, (label_x, label_y))
     
     # Buttons
-    from utils.graphics import draw_button
     button_y = LAYOUT_BUTTON_CENTER_Y
     
     back_button = draw_button(surface, 300, button_y, 120, 40, "BACK", 

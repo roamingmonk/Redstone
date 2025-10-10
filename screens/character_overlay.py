@@ -22,6 +22,7 @@ from utils.party_display import load_portrait, get_character_color
 from game_logic.character_engine import CharacterEngine
 from utils.narrative_schema import narrative_schema
 from utils.stats_calculator import get_stats_calculator
+from utils.constants import MALE_PORTRAITS_PATH
 
 
 class CharacterOverlay(BaseTabbedOverlay):
@@ -121,22 +122,22 @@ class CharacterOverlay(BaseTabbedOverlay):
         surface.blit(level_text, (left_section_x, current_y))
         current_y += 32
 
-        # Class and Race
+        # Class and Species
         character_class = character.get('class', 'fighter')
         class_text = normal_font.render(f"Class: {character_class.title()}", True, WHITE)
         surface.blit(class_text, (left_section_x, current_y))
         current_y += 25
         
-        # Race
-        race_data = character.get('race', {})
-        race_name = race_data.get('display_name', 'Human')
-        race_text = normal_font.render(f"Race: {race_name}", True, WHITE)
-        surface.blit(race_text, (left_section_x, current_y))
+        # Species
+        species_data = character.get('species', {})
+        species_name = species_data.get('display_name', 'Human')
+        species_text = normal_font.render(f"Species: {species_name}", True, WHITE)
+        surface.blit(species_text, (left_section_x, current_y))
         current_y += 32
 
         # XP Progress Bar (ASCII Style)
         current_xp = character.get('experience', 0)
-        from utils.narrative_schema import narrative_schema
+        
         xp_requirements = narrative_schema.schema.get('xp_balance', {}).get('level_progression', {}).get('requirements', [0, 300, 900, 2700, 6500])
         
         if current_level < 5:  # Max level is 5
@@ -277,7 +278,7 @@ class CharacterOverlay(BaseTabbedOverlay):
         
         # Load the active player portrait using same logic as character_sheet.py
         try:
-            from utils.constants import MALE_PORTRAITS_PATH
+            
             import os
             
             active_dir = os.path.join(os.path.dirname(MALE_PORTRAITS_PATH), "active")
@@ -577,23 +578,22 @@ class CharacterOverlay(BaseTabbedOverlay):
             surface.blit(class_text, (left_x, left_y))
             left_y += 25
             
-            # Race
-            race = npc_info.get('race', 'human')
-            # Load race display name from races.json
-            race_display = race.title()  # Default to capitalized version
+            # Species
+            species = npc_info.get('species', 'human')
+            # Load species display name from species.json
+            species_display = species.title()  # Default to capitalized version
             try:
-                import json
-                import os
-                races_path = os.path.join('data', 'player', 'races.json')
-                with open(races_path, 'r', encoding='utf-8') as f:
-                    races_data = json.load(f)
-                    race_info = races_data['races'].get(race, {})
-                    race_display = race_info.get('display_name', race.title())
+
+                species_path = os.path.join('data', 'player', 'species.json')
+                with open(species_path, 'r', encoding='utf-8') as f:
+                    species_data = json.load(f)
+                    species_info = species_data['species'].get(species, {})
+                    species_display = species_info.get('display_name', species.title())
             except:
                 pass  # Fall back to capitalized version if file not found
             
-            race_text = normal_font.render(f"Race: {race_display}", True, WHITE)
-            surface.blit(race_text, (left_x, left_y))
+            species_text = normal_font.render(f"Species: {species_display}", True, WHITE)
+            surface.blit(species_text, (left_x, left_y))
             left_y += 25
 
             # Level
