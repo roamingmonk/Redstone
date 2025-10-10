@@ -49,7 +49,7 @@ class InputHandler:
             pygame.K_q: ("OVERLAY_TOGGLE", {"overlay_id": "quest_key"}),
             pygame.K_c: ("OVERLAY_TOGGLE", {"overlay_id": "character_key"}),
             pygame.K_h: ("OVERLAY_TOGGLE", {"overlay_id": "help_key"}),
-            pygame.K_s: ("OVERLAY_TOGGLE", {"overlay_id": "statistics_key"}),
+            pygame.K_z: ("OVERLAY_TOGGLE", {"overlay_id": "statistics_key"}),
             
             # Game controls (corrected)
             pygame.K_F1: ("DEBUG_TOGGLE", {}),
@@ -819,7 +819,7 @@ class InputHandler:
                         print(f"⌨️ Response primary pressed for {npc_id} → continue")
                     self.event_manager.emit("DIALOGUE_ACTION", {
                         'npc_id': npc_id,
-                        'action_name': 'continue'  # ← Changed from 'goodbye' to 'continue'
+                        'action_name': 'continue'  
                     })
                     return True
 
@@ -831,7 +831,7 @@ class InputHandler:
                         'action_name': 'back'
                     })
                     return True
-
+#TODO  is this even active? Originally going to add s as shop for merchant dialogues.  need to consider removing
                 elif key == pygame.K_s:
                     if self.debug_input:
                         print(f"⌨️ Response shop pressed for {npc_id} → shop")

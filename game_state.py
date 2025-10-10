@@ -60,6 +60,11 @@ class GameState:
         }
         self.temp_stats = {}
         
+        # NPC state tracking
+        self.npc_position_overrides = {}  # {location_npc_id: (x, y)}
+        self.npcs_talked_today = set()    # {npc_id, npc_id, ...}
+        self.npc_interaction_flags = {}   # {npc_id: custom_data}
+
         # Inventory system
         self.inventory = {
             'weapons': [],

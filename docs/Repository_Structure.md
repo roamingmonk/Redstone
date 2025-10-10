@@ -1,8 +1,8 @@
-﻿## Repository Structure (generated 2025-10-06 10:45)
+﻿## Repository Structure (generated 2025-10-10 12:45)
 ```text
-Folder PATH listing
-Volume serial number is 36E2-184C
-D:.
+Folder PATH listing for volume OS
+Volume serial number is 86A5-907E
+C:.
 |   game_state.py
 |   input_handler.py
 |   main.py
@@ -42,6 +42,7 @@ D:.
 |       |   |   |       gareth_portrait.jpg
 |       |   |   |       garrick_portrait.jpg
 |       |   |   |       garrick_portrait.png
+|       |   |   |       henrik_portrait.jpg
 |       |   |   |       lyra_portrait.jpg
 |       |   |   |       mayor_portrait.jpg
 |       |   |   |       mayor_portrait_happy.jpg
@@ -57,6 +58,7 @@ D:.
 |       |   |       |       player_female_03.jpg
 |       |   |       |       player_female_04.jpg
 |       |   |       |       player_female_05.jpg
+|       |   |       |       player_female_06.jpg
 |       |   |       |       
 |       |   |       \---male
 |       |   |               player_male_01.jpg
@@ -64,6 +66,7 @@ D:.
 |       |   |               player_male_03.jpg
 |       |   |               player_male_04.jpg
 |       |   |               player_male_05.jpg
+|       |   |               player_male_06.jpg
 |       |   |               
 |       |   +---Items
 |       |   |       axe.PNG
@@ -124,11 +127,23 @@ D:.
 |       |   \---player
 |       \---tiles
 |           |       stone_wall.png
+|           |       wall_corner_ne.png
+|           |       wall_corner_nw.png
+|           |       wall_corner_se.png
+|           |       wall_corner_sw.png
+|           |       wall_east.png
+|           |       wall_north.png
+|           |       wall_south.png
+|           |       wall_west.png
 |           |       
 |           +---characters
 |           |   \---player
 |           +---decorations
+|           |       gate_north.png
+|           |       gate_south.png
+|           |       
 |           \---terrain
+|                   cobblestone_street 16x16.png
 |                   cobblestone_street.png
 |                   
 +---core
@@ -163,6 +178,7 @@ D:.
 |   |       patron_selection_pete.json
 |   |       patron_selection_thorman.json
 |   |       redstone_town_bernard.json
+|   |       redstone_town_henrik.json
 |   |       redstone_town_jenna.json
 |   |       
 |   +---locations
@@ -195,6 +211,7 @@ D:.
 |   |       character_names.json
 |   |       current_character.json
 |   |       low_stats_comments.json
+|   |       species.json
 |   |       
 |   +---templates
 |   |       player_template.json
@@ -275,6 +292,7 @@ D:.
 |   |   location_loader.py
 |   |   narrative_schema.py
 |   |   npc_display.py
+|   |   npc_manager.py
 |   |   overlay_utils.py
 |   |   party_display.py
 |   |   quest_system.py

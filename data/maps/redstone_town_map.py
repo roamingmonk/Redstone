@@ -54,7 +54,6 @@ TILE_TYPES = {
     'E': 'empty_lot',     # Empty areas
     'R': 'main_road',     # Main road to/from town
     'g': 'ground_grass',   # Ground/grass outside walls (lowercase g)
-    'V': 'vegetable_cart'   # Ground/grass outside walls (lowercase g)
 }
 
 # === WALKABLE TILES ===
@@ -149,16 +148,6 @@ BUILDING_ENTRANCES = {
             'action': 'Talk to Mayor'
         }
     },
-    'henrik_vegetable_cart': {
-        'building_pos': (5, 8),  # Henrik's cart location at edge of town square
-        'entrance_tiles': [(5, 7), (5, 8), (6, 8)],  # Player can talk from multiple tiles
-        'info': {
-            'name': "Old Henrik's Vegetable Cart",
-            'interaction_type': 'npc_dialogue',
-            'npc_id': 'henrik',
-            'action': 'Talk to Henrik'
-        }
-    },
     'north_gate': {
         'building_pos': (8, 1),
         'entrance_tiles': [(8, 2)],  # Tile just south of north gate
@@ -180,6 +169,72 @@ BUILDING_ENTRANCES = {
         }    
     }
 }
+
+# === NPC SPAWN DEFINITIONS ===
+TOWN_NPCS = {
+    'henrik': {
+        'sprite_type': 'henrik',
+        'default_position': (7, 6),  # His vegetable cart location
+        'interaction_tiles': [(7, 7), (8,6)],  # Can interact from these tiles
+        'display_name': 'Old Henrik',
+        'dialogue_id': 'henrik',
+        'conditions': None  # Always present
+    },
+    
+    'guard_north': {
+        'sprite_type': 'guard',
+        'default_position': (8, 2),  # Near north gate
+        'interaction_tiles': [(7, 2), (8, 1), (9, 2), (8, 3)],
+        'display_name': 'Town Guard',
+        'dialogue_id': 'guard_generic',
+        'conditions': None
+    },
+    
+    'guard_south': {
+        'sprite_type': 'guard',
+        'default_position': (7, 11),  # Near south gate
+        'interaction_tiles': [(6, 11), (7, 10), (8, 11), (7, 12)],
+        'display_name': 'Town Guard',
+        'dialogue_id': 'guard_generic',
+        'conditions': None
+    },
+    
+    'market_merchant': {
+        'sprite_type': 'merchant',
+        'default_position': (7, 6),  # Town square
+        'interaction_tiles': [(6, 6), (7, 5), (8, 6), (7, 7)],
+        'display_name': 'Traveling Merchant',
+        'dialogue_id': 'merchant_wandering',
+        'conditions': {
+            'day_of_week': ['tuesday', 'friday']  # Market days only
+        }
+    },
+    
+    'noble_lady': {
+        'sprite_type': 'noble',
+        'default_position': (10, 6),  # Near church
+        'interaction_tiles': [(9, 6), (10, 5), (11, 6), (10, 7)],
+        'display_name': 'Lady Ashworth',
+        'dialogue_id': 'noble_lady',
+        'conditions': {
+            'time_of_day': 'day',
+            'not_quest_complete': 'church_mystery_solved'
+        }
+    },
+    
+    'beggar': {
+        'sprite_type': 'citizen',
+        'default_position': (4, 8),  # Near alley
+        'interaction_tiles': [(4, 7), (3, 8), (5, 8), (4, 9)],  
+        'display_name': 'Poor Beggar',
+        'dialogue_id': 'beggar',
+        'conditions': None
+    }
+}
+
+def get_location_npcs():
+    """Return NPC definitions for this location"""
+    return TOWN_NPCS
 
 def get_building_at_entrance(player_x, player_y):
     """Check if player is standing at a valid building entrance"""
@@ -210,7 +265,6 @@ TILE_COLORS = {
     'empty_lot': (0, 100, 0),       # Green grass
     'main_road': (101, 67, 33),     # Dark brown road
     'ground_grass': (34, 139, 34),   # Forest green grass
-    'vegetable_cart': (0 , 128, 0)   # Forest green grass
 }
 
 # === TOWN LAYOUT (18x14 grid) ===
@@ -227,7 +281,7 @@ TOWN_MAP = [
     "g[.HH.HH.BHHAHH.]g", # Row 5 - Bernard's store (B at col 9) + side grass
     "g[.HH.HSSS......]g",  # Row 6 - Town square (S) begins + side grass
     "g[.HH.TSSSCCH.H.]g",  # Row 7 - Tavern (T at col 5), square, church (C at cols 9-10) + side grass
-    "g[...V.SSSCCH.H.]g",  # Row 8 - Square/church continue + side grass
+    "g[.....SSSCCH.H.]g",  # Row 8 - Square/church continue + side grass
     "g[.HP.HM.HHHH.H.]g",  # Row 9 - Potion shop (P at col 3), Mayor (M at col 6) + side grass
     "#[.HH.HH.HHHH.E.]#",  # Row 10 - Houses, empty lot (E at col 14) (corner battlements)
     "#[..............]#",  # Row 11 - Street (corner battlements)

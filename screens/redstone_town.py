@@ -31,6 +31,7 @@ class RedstoneTownNavigation:
         config = {
             'map_width': TOWN_WIDTH,
             'map_height': TOWN_HEIGHT,
+            'location_id': 'redstone_town', 
             'map_functions': {
                 'get_tile_type': get_tile_type,
                 'is_walkable': is_walkable,
@@ -44,6 +45,10 @@ class RedstoneTownNavigation:
         self.showing_temp_message = False
         self.temp_message_text = ""
         self.temp_message_timer = 0
+
+        self.current_npc = None
+        self.npc_required_direction = None
+        self.can_interact_npc = False
 
         # Use shared graphics manager (singleton)
         self.graphics_manager = get_tile_graphics_manager()
@@ -114,68 +119,106 @@ class RedstoneTownNavigation:
                     break
         else:
             self.current_building = None
+
+        # Check for NPC interactions with direction validation
+        npc_info, npc_required_dir, can_interact_npc = self.renderer.check_npc_interaction(
+            game_state.town_player_x,
+            game_state.town_player_y,
+            self.renderer.player_direction,
+            'redstone_town',
+            game_state
+        )
         
-        # Handle building entry (only if facing correct direction)
-        if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and self.current_building and self.can_interact:
-            interaction_type = self.current_building.get('interaction_type')
-            
-            print(f"DEBUG: RT: hit return to go somewhere")
-            
-            if interaction_type == 'npc_dialogue':
-                print(f"DEBUG: RT: NPC Dialogue")
-                npc_id = self.current_building.get('npc_id')
-                if npc_id and controller:
-                    # Get location from narrative schema
-                    location = narrative_schema.get_npc_location(npc_id, 'redstone_town')
-                    target_screen = location  # This becomes something like 'broken_blade_mayor'
+        self.current_npc = npc_info if can_interact_npc else None
+        self.npc_required_direction = npc_required_dir
+        self.can_interact_npc = can_interact_npc
+        
+        # Handle building entry OR NPC dialogue (only if facing correct direction)
+        if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]):
+            if self.current_building and self.can_interact:
+                interaction_type = self.current_building.get('interaction_type')
                 
-                # CHECK: Is the target dialogue screen implemented?
-                if hasattr(controller, 'screen_manager') and target_screen in controller.screen_manager.render_functions:
-                    # Screen exists, proceed with NPC dialogue
-                    controller.event_manager.emit("NPC_CLICKED", {
-                        'npc_id': npc_id,
-                        'location': location
-                    })
-                else:
-                    # NPC dialogue screen not implemented yet
-                    self.showing_temp_message = True
-                    self.temp_message_timer = pygame.time.get_ticks()
+                print(f"DEBUG: RT: hit return to go somewhere")
+                
+                if interaction_type == 'npc_dialogue':
+                    print(f"DEBUG: RT: NPC Dialogue")
+                    npc_id = self.current_building.get('npc_id')
                     
-                    # Contextual messages based on NPC
-                    if npc_id == 'mayor':
-                        self.temp_message_text = "The mayor is in an important meeting and cannot be disturbed."
-                    else:
-                        self.temp_message_text = "They seem too busy to talk right now."
-        
+                    if npc_id and controller:
+                        # Get location from narrative schema
+                        location = narrative_schema.get_npc_location(npc_id, 'redstone_town')
+                        target_screen = location  # This becomes something like 'broken_blade_mayor'
+                    
+                        # CHECK: Is the target dialogue screen implemented?
+                        if hasattr(controller, 'screen_manager') and target_screen in controller.screen_manager.render_functions:
+                            # Screen exists, proceed with NPC dialogue
+                            controller.event_manager.emit("NPC_CLICKED", {
+                                'npc_id': npc_id,
+                                'location': location
+                            })
+                        else:
+                            # NPC dialogue screen not implemented yet
+                            self.showing_temp_message = True
+                            self.temp_message_timer = pygame.time.get_ticks()
+                            
+                            # Contextual messages based on NPC
+                            if npc_id == 'mayor':
+                                self.temp_message_text = "The mayor is in an important meeting and cannot be disturbed."
+                            else:
+                                self.temp_message_text = "They seem too busy to talk right now."
+                
+                elif interaction_type == 'screen_transition':
+                    print(f"DEBUG: RT: Screen Transition")
+                    screen = self.current_building.get('screen')
+                    
+                    if screen and controller:
+                        # CHECK: Is this screen actually implemented?
+                        if hasattr(controller, 'screen_manager') and screen in controller.screen_manager.render_functions:
+                            # Screen exists, proceed with transition
+                            controller.event_manager.emit("SCREEN_CHANGE", {
+                                'target_screen': screen,
+                                'source': 'town_navigation'
+                            })
+                        else:
+                            # Screen not implemented yet - show contextual message
+                            self.showing_temp_message = True
+                            self.temp_message_timer = pygame.time.get_ticks()
+                            
+                            # Contextual messages based on screen type
+                            if screen == 'world_map':
+                                self.temp_message_text = "The town gates are sealed. The guards won't let anyone leave right now."
+                            else:
+                                self.temp_message_text = "Sorry, it's closed."
+
+                else:
+                    # Default closed message
+                    print(f"DEBUG: RT: Sorry it is closed message!")
+                    self.showing_temp_message = True
+                    self.temp_message_text = "Sorry, it is closed."
+                    self.temp_message_timer = pygame.time.get_ticks()
             
-            elif interaction_type == 'screen_transition':
-                print(f"DEBUG: RT: Screen Transition")
-                screen = self.current_building.get('screen')
-                if screen and controller:
-                    # CHECK: Is this screen actually implemented?
-                    if hasattr(controller, 'screen_manager') and screen in controller.screen_manager.render_functions:
-                        # Screen exists, proceed with transition
-                        controller.event_manager.emit("SCREEN_CHANGE", {
-                            'target_screen': screen,
-                            'source': 'town_navigation'
+            elif self.current_npc and self.can_interact_npc:
+                # NEW: NPC dialogue trigger
+                print(f"DEBUG: RT: NPC interaction!")
+                npc_id = self.current_npc['dialogue_id']
+                if controller:
+                    location = narrative_schema.get_npc_location(npc_id, 'redstone_town')
+                    
+                    # Check if dialogue screen exists
+                    if hasattr(controller, 'screen_manager') and location in controller.screen_manager.render_functions:
+                        controller.event_manager.emit("NPC_CLICKED", {
+                            'npc_id': npc_id,
+                            'location': location
                         })
+                        
+                        # Mark as talked
+                        from utils.npc_manager import get_npc_manager
+                        get_npc_manager().mark_npc_talked(npc_id, game_state)
                     else:
-                        # Screen not implemented yet - show contextual message
+                        # NPC dialogue not implemented yet
                         self.showing_temp_message = True
                         self.temp_message_timer = pygame.time.get_ticks()
-                        
-                        # Contextual messages based on screen type
-                        if screen == 'world_map':
-                            self.temp_message_text = "The town gates are sealed. The guards won't let anyone leave right now."
-                        else:
-                            self.temp_message_text = "Sorry, it's closed."
-
-            else:
-                # Default closed message
-                print(f"DEBUG: RT: Sorry it is closed message!")
-                self.showing_temp_message = True
-                self.temp_message_text = "Sorry, it is closed."
-                self.temp_message_timer = pygame.time.get_ticks()
+                        self.temp_message_text = "They seem too busy to talk right now."
         
     def render(self, surface, fonts, game_state):
         """Render town navigation screen"""
@@ -193,7 +236,14 @@ class RedstoneTownNavigation:
                                         self.renderer.display_width - 12, 
                                         self.renderer.display_height - 12)
         
+        # Draw the map (tiles and buildings)
         self.renderer.draw_map(map_surface, fonts, game_state.town_player_x, game_state.town_player_y, surface)
+        
+        # Draw NPCs (above tiles, below player)
+        self.renderer.draw_npcs(map_surface, 'redstone_town', game_state)
+
+        # Draw player (always on top)
+        self.renderer.draw_player(map_surface, game_state.town_player_x, game_state.town_player_y)
         
         # Draw enhanced debug info with entrance information
         building_for_debug = self.current_building if self.can_interact else None
@@ -211,8 +261,16 @@ class RedstoneTownNavigation:
             if not still_showing:
                 self.showing_temp_message = False
         else:
-            building_name = self.current_building.get('name') if self.current_building else None
-            self.renderer.draw_interaction_prompt(surface, fonts, building_name, self.can_interact)
+            # Show building or NPC interaction prompt
+            if self.can_interact and self.current_building:
+                building_name = self.current_building.get('name')
+                self.renderer.draw_interaction_prompt(surface, fonts, building_name, True)
+            elif self.can_interact_npc and self.current_npc:
+                npc_name = self.current_npc.get('display_name')
+                prompt_text = f"Talk to {npc_name}"
+                self.renderer.draw_interaction_prompt(surface, fonts, prompt_text, True)
+            else:
+                self.renderer.draw_interaction_prompt(surface, fonts, None, False)
         
         # Instructions
         #=== DIALOG ZONE (FULL SCREEN WIDTH) ===

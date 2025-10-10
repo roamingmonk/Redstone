@@ -9,7 +9,7 @@ from utils.constants import *
 from utils.graphics import draw_border, draw_button, draw_centered_text
 from utils.party_display import draw_party_status_panel, PARTY_PANEL_WIDTH
 from utils.tile_graphics import get_tile_graphics_manager
-#from utils.constants import RED, YELLOW  
+from utils.npc_manager import get_npc_manager
 
 def calculate_required_direction(entrance_x, entrance_y, building_pos):
     """
@@ -77,6 +77,10 @@ class NavigationRenderer:
         # Graphics manager
         self.graphics_manager = get_tile_graphics_manager()
 
+        # NPC manager
+        self.npc_manager = get_npc_manager()
+        self.location_id = config.get('location_id', 'unknown')
+
     def check_valid_entrance(self, player_x, player_y, player_direction):
         """
         Check if player is at valid entrance and facing correct direction
@@ -110,48 +114,63 @@ class NavigationRenderer:
         self.camera_y = max(0, min(self.camera_y, max_camera_y))
     
     def handle_movement(self, keys, player_x, player_y):
-        """Handle movement input and return new position"""
+        """Handle movement input with turn-then-move mechanics and timing"""
         current_time = pygame.time.get_ticks()
         keys_pressed_this_frame = set()
         new_x, new_y = player_x, player_y
+        intended_direction = None
         movement_attempted = False
         
-        # Check movement keys
+        # Determine intended direction from keys
         if keys[pygame.K_UP] or keys[pygame.K_w]:
             keys_pressed_this_frame.add('up')
-            self.player_direction = 'up'
-            new_y -= 1
+            intended_direction = 'up'
             movement_attempted = True
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
             keys_pressed_this_frame.add('down')
-            self.player_direction = 'down'
-            new_y += 1
+            intended_direction = 'down'
             movement_attempted = True
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             keys_pressed_this_frame.add('left')
-            self.player_direction = 'left'
-            new_x -= 1
+            intended_direction = 'left'
             movement_attempted = True
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             keys_pressed_this_frame.add('right')
-            self.player_direction = 'right'
-            new_x += 1
+            intended_direction = 'right'
             movement_attempted = True
         
-        # Process movement with timing
-        moved = False
+        # Process movement/turning with timing
+        moved_or_turned = False
         if movement_attempted and (current_time - self.last_move_time >= self.move_delay):
             new_key_pressed = bool(keys_pressed_this_frame - self.keys_pressed_last_frame)
             
             if new_key_pressed or (current_time - self.last_move_time >= self.move_delay * 2):
-                if (new_x != player_x or new_y != player_y):
-                    if self.map_functions['is_walkable'](new_x, new_y):
-                        self.last_move_time = current_time
-                        moved = True
+                # Check if player needs to turn first
+                if self.player_direction != intended_direction:
+                    # TURN: Change facing direction without moving
+                    self.player_direction = intended_direction
+                    self.last_move_time = current_time
+                    moved_or_turned = True
+                else:
+                    # MOVE: Already facing this direction, calculate new position
+                    if intended_direction == 'up':
+                        new_y = player_y - 1
+                    elif intended_direction == 'down':
+                        new_y = player_y + 1
+                    elif intended_direction == 'left':
+                        new_x = player_x - 1
+                    elif intended_direction == 'right':
+                        new_x = player_x + 1
+                    
+                    # Validate and execute movement
+                    if (new_x != player_x or new_y != player_y):
+                        if self.map_functions['is_walkable'](new_x, new_y):
+                            self.last_move_time = current_time
+                            moved_or_turned = True
                         
         self.keys_pressed_last_frame = keys_pressed_this_frame
         
-        if moved:
+        if moved_or_turned:
             return new_x, new_y
         return player_x, player_y
     
@@ -183,8 +202,15 @@ class NavigationRenderer:
                     tile_image = self.graphics_manager.get_tile_image(tile_type)
                 
                 surface.blit(tile_image, (screen_x, screen_y))
+
+    def draw_player(self, surface, player_x, player_y):
+        """
+        Draw player sprite on map
         
-        # Draw player sprite using graphics manager
+        Args:
+            surface: Surface to draw on
+            player_x, player_y: Player tile position
+        """
         player_screen_x = (player_x * self.tile_size) - self.camera_x
         player_screen_y = (player_y * self.tile_size) - self.camera_y
 
@@ -200,23 +226,70 @@ class NavigationRenderer:
             surface.blit(player_sprite, (sprite_x, sprite_y))
             
         except (AttributeError, TypeError):
-            # Fallback to red circle if sprite system not available
-            center_x = player_screen_x + self.tile_size // 2
-            center_y = player_screen_y + self.tile_size // 2
-            pygame.draw.circle(surface, (255, 0, 0), (center_x, center_y), 16)
-
-        # # Draw debug info automatically
-        # if main_surface:
-        #     # Check if at valid entrance for debug display
-        #     building_info = self.map_functions.get('get_building_info', lambda x, y: None)(player_x, player_y)
-        #     required_direction = None
+            # Fallback to red circle if sprite fails
+            pygame.draw.circle(
+                surface,
+                (255, 0, 0),
+                (player_screen_x + self.tile_size // 2, player_screen_y + self.tile_size // 2),
+                16
+            )
+    
+    def check_npc_interaction(self, player_x, player_y, player_direction, location_id, game_state):
+        """
+        Check if player can interact with NPC at current position/facing
+        
+        Returns:
+            tuple: (npc_data dict or None, required_direction or None, can_interact bool)
+        """
+        # Get NPC at player's position
+        npc = self.npc_manager.get_npc_at_position(player_x, player_y, location_id, game_state)
+        
+        if not npc:
+            return None, None, False
+        
+        # Calculate required direction to face NPC
+        npc_x, npc_y = npc['current_position']
+        
+        # Use same direction calculation as buildings
+        required_direction = calculate_required_direction(player_x, player_y, (npc_x, npc_y))
+        
+        # Check if facing correctly
+        can_interact = (player_direction == required_direction)
+        
+        return npc, required_direction, can_interact
+    
+    def draw_npcs(self, surface, location_id, game_state):
+            """
+            Draw all active NPCs for current location
             
-        #     if building_info:
-        #         # Get building entrance data from map to calculate required direction
-        #         # We need to pass this through - will be handled in redstone_town.py
-        #         pass
+            Args:
+                surface: Surface to draw on
+                location_id: Current location identifier
+                game_state: Game state for conditions/overrides
+            """
+            active_npcs = self.npc_manager.get_active_npcs(location_id, game_state)
             
-        #     self.draw_debug_info(surface, fonts, player_x, player_y, building_info, required_direction)
+            for npc in active_npcs:
+                # Get NPC position (check for overrides)
+                npc_x, npc_y = npc['current_position']
+                
+                # Calculate screen position
+                screen_x = (npc_x * self.tile_size) - self.camera_x
+                screen_y = (npc_y * self.tile_size) - self.camera_y
+                
+                # Only draw if in visible area
+                if (-self.tile_size <= screen_x <= self.display_width and
+                    -self.tile_size <= screen_y <= self.display_height):
+                    
+                    # Get NPC sprite (dot placeholder for now)
+                    sprite = self.npc_manager.get_npc_sprite(npc['sprite_type'])
+                    
+                    # Center 32x32 sprite on 64x64 tile
+                    sprite_x = screen_x + (self.tile_size - 32) // 2
+                    sprite_y = screen_y + (self.tile_size - 32) // 2
+                    
+                    # Draw sprite
+                    surface.blit(sprite, (sprite_x, sprite_y))
 
     def draw_temp_message(self, surface, fonts, temp_message_text, temp_message_timer):
         """Draw temporary message """
