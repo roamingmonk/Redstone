@@ -264,6 +264,8 @@ class CharacterEngine:
         # Cavia special: Reroll charisma with +5 bonus, keep higher value
         original_charisma = self.game_state.character.get('charisma', 10)
         reroll = random.randint(1, 18) + 5  # Roll 1d18+5
+        if reroll >= 18:
+            reroll = 18
         
         if reroll > original_charisma:
             self.game_state.character['charisma'] = reroll

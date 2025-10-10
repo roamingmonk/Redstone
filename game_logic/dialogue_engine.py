@@ -863,21 +863,6 @@ class DialogueEngine:
         if self.dialogue_source_screen:
             target_screen = self.dialogue_source_screen
             print(f"🔙 Returning to tracked source screen: {target_screen}")
-        # else:
-        #     # Smart fallback based on NPC type
-        #     if self.current_dialogue_npc:
-        #         if self.current_dialogue_npc in ['gareth', 'elara', 'thorman', 'lyra', 'pete', 'mayor']:
-        #             target_screen = 'patron_selection'
-        #             print(f"🔙 Smart fallback: patron NPC {self.current_dialogue_npc} -> patron_selection")
-        #         elif self.current_dialogue_npc in ['garrick', 'meredith']:
-        #             target_screen = 'broken_blade_main'
-        #             print(f"🔙 Smart fallback: tavern staff {self.current_dialogue_npc} -> broken_blade_main")
-        #         else:
-        #             target_screen = 'broken_blade_main'
-        #             print(f"🔙 Default fallback: {self.current_dialogue_npc} -> broken_blade_main")
-        #     else:
-        #         target_screen = 'broken_blade_main'
-        #         print(f"🔙 No NPC context, defaulting to broken_blade_main")
         
         # Clear dialogue state
         self.current_dialogue_npc = None

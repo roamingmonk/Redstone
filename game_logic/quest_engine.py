@@ -136,51 +136,6 @@ class QuestEngine:
 
         setattr(self.game_state, guard, True)
 
-    # def _evaluate_quest_triggers(self, flag_hint: str | None = None):
-    #     schema = getattr(narrative_schema, "schema", {}) or {}
-    #     trigs  = schema.get("quest_triggers", {})  # nested root
-    #     print(f"[DBG] quest_triggers count={len(trigs)}")
-
-    #     if flag_hint:
-    #         candidates = [(tid, spec) for tid, spec in trigs.items()
-    #                     if isinstance(spec, dict) and spec.get("dialogue_flag") == flag_hint]
-    #         print(f"[DBG] candidates for flag '{flag_hint}': {[tid for tid,_ in candidates]}")
-    #         if not candidates and getattr(self.game_state, flag_hint, False):
-    #             print("[DBG] no direct candidates; falling back to full sweep")
-    #             candidates = [(tid, spec) for tid, spec in trigs.items() if isinstance(spec, dict)]
-    #     else:
-    #         candidates = [(tid, spec) for tid, spec in trigs.items() if isinstance(spec, dict)]
-
-    #     xp = XPManager(narrative_schema)
-
-    #     for trig_id, spec in candidates:
-    #         dlg_flag = spec.get("dialogue_flag")
-    #         if not dlg_flag or not getattr(self.game_state, dlg_flag, False):
-    #             continue
-
-    #         guard = f"xp_awarded__trigger__{trig_id}"
-    #         if getattr(self.game_state, guard, False):
-    #             continue
-
-    #         reward_spec = spec.get("xp_reward", 0)
-    #         amount = xp.get_reward(reward_spec)
-    #         print(f"[DBG] trigger={trig_id} flag={dlg_flag} reward_spec={reward_spec} -> amount={amount}")
-
-    #         if amount > 0 and self.event_manager:
-    #             self.event_manager.emit("XP_AWARDED", {
-    #                 "amount": amount,
-    #                 "reason": f"{spec.get('event_type','TRIGGER')}:{dlg_flag}",  # neutral by flag
-    #                 "recipient": "party"
-    #             })
-    #             print(f"⭐ Trigger XP: {amount} for {trig_id}")
-
-    #         if spec.get("quest_objective"):
-    #             self._complete_objective_from_path(spec["quest_objective"])
-
-    #         # ✅ guard set INSIDE the loop
-    #         setattr(self.game_state, guard, True)
-
-
     def _handle_dialogue_quest_trigger(self, event_data):
         """Handle quest triggers from dialogue system"""
         quest_id = event_data.get('quest_id')

@@ -184,7 +184,7 @@ class CharacterOverlay(BaseTabbedOverlay):
         max_hp = character.get('hit_points', 10)
         hp_text = normal_font.render(f"Hit Points: {current_hp}/{max_hp}", True, WHITE)
         surface.blit(hp_text, (left_section_x, current_y))
-        current_y += 50
+        current_y += 45
         
         # Equipment Section
         equipment_header = header_font.render("Equipment", True, CYAN)
@@ -199,7 +199,7 @@ class CharacterOverlay(BaseTabbedOverlay):
         weapon_display = weapon_name.replace('_', ' ').title() if weapon_name and weapon_name != 'None' else "None"
         weapon_text = normal_font.render(weapon_display, True, WHITE)
         surface.blit(weapon_text, (left_section_x + 100, current_y))
-        current_y += 32
+        current_y += 30
 
         # Armor
         armor_name = game_state.character.get('equipped_armor', 'None')
@@ -209,7 +209,7 @@ class CharacterOverlay(BaseTabbedOverlay):
         armor_display = armor_name.replace('_', ' ').title() if armor_name and armor_name != 'None' else "None"
         armor_text = normal_font.render(armor_display, True, WHITE)
         surface.blit(armor_text, (left_section_x + 100, current_y))
-        current_y += 32
+        current_y += 30
 
         # Shield
         shield_name = game_state.character.get('equipped_shield', 'None')
@@ -219,18 +219,8 @@ class CharacterOverlay(BaseTabbedOverlay):
         shield_display = shield_name.replace('_', ' ').title() if shield_name and shield_name != 'None' else "None"
         shield_text = normal_font.render(shield_display, True, WHITE)
         surface.blit(shield_text, (left_section_x + 100, current_y))
-        current_y += 50
-        # Gold
-        gold_amount = character.get('gold', 0)
-        
-        gold_label = normal_font.render("Gold:", True, WHITE)
-        surface.blit(gold_label, (left_section_x, current_y))
-        
-        gold_value = header_font.render(str(gold_amount), True, BRIGHT_GREEN)
-        surface.blit(gold_value, (left_section_x + 120, current_y - 3))
-        
-        # Combat Stats (add after gold, before RIGHT SECTION)
-        current_y += 25
+        current_y += 30
+
         combat_header = header_font.render("Combat Stats", True, CYAN)
         surface.blit(combat_header, (left_section_x, current_y+10))
         current_y += 30
@@ -255,12 +245,12 @@ class CharacterOverlay(BaseTabbedOverlay):
         
         # Draw attributes in a neat column
         attributes = [
-            ("STR", character.get('strength', 10)),
-            ("DEX", character.get('dexterity', 10)),
-            ("CON", character.get('constitution', 10)),
-            ("INT", character.get('intelligence', 10)),
-            ("WIS", character.get('wisdom', 10)),
-            ("CHA", character.get('charisma', 10))
+            ("Str", character.get('strength', 10)),
+            ("Dex", character.get('dexterity', 10)),
+            ("Con", character.get('constitution', 10)),
+            ("Int", character.get('intelligence', 10)),
+            ("Wis", character.get('wisdom', 10)),
+            ("Cha", character.get('charisma', 10))
         ]
         
         for attr_name, attr_value in attributes:
@@ -270,6 +260,15 @@ class CharacterOverlay(BaseTabbedOverlay):
             attr_val = header_font.render(str(attr_value), True, BRIGHT_GREEN)
             surface.blit(attr_val, (attr_x + 60, attr_y - 3))
             attr_y += 25
+        
+        # Gold
+        gold_amount = character.get('gold', 0)
+        
+        gold_label = normal_font.render("Gold:", True, WHITE)
+        surface.blit(gold_label, (attr_x, attr_y + 15))
+        
+        gold_value = header_font.render(str(gold_amount), True, BRIGHT_GREEN)
+        surface.blit(gold_value, (attr_x + 120, attr_y - 3 + 15))
         
         # RIGHT SECTION: Character Portrait (same as character_sheet.py)
         portrait_x = right_section_x
@@ -496,7 +495,6 @@ class CharacterOverlay(BaseTabbedOverlay):
                                  game_state, fonts, images):
         """
         Render party members information - NEW functionality for Session 2
-        
         APPROACH: Left-justified portraits with NPC data on the right (as suggested)
         """
         current_y = content_rect.y + 20
@@ -527,7 +525,7 @@ class CharacterOverlay(BaseTabbedOverlay):
         
         # Portrait and info layout constants
         portrait_size = 100
-        portrait_spacing = 120  # Space between portraits vertically
+        portrait_spacing = 145  # Space between portraits vertically
         info_x_offset = 120     # Distance from portrait to info text
         
         for i, npc_id in enumerate(party_members):

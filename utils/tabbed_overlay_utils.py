@@ -149,10 +149,10 @@ class BaseTabbedOverlay:
             return self.switch_to_tab(new_index)
         
             # Add page navigation
-        elif key == pygame.K_UP or key == pygame.K_p:
+        elif key in (pygame.K_UP, key == pygame.K_p, pygame.K_PAGEUP):
             return self.previous_page()
             
-        elif key == pygame.K_DOWN or key == pygame.K_n:
+        elif key in (pygame.K_DOWN, key == pygame.K_n, pygame.K_PAGEDOWN):
             return self.next_page()
     
         # Check for tab-specific hotkeys
