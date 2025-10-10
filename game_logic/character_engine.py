@@ -261,6 +261,16 @@ class CharacterEngine:
         # Apply Cavia species modifiers (includes stat caps and abilities)
         self._apply_species_modifiers('cavia')
         
+        # Cavia special: Reroll charisma with +5 bonus, keep higher value
+        original_charisma = self.game_state.character.get('charisma', 10)
+        reroll = random.randint(1, 18) + 5  # Roll 1d18+5
+        
+        if reroll > original_charisma:
+            self.game_state.character['charisma'] = reroll
+            print(f"🎲 Cavia charisma reroll: {original_charisma} → {reroll} (rolled {reroll-5}+5)")
+        else:
+            print(f"🎲 Cavia charisma reroll: Kept original {original_charisma} (rolled {reroll-5}+5 = {reroll})")
+        
         # Copy selected portrait to active location
         self.ensure_active_portrait(self.game_state)
         
@@ -1728,6 +1738,40 @@ class CharacterEngine:
                 else:
                     self.game_state.character['equipped_armor'] = armor_id  # Store ID
             
+            # CAVIA SPECIAL: Replace longsword with shortbow, shield with bracers
+            is_cavia = self.game_state.character.get('is_cavia', False)
+            if is_cavia:
+                print("🐹 Applying Cavia-specific equipment changes...")
+                
+                # Remove longsword from weapons inventory
+                if 'longsword' in self.game_state.inventory.get('weapons', []):
+                    self.game_state.inventory['weapons'].remove('longsword')
+                    print("  ❌ Removed longsword (too heavy for Cavia)")
+                    
+                    # Add shortbow instead
+                    self.game_state.inventory['weapons'].append('shortbow')
+                    print("  ✅ Added shortbow")
+                    
+                    # Update equipped weapon if longsword was equipped
+                    if self.game_state.character.get('equipped_weapon') == 'longsword':
+                        self.game_state.character['equipped_weapon'] = 'shortbow'
+                        print("  🏹 Equipped shortbow")
+                
+                # Remove shield from armor inventory
+                if 'shield' in self.game_state.inventory.get('armor', []):
+                    self.game_state.inventory['armor'].remove('shield')
+                    print("  ❌ Removed shield (too heavy for Cavia)")
+                    
+                    # Add bracers instead
+                    self.game_state.inventory['armor'].append('bracers')
+                    print("  ✅ Added bracers")
+                    
+                    # Update equipped shield to bracers as body armor
+                    if self.game_state.character.get('equipped_shield') == 'shield':
+                        self.game_state.character['equipped_shield'] = None
+                        self.game_state.character['equipped_armor'] = 'bracers'
+                        print("  🛡️ Equipped bracers as armor")
+            
             # Add class-specific items
             for item in starting_equipment.get('items', []):
                 if 'items' not in self.game_state.inventory:
@@ -1740,7 +1784,7 @@ class CharacterEngine:
                     self.game_state.inventory['consumables'] = []
                 self.game_state.inventory['consumables'].append(consumable)
         
-        # CRITICAL FIX: Add trinket to inventory ONLY ONCE
+        # Add trinket to inventory 
         trinket = self.game_state.character.get('trinket')
         if trinket and trinket != 'None':
             if 'items' not in self.game_state.inventory:

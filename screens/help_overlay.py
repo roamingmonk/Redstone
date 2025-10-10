@@ -41,7 +41,7 @@ class HelpOverlay(BaseTabbedOverlay):
                 ("I", "Inventory"),
                 ("Q", "Quest log"),
                 ("C", "Character sheet"),
-                ("S", "Game statistics"),
+                ("Z", "Game statistics"),
                 
             ]),
             ("NAVIGATION", [

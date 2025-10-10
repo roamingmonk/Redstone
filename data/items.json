@@ -82,6 +82,24 @@
       }
     },
     {
+      "id": "bracers",
+      "name": "Bracers",
+      "description": "Sturdy leather forearm guards that offer minimal protection without restricting movement.",
+      "base_cost": 5,
+      "category": "armor",
+      "subcategory": "body_armor",
+      "icon_file": "bracers_armor.png",
+      "consumable": false,
+      "weight": 1,
+      "rarity": "common",
+      "combat_stats": {
+        "armor_class": 1,
+        "armor_type": "light",
+        "dex_modifier": "none",
+        "stealth_disadvantage": false
+      }
+    },
+    {
       "id": "leather_armor",
       "name": "Leather Armor",
       "description": "Armor made from leather.",

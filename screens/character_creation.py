@@ -64,21 +64,21 @@ def draw_cavia_warning_screen(surface, game_state, fonts, images=None):
                       fonts.get('fantasy_medium', fonts['normal']), text_y, WHITE)
     draw_centered_text(surface, "If you select this portrait, your Strength and Constitution", 
                       fonts.get('fantasy_small', fonts['normal']), text_y + 40, WHITE)
-    draw_centered_text(surface, "will be capped at 10. You're a guinea pig, not a barbarian!", 
+    draw_centered_text(surface, "will be capped at 10. You're a guinea pig, not a Human Fighter!", 
                       fonts.get('fantasy_small', fonts['normal']), text_y + 65, WHITE)
     
     draw_centered_text(surface, "On the bright side:", 
                       fonts.get('fantasy_small', fonts['normal']), text_y + 110, BRIGHT_GREEN)
     draw_centered_text(surface, "• You get unique dialogue options", 
                       fonts.get('fantasy_tiny', fonts['small']), text_y + 135, WHITE)
-    draw_centered_text(surface, "• NPCs will be... confused", 
+    draw_centered_text(surface, "• NPCs will be... intrigued", 
                       fonts.get('fantasy_tiny', fonts['small']), text_y + 155, WHITE)
-    draw_centered_text(surface, "• Nobody can tell if you're male or female (it's hilarious)", 
+    draw_centered_text(surface, "• You will get a bonus roll on your Charisma attribute, since you are cute and fluffy.", 
                       fonts.get('fantasy_tiny', fonts['small']), text_y + 175, WHITE)
     
     # Buttons
     button_y = text_y + 230
-    back_button = draw_button(surface, 280, button_y, 200, 50, "PICK SOMETHING ELSE", 
+    back_button = draw_button(surface, 280, button_y, 200, 50, "PICK AGAIN", 
                              fonts.get('fantasy_small', fonts['normal']))
     
     confirm_button = draw_button(surface, 520, button_y, 200, 50, "I'M A GUINEA PIG!", 
@@ -629,13 +629,6 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
     equipment_title = fonts.get('fantasy_medium', fonts['normal']).render("STARTING EQUIPMENT", True, CYAN)
     surface.blit(equipment_title, (80, y_pos))
     y_pos += line_height
-    
-    # equipment = [
-    #     "Leather Armor (AC 12)",
-    #     "Longsword (1d8 damage)",
-    #     "Shield (+2 AC)",
-    #     game_state.character['trinket']
-    # ]
 
     try:
         # Load character class data
@@ -655,7 +648,7 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
         
         # Build equipment list from JSON
         equipment = []
-        
+        #TODO need to add condition if cavia then use different equipment
         # Add weapons
         for weapon_id in starting_equipment.get('weapons', []):
             for item in items_data['merchant_items']:
@@ -900,12 +893,12 @@ def draw_portrait_selection_screen(surface, game_state, fonts, images=None):
         pygame.draw.rect(surface, border_color, portrait_rect, border_width)
         portrait_buttons.append(portrait_rect)
         
-        # Label the 6th portrait as CAVIA
-        if i == 5:  # Index 5 = 6th portrait
-            label_surface = fonts.get('fantasy_tiny', fonts['small']).render("CAVIA", True, BRIGHT_GREEN)
-            label_x = portrait_x + (portrait_size - label_surface.get_width()) // 2
-            label_y = portrait_y + portrait_size + 5
-            surface.blit(label_surface, (label_x, label_y))
+        # # Label the 6th portrait as CAVIA
+        # if i == 5:  # Index 5 = 6th portrait
+        #     label_surface = fonts.get('fantasy_tiny', fonts['small']).render("CAVIA", True, BRIGHT_GREEN)
+        #     label_x = portrait_x + (portrait_size - label_surface.get_width()) // 2
+        #     label_y = portrait_y + portrait_size + 5
+        #     surface.blit(label_surface, (label_x, label_y))
     
     # Buttons
     button_y = LAYOUT_BUTTON_CENTER_Y

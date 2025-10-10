@@ -1929,10 +1929,13 @@ Files Modified: game_logic/dialogue_engine.py (context building), game_logic/cha
 **Files Created:** `utils/npc_manager.py`
 **Files Modified:** `data/maps/redstone_town_map.py`, `ui/base_location_navigation.py`, `screens/redstone_town.py`, `game_state.py`, `game_logic/save_manager.py`, `utils/debug_manager.py`, `input_handler.py`
 
-
-
-
-
+## ADR-121: update Cavia starting equipment and Charisma
+- **Status:** Accepted
+- **Date:** Oct 10,2025
+- **Context:** Cavia shoudl not be able to use a longsword and shield, need to compensate for lower str and con
+- **Decision:** Add shortbow and bracers to the equipment and replace longsword and shield.  reroll chrasima with a +5 modifier
+- **Consequences:**  made changes to character creation and character engine
+-**Gaps:**  display on summary screen still shows wrong equipment (pulling from class starting equipment vs. gamestate), charimsa reroll calculation wrong, is exceeding 18, needs a modifier.
 
 ```
 ## ADR-XXX: <Short title>
