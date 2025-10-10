@@ -132,26 +132,32 @@ class NPCManager:
         if conditions is None:
             return True
         
-        # Check quest conditions
+        # Check quest conditions using existing quest_manager
         if 'quest_active' in conditions:
             quest_id = conditions['quest_active']
-            if not hasattr(game_state, 'active_quests'):
-                return False
-            if quest_id not in game_state.active_quests:
+            if hasattr(game_state, 'quest_manager'):
+                quest = game_state.quest_manager.quests.get(quest_id)
+                if not quest or quest.status != "active":
+                    return False
+            else:
                 return False
         
         if 'quest_complete' in conditions:
             quest_id = conditions['quest_complete']
-            if not hasattr(game_state, 'completed_quests'):
-                return False
-            if quest_id not in game_state.completed_quests:
+            if hasattr(game_state, 'quest_manager'):
+                quest = game_state.quest_manager.quests.get(quest_id)
+                if not quest or quest.status != "completed":
+                    return False
+            else:
                 return False
         
         if 'not_quest_complete' in conditions:
             quest_id = conditions['not_quest_complete']
-            if hasattr(game_state, 'completed_quests'):
-                if quest_id in game_state.completed_quests:
+            if hasattr(game_state, 'quest_manager'):
+                quest = game_state.quest_manager.quests.get(quest_id)
+                if quest and quest.status == "completed":
                     return False
+            # If quest doesn't exist, condition passes
         
         # Check time conditions
         if 'time_of_day' in conditions:

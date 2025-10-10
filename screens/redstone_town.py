@@ -198,27 +198,35 @@ class RedstoneTownNavigation:
                     self.temp_message_timer = pygame.time.get_ticks()
             
             elif self.current_npc and self.can_interact_npc:
-                # NEW: NPC dialogue trigger
-                print(f"DEBUG: RT: NPC interaction!")
+                # NPC dialogue trigger
                 npc_id = self.current_npc['dialogue_id']
                 if controller:
-                    location = narrative_schema.get_npc_location(npc_id, 'redstone_town')
+                    # Construct screen name for checking: location_npcid pattern
+                    location = 'redstone_town'
+                    screen_name = f"{location}_{npc_id}"
                     
                     # Check if dialogue screen exists
-                    if hasattr(controller, 'screen_manager') and location in controller.screen_manager.render_functions:
+                    if hasattr(controller, 'screen_manager') and screen_name in controller.screen_manager.render_functions:
+                        # Dialogue exists - proceed
+                        # IMPORTANT: Pass BASE location, not full screen name!
                         controller.event_manager.emit("NPC_CLICKED", {
                             'npc_id': npc_id,
-                            'location': location
+                            'location': location  # Just 'redstone_town', not 'redstone_town_henrik'
                         })
                         
                         # Mark as talked
                         from utils.npc_manager import get_npc_manager
                         get_npc_manager().mark_npc_talked(npc_id, game_state)
                     else:
-                        # NPC dialogue not implemented yet
+                        # NPC dialogue not implemented yet - use placeholder from data
                         self.showing_temp_message = True
                         self.temp_message_timer = pygame.time.get_ticks()
-                        self.temp_message_text = "They seem too busy to talk right now."
+                        
+                        # Get message from NPC data (data-driven!)
+                        self.temp_message_text = self.current_npc.get(
+                            'general_response',
+                            f"{self.current_npc.get('display_name', 'NPC')} doesn't seem interested in talking."
+                        )
         
     def render(self, surface, fonts, game_state):
         """Render town navigation screen"""

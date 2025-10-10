@@ -106,6 +106,7 @@ For complete ADR history, see `docs/decisions.md`. Key decisions that shape the 
 - **ADR-094:** Combat Data Layer Foundation (three-file JSON approach)
 - **ADR-104:** Multi-Party Tactical Combat (DEX initiative, character states)
 - **ADR-112:** BaseLocation Auto-Registration (zero-code area creation)
+- **ADR-121:** NPC Layer System Implementation 
 
 ---
 
@@ -237,7 +238,7 @@ redstone/
 ### Common Development Tasks
 
 **Debug Game State:**
-- Press F1 (dialogue state), F2 (flags), F3 (quest progress)
+- Press F1 (dialogue state), F2 (flags), F3 (quest progress), F4 (cycle day of week)
 - Check console output for event tracing
 
 **Test a Feature:**

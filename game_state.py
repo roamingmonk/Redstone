@@ -53,7 +53,7 @@ class GameState:
             'hit_points': 10,   #Max hip points
             'current_hp': 10,   #Current hip points
             'max_hp'
-            'abilities': [],  # ← THE KEY ADDITION!
+            'abilities': [],  
             
             # Resources
             'gold': 0
@@ -64,6 +64,10 @@ class GameState:
         self.npc_position_overrides = {}  # {location_npc_id: (x, y)}
         self.npcs_talked_today = set()    # {npc_id, npc_id, ...}
         self.npc_interaction_flags = {}   # {npc_id: custom_data}
+
+        # Time tracking for NPC schedules
+        self.time_of_day = 'day'  # 'day', 'night', 'dawn', 'dusk'
+        self.current_day = 'monday'  # Day of week
 
         # Inventory system
         self.inventory = {

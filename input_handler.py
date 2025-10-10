@@ -55,6 +55,7 @@ class InputHandler:
             pygame.K_F1: ("DEBUG_TOGGLE", {}),
             pygame.K_F2: ("DEBUG_PERFORMANCE", {}),  # debug key
             pygame.K_F3: ("DEBUG_SAVE_STATE", {}),   # debug key
+            pygame.K_F4: ("NPC_DEBUG", {}),          # debug key
             pygame.K_F5: ("SAVE_REQUESTED", {"slot": "quick_save"}),
             pygame.K_F7: ("SAVE_GAME", {}),          # Opens save overlay
             pygame.K_F10: ("LOAD_GAME", {}),         # Opens load overlay

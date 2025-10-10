@@ -3,7 +3,7 @@
 Debug Manager - Professional Debug Infrastructure
 Handles all debugging functionality, keeping GameController lean
 """
-
+from utils.npc_manager import get_npc_manager
 
 class DebugManager:
     """
@@ -20,7 +20,8 @@ class DebugManager:
         self.event_manager.register("DEBUG_TOGGLE", self.handle_debug_toggle)
         self.event_manager.register("DEBUG_PERFORMANCE", self.handle_quest_debug)
         self.event_manager.register("DEBUG_SAVE_STATE", self.handle_save_debug)
-        
+        self.event_manager.register("NPC_DEBUG", self.handle_npc_debug)  
+
         print("🔧 DebugManager initialized - Professional debug system ready!")
     
     def handle_debug_toggle(self, data):
@@ -51,6 +52,46 @@ class DebugManager:
         """Handle F3 - Show save state debug info"""
         print("💾 F3 - Save State Debug Requested")
         self._debug_save_state()
+    
+    def handle_npc_debug(self, data):
+        """Handle F4 - Cycle time/day for NPC testing"""
+        print("⏰ F4 - NPC Condition Debug")
+        
+        # Cycle through days
+        days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+        current_index = days.index(getattr(self.game_state, 'current_day', 'monday'))
+        self.game_state.current_day = days[(current_index + 1) % len(days)]
+        
+        print(f"📅 Day changed to: {self.game_state.current_day.upper()}")
+        print(f"🕐 Time of day: {self.game_state.time_of_day}")
+        
+        # Show NPC spawn info
+        self._debug_npc_spawning()
+    
+    def _debug_npc_spawning(self):
+        """Debug NPC spawn conditions"""
+        
+        
+        print("\n👥 NPC SPAWN CONDITIONS:")
+        npc_mgr = get_npc_manager()
+        
+        # Check Redstone Town NPCs
+        if 'redstone_town' in npc_mgr.location_npcs:
+            npcs = npc_mgr.location_npcs['redstone_town']
+            active = npc_mgr.get_active_npcs('redstone_town', self.game_state)
+            
+            print(f"Total NPCs defined: {len(npcs)}")
+            print(f"Currently spawned: {len(active)}")
+            
+            for npc_id, npc_data in npcs.items():
+                is_active = any(n['id'] == npc_id for n in active)
+                status = "✅ SPAWNED" if is_active else "❌ HIDDEN"
+                conditions = npc_data.get('conditions', None)
+                
+                print(f"  {status} {npc_data['display_name']} ({npc_id})")
+                if conditions:
+                    print(f"      Conditions: {conditions}")
+        print()
     
     def render_debug_overlay(self, surface, fonts):
         
@@ -119,6 +160,20 @@ class DebugManager:
         lines.append(f"FPS: {getattr(self.game_state, 'current_fps', 'N/A')}")
         lines.append(f"Errors: {getattr(self.game_state, 'error_count', 0)}")
         
+        # Time and NPC info (if in town)
+        if self.game_state.screen == 'redstone_town':
+            lines.append(f"Day: {getattr(self.game_state, 'current_day', 'N/A').capitalize()}")
+            lines.append(f"Time: {getattr(self.game_state, 'time_of_day', 'N/A').capitalize()}")
+            
+            # Show NPC count
+            from utils.npc_manager import get_npc_manager
+            try:
+                npc_mgr = get_npc_manager()
+                active_npcs = npc_mgr.get_active_npcs('redstone_town', self.game_state)
+                lines.append(f"NPCs: {len(active_npcs)} spawned")
+            except:
+                pass
+
         # Overlay status
         overlays_active = []
         if getattr(self.game_state, 'inventory_open', False):
@@ -179,7 +234,16 @@ class DebugManager:
         # else:
         #     lines.append("No quest manager found")
 
+        lines.append("")
+        lines.append("=== DEBUG KEYS ===")
+        lines.append("[F1] Toggle Overlay")
+        lines.append("[F2] Quest Debug")
+        lines.append("[F3] Save Debug")
+        lines.append("[F4] Cycle Day (NPC Test)")
+
         return lines
+    
+        
     
     def _get_navigation_debug(self):
         """Get navigation-specific debug info"""

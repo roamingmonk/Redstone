@@ -60,6 +60,13 @@ class SaveManager:
                 # Quest system data 
                 'quest_system': quest_system_data,
 
+                # NPC system data (Phase 5-6)
+                'npc_position_overrides': getattr(self.game_state, 'npc_position_overrides', {}),
+                'npcs_talked_today': list(getattr(self.game_state, 'npcs_talked_today', set())),
+                'npc_interaction_flags': getattr(self.game_state, 'npc_interaction_flags', {}),
+                'time_of_day': getattr(self.game_state, 'time_of_day', 'day'),
+                'current_day': getattr(self.game_state, 'current_day', 'monday'),
+
                 # Game progression
                 'current_screen': self.game_state.screen,
                 'screen_history': [],  # Screen history not tracked by SaveManager
@@ -237,12 +244,19 @@ class SaveManager:
             if 'inventory' in save_data:
                 self.game_state.inventory = save_data['inventory']
                 print(f"   💰 Gold: {self.game_state.character.get('gold', 0)}")
-            
-            # Restore player statistics (ADD THIS)
+
+            # Restore player statistics 
             if 'player_statistics' in save_data:
                 self.game_state.player_statistics = save_data['player_statistics']
                 print(f"   📊 Statistics: {self.game_state.player_statistics['npcs_met']} NPCs met")
             
+            # Restore NPC system data (Phase 5-6) - with backward compatibility
+            self.game_state.npc_position_overrides = save_data.get('npc_position_overrides', {})
+            self.game_state.npcs_talked_today = set(save_data.get('npcs_talked_today', []))
+            self.game_state.npc_interaction_flags = save_data.get('npc_interaction_flags', {})
+            self.game_state.time_of_day = save_data.get('time_of_day', 'day')
+            self.game_state.current_day = save_data.get('current_day', 'monday')
+
             if 'npcs_encountered' in save_data:
                 self.game_state.npcs_encountered = set(save_data['npcs_encountered'])  # Convert list back to set
             

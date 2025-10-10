@@ -187,7 +187,8 @@ TOWN_NPCS = {
         'interaction_tiles': [(7, 2), (8, 1), (9, 2), (8, 3)],
         'display_name': 'Town Guard',
         'dialogue_id': 'guard_generic',
-        'conditions': None
+        'conditions': None,
+        'general_response': "The guard nods but says nothing. They're on duty."
     },
     
     'guard_south': {
@@ -196,18 +197,20 @@ TOWN_NPCS = {
         'interaction_tiles': [(6, 11), (7, 10), (8, 11), (7, 12)],
         'display_name': 'Town Guard',
         'dialogue_id': 'guard_generic',
-        'conditions': None
+        'conditions': None,
+        'general_response': "The guard stands watch, scanning the street for trouble."
     },
     
     'market_merchant': {
         'sprite_type': 'merchant',
-        'default_position': (7, 6),  # Town square
-        'interaction_tiles': [(6, 6), (7, 5), (8, 6), (7, 7)],
+        'default_position': (8, 7),  # Town square
+        'interaction_tiles': [(8, 6), (9, 7), (8, 8), (7, 7)],
         'display_name': 'Traveling Merchant',
         'dialogue_id': 'merchant_wandering',
         'conditions': {
             'day_of_week': ['tuesday', 'friday']  # Market days only
-        }
+        },
+        'general_response': "The merchant is busy arranging wares and waves you off."
     },
     
     'noble_lady': {
@@ -218,8 +221,10 @@ TOWN_NPCS = {
         'dialogue_id': 'noble_lady',
         'conditions': {
             'time_of_day': 'day',
+            'day_of_week': ['monday','tuesday', 'saturday', 'sunday'],  # Market days only
             'not_quest_complete': 'church_mystery_solved'
-        }
+        },
+        'general_response': "Lady Ashworth glances at you briefly, then continues her walk."
     },
     
     'beggar': {
@@ -228,7 +233,8 @@ TOWN_NPCS = {
         'interaction_tiles': [(4, 7), (3, 8), (5, 8), (4, 9)],  
         'display_name': 'Poor Beggar',
         'dialogue_id': 'beggar',
-        'conditions': None
+        'conditions': None,
+        'general_response':"The mumbles something incoherent about the end of the world."
     }
 }
 

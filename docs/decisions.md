@@ -1909,29 +1909,25 @@ Files Modified: game_logic/dialogue_engine.py (context building), game_logic/cha
 **Files Modified:** ui/base_location_navigation.py, utils/tile_graphics.py, screens/redstone_town.py
 **Technical Debt Addressed:** Removed duplicate debug rendering; established pattern for directional interactions in all future navigation systems.
 
-# ADR-089: NPC Layer System - Foundation Implementation
+# ADR-121 NPC Layer System Implementation Complete
 # Status: Accepted
 # Date: October 10, 2025
 **Context:** Game had static building-only interactions; needed dynamic NPCs with conditional spawning, proper layering, and directional interaction for immersive town exploration.
-**Decision:** Implemented multi-layered NPC system with singleton NPCManager, data-driven NPC definitions in map files, and proper rendering order (tiles → NPCs → player).
+**Decision:** Implemented multi-layered NPC system with singleton NPCManager, data-driven NPC definitions in map files, conditional spawning using existing quest_manager, and proper rendering order (tiles → NPCs → player).
 **Implementation:**
-Created utils/npc_manager.py singleton following TileGraphicsManager pattern for consistent architecture
-Added NPC definitions to data/maps/redstone_town_map.py with spawn positions, interaction tiles, and conditional spawning support
-Migrated Henrik from building entrance system to NPC system
-Implemented draw_npcs() and draw_player() separation in NavigationRenderer for proper Z-ordering
-Added NPC interaction detection with directional facing requirement in town navigation
-Enhanced movement system with turn-then-move mechanics (classic RPG behavior: first press turns, second press moves)
-**Technical Details:**
-NPCManager caches NPC definitions per location, checks spawn conditions, handles position overrides
-NPC rendering uses 32x32 sprites centered on 64x64 tiles with colored dot placeholders
-Interaction system prioritizes buildings over NPCs, shows context-appropriate prompts
-Game state tracks npc_position_overrides, npcs_talked_today, npc_interaction_flags
-**Consequences:**
-6 NPCs defined in Redstone Town (Henrik, 2 guards, merchant, noble lady, beggar) with proper interaction zones
-Foundation ready for conditional spawning (time-based, quest-based), NPC schedules, and movement systems
-Scalable to unlimited NPCs across all locations with zero code changes (data-driven)
-Files Created: utils/npc_manager.py
-Files Modified: data/maps/redstone_town_map.py, ui/base_location_navigation.py, screens/redstone_town.py, game_state.py
+- Created `utils/npc_manager.py` singleton following TileGraphicsManager pattern for consistent architecture
+- Added NPC spawn definitions to `data/maps/redstone_town_map.py` with positions, interaction tiles, spawn conditions, and data-driven placeholder messages
+- Migrated Henrik from building entrance system to proper NPC (removed 'V' tile, now fully dynamic NPC entity)
+- Implemented `draw_npcs()` and `draw_player()` separation in NavigationRenderer for correct Z-ordering
+- Added NPC interaction detection with directional facing requirement in town navigation
+- Enhanced movement system with turn-then-move mechanics (classic RPG: first press turns, second moves)
+- Integrated conditional spawning using existing quest_manager (no duplicate quest tracking)
+- Extended debug_manager with F4 hotkey for time/day cycling and NPC condition debugging
+- Added full save/load support with backward compatibility for old saves
+**Technical Details:** NPCManager caches definitions per location, checks spawn conditions via quest_manager and time tracking, handles position overrides; 32x32 colored dot placeholders centered on 64x64 tiles; interaction prioritizes buildings over NPCs; game state tracks npc_position_overrides, npcs_talked_today, npc_interaction_flags, time_of_day, current_day.
+**Consequences:** 6 NPCs active in Redstone Town (Henrik with dialogue, others with data-driven placeholders); conditional spawning functional (merchant on market days, noble lady daytime pre-quest); foundation ready for NPC schedules, movement, AI pathfinding; turn-then-move improves UX; fully scalable to unlimited NPCs across future locations with zero code changes.
+**Files Created:** `utils/npc_manager.py`
+**Files Modified:** `data/maps/redstone_town_map.py`, `ui/base_location_navigation.py`, `screens/redstone_town.py`, `game_state.py`, `game_logic/save_manager.py`, `utils/debug_manager.py`, `input_handler.py`
 
 
 
