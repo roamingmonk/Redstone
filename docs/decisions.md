@@ -1941,6 +1941,18 @@ Files Modified: game_logic/dialogue_engine.py (context building), game_logic/cha
 - **Status:** Accepted
 - **Date:** Oct 10,2025
 - **update**:  revised format on character overlay.py 
+
+# ADR-123: Screen Naming Standardization - Remove "_main" Suffix
+# Status: Accepted
+# Date: October 10, 2025
+**Context:** Screen naming had inconsistent "_main" suffix (broken_blade_main vs patron_selection_main) causing navigation failures and requiring hardcoded exceptions in dialogue system.
+**Decision:** Standardized all location screen names to remove "_main" suffix for main areas; locations with single "main" area register as base name only (broken_blade, patron_selection).
+**Implementation:** Modified _auto_register_location() to skip "_main" suffix for "main" areas; removed hardcoded exception in _handle_dialogue_ended(); updated all navigation targets across 7 files; added save file migration to fix legacy screen names.
+**Consequences:** Consistent naming eliminates navigation errors; JSON navigation targets match registered screen names directly; no more special-case handling needed; save file migration preserves backward compatibility.
+Files Modified: ui/screen_manager.py (registration + dialogue), data/narrative/intro_sequence.json, screens/intro_scenes.py, data/locations/broken_blade.json, data/maps/redstone_town_map.py, game_logic/save_manager.py (migration)
+
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

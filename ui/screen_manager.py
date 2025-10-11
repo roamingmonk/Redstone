@@ -1057,7 +1057,6 @@ class ScreenManager:
            # Broken Blade Tavern - BaseLocation System
             self._auto_register_location("broken_blade")
             self._auto_register_location("patron_selection")
-            #self._auto_register_location("redstone_town")
             self.register_render_function("redstone_town", render_town_navigation)
 
             # Utility screens
@@ -1073,8 +1072,6 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_shopping_overlay_clickables())
 
             self._register_npc_dialogue_screens()
-
-            #self.register_render_function("broken_blade_basement", self._handle_basement_combat_or_placeholder)
 
             # Gambling mini-game screens
             self.register_render_function("dice_bets", draw_dice_bets_screen)
@@ -1166,14 +1163,15 @@ class ScreenManager:
         
         location_manager = self._current_game_controller.data_manager.location_manager
         area_ids = location_manager.get_all_area_ids(location_id)
-        
-        if not area_ids:
-            print(f"⚠️ No areas found for location: {location_id}")
-            return
-        
+            
         # Register each area as a screen
         for area_id in area_ids:
-            screen_name = f"{location_id}_{area_id}"
+            # ALWAYS skip "_main" suffix for main areas for consistency
+            if area_id == "main":
+                screen_name = location_id  # Just "broken_blade", not "broken_blade_main"
+            else:
+                screen_name = f"{location_id}_{area_id}"  # "broken_blade_basement_cleared"
+            
             self._register_base_location_screen(screen_name, location_id, area_id)
             print(f"📍 Auto-registered: {screen_name}")
 
@@ -1394,11 +1392,8 @@ class ScreenManager:
             location_id = getattr(self._current_game_state, f'{npc_id}_current_location', None)
             
             if location_id:
-                # Return to the main area of the originating location
-                if location_id == "broken_blade":
-                    target_screen = "broken_blade_main"  # Legacy exception
-                else:
-                    target_screen = location_id  # Standard naming
+                # Return to the originating location (no _main suffix needed)
+                target_screen = location_id  # Clean, consistent naming
                 source_screen = f'{location_id}_{npc_id}'
                 
                 # Use the same event structure as other screen changes

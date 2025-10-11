@@ -625,65 +625,76 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
     surface.blit(gold_surface, (80, y_pos))
     y_pos += line_height + 8
     
-    # Equipment
+    # Equipment section
     equipment_title = fonts.get('fantasy_medium', fonts['normal']).render("STARTING EQUIPMENT", True, CYAN)
     surface.blit(equipment_title, (80, y_pos))
     y_pos += line_height
-
+    
     try:
-        # Load character class data
-        class_file = os.path.join("data", "player", "character_classes.json")
-        with open(class_file, 'r') as f:
-            class_data = json.load(f)
         
         # Load items data for name lookup
         items_file = os.path.join("data", "items.json")
         with open(items_file, 'r') as f:
             items_data = json.load(f)
         
-        # Get current character class
-        current_class = game_state.character.get('class', 'fighter')
-        class_info = class_data["character_classes"].get(current_class, {})
-        starting_equipment = class_info.get('starting_equipment', {})
-        
-        # Build equipment list from JSON
-        equipment = []
-        #TODO need to add condition if cavia then use different equipment
-        # Add weapons
-        for weapon_id in starting_equipment.get('weapons', []):
-            for item in items_data['merchant_items']:
-                if item['id'] == weapon_id:
-                    equipment.append(item['name'])
-                    break
-        
-        # Add armor (includes shields)
-        for armor_id in starting_equipment.get('armor', []):
-            for item in items_data['merchant_items']:
-                if item['id'] == armor_id:
-                    equipment.append(item['name'])
-                    break
-        
-        # Add items
-        for item_id in starting_equipment.get('items', []):
+        # Helper function to get item name from ID
+        def get_item_name(item_id):
+            """Convert item ID to display name"""
             for item in items_data['merchant_items']:
                 if item['id'] == item_id:
-                    equipment.append(item['name'])
-                    break
+                    return item['name']
+            # If not found in merchant_items, return the ID as-is (trinkets, etc.)
+            return item_id.replace('_', ' ').title()  # Format ID as fallback
         
-        # Add trinket
+        # Build equipment list from ACTUAL GAME STATE INVENTORY
+        equipment = []
+        
+        # Add weapons from inventory
+        for weapon_id in game_state.inventory.get('weapons', []):
+            weapon_name = get_item_name(weapon_id)
+            equipment.append(weapon_name)
+            print(f"  ✅ Added weapon: {weapon_name} (id: {weapon_id})")
+        
+        # Add armor from inventory (includes shields and bracers)
+        for armor_id in game_state.inventory.get('armor', []):
+            armor_name = get_item_name(armor_id)
+            equipment.append(armor_name)
+            print(f"  ✅ Added armor: {armor_name} (id: {armor_id})")
+        
+        # Add items from inventory (includes trinkets)
+        for item_id in game_state.inventory.get('items', []):
+            item_name = get_item_name(item_id)
+            equipment.append(item_name)
+            print(f"  ✅ Added item: {item_name} (id: {item_id})")
+        
+        # Add consumables from inventory
+        for consumable_id in game_state.inventory.get('consumables', []):
+            consumable_name = get_item_name(consumable_id)
+            equipment.append(consumable_name)
+            print(f"  ✅ Added consumable: {consumable_name} (id: {consumable_id})")
+        
+        print(f"🔧 DEBUG: Final equipment list: {equipment}")
+
+    except (FileNotFoundError, KeyError, json.JSONDecodeError) as e:
+        print(f"❌ Error loading equipment data: {e}")
+        import traceback
+        traceback.print_exc()
+        # Fallback to basic equipment
+        equipment = ["Basic Equipment"]
         trinket = game_state.character.get('trinket')
         if trinket and trinket != 'None':
             equipment.append(trinket)
-
-    except (FileNotFoundError, KeyError, json.JSONDecodeError) as e:
-        print(f"Error loading equipment data: {e}")
-        # Fallback to basic equipment
-        equipment = ["Basic Equipment", game_state.character.get('trinket', 'None')]
- 
-    for item in equipment:
-        item_surface = fonts.get('fantasy_tiny', fonts['small']).render(f"• {item}", True, WHITE)
-        surface.blit(item_surface, (80, y_pos))
-        y_pos += line_height - 2
+    
+    # Render equipment list
+    if equipment:
+        for item in equipment:
+            item_surface = fonts.get('fantasy_tiny', fonts['small']).render(f"• {item}", True, WHITE)
+            surface.blit(item_surface, (80, y_pos))
+            y_pos += line_height - 2
+    else:
+        no_equip_surface = fonts.get('fantasy_tiny', fonts['small']).render("• No equipment", True, WHITE)
+        surface.blit(no_equip_surface, (80, y_pos))
+        print("⚠️ DEBUG: Equipment list is empty!")
 
     portrait_x = 650
     portrait_y = 150

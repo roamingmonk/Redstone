@@ -87,7 +87,7 @@
         "actions": {
           "leave": {
             "type": "navigate",
-            "target": "broken_blade_main",
+            "target": "broken_blade",
             "label": "Back Upstairs"
           }
         },

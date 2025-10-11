@@ -683,8 +683,10 @@ class CharacterEngine:
         # Check if trinket already rolled (not empty string)
         current_trinket = self.game_state.character.get('trinket', '')
         if current_trinket and current_trinket != '':
-            # Trinket already rolled, advance to summary screen
-            print("✨ Trinket already rolled, advancing to summary screen")
+            # Trinket already rolled, finalize character BEFORE showing summary
+            print("✨ Trinket confirmed, finalizing character...")
+            self.finalize_character_creation()
+            print("✅ Character finalized, advancing to summary screen")
             self.event_manager.emit("SCREEN_CHANGE", {"target": "summary"})
         else:
             # Roll for trinket
@@ -695,14 +697,12 @@ class CharacterEngine:
     def handle_start_game(self, event_data):
         """
         Handle START GAME button click from summary screen
-        Finalize character and transition to intro sequence with auto-save
+        Character already finalized, just start the game
         """
-        print("🎮 START GAME button clicked - finalizing character")
+        print("🎮 START GAME button clicked - starting adventure!")
         
-        # Use existing finalize_character_creation method
-        self.finalize_character_creation()
-        
-        # Trigger intro sequence start (which handles auto-save)
+        # Character was already finalized when summary screen was shown
+        # Just trigger intro sequence start (which handles auto-save)
         print("🎬 Triggering intro sequence with auto-save...")
         self.event_manager.emit("INTRO_START", {})
 
@@ -1712,8 +1712,6 @@ class CharacterEngine:
         class_data = self._load_class_data_from_json(character_class)
         starting_equipment = class_data.get('starting_equipment', {})
         
-        print("🔧 DEBUG: About to add starting equipment")
-        print(f"🔧 DEBUG: Current inventory before: {self.game_state.inventory}")
         if class_data and 'starting_equipment' in class_data:
             starting_equipment = class_data['starting_equipment']
             
@@ -1796,8 +1794,6 @@ class CharacterEngine:
             if trinket not in self.game_state.inventory['items']:
                 self.game_state.inventory['items'].append(trinket)
                 print(f"🔧 DEBUG: Added trinket to inventory: {trinket}")
-            else:
-                print(f"🔧 DEBUG: Trinket already in inventory, skipping: {trinket}")
         
         # Set up spells for casters
         if class_data and 'spells_known' in class_data:
