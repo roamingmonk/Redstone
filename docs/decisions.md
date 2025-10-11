@@ -1951,6 +1951,23 @@ Files Modified: game_logic/dialogue_engine.py (context building), game_logic/cha
 **Consequences:** Consistent naming eliminates navigation errors; JSON navigation targets match registered screen names directly; no more special-case handling needed; save file migration preserves backward compatibility.
 Files Modified: ui/screen_manager.py (registration + dialogue), data/narrative/intro_sequence.json, screens/intro_scenes.py, data/locations/broken_blade.json, data/maps/redstone_town_map.py, game_logic/save_manager.py (migration)
 
+# ADR-124: Character Creation Constants Standardization
+# Date: October 11, 2025
+# Status: Accepted - Pattern for Legacy Screen
+**Context:** character_creation.py had duplicate colors, functions, and hardcoded positions from being first screen coded.
+**Decision:** Eliminate duplication, use constants.py and utils.graphics imports.
+**Changes:**
+Removed duplicate colors/functions → import from constants.py and utils.graphics
+Updated colors: BRIGHT_GREEN → TITLE_GREEN, YELLOW → SOFT_YELLOW, RED → WARNING_RED
+Centered buttons using BUTTON_SIZES, SPACING, SCREEN_WIDTH constants
+Removed pressed parameter from draw_button() (unused)
+Fixed duplicate BROWN bug → added OLIVE_BROWN
+**Pattern for Future Screens:**
+Import from constants/graphics - no local duplicates
+Use BUTTON_SIZES['medium'] and SPACING['button_gap']
+Center formula: (SCREEN_WIDTH - total_width) // 2
+**Files:** character_creation.py, utils/graphics.py, constants.py
+**Next:** Apply same pattern to gambling_dice.py, title_menu.py, other legacy screens.
 
 
 ```

@@ -6,7 +6,6 @@ Contains all the character creation screen drawing functions
 import pygame
 import json
 import os
-from utils.graphics import draw_centered_text, draw_border, draw_button
 from game_logic.character_engine import get_character_engine
 # Import layout constants for new standardized system  
 from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, 
@@ -14,18 +13,10 @@ from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT,
                            LAYOUT_BUTTON_Y, LAYOUT_DIALOG_TEXT_Y, LAYOUT_BUTTON_CENTER_Y,
                            MALE_PORTRAITS_PATH, FEMALE_PORTRAITS_PATH
 )
-
-# Colors (local copy to avoid import issues)
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GRAY = (170, 170, 170)
-DARK_GRAY = (85, 85, 85)
-LIGHT_GRAY = (200, 200, 200)
-BRIGHT_GREEN = (85, 255, 85)
-YELLOW = (255, 255, 85)
-CYAN = (0, 255, 255)
-RED = (170, 0, 0)
-BROWN = (170, 85, 0)
+from utils.constants import *
+from utils.graphics import (draw_centered_text, draw_border, draw_button, 
+                            create_input_box, draw_text_with_shadow, 
+                            calculate_best_font_for_button)
 
 # Drawing functions (duplicated here to avoid import issues)
 def draw_text_with_shadow(surface, text, font, x, y, text_color=WHITE, shadow_color=DARK_GRAY, shadow_offset=3):
@@ -56,7 +47,7 @@ def draw_cavia_warning_screen(surface, game_state, fonts, images=None):
     
     # Title
     draw_centered_text(surface, "WAIT... IS THAT A GUINEA PIG?!", 
-                      fonts.get('fantasy_large', fonts['header']), 100, YELLOW)
+                      fonts.get('fantasy_large', fonts['header']), 100, SOFT_YELLOW)
     
     # Warning text with humor
     text_y = 160
@@ -68,7 +59,7 @@ def draw_cavia_warning_screen(surface, game_state, fonts, images=None):
                       fonts.get('fantasy_small', fonts['normal']), text_y + 65, WHITE)
     
     draw_centered_text(surface, "On the bright side:", 
-                      fonts.get('fantasy_small', fonts['normal']), text_y + 110, BRIGHT_GREEN)
+                      fonts.get('fantasy_small', fonts['normal']), text_y + 110, TITLE_GREEN)
     draw_centered_text(surface, "• You get unique dialogue options", 
                       fonts.get('fantasy_tiny', fonts['small']), text_y + 135, WHITE)
     draw_centered_text(surface, "• NPCs will be... intrigued", 
@@ -85,56 +76,6 @@ def draw_cavia_warning_screen(surface, game_state, fonts, images=None):
                                 fonts.get('fantasy_small', fonts['normal']))
     
     return back_button, confirm_button
-
-def draw_button(surface, x, y, width, height, text, font, pressed=False, selected=False):
-    """Draw a retro-style button"""
-    if selected:
-        color = YELLOW
-        border_color = WHITE
-        text_color = BLACK
-    else:
-        color = DARK_GRAY if pressed else GRAY
-        border_color = DARK_GRAY if pressed else WHITE
-        text_color = (101, 67, 33)  # DARK_BROWN
-    
-    pygame.draw.rect(surface, color, (x, y, width, height))
-    pygame.draw.rect(surface, border_color, (x, y, width, height), 2)
-    
-    text_surface = font.render(text, True, text_color)
-    text_rect = text_surface.get_rect(center=(x + width//2, y + height//2))
-    surface.blit(text_surface, text_rect)
-    
-    return pygame.Rect(x, y, width, height)
-
-def calculate_best_font_for_button(text, max_width, fonts_to_try):
-    """Calculate the best font size that fits in the button"""
-    for font in fonts_to_try:
-        text_surface = font.render(text, True, (101, 67, 33))  # DARK_BROWN
-        if text_surface.get_width() <= max_width - 10:  # 10px padding
-            return font
-    return fonts_to_try[-1]  # Return smallest font if none fit
-
-def create_input_box(surface, x, y, width, height, text, font, active=False, placeholder=""):
-    """Draw a text input box with cursor support"""
-    input_color = WHITE if active else LIGHT_GRAY
-    pygame.draw.rect(surface, input_color, (x, y, width, height), 2)
-    pygame.draw.rect(surface, BLACK, (x + 2, y + 2, width - 4, height - 4))
-    
-    if text:
-        text_surface = font.render(text, True, WHITE)
-    elif placeholder:
-        text_surface = font.render(placeholder, True, GRAY)
-    else:
-        text_surface = font.render("", True, WHITE)
-    
-    text_rect = text_surface.get_rect(centery=y + height // 2, x=x + 10)
-    surface.blit(text_surface, text_rect)
-    
-    if active and pygame.time.get_ticks() % 1000 < 500:
-        cursor_x = text_rect.right + 5 if text else x + 10
-        pygame.draw.line(surface, WHITE, (cursor_x, y + 10), (cursor_x, y + height - 10), 2)
-    
-    return pygame.Rect(x, y, width, height)
 
 def draw_splash_screen(surface, fonts, images=None):
     """Draw the game splash screen"""
@@ -156,7 +97,7 @@ def draw_splash_screen(surface, fonts, images=None):
     
     draw_text_with_shadow(surface, "REDSTONE", title_font_large, 
                          (1024 - title_font_large.size("REDSTONE")[0]) // 2, 
-                         title_y + 80, YELLOW, BROWN, 4)
+                         title_y + 80, SOFT_YELLOW, BROWN, 4)
     
     # Subtitle
     subtitle_y = title_y + 180
@@ -191,8 +132,8 @@ def draw_stats_screen(surface, game_state, fonts, images=None):
     draw_border(surface, 30, 30, 1024-60, border_height)
     
     # Title and subtitle
-    draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, BRIGHT_GREEN)
-    draw_centered_text(surface, "ROLL STATS", fonts.get('fantasy_medium', fonts['normal']), 120, YELLOW)
+    draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, TITLE_GREEN)
+    draw_centered_text(surface, "ROLL STATS", fonts.get('fantasy_medium', fonts['normal']), 120, SOFT_YELLOW)
     
     # Load class information from JSON
     class_file = os.path.join("data", "player", "character_classes.json")
@@ -213,11 +154,11 @@ def draw_stats_screen(surface, game_state, fonts, images=None):
         primary_abilities = ["strength", "constitution"]
 
     # Display class information
-    draw_centered_text(surface, class_name.upper(), fonts.get('fantasy_medium', fonts['normal']), 160, BRIGHT_GREEN)
+    draw_centered_text(surface, class_name.upper(), fonts.get('fantasy_medium', fonts['normal']), 160, TITLE_GREEN)
 
     # Format primary abilities for display
     primary_text = "Primary Attributes: " + ", ".join([ability.title() for ability in primary_abilities])
-    draw_centered_text(surface, primary_text, fonts.get('fantasy_small', fonts['normal']), 185, YELLOW)
+    draw_centered_text(surface, primary_text, fonts.get('fantasy_small', fonts['normal']), 185, SOFT_YELLOW)
 
     # Stats display
     stats_y = 200
@@ -240,7 +181,7 @@ def draw_stats_screen(surface, game_state, fonts, images=None):
         
         # Choose color and prefix based on whether it's a primary ability
         if stat_name in primary_stat_prefixes:
-            color = BRIGHT_GREEN  # Highlight primary stats
+            color = TITLE_GREEN  # Highlight primary stats
             display_stat = f"*{stat}"  # Add asterisk
         else:
             color = WHITE
@@ -251,15 +192,28 @@ def draw_stats_screen(surface, game_state, fonts, images=None):
         stat_surface = fonts.get('fantasy_medium', fonts['normal']).render(display_stat, True, color)
         surface.blit(stat_surface, (x, y))
     
-    # Buttons
+    # Buttons - use constants for sizing
     button_y = 320
-    roll_button = draw_button(surface, 350, button_y, 160, 50, "ROLL STATS", 
-                             fonts.get('fantasy_small', fonts['normal']))
+    button_width = BUTTON_SIZES['medium'][0]  # 160
+    button_height = BUTTON_SIZES['medium'][1]  # 50
+    button_spacing = SPACING['button_gap']     # 20
     
-    keep_button = None
     if game_state.stats_rolled:
-        keep_button = draw_button(surface, 550, button_y, 160, 50, "KEEP STATS", 
+        # Two buttons - center them as a group
+        total_width = (button_width * 2) + button_spacing
+        start_x = (SCREEN_WIDTH - total_width) // 2
+        
+        roll_button = draw_button(surface, start_x, button_y, button_width, button_height, 
+                                 "ROLL STATS", fonts.get('fantasy_small', fonts['normal']))
+        keep_button = draw_button(surface, start_x + button_width + button_spacing, button_y, 
+                                 button_width, button_height, "KEEP STATS", 
                                  fonts.get('fantasy_small', fonts['normal']))
+    else:
+        # One button - center it alone
+        start_x = (SCREEN_WIDTH - button_width) // 2
+        roll_button = draw_button(surface, start_x, button_y, button_width, button_height, 
+                                 "ROLL STATS", fonts.get('fantasy_small', fonts['normal']))
+        keep_button = None
     
     # Instructions
     draw_centered_text(surface, "Roll your character's base attributes", 
@@ -291,24 +245,24 @@ def draw_stats_confirm_low_screen(surface, game_state, fonts, images=None):
         sub_text = comment.get("sub_text", "Good luck in combat with those stats.")
         
         # Display snarky comment
-        draw_centered_text(surface, title, fonts.get('fantasy_large', fonts['header']), 120, YELLOW)
+        draw_centered_text(surface, title, fonts.get('fantasy_large', fonts['header']), 120, SOFT_YELLOW)
         draw_centered_text(surface, main_text, fonts.get('fantasy_medium', fonts['normal']), 180, WHITE)
         draw_centered_text(surface, sub_text, fonts.get('fantasy_small', fonts['normal']), 220, WHITE)
         draw_centered_text(surface, "Click anywhere to continue...", 
-                  fonts.get('fantasy_small', fonts['normal']), 260, BRIGHT_GREEN)
+                  fonts.get('fantasy_small', fonts['normal']), 260, TITLE_GREEN)
         
         # No buttons during snarky comment display
         return None, None
     else:
         # Title
-        draw_centered_text(surface, "ARE YOU SURE?", fonts.get('fantasy_large', fonts['header']), 120, RED)
+        draw_centered_text(surface, "ARE YOU SURE?", fonts.get('fantasy_large', fonts['header']), 120, WARNING_RED)
         
         # Warning message
         low_abilities = game_state.temp_data.get("low_primaries", ["Primary Abilities"])
         abilities_text = ", ".join(low_abilities)
         
         draw_centered_text(surface, f"Your {abilities_text} scores are quite low!", 
-                        fonts.get('fantasy_medium', fonts['normal']), 180, YELLOW)
+                        fonts.get('fantasy_medium', fonts['normal']), 180, SOFT_YELLOW)
         draw_centered_text(surface, "This will make your Fighter less effective in combat.", 
                         fonts.get('fantasy_small', fonts['normal']), 210, WHITE)
         draw_centered_text(surface, "Consider rerolling for better primary abilities.", 
@@ -338,8 +292,8 @@ def draw_gender_screen(surface, game_state, fonts, images=None):
     draw_border(surface, 30, 30, 1024-60, border_height)
     
     # Title and subtitle
-    draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, BRIGHT_GREEN)
-    draw_centered_text(surface, "CHOOSE GENDER", fonts.get('fantasy_medium', fonts['normal']), 120, YELLOW)
+    draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, TITLE_GREEN)
+    draw_centered_text(surface, "CHOOSE GENDER", fonts.get('fantasy_medium', fonts['normal']), 120, SOFT_YELLOW)
     
     # Gender buttons
     button_y = 280
@@ -368,8 +322,8 @@ def draw_name_screen(surface, game_state, fonts, images=None):
     draw_border(surface, 30, 30, 1024-60, border_height)
     
     # Title and subtitle
-    draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, BRIGHT_GREEN)
-    draw_centered_text(surface, "CHOOSE NAME", fonts.get('fantasy_medium', fonts['normal']), 120, YELLOW)
+    draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, TITLE_GREEN)
+    draw_centered_text(surface, "CHOOSE NAME", fonts.get('fantasy_medium', fonts['normal']), 120, SOFT_YELLOW)
     
     # Name buttons with dynamic sizing
     name_buttons = []
@@ -422,8 +376,8 @@ def draw_custom_name_screen(surface, game_state, fonts, images=None):
     draw_border(surface, 30, 30, 1024-60, border_height)
     
     # Title and subtitle
-    draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, BRIGHT_GREEN)
-    draw_centered_text(surface, "ENTER CUSTOM NAME", fonts.get('fantasy_medium', fonts['normal']), 120, YELLOW)
+    draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, TITLE_GREEN)
+    draw_centered_text(surface, "ENTER CUSTOM NAME", fonts.get('fantasy_medium', fonts['normal']), 120, SOFT_YELLOW)
     
     # Text input box
     input_box_width = 400
@@ -465,18 +419,27 @@ def draw_name_confirm_screen(surface, game_state, fonts, images=None):
     draw_border(surface, 30, 30, 1024-60, border_height)
     
     # Title and subtitle
-    draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, BRIGHT_GREEN)
-    draw_centered_text(surface, "CONFIRM NAME", fonts.get('fantasy_medium', fonts['normal']), 120, YELLOW)
+    draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, TITLE_GREEN)
+    draw_centered_text(surface, "CONFIRM NAME", fonts.get('fantasy_medium', fonts['normal']), 120, SOFT_YELLOW)
     
     # Show selected name
     draw_centered_text(surface, game_state.selected_name, fonts.get('fantasy_large', fonts['header']), 200, CYAN)
     
-    # Buttons
+    # Buttons - use constants for proper centering
+    button_width = BUTTON_SIZES['medium'][0]  # 160
+    button_height = BUTTON_SIZES['medium'][1]  # 50
+    button_spacing = 40  # Gap between buttons
     button_y = 280
-    confirm_button = draw_button(surface, 350, button_y, 160, 50, "CONFIRM", 
-                                fonts.get('fantasy_small', fonts['normal']))
-    back_button = draw_button(surface, 550, button_y, 160, 50, "BACK", 
-                             fonts.get('fantasy_small', fonts['normal']))
+
+    # Center both buttons as a group
+    total_width = (button_width * 2) + button_spacing
+    start_x = (SCREEN_WIDTH - total_width) // 2  # 332 (properly centered!)
+
+    confirm_button = draw_button(surface, start_x, button_y, button_width, button_height,
+                                "CONFIRM", fonts.get('fantasy_small', fonts['normal']))
+    back_button = draw_button(surface, start_x + button_width + button_spacing, button_y,
+                            button_width, button_height, "BACK", 
+                            fonts.get('fantasy_small', fonts['normal']))
     
     # Instructions
     draw_centered_text(surface, "Is this the name you want for your character?", 
@@ -498,8 +461,8 @@ def draw_gold_screen(surface, game_state, fonts, images=None):
     draw_border(surface, 30, 30, 1024-60, border_height)
     
     # Title and subtitle
-    draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, BRIGHT_GREEN)
-    draw_centered_text(surface, "STARTING GOLD", fonts.get('fantasy_medium', fonts['normal']), 120, YELLOW)
+    draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, TITLE_GREEN)
+    draw_centered_text(surface, "STARTING GOLD", fonts.get('fantasy_medium', fonts['normal']), 120, SOFT_YELLOW)
     
     # Show gold if rolled
     if 'gold' in game_state.character:
@@ -511,10 +474,14 @@ def draw_gold_screen(surface, game_state, fonts, images=None):
                           fonts.get('fantasy_medium', fonts['normal']), 200, WHITE)
         button_text = "ROLL GOLD"
     
-    # Button
+    # Button - centered using constants
+    button_width = BUTTON_SIZES['medium'][0]  # 160
+    button_height = BUTTON_SIZES['medium'][1]  # 50
     button_y = 280
-    roll_button = draw_button(surface, 450, button_y, 160, 50, button_text, 
-                             fonts.get('fantasy_small', fonts['normal']))
+    button_x = (SCREEN_WIDTH - button_width) // 2  # 432 (perfectly centered!)
+    
+    roll_button = draw_button(surface, button_x, button_y, button_width, button_height, 
+                             button_text, fonts.get('fantasy_small', fonts['normal']))
     
     # Instructions
     draw_centered_text(surface, "Roll for your starting wealth", 
@@ -536,8 +503,8 @@ def draw_trinket_screen(surface, game_state, fonts, images=None):
     draw_border(surface, 30, 30, 1024-60, border_height)
     
     # Title and subtitle
-    draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, BRIGHT_GREEN)
-    draw_centered_text(surface, "MYSTERIOUS TRINKET", fonts.get('fantasy_medium', fonts['normal']), 120, YELLOW)
+    draw_centered_text(surface, "CHARACTER CREATION", fonts.get('fantasy_large', fonts['header']), 80, TITLE_GREEN)
+    draw_centered_text(surface, "MYSTERIOUS TRINKET", fonts.get('fantasy_medium', fonts['normal']), 120, SOFT_YELLOW)
     
     # Show trinket if rolled
     if 'trinket' in game_state.character:
@@ -549,10 +516,14 @@ def draw_trinket_screen(surface, game_state, fonts, images=None):
                           fonts.get('fantasy_medium', fonts['normal']), 200, WHITE)
         button_text = "ROLL TRINKET"
     
-    # Button
+    # Button - centered using constants
+    button_width = BUTTON_SIZES['medium'][0]  # 160
+    button_height = BUTTON_SIZES['medium'][1]  # 50
     button_y = 280
-    roll_button = draw_button(surface, 450, button_y, 160, 50, button_text, 
-                             fonts.get('fantasy_small', fonts['normal']))
+    button_x = (SCREEN_WIDTH - button_width) // 2  # 432 (perfectly centered!)
+    
+    roll_button = draw_button(surface, button_x, button_y, button_width, button_height, 
+                             button_text, fonts.get('fantasy_small', fonts['normal']))
     
     # Instructions
     draw_centered_text(surface, "Every adventurer carries something special", 
@@ -575,7 +546,7 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
     draw_border(surface, 30, 30, 1024-60, border_height)
     
     # Title
-    draw_centered_text(surface, "CHARACTER SUMMARY", fonts.get('fantasy_large', fonts['header']), 55, BRIGHT_GREEN)
+    draw_centered_text(surface, "CHARACTER SUMMARY", fonts.get('fantasy_large', fonts['header']), 55, TITLE_GREEN)
     
     # Character info - tighter spacing
     y_pos = 90
@@ -616,7 +587,7 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
     
     # Combat stats
     hit_points = game_state.character.get('hit_points', 'Calculating...')
-    hp_surface = fonts.get('fantasy_medium', fonts['normal']).render(f"Hit Points: {hit_points}", True, RED)
+    hp_surface = fonts.get('fantasy_medium', fonts['normal']).render(f"Hit Points: {hit_points}", True, WARNING_RED)
     surface.blit(hp_surface, (80, y_pos))
     y_pos += line_height
     
@@ -717,19 +688,20 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
             surface.blit(player_portrait, (portrait_x, portrait_y))
         else:
             # Fallback: bright green square for player
-            pygame.draw.rect(surface, BRIGHT_GREEN, 
+            pygame.draw.rect(surface, TITLE_GREEN, 
                             (portrait_x, portrait_y, portrait_size, portrait_size))
             print(f"Warning: Active player portrait missing at {active_path}")
 
-        # Button positioned with safe margin (original dynamic system)
-        button_y = min(y_pos + 25, border_height - 65)
-        start_button = draw_button(surface, 600, button_y, 160, 50, "START GAME", 
+       # Button aligned below portrait with nice spacing
+        button_y = portrait_y + portrait_size + 20  # 20px gap below portrait
+        button_x = portrait_x - 5  # Slight left alignment with portrait
+        start_button = draw_button(surface, button_x, button_y, 160, 50, "START GAME", 
                                 fonts.get('fantasy_small', fonts['normal']))
                     
     except Exception as e:
         print(f"Error loading player portrait for character sheet: {e}")
         # Fallback: bright green square for player
-        pygame.draw.rect(surface, BRIGHT_GREEN, 
+        pygame.draw.rect(surface, TITLE_GREEN, 
                         (portrait_x, portrait_y, portrait_size, portrait_size))
         
     return start_button
@@ -796,9 +768,9 @@ def draw_welcome_screen(surface, game_state, fonts, images=None):
     # Welcome message
     text_y = LAYOUT_DIALOG_TEXT_Y
     draw_centered_text(surface, f"Welcome to Redstone,", fonts.get('fantasy_large', fonts['header']), 
-                      text_y, BRIGHT_GREEN)
+                      text_y, TITLE_GREEN)
     draw_centered_text(surface, f"{character_name}!", fonts.get('fantasy_large', fonts['header']), 
-                      text_y + 30, YELLOW)
+                      text_y + 30, SOFT_YELLOW)
     
     # Description text
     desc_y = text_y + 65
@@ -841,8 +813,8 @@ def draw_portrait_selection_screen(surface, game_state, fonts, images=None):
                     fonts.get('fantasy_medium', fonts['normal']), title_y, WHITE)
     
     desc_y = text_y + 30
-    draw_centered_text(surface, "Click a portrait to select, then click CONTINUE", 
-                      fonts.get('fantasy_small', fonts['normal']), desc_y, YELLOW)
+    draw_centered_text(surface, "Click a portrait to select your character image, then click CONTINUE", 
+                      fonts.get('fantasy_small', fonts['normal']), desc_y, SOFT_YELLOW)
     
     # Portrait grid (6 portraits, load images or show numbered placeholders)
     portrait_size = 110
@@ -903,13 +875,6 @@ def draw_portrait_selection_screen(surface, game_state, fonts, images=None):
         
         pygame.draw.rect(surface, border_color, portrait_rect, border_width)
         portrait_buttons.append(portrait_rect)
-        
-        # # Label the 6th portrait as CAVIA
-        # if i == 5:  # Index 5 = 6th portrait
-        #     label_surface = fonts.get('fantasy_tiny', fonts['small']).render("CAVIA", True, BRIGHT_GREEN)
-        #     label_x = portrait_x + (portrait_size - label_surface.get_width()) // 2
-        #     label_y = portrait_y + portrait_size + 5
-        #     surface.blit(label_surface, (label_x, label_y))
     
     # Buttons
     button_y = LAYOUT_BUTTON_CENTER_Y

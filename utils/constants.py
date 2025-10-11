@@ -10,26 +10,45 @@ SCREEN_HEIGHT = 768
 # === COLORS (VGA Palette) ===
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
-CYAN = (0, 255, 255)
-MAGENTA = (255, 0, 255)
+ORANGE = (255, 165, 0)     
+PURPLE = (128, 0, 128)
+
+#GREENS
+GREEN = (0, 255, 0)
+DARK_GREEN = (0, 128, 0)
 BRIGHT_GREEN = GREEN
-BRIGHT_RED = (255, 100, 100)
-GRAY = (128, 128, 128)
-DARK_GRAY = (169, 169, 169)
+
+#BROWNS
 DARK_BROWN = (139, 69, 19)
 BROWN = (170, 85, 0)
-ORANGE = (255, 165, 0)     
+OLIVE_BROWN = (128, 128, 0)
+
+#BLUES
+BLUE = (0, 0, 255)
 BRIGHT_BLUE = (0, 191, 255)
+CYAN = (0, 255, 255)
 DARK_BLUE = (0, 0, 128)
-DARK_GREEN = (0, 128, 0)
-DARK_RED = (128, 0, 0)
-BROWN = (128, 128, 0)
-PURPLE = (128, 0, 128)
 DARK_CYAN = (0, 128, 128)
+CORNFLOWER_BLUE = (100, 149, 237) 
+
+#REDS
+MAGENTA = (255, 0, 255)
+RED = (255, 0, 0)
+BRIGHT_RED = (255, 100, 100)
+DARK_RED = (128, 0, 0)
+
+# Gray scale refinement (fixing naming confusion)
+DARKEST_GRAY = (85, 85, 85)         # Button backgrounds (pressed state)
+GRAY = (128, 128, 128)    # Medium gray for borders
+DARK_GRAY = (170, 170, 170)           # Button backgrounds (normal state)  
+LIGHTEST_GRAY = (200, 200, 200)     # Text input borders (inactive)
+
+# === CHARACTER CREATION UI COLORS ===
+# Softer, more readable versions for UI text
+TITLE_GREEN = (85, 255, 85)      # Softer green for titles (less harsh than pure green)
+SOFT_YELLOW = (255, 255, 85)     # Warmer yellow for subtitles
+WARNING_RED = (170, 0, 0)        # Muted red for warnings (not alarming)
 
 # === IMAGE LOADING CONFIGURATION ===
 # Standardized image dimensions (makes resizing consistent)

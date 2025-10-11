@@ -151,7 +151,7 @@ def draw_company_splash_screen(surface, game_state, fonts, images=None):
     
     # Continue instruction (smaller, less prominent)
     continue_y = 600
-    draw_centered_text(surface, "Press any key to continue...", 
+    draw_centered_text(surface, "Press enter or click mouse to continue...", 
                       fonts.get('fantasy_small', fonts['normal']), 
                       continue_y, (128, 128, 128))  # Gray text    
     

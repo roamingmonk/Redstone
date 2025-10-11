@@ -133,9 +133,10 @@ def draw_button(surface, x, y, width, height, text, font, pressed=False, selecte
         border_color = WHITE
         text_color = BLACK
     else:
-        color = DARK_GRAY if pressed else GRAY
-        border_color = DARK_GRAY if pressed else WHITE
+        color = GRAY
+        border_color = WHITE
         text_color = DARK_BROWN
+
     
     # Draw button background
     pygame.draw.rect(surface, color, (x, y, width, height))

@@ -10,7 +10,7 @@ from utils.graphics import draw_centered_text
 from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, 
                            LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
                            LAYOUT_BUTTON_Y, LAYOUT_DIALOG_TEXT_Y, LAYOUT_BUTTON_CENTER_Y)
-
+from utils.constants import (CORNFLOWER_BLUE, BLACK, WHITE, CYAN, RED, WARNING_RED, SOFT_YELLOW)
 
 from game_logic.item_manager import item_manager  
 
@@ -18,16 +18,11 @@ from game_logic.item_manager import item_manager
 from game_logic.commerce_engine import get_commerce_engine
 
 # Colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
 GRAY = (170, 170, 170)
 DARK_GRAY = (85, 85, 85)
 BRIGHT_GREEN = (85, 255, 85)
-YELLOW = (255, 255, 85)
-CYAN = (0, 255, 255)
-RED = (170, 0, 0)
 DARK_BROWN = (101, 67, 33)
-CORNFLOWER_BLUE = (100, 149, 237)  # selection color
+#CORNFLOWER_BLUE = (100, 149, 237)  # selection color
 
 # ==========================================
 # TABBED SHOPPING OVERLAY CLASS (NEW)
@@ -100,7 +95,7 @@ class ShoppingOverlay(BaseTabbedOverlay):
         # Title
         title_y = content_rect.y + 20
         draw_centered_text(surface, f"{merchant_data['merchant_name']}'s Stock",
-                          fonts.get('fantasy_medium', fonts['normal']), title_y, YELLOW)
+                          fonts.get('fantasy_medium', fonts['normal']), title_y, SOFT_YELLOW)
         
         # Table headers (adjusted for smaller content area)
         header_y = title_y + 35
@@ -193,7 +188,7 @@ class ShoppingOverlay(BaseTabbedOverlay):
         if total_pages > 1:
             page_y = item_y + (self.items_per_page * line_height) + 10
             page_text = f"Page {self.buy_page + 1} of {total_pages}"
-            draw_centered_text(surface, page_text, fonts['normal'], page_y, YELLOW)
+            draw_centered_text(surface, page_text, fonts['normal'], page_y, SOFT_YELLOW)
         
         # Bottom section - Gold, Cart, Buttons
         bottom_y = content_rect.bottom - 110
@@ -250,7 +245,7 @@ class ShoppingOverlay(BaseTabbedOverlay):
         # Title
         title_y = content_rect.y + 10
         draw_centered_text(surface, f"Sell Items to {merchant_data['merchant_name']}",
-                        fonts.get('fantasy_medium', fonts['normal']), title_y, YELLOW)
+                        fonts.get('fantasy_medium', fonts['normal']), title_y, SOFT_YELLOW)
         
         # Info text
         info_y = title_y + 35
@@ -374,7 +369,7 @@ class ShoppingOverlay(BaseTabbedOverlay):
         if total_pages > 1:
             page_y = item_y + (self.items_per_page * line_height) + 10
             page_text = f"Page {self.sell_page + 1} of {total_pages}"
-            draw_centered_text(surface, page_text, fonts['normal'], page_y, YELLOW)
+            draw_centered_text(surface, page_text, fonts['normal'], page_y, SOFT_YELLOW)
 
         if not sellable_items:
             no_items_y = content_rect.centery
@@ -398,7 +393,7 @@ class ShoppingOverlay(BaseTabbedOverlay):
                         fonts.get('fantasy_medium', fonts['normal']), bottom_y, BRIGHT_GREEN)
         
         draw_centered_text(surface, f"Sell Total: +{self.sell_cart_total} gp",
-                        fonts.get('fantasy_small', fonts['normal']), bottom_y + 25, YELLOW)
+                        fonts.get('fantasy_small', fonts['normal']), bottom_y + 25, SOFT_YELLOW)
         
         # Action buttons
         button_y = bottom_y + 60
@@ -441,7 +436,7 @@ class ShoppingOverlay(BaseTabbedOverlay):
         # Title - Merchant Name
         title_y = content_rect.y + 20
         draw_centered_text(surface, merchant_data['merchant_name'],
-                          fonts.get('fantasy_medium', fonts['normal']), title_y, YELLOW)
+                          fonts.get('fantasy_medium', fonts['normal']), title_y, SOFT_YELLOW)
         
         # Greeting
         greeting_y = content_rect.y + 70
@@ -746,7 +741,7 @@ def draw_button(surface, x, y, width, height, text, font, pressed=False, selecte
         border_color = DARK_GRAY
         text_color = (60, 60, 60)
     elif selected:
-        color = YELLOW
+        color = SOFT_YELLOW
         border_color = WHITE
         text_color = BLACK
     else:

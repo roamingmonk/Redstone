@@ -7,7 +7,7 @@ Provides options to load a save, restart combat, or return to title
 import pygame
 from utils.constants import (
     SCREEN_WIDTH, SCREEN_HEIGHT,
-    BLACK, WHITE, RED, DARK_RED, GRAY, BRIGHT_GREEN
+    BLACK, WHITE, DARK_RED, GRAY, BRIGHT_GREEN, WARNING_RED
 )
 from utils.graphics import draw_text_with_shadow, draw_button
 from utils.constants import wrap_text
@@ -73,7 +73,7 @@ class DeathOverlay:
             title_font,
             SCREEN_WIDTH // 2 - title_font.size(title_text)[0] // 2,
             100,
-            text_color=RED,
+            text_color=WARNING_RED,
             shadow_color=BLACK
         )
         
@@ -87,7 +87,7 @@ class DeathOverlay:
             subtitle_font,
             SCREEN_WIDTH // 2 - subtitle_font.size(death_message)[0] // 2,
             180,
-            text_color=RED,
+            text_color=WARNING_RED,
             shadow_color=BLACK
         )
  
