@@ -192,12 +192,12 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
     if has_selection:
         save_button = draw_button(surface, start_x, button_y, button_width, button_height,
                                  "SAVE", fonts.get('fantasy_small', fonts['normal']),
-                                 pressed=False, selected=True)
+                                 selected=True)
     else:
         # Draw disabled save button
         draw_button(surface, start_x, button_y, button_width, button_height,
                    "SAVE", fonts.get('fantasy_small', fonts['normal']),
-                   pressed=False, selected=False)
+                   selected=False)
     
     #Save & Quit button (middle position)
     save_quit_x = start_x + button_width + button_spacing
@@ -205,12 +205,12 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
     if has_selection:
         save_quit_button = draw_button(surface, save_quit_x, button_y, button_width, button_height,
                                      "SAVE&QUIT", fonts.get('fantasy_tiny', fonts['fantasy_small']),
-                                     pressed=False, selected=True)
+                                     selected=True)
     else:
         # Draw disabled save & quit button
         draw_button(surface, save_quit_x, button_y, button_width, button_height,
                    "SAVE&QUIT", fonts.get('fantasy_tiny', fonts['fantasy_small']),
-                   pressed=False, selected=False)
+                   selected=False)
     
     # Cancel button (now rightmost)
     cancel_x = start_x + (2 * button_width) + (2 * button_spacing)

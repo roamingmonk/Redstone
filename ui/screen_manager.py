@@ -426,15 +426,19 @@ class ScreenManager:
         """Register name confirm screen clickables when entering name confirm screen"""
         if hasattr(self, 'input_handler') and self.input_handler:
             
-            # Button coordinates from draw_name_confirm_screen  
+            # Button coordinates from draw_name_confirm_screen - centered pair
             button_y = 280
+            button_width = 160
+            button_spacing = 40
+            total_width = (button_width * 2) + button_spacing  # 360
+            start_x = (1024 - total_width) // 2  # 332
             
-            # CONFIRM button (350, 280, 160, 50)
-            confirm_rect = pygame.Rect(350, button_y, 160, 50)
+            # CONFIRM button (332, 280, 160, 50)
+            confirm_rect = pygame.Rect(start_x, button_y, button_width, 50)
             self.input_handler.register_clickable('name_confirm', confirm_rect, 'ACCEPT_NAME', {'action': 'ACCEPT_NAME'})
             
-            # BACK button (550, 280, 160, 50)
-            back_rect = pygame.Rect(550, button_y, 160, 50)
+            # BACK button (532, 280, 160, 50)
+            back_rect = pygame.Rect(start_x + button_width + button_spacing, button_y, button_width, 50)
             self.input_handler.register_clickable('name_confirm', back_rect, 'BACK_TO_NAME_SELECTION', {'action': 'BACK_TO_NAME_SELECTION'})
             
             #print("✅ Name confirm screen clickables registered")
@@ -505,8 +509,8 @@ class ScreenManager:
         """Register gold screen clickables when entering gold screen"""
         if hasattr(self, 'input_handler') and self.input_handler:
             
-            # Button coordinates from draw_gold_screen (450, 280, 160, 50)
-            button_rect = pygame.Rect(450, 280, 160, 50)
+           # Button coordinates from draw_gold_screen - centered at (432, 280, 160, 50)
+            button_rect = pygame.Rect(432, 280, 160, 50)
             
             # Register the single button - logic will be handled by CharacterEngine
             self.input_handler.register_clickable('gold', button_rect, 'GOLD_BUTTON_CLICK', {'action': 'GOLD_BUTTON_CLICK'})
@@ -519,9 +523,9 @@ class ScreenManager:
         """Register trinket screen clickables when entering trinket screen"""
         if hasattr(self, 'input_handler') and self.input_handler:
             
-            # Button coordinates from draw_trinket_screen (450, 280, 160, 50 - same as gold)
-            button_rect = pygame.Rect(450, 280, 160, 50)
-            
+            # Button coordinates from draw_trinket_screen - centered at (432, 280, 160, 50)
+            button_rect = pygame.Rect(432, 280, 160, 50)
+ 
             # Register the button - CharacterEngine will determine if it's ROLL or CONTINUE
             self.input_handler.register_clickable('trinket', button_rect, 'TRINKET_BUTTON_CLICK', {'action': 'TRINKET_BUTTON_CLICK'})
             

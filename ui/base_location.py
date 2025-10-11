@@ -245,9 +245,34 @@ class ActionHubLocation(BaseLocation):
         surface.fill(BLACK)
         area_data = self.get_current_area_data()
         
-        # === PARTY STATUS PANEL (RIGHT SIDE) ===
+       # *** Party status panel (right side) ***
+        portrait_rects = draw_party_status_panel(surface, game_state, fonts)
 
-        draw_party_status_panel(surface, game_state, fonts)
+        # Register portrait clicks with InputHandler
+        if controller and hasattr(controller, 'input_handler'):
+            input_handler = controller.input_handler
+            current_screen = getattr(game_state, 'screen', f"{self.location_id}_{self.current_area}")
+            
+            # Register player portrait click (opens Player tab)
+            if 'player' in portrait_rects:
+                input_handler.register_clickable(
+                    current_screen,
+                    portrait_rects['player'],
+                    "PORTRAIT_CLICKED",
+                    {"target": "player", "tab": 1},
+                    priority=150  # High priority
+                )
+            
+            # Register NPC portrait clicks (opens Party tab)
+            for key, rect in portrait_rects.items():
+                if key.startswith('npc_'):
+                    input_handler.register_clickable(
+                        current_screen,
+                        rect,
+                        "PORTRAIT_CLICKED",
+                        {"target": "party", "tab": 2},
+                        priority=150
+                    )
         
         # Adjust image width to accommodate party panel
         image_width = 1024 - PARTY_PANEL_WIDTH - 10  # 10px spacing
@@ -462,7 +487,7 @@ class ActionHubLocation(BaseLocation):
             if action_name == 'back':
                 # Navigate back to parent location
                 area_data = self.get_current_area_data()
-                parent = area_data.get('parent', 'broken_blade_main')
+                parent = area_data.get('parent', 'broken_blade')
                 
                 event_manager.emit("SCREEN_CHANGE", {
                     "target_screen": parent,
@@ -494,7 +519,33 @@ class NPCSelectionLocation(BaseLocation):
         area_data = self.get_current_area_data()
         
         # *** Party status panel (right side) ***
-        draw_party_status_panel(surface, game_state, fonts)
+        portrait_rects = draw_party_status_panel(surface, game_state, fonts)
+        
+        # Register portrait clicks with InputHandler
+        if controller and hasattr(controller, 'input_handler'):
+            input_handler = controller.input_handler
+            current_screen = getattr(game_state, 'screen', f"{self.location_id}_{self.current_area}")
+            
+            # Register player portrait click (opens Player tab)
+            if 'player' in portrait_rects:
+                input_handler.register_clickable(
+                    current_screen,
+                    portrait_rects['player'],
+                    "PORTRAIT_CLICKED",
+                    {"target": "player", "tab": 1},
+                    priority=150  # High priority
+                )
+            
+            # Register NPC portrait clicks (opens Party tab)
+            for key, rect in portrait_rects.items():
+                if key.startswith('npc_'):
+                    input_handler.register_clickable(
+                        current_screen,
+                        rect,
+                        "PORTRAIT_CLICKED",
+                        {"target": "party", "tab": 2},
+                        priority=150
+                    )
 
         # Calculate display width (accounting for party panel)
         image_width = 1024 - PARTY_PANEL_WIDTH - 10  # 10px spacin
@@ -632,7 +683,7 @@ class NPCSelectionLocation(BaseLocation):
             if action_name == 'back':
                 # Navigate back to parent location
                 area_data = self.get_current_area_data()
-                parent = area_data.get('parent', 'broken_blade_main')
+                parent = area_data.get('parent', 'broken_blade')
                 
                 event_manager.emit("SCREEN_CHANGE", {
                     "target_screen": parent,

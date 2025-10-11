@@ -172,13 +172,13 @@ def draw_load_game_screen(surface, game_state, fonts, images, save_manager=None)
     # Load button
     load_button = draw_button(surface, start_x, button_y, button_width, button_height,
                              "LOAD", fonts.get('fantasy_small', fonts['normal']),
-                             pressed=False, selected=can_load)
+                             selected=can_load)
     
     # Delete button  
     delete_x = start_x + button_width + button_spacing
     delete_button = draw_button(surface, delete_x, button_y, button_width, button_height,
                                "DELETE", fonts.get('fantasy_small', fonts['normal']),
-                               pressed=False, selected=has_selection)
+                               selected=has_selection)
     
     # Cancel button
     cancel_x = delete_x + button_width + button_spacing

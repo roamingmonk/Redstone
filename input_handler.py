@@ -71,6 +71,9 @@ class InputHandler:
         self.current_interactables = []
         self.background_action = None
 
+        # register to portrait clicks
+        self.event_manager.register("PORTRAIT_CLICKED", self._handle_portrait_click)
+
         # Debug features
         self.debug_input = False
         self.click_history = []
@@ -666,6 +669,22 @@ class InputHandler:
                     
             return False
 
+    def _handle_portrait_click(self, event_data):
+        """
+        Handle portrait clicks - just trigger the character sheet like C key does
+        """
+        tab = event_data.get('tab', 1)
+        
+        print(f"📸 Portrait clicked - opening character sheet at tab {tab}")
+        
+        # Use the SAME event that C key uses to open character sheet
+        self.event_manager.emit("OVERLAY_TOGGLE", {"overlay_id": "character_key"})
+        
+        # Set the active tab after a brief moment for the overlay to open
+        from screens.character_overlay import get_character_overlay
+        overlay = get_character_overlay()
+        overlay.switch_to_tab(tab - 1)  # Convert to 0-indexed
+        
     def register_overlay(self, overlay_instance, state_flag: str) -> bool:
         """
         Register an overlay for automatic input routing

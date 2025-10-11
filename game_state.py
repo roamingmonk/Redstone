@@ -274,8 +274,7 @@ class GameState:
         # Add to collections
         self.party_member_data.append(character_data)
         self._party_lookup[npc_id] = character_data
-        
-        print(f"✅ Added character data for {character_data['name']}")
+
         return True
 
     def start_combat(self, encounter_id: str):

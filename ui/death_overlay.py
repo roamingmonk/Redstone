@@ -152,7 +152,6 @@ class DeathOverlay:
             button_height,
             "Load Game",
             normal_font,
-            pressed=False,
             selected=False
         )
         
@@ -166,7 +165,6 @@ class DeathOverlay:
             button_height,
             "Restart Combat",
             small_font,
-            pressed=False,
             selected=False  # Highlight this button
         )
         
@@ -180,7 +178,6 @@ class DeathOverlay:
             button_height,
             "Return to Title",
             small_font,
-            pressed=False,
             selected=False
         )
         

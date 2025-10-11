@@ -30,28 +30,34 @@ def draw_party_status_panel(surface, game_state, fonts):
     
     # Panel title
     title_y = 15
-    
-        
+       
+    # Track portrait rectangles for click detection
+    portrait_rects = {}
+
     # Draw portraits
     start_y = 25
+    portrait_x = PARTY_PANEL_X + 15
 
     # Player portrait (always first)
-    draw_party_portrait(surface, PARTY_PANEL_X + 15, start_y, 
+    draw_party_portrait(surface, portrait_x, start_y, 
                        "player", game_state, fonts, is_player=True)
+    portrait_rects['player'] = pygame.Rect(portrait_x, start_y, PORTRAIT_SIZE, PORTRAIT_SIZE)
     
     # NPC portraits
     for i, npc_name in enumerate(game_state.party_members):
         if i >= 3:  # Maximum 3 NPCs
             break
         portrait_y = start_y + (i + 1) * (PORTRAIT_SIZE + PORTRAIT_SPACING)
-        draw_party_portrait(surface, PARTY_PANEL_X + 15, portrait_y, 
+        draw_party_portrait(surface, portrait_x, portrait_y, 
                            npc_name, game_state, fonts, is_player=False)
-    
+        portrait_rects[f'npc_{i}'] = pygame.Rect(portrait_x, portrait_y, PORTRAIT_SIZE, PORTRAIT_SIZE)
     # Empty slots
     total_members = 1 + len(game_state.party_members)  # Player + NPCs
     for i in range(total_members, 4):  # Show up to 4 total
         portrait_y = start_y + i * (PORTRAIT_SIZE + PORTRAIT_SPACING)
         draw_empty_portrait_slot(surface, PARTY_PANEL_X + 15, portrait_y)
+
+    return portrait_rects
 
 def draw_party_portrait(surface, x, y, character_name, game_state, fonts, is_player=False):
     """Draw individual party member portrait"""

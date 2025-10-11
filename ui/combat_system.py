@@ -711,7 +711,7 @@ def register_combat_system_events(event_manager, game_controller):
         if hasattr(game_controller.game_state, 'previous_screen') and game_controller.game_state.previous_screen:
             game_controller.game_state.screen = game_controller.game_state.previous_screen
         else:
-            game_controller.game_state.screen = "broken_blade_main"
+            game_controller.game_state.screen = "broken_blade"
         print(f"Returning to: {game_controller.game_state.screen}")
     
     # Register the actual event names being emitted

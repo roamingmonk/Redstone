@@ -55,7 +55,7 @@ def main():
             pygame.quit()
             sys.exit(1)
 
-        # Log any validation failures (non-fatal)
+        # Log any validation failures (non-fatal)a
         failed_validations = [k for k, v in init_result.validation_results.items() if not v]
         if failed_validations:
             print(f"⚠️ Validation warnings: {failed_validations}")

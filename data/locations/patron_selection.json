@@ -63,11 +63,11 @@
             "available": "always"
           }
         ],
-        "parent": "broken_blade_main",
+        "parent": "broken_blade",
         "navigation": {
           "back": {
             "type": "navigate",
-            "target": "broken_blade_main",
+            "target": "broken_blade",
             "label": "Return to Tavern"
           }
         },

@@ -37,11 +37,14 @@ MAGENTA = (255, 0, 255)
 RED = (255, 0, 0)
 BRIGHT_RED = (255, 100, 100)
 DARK_RED = (128, 0, 0)
+RUST_RED = (160, 60, 50)
+DARK_COPPER = (184, 115, 51)
 
 # Gray scale refinement (fixing naming confusion)
+VERY_DARK_GRAY = (60, 60, 60)       #Disabled Text
 DARKEST_GRAY = (85, 85, 85)         # Button backgrounds (pressed state)
-GRAY = (128, 128, 128)    # Medium gray for borders
-DARK_GRAY = (170, 170, 170)           # Button backgrounds (normal state)  
+GRAY = (128, 128, 128)              # Medium gray for borders
+DARK_GRAY = (170, 170, 170)         # Button backgrounds (normal state)  
 LIGHTEST_GRAY = (200, 200, 200)     # Text input borders (inactive)
 
 # === CHARACTER CREATION UI COLORS ===
@@ -49,6 +52,20 @@ LIGHTEST_GRAY = (200, 200, 200)     # Text input borders (inactive)
 TITLE_GREEN = (85, 255, 85)      # Softer green for titles (less harsh than pure green)
 SOFT_YELLOW = (255, 255, 85)     # Warmer yellow for subtitles
 WARNING_RED = (170, 0, 0)        # Muted red for warnings (not alarming)
+
+# === BUTTON COLOR SCHEMES ===
+# Standard button colors (used by most screens)
+BUTTON_NORMAL_BG = GRAY
+BUTTON_NORMAL_BORDER = WHITE
+BUTTON_NORMAL_TEXT = WHITE   #ORG DARK_BROWN
+
+BUTTON_SELECTED_BG = YELLOW
+BUTTON_SELECTED_BORDER = WHITE
+BUTTON_SELECTED_TEXT = BLACK
+
+BUTTON_DISABLED_BG = DARK_GRAY
+BUTTON_DISABLED_BORDER = DARK_GRAY
+BUTTON_DISABLED_TEXT = VERY_DARK_GRAY
 
 # === IMAGE LOADING CONFIGURATION ===
 # Standardized image dimensions (makes resizing consistent)
@@ -474,7 +491,8 @@ def load_images():
         'hill_ruins': 'hill_ruins_entrance.jpg',
         'refugee_camp': 'refugee_camp_overview.jpg',
         'mayor_office': 'mayor_office.jpg',
-        'broken_blade_main': 'tavern_interior.jpg'  # Reuses tavern image
+        'broken_blade_main': 'tavern_interior.jpg',  # Reuses tavern image
+        'broken_blade': 'tavern_interior.jpg'  # Reuses tavern image
     }
     
     # Update total assets count

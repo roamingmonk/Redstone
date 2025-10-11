@@ -1969,6 +1969,15 @@ Center formula: (SCREEN_WIDTH - total_width) // 2
 **Files:** character_creation.py, utils/graphics.py, constants.py
 **Next:** Apply same pattern to gambling_dice.py, title_menu.py, other legacy screens.
 
+# ADR-125: Clickable Party Portraits for Character Sheet Navigation
+# Date: October 11, 2025
+# Status: Accepted
+**Context:** Users need quick access to character information while exploring locations.
+**Decision:** Party panel portraits are clickable regions that open character sheet overlay at appropriate tab (player portrait → Player tab, NPC portraits → Party tab).
+**Implementation:**party_display.py returns portrait rectangles
+base_location.py registers portraits as clickables during render
+input_handler.py handles PORTRAIT_CLICKED event, emits OVERLAY_TOGGLE with tab selection
+**Benefits:** Intuitive UI following classic CRPG conventions (Pool of Radiance, Ultima), event-driven architecture maintains separation of concerns, no GameController changes needed.
 
 ```
 ## ADR-XXX: <Short title>

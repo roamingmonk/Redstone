@@ -111,7 +111,7 @@ def draw_combat_button(surface, x, y, width, height, text, font, button_state="n
     
     return button_rect
 
-def draw_button(surface, x, y, width, height, text, font, pressed=False, selected=False):
+def draw_button(surface, x, y, width, height, text, font, selected=False, text_color=None):
     """
     Draw a retro-style button with authentic 1980s look
     
@@ -121,30 +121,32 @@ def draw_button(surface, x, y, width, height, text, font, pressed=False, selecte
         width, height: button dimensions
         text: button text
         font: font object for text
-        pressed: if True, draw pressed appearance
         selected: if True, draw selected/highlighted appearance
+        text_color: optional color override for text (uses defaults if None)
     
     Returns:
         pygame.Rect: clickable area of the button
     """
     # Determine colors based on button state
     if selected:
-        color = YELLOW
-        border_color = WHITE
-        text_color = BLACK
+        bg_color = BUTTON_SELECTED_BG
+        border_color = BUTTON_SELECTED_BORDER
+        default_text_color = BUTTON_SELECTED_TEXT
     else:
-        color = GRAY
-        border_color = WHITE
-        text_color = DARK_BROWN
+        bg_color = BUTTON_NORMAL_BG
+        border_color = BUTTON_NORMAL_BORDER
+        default_text_color = BUTTON_NORMAL_TEXT
 
+    # Use override if provided, otherwise use default
+    final_text_color = text_color if text_color is not None else default_text_color
     
     # Draw button background
-    pygame.draw.rect(surface, color, (x, y, width, height))
+    pygame.draw.rect(surface, bg_color, (x, y, width, height))
     # Draw button border
     pygame.draw.rect(surface, border_color, (x, y, width, height), 2)
     
     # Draw centered text
-    text_surface = font.render(text, True, text_color)
+    text_surface = font.render(text, True, final_text_color)
     text_rect = text_surface.get_rect(center=(x + width//2, y + height//2))
     surface.blit(text_surface, text_rect)
     

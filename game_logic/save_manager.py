@@ -262,7 +262,7 @@ class SaveManager:
             
             # Restore game progression
             #TODO do we need the broken blade hard code?
-            self.game_state.screen = save_data.get('current_screen', 'broken_blade_main')
+            self.game_state.screen = save_data.get('current_screen', 'broken_blade')
             self.game_state.previous_screen = save_data.get('previous_screen', None)
             self.game_state.pending_combat_encounter = save_data.get('pending_combat_encounter', None)
 

@@ -108,12 +108,14 @@ class CharacterOverlay(BaseTabbedOverlay):
         normal_font = fonts.get('fantasy_small', fonts['normal'])
         small_font = fonts.get('normal', normal_font)
         
-        # LEFT SECTION: Character Info
+        ## LEFT SECTION: Character Info
         current_y = left_section_y
         
-        # Name
-        name_text = header_font.render(f"Name: {character_name}", True, CYAN)
-        surface.blit(name_text, (left_section_x, current_y))
+        # Name - label in white, value in cyan
+        label_text = header_font.render("Name: ", True, WHITE)
+        surface.blit(label_text, (left_section_x, current_y))
+        value_text = header_font.render(character_name, True, CYAN)
+        surface.blit(value_text, (left_section_x + label_text.get_width(), current_y))
         current_y += 32
         
         # Level (prominent display)
@@ -122,17 +124,23 @@ class CharacterOverlay(BaseTabbedOverlay):
         surface.blit(level_text, (left_section_x, current_y))
         current_y += 32
 
-        # Class and Species
+       # Class and Species
         character_class = character.get('class', 'fighter')
-        class_text = normal_font.render(f"Class: {character_class.title()}", True, WHITE)
-        surface.blit(class_text, (left_section_x, current_y))
+        # Split label and value
+        class_label = normal_font.render("Class: ", True, WHITE)
+        surface.blit(class_label, (left_section_x, current_y))
+        class_value = normal_font.render(character_class.title(), True, SOFT_YELLOW)
+        surface.blit(class_value, (left_section_x + class_label.get_width(), current_y))
         current_y += 25
         
         # Species
         species_data = character.get('species', {})
         species_name = species_data.get('display_name', 'Human')
-        species_text = normal_font.render(f"Species: {species_name}", True, WHITE)
-        surface.blit(species_text, (left_section_x, current_y))
+        # Split label and value
+        species_label = normal_font.render("Species: ", True, WHITE)
+        surface.blit(species_label, (left_section_x, current_y))
+        species_value = normal_font.render(species_name, True, SOFT_YELLOW)
+        surface.blit(species_value, (left_section_x + species_label.get_width(), current_y))
         current_y += 32
 
         # XP Progress Bar (ASCII Style)
@@ -170,57 +178,70 @@ class CharacterOverlay(BaseTabbedOverlay):
                 progress_bar = "#" * filled_chars + "-" * empty_chars
                 remaining_xp = next_level_xp - current_xp
                 
-                xp_text = normal_font.render(f"XP : ({current_xp:,}/{next_level_xp:,}) [{progress_bar}]", True, WHITE)
-                surface.blit(xp_text, (left_section_x, current_y))
+                # xp_text = normal_font.render(f"XP : ({current_xp:,}/{next_level_xp:,}) [{progress_bar}]", True, SOFT_YELLOW)
+                # surface.blit(xp_text, (left_section_x, current_y))
+                # current_y += 35
+        
+                # Split XP label and values
+                xp_label = normal_font.render("XP: ", True, WHITE)
+                surface.blit(xp_label, (left_section_x, current_y))
+                xp_text = normal_font.render(f"({current_xp:,}/{next_level_xp:,}) [{progress_bar}]", True, SOFT_YELLOW)
+                surface.blit(xp_text, (left_section_x + xp_label.get_width(), current_y))
                 current_y += 35
+    
         else:
             # Max level reached
-            xp_text = normal_font.render("XP Needed: [MAX LEVEL]", True, YELLOW)
+            xp_text = normal_font.render("XP Needed: [MAX LEVEL]", True, SOFT_YELLOW)
             surface.blit(xp_text, (left_section_x, current_y))
+        
             current_y += 35
         
         # Hit Points (current/max format)
         current_hp = character.get('current_hp', 10)
+        HP_label = normal_font.render("Hit Points: ", True, WHITE)
+        surface.blit(HP_label, (left_section_x, current_y))
+
         max_hp = character.get('hit_points', 10)
-        hp_text = normal_font.render(f"Hit Points: {current_hp}/{max_hp}", True, WHITE)
-        surface.blit(hp_text, (left_section_x, current_y))
+        value_surface = normal_font.render(f" {current_hp}/{max_hp}", True, SOFT_YELLOW)
+        surface.blit(value_surface, (left_section_x + HP_label.get_width(), current_y))
         current_y += 45
-        
+
         # Equipment Section
         equipment_header = header_font.render("Equipment", True, CYAN)
         surface.blit(equipment_header, (left_section_x, current_y))
         current_y += 30
         
-        # Weapon
+       # Weapon
         weapon_name = game_state.character.get('equipped_weapon', 'None')
-        weapon_label = normal_font.render("Weapon:", True, WHITE)
+        weapon_label = normal_font.render("Weapon: ", True, WHITE)
         surface.blit(weapon_label, (left_section_x, current_y))
 
         weapon_display = weapon_name.replace('_', ' ').title() if weapon_name and weapon_name != 'None' else "None"
-        weapon_text = normal_font.render(weapon_display, True, WHITE)
-        surface.blit(weapon_text, (left_section_x + 100, current_y))
+        weapon_text = normal_font.render(weapon_display, True, SOFT_YELLOW)
+        surface.blit(weapon_text, (left_section_x + weapon_label.get_width(), current_y))
         current_y += 30
 
         # Armor
         armor_name = game_state.character.get('equipped_armor', 'None')
-        armor_label = normal_font.render("Armor:", True, WHITE)
+        armor_label = normal_font.render("Armor: ", True, WHITE)
         surface.blit(armor_label, (left_section_x, current_y))
 
         armor_display = armor_name.replace('_', ' ').title() if armor_name and armor_name != 'None' else "None"
-        armor_text = normal_font.render(armor_display, True, WHITE)
-        surface.blit(armor_text, (left_section_x + 100, current_y))
+        armor_text = normal_font.render(armor_display, True, SOFT_YELLOW)
+        surface.blit(armor_text, (left_section_x + armor_label.get_width(), current_y))
         current_y += 30
 
         # Shield
         shield_name = game_state.character.get('equipped_shield', 'None')
-        shield_label = normal_font.render("Shield:", True, WHITE)
+        shield_label = normal_font.render("Shield: ", True, WHITE)
         surface.blit(shield_label, (left_section_x, current_y))
 
         shield_display = shield_name.replace('_', ' ').title() if shield_name and shield_name != 'None' else "None"
-        shield_text = normal_font.render(shield_display, True, WHITE)
-        surface.blit(shield_text, (left_section_x + 100, current_y))
+        shield_text = normal_font.render(shield_display, True, SOFT_YELLOW)
+        surface.blit(shield_text, (left_section_x + shield_label.get_width(), current_y))
         current_y += 30
 
+        # Combat Stats
         combat_header = header_font.render("Combat Stats", True, CYAN)
         surface.blit(combat_header, (left_section_x, current_y+10))
         current_y += 30
@@ -228,12 +249,18 @@ class CharacterOverlay(BaseTabbedOverlay):
         ac, _ = calculator.calculate_armor_class(game_state)
         attacks, _ = calculator.calculate_attacks_per_round(game_state)
 
-        ac_text = normal_font.render(f"AC: {ac}", True, WHITE)
-        surface.blit(ac_text, (left_section_x, current_y+10))
+        # Split AC label and value
+        ac_label = normal_font.render("AC: ", True, WHITE)
+        surface.blit(ac_label, (left_section_x, current_y+10))
+        ac_value = normal_font.render(str(ac), True, SOFT_YELLOW)
+        surface.blit(ac_value, (left_section_x + ac_label.get_width(), current_y+10))
         current_y += 25
 
-        attacks_text = normal_font.render(f"Attacks: {attacks}", True, WHITE)
-        surface.blit(attacks_text, (left_section_x, current_y+10))
+        # Split Attacks label and value
+        attacks_label = normal_font.render("Attacks: ", True, WHITE)
+        surface.blit(attacks_label, (left_section_x, current_y+10))
+        attacks_value = normal_font.render(str(attacks), True, SOFT_YELLOW)
+        surface.blit(attacks_value, (left_section_x + attacks_label.get_width(), current_y+10))
 
         # RIGHT SECTION: Attributes
         attr_x = right_section_x
@@ -267,7 +294,7 @@ class CharacterOverlay(BaseTabbedOverlay):
         gold_label = normal_font.render("Gold:", True, WHITE)
         surface.blit(gold_label, (attr_x, attr_y + 15))
         
-        gold_value = header_font.render(str(gold_amount), True, BRIGHT_GREEN)
+        gold_value = header_font.render(str(gold_amount), True, SOFT_YELLOW)
         surface.blit(gold_value, (attr_x + 120, attr_y - 3 + 15))
         
         # RIGHT SECTION: Character Portrait (same as character_sheet.py)

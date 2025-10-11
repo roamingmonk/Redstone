@@ -16,12 +16,12 @@
             "talk_patrons": {
                 "type": "navigate",
                 "target": "patron_selection",
-                "label": "talk patrons"
+                "label": "talk to patrons"
             },
             "gamble": {
                 "type": "navigate", 
                 "target": "dice_bets",
-                "label": "gamble"
+                "label": " gamble"
             },
             "bartender": {
                 "type": "dialogue",

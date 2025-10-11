@@ -551,13 +551,6 @@ class ScreenRegistry:
         This is where we'll add each screen as we create them
         """
 
-        # Register character advancement screen
-        # try:
-        #     from screens.character_advancement import draw_character_advancement
-        #     controller.register_screen("character_advancement", draw_character_advancement)
-        #     print("✅ Character advancement screen registered!")
-        # except ImportError as e:
-        #     print(f"⚠️ Character advancement screen not available: {e}")
 
         # Register gambling screens  
         try:

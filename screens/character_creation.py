@@ -192,28 +192,15 @@ def draw_stats_screen(surface, game_state, fonts, images=None):
         stat_surface = fonts.get('fantasy_medium', fonts['normal']).render(display_stat, True, color)
         surface.blit(stat_surface, (x, y))
     
-    # Buttons - use constants for sizing
+    # Buttons
     button_y = 320
-    button_width = BUTTON_SIZES['medium'][0]  # 160
-    button_height = BUTTON_SIZES['medium'][1]  # 50
-    button_spacing = SPACING['button_gap']     # 20
+    roll_button = draw_button(surface, 350, button_y, 160, 50, "ROLL STATS", 
+                             fonts.get('fantasy_small', fonts['normal']))
     
+    keep_button = None
     if game_state.stats_rolled:
-        # Two buttons - center them as a group
-        total_width = (button_width * 2) + button_spacing
-        start_x = (SCREEN_WIDTH - total_width) // 2
-        
-        roll_button = draw_button(surface, start_x, button_y, button_width, button_height, 
-                                 "ROLL STATS", fonts.get('fantasy_small', fonts['normal']))
-        keep_button = draw_button(surface, start_x + button_width + button_spacing, button_y, 
-                                 button_width, button_height, "KEEP STATS", 
+        keep_button = draw_button(surface, 550, button_y, 160, 50, "KEEP STATS", 
                                  fonts.get('fantasy_small', fonts['normal']))
-    else:
-        # One button - center it alone
-        start_x = (SCREEN_WIDTH - button_width) // 2
-        roll_button = draw_button(surface, start_x, button_y, button_width, button_height, 
-                                 "ROLL STATS", fonts.get('fantasy_small', fonts['normal']))
-        keep_button = None
     
     # Instructions
     draw_centered_text(surface, "Roll your character's base attributes", 
@@ -552,15 +539,20 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
     y_pos = 90
     line_height = 28
     
-    # Name and Gender
-    name_surface = fonts.get('fantasy_medium', fonts['normal']).render(
-        f"Name: {game_state.character['name']}", True, YELLOW)
-    surface.blit(name_surface, (80, y_pos))
+    # Name - label in white, value in yellow
+    font_med = fonts.get('fantasy_medium', fonts['normal'])
+    
+    label_surface = font_med.render("Name: ", True, WHITE)
+    surface.blit(label_surface, (80, y_pos))
+    value_surface = font_med.render(game_state.character['name'], True, SOFT_YELLOW)
+    surface.blit(value_surface, (80 + label_surface.get_width(), y_pos))
     y_pos += line_height
     
-    gender_surface = fonts.get('fantasy_medium', fonts['normal']).render(
-        f"Gender: {game_state.character['gender'].title()}", True, YELLOW)
-    surface.blit(gender_surface, (80, y_pos))
+    # Gender - label in white, value in yellow
+    label_surface = font_med.render("Gender: ", True, WHITE)
+    surface.blit(label_surface, (80, y_pos))
+    value_surface = font_med.render(game_state.character['gender'].title(), True, SOFT_YELLOW)
+    surface.blit(value_surface, (80 + label_surface.get_width(), y_pos))
     y_pos += line_height + 10
     
     # Stats
@@ -585,15 +577,19 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
     
     y_pos += line_height * 2 + 15
     
-    # Combat stats
+    # Hit Points - label in white, value in Yellow
+    label_surface = font_med.render("Hit Points: ", True, WHITE)
+    surface.blit(label_surface, (80, y_pos))
     hit_points = game_state.character.get('hit_points', 'Calculating...')
-    hp_surface = fonts.get('fantasy_medium', fonts['normal']).render(f"Hit Points: {hit_points}", True, WARNING_RED)
-    surface.blit(hp_surface, (80, y_pos))
+    value_surface = font_med.render(str(hit_points), True, SOFT_YELLOW)
+    surface.blit(value_surface, (80 + label_surface.get_width(), y_pos))
     y_pos += line_height
     
-    gold_surface = fonts.get('fantasy_medium', fonts['normal']).render(
-        f"Starting Gold: {game_state.character['gold']} gp", True, YELLOW)
-    surface.blit(gold_surface, (80, y_pos))
+    # Starting Gold - label in white, value in yellow
+    label_surface = font_med.render("Starting Gold: ", True, WHITE)
+    surface.blit(label_surface, (80, y_pos))
+    value_surface = font_med.render(f"{game_state.character['gold']} gp", True, SOFT_YELLOW)
+    surface.blit(value_surface, (80 + label_surface.get_width(), y_pos))
     y_pos += line_height + 8
     
     # Equipment section
@@ -624,27 +620,25 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
         for weapon_id in game_state.inventory.get('weapons', []):
             weapon_name = get_item_name(weapon_id)
             equipment.append(weapon_name)
-            print(f"  ✅ Added weapon: {weapon_name} (id: {weapon_id})")
+            #print(f"  ✅ Added weapon: {weapon_name} (id: {weapon_id})")
         
         # Add armor from inventory (includes shields and bracers)
         for armor_id in game_state.inventory.get('armor', []):
             armor_name = get_item_name(armor_id)
             equipment.append(armor_name)
-            print(f"  ✅ Added armor: {armor_name} (id: {armor_id})")
+            #print(f"  ✅ Added armor: {armor_name} (id: {armor_id})")
         
         # Add items from inventory (includes trinkets)
         for item_id in game_state.inventory.get('items', []):
             item_name = get_item_name(item_id)
             equipment.append(item_name)
-            print(f"  ✅ Added item: {item_name} (id: {item_id})")
+            #print(f"  ✅ Added item: {item_name} (id: {item_id})")
         
         # Add consumables from inventory
         for consumable_id in game_state.inventory.get('consumables', []):
             consumable_name = get_item_name(consumable_id)
             equipment.append(consumable_name)
-            print(f"  ✅ Added consumable: {consumable_name} (id: {consumable_id})")
-        
-        print(f"🔧 DEBUG: Final equipment list: {equipment}")
+            #print(f"  ✅ Added consumable: {consumable_name} (id: {consumable_id})")
 
     except (FileNotFoundError, KeyError, json.JSONDecodeError) as e:
         print(f"❌ Error loading equipment data: {e}")
