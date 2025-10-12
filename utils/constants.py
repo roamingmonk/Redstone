@@ -151,6 +151,7 @@ PLAYER_SPRITES_PATH = os.path.join(SPRITES_PATH, "player")
 ENEMY_SPRITES_PATH = os.path.join(SPRITES_PATH, "enemies")
 EFFECTS_SPRITES_PATH = os.path.join(SPRITES_PATH, "effects")
 LANDSCAPE_SPRITES_PATH = os.path.join(SPRITES_PATH, "landscape")
+COMBAT_OBSTACLES_PATH = os.path.join(SPRITES_PATH, "items")
 
 # Specific file paths (updated to new structure)
 TABLE_IMAGE = os.path.join(UI_BACKGROUNDS_PATH, "character_creation_table.jpg")
@@ -174,6 +175,12 @@ TERRAIN_TILES_PATH = os.path.join(TILES_PATH, "terrain")
 BUILDING_TILES_PATH = os.path.join(TILES_PATH, "buildings")
 DECORATIONS_TILES_PATH = os.path.join(TILES_PATH, "decorations")
 ANIMATED_TILES_PATH = os.path.join(TILES_PATH, "animated")
+COMBAT_FLOORS_PATH = os.path.join(TILES_PATH, "terrain")
+
+# Sprite sizes for combat
+COMBAT_TILE_SIZE = 48
+COMBAT_OBSTACLE_SIZE = 32
+COMBAT_FLOOR_TILE_SIZE = 16
 
 # === FONT LOADING SYSTEM ===
 
@@ -533,9 +540,6 @@ def load_images():
     # Initialize empty dictionaries for future expansion
     images['item_icons'] = {}
     images['character_portraits'] = {}
-    images['enemy_sprites'] = {}
-    images['player_sprites'] = {}
-    images['spell_effects'] = {}
     images['ui_icons'] = {}
     
     # === LOADING SUMMARY ===

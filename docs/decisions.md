@@ -2007,6 +2007,19 @@ Updated dialogue_state_mapping for Jenna: conditional routing based on jenna_gav
 Consequences: Players can rest at inn for healing/time progression. System ready for migration to dedicated TimeManager/RestManager. Fully data-driven state routing via existing dialogue_state_mapping system.
 Files Modified: data/dialogues/redstone_town_jenna.json, data/narrative_schema.json, game_logic/dialogue_engine.py, utils/debug_manager.py, game_logic/save_manager.py, data/maps/redstone_town_map.py
 
+# ADR-126: Fix Duplicate Quest XP Awards, added Combat Sprite system with layered rendering
+# Date: October 12, 2025
+# Status: Implemented
+**Context:**  Quest completion XP awarded twice: once by QuestEngine, once by CharacterEngine listening to QUEST_COMPLETED event. Also, QuestEngine's _evaluate_quest_triggers fallback sweep re-awarded XP for all previously-set flags whenever ANY new flag changed. Combat grid used solid color rectangles; needed scalable sprite system for floors and obstacles without hardcoding assets in constants.py.
+**Decision:** Remove duplicate XP logic from CharacterEngine._handle_quest_completion; remove fallback sweep from QuestEngine._evaluate_quest_triggers that checked ALL flags when no trigger found for specific flag., Created CombatSpriteManager singleton following TileGraphicsManager pattern; implemented data-driven layered rendering (floor → obstacles → grid); floor type read from battlefield JSON terrain.default field.
+**Implementation:** CharacterEngine now only checks for level-ups on quest completion, doesn't award XP; QuestEngine only evaluates triggers matching the specific changed flag, no fallback sweep.. utils/combat_sprite_manager.py loads 16x16 tileable floors (tiled 3×3 for 48×48 tiles) and 32×32 obstacle sprites with professional fallbacks; ui/combat_system.py uses manager for all combat graphics; floor mapping system (stone_floor→stone_floor_16x16.png) enables JSON-driven battlefield aesthetics.
+**Consequences:** Single source of truth for quest XP (QuestEngine); no ghost XP spam from flag changes; CharacterEngine focuses on level-up notifications only. Zero code changes for new battlefields—just add JSON terrain type and drop PNG in assets; barrels render as pixel art sprites; stone floors tile seamlessly; support_beam shows fallback placeholder until asset created; follows established architectural patterns (singleton, separation of concerns, data-driven design).
+**Files Created:** utils/combat_sprite_manager.py
+**Files Modified:** game_logic/character_engine.py (_handle_quest_completion), game_logic/quest_engine.py (_evaluate_quest_triggers), ui/combat_system.py (added layered rendering, removed constants.py image dependency)
+
+
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

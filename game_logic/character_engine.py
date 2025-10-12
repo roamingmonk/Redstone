@@ -193,7 +193,7 @@ class CharacterEngine:
 
     def register_quest_events(self, event_manager):
         """Register for quest completion events - matches character creation pattern"""
-        self.event_manager = event_manager  # Store reference
+        self.event_manager = event_manager  
         
         event_manager.register("QUEST_COMPLETED", self._handle_quest_completion)
         event_manager.register("INFORMATION_DISCOVERED", self._handle_information_discovery)
@@ -1287,29 +1287,27 @@ class CharacterEngine:
             return self.award_experience(xp, f"gambling streak of {streak_length}")
         return 0
     
-    def register_quest_events(self, event_manager):
-        """Register for quest completion events - follows character creation pattern"""
-        self.event_manager = event_manager
+    # def register_quest_events(self, event_manager):
+    #     """Register for quest completion events - follows character creation pattern"""
+    #     self.event_manager = event_manager
         
-        # Quest completion events
-        event_manager.register("QUEST_COMPLETED", self._handle_quest_completion)
-        event_manager.register("INFORMATION_DISCOVERED", self._handle_information_discovery)
-        
-        print("🎯 CharacterEngine registered for quest events")
+    #     event_manager.register("QUEST_COMPLETED", self._handle_quest_completion)
+    #     event_manager.register("INFORMATION_DISCOVERED", self._handle_information_discovery)
+    #     print("🎯 CharacterEngine registered for quest events")
     
     def _handle_quest_completion(self, event_data):
-        """Handle quest completion XP awards"""
+        """Handle quest completion notifications and level-up checks.
+        
+        NOTE: XP is awarded by QuestEngine before this event is emitted.
+        CharacterEngine only needs to check for level-ups.
+        """
         quest_id = event_data.get("quest_id")
         quest_title = event_data.get("quest_title", "Unknown Quest")
-        xp_reward = event_data.get("xp_reward", 0)
-        completion_type = event_data.get("completion_type", "quest")
+        # xp_reward is included in event_data but NOT used here (QuestEngine already awarded it)
         
         print(f"🏆 Quest completed: {quest_title}")
         
-        # Award XP to all party members
-        affected_members = self.award_party_xp(xp_reward, f"Quest: {quest_title}")
-        
-        # Check for level ups
+        # XP already awarded by QuestEngine - just check for level ups
         level_up_members = self.check_party_level_ups()
         
         # If anyone leveled up, trigger character sheet notification

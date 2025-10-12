@@ -203,13 +203,12 @@ class QuestEngine:
         trigs  = schema.get("quest_triggers", {})
 
         if flag_hint:
+            # ONLY evaluate triggers for the specific flag that just changed
             candidates = [(tid, spec) for tid, spec in trigs.items()
                         if isinstance(spec, dict) and spec.get("dialogue_flag") == flag_hint]
-            if not candidates and getattr(self.game_state, flag_hint, False):
-                # sweep only entries that actually look like triggers
-                candidates = [(tid, spec) for tid, spec in trigs.items()
-                            if isinstance(spec, dict) and "dialogue_flag" in spec]
+            
         else:
+            # Only sweep all triggers if explicitly called with no hint (shouldn't happen normally)
             candidates = [(tid, spec) for tid, spec in trigs.items()
                         if isinstance(spec, dict) and "dialogue_flag" in spec]
 
@@ -304,11 +303,6 @@ class QuestEngine:
             "xp_reward": xp_reward,
             "completion_type": self._get_quest_type(quest_id),
         })
-
-        # Optional: also emit a generic XP event if your pipeline expects it
-        # self.event_manager.emit("XP_AWARDED", {
-        #     "amount": xp_reward, "reason": f"quest_completed:{quest_id}", "recipient": "party"
-        # })
 
         print(f"🏆 Quest XP awarded: {xp_reward} for {quest_title}")
     

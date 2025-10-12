@@ -10,6 +10,7 @@ from utils.constants import *
 from utils.graphics import draw_combat_button, draw_centered_text, draw_text
 from utils.combat_loader import get_combat_loader
 from game_logic.combat_engine import CombatPhase
+from utils.combat_sprite_manager import get_combat_sprite_manager
 
 class CombatEncounter:
     """
@@ -23,11 +24,14 @@ class CombatEncounter:
         self.encounter_id = encounter_id
         self.screen_name = "combat"
         
+        # Get sprite manager (singleton)
+        self.sprite_manager = get_combat_sprite_manager()
+
         # UI state
         self.selected_action = None
         self.selected_unit = None
         self.highlighted_tiles = []
-        
+    
         # Grid rendering settings
         self.grid_offset_x = 50
         self.grid_offset_y = 120
@@ -40,7 +44,7 @@ class CombatEncounter:
 
     def render(self, surface: pygame.Surface, game_state, fonts: Dict, images: Dict, controller=None) -> Dict[str, Any]:
         """Main combat screen rendering - follows BaseLocation pattern"""
-        
+
         try:
             # Get combat data from engine
             combat_data = controller.combat_engine.get_combat_data_for_ui()
@@ -73,6 +77,23 @@ class CombatEncounter:
             return self._handle_action_button(action_type.lower(), game_state, event_manager)
 
         return None
+
+    def _get_floor_type(self, battlefield: Dict) -> str:
+        """Get the floor tile type from battlefield data"""
+        terrain = battlefield.get('terrain', {})
+        default_floor = terrain.get('default', 'stone_floor')
+        
+        # Map terrain type to actual floor tile filename
+        floor_tile_map = {
+            'stone_floor': 'stone_floor_16x16',
+            'cobblestone': 'cobblestone_street_16x16',
+            'dirt': 'dirt_floor_16x16',
+            'grass': 'grass_floor_16x16',
+            'wood': 'wood_floor_16x16'
+        }
+        
+        return floor_tile_map.get(default_floor, 'stone_floor_16x16')
+
 
     def _register_with_input_handler(self, clickable_areas: Dict, controller):
         #print(f"🔍 Total clickable areas to register: {len(clickable_areas)}")
@@ -184,6 +205,9 @@ class CombatEncounter:
         width = dimensions['width']
         height = dimensions['height']
         
+        # Get floor type from battlefield data (data-driven!)
+        floor_type = self._get_floor_type(battlefield)
+        
         # Draw grid squares
         for x in range(width):
             for y in range(height):
@@ -193,16 +217,21 @@ class CombatEncounter:
                 # Grid square rect
                 square_rect = pygame.Rect(screen_x, screen_y, self.tile_size, self.tile_size)
                 
-                # Determine square color
+                # === LAYERED RENDERING ===
+                # Layer 1: Floor tile (bottom)
                 if self._is_wall_tile(x, y, battlefield):
-                    color = DARK_GRAY  # Wall
-                elif self._is_obstacle_tile(x, y, battlefield):
-                    color = BROWN      # Obstacle
+                    # Walls get dark gray (no floor tile)
+                    pygame.draw.rect(surface, DARK_GRAY, square_rect)
                 else:
-                    color = BLACK  # Floor was DARK_BLUE
+                    # Draw floor using battlefield's terrain type
+                    self._draw_floor_tile(surface, screen_x, screen_y, floor_type)
                 
-                # Draw square
-                pygame.draw.rect(surface, color, square_rect)
+                # Layer 2: Obstacles (middle) - drawn ON TOP of floor
+                if self._is_obstacle_tile(x, y, battlefield):
+                    obstacle_type = self._get_obstacle_type(x, y, battlefield)
+                    self._draw_obstacle_sprite(surface, screen_x, screen_y, obstacle_type)
+                
+                # Layer 3: Grid border (overlay)
                 pygame.draw.rect(surface, WHITE, square_rect, 1)  # Border
                 
                 # Register clickable area
@@ -214,6 +243,53 @@ class CombatEncounter:
         
         return clickable_areas
     
+    def _get_obstacle_type(self, x: int, y: int, battlefield: Dict) -> str:
+        """Get the type of obstacle at this grid position"""
+        obstacles = battlefield.get('terrain', {}).get('obstacles', [])
+        
+        for obstacle in obstacles:
+            obs_pos = obstacle.get('position', [])
+            if len(obs_pos) == 2 and obs_pos[0] == x and obs_pos[1] == y:
+                return obstacle.get('type', 'barrel')  # Default to barrel
+        
+        return 'barrel'  # Fallback
+    
+    def _draw_obstacle_sprite(self, surface: pygame.Surface, screen_x: int, screen_y: int, obstacle_type: str):
+        """Draw obstacle sprite centered in tile"""
+        # Get the sprite from sprite manager
+        sprite = self.sprite_manager.get_obstacle_sprite(obstacle_type)
+        
+        if sprite:
+            # Center the 32x32 sprite in the 48x48 tile
+            sprite_x = screen_x + (self.tile_size - 32) // 2  # (48-32)/2 = 8 pixel offset
+            sprite_y = screen_y + (self.tile_size - 32) // 2
+            surface.blit(sprite, (sprite_x, sprite_y))
+        else:
+            # Fallback already handled by sprite manager, but just in case
+            pygame.draw.rect(surface, BROWN, 
+                           (screen_x, screen_y, self.tile_size, self.tile_size))
+
+
+    def _draw_floor_tile(self, surface: pygame.Surface, screen_x: int, screen_y: int, floor_type: str = 'cobblestone_street_16x16'):
+            """Draw tiled floor texture for this grid square"""
+            # Get the 16x16 floor tile from sprite manager
+            floor_tile = self.sprite_manager.get_floor_tile(floor_type)
+            
+            if floor_tile:
+                # Tile the 16x16 texture 3x3 times to fill 48x48 grid square
+                tile_size = 16
+                tiles_per_row = self.tile_size // tile_size  # 48 / 16 = 3
+                
+                for ty in range(tiles_per_row):
+                    for tx in range(tiles_per_row):
+                        tile_x = screen_x + (tx * tile_size)
+                        tile_y = screen_y + (ty * tile_size)
+                        surface.blit(floor_tile, (tile_x, tile_y))
+            else:
+                # Fallback: draw black square if tile not loaded
+                pygame.draw.rect(surface, BLACK, 
+                            (screen_x, screen_y, self.tile_size, self.tile_size))
+
     def _render_battlefield_units(self, surface: pygame.Surface, combat_data: Dict, controller):
         """Render player and enemy units on the battlefield"""
         

@@ -163,39 +163,6 @@ class DialogueEngine:
         if hasattr(self.game_state, 'quest_manager'):
             self.game_state.quest_manager.update_from_game_state()
             print("📋 Quest system updated after flag changes")
-        
-
-    def _process_narrative_events(self):
-        
-        """Process all narrative events from schema configuration"""
-        #xp_manager = XPManager(self.narrative_schema)
-        #all_triggers = self.narrative_schema.schema.get('quest_triggers', {})
-        
-        xp_manager = XPManager(narrative_schema)
-        all_triggers = narrative_schema.schema.get('quest_triggers', {})
-
-
-        # Process individual triggers (discovery, quest activation, etc.)
-        for trigger_name, trigger_data in all_triggers.items():
-            if isinstance(trigger_data, dict) and 'dialogue_flag' in trigger_data:
-                self._check_single_trigger(trigger_name, trigger_data, xp_manager)
-        
-        # Process recruitment triggers
-        party_triggers = all_triggers.get('party_recruitment_triggers', {})
-        for npc_id, trigger_data in party_triggers.items():
-            # Convert recruitment trigger to standard format
-            standard_trigger = {
-                'dialogue_flag': npc_id,
-                'event_type': trigger_data.get('event_type'),
-                'xp_reward': trigger_data.get('xp_reward')
-            }
-            self._check_single_trigger(f"recruitment_{npc_id}", standard_trigger, xp_manager)
-        
-        # Process basement quest triggers
-        basement_triggers = all_triggers.get('basement_quest_triggers', {})
-        for trigger_name, trigger_data in basement_triggers.items():
-            if 'dialogue_flag' in trigger_data:
-                self._check_single_trigger(f"basement_{trigger_name}", trigger_data, xp_manager)
 
     def _check_single_trigger(self, trigger_name, trigger_data, xp_manager):
         """Check a single narrative trigger for XP award"""
@@ -720,9 +687,6 @@ class DialogueEngine:
                 except Exception as e:
                     print(f"DE: event emit failed for {flag_name}: {e}")
 
-            # (C) IMPORTANT: remove any direct calls to narrative/XP processing here
-            #     (i.e., do NOT call self._handle_flag_change(...) or _process_narrative_events())
-
             return f"Set {flag_name} = {value}"
 
         # 2) quest_trigger  --------------------------------------------------------
@@ -800,23 +764,6 @@ class DialogueEngine:
             return None
         
         return None
-
-
-    def _handle_flag_change(self, flag_name: str) -> None:
-        """
-        Central place for: party sync, narrative trigger processing, and safety.
-        Called after ANY set_flag.
-        """
-        try:
-            # Keep party in sync (this can still be no-op for non-recruit flags)
-            self._sync_party_members_list()
-
-            # Evaluate narrative triggers → may award XP, unlock beats, etc.
-            self._process_narrative_events()
-        except Exception as e:
-            # Don’t let one bad trigger lock the UI in a render loop
-            print(f"DE: flag side-effects failed for {flag_name}: {e}")
-
 
     def _check_option_requirements(self, option: Dict[str, Any]) -> bool:
             """Check if dialogue option requirements are met"""
