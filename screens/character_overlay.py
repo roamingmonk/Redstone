@@ -290,11 +290,13 @@ class CharacterOverlay(BaseTabbedOverlay):
         
         # Gold
         gold_amount = character.get('gold', 0)
-        
+        formatted_gold = f"{gold_amount:,}"  # add a comma
+
         gold_label = normal_font.render("Gold:", True, WHITE)
         surface.blit(gold_label, (attr_x, attr_y + 15))
         
-        gold_value = header_font.render(str(gold_amount), True, SOFT_YELLOW)
+        #gold_value = header_font.render(str(gold_amount), True, SOFT_YELLOW)
+        gold_value = header_font.render(formatted_gold, True, SOFT_YELLOW)
         surface.blit(gold_value, (attr_x + 120, attr_y - 3 + 15))
         
         # RIGHT SECTION: Character Portrait (same as character_sheet.py)

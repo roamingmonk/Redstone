@@ -123,7 +123,7 @@ class CombatEncounter:
         clickable_areas.update(grid_areas)
         
         # Render unit sprites on grid
-        self._render_battlefield_units(surface, combat_data)
+        self._render_battlefield_units(surface, combat_data, controller)
         
         # Render tile overlays (movement, targeting, etc.)
         self._render_tile_overlays(surface, combat_data)
@@ -214,7 +214,7 @@ class CombatEncounter:
         
         return clickable_areas
     
-    def _render_battlefield_units(self, surface: pygame.Surface, combat_data: Dict):
+    def _render_battlefield_units(self, surface: pygame.Surface, combat_data: Dict, controller):
         """Render player and enemy units on the battlefield"""
         
         # Render all party members
@@ -252,10 +252,24 @@ class CombatEncounter:
                 text_rect = text_surface.get_rect(center=(screen_x, screen_y))
                 surface.blit(text_surface, text_rect)
                 
-                # Draw HP bar
+                # Draw HP bar - read from source of truth!
                 char_data = char_state.get('character_data', {})
-                current_hp = char_data.get('current_hp', 10)
-                max_hp = char_data.get('max_hp', 10)
+                
+                # For player character, read directly from game_state (source of truth)
+                if char_id == 'player':
+                    current_hp = controller.game_state.character.get('current_hp', 10)
+                    max_hp = controller.game_state.character.get('hit_points', 10)
+                else:
+                    # NPC - read from party_member_data
+                    current_hp = char_data.get('current_hp', 10)
+                    max_hp = char_data.get('max_hp', 10)
+                    # Update from party_member_data if available
+                    for member in controller.game_state.party_member_data:
+                        if member.get('id') == char_id:
+                            current_hp = member.get('current_hp', current_hp)
+                            max_hp = member.get('hp', member.get('hit_points', max_hp))
+                            break
+                
                 self._draw_hp_bar(surface, screen_x, screen_y, current_hp, max_hp)
         
         # Render enemy units
@@ -374,10 +388,25 @@ class CombatEncounter:
             draw_text(surface, f"Active: {char_name}", text_font, 750, current_y, CYAN)
             current_y += 30
             
-            # Show active character HP
+            # Show active character HP - read from source of truth!
             char_data = char_state.get('character_data', {})
-            current_hp = char_data.get('current_hp', 20)
-            max_hp = char_data.get('max_hp', 20)
+            
+            # For player character, read directly from game_state (source of truth)
+            # For NPCs, read from party_member_data
+            if active_character_id == 'player':
+                current_hp = controller.game_state.character.get('current_hp', 20)
+                max_hp = controller.game_state.character.get('hit_points', 20)
+            else:
+                # NPC - find in party_member_data
+                current_hp = char_data.get('current_hp', 20)
+                max_hp = char_data.get('max_hp', 20)
+                # Update from party_member_data if available
+                for member in controller.game_state.party_member_data:
+                    if member.get('id') == active_character_id:
+                        current_hp = member.get('current_hp', current_hp)
+                        max_hp = member.get('hp', member.get('hit_points', max_hp))
+                        break
+            
             hp_display = f"HP: {current_hp}/{max_hp}"
             draw_text(surface, hp_display, text_font, 750, current_y, WHITE)
             current_y += 30

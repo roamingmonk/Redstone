@@ -282,6 +282,24 @@
           "next_state": "exit"
         },
         {
+          "id": "ask_swamp_details",
+          "text": "Tell me more about that swamp church.",
+          "requirements": {
+            "flags": {
+              "learned_about_swamp_church": true,
+              "swamp_church_details_known": false
+            }
+          },
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "swamp_church_details_known",
+              "value": true
+            }
+          ],
+          "next_state": "swamp_details"
+        },
+        {
           "id": "found_it",
           "text": "I found it! [Give ring]",
           "requirements": {

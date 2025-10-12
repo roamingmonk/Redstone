@@ -226,15 +226,14 @@
     },
     "jenna": {
       "system_id": "jenna",
-      "full_name": "Jenna Goldleaf",
+      "full_name": "Jenna",
       "dialogue_file": "redstone_town_jenna",
       "conversation_flag": "jenna_talked",
-      "location": "redstone_town", 
+      "location": "redstone_town",
       "species": "human",
-      "role": "merchant_general_clerk",
+      "role": "innkeeper",
       "story_flags": {
-        "explained_inventory": "jenna_explained_shop",
-        "offered_special_items": "jenna_offered_specials"
+        "gave_discount": "jenna_gave_discount"
       }
     },
     "henrik": {
@@ -676,7 +675,8 @@
     },
     "jenna": {
       "first_meeting": "!jenna_talked",
-      "returning_customer": "jenna_talked"
+      "returning_discount_customer": "jenna_talked && jenna_gave_discount",
+      "returning_customer": "jenna_talked && !jenna_gave_discount"
     },
     "henrik": {
       "cavia_first_meeting": "!henrik_talked && is_cavia",

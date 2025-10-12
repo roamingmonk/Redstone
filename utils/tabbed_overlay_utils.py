@@ -340,17 +340,6 @@ class BaseTabbedOverlay:
         
         instruction_text = " | ".join(instructions)
         draw_centered_text(surface, instruction_text, footer_font, popup_y - 20, GRAY, popup_width + 100)
-    
-
-         # # Draw close instruction
-        # close_y = button_y + button_height + SPACING['margin'] + 20
-        # close_font = fonts.get('help_text', fonts['small'])
-        # close_text = "Press I to close"
-        
-        # # Center the close instruction
-        # close_surface = close_font.render(close_text, True, WHITE)
-        # close_x = content_x + (content_width - close_surface.get_width()) // 2
-        # surface.blit(close_surface, (close_x, close_y))
 
     def _register_with_input_handler(self):
         """Register this overlay with the InputHandler for automatic input routing"""

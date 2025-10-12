@@ -244,6 +244,24 @@
           "next_state": "exit"
         },
         {
+          "id": "ask_ruins_details",
+          "text": "Before I go, tell me about those ruins.",
+          "requirements": {
+            "flags": {
+              "learned_about_ruins": true,
+              "hill_ruins_details_known": false
+            }
+          },
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "hill_ruins_details_known",
+              "value": true
+            }
+          ],
+          "next_state": "ruins_details"
+        },
+        {
           "id": "prepare_first",
           "text": "Let me prepare first.",
           "next_state": "supplies_info"

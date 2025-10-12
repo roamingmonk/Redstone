@@ -80,9 +80,17 @@ class QuestEngine:
         flag = (data or {}).get("flag")
         val  = (data or {}).get("value")
         print(f"[DBG] on_flag_changed received: {flag}={val}")
+        
+        # Update quest objectives and activation based on new flag values
+        print(f"[DBG] Calling update_from_game_state() due to flag: {flag}")
+        self.quest_manager.update_from_game_state()
+        
         # Evaluate only triggers referencing this flag; fall back to a sweep if none found.
         self._evaluate_quest_triggers(flag_hint=flag)
         self._award_recruit_xp_for_flag(flag)
+        
+        # Check if any quests completed
+        self.scan_for_completions()
 
     def _award_recruit_xp_for_flag(self, flag_hint: str | None):
         """Award per-recruit XP when a '*_recruited' flag flips True, using nested schema."""
@@ -226,7 +234,11 @@ class QuestEngine:
                     "recipient": "party"
                 })
 
-            if spec.get("quest_objective"):
+            # Complete objectives ONLY for completion-type events, not acceptance events
+            event_type = spec.get("event_type", "")
+            completion_events = ["QUEST_COMPLETED", "COMBAT_VICTORY", "DISCOVERY", "QUEST_BONUS_COMPLETE"]
+
+            if spec.get("quest_objective") and event_type in completion_events:
                 self._complete_objective_from_path(spec["quest_objective"])
 
             setattr(self.game_state, guard, True)

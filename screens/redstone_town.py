@@ -145,9 +145,9 @@ class RedstoneTownNavigation:
                     npc_id = self.current_building.get('npc_id')
                     
                     if npc_id and controller:
-                        # Get location from narrative schema
-                        location = narrative_schema.get_npc_location(npc_id, 'redstone_town')
-                        target_screen = location  # This becomes something like 'broken_blade_mayor'
+                        # Use current location (redstone_town), not narrative schema
+                        location = 'redstone_town'
+                        target_screen = f"{location}_{npc_id}"  # ✅ Constructs 'redstone_town_mayor'
                     
                         # CHECK: Is the target dialogue screen implemented?
                         if hasattr(controller, 'screen_manager') and target_screen in controller.screen_manager.render_functions:

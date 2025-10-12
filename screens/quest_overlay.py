@@ -309,7 +309,7 @@ class QuestOverlay(BaseTabbedOverlay):
             surface.blit(page_surface, (page_x, page_y))
             
             # Add navigation hint
-            hint_y = page_y + 20
+            hint_y = page_y + 25
             hint_text = "UP/DOWN or P/N to navigate pages"
             hint_font = fonts.get('fantasy_tiny', fonts['small'])
             hint_surface = hint_font.render(hint_text, True, WHITE)

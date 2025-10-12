@@ -22,6 +22,9 @@ class DebugManager:
         self.event_manager.register("DEBUG_SAVE_STATE", self.handle_save_debug)
         self.event_manager.register("NPC_DEBUG", self.handle_npc_debug)  
 
+        self.event_manager.register("TIME_ADVANCED", self.handle_time_advanced)
+        self.event_manager.register("PARTY_RESTED", self.handle_party_rested)
+
         print("🔧 DebugManager initialized - Professional debug system ready!")
     
     def handle_debug_toggle(self, data):
@@ -67,6 +70,35 @@ class DebugManager:
         
         # Show NPC spawn info
         self._debug_npc_spawning()
+       
+        # """Handle F4 - Reset Kobold Mine Quest Objectives"""
+        # print("🔧 F4 - Resetting Kobold Mine Quest Objectives...")
+        # if hasattr(self.game_state, 'quest_manager'):
+        #     quest = self.game_state.quest_manager.quests.get('kobold_mine_investigation')
+        #     if quest:
+        #         print("\n📋 BEFORE RESET:")
+        #         for obj in quest.objectives:
+        #             status = "✅" if obj.completed else "❌"
+        #             print(f"  {status} {obj.id}: completed = {obj.completed}")
+                
+        #         # Reset the objectives
+        #         for obj in quest.objectives:
+        #             if obj.id in ['recover_ring', 'clear_kobolds']:
+        #                 obj.completed = False
+        #                 print(f"  ⚠️ Reset objective: {obj.id}")
+                
+        #         print("\n📋 AFTER RESET:")
+        #         for obj in quest.objectives:
+        #             status = "✅" if obj.completed else "❌"
+        #             print(f"  {status} {obj.id}: completed = {obj.completed}")
+                
+        #         # Force update
+        #         self.game_state.quest_manager.update_from_game_state()
+        #         print("\n✅ Objectives reset - check Quest Log!")
+        # else:
+        #     print("⚠️ Quest manager not found!")
+
+
     
     def _debug_npc_spawning(self):
         """Debug NPC spawn conditions"""
@@ -312,6 +344,16 @@ class DebugManager:
         print(f"Garrick Paid player: {getattr(self.game_state, 'garrick_paid', False)}")
         print(f"Acknowledged Payment: {getattr(self.game_state, 'post_payment_acknowledged', False)}")
 
+        print(f"\n ⛏️ KOBOLD MINE QUEST:")
+        print(f"Quest Given (Meredith): {getattr(self.game_state, 'meredith_gave_ring_quest', False)}")
+        print(f"Quest Given (Henrik): {getattr(self.game_state, 'henrik_gave_shaft_quest', False)}")
+        print(f"Meredith Mentioned Mine: {getattr(self.game_state, 'meredith_mentioned_old_mine', False)}")
+        print(f"Henrik Mentioned Shaft: {getattr(self.game_state, 'henrik_mentioned_old_shaft', False)}")
+        print(f"Cleared Kobolds: {getattr(self.game_state, 'cleared_kobold_mine', False)}")
+        print(f"Ring Returned: {getattr(self.game_state, 'returned_meredith_ring', False)}")
+        print(f"Ore Samples Found: {getattr(self.game_state, 'retrieved_ore_samples', False)}")
+        print(f"Reported to Henrik: {getattr(self.game_state, 'reported_shaft_to_henrik', False)}")
+
         # Quest manager status
         if hasattr(self.game_state, 'quest_manager'):
             print(f"\n📋 QUEST MANAGER:")
@@ -388,3 +430,72 @@ class DebugManager:
             print("✅ Quest manager updated")
         
         return len(recruited)
+    
+    # ==================================================================
+    # TEMPORARY REST/TIME HANDLERS - Move to TimeManager/RestManager later
+    # TODO
+    # ==================================================================
+    
+    def handle_time_advanced(self, data):
+        """
+        TEMPORARY: Handle TIME_ADVANCED event from dialogue/rest systems
+        TODO: Move to dedicated TimeManager when implemented
+        """
+        hours = data.get('hours', 8)
+        source = data.get('source', 'unknown')
+        
+        print(f"⏰ TIME_ADVANCED: {hours} hours from {source}")
+        
+        # Overnight rest advances to next day
+        if hours >= 8:
+            days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+            current_day = getattr(self.game_state, 'current_day', 'monday')
+            
+            try:
+                current_index = days.index(current_day)
+                self.game_state.current_day = days[(current_index + 1) % len(days)]
+            except ValueError:
+                self.game_state.current_day = 'monday'
+            
+            # Set time to morning after overnight rest
+            self.game_state.time_of_day = 'day'
+            
+            print(f"💤 Day advanced → {self.game_state.current_day.upper()}, morning")
+        else:
+            # Future: handle partial day advancement
+            print(f"⏳ Advanced {hours} hours (partial day not yet implemented)")
+    
+    def handle_party_rested(self, data):
+        """
+        TEMPORARY: Handle PARTY_RESTED event - heal party to full
+        TODO: Move to dedicated RestManager/PartyManager when implemented
+        """
+        source = data.get('source', 'unknown')
+        print(f"💤 PARTY_RESTED from {source}")
+        
+        # Heal all party members to full HP
+        if hasattr(self.game_state, 'party_members'):
+            for member_id in self.game_state.party_members:
+                member_data = self.game_state.get_party_member_data(member_id)
+                if member_data:
+                    # Party members use: current_hp and max_hit_points
+                    max_hp = member_data.get('max_hit_points', member_data.get('hp', 20))
+                    member_data['current_hp'] = max_hp
+                    print(f"  ❤️ {member_id} healed to {max_hp} HP")
+        
+        # Also heal player (uses hp and max_hp)
+        if hasattr(self.game_state, 'character'):
+            max_hp = self.game_state.character.get('hit_points', 20)
+            self.game_state.character['hp'] = max_hp
+            print(f"  ❤️ Player healed to {max_hp} HP")
+        
+        # Auto-save after resting
+        if hasattr(self, 'event_manager') and hasattr(self.game_state, 'game_controller'):
+            # Call save directly instead of emitting event
+            controller = self.game_state.game_controller
+            if hasattr(controller, 'save_manager'):
+                success = controller.save_manager.save_game(0)
+                if success:
+                    print("💾 Auto-saved after rest (slot 0)")
+                else:
+                    print("⚠️ Auto-save failed after rest")

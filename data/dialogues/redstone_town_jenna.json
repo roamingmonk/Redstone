@@ -1,0 +1,215 @@
+{
+  "id": "redstone_town_jenna",
+  "npc_name": "Jenna",
+  "states": {
+    "first_meeting": {
+      "introduction": [
+        "*A tired woman looks up from wiping down a table.*",
+        "Old Knob Inn. Rooms are 10 gold a night.",
+        "That includes a bed and breakfast in the morning.",
+        "You want one or not? I've got work to do."
+      ],
+      "options": [
+        {
+          "id": "rest_normal",
+          "text": "I'll take a room. [10 gold]",
+          "requirements": {
+            "gold": 10
+          },
+          "effects": [
+            {"type": "spend_gold", "amount": 10},
+            {"type": "rest_party"},
+            {"type": "advance_time", "hours": 8},
+            {"type": "set_flag", "flag": "jenna_talked", "value": true}
+          ],
+          "next_state": "after_rest"
+        },
+        {
+          "id": "rest_discount",
+          "text": "10 gold seems steep for such a small inn. Can we work something out?",
+          "requirements": {
+            "min_charisma": 14,
+            "gold": 5
+          },
+          "next_state": "charisma_discount"
+        },
+        {
+          "id": "too_expensive",
+          "text": "Too expensive for me right now.",
+          "next_state": "no_room"
+        },
+        {
+          "id": "just_looking",
+          "text": "Just looking around, thanks.",
+          "effects": [
+            {"type": "set_flag", "flag": "jenna_talked", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "charisma_discount": {
+      "introduction": [
+        "*She eyes you for a moment, then sighs.*",
+        "Fine. You seem decent enough.",
+        "Five gold. But don't go spreading it around - I can't afford to discount everyone."
+      ],
+      "options": [
+        {
+          "id": "accept_discount",
+          "text": "Thank you, that's very kind. [5 gold]",
+          "requirements": {
+            "gold": 5
+          },
+          "effects": [
+            {"type": "spend_gold", "amount": 5},
+            {"type": "rest_party"},
+            {"type": "advance_time", "hours": 8},
+            {"type": "set_flag", "flag": "jenna_gave_discount", "value": true},
+            {"type": "set_flag", "flag": "jenna_talked", "value": true}
+          ],
+          "next_state": "after_rest_discount"
+        },
+        {
+          "id": "decline_discount",
+          "text": "Actually, I'll pass for now.",
+          "next_state": "no_room"
+        }
+      ]
+    },
+
+    "after_rest": {
+      "introduction": [
+        "*You wake feeling refreshed after a decent night's sleep.*",
+        "*Jenna has left a simple breakfast on the table - bread and cheese.*",
+        "Room's yours until noon. Then I need it for the next guest."
+      ],
+      "options": [
+        {
+          "id": "thanks_rest",
+          "text": "Thank you for the room.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "after_rest_discount": {
+      "introduction": [
+        "*You wake feeling refreshed after a decent night's sleep.*",
+        "*Jenna has left a simple breakfast -", "and it's a bit nicer than you expected.*",
+        "*She nods at you as you head out.*",
+        "Safe travels and come again."
+      ],
+      "options": [
+        {
+          "id": "thanks_discount",
+          "text": "Thank you, Jenna.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "no_room": {
+      "introduction": [
+        "*She shrugs and goes back to cleaning.*",
+        "Suit yourself. Come back when you can afford it."
+      ],
+      "options": [
+        {
+          "id": "leave_no_room",
+          "text": "I'll be back.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "returning_customer": {
+      "introduction": [
+        "*She glances up as you enter.*",
+        "Back again? Same rate - 10 gold for the night."
+      ],
+      "options": [
+        {
+          "id": "rest_again",
+          "text": "I'll take a room. [10 gold]",
+          "requirements": {
+            "gold": 10
+          },
+          "effects": [
+            {"type": "spend_gold", "amount": 10},
+            {"type": "rest_party"},
+            {"type": "advance_time", "hours": 8}
+          ],
+          "next_state": "after_rest"
+        },
+        {
+          "id": "rest_discount_return",
+          "text": "How about that discount again?",
+          "requirements": {
+            "flags": {
+              "jenna_gave_discount": true
+            },
+            "gold": 5
+          },
+          "next_state": "discount_return"
+        },
+        {
+          "id": "not_now",
+          "text": "Not right now, thanks.",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "returning_discount_customer": {
+      "introduction": [
+        "*She nods as you walk in.*",
+        "Back again? Five gold, like before.",
+        "I got your favorite room ready for you."
+      ],
+      "options": [
+        {
+          "id": "accept_discount",
+          "text": "Thanks, Jenna. [5 gold]",
+          "requirements": {
+            "gold": 5
+          },
+          "effects": [
+            {"type": "spend_gold", "amount": 5},
+            {"type": "rest_party"},
+            {"type": "advance_time", "hours": 8}
+          ],
+          "next_state": "after_rest_discount"
+        },
+        {
+          "id": "not_tonight",
+          "text": "Not tonight, but thanks.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "discount_return": {
+      "introduction": [
+        "*She almost smiles.*",
+        "Alright, alright. Five gold, same as before.",
+        "You're lucky I remember faces."
+      ],
+      "options": [
+        {
+          "id": "pay_discount_return",
+          "text": "Thanks, Jenna. [5 gold]",
+          "requirements": {
+            "gold": 5
+          },
+          "effects": [
+            {"type": "spend_gold", "amount": 5},
+            {"type": "rest_party"},
+            {"type": "advance_time", "hours": 8}
+          ],
+          "next_state": "after_rest_discount"
+        }
+      ]
+    }
+  }
+}

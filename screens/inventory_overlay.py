@@ -112,6 +112,7 @@ class InventoryOverlay(BaseTabbedOverlay):
                 surface.blit(status_surface, (status_x, status_y))
 
         player_gold = game_state.character.get('gold', 0)
+        
         draw_text(surface, f"Gold: {player_gold} gp",
                           fonts.get('fantasy_small', fonts['normal']), 670, 580, BRIGHT_GREEN)
 

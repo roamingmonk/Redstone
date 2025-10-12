@@ -465,7 +465,7 @@ class ActionHubLocation(BaseLocation):
             
             if encounter_id:
                 # Save current screen before transitioning to combat
-                game_state.previous_screen = f"{self.location_id}_{self.current_area}"
+                game_state.previous_screen = game_state.screen  # ✅ USE ACTUAL CURRENT SCREEN
                 # Store combat data in game state
                 game_state.current_combat_encounter = encounter_id
                 if combat_context:

@@ -18,6 +18,7 @@ A = Alley/Back street
 E = Empty lot
 R = Main road (to/from town)
 g = Ground/grass (outside walls)
+I = Inn
 """
 
 # === TOWN MAP CONSTANTS ===
@@ -53,7 +54,8 @@ TILE_TYPES = {
     'A': 'alley',         # Back streets
     'E': 'empty_lot',     # Empty areas
     'R': 'main_road',     # Main road to/from town
-    'g': 'ground_grass',   # Ground/grass outside walls (lowercase g)
+    'g': 'ground_grass',  # Ground/grass outside walls (lowercase g)
+    'I': 'Old knob Inn'   # Old Inn to take a rest
 }
 
 # === WALKABLE TILES ===
@@ -92,6 +94,11 @@ BUILDING_TILES = {
         'name': 'Town Gate',
         'screen': 'world_map',
         'action': 'Exit to world map'
+    },
+    'inn': {
+        'name': 'Old Knob Inn',
+        'screen': 'old_knob_inn',
+        'action': 'Enter Inn'
     }
 }
 
@@ -167,6 +174,16 @@ BUILDING_ENTRANCES = {
             'screen': 'world_map',
             'action': 'Exit to world map (South)'
         }    
+    },
+    'inn': {
+        'building_pos': (4, 6),
+        'entrance_tiles': [(5, 6)],  
+        'info': {
+            'name': "Old Knob Inn",
+            'interaction_type': 'npc_dialogue',
+            'npc_id': 'jenna',
+            'action': 'Talk to Jenna'
+        }    
     }
 }
 
@@ -183,8 +200,8 @@ TOWN_NPCS = {
     
     'guard_north': {
         'sprite_type': 'guard',
-        'default_position': (8, 2),  # Near north gate
-        'interaction_tiles': [(7, 2), (8, 1), (9, 2), (8, 3)],
+        'default_position': (7, 2),  # Near north gate
+        'interaction_tiles': [(8, 2), (6, 2)],
         'display_name': 'Town Guard',
         'dialogue_id': 'guard_generic',
         'conditions': None,
@@ -193,8 +210,8 @@ TOWN_NPCS = {
     
     'guard_south': {
         'sprite_type': 'guard',
-        'default_position': (7, 11),  # Near south gate
-        'interaction_tiles': [(6, 11), (7, 10), (8, 11), (7, 12)],
+        'default_position': (8, 11),  # Near south gate
+        'interaction_tiles': [(7, 11), (8, 10), (9, 11)],
         'display_name': 'Town Guard',
         'dialogue_id': 'guard_generic',
         'conditions': None,
@@ -215,8 +232,8 @@ TOWN_NPCS = {
     
     'noble_lady': {
         'sprite_type': 'noble',
-        'default_position': (10, 6),  # Near church
-        'interaction_tiles': [(9, 6), (10, 5), (11, 6), (10, 7)],
+        'default_position': (5, 5),  # Near church
+        'interaction_tiles': [(5, 6), (5, 4)],
         'display_name': 'Lady Ashworth',
         'dialogue_id': 'noble_lady',
         'conditions': {
@@ -229,8 +246,8 @@ TOWN_NPCS = {
     
     'beggar': {
         'sprite_type': 'citizen',
-        'default_position': (4, 8),  # Near alley
-        'interaction_tiles': [(4, 7), (3, 8), (5, 8), (4, 9)],  
+        'default_position': (2, 2),  # Near alley
+        'interaction_tiles': [(2, 3), (3, 2)],  
         'display_name': 'Poor Beggar',
         'dialogue_id': 'beggar',
         'conditions': None,
@@ -263,6 +280,7 @@ TILE_COLORS = {
     'potion_shop': (138, 43, 226),  # Purple potion shop
     'church': (245, 245, 220),      # Beige/cream church
     'mayor_office': (120, 80, 60),  # Tan civic building
+    'inn': (120, 80, 60),           # Tan Inn building
     'town_square': (100, 149, 237), # Blue fountain
     'gate_north': (160, 160, 160),        # Light gray gate
     'gate_south': (160, 160, 160),        # Light gray gate
@@ -285,14 +303,14 @@ TOWN_MAP = [
     "#[.HH.HH.HHHAHH.]#",  # Row 3 - Houses with alley (corner battlements)
     "g[.HH.HH.HHHAHH.]g",  # Row 4 - Houses with alley + side grass
     "g[.HH.HH.BHHAHH.]g", # Row 5 - Bernard's store (B at col 9) + side grass
-    "g[.HH.HSSS......]g",  # Row 6 - Town square (S) begins + side grass
+    "g[.HI.HSSS......]g",  # Row 6 - Inn... Town square (S) begins + side grass
     "g[.HH.TSSSCCH.H.]g",  # Row 7 - Tavern (T at col 5), square, church (C at cols 9-10) + side grass
     "g[.....SSSCCH.H.]g",  # Row 8 - Square/church continue + side grass
     "g[.HP.HM.HHHH.H.]g",  # Row 9 - Potion shop (P at col 3), Mayor (M at col 6) + side grass
     "#[.HH.HH.HHHH.E.]#",  # Row 10 - Houses, empty lot (E at col 14) (corner battlements)
     "#[..............]#",  # Row 11 - Street (corner battlements)
     "#:+++++t++++++++,#",  # Row 12 - Bottom wall with south gate (G at col 7)
-    "####gggRgggggg####"   # Row 13 - Bottom border: corner towers, grass, south road (R at col 7)
+    "gggggggRgggggggggg"   # Row 13 - Bottom border: corner towers, grass, south road (R at col 7)
 ]
 
 def get_tile_type(x, y):

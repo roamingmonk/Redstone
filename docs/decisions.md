@@ -1979,6 +1979,34 @@ base_location.py registers portraits as clickables during render
 input_handler.py handles PORTRAIT_CLICKED event, emits OVERLAY_TOGGLE with tab selection
 **Benefits:** Intuitive UI following classic CRPG conventions (Pool of Radiance, Ultima), event-driven architecture maintains separation of concerns, no GameController changes needed.
 
+# ADR-125A: A. Fixed Player HP Display and B. Inn rest system
+# Date: October 12, 2025
+# Status: Implemented
+Context: Player character HP displayed incorrectly in combat UI (stuck at max HP) while combat log showed correct damage values.
+Problem: Combat UI read from stale character_data copy created at combat start instead of game_state.character source of truth.
+Decision: Modified _render_combat_ui_panel and _render_battlefield_units to read player HP directly from game_state.character; NPCs continue reading from party_member_data.
+Implementation: Added conditional logic checking char_id == 'player' to fetch current_hp from controller.game_state.character; passed controller parameter down to _render_battlefield_units method.
+Files Modified: ui/combat_system.py (_render_combat_ui_panel HP display, _render_battlefield_units signature and HP bar rendering)
+Consequences: Player HP displays now sync correctly with actual damage; both status bar under sprite and Active panel show accurate HP values; enemies and NPCs already worked due to different update pattern.
+
+# ADR-125B: Inn Rest System & Jenna Innkeeper Implementation
+# Status: Accepted
+# Date: October 12, 2025
+# Context: Game needed rest/healing mechanics and time progression. Jenna NPC converted from shop clerk to innkeeper at Old Knob Inn.
+# Decision: Implemented inn rest system using event-driven architecture with dialogue effects triggering rest, healing, time advancement, and auto-save.
+**Implementation:**
+Created redstone_town_jenna.json dialogue with pricing (10 gold standard, 5 gold with 14+ charisma)
+Added dialogue effects: spend_gold, rest_party, advance_time in DialogueEngine
+Temporary handlers in DebugManager: handle_party_rested() heals all to max HP, handle_time_advanced() advances day/time
+Fixed gold deduction: uses character['gold'] not game_state.gold
+Fixed HP healing: player uses hit_points for max, party uses max_hit_points
+Added town position to save/load: town_player_x, town_player_y
+Auto-save after rest via direct save_manager.save_game(0) call
+Updated dialogue_state_mapping for Jenna: conditional routing based on jenna_gave_discount flag
+**Technical Details:** Event chain: dialogue choice → spend_gold → PARTY_RESTED event → heal all → TIME_ADVANCED event → advance day → auto-save. Discount remembered via flag check in state mapping.
+Consequences: Players can rest at inn for healing/time progression. System ready for migration to dedicated TimeManager/RestManager. Fully data-driven state routing via existing dialogue_state_mapping system.
+Files Modified: data/dialogues/redstone_town_jenna.json, data/narrative_schema.json, game_logic/dialogue_engine.py, utils/debug_manager.py, game_logic/save_manager.py, data/maps/redstone_town_map.py
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

@@ -104,9 +104,16 @@ class QuestManager:
     def activate_quest(self, quest_id):
         """Activate a quest and make it trackable"""
         if quest_id in self.quests:
-            self.quests[quest_id].status = "active"
+            quest = self.quests[quest_id]
+            quest.status = "active"
             self.active_quest_ids.add(quest_id)
-            print(f"🎯 Quest activated: {self.quests[quest_id].title}")
+            print(f"🎯 Quest activated: {quest.title}")
+            
+            # DEBUG: Show initial objective states
+            print(f"  📋 Initial objectives:")
+            for obj in quest.objectives:
+                print(f"    {'✅' if obj.completed else '❌'} {obj.id}: {obj.description}")
+            
             return True
         print(f"⚠️ Cannot activate unknown quest: {quest_id}")
         return False
@@ -123,7 +130,7 @@ class QuestManager:
     def update_from_game_state(self):
         """Update quest progress based on narrative schema"""
         from utils.narrative_schema import narrative_schema
-        
+        #print(f"\n🔄 update_from_game_state() called")
         quest_mappings = narrative_schema.schema.get("quest_mappings", {})
         
         for quest_id, quest_data in quest_mappings.items():
@@ -131,18 +138,63 @@ class QuestManager:
             if not quest:
                 continue
                 
-            # Handle quest activation based on activation_flag
+           # Handle quest activation based on activation_flag
             activation_flag = quest_data.get("activation_flag")
-            if activation_flag and getattr(self.game_state, activation_flag, False):
-                if quest.status == "inactive":
-                    self.activate_quest(quest_id)
-            
+            if activation_flag:
+                # Check if it's a complex condition (contains operators) or simple flag
+                is_complex = " || " in activation_flag or " && " in activation_flag or ">=" in activation_flag
+                
+                if is_complex:
+                    # Evaluate as condition
+                    if self._evaluate_condition(activation_flag):
+                        if quest.status == "inactive":
+                            self.activate_quest(quest_id)
+                else:
+                    # Simple flag check
+                    if getattr(self.game_state, activation_flag, False):
+                        if quest.status == "inactive":
+                            self.activate_quest(quest_id)
+                        
              # Update objectives based on flag requirements
             objectives = quest_data.get("objectives", {})
             for obj_id, required_flags in objectives.items():
+                
+                # Get current objective state
+                quest_obj = next((obj for obj in quest.objectives if obj.id == obj_id), None)
+                if not quest_obj:
+                    continue
+                
+                # Skip if already completed
+                if quest_obj.completed:
+                    continue
+                
                 if isinstance(required_flags, list):
                     # Check if it's a single-item list with a condition string
-                    if len(required_flags) == 1 and ">=" in required_flags[0]:
+                    if len(required_flags) == 1 and self._is_complex_condition(required_flags[0]):
+                        # Treat as condition string
+                        result = self._evaluate_condition(required_flags[0])
+                        #print(f"  [QUEST] {quest_id}.{obj_id}: complex condition '{required_flags[0]}' = {result}")
+                        if result:
+                            self.complete_objective(quest_id, obj_id)
+                    else:
+                        # Normal list of flags - check if all required flags are true
+                        flag_states = {flag: getattr(self.game_state, flag, False) for flag in required_flags}
+                        all_flags_true = all(flag_states.values())
+                        #print(f"  [QUEST] {quest_id}.{obj_id}: flags {flag_states} -> all_true = {all_flags_true}")
+                        if all_flags_true:
+                            self.complete_objective(quest_id, obj_id)
+                elif isinstance(required_flags, str):
+                    # Handle complex conditions like "recruited_count >= 1"
+                    result = self._evaluate_condition(required_flags)
+                    #print(f"  [QUEST] {quest_id}.{obj_id}: condition '{required_flags}' = {result}")
+                    if result:
+                        self.complete_objective(quest_id, obj_id)
+                
+                #####################
+                
+                if isinstance(required_flags, list):
+                    # Check if it's a single-item list with a condition string
+                    if len(required_flags) == 1 and self._is_complex_condition(required_flags[0]):
                         # Treat as condition string
                         if self._evaluate_condition(required_flags[0]):
                             self.complete_objective(quest_id, obj_id)
@@ -156,25 +208,45 @@ class QuestManager:
                     if self._evaluate_condition(required_flags):
                         self.complete_objective(quest_id, obj_id)
     
+    def _is_complex_condition(self, condition):
+        """Check if a condition string contains operators (is complex)"""
+        return " || " in condition or " && " in condition or ">=" in condition or "<=" in condition
+    
     def _evaluate_condition(self, condition):
-        """Evaluate complex condition strings like 'recruited_count >= 1'"""
+        """Evaluate complex condition strings like 'recruited_count >= 1' or 'flag1 || flag2'"""
         try:
             # Handle recruitment count condition
             if "recruited_count >= " in condition:
                 required_count = int(condition.split(">=")[1].strip())
-                if hasattr(self.game_state, 'recruited_count'):      #recaluclate recreuited_count to avoid cached/stale value
-                    current_count = self.game_state.recruited_count  # This triggers @property
+                if hasattr(self.game_state, 'recruited_count'):
+                    current_count = self.game_state.recruited_count
                 else:
                     current_count = 0
                 return current_count >= required_count
             
-            # Handle other dynamic conditions here as needed
-            # For now, treat unknown conditions as False
-            print(f"⚠️ Unknown condition format: {condition}")
-            return False
+            # Handle OR conditions (||)
+            if " || " in condition:
+                parts = condition.split(" || ")
+                for part in parts:
+                    part = part.strip()
+                    if getattr(self.game_state, part, False):
+                        return True  # Any one being True makes the whole thing True
+                return False
+            
+            # Handle AND conditions (&&)
+            if " && " in condition:
+                parts = condition.split(" && ")
+                for part in parts:
+                    part = part.strip()
+                    if not getattr(self.game_state, part, False):
+                        return False  # Any one being False makes the whole thing False
+                return True
+            
+            # Simple flag check - just try to get the attribute
+            return getattr(self.game_state, condition, False)
             
         except Exception as e:
-            print(f"⚠️ Error evaluating condition '{condition}': {e}")
+            print(f"⚠️ Condition evaluation error: {condition} - {e}")
             return False
     
     def get_active_quests(self):

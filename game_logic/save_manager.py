@@ -60,12 +60,17 @@ class SaveManager:
                 # Quest system data 
                 'quest_system': quest_system_data,
 
-                # NPC system data (Phase 5-6)
+                # NPC system data
                 'npc_position_overrides': getattr(self.game_state, 'npc_position_overrides', {}),
                 'npcs_talked_today': list(getattr(self.game_state, 'npcs_talked_today', set())),
                 'npc_interaction_flags': getattr(self.game_state, 'npc_interaction_flags', {}),
+                #Day / Time data
                 'time_of_day': getattr(self.game_state, 'time_of_day', 'day'),
                 'current_day': getattr(self.game_state, 'current_day', 'monday'),
+
+                # Town navigation position
+                'town_player_x': getattr(self.game_state, 'town_player_x', None),
+                'town_player_y': getattr(self.game_state, 'town_player_y', None),
 
                 # Game progression
                 'current_screen': self.game_state.screen,
@@ -250,19 +255,24 @@ class SaveManager:
                 self.game_state.player_statistics = save_data['player_statistics']
                 print(f"   📊 Statistics: {self.game_state.player_statistics['npcs_met']} NPCs met")
             
-            # Restore NPC system data (Phase 5-6) - with backward compatibility
+            # Restore NPC system data 
             self.game_state.npc_position_overrides = save_data.get('npc_position_overrides', {})
             self.game_state.npcs_talked_today = set(save_data.get('npcs_talked_today', []))
             self.game_state.npc_interaction_flags = save_data.get('npc_interaction_flags', {})
             self.game_state.time_of_day = save_data.get('time_of_day', 'day')
             self.game_state.current_day = save_data.get('current_day', 'monday')
 
+            # Town position restoration 
+            if save_data.get('town_player_x') is not None:
+                self.game_state.town_player_x = save_data.get('town_player_x')
+                self.game_state.town_player_y = save_data.get('town_player_y')
+                print(f"📍 Town position restored: ({self.game_state.town_player_x}, {self.game_state.town_player_y})")
+
             if 'npcs_encountered' in save_data:
                 self.game_state.npcs_encountered = set(save_data['npcs_encountered'])  # Convert list back to set
             
             # Restore game progression
-            #TODO do we need the broken blade hard code?
-            self.game_state.screen = save_data.get('current_screen', 'broken_blade')
+            self.game_state.screen = save_data.get('current_screen')
             self.game_state.previous_screen = save_data.get('previous_screen', None)
             self.game_state.pending_combat_encounter = save_data.get('pending_combat_encounter', None)
 
@@ -333,7 +343,7 @@ class SaveManager:
             else:
                 print("⚠️ No narrative flags found in save data - may be old save format")
             
-            # *** ADD: Restore computed data and sync party ***
+            # *** Restore computed data and sync party ***
             computed_data = save_data.get('computed_data', {})
             if computed_data:
                 # Restore party_members list (this might override the earlier restore, which is fine)

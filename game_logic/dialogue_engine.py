@@ -492,9 +492,9 @@ class DialogueEngine:
                             location_id = getattr(self.game_state, f'{npc_id}_current_location', None)
                             if location_id:
                                # Some locations need _main suffix, others dont
-                               if location_id == 'broken_blade':
-                                   target_screen = f'{location_id}_main'
-                               else:
+                            #    if location_id == 'broken_blade':
+                            #        target_screen = f'{location_id}_main'
+                            #    else:
                                    target_screen = location_id
 
                         if target_screen:
@@ -765,7 +765,40 @@ class DialogueEngine:
                 return f"Opening shop for {merchant_id}"
             return None
 
-        # 5) default ---------------------------------------------------------------
+        # 5) spend_gold  -----------------------------------------------------------
+        elif effect_type == 'spend_gold':
+            amount = effect.get('amount', 0)
+            if amount > 0:
+                current_gold = self.game_state.character.get('gold', 0)
+                if current_gold >= amount:
+                    self.game_state.character['gold'] = current_gold - amount
+                    print(f"💰 Spent {amount} gold (was {current_gold}, now {self.game_state.character['gold']})")
+                    return f"Spent {amount} gold"
+                else:
+                    print(f"⚠️ Not enough gold: have {current_gold}, need {amount}")
+                    return None
+            return None
+
+        # 6) rest_party  -----------------------------------------------------------
+        elif effect_type == 'rest_party':
+            # Emit event for future rest system
+            if self.event_manager:
+                self.event_manager.emit('PARTY_RESTED', {'source': 'inn'})
+                return "Party rested"
+            return None
+
+        # 7) advance_time  ---------------------------------------------------------
+        elif effect_type == 'advance_time':
+            hours = effect.get('hours', 8)
+            # Emit event for time system
+            if self.event_manager:
+                self.event_manager.emit('TIME_ADVANCED', {
+                    'hours': hours,
+                    'source': 'rest'
+                })
+                return f"Time advanced {hours} hours"
+            return None
+        
         return None
 
 
