@@ -56,8 +56,8 @@ class ItemLoader:
             merchant_items = self.items_data.get('merchant_items', [])
             print(f"✅ Found {len(merchant_items)} merchant items")  # DEBUG
             
-            #for item in merchant_items:
-                #print(f"✅ Item loaded: id={item.get('id')}, name={item.get('name')}, base_cost={item.get('base_cost')}")  # DEBUG
+            for item in merchant_items:
+                print(f"✅ Item loaded: id={item.get('id')}, name={item.get('name')}, base_cost={item.get('base_cost')}")  # DEBUG
                 
         except FileNotFoundError:
             print("❌ Error: data/items.json not found!")

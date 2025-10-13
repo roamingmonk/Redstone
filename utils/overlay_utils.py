@@ -5,21 +5,16 @@ Shared functions for popup screens (inventory, quest log, character sheet)
 
 import pygame
 from utils.graphics import draw_centered_text
+from utils.constants import (BLACK, WHITE, SOFT_YELLOW, CORNFLOWER_BLUE,
+                             DARKEST_GRAY, DARK_GRAY, LIGHTEST_GRAY, VERY_DARK_GRAY,
+                             BROWN, DARK_BROWN, RECESSED_BROWN, LIGHT_BROWN, BRIGHT_GREEN)
 
 # Colors for popup screens
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GRAY = (170, 170, 170)
-DARK_GRAY = (85, 85, 85)
-BROWN = (101, 67, 33)
-DARK_BROWN = (70, 45, 20)
-YELLOW = (255, 255, 85)
-CYAN = (0, 255, 255)
-BRIGHT_GREEN = (85, 255, 85)
-YELLOW = (255, 255, 85)
+#BROWN = (101, 67, 33)
+#DARK_BROWN = (70, 45, 20)
 
 # Let's try this color for row highlighting - classic RPG blue
-SELECTION_COLOR = (100, 150, 255)  # Light blue
+SELECTION_COLOR = CORNFLOWER_BLUE  # Light blue
 
 def draw_popup_background(surface):
     """Draw the brown background for popup screens"""
@@ -30,14 +25,14 @@ def draw_chunky_border(surface, x, y, width, height, thickness=4):
     # Outer white border
     pygame.draw.rect(surface, WHITE, (x, y, width, height), thickness)
     # Inner dark border for depth
-    pygame.draw.rect(surface, DARK_GRAY, (x + thickness, y + thickness, 
+    pygame.draw.rect(surface, DARKEST_GRAY, (x + thickness, y + thickness, 
                     width - 2*thickness, height - 2*thickness), 2)
 
 def draw_tab_button(surface, x, y, width, height, text, font, active=False):
     """Draw a folder-style tab (active or inactive)"""
     if active:
         # Active tab: lighter color, raised appearance
-        color = (180, 160, 140)  # Light brown
+        color = LIGHT_BROWN  # Light brown
         text_color = BLACK
         border_color = WHITE
         # Draw slightly taller to show it's "in front"
@@ -45,9 +40,9 @@ def draw_tab_button(surface, x, y, width, height, text, font, active=False):
         tab_y = y - 2
     else:
         # Inactive tab: darker, recessed appearance  
-        color = (120, 100, 80)   # Dark brown
-        text_color = (200, 200, 200)  # Light gray text
-        border_color = DARK_GRAY
+        color = RECESSED_BROWN   # DarkISH brown  
+        text_color = LIGHTEST_GRAY  # Light gray text
+        border_color = DARKEST_GRAY
         tab_height = height
         tab_y = y
     
@@ -76,23 +71,23 @@ def draw_item_row(surface, x, y, width, height, selected=False):
         pygame.draw.rect(surface, WHITE, (x, y, width, height))
     
     # Draw row border
-    pygame.draw.rect(surface, DARK_GRAY, (x, y, width, height), 1)
+    pygame.draw.rect(surface, DARKEST_GRAY, (x, y, width, height), 1)
     
     return pygame.Rect(x, y, width, height)
 
 def draw_button(surface, x, y, width, height, text, font, pressed=False, selected=False, enabled=True):
     """Draw a retro-style button"""
     if not enabled:
-        color = DARK_GRAY
-        border_color = DARK_GRAY
-        text_color = (60, 60, 60)
+        color = DARKEST_GRAY
+        border_color = DARKEST_GRAY
+        text_color = VERY_DARK_GRAY
     elif selected:
-        color = YELLOW
+        color = SOFT_YELLOW
         border_color = WHITE
         text_color = BLACK
     else:
-        color = DARK_GRAY if pressed else GRAY
-        border_color = DARK_GRAY if pressed else WHITE
+        color = DARKEST_GRAY if pressed else DARK_GRAY
+        border_color = DARKEST_GRAY if pressed else WHITE
         text_color = BROWN
     
     pygame.draw.rect(surface, color, (x, y, width, height))

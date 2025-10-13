@@ -3,13 +3,15 @@
 Generic Screen Handlers - Replace hardcoded click detection
 """
 import pygame
-
+from screens.title_menu import draw_main_menu
+from screens.gambling_dice import (draw_dice_bets_screen, draw_dice_rules_screen,
+                                     draw_dice_rolling_screen, draw_dice_results_screen,
+                                     draw_dice_rules_screen)
 
 def handle_main_menu_clicks(mouse_pos, game_controller, event_manager):
     """Handle main menu clicks using actual button coordinates"""
     
     # Get the real button rectangles from the drawing function
-    from screens.title_menu import draw_main_menu
     temp_surface = pygame.Surface((1024, 768))
     new_game_button, load_game_button, quit_button = draw_main_menu(
         temp_surface, game_controller.game_state, game_controller.fonts
@@ -50,8 +52,7 @@ def handle_developer_splash_clicks(mouse_pos, game_controller, event_manager):
 def handle_dice_bets_clicks(mouse_pos, game_controller, event_manager):
     """Handle dice betting screen clicks using event-driven architecture"""
     
-    from screens.gambling_dice import draw_dice_bets_screen
-    import pygame
+
     
     temp_surface = pygame.Surface((1024, 768))
     bet_5_btn, bet_10_btn, bet_25_btn, rules_btn, back_btn = draw_dice_bets_screen(
@@ -83,9 +84,6 @@ def handle_dice_bets_clicks(mouse_pos, game_controller, event_manager):
 def handle_dice_rolling_clicks(mouse_pos, game_controller, event_manager):
     """Handle dice rolling screen clicks (skip animation or continue)"""
     
-    from screens.gambling_dice import draw_dice_rolling_screen
-    import pygame
-    
     temp_surface = pygame.Surface((1024, 768))
     clickable_area = draw_dice_rolling_screen(
         temp_surface, game_controller.game_state, game_controller.fonts, 
@@ -109,11 +107,7 @@ def handle_dice_rolling_clicks(mouse_pos, game_controller, event_manager):
     return False
 
 def handle_dice_results_clicks(mouse_pos, game_controller, event_manager):
-    """Handle dice results screen clicks (play again or quit)"""
-    
-    from screens.gambling_dice import draw_dice_results_screen
-    import pygame
-    
+    """Handle dice results screen clicks (play again or quit)"""    
     temp_surface = pygame.Surface((1024, 768))
     buttons = draw_dice_results_screen(
         temp_surface, game_controller.game_state, game_controller.fonts, 
@@ -140,11 +134,7 @@ def handle_dice_results_clicks(mouse_pos, game_controller, event_manager):
     return False
 
 def handle_dice_rules_clicks(mouse_pos, game_controller, event_manager):
-    """Handle dice rules screen clicks (back button)"""
-    
-    from screens.gambling_dice import draw_dice_rules_screen
-    import pygame
-    
+    """Handle dice rules screen clicks (back button)"""    
     temp_surface = pygame.Surface((1024, 768))
     back_btn = draw_dice_rules_screen(
         temp_surface, game_controller.game_state, game_controller.fonts, 

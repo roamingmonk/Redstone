@@ -24,7 +24,6 @@ from utils.narrative_schema import narrative_schema
 from utils.stats_calculator import get_stats_calculator
 from utils.constants import MALE_PORTRAITS_PATH
 
-
 class CharacterOverlay(BaseTabbedOverlay):
     """
     Character information overlay - 2-tab implementation
@@ -200,9 +199,17 @@ class CharacterOverlay(BaseTabbedOverlay):
         current_hp = character.get('current_hp', 10)
         HP_label = normal_font.render("Hit Points: ", True, WHITE)
         surface.blit(HP_label, (left_section_x, current_y))
+        hp_percent = (current_hp / max_hp *100) if max_hp > 0 else 0
+
+        if hp_percent > 66:
+            hp_color = BRIGHT_GREEN
+        elif hp_percent > 33:
+            hp_color = SOFT_YELLOW
+        else:
+            hp_color = RED
 
         max_hp = character.get('hit_points', 10)
-        value_surface = normal_font.render(f" {current_hp}/{max_hp}", True, SOFT_YELLOW)
+        value_surface = normal_font.render(f" {current_hp}/{max_hp}", True, hp_color)
         surface.blit(value_surface, (left_section_x + HP_label.get_width(), current_y))
         current_y += 45
 
@@ -306,9 +313,6 @@ class CharacterOverlay(BaseTabbedOverlay):
         
         # Load the active player portrait using same logic as character_sheet.py
         try:
-            
-            import os
-            
             active_dir = os.path.join(os.path.dirname(MALE_PORTRAITS_PATH), "active")
             active_path = os.path.join(active_dir, "player.jpg")
             
@@ -331,7 +335,6 @@ class CharacterOverlay(BaseTabbedOverlay):
         pygame.draw.rect(surface, WHITE, 
                         (portrait_x, portrait_y, portrait_size, portrait_size), 2)
         
-
     def _render_abilities_tab(self, surface: pygame.Surface, content_rect: pygame.Rect, 
                          game_state, fonts, images):
         """

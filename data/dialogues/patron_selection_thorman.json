@@ -13,11 +13,43 @@
         { "id": "bye_first", "text": "Another time.", "next_state": "exit" }
       ]
     },
-
+    "first_meeting_post_mayor": {
+      "introduction": [
+        "*The stout dwarf rises as you approach, recognition clear in his eyes.*",
+        "Well met. The Mayor said you'd be coming. Spoke highly of your purpose.",
+        "Vanished folk, darkness stirring... that's a fight worth joining.",
+        "What say you?"
+      ],
+      "options": [
+        { 
+          "id": "ask_story", 
+          "text": "Tell me about your experience first.", 
+          "next_state": "background_with_recruitment" 
+        },
+        {
+          "id": "recruit_immediate",
+          "text": "Join me. We need your hammer and healing.",
+          "requirements": { "flags": { "can_recruit_more": true } },
+          "effects": [{ "type": "set_flag", "flag": "thorman_recruited", "value": true }],
+          "next_state": "recruited_join"
+        },
+        {
+          "id": "party_full",
+          "text": "I'd like your help, but my party is full.",
+          "requirements": { "flags": { "can_recruit_more": false } },
+          "next_state": "recruitment_blocked_brief"
+        },
+        { 
+          "id": "bye_post_mayor", 
+          "text": "Not yet. Stand by.", 
+          "next_state": "exit" 
+        }
+      ]
+    },
     "casual_chat": {
       "introduction": [
         "I do not march without proper cause.",
-        "Speak with the Mayor first. If he vouches for you, we can talk vows and battle plans."
+        "Speak with the Mayor first.", " If he vouches for you, we can talk vows and battle plans."
       ],
       "options": [
         { "id": "ack_mayor_gate", "text": "Understood. I will see the Mayor.", "next_state": "exit" },
@@ -27,7 +59,7 @@
 
     "background": {
       "introduction": [
-        "I have kept watch over shrines and war-camps from the mountains to the marsh.",
+        "I have kept watch over shrines and war-camps, ", "from the mountains to the marsh.",
         "Steel is strong, but faith keeps it steady."
       ],
       "options": [
@@ -40,12 +72,44 @@
         { "id": "bye_bg", "text": "Thank you.", "next_state": "exit" }
       ]
     },
-
+    "background_with_recruitment": {
+      "introduction": [
+        "I have kept watch over shrines and war-camps from the mountains to the marsh.",
+        "Steel is strong, but faith keeps it steady.",
+        "*He grips his holy symbol firmly.*",
+        "Your cause has both. I'm ready."
+      ],
+      "options": [
+        {
+          "id": "recruit_after_bg",
+          "text": "Join me. We'll need your strength and prayers.",
+          "requirements": { "flags": { "can_recruit_more": true } },
+          "effects": [
+            { "type": "set_flag", "flag": "thorman_shared_faith", "value": true },
+            { "type": "set_flag", "flag": "thorman_recruited", "value": true }
+          ],
+          "next_state": "recruited_join"
+        },
+        {
+          "id": "party_full_after_bg",
+          "text": "I'd take you, but my party is full.",
+          "requirements": { "flags": { "can_recruit_more": false } },
+          "effects": [{ "type": "set_flag", "flag": "thorman_shared_faith", "value": true }],
+          "next_state": "recruitment_blocked_brief"
+        },
+        { 
+          "id": "maybe_later_bg", 
+          "text": "Let me consider it.", 
+          "effects": [{ "type": "set_flag", "flag": "thorman_shared_faith", "value": true }],
+          "next_state": "exit" 
+        }
+      ]
+    },
     "recruitment_available": {
       "introduction": [
         "*He sets the tankard down and rises.*",
         "The Mayor says you are fighting this darkness. Good.",
-        "If there is room in your ranks, my hammer and prayers are yours."
+        "If there is room in your ranks, my steel and prayers are yours."
       ],
       "options": [
         {
@@ -67,7 +131,15 @@
         { "id": "blocked_ok", "text": "Understood.", "next_state": "exit" }
       ]
     },
-
+    "recruitment_blocked_brief": {
+      "introduction": [
+        "*He nods solemnly.*",
+        "Make room when you can. This darkness won't wait forever."
+      ],
+      "options": [
+        { "id": "ack_full", "text": "I understand.", "next_state": "exit" }
+      ]
+    },
     "recruited_join": {
       "introduction": [
         "I will keep your people standing. Point me where the need is greatest."

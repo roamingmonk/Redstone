@@ -568,11 +568,27 @@
         {
           "id": "head_out",
           "text": "I'll head there now.",
+          "effects": [
+            {
+              "type": "add_item",
+              "item_id": "henriks_lantern",
+              "quantity": 1,
+              "category": "items"
+            }
+          ],
           "next_state": "exit"
         },
         {
           "id": "more_info",
           "text": "Tell me more about what to expect.",
+          "effects": [
+            {
+              "type": "add_item",
+              "item_id": "henriks_lantern",
+              "quantity": 1,
+              "category": "items"
+            }
+          ],          
           "next_state": "shaft_accepted"
         }
       ]

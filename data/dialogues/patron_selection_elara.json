@@ -5,7 +5,8 @@
   "states": {
     "first_meeting": {
       "introduction": [
-        "*A young mage studies a spellbook, crackling energy playing at her fingertips.*",
+        "*A young mage studies a spellbook, ",
+        "..crackling energy playing at her fingertips.*",
         "Oh! You have quite the interesting aura.",
         "Important business... and dangerous, by the look of it."
       ],
@@ -14,11 +15,44 @@
         { "id": "bye_first", "text": "Maybe later.", "next_state": "exit" }
       ]
     },
-
+    "first_meeting_post_mayor": {
+      "introduction": [
+        "*The young mage's eyes light up as you approach.*",
+        "Ah! You're the one the Mayor mentioned. Your aura practically announces it.",
+        "Missing people, strange phenomena... this is exactly the kind of fieldwork I trained for.",
+        "So, what's the plan?"
+      ],
+      "options": [
+        { 
+          "id": "ask_story", 
+          "text": "Tell me about your training first.", 
+          "next_state": "background_with_recruitment" 
+        },
+        {
+          "id": "recruit_immediate",
+          "text": "Join me. We'll need your magic.",
+          "requirements": { "flags": { "can_recruit_more": true } },
+          "effects": [{ "type": "set_flag", "flag": "elara_recruited", "value": true }],
+          "next_state": "recruited_join"
+        },
+        {
+          "id": "party_full",
+          "text": "I'd like your help, but my party is full.",
+          "requirements": { "flags": { "can_recruit_more": false } },
+          "next_state": "recruitment_blocked_brief"
+        },
+        { 
+          "id": "bye_post_mayor", 
+          "text": "Not yet. I'll be back.", 
+          "next_state": "exit" 
+        }
+      ]
+    },
     "casual_chat": {
       "introduction": [
         "I am not supposed to join expeditions without approval.",
-        "Talk to the Mayor first. If he clears it, we can discuss the arcane details."
+        "Talk to the Mayor first. ",
+        "If he clears it, we can discuss the arcane details."
       ],
       "options": [
         { "id": "ack_mayor_gate", "text": "Alright. I will see the Mayor.", "next_state": "exit" },
@@ -41,11 +75,44 @@
         { "id": "bye_bg", "text": "Thanks.", "next_state": "exit" }
       ]
     },
-
+    "background_with_recruitment": {
+      "introduction": [
+        "Trained in formal academies and messy fieldwork.",
+        "I prefer puzzles with real stakes.",
+        "*She closes her spellbook with purpose.*",
+        "And your situation sounds like it has plenty of both."
+      ],
+      "options": [
+        {
+          "id": "recruit_after_bg",
+          "text": "Join me. We need your expertise.",
+          "requirements": { "flags": { "can_recruit_more": true } },
+          "effects": [
+            { "type": "set_flag", "flag": "elara_shared_magic", "value": true },
+            { "type": "set_flag", "flag": "elara_recruited", "value": true }
+          ],
+          "next_state": "recruited_join"
+        },
+        {
+          "id": "party_full_after_bg",
+          "text": "I'd take you, but my party is full.",
+          "requirements": { "flags": { "can_recruit_more": false } },
+          "effects": [{ "type": "set_flag", "flag": "elara_shared_magic", "value": true }],
+          "next_state": "recruitment_blocked_brief"
+        },
+        { 
+          "id": "maybe_later_bg", 
+          "text": "Let me think about it.", 
+          "effects": [{ "type": "set_flag", "flag": "elara_shared_magic", "value": true }],
+          "next_state": "exit" 
+        }
+      ]
+    },
     "recruitment_available": {
       "introduction": [
         "*Her eyes brighten.*",
-        "The Mayor vouched for you. Missing people and odd phenomena...",
+        "The Mayor vouched for you.",
+        "Missing people and odd phenomena...",
         "Yes. You will need a mage. If there is room, I will help."
       ],
       "options": [
@@ -77,7 +144,15 @@
         { "id": "welcome", "text": "Welcome aboard.", "next_state": "exit" }
       ]
     },
-
+    "recruitment_blocked_brief": {
+      "introduction": [
+        "*She nods with understanding.*",
+        "I'll be here studying when you have space. Time is of the essence, though."
+      ],
+      "options": [
+        { "id": "ack_full", "text": "I'll be back.", "next_state": "exit" }
+      ]
+    },
     "already_recruited": {
       "introduction": [
         "*She checks components and murmurs a cantrip.*",

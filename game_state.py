@@ -2,7 +2,8 @@
 Terror in Redstone - Game State Management
 Contains the GameState class and all character data management
 """
-
+import json
+import os
 import random
 import pygame
 from utils.quest_system import integrate_quest_system 
@@ -201,25 +202,18 @@ class GameState:
             "enemy_positions": {},
             "defeated_enemies": [],
             "combat_log": []
-        }
-
-
-
-
-                
+        }         
         
     # Add computed property for recruitment tracking
     @property
     def recruited_count(self):
         """Calculate number of recruited NPCs using narrative schema"""
-        from utils.narrative_schema import narrative_schema
         recruitment_flags = narrative_schema.schema.get("recruitment_system", {}).get("recruitment_flags", [])
         return sum(1 for flag in recruitment_flags if getattr(self, flag, False))
     
     @property
     def max_party_size(self):
         """Get maximum party size from narrative schema"""
-        from utils.narrative_schema import narrative_schema
         return narrative_schema.schema.get("recruitment_system", {}).get("max_party_size", 4)
     
     @property
@@ -229,8 +223,7 @@ class GameState:
 
     def add_party_member_data(self, npc_id):
         """Add full character data for recruited NPC (called by dialogue system)"""
-        import json
-        import os
+
         
         # Skip if already exists
         if npc_id in self._party_lookup:
@@ -304,7 +297,6 @@ class GameState:
     def sync_party_member_data(self):
         """Sync party_member_data with recruitment flags (called by dialogue system)"""
         # Get current recruited NPCs from flags
-        from utils.narrative_schema import narrative_schema
         recruitment_flags = narrative_schema.schema.get("recruitment_system", {}).get("recruitment_flags", [])
         
         should_have_data = []
@@ -417,7 +409,6 @@ class GameState:
     def get_garrick_inventory(self):
         """Get Garrick's merchant inventory (now fully data-driven!)"""
         
-        #from game_logic.item_manager import item_manager  
         from game_logic.data_manager import get_data_manager
         item_manager = self.item_manager
 

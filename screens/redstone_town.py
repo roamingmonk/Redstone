@@ -10,11 +10,13 @@ from utils.graphics import draw_border, draw_centered_text
 from utils.party_display import draw_party_status_panel
 from utils.tile_graphics import get_tile_graphics_manager
 from utils.narrative_schema import narrative_schema
-
+from data.maps.redstone_town_map import BUILDING_ENTRANCES
+from utils.npc_manager import get_npc_manager
 
 # Import town map data
 try:
     from data.maps.redstone_town_map import *
+
     print(f"DEBUG: Imported spawn point = ({TOWN_SPAWN_X}, {TOWN_SPAWN_Y})")
 except ImportError:
     # Fallback data
@@ -92,8 +94,6 @@ class RedstoneTownNavigation:
         self.required_direction = None
         
         if building_at_entrance:
-            # Get building entrance data from BUILDING_ENTRANCES to find building_pos
-            from data.maps.redstone_town_map import BUILDING_ENTRANCES
             
             # Find which building this entrance belongs to
             for building_id, building_data in BUILDING_ENTRANCES.items():
@@ -215,7 +215,7 @@ class RedstoneTownNavigation:
                         })
                         
                         # Mark as talked
-                        from utils.npc_manager import get_npc_manager
+                        
                         get_npc_manager().mark_npc_talked(npc_id, game_state)
                     else:
                         # NPC dialogue not implemented yet - use placeholder from data

@@ -6,6 +6,8 @@ Follows existing utils pattern for data management utilities
 
 import json
 import os
+import copy
+import uuid
 from typing import Dict, List, Optional
 from utils.constants import *
 
@@ -249,9 +251,6 @@ class CombatDataLoader:
 
     def _create_enemy_instance(self, enemy_template: Dict, spawn_data: Dict) -> Dict:
         """Create an enemy instance from template with spawn data"""
-        import copy
-        import uuid
-        
         enemy = copy.deepcopy(enemy_template)
         
         # Apply spawn position [x, y]

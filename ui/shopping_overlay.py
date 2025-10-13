@@ -10,19 +10,16 @@ from utils.graphics import draw_centered_text
 from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, 
                            LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
                            LAYOUT_BUTTON_Y, LAYOUT_DIALOG_TEXT_Y, LAYOUT_BUTTON_CENTER_Y)
-from utils.constants import (CORNFLOWER_BLUE, BLACK, WHITE, CYAN, RED, WARNING_RED, SOFT_YELLOW)
-
+from utils.constants import (CORNFLOWER_BLUE, BLACK, WHITE, CYAN, RED, WARNING_RED, SOFT_YELLOW,
+                             DARK_GRAY, DARKEST_GRAY, BRIGHT_GREEN, DARK_BROWN)
 from game_logic.item_manager import item_manager  
 
 # trying to fix get_cart_total pull 
 from game_logic.commerce_engine import get_commerce_engine
 
 # Colors
-GRAY = (170, 170, 170)
-DARK_GRAY = (85, 85, 85)
-BRIGHT_GREEN = (85, 255, 85)
-DARK_BROWN = (101, 67, 33)
-#CORNFLOWER_BLUE = (100, 149, 237)  # selection color
+#BRIGHT_GREEN = (85, 255, 85)
+#DARK_BROWN = (101, 67, 33)
 
 # ==========================================
 # TABBED SHOPPING OVERLAY CLASS (NEW)
@@ -250,7 +247,7 @@ class ShoppingOverlay(BaseTabbedOverlay):
         # Info text
         info_y = title_y + 35
         draw_centered_text(surface, f"Buying items at {int(sell_multiplier * 100)}% of value",
-                        fonts.get('fantasy_small', fonts['normal']), info_y, GRAY)
+                        fonts.get('fantasy_small', fonts['normal']), info_y, DARK_GRAY)
         
         # Table headers
         header_y = info_y + 40
@@ -460,18 +457,18 @@ class ShoppingOverlay(BaseTabbedOverlay):
         categories = merchant_config.get('stock_categories', [])
         if categories:
             draw_centered_text(surface, f"Specializes in: {', '.join(categories)}",
-                              fonts['small'], info_y, GRAY)
+                              fonts['small'], info_y, DARK_GRAY)
         
         # Buy/sell rates
         sell_mult = merchant_config.get('sell_multiplier', 0.4)
         rate_y = info_y + 40
         draw_centered_text(surface, f"Buys items at {int(sell_mult * 100)}% of value",
-                          fonts['small'], rate_y, GRAY)
+                          fonts['small'], rate_y, DARK_GRAY)
         
         # Location info (future enhancement)
         location_y = rate_y + 40
         draw_centered_text(surface, "More merchant lore coming soon!",
-                          fonts['small'], location_y, DARK_GRAY)
+                          fonts['small'], location_y, DARKEST_GRAY)  
         
     def handle_mouse_click(self, mouse_pos):
         """Handle mouse clicks on the shopping overlay"""
@@ -732,21 +729,21 @@ class ShoppingOverlay(BaseTabbedOverlay):
 def draw_border(surface, x, y, width, height):
     """Draw a chunky retro border"""
     pygame.draw.rect(surface, WHITE, (x, y, width, height), 3)
-    pygame.draw.rect(surface, GRAY, (x+3, y+3, width-6, height-6), 2)
+    pygame.draw.rect(surface, DARK_GRAY, (x+3, y+3, width-6, height-6), 2)
 ###  Keep for fallback, Need to be moved to utils/graphics.py ###
 def draw_button(surface, x, y, width, height, text, font, pressed=False, selected=False, enabled=True):
     """Draw a retro-style button"""
     if not enabled:
-        color = DARK_GRAY
-        border_color = DARK_GRAY
+        color = DARKEST_GRAY
+        border_color = DARKEST_GRAY
         text_color = (60, 60, 60)
     elif selected:
         color = SOFT_YELLOW
         border_color = WHITE
         text_color = BLACK
     else:
-        color = DARK_GRAY if pressed else GRAY
-        border_color = DARK_GRAY if pressed else WHITE
+        color = DARKEST_GRAY if pressed else DARK_GRAY
+        border_color = DARKEST_GRAY if pressed else WHITE
         text_color = DARK_BROWN
     
     pygame.draw.rect(surface, color, (x, y, width, height))

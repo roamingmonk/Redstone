@@ -6,21 +6,14 @@ The complete gambling experience with betting, rolling, and results
 import pygame
 import random
 from utils.graphics import draw_centered_text
+from utils.constants import (BLACK, WHITE, DARKEST_GRAY,
+                             DARK_GRAY, VERY_DARK_GRAY,GREEN, 
+                             YELLOW, CYAN, RED, BROWN, DARK_BROWN)
 
 # Colors (local copy to avoid import issues)
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GRAY = (170, 170, 170)
-DARK_GRAY = (85, 85, 85)
-LIGHT_GRAY = (200, 200, 200)
-BRIGHT_GREEN = (85, 255, 85)
-YELLOW = (255, 255, 85)
-CYAN = (0, 255, 255)
-RED = (170, 0, 0)
-BROWN = (170, 85, 0)
-DARK_BROWN = (101, 67, 33)
-BLUE = (0, 0, 170)
-
+#BRIGHT_GREEN = (85, 255, 85)
+#DARK_BROWN = (101, 67, 33)
+#BLUE = (0, 0, 170)
 
 def get_gambling_stats(game_state):
     """Get gambling statistics with backward compatibility"""
@@ -45,7 +38,7 @@ def get_gambling_stats(game_state):
 
 
 # Drawing functions (duplicated here to avoid import issues)
-def draw_text_with_shadow(surface, text, font, x, y, text_color=WHITE, shadow_color=DARK_GRAY, shadow_offset=3):
+def draw_text_with_shadow(surface, text, font, x, y, text_color=WHITE, shadow_color=DARKEST_GRAY, shadow_offset=3):
     """Draw text with a shadow effect"""
     shadow_surface = font.render(text, True, shadow_color)
     surface.blit(shadow_surface, (x + shadow_offset, y + shadow_offset))
@@ -56,21 +49,21 @@ def draw_text_with_shadow(surface, text, font, x, y, text_color=WHITE, shadow_co
 def draw_border(surface, x, y, width, height):
     """Draw a chunky retro border"""
     pygame.draw.rect(surface, WHITE, (x, y, width, height), 3)
-    pygame.draw.rect(surface, GRAY, (x+3, y+3, width-6, height-6), 2)
+    pygame.draw.rect(surface, DARK_GRAY, (x+3, y+3, width-6, height-6), 2)
 
 def draw_button(surface, x, y, width, height, text, font, pressed=False, selected=False, enabled=True):
     """Draw a retro-style button"""
     if not enabled:
-        color = DARK_GRAY
-        border_color = DARK_GRAY
-        text_color = (60, 60, 60)  # Very dark gray
+        color = DARKEST_GRAY
+        border_color = DARKEST_GRAY
+        text_color = VERY_DARK_GRAY  
     elif selected:
         color = YELLOW
         border_color = WHITE
         text_color = BLACK
     else:
-        color = DARK_GRAY if pressed else GRAY
-        border_color = DARK_GRAY if pressed else WHITE
+        color = DARKEST_GRAY if pressed else DARK_GRAY
+        border_color = DARKEST_GRAY if pressed else WHITE
         text_color = DARK_BROWN
     
     pygame.draw.rect(surface, color, (x, y, width, height))
@@ -172,7 +165,7 @@ def draw_dice_bets_screen(surface, game_state, fonts, images=None, controller=No
     house_money = gambling_stats.get('house_money', 500)
     
     draw_centered_text(surface, f"Your Gold: {player_gold} gp", 
-                      fonts.get('fantasy_medium', fonts['normal']), text_y, BRIGHT_GREEN)
+                      fonts.get('fantasy_medium', fonts['normal']), text_y, GREEN)
     draw_centered_text(surface, f"House Money: {house_money} gp", 
                       fonts.get('fantasy_small', fonts['normal']), text_y + 30, YELLOW)
     
@@ -321,7 +314,7 @@ def draw_dice_results_screen(surface, game_state, fonts, images=None, controller
     # Title
     if payout > 0:
         draw_centered_text(surface, "WINNER!", fonts.get('fantasy_large', fonts['header']), 
-                          image_y + 80, BRIGHT_GREEN)
+                          image_y + 80, GREEN)
     else:
         draw_centered_text(surface, "HOUSE WINS", fonts.get('fantasy_large', fonts['header']), 
                           image_y + 80, RED)
@@ -344,7 +337,7 @@ def draw_dice_results_screen(surface, game_state, fonts, images=None, controller
     # Show payout
     if payout > 0:
         draw_centered_text(surface, f"You win {payout} gold!", 
-                          fonts.get('fantasy_medium', fonts['normal']), image_y + 320, BRIGHT_GREEN)
+                          fonts.get('fantasy_medium', fonts['normal']), image_y + 320, GREEN)
     else:
         bet_amount = gambling_stats.get('current_bet', 0)
         draw_centered_text(surface, f"You lose {bet_amount} gold!", 
@@ -434,7 +427,7 @@ def draw_dice_rules_screen(surface, game_state, fonts, images=None, controller=N
             y_pos += line_height // 2
             continue
         elif line.endswith(":"):
-            color = BRIGHT_GREEN
+            color = GREEN
             font = fonts.get('fantasy_medium', fonts['normal'])
         else:
             color = CYAN

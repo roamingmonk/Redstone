@@ -9,7 +9,6 @@ import os
 from typing import Dict, Any, Optional, List
 from ui.base_location import BaseLocation, create_location
 
-
 class LocationManager:
     """
     Manages loading and caching of location configurations

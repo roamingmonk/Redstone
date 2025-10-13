@@ -14,7 +14,7 @@ DESIGN PHILOSOPHY:
 import pygame
 from typing import List, Dict, Any, Optional, Tuple
 from utils.overlay_utils import *
-from utils.constants import SPACING, DARK_GRAY
+from utils.constants import SPACING, DARK_GRAY, BRIGHT_GREEN, GRAY
 from utils.graphics import draw_centered_text
 
 # ========================================
@@ -278,7 +278,6 @@ class BaseTabbedOverlay:
         tab_height = 35
 
         # Left-justify the tab over the content area
-        from utils.constants import SPACING
         content_area_x = popup_x + SPACING['margin']
         tab_start_x = content_area_x  # Left-align instead of center
 

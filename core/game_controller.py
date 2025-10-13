@@ -214,7 +214,7 @@ class GameController:
         self.character_engine = initialize_character_engine(self.game_state, self.event_manager, self.data_manager.item_manager)
         self.inventory_engine = initialize_inventory_engine(self.game_state, self.data_manager.item_manager, self.event_manager)
         self.commerce_engine = initialize_commerce_engine(self.game_state, self.data_manager.item_manager)
-        self.dialogue_engine = initialize_dialogue_engine(self.game_state, self.event_manager)
+        self.dialogue_engine = initialize_dialogue_engine(self.game_state, self.event_manager, self.data_manager.item_manager)
         self.quest_engine = initialize_quest_engine(self.game_state, self.event_manager)
         self.dice_game_engine = initialize_dice_game_engine(self.game_state, self.event_manager)
 

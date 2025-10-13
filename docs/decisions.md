@@ -2026,6 +2026,27 @@ Files Modified: data/dialogues/redstone_town_jenna.json, data/narrative_schema.j
 **Consequences:** Zero code changes for new battlefields—just create 8 wall PNGs with tileset prefix and define walls array in JSON; supports unlimited room shapes (rectangles, L-shapes, corridors, mazes); each location has distinct visual identity; follows industry-standard auto-tiling; fully scalable architecture.
 **Files Modified:** utils/combat_sprite_manager.py (tileset loading), ui/combat_system.py (auto-tiling logic), utils/constants.py (COMBAT_WALLS_PATH), data/combat/battlefields/small_cellar.json (tileset field)
 
+# ADR-128 A: Dialogue Item Effects System
+# Date: October 13, 2025
+# Status: Implemented
+**Context:** Henrik's dialogue needed to give player his lantern, but no mechanism existed for dialogue to add/remove inventory items.
+**Decision:** Extended DialogueEngine._apply_dialogue_effect() to support add_item and remove_item effects; injected ItemManager reference into DialogueEngine for item validation; added floating text notifications matching XP system.
+**Implementation:** Added item_manager parameter to DialogueEngine.__init__() and initialize_dialogue_engine(); created add_item and remove_item effect handlers with validation; effects support item_id, quantity, and optional category; visual feedback via SHOW_FLOATING_TEXT event (blue for received, red for lost).
+**Files Modified:** dialogue_engine.py, data_manager.py, game_controller.py, redstone_town_henrik.json
+**Result:** Dialogue can now give/take items with visual feedback. Henrik's quest properly awards lantern. Architecture supports future quest rewards and NPC trading.
+
+# ADR-128 B: First-Meeting Recruitment Flow Fix
+# Date: October 13, 2025
+# Status: Accepted
+Context: Recruitable NPCs required two visits if player talked to Mayor first - initial meeting showed generic dialogue, then player had to leave and return to see recruitment options.
+Decision: Added first_meeting_post_mayor dialogue state to all four recruits (Gareth, Elara, Thorman, Lyra) that acknowledges Mayor's endorsement and offers immediate recruitment or background exploration.
+Implementation:narrative_schema.json: Added first_meeting_post_mayor mapping ordered before first_meeting for all 4 recruits
+All recruit dialogue JSONs: Added 3 states each (first_meeting_post_mayor, background_with_recruitment, recruitment_blocked_brief)
+Maintains player choice: can recruit immediately, learn background first, or defer decision
+Consequences: Seamless single-conversation recruitment flow; better narrative continuity; no forced double-visits; maintains player agency and depth options.
+Files Modified: data/narrative_schema.json, data/dialogues/patron_selection_gareth.json, data/dialogues/patron_selection_elara.json, data/dialogues/patron_selection_thorman.json, data/dialogues/patron_selection_lyra.json
+
+
 
 ```
 ## ADR-XXX: <Short title>
