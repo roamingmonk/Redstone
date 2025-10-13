@@ -1,0 +1,60 @@
+{
+  "encounter_id": "alley_fight",
+  "name": "Alley Ambush - TEST GAUNTLET",
+  "description": "Combat testing zone. Modify enemies below to test different scenarios.",
+  "battlefield_id": "redstone_town_alley",
+  "difficulty": "variable",
+  "enemies": [
+    {
+      "enemy_id": "giant_rat",
+      "position": [11, 1],
+      "facing": "west",
+      "ai_behavior": "aggressive"
+    },
+    {
+      "enemy_id": "giant_rat",
+      "position": [12, 2],
+      "facing": "west",
+      "ai_behavior": "aggressive"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [1, 7],
+      [2, 7],
+      [1, 8],
+      [2, 8]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 25,
+    "gold": 10,
+    "items": [],
+    "story_progress": {
+      "quest_flags": {
+        "alley_test_complete": {
+          "value": true,
+          "display_message": "Combat test complete! Modify alley_fight.json to test new scenarios."
+        }
+      }
+    }
+  },
+  "special_rules": [],
+  "escape_allowed": true,
+  "turn_limit": null,
+  "_testing_notes": {
+    "easy_test": "2 giant_rats (current setup)",
+    "medium_test": "Add ogre_archer at [8,3], 2 rats",
+    "hard_test": "Add multiple archers, increase rat count",
+    "spell_test": "Add enemies with spell abilities when implemented",
+    "positioning_test": "Spread enemies across all spawn points",
+    "escape_test": "Set turn_limit to test retreat mechanics"
+  }
+}

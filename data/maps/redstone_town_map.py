@@ -175,6 +175,25 @@ BUILDING_ENTRANCES = {
             'action': 'Exit to world map (South)'
         }    
     },
+        'alley': {
+        'building_pos': [(12, 3), (12, 4), (12, 5)],  # Alley tiles (column 12, rows 3-5)
+        'entrance_tiles': [(12, 2), (12, 6)],  # Stand on the  alley
+        'info': {
+            'name': "Dark Alley",
+            'interaction_type': 'combat',
+            'screen': 'combat',
+            'action': 'Enter alley',
+            'combat_encounter': 'alley_fight',
+            'combat_context': {
+                'location_name': 'Dark Alley',
+                'victory_description': 'You clear the alley of threats.',
+                'victory_quest_flags': {
+                    'alley_test_complete': True
+                }
+            } 
+        }
+    },
+    
     'inn': {
         'building_pos': (4, 6),
         'entrance_tiles': [(5, 6)],  

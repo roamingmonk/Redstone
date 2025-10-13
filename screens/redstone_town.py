@@ -109,8 +109,9 @@ class RedstoneTownNavigation:
                         building_pos
                     )
                     
-                    # Check if player is facing the correct direction
-                    if self.renderer.player_direction == self.required_direction:
+                    # Check if player is facing the correct direction (or if direction check disabled)
+                    skip_direction = building_at_entrance.get('skip_direction_check', False)
+                    if skip_direction or self.renderer.player_direction == self.required_direction:
                         self.current_building = building_at_entrance
                         self.can_interact = True
                     else:
@@ -189,6 +190,29 @@ class RedstoneTownNavigation:
                                 self.temp_message_text = "The town gates are sealed. The guards won't let anyone leave right now."
                             else:
                                 self.temp_message_text = "Sorry, it's closed."
+                elif interaction_type == 'combat':
+                    print(f"DEBUG: RT: Combat Trigger")
+                    combat_encounter = self.current_building.get('combat_encounter')
+                    combat_context = self.current_building.get('combat_context', {})
+                    
+                    if combat_encounter and controller:
+                        # Store combat data in game state (BaseLocation pattern)
+                        print(f"🗡️ Starting combat: {combat_encounter}")
+                        game_state.previous_screen = game_state.screen
+                        game_state.current_combat_encounter = combat_encounter
+                        if combat_context:
+                            game_state.combat_context = combat_context
+                        
+                        # Navigate to combat screen
+                        controller.event_manager.emit("SCREEN_CHANGE", {
+                            'target_screen': 'combat',
+                            'source': 'town_navigation'
+                        })
+                    else:
+                        # Fallback if combat data missing
+                        self.showing_temp_message = True
+                        self.temp_message_timer = pygame.time.get_ticks()
+                        self.temp_message_text = "The area is too dangerous to enter right now."
 
                 else:
                     # Default closed message
