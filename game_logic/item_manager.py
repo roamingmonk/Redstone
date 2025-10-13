@@ -122,7 +122,9 @@ class ItemLoader:
         return None
             
     def get_item_icon(self, item_id):
-        """Get the icon surface for a specific item"""
+    # DEBUG: See what's being requested vs what's available
+        #if item_id not in self.item_icons:
+        #    print(f"❌ ICON MISS: Requested '{item_id}' but only have: {list(self.item_icons.keys())[:5]}...")
         return self.item_icons.get(item_id, self.create_placeholder_icon())
 
     def get_display_name(self, item_id):

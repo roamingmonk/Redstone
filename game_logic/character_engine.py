@@ -1082,14 +1082,14 @@ class CharacterEngine:
         
         # Roll for random trinket 
         selected_trinket = random.choice(all_trinkets)
-        trinket_name = selected_trinket.get('name', selected_trinket.get('id', 'Unknown Trinket'))
-        
-        # Store in character data
-        self.game_state.character['trinket'] = trinket_name
-        
-        print(f"🎲 Rolled trinket: {trinket_name}")
-        return trinket_name
+        trinket_id = selected_trinket.get('id', 'unknown_trinket')  # Get ID, not name
+        trinket_name = selected_trinket.get('name', 'Unknown Trinket')  # Get name for display
 
+        # Store ID in character data (inventory uses IDs!)
+        self.game_state.character['trinket'] = trinket_id
+
+        print(f"🎲 Rolled trinket: {trinket_name} (id: {trinket_id})")
+        return trinket_name  # Return display name for UI
     # ==========================================
     # CHARACTER PROGRESSION OPERATIONS
     # ==========================================
