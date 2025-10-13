@@ -1287,14 +1287,6 @@ class CharacterEngine:
             return self.award_experience(xp, f"gambling streak of {streak_length}")
         return 0
     
-    # def register_quest_events(self, event_manager):
-    #     """Register for quest completion events - follows character creation pattern"""
-    #     self.event_manager = event_manager
-        
-    #     event_manager.register("QUEST_COMPLETED", self._handle_quest_completion)
-    #     event_manager.register("INFORMATION_DISCOVERED", self._handle_information_discovery)
-    #     print("🎯 CharacterEngine registered for quest events")
-    
     def _handle_quest_completion(self, event_data):
         """Handle quest completion notifications and level-up checks.
         

@@ -236,7 +236,7 @@
     },
     
     "post_mayor_basement_accepted": {
-      "introduction": ["Thanks for helping! The basement1 is behind the bar.", "Watch yourself down there - they're meaner than normal rats.", "Come back when you're done and I'll settle up."],
+      "introduction": ["Thanks for helping! The basement is behind the bar.", "Watch yourself down there - they're meaner than normal rats.", "Come back when you're done and I'll settle up."],
       "options": [
         {
           "id": "head_down_now",

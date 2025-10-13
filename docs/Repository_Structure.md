@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-10-10 12:45)
+﻿## Repository Structure (generated 2025-10-12 14:37)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -43,6 +43,7 @@ C:.
 |       |   |   |       garrick_portrait.jpg
 |       |   |   |       garrick_portrait.png
 |       |   |   |       henrik_portrait.jpg
+|       |   |   |       jenna_portrait.jpg
 |       |   |   |       lyra_portrait.jpg
 |       |   |   |       mayor_portrait.jpg
 |       |   |   |       mayor_portrait_happy.jpg
@@ -121,6 +122,9 @@ C:.
 |       |   |       campfire_animation.png
 |       |   |       torch_animation.png
 |       |   |       
+|       |   +---items
+|       |   |       barrel.png
+|       |   |       
 |       |   +---landscape
 |       |   |       star_twinkle_1.png
 |       |   |       
@@ -143,8 +147,9 @@ C:.
 |           |       gate_south.png
 |           |       
 |           \---terrain
-|                   cobblestone_street 16x16.png
 |                   cobblestone_street.png
+|                   cobblestone_street_16x16.png
+|                   stone_floor_16x16.png
 |                   
 +---core
 |   |   game_controller.py
@@ -285,6 +290,7 @@ C:.
 +---utils
 |   |   animation.py
 |   |   combat_loader.py
+|   |   combat_sprite_manager.py
 |   |   constants.py
 |   |   debug_manager.py
 |   |   dialogue_ui_utils.py

@@ -1,6 +1,7 @@
 {
   "battlefield_id": "small_cellar",
   "name": "Tavern Basement",
+  "tileset": "cellar",
   "description": "A cramped stone cellar with wooden support beams and scattered barrels.",
   "dimensions": {
     "width": 12,

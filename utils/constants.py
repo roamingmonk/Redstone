@@ -152,6 +152,7 @@ ENEMY_SPRITES_PATH = os.path.join(SPRITES_PATH, "enemies")
 EFFECTS_SPRITES_PATH = os.path.join(SPRITES_PATH, "effects")
 LANDSCAPE_SPRITES_PATH = os.path.join(SPRITES_PATH, "landscape")
 COMBAT_OBSTACLES_PATH = os.path.join(SPRITES_PATH, "items")
+COMBAT_WALLS_PATH = os.path.join(SPRITES_PATH, "walls")
 
 # Specific file paths (updated to new structure)
 TABLE_IMAGE = os.path.join(UI_BACKGROUNDS_PATH, "character_creation_table.jpg")

@@ -2017,7 +2017,14 @@ Files Modified: data/dialogues/redstone_town_jenna.json, data/narrative_schema.j
 **Files Created:** utils/combat_sprite_manager.py
 **Files Modified:** game_logic/character_engine.py (_handle_quest_completion), game_logic/quest_engine.py (_evaluate_quest_triggers), ui/combat_system.py (added layered rendering, removed constants.py image dependency)
 
-
+# ADR-123: Data-Driven Combat Tileset System with Auto-Tiling
+# Status: Accepted
+# Date: October 12, 2025
+**Context:** Combat battlefields needed flexible wall/floor graphics supporting different aesthetics (cellar, dungeon, church) and any room shape (rectangular, L-shaped, corridors, complex layouts).
+**Decision:** Implemented data-driven tileset system with neighbor-based auto-tiling; each battlefield JSON specifies tileset name and wall line segments; CombatSpriteManager loads 8 wall tiles (N/S/E/W + 4 corners) per tileset on-demand; auto-tiling checks 8 neighbors to select correct tile for any wall position.
+**Implementation:** Battlefield JSON contains "tileset": "cellar" field; wall tiles named {tileset}_wall_north.png, {tileset}_corner_nw.png, etc.; floor type maps to 16×16 tileable textures (stone_floor→stone_floor_16x16.png); _get_wall_tile_type() uses pure neighbor checking (works ANY shape); grid lines dimmed to (60,60,60) for dungeon atmosphere.
+**Consequences:** Zero code changes for new battlefields—just create 8 wall PNGs with tileset prefix and define walls array in JSON; supports unlimited room shapes (rectangles, L-shapes, corridors, mazes); each location has distinct visual identity; follows industry-standard auto-tiling; fully scalable architecture.
+**Files Modified:** utils/combat_sprite_manager.py (tileset loading), ui/combat_system.py (auto-tiling logic), utils/constants.py (COMBAT_WALLS_PATH), data/combat/battlefields/small_cellar.json (tileset field)
 
 
 ```

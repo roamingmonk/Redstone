@@ -44,11 +44,17 @@ class CombatEncounter:
 
     def render(self, surface: pygame.Surface, game_state, fonts: Dict, images: Dict, controller=None) -> Dict[str, Any]:
         """Main combat screen rendering - follows BaseLocation pattern"""
+        # Get combat sprite manager (singleton)
+        self.sprite_manager = get_combat_sprite_manager()
 
         try:
             # Get combat data from engine
             combat_data = controller.combat_engine.get_combat_data_for_ui()
-            
+
+            # Cache the tileset for this battlefield
+            battlefield = combat_data.get("battlefield", {})
+            self.current_tileset = battlefield.get("tileset", "cellar")  # Default to cella
+
         except Exception as e:
             print(f"❌ Combat data error: {e}")
             return self._render_data_error(surface, fonts, str(e))
@@ -220,8 +226,14 @@ class CombatEncounter:
                 # === LAYERED RENDERING ===
                 # Layer 1: Floor tile (bottom)
                 if self._is_wall_tile(x, y, battlefield):
-                    # Walls get dark gray (no floor tile)
-                    pygame.draw.rect(surface, DARK_GRAY, square_rect)
+                    # Determine which wall tile to use
+                    wall_type = self._get_wall_tile_type(x, y, battlefield)
+                    # Get tile from current battlefield's tileset
+                    wall_tile = self.sprite_manager.get_wall_tile(self.current_tileset, wall_type)
+                    if wall_tile:
+                        surface.blit(wall_tile, (screen_x, screen_y))
+                    else:
+                        pygame.draw.rect(surface, DARK_GRAY, square_rect)
                 else:
                     # Draw floor using battlefield's terrain type
                     self._draw_floor_tile(surface, screen_x, screen_y, floor_type)
@@ -232,7 +244,7 @@ class CombatEncounter:
                     self._draw_obstacle_sprite(surface, screen_x, screen_y, obstacle_type)
                 
                 # Layer 3: Grid border (overlay)
-                pygame.draw.rect(surface, WHITE, square_rect, 1)  # Border
+                pygame.draw.rect(surface, (60, 60 , 60), square_rect, 1)  # Border
                 
                 # Register clickable area
                 clickable_areas[f"grid_{x}_{y}"] = {
@@ -243,6 +255,58 @@ class CombatEncounter:
         
         return clickable_areas
     
+    def _get_wall_tile_type(self, x: int, y: int, battlefield: Dict) -> str:
+        """Determine which wall tile to use based on which wall lines it belongs to"""
+        walls = battlefield.get('terrain', {}).get('walls', [])
+        
+        # Check which wall lines this position is part of
+        on_horizontal_wall = False
+        on_vertical_wall = False
+        is_top = False
+        is_bottom = False
+        is_left = False
+        is_right = False
+        
+        for wall in walls:
+            x1, y1, x2, y2 = wall
+            
+            # Horizontal wall
+            if y1 == y2 and y == y1 and min(x1, x2) <= x <= max(x1, x2):
+                on_horizontal_wall = True
+                if y == 0 or y < battlefield.get('dimensions', {}).get('height', 8) // 2:
+                    is_top = True
+                else:
+                    is_bottom = True
+            
+            # Vertical wall
+            if x1 == x2 and x == x1 and min(y1, y2) <= y <= max(y1, y2):
+                on_vertical_wall = True
+                if x == 0 or x < battlefield.get('dimensions', {}).get('width', 12) // 2:
+                    is_left = True
+                else:
+                    is_right = True
+        
+        # Corners: where horizontal and vertical walls meet
+        if on_horizontal_wall and on_vertical_wall:
+            if is_top and is_left:
+                return 'corner_nw'
+            elif is_top and is_right:
+                return 'corner_ne'
+            elif is_bottom and is_left:
+                return 'corner_sw'
+            elif is_bottom and is_right:
+                return 'corner_se'
+        
+        # Straight walls
+        if on_horizontal_wall:
+            return 'wall_north' if is_top else 'wall_south'
+        elif on_vertical_wall:
+            return 'wall_west' if is_left else 'wall_east'
+        
+        # Default fallback
+        return 'wall_north'
+
+
     def _get_obstacle_type(self, x: int, y: int, battlefield: Dict) -> str:
         """Get the type of obstacle at this grid position"""
         obstacles = battlefield.get('terrain', {}).get('obstacles', [])
@@ -255,19 +319,20 @@ class CombatEncounter:
         return 'barrel'  # Fallback
     
     def _draw_obstacle_sprite(self, surface: pygame.Surface, screen_x: int, screen_y: int, obstacle_type: str):
-        """Draw obstacle sprite centered in tile"""
-        # Get the sprite from sprite manager
+        """Draw obstacle sprite (auto-centers 32x32, fills tile for 48x48)"""
         sprite = self.sprite_manager.get_obstacle_sprite(obstacle_type)
         
         if sprite:
-            # Center the 32x32 sprite in the 48x48 tile
-            sprite_x = screen_x + (self.tile_size - 32) // 2  # (48-32)/2 = 8 pixel offset
-            sprite_y = screen_y + (self.tile_size - 32) // 2
-            surface.blit(sprite, (sprite_x, sprite_y))
-        else:
-            # Fallback already handled by sprite manager, but just in case
-            pygame.draw.rect(surface, BROWN, 
-                           (screen_x, screen_y, self.tile_size, self.tile_size))
+            sprite_size = sprite.get_width()  # Get actual sprite size
+            
+            if sprite_size == 48:
+                # Large obstacles fill the entire tile
+                surface.blit(sprite, (screen_x, screen_y))
+            else:
+                # Small obstacles center in tile (32x32 in 48x48)
+                sprite_x = screen_x + (self.tile_size - sprite_size) // 2
+                sprite_y = screen_y + (self.tile_size - sprite_size) // 2
+                surface.blit(sprite, (sprite_x, sprite_y))
 
 
     def _draw_floor_tile(self, surface: pygame.Surface, screen_x: int, screen_y: int, floor_type: str = 'cobblestone_street_16x16'):

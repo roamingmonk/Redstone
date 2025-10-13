@@ -31,40 +31,104 @@ class CombatSpriteManager:
         self.obstacle_sprites = {}  # 32x32 obstacles
         self.floor_tiles = {}       # 16x16 tileable floors
         self.effect_sprites = {}    # spell effects, damage indicators
-        
+        self.wall_tilesets = {}     # Cache of loaded tilesets
+        self.effect_sprites = {}
+
         # Load all combat graphics
         self.load_obstacle_sprites()
         self.load_floor_tiles()
+        # Wall tiles loaded on-demand per battlefield!
         
         CombatSpriteManager._initialized = True
         print("⚔️ Combat Sprite Manager initialized (singleton)")
     
-    def load_obstacle_sprites(self):
-        """Load 32x32 obstacle sprites (barrels, crates, etc.)"""
-        obstacle_map = {
-            'barrel': 'barrel.png',
-            'crate': 'crate.png',
-            'pillar': 'pillar.png',
-            'support_beam': 'support_beam.png'
-        }
+    def load_wall_tileset(self, tileset_name: str):
+        """Load a complete wall tileset on-demand"""
+        # Check cache first
+        if tileset_name in self.wall_tilesets:
+            print(f"✅ Wall tileset '{tileset_name}' already cached")
+            return
         
-        for obstacle_type, filename in obstacle_map.items():
-            filepath = os.path.join(COMBAT_OBSTACLES_PATH, filename)
+        print(f"📦 Loading wall tileset: {tileset_name}")
+        
+        # Wall tile definitions
+        wall_types = [
+            'wall_north', 'wall_south', 'wall_east', 'wall_west',
+            'corner_nw', 'corner_ne', 'corner_sw', 'corner_se'
+        ]
+        
+        tileset = {}
+        
+        for wall_type in wall_types:
+            # Filename: {tileset}_{wall_type}.png
+            filename = f"{tileset_name}_{wall_type}.png"
+            filepath = os.path.join(COMBAT_WALLS_PATH, filename)
             
             try:
                 if os.path.exists(filepath):
-                    sprite = pygame.image.load(filepath)
-                    scaled = pygame.transform.scale(sprite, (COMBAT_OBSTACLE_SIZE, COMBAT_OBSTACLE_SIZE))
-                    self.obstacle_sprites[obstacle_type] = scaled
-                    print(f"✅ Combat obstacle loaded: {obstacle_type}")
+                    tile = pygame.image.load(filepath)
+                    tileset[wall_type] = tile
+                    print(f"  ✅ {filename}")
                 else:
-                    # Fallback placeholder
-                    self.obstacle_sprites[obstacle_type] = self._create_obstacle_fallback(obstacle_type)
-                    print(f"🎨 Using fallback for: {obstacle_type}")
+                    tileset[wall_type] = self._create_wall_fallback()
+                    print(f"  🎨 Fallback: {filename}")
             except Exception as e:
-                print(f"⚠️ Error loading {obstacle_type}: {e}")
-                self.obstacle_sprites[obstacle_type] = self._create_obstacle_fallback(obstacle_type)
+                print(f"  ⚠️ Error loading {filename}: {e}")
+                tileset[wall_type] = self._create_wall_fallback()
+        
+        # Cache the complete tileset
+        self.wall_tilesets[tileset_name] = tileset
+        print(f"✅ Wall tileset '{tileset_name}' loaded")
     
+    def get_wall_tile(self, tileset_name: str, wall_type: str):
+        """Get wall tile from specified tileset"""
+        # Load tileset if not cached
+        if tileset_name not in self.wall_tilesets:
+            self.load_wall_tileset(tileset_name)
+        
+        tileset = self.wall_tilesets.get(tileset_name, {})
+        return tileset.get(wall_type, self._create_wall_fallback())
+
+    def load_obstacle_sprites(self):
+        """Load 32x32 obstacle sprites (barrels, crates, etc.)"""
+        small_obstacles = {
+            'barrel': 'barrel.png',
+            'crate': 'crate.png',
+            'chest': 'chest.png',
+        }
+
+        # Large 48x48 obstacles (fill entire tile)
+        large_obstacles = {
+            'support_beam': 'support_beam.png',
+            'pillar': 'pillar.png',
+            'statue': 'statue.png'
+        }
+        
+        # Load small obstacles at 32x32
+        for obstacle_type, filename in small_obstacles.items():
+            filepath = os.path.join(COMBAT_OBSTACLES_PATH, filename)
+            self._load_obstacle(obstacle_type, filepath, 32)
+        
+        # Load large obstacles at 48x48
+        for obstacle_type, filename in large_obstacles.items():
+            filepath = os.path.join(COMBAT_OBSTACLES_PATH, filename)
+            self._load_obstacle(obstacle_type, filepath, 48)
+    
+    def _load_obstacle(self, obstacle_type, filepath, size):
+        """Helper to load obstacle at specified size"""
+        try:
+            if os.path.exists(filepath):
+                sprite = pygame.image.load(filepath)
+                scaled = pygame.transform.scale(sprite, (size, size))
+                self.obstacle_sprites[obstacle_type] = scaled
+                print(f"✅ Combat obstacle loaded: {obstacle_type} ({size}x{size})")
+            else:
+                self.obstacle_sprites[obstacle_type] = self._create_obstacle_fallback(obstacle_type, size)
+                print(f"🎨 Using fallback for: {obstacle_type} ({size}x{size})")
+        except Exception as e:
+            print(f"⚠️ Error loading {obstacle_type}: {e}")
+            self.obstacle_sprites[obstacle_type] = self._create_obstacle_fallback(obstacle_type, size)
+
     def load_floor_tiles(self):
         """Load 16x16 tileable floor textures"""
         floor_map = {
@@ -89,11 +153,11 @@ class CombatSpriteManager:
                 print(f"⚠️ Error loading {floor_type}: {e}")
                 self.floor_tiles[floor_type] = self._create_floor_fallback()
     
-    def _create_obstacle_fallback(self, obstacle_type):
+    def _create_obstacle_fallback(self, obstacle_type, size=32):
         """Create placeholder for missing obstacle sprite"""
-        surface = pygame.Surface((COMBAT_OBSTACLE_SIZE, COMBAT_OBSTACLE_SIZE))
+        surface = pygame.Surface((size, size))
         surface.fill(BROWN)
-        pygame.draw.rect(surface, WHITE, (0, 0, COMBAT_OBSTACLE_SIZE, COMBAT_OBSTACLE_SIZE), 2)
+        pygame.draw.rect(surface, WHITE, (0, 0, size, size), 2)
         return surface
     
     def _create_floor_fallback(self):
@@ -102,6 +166,13 @@ class CombatSpriteManager:
         surface.fill((50, 50, 50))  # Dark gray
         return surface
     
+    def _create_wall_fallback(self):
+        """Create placeholder for missing wall tile"""
+        surface = pygame.Surface((COMBAT_TILE_SIZE, COMBAT_TILE_SIZE))
+        surface.fill(DARK_GRAY)
+        pygame.draw.rect(surface, WHITE, (0, 0, COMBAT_TILE_SIZE, COMBAT_TILE_SIZE), 2)
+        return surface
+
     # === PUBLIC API ===
     
     def get_obstacle_sprite(self, obstacle_type):
