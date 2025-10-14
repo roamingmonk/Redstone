@@ -878,11 +878,25 @@ def register_combat_system_events(event_manager, game_controller):
     def handle_combat_back(event_data):
         """Handle return to previous screen"""
         print("🔙 COMBAT_BACK EVENT HANDLER CALLED!")
-        if hasattr(game_controller.game_state, 'previous_screen') and game_controller.game_state.previous_screen:
-            game_controller.game_state.screen = game_controller.game_state.previous_screen
-        else:
-            game_controller.game_state.screen = "broken_blade"
-        print(f"Returning to: {game_controller.game_state.screen}")
+        
+        if game_controller:
+            # CRITICAL: Clean up combat state so next combat starts fresh
+            # NOTE: game_controller here is actually the CombatEngine!
+            game_controller.cleanup_combat()  # ← REMOVED .combat_engine
+            
+            # Clear game state combat flags
+            if hasattr(game_controller.game_state, 'current_combat_encounter'):
+                game_controller.game_state.current_combat_encounter = None
+            if hasattr(game_controller.game_state, 'combat_context'):
+                game_controller.game_state.combat_context = None
+            
+            # Return to previous screen
+            if hasattr(game_controller.game_state, 'previous_screen') and game_controller.game_state.previous_screen:
+                game_controller.game_state.screen = game_controller.game_state.previous_screen
+            else:
+                game_controller.game_state.screen = "redstone_town"
+            
+            print(f"Returning to: {game_controller.game_state.screen}")
     
     # Register the actual event names being emitted
     event_manager.register("MOVE", handle_move_action)

@@ -2029,13 +2029,16 @@ class CombatEngine:
         # Award gold
         gold = rewards.get("gold", 0)
         if gold > 0:
-            current_gold = self.game_state.character.get("gold", 0)
-            self.game_state.character["gold"] = current_gold + gold
-
-            # Track total gold earned
+            self.game_state.character['gold'] += gold
+            
+            # Track in statistics (with safety check)
+            if not hasattr(self.game_state, 'player_statistics'):
+                self.game_state.player_statistics = {}
+            if 'total_gold_earned' not in self.game_state.player_statistics:
+                self.game_state.player_statistics['total_gold_earned'] = 0
+            
             self.game_state.player_statistics['total_gold_earned'] += gold
-
-            self._add_to_combat_log(f"Found {gold} gold!")
+            self._add_to_combat_log(f"Gained {gold} gold!")
         
         # TODO: Award items from rewards["items"]
     
