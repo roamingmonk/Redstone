@@ -2046,7 +2046,14 @@ Maintains player choice: can recruit immediately, learn background first, or def
 Consequences: Seamless single-conversation recruitment flow; better narrative continuity; no forced double-visits; maintains player agency and depth options.
 Files Modified: data/narrative_schema.json, data/dialogues/patron_selection_gareth.json, data/dialogues/patron_selection_elara.json, data/dialogues/patron_selection_thorman.json, data/dialogues/patron_selection_lyra.json
 
-
+# ADR-129: Enemy AI Turn Planning System
+# Date: 2025-01-14
+# Status: Implemented
+**Context:** Enemy AI called twice per turn without strategic planning; enemies couldn't coordinate move+attack like players; behavior logic duplicated across methods.
+**Decision:** Refactored CombatAI to plan complete turns (move + attack) in single calculate_enemy_turn() call; behavior methods return {'move': pos, 'attack': {target_id, attack_index}} format; CombatEngine executes both actions sequentially.
+**Files Modified:** combat_ai.py (calculate_enemy_turn, _calculate_rush_action, _calculate_ranged_preference_action), combat_engine.py (_execute_enemy_turn), combat_loader.py (_create_enemy_instance, _validate_encounter_data)
+**Implementation:** AI evaluates entire tactical situation once, plans optimal move+attack combination; ranged_preference backs away then shoots, rush moves into melee then attacks; encounter ai_behavior optional, defaults to enemy.behavior.tactics.
+**Benefits:** Enemies use full action economy matching players; strategic coordination (move to optimal position THEN attack); extensible pattern for future behaviors; single source of truth for turn planning.
 
 ```
 ## ADR-XXX: <Short title>

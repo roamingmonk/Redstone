@@ -307,8 +307,8 @@ class InputHandler:
 
                     # Emit the event instead of calling methods directly
                     
-                    print(f"🚀 EMIT: {region.event_type}")
-                    print(f"🚀 Emitting event: {region.event_type} with data: {region.event_data}")
+                    #print(f"🚀 EMIT: {region.event_type}")
+                    #print(f"🚀 Emitting event: {region.event_type} with data: {region.event_data}")
                     self.event_manager.emit(region.event_type, region.event_data)
                     #print(f"✅ DEBUG: IH: Event emitted successfully")
 

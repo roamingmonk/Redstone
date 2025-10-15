@@ -1,0 +1,59 @@
+{
+  "enemy_id": "shadow_ghost",
+  "name": "Shadow Ghost",
+  "description": "A spectral figure wreathed in darkness, barely visible except for glowing eyes. Its touch drains the warmth from living flesh.",
+  "stats": {
+    "hp": 14,
+    "max_hp": 14,
+    "ac": 15,
+    "strength": 6,
+    "dexterity": 16,
+    "constitution": 11,
+    "intelligence": 10,
+    "wisdom": 12,
+    "charisma": 14
+  },
+  "attacks": [
+    {
+      "name": "Chilling Touch",
+      "damage_dice": "2d4",
+      "attack_bonus": 4,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "An icy spectral hand that drains life force",
+      "damage_type": "necrotic"
+    }
+  ],
+  "movement": {
+    "speed": 3,
+    "movement_type": "incorporeal",
+    "notes": "Can move through obstacles"
+  },
+  "special_abilities": [
+    {
+      "name": "Incorporeal",
+      "description": "Takes half damage from non-magical physical attacks",
+      "effect_type": "damage_resistance",
+      "trigger": "when_hit",
+      "resistance_type": "physical"
+    },
+    {
+      "name": "Life Drain",
+      "description": "Heals 1 HP when damaging a living creature",
+      "effect_type": "self_heal",
+      "trigger": "on_damage_dealt"
+    }
+  ],
+  "loot": {
+    "xp_value": 125,
+    "gold_range": [0, 5],
+    "items": ["spectral_essence"]
+  },
+  "behavior": {
+    "aggression": "high",
+    "intelligence": "medium",
+    "tactics": "stalker",
+    "retreat_threshold": 0,
+    "notes": "Moves directly toward player, ignoring obstacles. Relentless pursuit."
+  }
+}

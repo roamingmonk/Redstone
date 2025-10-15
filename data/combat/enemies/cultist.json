@@ -1,0 +1,60 @@
+{
+  "enemy_id": "cultist",
+  "name": "Cultist",
+  "description": "A robed fanatic with hollow eyes and symbols of dark powers. Their devotion makes them fearless and dangerous.",
+  "stats": {
+    "hp": 11,
+    "max_hp": 11,
+    "ac": 12,
+    "strength": 10,
+    "dexterity": 12,
+    "constitution": 11,
+    "intelligence": 12,
+    "wisdom": 13,
+    "charisma": 10
+  },
+  "attacks": [
+    {
+      "name": "Ritual Dagger",
+      "damage_dice": "1d4+1",
+      "attack_bonus": 2,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A ceremonial blade stained with old blood"
+    },
+    {
+      "name": "Dark Bolt",
+      "damage_dice": "1d8",
+      "attack_bonus": 3,
+      "attack_type": "spell",
+      "range": 6,
+      "description": "A bolt of shadowy energy that chills the soul",
+      "spell_cost": 0,
+      "damage_type": "necrotic"
+    }
+  ],
+  "movement": {
+    "speed": 3,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Fanatic",
+      "description": "Never flees from combat, fights to the death",
+      "effect_type": "morale",
+      "trigger": "always"
+    }
+  ],
+  "loot": {
+    "xp_value": 50,
+    "gold_range": [5, 15],
+    "items": ["cultist_robes", "dark_symbol"]
+  },
+  "behavior": {
+    "aggression": "high",
+    "intelligence": "medium",
+    "tactics": "spell_preference",
+    "retreat_threshold": -1,
+    "notes": "Prefers Dark Bolt at range, never retreats"
+  }
+}

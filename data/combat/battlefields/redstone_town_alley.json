@@ -4,17 +4,17 @@
   "tileset": "urban_alley",
   "description": "A narrow alley between buildings. Crates and debris provide cover, but limit movement.",
   "dimensions": {
-    "width": 14,
+    "width": 13,
     "height": 10
   },
   "tile_size": 48,
   "terrain": {
     "default": "cobblestone",
     "walls": [
-      [0, 0, 13, 0],
-      [0, 9, 13, 9],
+      [0, 0, 12, 0],
+      [0, 9, 12, 9],
       [0, 0, 0, 9],
-      [13, 0, 13, 9]
+      [12, 0, 12, 9]
     ],
     "obstacles": [
       {"type": "crate", "position": [3, 2], "blocks_movement": true, "blocks_sight": false},

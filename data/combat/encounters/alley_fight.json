@@ -9,13 +9,22 @@
       "enemy_id": "giant_rat",
       "position": [11, 1],
       "facing": "west",
-      "ai_behavior": "aggressive"
+      "ai_behavior": "rush_player"
     },
     {
-      "enemy_id": "giant_rat",
-      "position": [12, 2],
-      "facing": "west",
-      "ai_behavior": "aggressive"
+      "enemy_id": "kobold",
+      "position": [10, 2],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "goblin",
+      "position": [9, 3],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "goblin",
+      "position": [11, 3],
+      "facing": "west"
     }
   ],
   "player_party": {

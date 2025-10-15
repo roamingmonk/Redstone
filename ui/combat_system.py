@@ -415,14 +415,25 @@ class CombatEncounter:
         
         # Render enemy units
         enemy_instances = combat_data.get("enemy_instances", [])
+        #print(f"🎨 DEBUG: Rendering {len(enemy_instances)} enemies")
         for enemy in enemy_instances:
             position = enemy.get("position", [])
+            
+            current_hp = enemy.get("current_hp", 0)
+            max_hp = enemy.get("stats", {}).get("hp", 1)
+            enemy_name = enemy.get("name", "Enemy")
+            
+            #print(f"🎨 DEBUG: Enemy: {enemy_name} at {position}, HP: {current_hp}/{max_hp}")  
+            
+            
             if len(position) == 2:
                 x, y = position
                 # Shift sprite up in the tile
                 screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
                 screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6  # Move up 6 pixels
                 
+                #print(f"🎨 DEBUG: Rendering at screen coords: ({screen_x}, {screen_y})")
+
                 # Draw enemy as red circle with first letter of name
                 pygame.draw.circle(surface, RED, (screen_x, screen_y), self.tile_size // 3)
                 

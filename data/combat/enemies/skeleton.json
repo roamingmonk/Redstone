@@ -1,0 +1,65 @@
+{
+  "enemy_id": "skeleton",
+  "name": "Skeleton",
+  "description": "An animated pile of bones held together by dark magic. Its hollow eyes glow with unnatural light as it shambles forward.",
+  "stats": {
+    "hp": 13,
+    "max_hp": 13,
+    "ac": 13,
+    "strength": 10,
+    "dexterity": 14,
+    "constitution": 15,
+    "intelligence": 6,
+    "wisdom": 8,
+    "charisma": 5
+  },
+  "attacks": [
+    {
+      "name": "Rusty Shortsword",
+      "damage_dice": "1d6+1",
+      "attack_bonus": 3,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A corroded blade wielded with mechanical precision"
+    },
+    {
+      "name": "Bony Claw",
+      "damage_dice": "1d4+1",
+      "attack_bonus": 3,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A raking strike with skeletal fingers"
+    }
+  ],
+  "movement": {
+    "speed": 3,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Damage Resistance (Piercing)",
+      "description": "Takes half damage from piercing weapons (arrows, spears)",
+      "effect_type": "damage_resistance",
+      "trigger": "when_hit",
+      "resistance_type": "piercing"
+    },
+    {
+      "name": "Undead Nature",
+      "description": "Immune to poison and fear effects",
+      "effect_type": "immunity",
+      "trigger": "always"
+    }
+  ],
+  "loot": {
+    "xp_value": 50,
+    "gold_range": [2, 8],
+    "items": ["bone_dust", "rusty_sword"]
+  },
+  "behavior": {
+    "aggression": "high",
+    "intelligence": "very_low",
+    "tactics": "mindless_advance",
+    "retreat_threshold": 0,
+    "notes": "Moves directly toward player, alternates between sword and claw attacks"
+  }
+}
