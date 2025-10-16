@@ -12,6 +12,8 @@ from typing import Dict, List, Optional, Tuple
 from utils.combat_loader import get_combat_loader
 from utils.stats_calculator import get_stats_calculator
 from game_logic.combat_ai import get_combat_ai
+from game_logic.movement_system import get_movement_system
+from game_logic.movement_system import MovementSystem
 
 class CombatPhase(Enum):
     """Combat phase tracking"""
@@ -43,6 +45,11 @@ class CombatEngine:
         self.stats_calculator = get_stats_calculator()
         self.combat_ai = get_combat_ai()
         
+        # Initialize movement system
+        self.movement_system = get_movement_system(self)
+        self.movement_system = MovementSystem(self)
+        print("✅ Movement system initialized")
+
         # Current combat state
         self.combat_data = None
         self.current_phase = CombatPhase.SETUP
@@ -253,9 +260,16 @@ class CombatEngine:
             print(f"❌ Error starting combat: {e}")
             return False
 
+    def validate_movement(self, entity, target_x, target_y):
+        return self.movement_system.validate_move(entity, target_x, target_y)
+    
+    # Replace or modify existing movement execution
+    def move_entity(self, entity, target_x, target_y):
+        return self.movement_system.move_entity(entity, target_x, target_y)
+
     def _execute_enemy_move(self, enemy: Dict, target_position: List[int]) -> bool:
         """
-        Execute enemy movement to target position
+        Execute enemy movement to target position with animation
         
         Args:
             enemy: Enemy instance dict
@@ -267,32 +281,111 @@ class CombatEngine:
         enemy_pos = enemy.get("position", [0, 0])
         enemy_name = enemy.get("name", "Enemy")
         movement_range = enemy.get("movement", {}).get("speed", 3)
-        movement_type = enemy.get("movement", {}).get("movement_type", "walking")
+        enemy_id = enemy.get("instance_id", "")
         
-        # Validate the AI's suggested move using combat rules
-        # Pass movement_type so incorporeal enemies can phase through obstacles
-        valid_moves = self.get_valid_moves(enemy_pos, movement_range, movement_type)
+        # Check for incorporeal ability
+        can_phase = enemy.get("movement", {}).get("movement_type") == "incorporeal"
         
-        if target_position not in valid_moves:
-            # AI suggested invalid move, stay put
+        # Find path to destination using movement system
+        path = self.movement_system.find_path(
+            enemy_pos, 
+            target_position, 
+            can_phase
+        )
+        
+        # Validate if path exists and is within movement range
+        if not path or len(path) - 1 > movement_range:
             self._add_to_combat_log(f"{enemy_name} cannot reach desired position")
             return False
         
-        # Execute the move
-        old_pos = enemy_pos.copy()
-        enemy["position"] = target_position
+        # Start movement animation
+        success = self.movement_system.start_entity_movement(
+            enemy_id,
+            enemy_pos,
+            path
+        )
         
-        self._add_to_combat_log(f"{enemy_name} moved to [{target_position[0]}, {target_position[1]}]")
+        if success:
+            # Update intended position, but actual position will be updated by movement system
+            enemy["intended_position"] = target_position
+            
+            # Log movement
+            self._add_to_combat_log(f"{enemy_name} moves toward {target_position}")
+            
+            # Emit movement event for UI
+            self.event_manager.emit("COMBAT_UNIT_MOVED", {
+                "unit_type": "enemy",
+                "old_position": enemy_pos,
+                "new_position": target_position,
+                "animated": True
+            })
+            
+            return True
         
-        # Emit movement event for UI
-        self.event_manager.emit("COMBAT_UNIT_MOVED", {
-            "unit_type": "enemy",
-            "old_position": old_pos,
-            "new_position": target_position
-        })
-        
-        return True
+        return False
     
+    def execute_enemy_turn(self, enemy_id: str):
+        """Public method that redirects to the internal _execute_enemy_turn method"""
+        return self._execute_enemy_turn(enemy_id)
+
+    def _execute_enemy_turn(self, enemy_id: str):
+        """Execute AI turn for enemy using CombatAI decision system"""
+        # Find enemy instance
+        enemy_instances = self.combat_data.get("enemy_instances", [])
+        enemy = None
+        for e in enemy_instances:
+            if e.get("instance_id") == enemy_id and e.get("current_hp", 0) > 0:
+                enemy = e
+                break
+        
+        if not enemy:
+            # Enemy is dead, skip turn
+            self._advance_turn()
+            return
+        
+        enemy_name = enemy.get("name", "Enemy")
+        self._add_to_combat_log(f"{enemy_name}'s turn")
+        
+        # Calculate valid moves for this enemy
+        movement_range = enemy.get("movement", {}).get("speed", 3)
+        valid_moves = self.get_valid_moves(enemy.get("position", [0, 0]), movement_range)
+
+        # AI plans ENTIRE turn (move + attack) in ONE call
+        combat_state = {
+            'character_states': self.character_states,
+            'enemy_instances': enemy_instances,
+            'battlefield': self.combat_data.get("battlefield", {}),
+            'valid_moves': valid_moves
+        }
+        
+        # Get complete turn plan from AI
+        turn_plan = self.combat_ai.calculate_enemy_turn(enemy, combat_state)
+
+        print(f"\n⚙️ EXECUTING TURN: {enemy_name}")
+        
+        # Execute movement (if planned)
+        if turn_plan.get('move'):
+            print(f"   🚶 Executing move to {turn_plan['move']}")
+            self._execute_enemy_move(enemy, turn_plan['move'])
+        
+        # Execute attack (if planned)
+        if turn_plan.get('attack'):
+            attack_data = turn_plan['attack']
+            self._execute_enemy_attack(
+                enemy,
+                attack_data['target_id'],
+                attack_data.get('attack_index', 0)
+            )
+        
+        # Log if no actions taken
+        if not turn_plan.get('move') and not turn_plan.get('attack'):
+            reason = turn_plan.get('reason', 'no action')
+            self._add_to_combat_log(f"{enemy_name} waits ({reason})")
+            print(f"   ⏸️ No actions taken: {reason}")
+        
+        # Advance to next turn
+        self._advance_turn()
+
     def _execute_enemy_attack(self, enemy: Dict, target_char_id: str, attack_index: int = 0) -> bool:
         """
         Execute enemy attack on target character
@@ -558,54 +651,68 @@ class CombatEngine:
         }
 
     def set_action_mode(self, mode: str):
-        """Set current action mode for UI interaction"""
-        self.current_action_mode = mode
+        """Set the current action mode and calculate valid actions"""
         print(f"Action mode set to: {mode}")
-
-    def get_valid_moves(self, actor_position: List[int], movement_range: int, 
-                       movement_type: str = "walking") -> List[List[int]]:
-        """
-        Calculate valid movement squares considering obstacles and other units
+        self.current_action_mode = mode
         
-        Args:
-            actor_position: Current [x, y] position
-            movement_range: Number of tiles actor can move
-            movement_type: Type of movement ("walking", "flying", "incorporeal", "teleport")
+        # Clear any existing highlighted tiles
+        self.combat_data["highlighted_tiles"] = []
         
-        Returns:
-            List of valid [x, y] positions
-        """
-        valid_moves = []
-        start_x, start_y = actor_position
-        
-        battlefield = self.combat_data.get("battlefield", {})
-        dimensions = battlefield.get("dimensions", {"width": 12, "height": 8})
-        
-        # Check if this unit can phase through obstacles
-        can_phase = movement_type in ["flying", "incorporeal", "teleport"]
-        
-        # Check all positions within movement range
-        for dx in range(-movement_range, movement_range + 1):
-            for dy in range(-movement_range, movement_range + 1):
-                # Manhattan distance check
-                if abs(dx) + abs(dy) <= movement_range and (dx != 0 or dy != 0):
-                    new_x = start_x + dx
-                    new_y = start_y + dy
-                    
-                    # Check bounds
-                    if 0 <= new_x < dimensions["width"] and 0 <= new_y < dimensions["height"]:
-                        # Incorporeal units ignore obstacles
-                        if can_phase:
-                            # Only check if tile is occupied by another unit
-                            if not self._is_tile_occupied(new_x, new_y):
-                                valid_moves.append([new_x, new_y])
-                        else:
-                            # Normal units check walkability AND occupation
-                            if self._is_tile_walkable(new_x, new_y):
-                                if not self._is_tile_occupied(new_x, new_y):
-                                    valid_moves.append([new_x, new_y])
+        # Calculate valid action tiles based on mode
+        if mode == "movement":
+            # Get active character
+            if not self.active_character_id:
+                return
+                
+            char_state = self.character_states.get(self.active_character_id)
+            if not char_state:
+                return
+                
+            position = char_state.get('position')
+            if not position:
+                return
             
-        return valid_moves
+            # Check if character can phase through obstacles
+            can_phase = False
+            for ability in char_state.get('abilities', []):
+                if ability.get('id') == 'incorporeal':
+                    can_phase = True
+                    break
+            
+            # Get movement range
+            movement_range = self._get_movement_range()
+            
+            # Calculate valid moves
+            is_player = True  # Player characters can move through allies
+            valid_moves = []
+            
+            # Use movement system if available
+            if hasattr(self, 'movement_system'):
+                valid_moves = self.movement_system.get_valid_moves(
+                    position, movement_range, can_phase, is_player
+                )
+            else:
+                # Fall back to existing method if movement system not available
+                valid_moves = self.get_valid_moves(position, movement_range)
+                
+            print(f"Calculated {len(valid_moves)} valid movement tiles")
+            
+            # Store in combat data for rendering
+            self.combat_data["highlighted_tiles"] = valid_moves
+        
+        elif mode == "attack":
+            # Your existing attack highlighting code
+            pass
+            
+        elif mode == "ranged_attack":
+            # Your existing ranged attack highlighting code
+            pass
+
+    def get_valid_moves(self, position, movement_range):
+        """Get valid moves for an entity"""
+        # Delegate to movement system
+        can_phase = False  # Determine if entity can phase
+        return self.movement_system.get_valid_moves(position, movement_range, can_phase)
 
     def _can_use_ranged_attack(self) -> bool:
         """Check if active character can use ranged attacks"""
@@ -850,42 +957,6 @@ class CombatEngine:
             (cx + 1 - eps, cy + 1 - eps),     # BR
         ]
 
-        # def line_cells(a, b):
-        #     return self._line_cells_supercover_f(a, b)  # your float supercover tracer
-
-        # # def is_blocker(gx, gy):
-        # #     # If you don't want creatures to grant cover, change this to wall/column layer check.
-        # #     return self._is_cover_blocker(gx, gy)
-
-        # def ray_blocked(pt):
-        #     cells = line_cells((sx, sy), pt)
-        #     # ignore origin & target tiles
-        #     for i in range(1, len(cells) - 1):
-        #         gx, gy = cells[i]
-        #         # Corner-touch tolerance: if this cell is diagonally adjacent
-        #         # to both neighbors along the path, treat as a corner graze.
-        #         prevx, prevy = cells[i - 1]
-        #         nextx, nexty = cells[i + 1]
-        #         if (abs(prevx - gx) == 1 and abs(prevy - gy) == 1 and
-        #             abs(nextx - gx) == 1 and abs(nexty - gy) == 1):
-        #             continue
-        #         if self._is_cover_blocker(gx, gy):
-        #             return True
-        #     return False
-
-        # blocked = sum(1 for pt in samples if ray_blocked(pt))
-        # total = len(samples)
-        # if blocked >= 5:
-        #     level = "full"
-        # elif blocked >= 3:
-        #     level = "three_quarters"
-        # elif blocked >= 1:
-        #     level = "half"
-        # else:
-        #     level = "none"
-
-        # print(f"[COVER] shooter={origin} target={target} blocked={blocked} level={level}")
-        # return {"level": level, "blocked_rays": blocked}
         def ray_kind(to_pt) -> str:
             cells = self._line_cells_supercover_f((sx, sy), to_pt)
             # ignore origin & final target tile
@@ -952,6 +1023,7 @@ class CombatEngine:
             "soft_three_quarters_rays": soft_3q_hits,
             "creature_rays": creature_hits,
         }
+    
     def _is_obstacle(self, cell):
         x, y = cell
         return self._is_tile_blocked_for_los(x, y)
@@ -1031,35 +1103,68 @@ class CombatEngine:
         print(f"   Current position: {char_state['position']}")
         print(f"   Target position: {target_position}")
         print(f"   Has moved: {char_state['has_moved']}")
+        
+        # Check if target is the same as current position
+        if char_state['position'] == target_position:
+            self._add_to_combat_log("Already at that position!")
+            print(f"DEBUG: Attempted to move to same position")
+            return False
+        
         if char_state.get('has_moved', False):
             self._add_to_combat_log("Already moved this turn!")
             return False
         
         # Validate movement
         movement_range = self._get_movement_range()  # uses helper
-        valid_moves = self.get_valid_moves(char_state['position'], movement_range)
+     
+        # Check for incorporeal ability
+        can_phase = False
+        for ability in char_state.get('abilities', []):
+            if ability.get('id') == 'incorporeal':
+                can_phase = True
+                break
         
-        if target_position not in valid_moves:
+        # Find path to destination using movement system
+        path = self.movement_system.find_path(
+            char_state['position'], 
+            target_position, 
+            can_phase
+        )
+        
+        if not path or len(path) - 1 > movement_range:
             self._add_to_combat_log("Invalid movement target!")
             return False
         
-        # Execute move
-        old_pos = char_state['position']
-        char_state['position'] = target_position
+        # Add debugging for the path:
+        print(f"DEBUG: Path calculated: {path}")
+
+        # Start movement animation
+        success = self.movement_system.start_entity_movement(
+            self.active_character_id,
+            char_state['position'],
+            path
+        )
+        
+        if not success:
+            return False
+        
+        # Mark character as moved, but don't update position yet
+        # Position will be updated by the movement system during animation
         char_state['has_moved'] = True
+        char_state['intended_position'] = target_position
+        
+        # Clear action mode after successful move initiation
+        self.current_action_mode = None
         
         char_name = char_state['name']
+        self._add_to_combat_log(f"{char_name} moves toward [{target_position[0]}, {target_position[1]}]")
         
-        # Clear action mode after successful move
-        self.current_action_mode = None  
-
-        self._add_to_combat_log(f"{char_name} moved to [{target_position[0]}, {target_position[1]}]")
-        
-        # Emit movement event for UI
+        # Emit movement event for UI (will be visual only until animation completes)
         self.event_manager.emit("COMBAT_UNIT_MOVED", {
             "unit_type": "player",
-            "old_position": old_pos,
-            "new_position": target_position
+            "old_position": char_state['position'],
+            "new_position": target_position,
+            "animated": True  # Flag to indicate this is an animated move
         })
         
         return True
@@ -1403,70 +1508,67 @@ class CombatEngine:
         # This shouldn't happen as victory/defeat should trigger first
         print("⚠️ WARNING: All actors in turn order are unconscious/dead!")
     
-    def _execute_enemy_turn(self, enemy_id: str):
-        """Execute AI turn for enemy using CombatAI decision system"""
-        # Find enemy instance
-        enemy_instances = self.combat_data.get("enemy_instances", [])
-        enemy = None
-        for e in enemy_instances:
-            if e.get("instance_id") == enemy_id and e.get("current_hp", 0) > 0:
-                enemy = e
+    def _execute_enemy_move(self, enemy: Dict, target_position: List[int]) -> bool:
+        """
+        Execute enemy movement to target position with animation
+        
+        Args:
+            enemy: Enemy instance dict
+            target_position: [x, y] position to move to
+            
+        Returns:
+            bool: True if move was successful
+        """
+        enemy_pos = enemy.get("position", [0, 0])
+        enemy_name = enemy.get("name", "Enemy")
+        movement_range = enemy.get("movement", {}).get("speed", 3)
+        enemy_id = enemy.get("instance_id", "")
+        
+        # Check for incorporeal ability
+        can_phase = False
+        for ability in enemy.get('abilities', []):
+            if ability.get('id') == 'incorporeal':
+                can_phase = True
                 break
         
-        if not enemy:
-            # Enemy is dead, skip turn
-            self._advance_turn()
-            return
+        # Find path to destination using movement system
+        path = self.movement_system.find_path(
+            enemy_pos, 
+            target_position, 
+            can_phase
+        )
         
-        enemy_name = enemy.get("name", "Enemy")
-        self._add_to_combat_log(f"{enemy_name}'s turn")
+        # Validate if path is within movement range
+        if not path or len(path) - 1 > movement_range:  # -1 because path includes start
+            self._add_to_combat_log(f"{enemy_name} cannot reach desired position")
+            return False
         
-        # Calculate valid moves for this enemy
-        movement_data = enemy.get("movement", {})
-        movement_range = movement_data.get("speed", 3)
-        movement_type = movement_data.get("movement_type", "walking")
-        valid_moves = self.get_valid_moves(enemy.get("position", [0, 0]), movement_range, movement_type)
-
-        # AI plans ENTIRE turn (move + attack) in ONE call
-        combat_state = {
-            'character_states': self.character_states,
-            'enemy_instances': enemy_instances,
-            'battlefield': self.combat_data.get("battlefield", {}),
-            'valid_moves': valid_moves
-        }
+        # Start movement animation
+        success = self.movement_system.start_entity_movement(
+            enemy_id,
+            enemy_pos,
+            path
+        )
         
-        # Get complete turn plan from AI
-        turn_plan = self.combat_ai.calculate_enemy_turn(enemy, combat_state)
-
-        print(f"\n⚙️ EXECUTING TURN: {enemy_name}")
-        
-        # Execute movement (if planned)
-        if turn_plan.get('move'):
-            print(f"   🚶 Executing move to {turn_plan['move']}")
-            self._execute_enemy_move(enemy, turn_plan['move'])
-        
-        # Execute attack (if planned)
-        if turn_plan.get('attack'):
-            attack_data = turn_plan['attack']
-            self._execute_enemy_attack(
-                enemy,
-                attack_data['target_id'],
-                attack_data.get('attack_index', 0)
-            )
-        
-        # Log if no actions taken
-        if not turn_plan.get('move') and not turn_plan.get('attack'):
-            reason = turn_plan.get('reason', 'no action')
-            self._add_to_combat_log(f"{enemy_name} waits ({reason})")
-            print(f"   ⏸️ No actions taken: {reason}")
-            print(f"   ⚠️ WARNING: Enemy had no valid actions!")
+        if success:
+            # Update intended position, but actual position will be updated by movement system
+            enemy["intended_position"] = target_position
             
-        # Log enemy turn end
-        self._add_to_combat_log(f"{enemy_name} ends turn")
-
-        # End enemy turn
-        self._advance_turn()
-    
+            # Log movement
+            self._add_to_combat_log(f"{enemy_name} moves toward [{target_position[0]}, {target_position[1]}]")
+            
+            # Emit movement event for UI
+            self.event_manager.emit("COMBAT_UNIT_MOVED", {
+                "unit_type": "enemy",
+                "old_position": enemy_pos,
+                "new_position": target_position,
+                "animated": True  # Flag to indicate this is an animated move
+            })
+            
+            return True
+        
+        return False
+        
     def _find_nearest_party_member(self, enemy_pos: List[int]) -> List[int]:
         """Find the position of the nearest living party member"""
         nearest_pos = None

@@ -5,6 +5,7 @@ Follows existing ui pattern for screen presentation layers
 """
 
 import pygame
+import time
 from typing import Dict, Any, Optional, List
 from utils.constants import *
 from utils.graphics import draw_combat_button, draw_centered_text, draw_text
@@ -44,6 +45,10 @@ class CombatEncounter:
 
     def render(self, surface: pygame.Surface, game_state, fonts: Dict, images: Dict, controller=None) -> Dict[str, Any]:
         """Main combat screen rendering - follows BaseLocation pattern"""
+        if controller and hasattr(controller, 'combat_engine') and hasattr(controller.combat_engine, 'movement_system'):
+            print("Updating movement animations...")
+            controller.combat_engine.movement_system.update_movements()
+        
         # Get combat sprite manager (singleton)
         self.sprite_manager = get_combat_sprite_manager()
 
@@ -58,6 +63,10 @@ class CombatEncounter:
         except Exception as e:
             print(f"❌ Combat data error: {e}")
             return self._render_data_error(surface, fonts, str(e))
+        
+        # UPDATE MOVEMENT ANIMATIONS - Add this block right here!
+        if controller and hasattr(controller, 'combat_engine') and hasattr(controller.combat_engine, 'movement_system'):
+            controller.combat_engine.movement_system.update_movements()
         
         # Clear screen
         surface.fill(BLACK)
@@ -99,7 +108,6 @@ class CombatEncounter:
         }
         
         return floor_tile_map.get(default_floor, 'stone_floor_16x16')
-
 
     def _register_with_input_handler(self, clickable_areas: Dict, controller):
         #print(f"🔍 Total clickable areas to register: {len(clickable_areas)}")
@@ -306,7 +314,6 @@ class CombatEncounter:
         # Default fallback
         return 'wall_north'
 
-
     def _get_obstacle_type(self, x: int, y: int, battlefield: Dict) -> str:
         """Get the type of obstacle at this grid position"""
         obstacles = battlefield.get('terrain', {}).get('obstacles', [])
@@ -334,7 +341,6 @@ class CombatEncounter:
                 sprite_y = screen_y + (self.tile_size - sprite_size) // 2
                 surface.blit(sprite, (sprite_x, sprite_y))
 
-
     def _draw_floor_tile(self, surface: pygame.Surface, screen_x: int, screen_y: int, floor_type: str = 'cobblestone_street_16x16'):
             """Draw tiled floor texture for this grid square"""
             # Get the 16x16 floor tile from sprite manager
@@ -357,6 +363,17 @@ class CombatEncounter:
 
     def _render_battlefield_units(self, surface: pygame.Surface, combat_data: Dict, controller):
         """Render player and enemy units on the battlefield"""
+        # Add debug information
+        print(f"DEBUG: Rendering battlefield units")
+        if controller and hasattr(controller, 'combat_engine') and hasattr(controller.combat_engine, 'movement_system'):
+            active_movements = controller.combat_engine.movement_system.entity_movements
+            print(f"DEBUG: Active movements: {len(active_movements)}")
+            for entity_id, movement in active_movements.items():
+                print(f"DEBUG: Movement for {entity_id}: {movement['moving']}, {movement['start_pos']} → {movement['target_pos']}")
+    
+        # Update movement animations if movement system exists
+        if controller and hasattr(controller, 'combat_engine') and hasattr(controller.combat_engine, 'movement_system'):
+            controller.combat_engine.movement_system.update_movements()
         
         # Render all party members
         character_states = combat_data.get("character_states", {})
@@ -366,54 +383,105 @@ class CombatEncounter:
             if not char_state.get('is_alive', True):
                 continue  # Skip dead characters
             
+            # Get base grid position
             position = char_state.get('position')
-            if position and len(position) == 2:
-                x, y = position
-                # Shift sprite up in the tile by reducing the offset
-                screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
-                screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6  # Move up 6 pixels
+            if not position or len(position) != 2:
+                continue
                 
-                # Determine color - CYAN for active character, BLUE for others
-                is_active = (char_id == active_character_id)
-                char_color = CYAN if is_active else BLUE
+            x, y = position
+            
+            # Check if character is being animated
+            if (controller and hasattr(controller, 'combat_engine') and 
+                hasattr(controller.combat_engine, 'movement_system') and
+                controller.combat_engine.movement_system.is_entity_moving(char_id)):
                 
-                # Draw character circle
-                pygame.draw.circle(surface, char_color, (screen_x, screen_y), self.tile_size // 3)
+                # Get movement data
+                movement = controller.combat_engine.movement_system.entity_movements[char_id]
                 
-                # Draw extra highlight border for active character
-                if is_active:
-                    pygame.draw.circle(surface, CYAN, (screen_x, screen_y), 
-                                     self.tile_size // 3 + 2, 3)  # Thicker border
+                if movement['moving']:
+                    # Calculate current visual position based on interpolation
+                    start = movement['start_pos']
+                    target = movement['target_pos']
+                    elapsed = time.time() - movement['start_time']
+                    progress = min(elapsed * movement['move_speed'], 1.0)
+                    
+                    # Linear interpolation
+                    x = start[0] + (target[0] - start[0]) * progress
+                    y = start[1] + (target[1] - start[1]) * progress
+            
+            # Convert to screen coordinates
+            screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
+            screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6  # Move up 6 pixels
+            
+            # Determine color - CYAN for active character, BLUE for others
+            is_active = (char_id == active_character_id)
+            char_color = CYAN if is_active else BLUE
+            
+            # Check for incorporeal movement effect
+            opacity = 255  # Full opacity by default
+            if (controller and hasattr(controller, 'combat_engine') and 
+                hasattr(controller.combat_engine, 'movement_system') and
+                char_id in controller.combat_engine.movement_system.entity_movements):
                 
-                # Character label (first letter of name)
-                name = char_state.get('name', 'P')
-                label = name[0].upper()
-                font = pygame.font.Font(None, 24)
-                text_surface = font.render(label, True, WHITE)
-                text_rect = text_surface.get_rect(center=(screen_x, screen_y))
-                surface.blit(text_surface, text_rect)
-                
-                # Draw HP bar - read from source of truth!
-                char_data = char_state.get('character_data', {})
-                
-                # For player character, read directly from game_state (source of truth)
-                if char_id == 'player':
-                    current_hp = controller.game_state.character.get('current_hp', 10)
-                    max_hp = controller.game_state.character.get('hit_points', 10)
-                else:
-                    # NPC - read from party_member_data
-                    current_hp = char_data.get('current_hp', 10)
-                    max_hp = char_data.get('max_hp', 10)
-                    # Update from party_member_data if available
-                    for member in controller.game_state.party_member_data:
-                        if member.get('id') == char_id:
-                            current_hp = member.get('current_hp', current_hp)
-                            max_hp = member.get('hp', member.get('hit_points', max_hp))
-                            break
-                
-                self._draw_hp_bar(surface, screen_x, screen_y, current_hp, max_hp)
+                movement = controller.combat_engine.movement_system.entity_movements[char_id]
+                if movement.get('is_incorporeal', False) and movement['moving']:
+                    # Make slightly transparent during movement
+                    opacity = 178  # ~70% opacity
+                    
+                    # Draw phase effect (subtle glow)
+                    glow_surf = pygame.Surface((self.tile_size, self.tile_size), pygame.SRCALPHA)
+                    pygame.draw.circle(glow_surf, (*char_color, 50), 
+                                    (self.tile_size//2, self.tile_size//2), 
+                                    self.tile_size // 2)
+                    surface.blit(glow_surf, 
+                            (screen_x - self.tile_size//2, 
+                                screen_y - self.tile_size//2))
+            
+            # Create character surface with transparency
+            char_surf = pygame.Surface((self.tile_size, self.tile_size), pygame.SRCALPHA)
+            
+            # Draw character circle with appropriate opacity
+            pygame.draw.circle(char_surf, (*char_color, opacity), 
+                            (self.tile_size//2, self.tile_size//2), 
+                            self.tile_size // 3)
+            
+            # Draw highlight for active character
+            if is_active:
+                pygame.draw.circle(char_surf, (*CYAN, opacity), 
+                                (self.tile_size//2, self.tile_size//2), 
+                                self.tile_size // 3 + 2, 3)
+            
+            # Apply surface with opacity
+            surface.blit(char_surf, (screen_x - self.tile_size//2, screen_y - self.tile_size//2))
+            
+            # Character label (first letter of name)
+            name = char_state.get('name', 'P')
+            label = name[0].upper()
+            font = pygame.font.Font(None, 24)
+            text_surface = font.render(label, True, WHITE)
+            text_rect = text_surface.get_rect(center=(screen_x, screen_y))
+            surface.blit(text_surface, text_rect)
+            
+            # Draw HP bar - same as your original code
+            char_data = char_state.get('character_data', {})
+            
+            if char_id == 'player':
+                current_hp = controller.game_state.character.get('current_hp', 10)
+                max_hp = controller.game_state.character.get('hit_points', 10)
+            else:
+                # NPC - read from party_member_data
+                current_hp = char_data.get('current_hp', 10)
+                max_hp = char_data.get('max_hp', 10)
+                # Update from party_member_data if available
+                for member in controller.game_state.party_member_data:
+                    if member.get('id') == char_id:
+                        current_hp = member.get('current_hp', current_hp)
+                        max_hp = member.get('hp', member.get('hit_points', max_hp))
+                        break
+            
+            self._draw_hp_bar(surface, screen_x, screen_y, current_hp, max_hp)
         
-       # Render enemy units - DEAD FIRST, then LIVING (for proper Z-order)
+        # Render enemy units - DEAD FIRST, then LIVING (for proper Z-order)
         enemy_instances = combat_data.get("enemy_instances", [])
         
         # Separate dead and living enemies
@@ -433,11 +501,11 @@ class CombatEncounter:
                 
                 # Draw an X over the corpse to show it's dead
                 pygame.draw.line(surface, RED, 
-                               (screen_x - 8, screen_y - 8), 
-                               (screen_x + 8, screen_y + 8), 2)
+                            (screen_x - 8, screen_y - 8), 
+                            (screen_x + 8, screen_y + 8), 2)
                 pygame.draw.line(surface, RED, 
-                               (screen_x - 8, screen_y + 8), 
-                               (screen_x + 8, screen_y - 8), 2)
+                            (screen_x - 8, screen_y + 8), 
+                            (screen_x + 8, screen_y - 8), 2)
                 
                 # Enemy label (first letter of name) - so you know WHAT died
                 name = enemy.get("name", "E")
@@ -446,34 +514,85 @@ class CombatEncounter:
                 text_surface = font.render(f"†{label}", True, WHITE)
                 text_rect = text_surface.get_rect(center=(screen_x, screen_y))
                 surface.blit(text_surface, text_rect)
-                
-                # No HP bar for dead enemies (they're at 0)
         
         # LAYER 2: Render living enemies (top layer - will appear over corpses)
         for enemy in living_enemies:
-            position = enemy.get("position", [])
+            # Get enemy ID
+            enemy_id = enemy.get("instance_id", "")
             
-            if len(position) == 2:
-                x, y = position
-                # Shift sprite up in the tile
-                screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
-                screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6  # Move up 6 pixels
+            # Get base grid position
+            position = enemy.get("position", [])
+            if not position or len(position) != 2:
+                continue
                 
-                # Draw enemy as red circle with first letter of name
-                pygame.draw.circle(surface, RED, (screen_x, screen_y), self.tile_size // 3)
+            x, y = position
+            
+            # Check if enemy is being animated
+            if (controller and hasattr(controller, 'combat_engine') and 
+                hasattr(controller.combat_engine, 'movement_system') and
+                controller.combat_engine.movement_system.is_entity_moving(enemy_id)):
                 
-                # Enemy label (first letter of name)
-                name = enemy.get("name", "E")
-                label = name[0].upper()
-                font = pygame.font.Font(None, 24)
-                text_surface = font.render(label, True, WHITE)
-                text_rect = text_surface.get_rect(center=(screen_x, screen_y))
-                surface.blit(text_surface, text_rect)
+                # Get movement data
+                movement = controller.combat_engine.movement_system.entity_movements[enemy_id]
                 
-                # Draw enemy HP bar
-                current_hp = enemy.get("current_hp", 0)
-                max_hp = enemy.get("stats", {}).get("hp", 1)
-                self._draw_hp_bar(surface, screen_x, screen_y, current_hp, max_hp)
+                if movement['moving']:
+                    # Calculate current visual position based on interpolation
+                    start = movement['start_pos']
+                    target = movement['target_pos']
+                    elapsed = time.time() - movement['start_time']
+                    progress = min(elapsed * movement['move_speed'], 1.0)
+                    
+                    # Linear interpolation
+                    x = start[0] + (target[0] - start[0]) * progress
+                    y = start[1] + (target[1] - start[1]) * progress
+            
+            # Convert to screen coordinates
+            screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
+            screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6
+            
+            # Check for incorporeal movement effect
+            opacity = 255  # Full opacity by default
+            if (controller and hasattr(controller, 'combat_engine') and 
+                hasattr(controller.combat_engine, 'movement_system') and
+                enemy_id in controller.combat_engine.movement_system.entity_movements):
+                
+                movement = controller.combat_engine.movement_system.entity_movements[enemy_id]
+                if movement.get('is_incorporeal', False) and movement['moving']:
+                    # Make slightly transparent during movement
+                    opacity = 178  # ~70% opacity
+                    
+                    # Draw phase effect (subtle glow)
+                    glow_surf = pygame.Surface((self.tile_size, self.tile_size), pygame.SRCALPHA)
+                    pygame.draw.circle(glow_surf, (*RED, 50), 
+                                    (self.tile_size//2, self.tile_size//2), 
+                                    self.tile_size // 2)
+                    surface.blit(glow_surf, 
+                            (screen_x - self.tile_size//2, 
+                                screen_y - self.tile_size//2))
+            
+            # Create enemy surface with transparency
+            enemy_surf = pygame.Surface((self.tile_size, self.tile_size), pygame.SRCALPHA)
+            
+            # Draw enemy circle with appropriate opacity
+            pygame.draw.circle(enemy_surf, (*RED, opacity), 
+                            (self.tile_size//2, self.tile_size//2), 
+                            self.tile_size // 3)
+            
+            # Apply surface with opacity
+            surface.blit(enemy_surf, (screen_x - self.tile_size//2, screen_y - self.tile_size//2))
+            
+            # Enemy label (first letter of name)
+            name = enemy.get("name", "E")
+            label = name[0].upper()
+            font = pygame.font.Font(None, 24)
+            text_surface = font.render(label, True, WHITE)
+            text_rect = text_surface.get_rect(center=(screen_x, screen_y))
+            surface.blit(text_surface, text_rect)
+            
+            # Draw enemy HP bar
+            current_hp = enemy.get("current_hp", 0)
+            max_hp = enemy.get("stats", {}).get("hp", 1)
+            self._draw_hp_bar(surface, screen_x, screen_y, current_hp, max_hp)
     
     def _render_tile_overlays(self, surface: pygame.Surface, combat_data: Dict):
         """Render movement/targeting overlays on grid tiles"""
