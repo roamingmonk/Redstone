@@ -267,9 +267,11 @@ class CombatEngine:
         enemy_pos = enemy.get("position", [0, 0])
         enemy_name = enemy.get("name", "Enemy")
         movement_range = enemy.get("movement", {}).get("speed", 3)
+        movement_type = enemy.get("movement", {}).get("movement_type", "walking")
         
         # Validate the AI's suggested move using combat rules
-        valid_moves = self.get_valid_moves(enemy_pos, movement_range)
+        # Pass movement_type so incorporeal enemies can phase through obstacles
+        valid_moves = self.get_valid_moves(enemy_pos, movement_range, movement_type)
         
         if target_position not in valid_moves:
             # AI suggested invalid move, stay put
@@ -560,11 +562,16 @@ class CombatEngine:
         self.current_action_mode = mode
         print(f"Action mode set to: {mode}")
 
-    def get_valid_moves(self, actor_position: List[int], movement_range: int) -> List[List[int]]:
+    def get_valid_moves(self, actor_position: List[int], movement_range: int, 
+                       movement_type: str = "walking") -> List[List[int]]:
         """
         Calculate valid movement squares considering obstacles and other units
-        Args:actor_position: Current [x, y] position
+        
+        Args:
+            actor_position: Current [x, y] position
             movement_range: Number of tiles actor can move
+            movement_type: Type of movement ("walking", "flying", "incorporeal", "teleport")
+        
         Returns:
             List of valid [x, y] positions
         """
@@ -573,6 +580,9 @@ class CombatEngine:
         
         battlefield = self.combat_data.get("battlefield", {})
         dimensions = battlefield.get("dimensions", {"width": 12, "height": 8})
+        
+        # Check if this unit can phase through obstacles
+        can_phase = movement_type in ["flying", "incorporeal", "teleport"]
         
         # Check all positions within movement range
         for dx in range(-movement_range, movement_range + 1):
@@ -584,10 +594,16 @@ class CombatEngine:
                     
                     # Check bounds
                     if 0 <= new_x < dimensions["width"] and 0 <= new_y < dimensions["height"]:
-                        # Check if tile is walkable AND not occupied
-                        if self._is_tile_walkable(new_x, new_y):
+                        # Incorporeal units ignore obstacles
+                        if can_phase:
+                            # Only check if tile is occupied by another unit
                             if not self._is_tile_occupied(new_x, new_y):
                                 valid_moves.append([new_x, new_y])
+                        else:
+                            # Normal units check walkability AND occupation
+                            if self._is_tile_walkable(new_x, new_y):
+                                if not self._is_tile_occupied(new_x, new_y):
+                                    valid_moves.append([new_x, new_y])
             
         return valid_moves
 
@@ -1406,8 +1422,10 @@ class CombatEngine:
         self._add_to_combat_log(f"{enemy_name}'s turn")
         
         # Calculate valid moves for this enemy
-        movement_range = enemy.get("movement", {}).get("speed", 3)
-        valid_moves = self.get_valid_moves(enemy.get("position", [0, 0]), movement_range)
+        movement_data = enemy.get("movement", {})
+        movement_range = movement_data.get("speed", 3)
+        movement_type = movement_data.get("movement_type", "walking")
+        valid_moves = self.get_valid_moves(enemy.get("position", [0, 0]), movement_range, movement_type)
 
         # AI plans ENTIRE turn (move + attack) in ONE call
         combat_state = {
@@ -1798,19 +1816,28 @@ class CombatEngine:
         except:
             return 1  # Fallback
     
-    def _is_tile_walkable(self, x: int, y: int) -> bool:
-        """Check if tile at position is walkable"""
+    def _is_tile_walkable(self, x: int, y: int, movement_type="ground") -> bool:
+        """
+        Check if tile at position is walkable
+        
+        Args:
+            x, y: Tile coordinates
+            movement_type: Type of movement (ground, flying, incorporeal)
+            
+        Returns:
+            bool: Whether the tile is walkable for the given movement type
+        """
         battlefield = self.combat_data.get("battlefield", {})
         
-        # Check walls
-        if self._is_wall_tile(x, y, battlefield):
+        # Check walls - impassable for all except incorporeal
+        if self._is_wall_tile(x, y, battlefield) and movement_type != "incorporeal":
             return False
         
-        # Check obstacles
-        if self._is_obstacle_tile(x, y, battlefield):
+        # Check obstacles - impassable for ground units but not incorporeal
+        if self._is_obstacle_tile(x, y, battlefield) and movement_type != "incorporeal":
             return False
         
-        # Check if another unit occupies this tile
+        # Check if another unit occupies this tile - none can pass through
         if self._is_tile_occupied(x, y):
             return False
         

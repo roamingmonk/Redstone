@@ -21,7 +21,13 @@
       {"type": "crate", "position": [3, 3], "blocks_movement": true, "blocks_sight": false},
       {"type": "barrel", "position": [10, 6], "blocks_movement": true, "blocks_sight": false},
       {"type": "debris", "position": [7, 4], "blocks_movement": true, "blocks_sight": false},
-      {"type": "crate", "position": [11, 2], "blocks_movement": true, "blocks_sight": false}
+      {"type": "crate", "position": [11, 2], "blocks_movement": true, "blocks_sight": false},
+      {"type": "wall", "position": [8, 1], "blocks_movement": true, "blocks_sight": true},
+      {"type": "wall", "position": [8, 2], "blocks_movement": true, "blocks_sight": true},
+      {"type": "wall", "position": [8, 3], "blocks_movement": true, "blocks_sight": true},
+      {"type": "wall", "position": [8, 4], "blocks_movement": true, "blocks_sight": true},
+      {"type": "wall", "position": [8, 5], "blocks_movement": true, "blocks_sight": true},
+      {"type": "wall", "position": [8, 6], "blocks_movement": true, "blocks_sight": true}
     ]
   },
   "spawn_zones": {
@@ -29,7 +35,7 @@
       [1, 7], [2, 7], [1, 8], [2, 8]
     ],
     "enemy_spawns": [
-      [11, 1], [12, 2], [11, 7], [8, 3], [6, 5]
+      [11, 1], [12, 2], [11, 7], [9, 3]
     ],
     "exit_point": [1, 7]
   },

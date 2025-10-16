@@ -508,12 +508,107 @@ class CombatAI:
     
     def _calculate_stalker_action(self, enemy_data: Dict, combat_state: Dict) -> Dict:
         """
-        STALKER: Relentless pursuit, ignoring obstacles (ghost style)
-        - Move directly toward player
-        - Can move through obstacles if incorporeal
+        STALKER: Relentless single-target pursuit (ghosts/obsessed hunters)
+        Strategy:
+        - Locks onto ONE target and pursues relentlessly
+        - Never switches targets unless current target dies
+        - Can move through obstacles if incorporeal (checks movement_type)
+        - Ignores tactical considerations - pure obsession
+        - Creates horror movie "it's following you" feeling
+        Returns: {'move': pos or None, 'attack': data or None}
         """
-        # TODO: Implement in next step
-        return self._calculate_rush_action(enemy_data, combat_state)
+        enemy_pos = enemy_data.get("position", [0, 0])
+        enemy_instance_id = enemy_data.get("instance_id", "unknown")
+        
+        # Check if we have a locked target (stored in enemy data)
+        locked_target_id = enemy_data.get("stalker_target")
+        character_states = combat_state.get('character_states', {})
+        
+        # Validate locked target is still alive
+        if locked_target_id and locked_target_id in character_states:
+            target_state = character_states[locked_target_id]
+            if not target_state.get('is_alive', True):
+                # Target died - clear lock
+                locked_target_id = None
+                enemy_data["stalker_target"] = None
+        
+        # If no locked target, pick the closest player and LOCK ON
+        if not locked_target_id:
+            closest = self._find_closest_player(enemy_pos, combat_state)
+            if not closest:
+                return {'move': None, 'attack': None, 'reason': 'no prey detected'}
+            
+            locked_target_id = closest['id']
+            enemy_data["stalker_target"] = locked_target_id
+            print(f"   🎯 LOCKED TARGET: {closest['name']}")
+        
+        # Get locked target info
+        target_state = character_states.get(locked_target_id)
+        if not target_state:
+            return {'move': None, 'attack': None, 'reason': 'target lost'}
+        
+        target_name = target_state.get('name', 'Target')
+        target_pos = target_state.get('position', [0, 0])
+        distance = self._manhattan_distance(enemy_pos, target_pos)
+        
+        # Already adjacent to locked target - ATTACK
+        if distance == 1:
+            return {
+                'move': None,
+                'attack': {
+                    'target_id': locked_target_id,
+                    'attack_index': 0
+                },
+                'reason': f'relentlessly attacking {target_name}'
+            }
+        
+        # Move toward locked target
+        movement_range = enemy_data.get("movement", {}).get("speed", 3)
+        movement_type = enemy_data.get("movement", {}).get("movement_type", "walking")
+        
+        # Check if incorporeal (can pass through obstacles)
+        can_phase = movement_type in ["flying", "incorporeal", "teleport"]
+        
+        if can_phase:
+            # Incorporeal - move directly toward target, ignoring obstacles
+            new_pos = self._find_direct_path_to_target(
+                enemy_pos,
+                target_pos,
+                movement_range
+            )
+        else:
+            # Corporeal - use normal pathfinding
+            new_pos = self._find_best_move_toward_target(
+                enemy_pos,
+                target_pos,
+                movement_range,
+                combat_state
+            )
+        
+        if new_pos != enemy_pos:
+            new_distance = self._manhattan_distance(new_pos, target_pos)
+            
+            # Moved into attack range
+            if new_distance == 1:
+                phase_msg = "(phasing through obstacles)" if can_phase else ""
+                return {
+                    'move': new_pos,
+                    'attack': {
+                        'target_id': locked_target_id,
+                        'attack_index': 0
+                    },
+                    'reason': f'stalking {target_name} into melee {phase_msg}'
+                }
+            else:
+                phase_msg = "(phasing)" if can_phase else ""
+                return {
+                    'move': new_pos,
+                    'attack': None,
+                    'reason': f'relentlessly stalking {target_name} {phase_msg} (distance {distance} → {new_distance})'
+                }
+        
+        # Blocked (shouldn't happen for incorporeal)
+        return {'move': None, 'attack': None, 'reason': f'stalking {target_name} blocked'}
     
     def _calculate_aggressive_rush_action(self, enemy_data: Dict, combat_state: Dict) -> Dict:
         """
@@ -958,7 +1053,56 @@ class CombatAI:
                 best_pos = move_pos
         
         return best_pos
-    
+
+    def _find_direct_path_to_target(self, start: List[int], target: List[int], 
+                                        movement_range: int) -> List[int]:
+            """
+            Find direct path toward target, ignoring obstacles (for incorporeal movement)
+            
+            Args:
+                start: Starting [x, y] position
+                target: Target [x, y] position
+                movement_range: How far can move this turn
+                
+            Returns:
+                New [x, y] position moving directly toward target
+            """
+            start_x, start_y = start
+            target_x, target_y = target
+            
+            dx = target_x - start_x
+            dy = target_y - start_y
+            
+            # Calculate direction to move
+            move_x = 0
+            move_y = 0
+            
+            if dx != 0:
+                move_x = 1 if dx > 0 else -1
+            if dy != 0:
+                move_y = 1 if dy > 0 else -1
+            
+            # Move as far as possible toward target (up to movement_range)
+            new_x = start_x
+            new_y = start_y
+            
+            for step in range(movement_range):
+                # Try to move diagonally if both dx and dy exist
+                if abs(new_x + move_x - target_x) + abs(new_y + move_y - target_y) < abs(new_x - target_x) + abs(new_y - target_y):
+                    new_x += move_x
+                    new_y += move_y
+                # Otherwise move in axis with larger distance
+                elif abs(dx) > abs(dy):
+                    new_x += move_x
+                else:
+                    new_y += move_y
+                
+                # Stop if we reached target
+                if new_x == target_x and new_y == target_y:
+                    break
+            
+            return [new_x, new_y]
+
     def _find_best_retreat_position(self, enemy_pos: List[int], player_pos: List[int],
                                movement_range: int, combat_state: Dict) -> List[int]:
         """Find position that maximizes distance from player using ACTUAL valid moves"""

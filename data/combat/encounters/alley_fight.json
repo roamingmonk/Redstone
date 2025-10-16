@@ -9,7 +9,7 @@
       "enemy_id": "goblin",
       "position": [11, 1],
       "facing": "west",
-      "ai_behavior": "flanking"
+      "ai_behavior": "stalker"
     },
     {
       "enemy_id": "kobold",
@@ -18,12 +18,12 @@
       "ai_behavior": "ranged_preference"
     },
     {
-      "enemy_id": "thief_common",
+      "enemy_id": "shadow_ghost",
       "position": [9, 3],
       "facing": "west"
     },
     {
-      "enemy_id": "thief_common",
+      "enemy_id": "shadow_ghost",
       "position": [11, 3],
       "facing": "west"
     }
