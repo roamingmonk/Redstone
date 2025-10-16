@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-10-12 14:37)
+﻿## Repository Structure (generated 2025-10-16 10:18)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -83,6 +83,7 @@ C:.
 |       |   |       glass_vial_with_swirling_mist.png
 |       |   |       healing_potion.PNG
 |       |   |       hemp_rope.PNG
+|       |   |       henriks_lantern.PNG
 |       |   |       holy_symbol.png
 |       |   |       iron_ring_with_strange_symbols.jpg
 |       |   |       leather_armor.PNG
@@ -124,11 +125,22 @@ C:.
 |       |   |       
 |       |   +---items
 |       |   |       barrel.png
+|       |   |       support_beam.png
 |       |   |       
 |       |   +---landscape
 |       |   |       star_twinkle_1.png
 |       |   |       
-|       |   \---player
+|       |   +---player
+|       |   \---walls
+|       |           cellar_corner_ne.png
+|       |           cellar_corner_nw.png
+|       |           cellar_corner_se.png
+|       |           cellar_corner_sw.png
+|       |           cellar_wall_east.png
+|       |           cellar_wall_north.png
+|       |           cellar_wall_south.png
+|       |           cellar_wall_west.png
+|       |           
 |       \---tiles
 |           |       stone_wall.png
 |           |       wall_corner_ne.png
@@ -164,14 +176,23 @@ C:.
 |   |   
 |   +---combat
 |   |   +---battlefields
+|   |   |       redstone_town_alley.json
 |   |   |       small_cellar.json
 |   |   |       
 |   |   +---encounters
+|   |   |       alley_fight.json
 |   |   |       tavern_basement_rats.json
 |   |   |       
 |   |   \---enemies
+|   |           blight_shadow.json
+|   |           cultist.json
 |   |           giant_rat.json
+|   |           goblin.json
+|   |           kobold.json
 |   |           ogre_archer.json
+|   |           shadow_ghost.json
+|   |           skeleton.json
+|   |           thief_common.json
 |   |           
 |   +---dialogues
 |   |       broken_blade_garrick.json
@@ -225,12 +246,14 @@ C:.
 +---docs
 |       adding_npc_dialogue.md
 |       decisions.md
+|       KNOWN_ISSUES.md
 |       project_context copy.md
 |       project_context.md
 |       Repository_Structure.md
 |       
 +---game_logic
 |   |   character_engine.py
+|   |   combat_ai.py
 |   |   combat_engine.py
 |   |   commerce_engine.py
 |   |   data_manager.py
