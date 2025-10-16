@@ -4,11 +4,11 @@ Contains all drawing functions for UI elements, borders, buttons, etc.
 """
 
 import pygame
-# from .constants import (
-#     WHITE, GRAY, DARK_GRAY, DARK_BROWN, YELLOW, BLACK,
-#     BORDER_THICKNESS
-# )
-from utils.constants import *
+from .constants import (
+     WHITE, GRAY, DARK_GRAY, DARK_BROWN, DARK_GREEN, BLACK,BRIGHT_GREEN, 
+     BORDER_THICKNESS, BUTTON_SELECTED_BG, BUTTON_SELECTED_BORDER, BUTTON_SELECTED_TEXT,
+     BUTTON_NORMAL_TEXT, BUTTON_NORMAL_BG, BUTTON_NORMAL_BORDER
+     )
 
 def draw_text_with_shadow(surface, text, font, x, y, text_color=WHITE, shadow_color=DARK_GRAY, shadow_offset=3):
     """
@@ -80,8 +80,6 @@ def draw_combat_button(surface, x, y, width, height, text, font, button_state="n
         font: Font to use
         button_state: "normal", "active", "disabled"
     """
-    import pygame
-
     # Define colors based on state
     if button_state == "active":
         bg_color = DARK_GREEN

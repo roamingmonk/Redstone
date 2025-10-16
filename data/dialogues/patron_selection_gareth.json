@@ -10,18 +10,50 @@
         "You look like someone who attracts trouble—or solves it."
       ],
       "options": [
-        { "id": "ask_story", "text": "What is your story?", "next_state": "background" },
+        { "id": "ack_story", "text": "What is your story?", "next_state": "background" },
         { "id": "bye_first", "text": "Maybe later.", "next_state": "exit" }
       ]
     },
-
+    "first_meeting_post_mayor": {
+      "introduction": [
+        "*The weathered soldier looks up as you approach,"," recognition in his eyes.*",
+        "You must be the one the Mayor sent.", " Word travels fast in a small town.",
+        "People are vanishing, and Aldwin thinks you're the answer.",
+        "I respect that.  So—what's your play?"
+      ],
+      "options": [
+        { 
+          "id": "ask_story", 
+          "text": "Tell me about yourself first.", 
+          "next_state": "background_with_recruitment" 
+        },
+        {
+          "id": "recruit_immediate",
+          "text": "Join me. We need your sword.",
+          "requirements": { "flags": { "can_recruit_more": true } },
+          "effects": [{ "type": "set_flag", "flag": "gareth_recruited", "value": true }],
+          "next_state": "recruited_join"
+        },
+        {
+          "id": "party_full",
+          "text": "I'd like your help, but my party is full.",
+          "requirements": { "flags": { "can_recruit_more": false } },
+          "next_state": "recruitment_blocked_brief"
+        },
+        { 
+          "id": "bye_post_mayor", 
+          "text": "Not yet. I'll be back.", 
+          "next_state": "exit" 
+        }
+      ]
+    },
     "casual_chat": {
       "introduction": [
         "I don't take orders from strangers, friend.",
-        "You want my sword? Talk to the Mayor first. He will vouch for you—or he won’t."
+        "You want my sword? Talk to the Mayor first." ,"He will vouch for you—or he won’t."
       ],
       "options": [
-        { "id": "ack_mayor_gate", "text": "Alright. I willl speak to the Mayor.", "next_state": "exit" },
+        { "id": "ask_mayor_gate", "text": "Alright. I willl speak to the Mayor.", "next_state": "exit" },
         { "id": "ask_story2", "text": "At least tell me about yourself.", "next_state": "background" }
       ]
     },
@@ -42,6 +74,40 @@
       ]
     },
 
+    "background_with_recruitment": {
+      "introduction": [
+        "Twenty years on battlefields both noble and questionable.",
+        "These days? I prefer causes that can still look me in the eye.",
+        "*He meets your gaze steadily.*",
+        "You came here for a reason. Let's not waste time."
+      ],
+      "options": [
+        {
+          "id": "recruit_after_bg",
+          "text": "Join me. We need your experience.",
+          "requirements": { "flags": { "can_recruit_more": true } },
+          "effects": [
+            { "type": "set_flag", "flag": "gareth_shared_story", "value": true },
+            { "type": "set_flag", "flag": "gareth_recruited", "value": true }
+          ],
+          "next_state": "recruited_join"
+        },
+        {
+          "id": "party_full_after_bg",
+          "text": "I'd take you, but my party is full.",
+          "requirements": { "flags": { "can_recruit_more": false } },
+          "effects": [{ "type": "set_flag", "flag": "gareth_shared_story", "value": true }],
+          "next_state": "recruitment_blocked_brief"
+        },
+        { 
+          "id": "maybe_later_bg", 
+          "text": "Let me think about it.", 
+          "effects": [{ "type": "set_flag", "flag": "gareth_shared_story", "value": true }],
+          "next_state": "exit" 
+        }
+      ]
+    },
+
     "recruitment_available": {
       "introduction": [
         "*He nods with respect.*",
@@ -51,7 +117,7 @@
       "options": [
         {
           "id": "recruit_yes",
-          "text": "Join me. We’ll put your axe to work.",
+          "text": "Join me. We’ll put your sword to work.",
           "effects": [
             { "type": "set_flag", "flag": "gareth_recruited", "value": true }
           ],
@@ -68,6 +134,15 @@
       ],
       "options": [
         { "id": "blocked_ok", "text": "Understood.", "next_state": "exit" }
+      ]
+    },
+    "recruitment_blocked_brief": {
+      "introduction": [
+        "*He nods understanding.*",
+        "Make room and I'll be here. Those people won't save themselves."
+      ],
+      "options": [
+        { "id": "ack_full", "text": "I'll be back.", "next_state": "exit" }
       ]
     },
 

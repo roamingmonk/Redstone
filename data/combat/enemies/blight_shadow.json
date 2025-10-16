@@ -1,0 +1,60 @@
+{
+  "enemy_id": "blight_shadow",
+  "name": "Blight Shadow",
+  "description": "A writhing mass of corrupted darkness with tendrils of shadow. The air around it reeks of decay and wrongness.",
+  "stats": {
+    "hp": 19,
+    "max_hp": 16,
+    "ac": 14,
+    "strength": 12,
+    "dexterity": 16,
+    "constitution": 13,
+    "intelligence": 6,
+    "wisdom": 10,
+    "charisma": 8
+  },
+  "attacks": [
+    {
+      "name": "Shadow Tendril",
+      "damage_dice": "1d8+2",
+      "attack_bonus": 4,
+      "attack_type": "melee",
+      "range": 2,
+      "description": "A lashing tendril of corrupted shadow that withers flesh",
+      "damage_type": "necrotic"
+    }
+  ],
+  "movement": {
+    "speed": 4,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Blight Touch",
+      "description": "Attacks may inflict poison (10% chance)",
+      "effect_type": "status_effect",
+      "trigger": "on_hit",
+      "chance": 0.1,
+      "effect": "poisoned"
+    },
+    {
+      "name": "Shadow Form",
+      "description": "Resistant to non-magical damage",
+      "effect_type": "damage_resistance",
+      "trigger": "when_hit",
+      "resistance_amount": 0.5
+    }
+  ],
+  "loot": {
+    "xp_value": 100,
+    "gold_range": [0, 3],
+    "items": ["corrupted_shadow_essence"]
+  },
+  "behavior": {
+    "aggression": "very_high",
+    "intelligence": "low",
+    "tactics": "aggressive_rush",
+    "retreat_threshold": 0,
+    "notes": "Moves aggressively toward nearest target, uses extended reach"
+  }
+}

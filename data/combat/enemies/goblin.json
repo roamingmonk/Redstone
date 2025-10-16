@@ -1,0 +1,58 @@
+{
+  "enemy_id": "goblin",
+  "name": "Goblin",
+  "description": "A small, green-skinned humanoid with sharp teeth and a mean disposition. Nimble and fond of ambush tactics.",
+  "stats": {
+    "hp": 9,
+    "max_hp": 9,
+    "ac": 14,
+    "strength": 8,
+    "dexterity": 16,
+    "constitution": 10,
+    "intelligence": 10,
+    "wisdom": 8,
+    "charisma": 8
+  },
+  "attacks": [
+    {
+      "name": "Scimitar",
+      "damage_dice": "1d6",
+      "attack_bonus": 3,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A curved blade wielded with surprising skill"
+    },
+    {
+      "name": "Short Bow",
+      "damage_dice": "1d6",
+      "attack_bonus": 3,
+      "attack_type": "ranged",
+      "range": 6,
+      "description": "A quick arrow from the shadows"
+    }
+  ],
+  "movement": {
+    "speed": 4,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Nimble Escape",
+      "description": "Can move after attacking",
+      "effect_type": "action_economy",
+      "trigger": "after_attack"
+    }
+  ],
+  "loot": {
+    "xp_value": 50,
+    "gold_range": [3, 10],
+    "items": ["short_bow", "arrows"]
+  },
+  "behavior": {
+    "aggression": "high",
+    "intelligence": "medium",
+    "tactics": "hit_and_run",
+    "retreat_threshold": 0,
+    "notes": "Prefers ranged attacks, moves after shooting if possible"
+  }
+}

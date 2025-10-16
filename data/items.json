@@ -617,6 +617,22 @@
       "max_stack": 10
     },
     {
+      "id": "henriks_lantern",
+      "name": "Henriks Lantern",
+      "description": "A lucky Lantern provided by Hendrik to light your way.",
+      "base_cost": 150,
+      "category": "items",
+      "icon_file": "henriks_lantern.png",
+      "consumable": false,
+      "weight": 1,
+      "rarity": "special",
+      "stackable": false,
+      "special_effects": {
+        "morale_bonus": 1,
+        "description": "The lanterns light instills confidence in the party"
+      }
+    },
+    {
       "id": "trail_rations",
       "name": "Trail Rations",
       "description": "Nourishing food for the road.",

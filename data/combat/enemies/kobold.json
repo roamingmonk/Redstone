@@ -1,0 +1,58 @@
+{
+  "enemy_id": "kobold",
+  "name": "Kobold",
+  "description": "A small, cowardly reptilian humanoid with rust-colored scales. Armed with crude weapons and prone to fleeing.",
+  "stats": {
+    "hp": 7,
+    "max_hp": 7,
+    "ac": 13,
+    "strength": 7,
+    "dexterity": 15,
+    "constitution": 9,
+    "intelligence": 8,
+    "wisdom": 7,
+    "charisma": 8
+  },
+  "attacks": [
+    {
+      "name": "Rusty Dagger",
+      "damage_dice": "1d4",
+      "attack_bonus": 2,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A quick stab with a poorly maintained blade"
+    },
+    {
+      "name": "Sling",
+      "damage_dice": "1d4",
+      "attack_bonus": 2,
+      "attack_type": "ranged",
+      "range": 5,
+      "description": "A stone hurled from a crude sling"
+    }
+  ],
+  "movement": {
+    "speed": 3,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Pack Tactics",
+      "description": "Gains +1 to attack rolls when adjacent to an ally",
+      "effect_type": "combat_bonus",
+      "trigger": "adjacent_ally"
+    }
+  ],
+  "loot": {
+    "xp_value": 25,
+    "gold_range": [1, 5],
+    "items": ["rusty_dagger"]
+  },
+  "behavior": {
+    "aggression": "medium",
+    "intelligence": "low",
+    "tactics": "ranged_preference",
+    "retreat_threshold": 3,
+    "notes": "Will flee when HP drops to 3 or below"
+  }
+}

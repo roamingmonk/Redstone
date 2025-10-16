@@ -5,7 +5,8 @@ Follows TileGraphicsManager pattern for consistency
 """
 
 import pygame
-from utils.constants import *
+from utils.tile_graphics import get_tile_graphics_manager
+from data.maps.redstone_town_map import get_location_npcs
 
 class NPCManager:
     """Manages NPC spawning, state, and interaction across all locations"""
@@ -26,9 +27,8 @@ class NPCManager:
         
         # Cache for loaded NPC definitions per location
         self.location_npcs = {}
-        
-        # Sprite cache (reuses TileGraphicsManager for actual sprites)
-        from utils.tile_graphics import get_tile_graphics_manager
+    
+        # Sprite cache (reuses TileGraphicsManager for actual sprites    
         self.graphics = get_tile_graphics_manager()
         
         NPCManager._initialized = True
@@ -51,7 +51,6 @@ class NPCManager:
         # Import location-specific NPC data
         try:
             if location_id == 'redstone_town':
-                from data.maps.redstone_town_map import get_location_npcs
                 npcs = get_location_npcs()
                 self.location_npcs[location_id] = npcs
                 print(f"✅ Loaded {len(npcs)} NPCs for {location_id}")

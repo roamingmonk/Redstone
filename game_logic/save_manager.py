@@ -1,8 +1,10 @@
 
 import json
 import os
+import shutil        
 from datetime import datetime
-from utils.constants import SAVE_LOAD_RESTRICTED_SCREENS
+from utils.constants import SAVE_LOAD_RESTRICTED_SCREENS, MALE_PORTRAITS_PATH, FEMALE_PORTRAITS_PATH
+from utils.narrative_schema import narrative_schema
 
 class SaveManager:
     """
@@ -118,7 +120,7 @@ class SaveManager:
             # *** Save all narrative schema flags dynamically ***
             narrative_flags = {}
             try:
-                from utils.narrative_schema import narrative_schema
+                
                 all_flags = narrative_schema.get_all_flags()
                 
                 # Filter out None values and collect flag states
@@ -211,11 +213,6 @@ class SaveManager:
         Load game state from JSON file and restore game to saved state
         save_slot: 1-3 for manual saves, 0 for auto-save
         """
-        import os
-        import shutil
-        import json
-        from datetime import datetime
-
         try:
             # Determine save file name
             if save_slot == 0:
@@ -311,7 +308,6 @@ class SaveManager:
                 print(f"📂 Loading {len(narrative_flags)} narrative flags")
                 
                 try:
-                    from utils.narrative_schema import narrative_schema
                     all_schema_flags = narrative_schema.get_all_flags()
                     
                     # Load all schema-defined flags
@@ -420,7 +416,7 @@ class SaveManager:
                     # Manually copy the portrait to active folder
                 
                     # Build source path based on save data
-                    from utils.constants import MALE_PORTRAITS_PATH, FEMALE_PORTRAITS_PATH
+                    
                     if portrait_gender == 'male':
                         source_dir = MALE_PORTRAITS_PATH
                     else:

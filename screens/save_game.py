@@ -6,6 +6,7 @@ Save Game Screen - Full screen overlay for save file management
 import pygame
 from utils.constants import *
 from utils.graphics import draw_border, draw_button, draw_centered_text
+from datetime import datetime
 
 def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None):
     """
@@ -146,7 +147,6 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
             timestamp = slot_data['save_info']['timestamp']
             if timestamp != 'Unknown':
                 try:
-                    from datetime import datetime
                     dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
                     time_str = dt.strftime('%b %d, %I:%M %p')
                 except:

@@ -7,8 +7,10 @@ Replaces hardcoded screen logic with data-driven approach + massive draw_current
 
 from typing import Dict, Callable, Any, Optional
 import pygame
+import os
 import traceback
-from utils.constants import OVERLAY_RESTRICTED_SCREENS, MAIN_MENU_ALLOWED_OVERLAYS
+from utils.constants import OVERLAY_RESTRICTED_SCREENS, LAYOUT_IMAGE_Y, LAYOUT_BUTTON_CENTER_Y
+from screens.character_creation import draw_summary_screen
 from screens.load_game import draw_load_game_screen
 from utils.overlay_utils import OverlayState
 from screens.help_overlay import draw_help_screen
@@ -17,6 +19,16 @@ from screens.character_overlay import draw_character_sheet_screen
 from screens.quest_overlay import draw_quest_overlay
 from screens.inventory_overlay import draw_inventory_screen
 from screens.save_game import draw_save_game_screen
+from ui.shopping_overlay import ShoppingOverlay
+from game_logic.commerce_engine import get_commerce_engine
+from ui.combat_system import CombatEncounter
+from ui.shopping_overlay import ShoppingOverlay
+from ui.generic_dialogue_handler import draw_generic_dialogue_screen
+from ui.death_overlay import create_death_overlay
+from screens.intro_scenes import draw_intro_scene_1, draw_intro_scene_2, draw_intro_scene_3
+from ui.screen_handlers import (handle_main_menu_clicks, handle_dice_bets_clicks,
+                                handle_dice_rolling_clicks, handle_dice_results_clicks,
+                                handle_dice_rules_clicks)
 
 class ScreenManager:
     """
@@ -206,7 +218,6 @@ class ScreenManager:
             
             # Get button coordinates from the draw function
             temp_surface = pygame.Surface((1024, 768))
-            from screens.save_game import draw_save_game_screen
             
             # Get save_manager from game_controller
             save_manager = None
@@ -274,15 +285,6 @@ class ScreenManager:
                 "source_screen": "developer_splash"
             })
             return True
-        
-        # Import your existing main menu handler
-        from ui.screen_handlers import (
-        handle_main_menu_clicks,
-        handle_dice_bets_clicks,
-        handle_dice_rolling_clicks,
-        handle_dice_results_clicks,
-        handle_dice_rules_clicks
-        )
         
         # Register all basic handlers
         self.register_screen("game_title", handle_title_click)
@@ -473,8 +475,6 @@ class ScreenManager:
         if hasattr(self, 'input_handler') and self.input_handler:
             
             # Use exact coordinates from draw_portrait_selection_screen
-            from utils.constants import LAYOUT_IMAGE_Y, LAYOUT_BUTTON_CENTER_Y
-            
             portrait_size = 110
             total_width = 6 * portrait_size + 5 * 20  # 6 portraits + 5 gaps of 20px
             start_x = (1024 - total_width) // 2  # Center the row
@@ -538,7 +538,6 @@ class ScreenManager:
         
        # Get the START GAME button coordinates from the draw function
         temp_surface = pygame.Surface((1024, 768))
-        from screens.character_creation import draw_summary_screen
         
         start_button = draw_summary_screen(
             temp_surface, 
@@ -570,13 +569,10 @@ class ScreenManager:
             
             # Call the actual registered scene function, not the generic one
             if scene_id == "intro_scene_1":
-                from screens.intro_scenes import draw_intro_scene_1
                 scene_result = draw_intro_scene_1(temp_surface, None, self.fonts, self.images)
             elif scene_id == "intro_scene_2":
-                from screens.intro_scenes import draw_intro_scene_2
                 scene_result = draw_intro_scene_2(temp_surface, None, self.fonts, self.images)
             elif scene_id == "intro_scene_3":
-                from screens.intro_scenes import draw_intro_scene_3
                 scene_result = draw_intro_scene_3(temp_surface, None, self.fonts, self.images)
             else:
                 print(f"⚠️ Unknown scene_id: {scene_id}")
@@ -754,8 +750,6 @@ class ScreenManager:
 #########  TODO Keep as fallback until render shopping overlay is confirmed.  /////Plan to remove ////
     def _render_merchant_shop(self, surface, game_state, fonts, images, controller):
         """TEMPORARY: Render tabbed shopping overlay - will be removed once verified"""
-        from ui.shopping_overlay import ShoppingOverlay
-        
         if not hasattr(self, '_shopping_overlay'):
             self._shopping_overlay = ShoppingOverlay(screen_manager=self)
         
@@ -791,7 +785,6 @@ class ScreenManager:
                 merchant_id = merchant_data.get('merchant_id')
                 
                 # Check stock before allowing add to cart
-                from game_logic.commerce_engine import get_commerce_engine
                 commerce = get_commerce_engine()
                 stock_status = commerce.get_stock_status(item_id, merchant_id)
                 
@@ -820,7 +813,6 @@ class ScreenManager:
                 merchant_id = merchant_data.get('merchant_id')
                 
                 # Check stock
-                from game_logic.commerce_engine import get_commerce_engine
                 commerce = get_commerce_engine()
                 stock_status = commerce.get_stock_status(item_id, merchant_id)
                 
@@ -846,15 +838,13 @@ class ScreenManager:
         """Handle purchase button from shopping overlay"""
         game_state = self._current_game_controller.game_state
         merchant_id = getattr(game_state, 'current_merchant_id', 'garrick')
-        
-        from game_logic.commerce_engine import get_commerce_engine
         commerce = get_commerce_engine()
         success, message = commerce.process_purchase(merchant_id)
         print(f"🛒 {message}")
 
     def _handle_commerce_reset(self, event_data):
         """Handle reset cart button from shopping overlay"""
-        from game_logic.commerce_engine import get_commerce_engine
+        
         commerce = get_commerce_engine()
         commerce.clear_cart()
         print("🛒 Shopping cart cleared")
@@ -1283,7 +1273,7 @@ class ScreenManager:
 
     def _render_shopping_overlay(self, surface, game_state, fonts, images, controller):
         """Render the new tabbed shopping overlay"""
-        from ui.shopping_overlay import ShoppingOverlay
+        
         
         # Create overlay instance if needed
         if not hasattr(self, '_shopping_overlay'):
@@ -1414,10 +1404,7 @@ class ScreenManager:
         """
         Auto-register dialogue screens from filesystem
         Follows location_npc pattern: broken_blade_garrick.json -> "broken_blade_garrick" screen
-        """
-        import os
-        from ui.generic_dialogue_handler import draw_generic_dialogue_screen
-        
+        """        
         dialogue_path = "data/dialogues/"
         registered_count = 0
 
@@ -1541,9 +1528,7 @@ class ScreenManager:
         
         # Initialize overlay state if not exists
         if not hasattr(self._current_game_state, 'overlay_state'):
-            from utils.overlay_utils import OverlayState
             self._current_game_state.overlay_state = OverlayState()
-        
         overlay_state = self._current_game_state.overlay_state
         
         # Special handling for load/save screens (need clickable registration)
@@ -1617,7 +1602,7 @@ class ScreenManager:
         
         # DEATH OVERLAY (special - always renders on top if active)
         if getattr(game_state, 'death_overlay_active', False):
-            from ui.death_overlay import create_death_overlay
+            
             
             if not hasattr(self, '_death_overlay'):
                 self._death_overlay = create_death_overlay()

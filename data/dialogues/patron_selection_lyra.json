@@ -14,7 +14,40 @@
         { "id": "bye_first", "text": "Maybe later.", "next_state": "exit" }
       ]
     },
-
+    "first_meeting_post_mayor": {
+      "introduction": [
+        "*A lithe figure in dark leather steps from the shadows, appraising you.*",
+        "The Mayor's new agent. Word travels faster than you did.",
+        "People vanishing, locks that need picking, trouble that needs... handling.",
+        "*She twirls a dagger idly.*",
+        "Sounds profitable. And interesting."
+      ],
+      "options": [
+        { 
+          "id": "ask_story", 
+          "text": "Tell me what you can do first.", 
+          "next_state": "background_with_recruitment" 
+        },
+        {
+          "id": "recruit_immediate",
+          "text": "Join me. We need your skills.",
+          "requirements": { "flags": { "can_recruit_more": true } },
+          "effects": [{ "type": "set_flag", "flag": "lyra_recruited", "value": true }],
+          "next_state": "recruited_join"
+        },
+        {
+          "id": "party_full",
+          "text": "I'd like your help, but my party is full.",
+          "requirements": { "flags": { "can_recruit_more": false } },
+          "next_state": "recruitment_blocked_brief"
+        },
+        { 
+          "id": "bye_post_mayor", 
+          "text": "Not yet. I'll find you later.", 
+          "next_state": "exit" 
+        }
+      ]
+    },
     "casual_chat": {
       "introduction": [
         "Freelance, not reckless. The Mayor is cracking down.",
@@ -28,7 +61,8 @@
 
     "background": {
       "introduction": [
-        "Locks, traps, and quiet footsteps. I collect problems and make them vanish.",
+        "Locks, traps, and quiet footsteps. ",
+        "I collect problems and make them vanish.",
         "Discretion costs extra. Trouble costs more."
       ],
       "options": [
@@ -41,7 +75,39 @@
         { "id": "bye_bg", "text": "Thanks.", "next_state": "exit" }
       ]
     },
-
+    "background_with_recruitment": {
+      "introduction": [
+        "Locks, traps, and quiet footsteps. I collect problems and make them vanish.",
+        "Discretion costs extra. Trouble costs more.",
+        "*She sheathes the dagger smoothly.*",
+        "But the Mayor vouched for you. That's worth something."
+      ],
+      "options": [
+        {
+          "id": "recruit_after_bg",
+          "text": "Join me. We'll need someone like you.",
+          "requirements": { "flags": { "can_recruit_more": true } },
+          "effects": [
+            { "type": "set_flag", "flag": "lyra_shared_tricks", "value": true },
+            { "type": "set_flag", "flag": "lyra_recruited", "value": true }
+          ],
+          "next_state": "recruited_join"
+        },
+        {
+          "id": "party_full_after_bg",
+          "text": "I'd take you, but my party is full.",
+          "requirements": { "flags": { "can_recruit_more": false } },
+          "effects": [{ "type": "set_flag", "flag": "lyra_shared_tricks", "value": true }],
+          "next_state": "recruitment_blocked_brief"
+        },
+        { 
+          "id": "maybe_later_bg", 
+          "text": "I need to think about this.", 
+          "effects": [{ "type": "set_flag", "flag": "lyra_shared_tricks", "value": true }],
+          "next_state": "exit" 
+        }
+      ]
+    },
     "recruitment_available": {
       "introduction": [
         "*She twirls a dagger, amused.*",
@@ -62,13 +128,22 @@
     "recruitment_blocked": {
       "introduction": [
         "*She eyes your ranks, counting footfalls in her head.*",
-        "Too many boots for clean work. Make space and I will be here."
+        "Too many boots for clean work. ",
+        "Make space and I will be there."
       ],
       "options": [
         { "id": "blocked_ok", "text": "Understood.", "next_state": "exit" }
       ]
     },
-
+    "recruitment_blocked_brief": {
+      "introduction": [
+        "*She smirks and leans back into the shadows.*",
+        "Make space. I'll be around. Trouble always finds me anyway."
+      ],
+      "options": [
+        { "id": "ack_full", "text": "I'll return.", "next_state": "exit" }
+      ]
+    },
     "recruited_join": {
       "introduction": [
         "Smart choice. Point me at the locks and keep the noise down."

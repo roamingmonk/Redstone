@@ -10,11 +10,13 @@ from utils.graphics import draw_border, draw_centered_text
 from utils.party_display import draw_party_status_panel
 from utils.tile_graphics import get_tile_graphics_manager
 from utils.narrative_schema import narrative_schema
-
+from data.maps.redstone_town_map import BUILDING_ENTRANCES
+from utils.npc_manager import get_npc_manager
 
 # Import town map data
 try:
     from data.maps.redstone_town_map import *
+
     print(f"DEBUG: Imported spawn point = ({TOWN_SPAWN_X}, {TOWN_SPAWN_Y})")
 except ImportError:
     # Fallback data
@@ -92,8 +94,6 @@ class RedstoneTownNavigation:
         self.required_direction = None
         
         if building_at_entrance:
-            # Get building entrance data from BUILDING_ENTRANCES to find building_pos
-            from data.maps.redstone_town_map import BUILDING_ENTRANCES
             
             # Find which building this entrance belongs to
             for building_id, building_data in BUILDING_ENTRANCES.items():
@@ -109,8 +109,9 @@ class RedstoneTownNavigation:
                         building_pos
                     )
                     
-                    # Check if player is facing the correct direction
-                    if self.renderer.player_direction == self.required_direction:
+                    # Check if player is facing the correct direction (or if direction check disabled)
+                    skip_direction = building_at_entrance.get('skip_direction_check', False)
+                    if skip_direction or self.renderer.player_direction == self.required_direction:
                         self.current_building = building_at_entrance
                         self.can_interact = True
                     else:
@@ -189,6 +190,29 @@ class RedstoneTownNavigation:
                                 self.temp_message_text = "The town gates are sealed. The guards won't let anyone leave right now."
                             else:
                                 self.temp_message_text = "Sorry, it's closed."
+                elif interaction_type == 'combat':
+                    print(f"DEBUG: RT: Combat Trigger")
+                    combat_encounter = self.current_building.get('combat_encounter')
+                    combat_context = self.current_building.get('combat_context', {})
+                    
+                    if combat_encounter and controller:
+                        # Store combat data in game state (BaseLocation pattern)
+                        print(f"🗡️ Starting combat: {combat_encounter}")
+                        game_state.previous_screen = game_state.screen
+                        game_state.current_combat_encounter = combat_encounter
+                        if combat_context:
+                            game_state.combat_context = combat_context
+                        
+                        # Navigate to combat screen
+                        controller.event_manager.emit("SCREEN_CHANGE", {
+                            'target_screen': 'combat',
+                            'source': 'town_navigation'
+                        })
+                    else:
+                        # Fallback if combat data missing
+                        self.showing_temp_message = True
+                        self.temp_message_timer = pygame.time.get_ticks()
+                        self.temp_message_text = "The area is too dangerous to enter right now."
 
                 else:
                     # Default closed message
@@ -215,7 +239,7 @@ class RedstoneTownNavigation:
                         })
                         
                         # Mark as talked
-                        from utils.npc_manager import get_npc_manager
+                        
                         get_npc_manager().mark_npc_talked(npc_id, game_state)
                     else:
                         # NPC dialogue not implemented yet - use placeholder from data

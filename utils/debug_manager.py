@@ -3,7 +3,10 @@
 Debug Manager - Professional Debug Infrastructure
 Handles all debugging functionality, keeping GameController lean
 """
+import pygame
 from utils.npc_manager import get_npc_manager
+from screens.redstone_town import _town_navigation_instance
+from utils.narrative_schema import narrative_schema
 
 class DebugManager:
     """
@@ -130,8 +133,6 @@ class DebugManager:
         """Render on-screen debug overlay - F1 toggle"""
         if not self.debug_mode:
             return
-        import pygame
-
         # Get font - use normal font instead of small
         debug_font = fonts.get('small', None)
         if not debug_font:
@@ -152,7 +153,6 @@ class DebugManager:
         surface.blit(overlay_surface, (x_pos, y_pos))
         
         # Draw border
-        #import pygame
         #pygame.draw.rect(surface, (0, 255, 0), 
         #                (x_pos, y_pos, overlay_width, overlay_height), 2)
         
@@ -161,7 +161,6 @@ class DebugManager:
     
     def _draw_debug_lines(self, surface, font, start_x, start_y):
         """Draw all debug information lines"""
-        import pygame
         y_offset = 0
         line_height = 25
         
@@ -198,7 +197,6 @@ class DebugManager:
             lines.append(f"Time: {getattr(self.game_state, 'time_of_day', 'N/A').capitalize()}")
             
             # Show NPC count
-            from utils.npc_manager import get_npc_manager
             try:
                 npc_mgr = get_npc_manager()
                 active_npcs = npc_mgr.get_active_npcs('redstone_town', self.game_state)
@@ -283,7 +281,6 @@ class DebugManager:
         
         # Try to get current building info from navigation instance
         try:
-            from screens.redstone_town import _town_navigation_instance
             if _town_navigation_instance:
                 current_building = _town_navigation_instance.current_building
                 if current_building:
@@ -384,7 +381,6 @@ class DebugManager:
         
         # All narrative flags for save
         try:
-            from utils.narrative_schema import narrative_schema
             print(f"\n🚩 ALL NARRATIVE FLAGS:")
             all_flags = narrative_schema.get_all_flags()
             for flag in all_flags:

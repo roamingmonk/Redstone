@@ -415,14 +415,25 @@ class CombatEncounter:
         
         # Render enemy units
         enemy_instances = combat_data.get("enemy_instances", [])
+        #print(f"🎨 DEBUG: Rendering {len(enemy_instances)} enemies")
         for enemy in enemy_instances:
             position = enemy.get("position", [])
+            
+            current_hp = enemy.get("current_hp", 0)
+            max_hp = enemy.get("stats", {}).get("hp", 1)
+            enemy_name = enemy.get("name", "Enemy")
+            
+            #print(f"🎨 DEBUG: Enemy: {enemy_name} at {position}, HP: {current_hp}/{max_hp}")  
+            
+            
             if len(position) == 2:
                 x, y = position
                 # Shift sprite up in the tile
                 screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
                 screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6  # Move up 6 pixels
                 
+                #print(f"🎨 DEBUG: Rendering at screen coords: ({screen_x}, {screen_y})")
+
                 # Draw enemy as red circle with first letter of name
                 pygame.draw.circle(surface, RED, (screen_x, screen_y), self.tile_size // 3)
                 
@@ -878,11 +889,25 @@ def register_combat_system_events(event_manager, game_controller):
     def handle_combat_back(event_data):
         """Handle return to previous screen"""
         print("🔙 COMBAT_BACK EVENT HANDLER CALLED!")
-        if hasattr(game_controller.game_state, 'previous_screen') and game_controller.game_state.previous_screen:
-            game_controller.game_state.screen = game_controller.game_state.previous_screen
-        else:
-            game_controller.game_state.screen = "broken_blade"
-        print(f"Returning to: {game_controller.game_state.screen}")
+        
+        if game_controller:
+            # CRITICAL: Clean up combat state so next combat starts fresh
+            # NOTE: game_controller here is actually the CombatEngine!
+            game_controller.cleanup_combat()  # ← REMOVED .combat_engine
+            
+            # Clear game state combat flags
+            if hasattr(game_controller.game_state, 'current_combat_encounter'):
+                game_controller.game_state.current_combat_encounter = None
+            if hasattr(game_controller.game_state, 'combat_context'):
+                game_controller.game_state.combat_context = None
+            
+            # Return to previous screen
+            if hasattr(game_controller.game_state, 'previous_screen') and game_controller.game_state.previous_screen:
+                game_controller.game_state.screen = game_controller.game_state.previous_screen
+            else:
+                game_controller.game_state.screen = "redstone_town"
+            
+            print(f"Returning to: {game_controller.game_state.screen}")
     
     # Register the actual event names being emitted
     event_manager.register("MOVE", handle_move_action)

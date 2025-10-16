@@ -56,8 +56,8 @@ class ItemLoader:
             merchant_items = self.items_data.get('merchant_items', [])
             print(f"✅ Found {len(merchant_items)} merchant items")  # DEBUG
             
-            #for item in merchant_items:
-                #print(f"✅ Item loaded: id={item.get('id')}, name={item.get('name')}, base_cost={item.get('base_cost')}")  # DEBUG
+            for item in merchant_items:
+                print(f"✅ Item loaded: id={item.get('id')}, name={item.get('name')}, base_cost={item.get('base_cost')}")  # DEBUG
                 
         except FileNotFoundError:
             print("❌ Error: data/items.json not found!")
@@ -122,7 +122,9 @@ class ItemLoader:
         return None
             
     def get_item_icon(self, item_id):
-        """Get the icon surface for a specific item"""
+    # DEBUG: See what's being requested vs what's available
+        #if item_id not in self.item_icons:
+        #    print(f"❌ ICON MISS: Requested '{item_id}' but only have: {list(self.item_icons.keys())[:5]}...")
         return self.item_icons.get(item_id, self.create_placeholder_icon())
 
     def get_display_name(self, item_id):

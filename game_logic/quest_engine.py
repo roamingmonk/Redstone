@@ -7,6 +7,7 @@ Integrates quest_system.py with event-driven XP and progression
 from utils.quest_system import QuestManager, integrate_quest_system
 from utils.xp_manager import XPManager
 from utils.narrative_schema import narrative_schema
+from utils.quest_system import Quest
 
 def initialize_quest_engine(game_state, event_manager):
     """
@@ -359,7 +360,7 @@ class QuestEngine:
         #a party member so I think this is a dead method.
         if len(self.game_state.party_members) >= 1:  # At least one party member
             # Add the rat basement quest dynamically
-            from utils.quest_system import Quest
+            
             
             if "clear_tavern_basement" not in self.quest_manager.quests:
                 rat_quest = Quest("clear_tavern_basement", "Clear the Tavern Basement", 

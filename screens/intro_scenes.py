@@ -9,7 +9,7 @@ import pygame
 import json
 import os
 from utils.constants import (
-    BLACK, WHITE, YELLOW, BROWN, DARK_GRAY, wrap_text,
+    BLACK, YELLOW, BROWN, DARK_GRAY, wrap_text,
     # Intro-specific constants
     INTRO_TITLE_Y, INTRO_TITLE_DECORATION_OFFSET, INTRO_CONTENT_START_Y,
     INTRO_CONTENT_LINE_SPACING, INTRO_CONTENT_PARAGRAPH_SPACING, INTRO_CONTENT_MAX_WIDTH,

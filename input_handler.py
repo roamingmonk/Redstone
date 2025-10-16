@@ -14,8 +14,10 @@ NO MORE 500+ line input handling functions!
 
 import pygame
 import traceback
+import time
 from typing import Dict, List, Tuple, Callable, Optional, Any
 from dataclasses import dataclass
+from screens.character_overlay import get_character_overlay
 
 @dataclass
 class ClickableRegion:
@@ -127,7 +129,6 @@ class InputHandler:
         if not hasattr(self, '_last_combat_register_time'):
             self._last_combat_register_time = 0
             
-        import time
         current_time = time.time()
         if current_time - self._last_combat_register_time > 1.0:  # Only print once per second
             #print(f"⚔️ Combat clickables registered: {len(regions)} areas")
@@ -306,8 +307,8 @@ class InputHandler:
 
                     # Emit the event instead of calling methods directly
                     
-                    print(f"🚀 EMIT: {region.event_type}")
-                    print(f"🚀 Emitting event: {region.event_type} with data: {region.event_data}")
+                    #print(f"🚀 EMIT: {region.event_type}")
+                    #print(f"🚀 Emitting event: {region.event_type} with data: {region.event_data}")
                     self.event_manager.emit(region.event_type, region.event_data)
                     #print(f"✅ DEBUG: IH: Event emitted successfully")
 
@@ -681,7 +682,6 @@ class InputHandler:
         self.event_manager.emit("OVERLAY_TOGGLE", {"overlay_id": "character_key"})
         
         # Set the active tab after a brief moment for the overlay to open
-        from screens.character_overlay import get_character_overlay
         overlay = get_character_overlay()
         overlay.switch_to_tab(tab - 1)  # Convert to 0-indexed
         
@@ -1002,7 +1002,6 @@ def register_npc_click(input_handler, screen_name: str, rect: pygame.Rect,
         {"npc_id": npc_id, "location": location},
         priority
     )
-
 
 if __name__ == "__main__":
     print("🎮 InputHandler - Professional Input Routing System")

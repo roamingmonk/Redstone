@@ -1,0 +1,65 @@
+{
+  "enemy_id": "common_thief",
+  "name": "Common Thief",
+  "description": "A street-smart cutpurse in dark leather armor. Quick with a blade and quicker to disappear when things go south.",
+  "stats": {
+    "hp": 18,
+    "max_hp": 18,
+    "ac": 15,
+    "strength": 10,
+    "dexterity": 17,
+    "constitution": 12,
+    "intelligence": 13,
+    "wisdom": 11,
+    "charisma": 14
+  },
+  "attacks": [
+    {
+      "name": "Short Sword",
+      "damage_dice": "1d6+3",
+      "attack_bonus": 5,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A swift blade strike aimed at vital spots"
+    },
+    {
+      "name": "Dagger Throw",
+      "damage_dice": "1d4+3",
+      "attack_bonus": 5,
+      "attack_type": "ranged",
+      "range": 4,
+      "description": "A well-aimed thrown dagger"
+    }
+  ],
+  "movement": {
+    "speed": 4,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Sneak Attack",
+      "description": "Deals extra 1d6 damage when attacking from behind or flanking",
+      "effect_type": "damage_bonus",
+      "trigger": "positional",
+      "bonus_dice": "1d6"
+    },
+    {
+      "name": "Cunning Action",
+      "description": "Can hide or reposition after attacking",
+      "effect_type": "action_economy",
+      "trigger": "after_attack"
+    }
+  ],
+  "loot": {
+    "xp_value": 100,
+    "gold_range": [10, 25],
+    "items": ["leather_armor", "thieves_tools", "lockpicks"]
+  },
+  "behavior": {
+    "aggression": "medium",
+    "intelligence": "high",
+    "tactics": "flanking",
+    "retreat_threshold": 6,
+    "notes": "Tries to position behind player for sneak attacks. Flees if HP drops below 6."
+  }
+}

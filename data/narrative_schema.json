@@ -641,6 +641,7 @@
       "progress_updates":  "mayor_talked && quest_active && (learned_about_swamp_church || learned_about_ruins || learned_about_refugees) && !main_quest_completed"
     },
     "gareth": {
+      "first_meeting_post_mayor": "!gareth_talked && mayor_talked",
       "first_meeting": "!gareth_talked",
       "already_recruited": "gareth_recruited",
       "recruitment_blocked": "gareth_talked && mayor_talked && !gareth_recruited && recruited_count >= 3",
@@ -648,6 +649,7 @@
       "casual_chat": "gareth_talked && !mayor_talked"
     },
     "elara": {
+      "first_meeting_post_mayor": "!elara_talked && mayor_talked",
       "first_meeting": "!elara_talked", 
       "already_recruited": "elara_recruited",
       "recruitment_blocked": "elara_talked && mayor_talked && !elara_recruited && recruited_count >= 3",
@@ -655,6 +657,7 @@
       "casual_chat": "elara_talked && !mayor_talked"
     },
     "thorman": {
+      "first_meeting_post_mayor": "!thorman_talked && mayor_talked",
       "first_meeting": "!thorman_talked",
       "already_recruited": "thorman_recruited",
       "recruitment_blocked": "thorman_talked && mayor_talked && !thorman_recruited && recruited_count >= 3",
@@ -662,6 +665,7 @@
       "casual_chat": "thorman_talked && !mayor_talked"
     },
     "lyra": {
+      "first_meeting_post_mayor": "!lyra_talked && mayor_talked",
       "first_meeting": "!lyra_talked",
       "already_recruited": "lyra_recruited",
       "recruitment_blocked": "lyra_talked && mayor_talked && !lyra_recruited && recruited_count >= 3",

@@ -495,9 +495,22 @@ def draw_trinket_screen(surface, game_state, fonts, images=None):
     
     # Show trinket if rolled
     if 'trinket' in game_state.character:
-        draw_centered_text(surface, game_state.character['trinket'], 
-                          fonts.get('fantasy_medium', fonts['normal']), 200, CYAN)
+        # Get the display name from the ID
+        trinket_id = game_state.character['trinket']
+        
+        # Convert ID to display name using ItemManager
+        from game_logic.data_manager import get_data_manager
+        data_manager = get_data_manager()
+        if data_manager and data_manager.item_manager:
+            trinket_display = data_manager.item_manager.get_display_name(trinket_id)
+        else:
+            # Fallback: capitalize the ID
+            trinket_display = trinket_id.replace('_', ' ').title()
+        
+        draw_centered_text(surface, trinket_display, 
+                        fonts.get('fantasy_medium', fonts['normal']), 200, CYAN)
         button_text = "CONTINUE"
+
     else:
         draw_centered_text(surface, "Roll for your mysterious trinket", 
                           fonts.get('fantasy_medium', fonts['normal']), 200, WHITE)

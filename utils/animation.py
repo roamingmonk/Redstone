@@ -38,7 +38,7 @@ class SpriteAnimation:
                     for test_x in [0, 16, 31]:
                         for test_y in [0, 16, 31]:
                             pixel = frame.get_at((test_x, test_y))
-                            print(f"🔍 Pixel at ({test_x},{test_y}): {pixel}")
+                            #print(f"🔍 Pixel at ({test_x},{test_y}): {pixel}")
             
             print(f"✅ Animation loaded: {sprite_sheet_path} ({frame_count} frames)")
             

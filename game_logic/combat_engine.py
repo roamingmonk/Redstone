@@ -11,6 +11,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Tuple
 from utils.combat_loader import get_combat_loader
 from utils.stats_calculator import get_stats_calculator
+from game_logic.combat_ai import get_combat_ai
 
 class CombatPhase(Enum):
     """Combat phase tracking"""
@@ -40,6 +41,7 @@ class CombatEngine:
         self.save_manager = save_manager
         self.combat_loader = get_combat_loader()
         self.stats_calculator = get_stats_calculator()
+        self.combat_ai = get_combat_ai()
         
         # Current combat state
         self.combat_data = None
@@ -106,9 +108,6 @@ class CombatEngine:
         self.turn_order = []
         self.current_actor_index = 0
 
-
-
-        
         # ========== DYNAMIC AUTOSAVE ==========
         try:
             if self.save_manager:
@@ -254,6 +253,105 @@ class CombatEngine:
             print(f"❌ Error starting combat: {e}")
             return False
 
+    def _execute_enemy_move(self, enemy: Dict, target_position: List[int]) -> bool:
+        """
+        Execute enemy movement to target position
+        
+        Args:
+            enemy: Enemy instance dict
+            target_position: [x, y] position to move to
+            
+        Returns:
+            bool: True if move was successful
+        """
+        enemy_pos = enemy.get("position", [0, 0])
+        enemy_name = enemy.get("name", "Enemy")
+        movement_range = enemy.get("movement", {}).get("speed", 3)
+        
+        # Validate the AI's suggested move using combat rules
+        valid_moves = self.get_valid_moves(enemy_pos, movement_range)
+        
+        if target_position not in valid_moves:
+            # AI suggested invalid move, stay put
+            self._add_to_combat_log(f"{enemy_name} cannot reach desired position")
+            return False
+        
+        # Execute the move
+        old_pos = enemy_pos.copy()
+        enemy["position"] = target_position
+        
+        self._add_to_combat_log(f"{enemy_name} moved to [{target_position[0]}, {target_position[1]}]")
+        
+        # Emit movement event for UI
+        self.event_manager.emit("COMBAT_UNIT_MOVED", {
+            "unit_type": "enemy",
+            "old_position": old_pos,
+            "new_position": target_position
+        })
+        
+        return True
+    
+    def _execute_enemy_attack(self, enemy: Dict, target_char_id: str, attack_index: int = 0) -> bool:
+        """
+        Execute enemy attack on target character
+        
+        Args:
+            enemy: Enemy instance dict
+            target_char_id: Character ID to attack
+            attack_index: Which attack from attacks array to use (default 0)
+            
+        Returns:
+            bool: True if attack hit
+        """
+        enemy_name = enemy.get("name", "Enemy")
+        target_char_state = self.character_states.get(target_char_id)
+        
+        if not target_char_state:
+            self._add_to_combat_log(f"{enemy_name} attack failed - no target")
+            return False
+        
+        target_name = target_char_state.get('name', 'Player')
+        
+        # Get the specific attack
+        attacks = enemy.get("attacks", [])
+        if not attacks or attack_index >= len(attacks):
+            self._add_to_combat_log(f"{enemy_name} has no valid attack!")
+            return False
+        
+        selected_attack = attacks[attack_index]
+        attack_name = selected_attack.get("name", "Attack")
+        attack_type = selected_attack.get("attack_type", "melee")
+        
+        self._add_to_combat_log(f"{enemy_name} attacks {target_name} with {attack_name}!")
+        
+        # For ranged attacks, check line of sight
+        if attack_type == "ranged":
+            enemy_pos = enemy.get("position", [0, 0])
+            target_pos = target_char_state.get('position', [0, 0])
+            
+            if not self._has_line_of_sight(enemy_pos[0], enemy_pos[1], target_pos[0], target_pos[1]):
+                self._add_to_combat_log("No line of sight!")
+                return False
+        
+        # Resolve using the specific weapon attack
+        success = self._resolve_attack_with_weapon(
+            attacker_type="enemy",
+            attacker_data=enemy,
+            target_data=target_char_state['character_data'],
+            weapon_attack=selected_attack
+        )
+        
+        if success:
+            # Check if character was defeated
+            if not target_char_state.get('is_alive', True):
+                self._add_to_combat_log(f"{target_name} has fallen!")
+                
+                # Check defeat conditions
+                if self._check_defeat_conditions():
+                    self._handle_combat_defeat()
+        
+        return success
+    
     def _has_ranged_weapon_equipped(self, char_state: Dict) -> bool:
         """Check if character has ranged weapon equipped by checking item data"""
         char_data = char_state.get('character_data', {})
@@ -1290,7 +1388,7 @@ class CombatEngine:
         print("⚠️ WARNING: All actors in turn order are unconscious/dead!")
     
     def _execute_enemy_turn(self, enemy_id: str):
-        """Execute AI turn for enemy"""
+        """Execute AI turn for enemy using CombatAI decision system"""
         # Find enemy instance
         enemy_instances = self.combat_data.get("enemy_instances", [])
         enemy = None
@@ -1307,60 +1405,49 @@ class CombatEngine:
         enemy_name = enemy.get("name", "Enemy")
         self._add_to_combat_log(f"{enemy_name}'s turn")
         
-        # Simple AI: Move toward player and attack if in range
-        self._execute_basic_ai(enemy)
+        # Calculate valid moves for this enemy
+        movement_range = enemy.get("movement", {}).get("speed", 3)
+        valid_moves = self.get_valid_moves(enemy.get("position", [0, 0]), movement_range)
+
+        # AI plans ENTIRE turn (move + attack) in ONE call
+        combat_state = {
+            'character_states': self.character_states,
+            'enemy_instances': enemy_instances,
+            'battlefield': self.combat_data.get("battlefield", {}),
+            'valid_moves': valid_moves
+        }
         
+        # Get complete turn plan from AI
+        turn_plan = self.combat_ai.calculate_enemy_turn(enemy, combat_state)
+
+        print(f"\n⚙️ EXECUTING TURN: {enemy_name}")
+        
+        # Execute movement (if planned)
+        if turn_plan.get('move'):
+            print(f"   🚶 Executing move to {turn_plan['move']}")
+            self._execute_enemy_move(enemy, turn_plan['move'])
+        
+        # Execute attack (if planned)
+        if turn_plan.get('attack'):
+            attack_data = turn_plan['attack']
+            self._execute_enemy_attack(
+                enemy,
+                attack_data['target_id'],
+                attack_data.get('attack_index', 0)
+            )
+        
+        # Log if no actions taken
+        if not turn_plan.get('move') and not turn_plan.get('attack'):
+            reason = turn_plan.get('reason', 'no action')
+            self._add_to_combat_log(f"{enemy_name} waits ({reason})")
+            print(f"   ⏸️ No actions taken: {reason}")
+            print(f"   ⚠️ WARNING: Enemy had no valid actions!")
+            
         # Log enemy turn end
-        enemy_name = enemy.get("name", "Enemy") if enemy else "Enemy"
         self._add_to_combat_log(f"{enemy_name} ends turn")
 
         # End enemy turn
         self._advance_turn()
-    
-    def _execute_basic_ai(self, enemy: Dict):
-        """Execute basic AI behavior for enemy"""
-        enemy_pos = enemy.get("position", [0, 0])
-        enemy_name = enemy.get("name", "Enemy")
-        
-        # Check if any party member is in attack range
-        attack_targets = self._get_enemy_attack_targets(enemy_pos)
-        if attack_targets:
-            # Attack closest target
-            closest_target = min(attack_targets, key=lambda t: t['distance'])
-            target_char_id = closest_target['target_id']
-            target_char_state = self.character_states.get(target_char_id)
-            
-            if target_char_state:
-                target_name = target_char_state['name']
-                self._add_to_combat_log(f"{enemy_name} attacks {target_name}!")
-                
-                # Get the actual character data for attack resolution
-                target_char_data = target_char_state['character_data']
-                
-                self._resolve_attack(
-                    attacker_type="enemy",
-                    attacker_data=enemy,
-                    target_data=target_char_data
-                )
-        else:
-            # Find nearest party member to move toward
-            nearest_target_pos = self._find_nearest_party_member(enemy_pos)
-            
-            if nearest_target_pos:
-                movement_speed = enemy.get("movement", {}).get("speed", 3)
-                new_position = self._find_best_move_toward_target(enemy_pos, nearest_target_pos, movement_speed)
-                
-                if new_position != enemy_pos:
-                    enemy["position"] = new_position
-                    self._add_to_combat_log(f"{enemy_name} moves to ({new_position[0]}, {new_position[1]})")
-                    
-                    # Emit movement event
-                    self.event_manager.emit("COMBAT_UNIT_MOVED", {
-                        "unit_type": "enemy",
-                        "unit_id": enemy.get("instance_id"),
-                        "old_position": enemy_pos,
-                        "new_position": new_position
-                    })
     
     def _find_nearest_party_member(self, enemy_pos: List[int]) -> List[int]:
         """Find the position of the nearest living party member"""
@@ -1779,26 +1866,6 @@ class CombatEngine:
             return py == y1 and min(x1, x2) <= px <= max(x1, x2)
         return False
     
-    def _find_best_move_toward_target(self, start_pos: List[int], target_pos: List[int], movement_range: int) -> List[int]:
-        """Find best movement toward target within range"""
-        start_x, start_y = start_pos
-        target_x, target_y = target_pos
-        
-        best_pos = start_pos
-        best_distance = abs(start_x - target_x) + abs(start_y - target_y)
-        
-        # Check all valid moves
-        valid_moves = self.get_valid_moves(start_pos, movement_range)
-        for move_pos in valid_moves:
-            move_x, move_y = move_pos
-            distance = abs(move_x - target_x) + abs(move_y - target_y)
-            
-            if distance < best_distance:
-                best_distance = distance
-                best_pos = move_pos
-        
-        return best_pos
-    
     def _get_enemy_attack_targets(self, enemy_pos: List[int]) -> List[Dict]:
         """Get attack targets for enemy at position"""
         targets = []
@@ -2029,13 +2096,16 @@ class CombatEngine:
         # Award gold
         gold = rewards.get("gold", 0)
         if gold > 0:
-            current_gold = self.game_state.character.get("gold", 0)
-            self.game_state.character["gold"] = current_gold + gold
-
-            # Track total gold earned
+            self.game_state.character['gold'] += gold
+            
+            # Track in statistics (with safety check)
+            if not hasattr(self.game_state, 'player_statistics'):
+                self.game_state.player_statistics = {}
+            if 'total_gold_earned' not in self.game_state.player_statistics:
+                self.game_state.player_statistics['total_gold_earned'] = 0
+            
             self.game_state.player_statistics['total_gold_earned'] += gold
-
-            self._add_to_combat_log(f"Found {gold} gold!")
+            self._add_to_combat_log(f"Gained {gold} gold!")
         
         # TODO: Award items from rewards["items"]
     

@@ -328,7 +328,7 @@ class InventoryOverlay(BaseTabbedOverlay):
                             event_type = 'INVENTORY_DISCARD_ITEM'
                         
                         if event_type:
-                            print(f"🚀 Emitting event: {event_type}")
+                            #print(f"🚀 Emitting event: {event_type}")
                             self.screen_manager.input_handler.event_manager.emit(
                                 event_type, 
                                 {'button': button_name, 'overlay_type': 'inventory'}
