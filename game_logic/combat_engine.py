@@ -74,19 +74,6 @@ class CombatEngine:
         
         print("CombatEngine initialized")
     
-    def _get_movement_range(self) -> int:
-        """Get movement range for active character"""
-        if not self.active_character_id:
-            return 3  # Default fallback
-        
-        char_state = self.character_states.get(self.active_character_id)
-        if not char_state:
-            return 3  # Default fallback
-        
-        # TODO: Eventually read from character class/equipment
-        # For now, all characters have 3 movement
-        return 3
-
     def _reset_action_mode_for_active(self):
         """Safe default when a new actor becomes active."""
         # pick your default; movement is usually nicest for UX
@@ -708,7 +695,8 @@ class CombatEngine:
                     break
             
             # Get movement range
-            movement_range = self._get_movement_range()
+            char_state = self.character_states.get(self.active_character_id)
+            movement_range = self.movement_system.get_movement_range(char_state) if char_state else 5
             
             # Calculate valid moves
             is_player = True  # Player characters can move through allies
@@ -1143,7 +1131,7 @@ class CombatEngine:
             return False
         
         # Validate movement
-        movement_range = self._get_movement_range()  # uses helper
+        movement_range = self.movement_system.get_movement_range(char_state)
      
         # Check for incorporeal ability
         can_phase = False
@@ -2322,7 +2310,7 @@ class CombatEngine:
 
         # MOVEMENT
         if mode == "movement":
-            movement_range = self._get_movement_range()
+            movement_range = self.movement_system.get_movement_range(char_state)
             return self.get_valid_moves(pos, movement_range)
 
         # MELEE

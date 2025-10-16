@@ -25,7 +25,59 @@ class MovementSystem:
         self.entity_movements = {}
         # Movement animation speed
         self.move_speed = 8.0  # Tiles per second
+
+    def get_movement_range(self, entity_data: Dict) -> int:
+        """
+        Calculate movement range for an entity
+        Central authority for movement speed calculation
         
+        Args:
+            entity_data: Character state dict or enemy instance dict
+            
+        Returns:
+            Movement range in tiles
+        """
+        # Check if this is a character (has character_data nested)
+        if 'character_data' in entity_data:
+            # Characters don't have movement_speed field yet - use default
+            # TODO: Add movement_speed to character creation
+            # TODO: Check for equipment bonuses, status effects
+            return 4  # Default player speed
+        
+        # Check if this is an enemy (has movement dict)
+        elif 'movement' in entity_data:
+            movement_dict = entity_data.get('movement', {})
+            return movement_dict.get('speed', 3)  # Default enemy speed
+        
+        # Fallback
+        return 3
+    
+    def can_reach(self, start_pos: List[int], end_pos: List[int], 
+                  movement_range: int, can_phase: bool = False, 
+                  is_player: bool = False) -> bool:
+        """
+        Check if entity can reach destination within movement range
+        
+        Args:
+            start_pos: Starting position [x, y]
+            end_pos: Destination position [x, y]
+            movement_range: Maximum tiles entity can move
+            can_phase: Whether entity can move through obstacles
+            is_player: Whether this is a player character
+            
+        Returns:
+            True if destination is reachable, False otherwise
+        """
+        # Quick distance check first
+        distance = abs(end_pos[0] - start_pos[0]) + abs(end_pos[1] - start_pos[1])
+        if distance > movement_range:
+            return False  # Too far even in straight line
+        
+        # Check if end position is in valid moves
+        valid_moves = self.get_valid_moves(start_pos, movement_range, can_phase, is_player)
+        return end_pos in valid_moves
+
+
     # ========== PATHFINDING METHODS ==========
     
     def get_valid_moves(self, position, movement_range, can_phase=False, is_player=False):
@@ -235,7 +287,7 @@ class MovementSystem:
                 entities_completed.append(entity_id)
                 continue
             
-            print(f"DEBUG: Animating movement for {entity_id}")
+            #print(f"DEBUG: Animating movement for {entity_id}")
             
             # Get entity reference
             entity = self._get_entity_by_id(entity_id)
@@ -258,7 +310,7 @@ class MovementSystem:
             visual_y = start[1] + (target[1] - start[1]) * progress
             
             # Update entity's visual properties
-            print(f"DEBUG: Setting visual position to ({visual_x:.2f}, {visual_y:.2f})")
+            #print(f"DEBUG: Setting visual position to ({visual_x:.2f}, {visual_y:.2f})")
             
             # For character_states
             if entity_id in self.combat_engine.character_states:
@@ -283,7 +335,7 @@ class MovementSystem:
                 
                 # Check if we've reached the end of the path
                 if movement['current_index'] >= len(movement['path']):
-                    print(f"DEBUG: Movement completed for {entity_id}")
+                    #print(f"DEBUG: Movement completed for {entity_id}")
                     entities_completed.append(entity_id)
                     movement['moving'] = False
                 else:

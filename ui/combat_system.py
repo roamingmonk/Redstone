@@ -368,8 +368,8 @@ class CombatEncounter:
         if controller and hasattr(controller, 'combat_engine') and hasattr(controller.combat_engine, 'movement_system'):
             active_movements = controller.combat_engine.movement_system.entity_movements
             #print(f"DEBUG: Active movements: {len(active_movements)}")
-            for entity_id, movement in active_movements.items():
-                print(f"DEBUG: Movement for {entity_id}: {movement['moving']}, {movement['start_pos']} → {movement['target_pos']}")
+            #for entity_id, movement in active_movements.items():
+                #print(f"DEBUG: Movement for {entity_id}: {movement['moving']}, {movement['start_pos']} → {movement['target_pos']}")
     
         # Update movement animations if movement system exists
         if controller and hasattr(controller, 'combat_engine') and hasattr(controller.combat_engine, 'movement_system'):
