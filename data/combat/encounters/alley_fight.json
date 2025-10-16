@@ -9,7 +9,7 @@
       "enemy_id": "goblin",
       "position": [11, 1],
       "facing": "west",
-      "ai_behavior": "mindless_advance"
+      "ai_behavior": "flanking"
     },
     {
       "enemy_id": "kobold",
@@ -18,12 +18,12 @@
       "ai_behavior": "ranged_preference"
     },
     {
-      "enemy_id": "skeleton",
+      "enemy_id": "thief_common",
       "position": [9, 3],
       "facing": "west"
     },
     {
-      "enemy_id": "skeleton",
+      "enemy_id": "thief_common",
       "position": [11, 3],
       "facing": "west"
     }

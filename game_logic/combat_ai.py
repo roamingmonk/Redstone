@@ -693,12 +693,143 @@ class CombatAI:
     
     def _calculate_flanking_action(self, enemy_data: Dict, combat_state: Dict) -> Dict:
         """
-        FLANKING: Thief-style positioning
-        - Try to get behind player
-        - Look for sneak attack opportunities
+        FLANKING: Tactical positioning for coordinated attacks (rogues/thieves)
+        Strategy:
+        - Prioritize attacking targets already engaged by other enemies
+        - Move to gang up on isolated targets
+        - Coordinate strikes rather than spreading out
+        - Creates dangerous pack hunting behavior
+        Returns: {'move': pos or None, 'attack': data or None}
         """
-        # TODO: Implement in next step
-        return self._calculate_rush_action(enemy_data, combat_state)
+        enemy_pos = enemy_data.get("position", [0, 0])
+        enemy_instances = combat_state.get('enemy_instances', [])
+        
+        # Find all living players
+        closest_player = self._find_closest_player(enemy_pos, combat_state)
+        if not closest_player:
+            return {'move': None, 'attack': None, 'reason': 'no targets found'}
+        
+        # Check if we're already adjacent to any player
+        adjacent_players = self._find_adjacent_players(enemy_pos, combat_state)
+        
+        if adjacent_players:
+            # We're adjacent to someone - find the best target to flank
+            best_flank_target = None
+            max_flankers = 0
+            
+            for adj_player in adjacent_players:
+                player_pos = adj_player['position']
+                
+                # Count how many OTHER enemies are adjacent to this player
+                flanker_count = 0
+                for other_enemy in enemy_instances:
+                    if other_enemy.get("current_hp", 0) <= 0:
+                        continue  # Skip dead enemies
+                    if other_enemy.get("instance_id") == enemy_data.get("instance_id"):
+                        continue  # Skip self
+                    
+                    other_pos = other_enemy.get("position", [0, 0])
+                    other_distance = self._manhattan_distance(other_pos, player_pos)
+                    
+                    if other_distance == 1:
+                        flanker_count += 1
+                
+                # Prefer targets already being flanked
+                if flanker_count > max_flankers or best_flank_target is None:
+                    max_flankers = flanker_count
+                    best_flank_target = adj_player
+            
+            if best_flank_target:
+                flank_status = "flanking with allies" if max_flankers > 0 else "solo attack"
+                return {
+                    'move': None,
+                    'attack': {
+                        'target_id': best_flank_target['id'],
+                        'attack_index': 0
+                    },
+                    'reason': f'{flank_status} on {best_flank_target["name"]} ({max_flankers} allies adjacent)'
+                }
+        
+        # Not adjacent - find the best target to flank
+        # Prioritize players already being attacked by allies
+        character_states = combat_state.get('character_states', {})
+        best_target = None
+        best_flanker_count = -1
+        best_distance = float('inf')
+        
+        for char_id, char_state in character_states.items():
+            if not char_state.get('is_alive', True):
+                continue
+            
+            char_pos = char_state.get('position', [0, 0])
+            distance = self._manhattan_distance(enemy_pos, char_pos)
+            
+            # Count enemies adjacent to this player
+            flanker_count = 0
+            for other_enemy in enemy_instances:
+                if other_enemy.get("current_hp", 0) <= 0:
+                    continue
+                if other_enemy.get("instance_id") == enemy_data.get("instance_id"):
+                    continue
+                
+                other_pos = other_enemy.get("position", [0, 0])
+                other_distance = self._manhattan_distance(other_pos, char_pos)
+                
+                if other_distance == 1:
+                    flanker_count += 1
+            
+            # Prefer targets being flanked, then closer targets
+            if flanker_count > best_flanker_count or (flanker_count == best_flanker_count and distance < best_distance):
+                best_flanker_count = flanker_count
+                best_distance = distance
+                best_target = {
+                    'id': char_id,
+                    'name': char_state.get('name', 'Character'),
+                    'position': char_pos
+                }
+        
+        if not best_target:
+            # Fallback to closest
+            best_target = {
+                'id': closest_player['id'],
+                'name': closest_player['name'],
+                'position': closest_player['position']
+            }
+            best_flanker_count = 0
+        
+        # Move toward best flank target
+        movement_range = enemy_data.get("movement", {}).get("speed", 3)
+        new_pos = self._find_best_move_toward_target(
+            enemy_pos,
+            best_target['position'],
+            movement_range,
+            combat_state
+        )
+        
+        if new_pos != enemy_pos:
+            new_distance = self._manhattan_distance(new_pos, best_target['position'])
+            
+            # Moved into attack range - strike!
+            if new_distance == 1:
+                flank_msg = "joining flank" if best_flanker_count > 0 else "flanking position"
+                return {
+                    'move': new_pos,
+                    'attack': {
+                        'target_id': best_target['id'],
+                        'attack_index': 0
+                    },
+                    'reason': f'{flank_msg} on {best_target["name"]} ({best_flanker_count} allies nearby)'
+                }
+            else:
+                flank_msg = "coordinating with allies" if best_flanker_count > 0 else "seeking flank position"
+                return {
+                    'move': new_pos,
+                    'attack': None,
+                    'reason': f'{flank_msg} on {best_target["name"]} (distance {best_distance} → {new_distance})'
+                }
+        
+        # Can't move closer
+        return {'move': None, 'attack': None, 'reason': 'cannot reach flank position'}
     
     # ========================================
     # HELPER METHODS - TACTICAL ANALYSIS

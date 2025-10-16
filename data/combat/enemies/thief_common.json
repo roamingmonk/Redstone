@@ -1,6 +1,6 @@
 {
-  "enemy_id": "common_thief",
-  "name": "Common Thief",
+  "enemy_id": "thief_common",
+  "name": "Thief",
   "description": "A street-smart cutpurse in dark leather armor. Quick with a blade and quicker to disappear when things go south.",
   "stats": {
     "hp": 18,
