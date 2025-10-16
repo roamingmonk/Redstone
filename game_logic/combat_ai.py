@@ -517,12 +517,114 @@ class CombatAI:
     
     def _calculate_aggressive_rush_action(self, enemy_data: Dict, combat_state: Dict) -> Dict:
         """
-        AGGRESSIVE_RUSH: Like rush_player but prioritizes closest low-HP target
-        - Attack weakest adjacent target
-        - Move toward weakest player
+        AGGRESSIVE_RUSH: Smart hunter targeting weakest prey
+        Strategy: 
+        - Identify party member with lowest HP percentage
+        - Move aggressively toward that target
+        - Attack if adjacent, prioritizing the weakest target
+        - Ignores high-HP tanks, focuses on wounded/fragile targets
+        Returns: {'move': pos or None, 'attack': data or None}
         """
-        # TODO: Implement in next step
-        return self._calculate_rush_action(enemy_data, combat_state)
+        enemy_pos = enemy_data.get("position", [0, 0])
+        
+        # Find the weakest party member (lowest current HP)
+        weakest_target = self._find_weakest_player(enemy_pos, combat_state)
+        if not weakest_target:
+            return {'move': None, 'attack': None, 'reason': 'no valid targets found'}
+        
+        distance = weakest_target['distance']
+        target_name = weakest_target['name']
+        target_hp = weakest_target['current_hp']
+        target_max_hp = weakest_target['max_hp']
+        
+        # Already adjacent to weakest target - ATTACK!
+        if distance == 1:
+            return {
+                'move': None,
+                'attack': {
+                    'target_id': weakest_target['id'],
+                    'attack_index': 0
+                },
+                'reason': f'attacking weakest target: {target_name} ({target_hp}/{target_max_hp} HP)'
+            }
+        
+        # Check if we're adjacent to ANY player (might not be weakest)
+        adjacent_players = self._find_adjacent_players(enemy_pos, combat_state)
+        if adjacent_players:
+            # We're next to someone - find the weakest one
+            # Need to look up HP data from character_states
+            character_states = combat_state.get('character_states', {})
+            
+            weakest_adjacent = None
+            lowest_adjacent_hp = float('inf')
+            
+            for adj_player in adjacent_players:
+                char_id = adj_player['id']
+                char_state = character_states.get(char_id)
+                if not char_state:
+                    continue
+                
+                char_data = char_state.get('character_data', {})
+                
+                # Get current HP
+                if char_id == 'player':
+                    current_hp = char_data.get('current_hp', 10)
+                    max_hp = char_data.get('hit_points', char_data.get('max_hp', 10))
+                else:
+                    current_hp = char_data.get('current_hp', 10)
+                    max_hp = char_data.get('max_hp', char_data.get('hit_points', 10))
+                
+                # Track weakest adjacent
+                if current_hp < lowest_adjacent_hp:
+                    lowest_adjacent_hp = current_hp
+                    weakest_adjacent = {
+                        'id': char_id,
+                        'name': char_state.get('name', 'Character'),
+                        'current_hp': current_hp,
+                        'max_hp': max_hp
+                    }
+            
+            if weakest_adjacent:
+                return {
+                    'move': None,
+                    'attack': {
+                        'target_id': weakest_adjacent['id'],
+                        'attack_index': 0
+                    },
+                    'reason': f'attacking nearby: {weakest_adjacent["name"]} ({weakest_adjacent["current_hp"]}/{weakest_adjacent["max_hp"]} HP)'
+                }
+        
+        # Not adjacent - move toward weakest target
+        movement_range = enemy_data.get("movement", {}).get("speed", 3)
+        new_pos = self._find_best_move_toward_target(
+            enemy_pos,
+            weakest_target['position'],
+            movement_range,
+            combat_state
+        )
+        
+        if new_pos != enemy_pos:
+            new_distance = self._manhattan_distance(new_pos, weakest_target['position'])
+            
+            # Check if move gets us into attack range
+            if new_distance == 1:
+                return {
+                    'move': new_pos,
+                    'attack': {
+                        'target_id': weakest_target['id'],
+                        'attack_index': 0
+                    },
+                    'reason': f'moving to attack weakest: {target_name} ({target_hp}/{target_max_hp} HP)'
+                }
+            else:
+                return {
+                    'move': new_pos,
+                    'attack': None,
+                    'reason': f'hunting weakest prey: {target_name} ({target_hp}/{target_max_hp} HP) - distance {distance} → {new_distance}'
+                }
+        
+        # Can't move closer
+        return {'move': None, 'attack': None, 'reason': f'cannot reach weakest target: {target_name}'}
     
     def _calculate_mindless_advance_action(self, enemy_data: Dict, combat_state: Dict) -> Dict:
         """
@@ -571,6 +673,58 @@ class CombatAI:
         
         return closest
     
+    def _find_weakest_player(self, enemy_pos: List[int], combat_state: Dict) -> Optional[Dict]:
+        """
+        Find the party member with lowest current HP (wounded prey)
+        
+        Args:
+            enemy_pos: Enemy's current [x, y] position
+            combat_state: Current combat state
+            
+        Returns:
+            Dict with player info: {id, name, position, distance, current_hp, max_hp, hp_percent}
+            or None if no living players found
+        """
+        character_states = combat_state.get('character_states', {})
+        
+        weakest = None
+        lowest_hp = float('inf')
+        
+        for char_id, char_state in character_states.items():
+            if not char_state.get('is_alive', True):
+                continue
+            
+            char_pos = char_state.get('position', [0, 0])
+            char_data = char_state.get('character_data', {})
+            
+            # Get current HP
+            if char_id == 'player':
+                # Player character - might need special handling
+                current_hp = char_data.get('current_hp', 10)
+                max_hp = char_data.get('hit_points', char_data.get('max_hp', 10))
+            else:
+                # Party member
+                current_hp = char_data.get('current_hp', 10)
+                max_hp = char_data.get('max_hp', char_data.get('hit_points', 10))
+            
+            # Track the one with lowest CURRENT HP (absolute, not percentage)
+            # This makes wounded characters high priority targets
+            if current_hp < lowest_hp:
+                lowest_hp = current_hp
+                distance = self._manhattan_distance(enemy_pos, char_pos)
+                
+                weakest = {
+                    'id': char_id,
+                    'name': char_state.get('name', 'Character'),
+                    'position': char_pos,
+                    'distance': distance,
+                    'current_hp': current_hp,
+                    'max_hp': max_hp,
+                    'hp_percent': (current_hp / max_hp * 100) if max_hp > 0 else 0
+                }
+        
+        return weakest
+
     def _find_adjacent_players(self, enemy_pos: List[int], combat_state: Dict) -> List[Dict]:
         """Find all players adjacent to enemy (within 1 tile)"""
         adjacent = []

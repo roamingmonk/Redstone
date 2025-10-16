@@ -6,10 +6,10 @@
   "difficulty": "variable",
   "enemies": [
     {
-      "enemy_id": "giant_rat",
+      "enemy_id": "goblin",
       "position": [11, 1],
       "facing": "west",
-      "ai_behavior": "rush_player"
+      "ai_behavior": "aggressive_rush"
     },
     {
       "enemy_id": "kobold",
@@ -18,12 +18,12 @@
       "ai_behavior": "ranged_preference"
     },
     {
-      "enemy_id": "goblin",
+      "enemy_id": "blight_shadow",
       "position": [9, 3],
       "facing": "west"
     },
     {
-      "enemy_id": "goblin",
+      "enemy_id": "blight_shadow",
       "position": [11, 3],
       "facing": "west"
     }
