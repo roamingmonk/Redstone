@@ -34,14 +34,16 @@ class DialogueEngine:
     DialogueEngine provides pure conversation flow logic.
     """
     
-    def __init__(self, game_state):
+    def __init__(self, game_state, item_manager):
         """Initialize DialogueEngine with GameState authority"""
         self.game_state = game_state
+        self.item_manager = item_manager
         self.dialogues = {}  # Loaded dialogue trees
         self.quest_event_hooks = []  # Future QuestEngine integration
         self.event_manager = None 
         self.dialogue_source_screen = None  # Track where dialogue came from
         self.current_dialogue_npc = None
+
 
         print("🗣️ DialogueEngine initialized with GameState authority")
     
@@ -135,7 +137,7 @@ class DialogueEngine:
             # Safely evaluate
             return eval(condition, {"__builtins__": {}}, context)
         except Exception as e:
-            print(f"DEBUG: Condition evaluation failed: {condition}, error: {e}")
+           # print(f"DEBUG: Condition evaluation failed: {condition}, error: {e}")
             return False
 
     def _sync_party_members_list(self):
@@ -763,6 +765,124 @@ class DialogueEngine:
                 return f"Time advanced {hours} hours"
             return None
         
+        # 8) add_item  -------------------------------------------------------------
+        elif effect_type == 'add_item':
+            item_id = effect.get('item_id')
+            quantity = effect.get('quantity', 1)
+            category = effect.get('category')  # Optional, auto-detected if None
+            
+            if not item_id:
+                print(f"❌ ERROR: add_item effect missing item_id: {effect}")
+                return None
+            
+            try:
+                # Get inventory engine reference
+                from game_logic.inventory_engine import get_inventory_engine
+                inv_engine = get_inventory_engine()
+                
+                if not inv_engine:
+                    print(f"❌ ERROR: InventoryEngine not available for add_item")
+                    return None
+                
+                # Verify item exists in items.json before adding
+                #from game_logic.item_manager import item_manager
+                # DEBUG: Check if item_manager is loaded
+                print(f"🔍 DEBUG: Checking for item '{item_id}'")
+                print(f"🔍 DEBUG: item_manager.items_data has {len(self.item_manager.items_data.get('merchant_items', []))} merchant items")
+                print(f"🔍 DEBUG: First 3 item IDs: {[item['id'] for item in self.item_manager.items_data.get('merchant_items', [])[:3]]}")
+                
+                item_data = self.item_manager.get_item_by_id(item_id)
+                if not item_data:
+                    print(f"❌ ERROR: Cannot add unknown item '{item_id}' - not found in items.json")
+                    return None
+                
+                # Add the item
+                success = inv_engine.add_item(item_id, quantity, category)
+                
+                if success:
+                    # Get display name for notification
+                    item_name = item_data.get('name', item_id)
+                    print(f"✅ Dialogue gave player: {quantity}x {item_name} ({item_id})")
+                    
+                    # Show visual notification (like XP notification)
+                    if self.event_manager:
+                        qty_text = f"{quantity}x " if quantity > 1 else ""
+                        self.event_manager.emit("SHOW_FLOATING_TEXT", {
+                            "text": f"Received {qty_text}{item_name}",
+                            "color": (100, 200, 255),  # Light blue for items
+                            "duration": 2200
+                        })
+                    
+                    return f"Received {item_name}"
+                else:
+                    print(f"❌ ERROR: Failed to add item '{item_id}' to inventory")
+                    return None
+                    
+            except Exception as e:
+                print(f"❌ EXCEPTION in add_item effect: {e}")
+                import traceback
+                traceback.print_exc()
+                return None
+
+        # 9) remove_item  ----------------------------------------------------------
+        elif effect_type == 'remove_item':
+            item_id = effect.get('item_id')
+            quantity = effect.get('quantity', 1)
+            
+            if not item_id:
+                print(f"❌ ERROR: remove_item effect missing item_id: {effect}")
+                return None
+            
+            try:
+                # Get inventory engine reference
+                from game_logic.inventory_engine import get_inventory_engine
+                inv_engine = get_inventory_engine()
+                
+                if not inv_engine:
+                    print(f"❌ ERROR: InventoryEngine not available for remove_item")
+                    return None
+                
+                # Verify item exists before trying to remove
+                #from game_logic.item_manager import item_manager
+                # DEBUG: Check if item_manager is loaded
+                print(f"🔍 DEBUG: Checking for item '{item_id}'")
+                print(f"🔍 DEBUG: item_manager.items_data has {len(self.item_manager.items_data.get('merchant_items', []))} merchant items")
+                print(f"🔍 DEBUG: First 3 item IDs: {[item['id'] for item in self.item_manager.items_data.get('merchant_items', [])[:3]]}")
+                
+                item_data = self.item_manager.get_item_by_id(item_id)
+                if not item_data:
+                    print(f"❌ ERROR: Cannot remove unknown item '{item_id}' - not found in items.json")
+                    return None
+                
+                # Check if player has the item (convert ID to name for now)
+                item_name = item_data.get('name', item_id)
+                
+                # Remove the item
+                success = inv_engine.remove_item(item_name, quantity)
+                
+                if success:
+                    print(f"✅ Dialogue took from player: {quantity}x {item_name} ({item_id})")
+                    
+                    # Show visual notification
+                    if self.event_manager:
+                        qty_text = f"{quantity}x " if quantity > 1 else ""
+                        self.event_manager.emit("SHOW_FLOATING_TEXT", {
+                            "text": f"Lost {qty_text}{item_name}",
+                            "color": (255, 100, 100),  # Light red for item loss
+                            "duration": 2200
+                        })
+                    
+                    return f"Lost {item_name}"
+                else:
+                    print(f"⚠️ WARNING: Could not remove '{item_name}' - player doesn't have enough")
+                    return None
+                    
+            except Exception as e:
+                print(f"❌ EXCEPTION in remove_item effect: {e}")
+                import traceback
+                traceback.print_exc()
+                return None
+        
         return None
 
     def _check_option_requirements(self, option: Dict[str, Any]) -> bool:
@@ -857,7 +977,7 @@ class DialogueEngine:
             print(f"🔙 Navigation event emitted to: {target_screen}")
 
 
-def initialize_dialogue_engine(game_state_ref, event_manager_ref):
+def initialize_dialogue_engine(game_state_ref, event_manager_ref, item_manager_ref):
     """
     Initialize DialogueEngine following the established DataManager pattern
     
@@ -869,7 +989,7 @@ def initialize_dialogue_engine(game_state_ref, event_manager_ref):
         DialogueEngine: Initialized engine instance
     """
     try:
-        engine = DialogueEngine(game_state_ref)
+        engine = DialogueEngine(game_state_ref, item_manager_ref)
         engine.register_event_handlers(event_manager_ref)  # ADD THIS LINE
         print("✅ DialogueEngine initialized successfully")
         return engine

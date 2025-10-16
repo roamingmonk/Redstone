@@ -234,6 +234,22 @@
         "description": "Restores 2d4+2 hit points when consumed"
       }
     },
+     {
+      "id": "henriks_lantern",
+      "name": "Henriks Lantern",
+      "description": "A lucky Lantern provided by Hendrik to light your way.",
+      "base_cost": 150,
+      "category": "items",
+      "icon_file": "henrik_lantern.png",
+      "consumable": false,
+      "weight": 1,
+      "rarity": "special",
+      "stackable": false,
+      "special_effects": {
+        "morale_bonus": 1,
+        "description": "The lanterns light instills confidence in the party"
+      }
+    },
     {
       "id": "hemp_rope",
       "name": "Hemp Rope",
