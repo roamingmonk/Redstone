@@ -1849,13 +1849,17 @@ class CombatEngine:
                     if char_state['position'] == position:
                         return True
             
-            # Check enemy positions
+            # Check enemy positions - Allowing dead bodies to be passable...
             enemy_instances = self.combat_data.get("enemy_instances", [])
             for enemy in enemy_instances:
-                if enemy.get("current_hp", 0) > 0:  # Only living enemies
+                if enemy.get("current_hp", 0) > 0:  # Only living enemies block
                     if enemy.get("position") == position:
                         return True
-            
+            #IF want to block movement on corpses, use the below and remove the above.
+            # for enemy in enemy_instances:
+            #     if enemy.get("position") == position:
+            #         return True  # Both corpses and living enemies block
+
             return False
     
     def _point_on_line_segment(self, px: int, py: int, x1: int, y1: int, x2: int, y2: int) -> bool:

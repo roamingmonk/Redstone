@@ -69,7 +69,7 @@ class InventoryOverlay(BaseTabbedOverlay):
                           fonts.get('fantasy_large', fonts['header']), title_y, BRIGHT_GREEN, 1024)
         
         # Fill content area with light brown background
-        active_tab_color = (180, 160, 140)
+        active_tab_color = LIGHT_BROWN
         pygame.draw.rect(surface, active_tab_color, 
                         (content_x, content_y, content_width, content_height))
         

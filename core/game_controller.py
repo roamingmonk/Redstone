@@ -332,6 +332,7 @@ class GameController:
         from utils.debug_manager import DebugManager
         
         self.debug_manager = DebugManager(self.game_state, self.event_manager)
+        self.debug_manager.combat_engine = self.combat_engine 
         
         # Register debug manager as a service for other systems
         self.event_manager.register_service('debug_manager', self.debug_manager)

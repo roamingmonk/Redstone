@@ -54,7 +54,22 @@ class CombatAI:
         # Check for retreat first (applies to all behaviors)
         if self._should_retreat(enemy_data, behavior):
             print(f"   ⚠️ LOW HP - Retreating!")
-            retreat_pos = self._find_best_retreat_position(enemy_data, combat_state)
+            enemy_pos = enemy_data.get("position", [0, 0])
+            movement_range = enemy_data.get("movement", {}).get("speed", 3)
+            
+            # Find closest player to flee from
+            closest_player = self._find_closest_player(enemy_pos, combat_state)
+            if not closest_player:
+                return {'move': None, 'attack': None, 'reason': 'no players to flee from'}
+            
+            retreat_pos = self._find_best_retreat_position(
+                enemy_pos,
+                closest_player['position'],
+                movement_range,
+                combat_state
+            )
+            
+            # RETURN THE RETREAT ACTION!
             return {
                 'move': retreat_pos,
                 'attack': None,
@@ -467,8 +482,20 @@ class CombatAI:
                         'reason': f'repositioning ({distance} -> {new_distance})'
                     }
         
-        # Fallback - no ranged weapon or can't act
-        return {'move': None, 'attack': None, 'reason': 'no valid action'}
+        # FALLBACK: Cornered goblin - desperate melee attack
+        # If we get here, we couldn't retreat or shoot, so try melee as last resort
+        if melee_attack and distance <= 1:
+            return {
+                'move': None,
+                'attack': {
+                    'target_id': closest_player['id'],
+                    'attack_index': melee_attack['index']
+                },
+                'reason': 'cornered - desperate melee strike!'
+            }
+        
+        # Truly stuck - can't move, can't attack
+        return {'move': None, 'attack': None, 'reason': 'cornered and no valid targets'}
     
     def _calculate_spell_preference_action(self, enemy_data: Dict, combat_state: Dict) -> Dict:
         """

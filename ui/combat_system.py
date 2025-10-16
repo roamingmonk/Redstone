@@ -413,18 +413,45 @@ class CombatEncounter:
                 
                 self._draw_hp_bar(surface, screen_x, screen_y, current_hp, max_hp)
         
-        # Render enemy units
+       # Render enemy units - DEAD FIRST, then LIVING (for proper Z-order)
         enemy_instances = combat_data.get("enemy_instances", [])
-        #print(f"🎨 DEBUG: Rendering {len(enemy_instances)} enemies")
-        for enemy in enemy_instances:
+        
+        # Separate dead and living enemies
+        dead_enemies = [e for e in enemy_instances if e.get("current_hp", 0) <= 0]
+        living_enemies = [e for e in enemy_instances if e.get("current_hp", 0) > 0]
+        
+        # LAYER 1: Render dead enemies as darkened corpses (bottom layer)
+        for enemy in dead_enemies:
             position = enemy.get("position", [])
-            
-            current_hp = enemy.get("current_hp", 0)
-            max_hp = enemy.get("stats", {}).get("hp", 1)
-            enemy_name = enemy.get("name", "Enemy")
-            
-            #print(f"🎨 DEBUG: Enemy: {enemy_name} at {position}, HP: {current_hp}/{max_hp}")  
-            
+            if len(position) == 2:
+                x, y = position
+                screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
+                screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6
+                
+                # Draw corpse as dark gray circle (instead of red)
+                pygame.draw.circle(surface, DARK_GRAY, (screen_x, screen_y), self.tile_size // 3)
+                
+                # Draw an X over the corpse to show it's dead
+                pygame.draw.line(surface, RED, 
+                               (screen_x - 8, screen_y - 8), 
+                               (screen_x + 8, screen_y + 8), 2)
+                pygame.draw.line(surface, RED, 
+                               (screen_x - 8, screen_y + 8), 
+                               (screen_x + 8, screen_y - 8), 2)
+                
+                # Enemy label (first letter of name) - so you know WHAT died
+                name = enemy.get("name", "E")
+                label = name[0].upper()
+                font = pygame.font.Font(None, 24)
+                text_surface = font.render(f"†{label}", True, WHITE)
+                text_rect = text_surface.get_rect(center=(screen_x, screen_y))
+                surface.blit(text_surface, text_rect)
+                
+                # No HP bar for dead enemies (they're at 0)
+        
+        # LAYER 2: Render living enemies (top layer - will appear over corpses)
+        for enemy in living_enemies:
+            position = enemy.get("position", [])
             
             if len(position) == 2:
                 x, y = position
@@ -432,8 +459,6 @@ class CombatEncounter:
                 screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
                 screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6  # Move up 6 pixels
                 
-                #print(f"🎨 DEBUG: Rendering at screen coords: ({screen_x}, {screen_y})")
-
                 # Draw enemy as red circle with first letter of name
                 pygame.draw.circle(surface, RED, (screen_x, screen_y), self.tile_size // 3)
                 

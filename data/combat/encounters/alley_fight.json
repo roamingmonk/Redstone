@@ -14,7 +14,8 @@
     {
       "enemy_id": "kobold",
       "position": [10, 2],
-      "facing": "west"
+      "facing": "west",
+      "ai_behavior": "ranged_preference"
     },
     {
       "enemy_id": "goblin",

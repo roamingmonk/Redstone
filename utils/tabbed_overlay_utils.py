@@ -14,7 +14,7 @@ DESIGN PHILOSOPHY:
 import pygame
 from typing import List, Dict, Any, Optional, Tuple
 from utils.overlay_utils import *
-from utils.constants import SPACING, DARK_GRAY, BRIGHT_GREEN, GRAY
+from utils.constants import SPACING, DARK_GRAY, BRIGHT_GREEN, GRAY, WALNUT_BROWN
 from utils.graphics import draw_centered_text
 
 # ========================================
@@ -309,7 +309,7 @@ class BaseTabbedOverlay:
         Render the content area - delegates to subclass
         """
         # Draw content background
-        pygame.draw.rect(surface, DARK_BROWN, self.content_rect)
+        pygame.draw.rect(surface, WALNUT_BROWN, self.content_rect)   #DARK_BROWN
         pygame.draw.rect(surface, WHITE, self.content_rect, 2)
         
         # Get active tab

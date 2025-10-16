@@ -44,6 +44,6 @@
   "behavior": {
     "aggression": "medium",
     "intelligence": "low",
-    "tactics": "ranged_preferred"
+    "tactics": "ranged_preference"
   }
 }

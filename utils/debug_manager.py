@@ -18,12 +18,14 @@ class DebugManager:
         self.game_state = game_state
         self.event_manager = event_manager
         self.debug_mode = False
+        self.combat_engine = None
         
         # Register for debug events
         self.event_manager.register("DEBUG_TOGGLE", self.handle_debug_toggle)
         self.event_manager.register("DEBUG_PERFORMANCE", self.handle_quest_debug)
         self.event_manager.register("DEBUG_SAVE_STATE", self.handle_save_debug)
-        self.event_manager.register("NPC_DEBUG", self.handle_npc_debug)  
+        self.event_manager.register("NPC_DEBUG", self.handle_npc_debug)
+        self.event_manager.register("COMBAT_DEBUG", self.handle_combat_debug)  
 
         self.event_manager.register("TIME_ADVANCED", self.handle_time_advanced)
         self.event_manager.register("PARTY_RESTED", self.handle_party_rested)
@@ -43,6 +45,114 @@ class DebugManager:
         if input_handler and hasattr(input_handler, 'enable_debug_input'):
             input_handler.enable_debug_input(self.debug_mode)
     
+    def handle_combat_debug(self, data):
+        """Handle F6 - Show combat unit positions and AI state"""
+        print("⚔️ F6 - Combat Debug Requested")
+        
+        # Check if we have a combat engine reference
+        if not self.combat_engine:
+            print("⚠️ Combat engine not available!")
+            return
+        
+        # Check if combat is actually active
+        if not hasattr(self.combat_engine, 'combat_data') or not self.combat_engine.combat_data:
+            print("⚠️ Not currently in combat!")
+            return
+        
+        self._debug_combat_positions(self.combat_engine)
+    
+    def _debug_combat_positions(self, combat_engine):
+        """Display all combat unit positions with validation"""
+        print("\n" + "="*60)
+        print("⚔️ COMBAT POSITION DEBUG")
+        print("="*60)
+        
+        # Get battlefield dimensions
+        combat_data = combat_engine.get_combat_data_for_ui()
+        battlefield = combat_data.get("battlefield", {})
+        dimensions = battlefield.get("dimensions", {})
+        width = dimensions.get("width", 12)
+        height = dimensions.get("height", 8)
+        
+        print(f"📐 Battlefield: {width}x{height}")
+        print(f"   Valid X: 0-{width-1}, Valid Y: 0-{height-1}")
+        
+        # Check party positions
+        print(f"\n👥 PARTY POSITIONS:")
+        character_states = combat_data.get("character_states", {})
+        for char_id, char_state in character_states.items():
+            if not char_state.get('is_alive', True):
+                continue
+            
+            pos = char_state.get('position', [0, 0])
+            name = char_state.get('name', char_id)
+            hp = char_state.get('character_data', {}).get('current_hp', '?')
+            max_hp = char_state.get('character_data', {}).get('max_hp', '?')
+            
+            # Validate position
+            x, y = pos
+            valid = (0 <= x < width) and (0 <= y < height)
+            status = "✅" if valid else "❌ OUT OF BOUNDS!"
+            
+            # Check if on wall
+            on_wall = combat_engine._is_wall_tile(x, y, battlefield)
+            if on_wall:
+                status += " 🧱 ON WALL!"
+            
+            # Check if on obstacle
+            on_obstacle = combat_engine._is_obstacle_tile(x, y, battlefield)
+            if on_obstacle:
+                status += " 📦 ON OBSTACLE!"
+            
+            print(f"   {name} [{char_id}]: {pos} - HP: {hp}/{max_hp} {status}")
+        
+        # Check enemy positions
+        print(f"\n👹 ENEMY POSITIONS:")
+        enemy_instances = combat_data.get("enemy_instances", [])
+        for enemy in enemy_instances:
+            pos = enemy.get("position", [0, 0])
+            name = enemy.get("name", "Enemy")
+            hp = enemy.get("current_hp", 0)
+            max_hp = enemy.get("stats", {}).get("hp", 1)
+            instance_id = enemy.get("instance_id", "???")
+            
+            if hp <= 0:
+                print(f"   {name} [{instance_id}]: DEAD (was at {pos})")
+                continue
+            
+            # Validate position
+            x, y = pos
+            valid = (0 <= x < width) and (0 <= y < height)
+            status = "✅" if valid else "❌ OUT OF BOUNDS!"
+            
+            # Check if on wall
+            on_wall = combat_engine._is_wall_tile(x, y, battlefield)
+            if on_wall:
+                status += " 🧱 ON WALL!"
+            
+            # Check if on obstacle
+            on_obstacle = combat_engine._is_obstacle_tile(x, y, battlefield)
+            if on_obstacle:
+                status += " 📦 ON OBSTACLE!"
+            
+            # Get AI behavior
+            behavior = enemy.get("encounter_behavior") or enemy.get("behavior", {}).get("tactics", "unknown")
+            
+            # Calculate valid moves
+            movement_range = enemy.get("movement", {}).get("speed", 3)
+            valid_moves = combat_engine.get_valid_moves(pos, movement_range)
+            
+            print(f"   {name} [{instance_id[:4]}]: {pos} - HP: {hp}/{max_hp}")
+            print(f"      Status: {status}")
+            print(f"      AI: {behavior}")
+            print(f"      Valid moves: {len(valid_moves)} tiles")
+            if len(valid_moves) == 0:
+                print(f"      ⚠️ TRAPPED! Cannot move!")
+            elif len(valid_moves) < 3:
+                print(f"      ⚠️ Limited movement: {valid_moves}")
+        
+        print("="*60 + "\n")
+
     def handle_quest_debug(self, data):
         """Handle F2 - Show detailed quest state debug info"""
         print("🔍 F2 - Quest State Debug Requested")
@@ -270,6 +380,7 @@ class DebugManager:
         lines.append("[F2] Quest Debug")
         lines.append("[F3] Save Debug")
         lines.append("[F4] Cycle Day (NPC Test)")
+        lines.append("[F6] Combat Positions")
 
         return lines
     
