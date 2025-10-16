@@ -8,8 +8,7 @@
     {
       "enemy_id": "goblin",
       "position": [11, 1],
-      "facing": "west",
-      "ai_behavior": "stalker"
+      "facing": "west"
     },
     {
       "enemy_id": "kobold",
@@ -18,7 +17,7 @@
       "ai_behavior": "ranged_preference"
     },
     {
-      "enemy_id": "shadow_ghost",
+      "enemy_id": "giant_rat",
       "position": [9, 3],
       "facing": "west"
     },

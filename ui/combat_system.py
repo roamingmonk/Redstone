@@ -46,7 +46,7 @@ class CombatEncounter:
     def render(self, surface: pygame.Surface, game_state, fonts: Dict, images: Dict, controller=None) -> Dict[str, Any]:
         """Main combat screen rendering - follows BaseLocation pattern"""
         if controller and hasattr(controller, 'combat_engine') and hasattr(controller.combat_engine, 'movement_system'):
-            print("Updating movement animations...")
+            #print("Updating movement animations...")
             controller.combat_engine.movement_system.update_movements()
         
         # Get combat sprite manager (singleton)
@@ -364,10 +364,10 @@ class CombatEncounter:
     def _render_battlefield_units(self, surface: pygame.Surface, combat_data: Dict, controller):
         """Render player and enemy units on the battlefield"""
         # Add debug information
-        print(f"DEBUG: Rendering battlefield units")
+        #print(f"DEBUG: Rendering battlefield units")
         if controller and hasattr(controller, 'combat_engine') and hasattr(controller.combat_engine, 'movement_system'):
             active_movements = controller.combat_engine.movement_system.entity_movements
-            print(f"DEBUG: Active movements: {len(active_movements)}")
+            #print(f"DEBUG: Active movements: {len(active_movements)}")
             for entity_id, movement in active_movements.items():
                 print(f"DEBUG: Movement for {entity_id}: {movement['moving']}, {movement['start_pos']} → {movement['target_pos']}")
     
@@ -379,9 +379,48 @@ class CombatEncounter:
         character_states = combat_data.get("character_states", {})
         active_character_id = combat_data.get("active_character_id")
         
+        # First, separate living and dead characters
+        living_characters = []
+        dead_characters = []
+
         for char_id, char_state in character_states.items():
-            if not char_state.get('is_alive', True):
-                continue  # Skip dead characters
+            if char_state.get('is_alive', True):
+                living_characters.append((char_id, char_state))
+            else:
+                dead_characters.append((char_id, char_state))
+
+        # Render unconsious characters first (so they appear below)
+        for char_id, char_state in dead_characters:
+            position = char_state.get('position')
+            if not position or len(position) != 2:
+                continue
+            
+            x, y = position
+            screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
+            screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6
+            
+            # Draw body as dark gray circle
+            pygame.draw.circle(surface, DARK_GRAY, (screen_x, screen_y), self.tile_size // 3)
+            
+            # # Draw an X over the corpse to show it's dead
+            # pygame.draw.line(surface, BLUE, 
+            #             (screen_x - 8, screen_y - 8), 
+            #             (screen_x + 8, screen_y + 8), 2)
+            # pygame.draw.line(surface, BLUE, 
+            #             (screen_x - 8, screen_y + 8), 
+            #             (screen_x + 8, screen_y - 8), 2)
+            
+            # Character label
+            name = char_state.get('name', 'P')
+            label = name[0].upper()
+            font = pygame.font.Font(None, 24)
+            text_surface = font.render(f"{label}", True, WHITE)
+            text_rect = text_surface.get_rect(center=(screen_x, screen_y))
+            surface.blit(text_surface, text_rect)
+
+        # Then render living characters
+        for char_id, char_state in living_characters:
+            # Your existing code for rendering living characters
             
             # Get base grid position
             position = char_state.get('position')

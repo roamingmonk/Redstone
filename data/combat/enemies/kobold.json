@@ -32,7 +32,7 @@
     }
   ],
   "movement": {
-    "speed": 3,
+    "speed": 5,
     "movement_type": "ground"
   },
   "special_abilities": [

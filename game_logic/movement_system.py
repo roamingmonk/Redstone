@@ -68,7 +68,7 @@ class MovementSystem:
         
         return valid_moves
         
-    def find_path(self, start_pos: List[int], end_pos: List[int], can_phase: bool = False) -> Optional[List[List[int]]]:
+    def find_path(self, start_pos: List[int], end_pos: List[int], can_phase: bool = False, is_player: bool = False) -> Optional[List[List[int]]]:
         """
         Find shortest path from start to end position
         Uses Breadth-First Search for pathfinding
@@ -77,6 +77,7 @@ class MovementSystem:
             start_pos: Starting position [x, y]
             end_pos: Destination position [x, y]
             can_phase: Whether entity can move through obstacles
+            is_player: Whether this is a player character (allows moving through allies)
             
         Returns:
             List of positions forming the path, or None if no path exists
@@ -85,6 +86,11 @@ class MovementSystem:
         if not start_pos or not end_pos:
             print("DEBUG: Invalid positions")
             return None
+
+        # Special handling for incorporeal entities
+        if can_phase:
+            # ...existing incorporeal code...
+            return path
 
         # Check if start and end are the same
         if start_pos == end_pos:
@@ -121,8 +127,8 @@ class MovementSystem:
                 if next_tuple in visited:
                     continue
                     
-                # Skip if not a valid movement position
-                if not self._is_valid_position(next_x, next_y, can_phase):
+                # Skip if not a valid movement position - PASS is_player HERE
+                if not self._is_valid_position(next_x, next_y, can_phase, is_player):
                     continue
                     
                 # Create new path with this position
@@ -150,20 +156,20 @@ class MovementSystem:
         
         if x < 0 or x >= width or y < 0 or y >= height:
             return False
-            
+                
         # If entity can phase through obstacles, skip obstacle checks
         if not can_phase:
             # Check for walls and obstacles
             if self.combat_engine._is_wall_tile(x, y, bf):
                 return False
-                
+                    
             if self.combat_engine._is_obstacle_tile(x, y, bf):
                 return False
         
         # Check for other entities
         position = [x, y]
         
-        # For player characters, allow moving through other party members
+        # CRITICAL FIX: For player characters AND PARTY MEMBERS, allow moving through other party members
         if is_player:
             # Only check for enemy units
             enemy_instances = self.combat_engine.combat_data.get("enemy_instances", [])
@@ -180,7 +186,7 @@ class MovementSystem:
                     return False
                     
             for enemy in self.combat_engine.combat_data.get("enemy_instances", []):
-                if enemy.get("current_hp", 0) > 0 and enemy.get("position") == position:
+                if enemy.get("current_hp", 0) > 0 and enemy.get("position") == position and enemy.get("instance_id") != "current_entity_id":
                     return False
         
         return True
@@ -219,7 +225,7 @@ class MovementSystem:
     
     def update_movements(self):
         """Update all entity movements for this frame"""
-        print(f"DEBUG: Updating movements - {len(self.entity_movements)} active movements")
+        #print(f"DEBUG: Updating movements - {len(self.entity_movements)} active movements")
         
         current_time = time.time()
         entities_completed = []
@@ -241,7 +247,7 @@ class MovementSystem:
             # Calculate progress
             elapsed = current_time - movement['start_time']
             progress = min(elapsed * movement['move_speed'], 1.0)
-            print(f"DEBUG: Movement progress: {progress:.2f}")
+            #print(f"DEBUG: Movement progress: {progress:.2f}")
             
             # Update visual position
             start = movement['start_pos']
@@ -387,19 +393,18 @@ class MovementSystem:
             
         return success
     
+    # Around line 380 in movement_system.py
     def _get_entity_by_id(self, entity_id: str) -> Any:
         """Find entity by ID in combat engine data"""
         # Check character states first
         if entity_id in self.combat_engine.character_states:
             return self.combat_engine.character_states[entity_id]
-            
+                
         # Check enemy instances
         for enemy in self.combat_engine.combat_data.get("enemy_instances", []):
-            if enemy.get("id") == entity_id:
-                return enemy
-                
+            if enemy.get("instance_id") == entity_id:
+                return enemy       
         return None
-
 
 # Create global instance
 _movement_system_instance = None
