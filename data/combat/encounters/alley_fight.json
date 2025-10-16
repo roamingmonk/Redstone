@@ -9,7 +9,7 @@
       "enemy_id": "goblin",
       "position": [11, 1],
       "facing": "west",
-      "ai_behavior": "aggressive_rush"
+      "ai_behavior": "mindless_advance"
     },
     {
       "enemy_id": "kobold",
@@ -18,12 +18,12 @@
       "ai_behavior": "ranged_preference"
     },
     {
-      "enemy_id": "blight_shadow",
+      "enemy_id": "skeleton",
       "position": [9, 3],
       "facing": "west"
     },
     {
-      "enemy_id": "blight_shadow",
+      "enemy_id": "skeleton",
       "position": [11, 3],
       "facing": "west"
     }

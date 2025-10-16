@@ -628,12 +628,68 @@ class CombatAI:
     
     def _calculate_mindless_advance_action(self, enemy_data: Dict, combat_state: Dict) -> Dict:
         """
-        MINDLESS_ADVANCE: Skeleton-style, just walk forward
-        - Move toward player in straight line when possible
-        - No clever tactics, just shamble forward
+        MINDLESS_ADVANCE: Relentless shambling (zombies/skeletons/constructs)
+        Strategy:
+        - Move toward nearest player (closest, not smartest)
+        - Attack if adjacent
+        - NEVER retreats (even at 1 HP - they're mindless!)
+        - Ignores all tactical considerations
+        - Simple, predictable, terrifying in numbers
+        Returns: {'move': pos or None, 'attack': data or None}
         """
-        # TODO: Implement in next step
-        return self._calculate_rush_action(enemy_data, combat_state)
+        enemy_pos = enemy_data.get("position", [0, 0])
+        
+        # Find closest player (shortest distance, ignore HP/tactics)
+        closest_player = self._find_closest_player(enemy_pos, combat_state)
+        if not closest_player:
+            return {'move': None, 'attack': None, 'reason': 'no targets detected'}
+        
+        distance = closest_player['distance']
+        target_name = closest_player['name']
+        
+        # Already adjacent - ATTACK with mindless hunger
+        if distance == 1:
+            return {
+                'move': None,
+                'attack': {
+                    'target_id': closest_player['id'],
+                    'attack_index': 0
+                },
+                'reason': f'mindless attack on {target_name}'
+            }
+        
+        # Not adjacent - shamble closer
+        movement_range = enemy_data.get("movement", {}).get("speed", 3)
+        new_pos = self._find_best_move_toward_target(
+            enemy_pos,
+            closest_player['position'],
+            movement_range,
+            combat_state
+        )
+        
+        if new_pos != enemy_pos:
+            new_distance = self._manhattan_distance(new_pos, closest_player['position'])
+            
+            # Moved into attack range - strike immediately
+            if new_distance == 1:
+                return {
+                    'move': new_pos,
+                    'attack': {
+                        'target_id': closest_player['id'],
+                        'attack_index': 0
+                    },
+                    'reason': f'shambling into melee with {target_name}'
+                }
+            else:
+                # Still approaching
+                return {
+                    'move': new_pos,
+                    'attack': None,
+                    'reason': f'shambling toward {target_name} (distance {distance} → {new_distance})'
+                }
+        
+        # Blocked or trapped
+        return {'move': None, 'attack': None, 'reason': 'shambling blocked'}
     
     def _calculate_flanking_action(self, enemy_data: Dict, combat_state: Dict) -> Dict:
         """
