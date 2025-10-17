@@ -61,6 +61,7 @@ class CombatEngine:
 
         self.character_states = {}  # Dict of character_id -> state
         self.active_character_id = None  # Currently acting character
+        self.inspected_unit = None  # Unit currently being inspected by player
 
         #Register combat events (following SaveManager pattern)
         if event_manager:
@@ -589,6 +590,61 @@ class CombatEngine:
         
         return party
     
+    def get_unit_at_position(self, grid_pos: List[int]) -> Optional[Dict]:
+        """
+        Get unit data at specified grid position for inspection
+        Returns dict with name, type (enemy/ally), current_hp, max_hp
+        Returns None if no unit at position
+        """
+        if not self.combat_data:
+            return None
+        
+        x, y = grid_pos
+        
+        # Check party members first
+        for char_id, char_state in self.character_states.items():
+            if not char_state.get('is_alive', True):
+                continue
+                
+            pos = char_state.get('position', [])
+            if pos == [x, y]:
+                # Found a party member
+                char_data = char_state.get('character_data', {})
+                
+                # Get HP from correct source
+                if char_id == 'player':
+                    current_hp = self.game_state.character.get('current_hp', 10)
+                    max_hp = self.game_state.character.get('hit_points', 10)
+                else:
+                    current_hp = char_data.get('current_hp', 10)
+                    max_hp = char_data.get('max_hp', 10)
+                
+                return {
+                    'name': char_state.get('name', 'Unknown'),
+                    'type': 'ally',
+                    'current_hp': current_hp,
+                    'max_hp': max_hp,
+                    'char_id': char_id
+                }
+        
+        # Check enemies
+        enemy_instances = self.combat_data.get("enemy_instances", [])
+        for enemy in enemy_instances:
+            pos = enemy.get("position", [])
+            if pos == [x, y]:
+                # Found an enemy
+                stats = enemy.get('stats', {})
+                return {
+                    'name': enemy.get('name', 'Enemy'),
+                    'type': 'enemy',
+                    'current_hp': enemy.get('current_hp', 0),
+                    'max_hp': stats.get('hp', 1),
+                    'instance_id': enemy.get('instance_id', 'unknown')
+                }
+        
+        # No unit at this position
+        return None
+
     def get_combat_data_for_ui(self) -> Dict:
         """
         Return all data needed for UI rendering
@@ -613,7 +669,7 @@ class CombatEngine:
             "current_actor": current_actor,
             "combat_phase": self.current_phase.value,
             "turn_number": self.combat_data.get("turn_number", 0),
-            "combat_log": self.combat_log[-10:],  # Last 10 messages
+            "combat_log": self.combat_log[-20:],  # Last 20 messages
             "player_actions": self._get_available_player_actions(),
             "player_state": self._get_active_character_state(),
             "current_action_mode": self.current_action_mode, 

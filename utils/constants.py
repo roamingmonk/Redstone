@@ -285,6 +285,9 @@ def load_fonts():
     fonts['normal'] = fonts['fantasy_medium']
     fonts['small'] = fonts['fantasy_small']
     fonts['tiny'] = fonts['fantasy_tiny']
+
+    # Combat log uses clean system font for readability
+    fonts['combat_log'] = _create_font(None, FONT_SIZE_MICRO)  # Always use system font
     
     return fonts
 

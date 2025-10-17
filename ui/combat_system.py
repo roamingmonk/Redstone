@@ -32,6 +32,7 @@ class CombatEncounter:
         self.selected_action = None
         self.selected_unit = None
         self.highlighted_tiles = []
+        self.inspected_unit = None 
     
         # Grid rendering settings
         self.grid_offset_x = 50
@@ -718,53 +719,14 @@ class CombatEncounter:
         
         button_font = fonts.get('fantasy_small', fonts['normal'])
         text_font = fonts.get('fantasy_micro', fonts['normal'])
-        
-        # Active character status
-        current_y = panel_y
-        
-        # Get active character info
+        combat_log_font = fonts.get('combat_log', text_font)
+
+        # Get active character info (needed for button states)
         active_character_id = combat_data.get('active_character_id')
         character_states = combat_data.get('character_states', {})
         
-        if active_character_id and active_character_id in character_states:
-            char_state = character_states[active_character_id]
-            char_name = char_state.get('name', 'Unknown')
-            
-            # Display active character name
-            draw_text(surface, f"Active: {char_name}", text_font, 750, current_y, CYAN)
-            current_y += 30
-            
-            # Show active character HP - read from source of truth!
-            char_data = char_state.get('character_data', {})
-            
-            # For player character, read directly from game_state (source of truth)
-            # For NPCs, read from party_member_data
-            if active_character_id == 'player':
-                current_hp = controller.game_state.character.get('current_hp', 20)
-                max_hp = controller.game_state.character.get('hit_points', 20)
-            else:
-                # NPC - find in party_member_data
-                current_hp = char_data.get('current_hp', 20)
-                max_hp = char_data.get('max_hp', 20)
-                # Update from party_member_data if available
-                for member in controller.game_state.party_member_data:
-                    if member.get('id') == active_character_id:
-                        current_hp = member.get('current_hp', current_hp)
-                        max_hp = member.get('hp', member.get('hit_points', max_hp))
-                        break
-            
-            hp_display = f"HP: {current_hp}/{max_hp}"
-            draw_text(surface, hp_display, text_font, 750, current_y, WHITE)
-            current_y += 30
-            
-            # Show class
-            char_class = char_data.get('class', 'Fighter')
-            draw_text(surface, f"Class: {char_class}", text_font, 750, current_y, WHITE)
-            current_y += 30
-        else:
-            # Fallback if no active character
-            draw_text(surface, "Current Unit:", text_font, 750, current_y, CYAN)
-            current_y += 30
+        # Start positioning for action buttons (moved up closer to Turn: line)
+        current_y = panel_y - 30  # spacing below Turn: line
         
         # Action_buttons = ["MOVE", "ATTACK", "SPELL", "END_TURN"]
         action_buttons = [
@@ -796,15 +758,26 @@ class CombatEncounter:
                 button_y = current_y + (i * (button_height + 10))
                 button_rect = pygame.Rect(panel_x - (button_width // 2), button_y, button_width, button_height)
                 
-                # Determine button state based on player actions
+                # Get current action mode to show which button is active
+                current_mode = combat_data.get('current_action_mode', None)
+                
+                # Determine button state based on player actions AND active mode
                 if action_id == "move":
-                    button_state = "disabled" if has_moved else "active"
+                    if has_moved:
+                        button_state = "disabled"
+                    elif current_mode == "movement":
+                        button_state = "active"  # Yellow border - mode is active
+                    else:
+                        button_state = "normal"  # Gray border - available but not selected
+                        
                 elif action_id == "attack":
                     has_attack_targets = player_state.get('has_attack_targets', False)
                     if attacks_used >= attacks_per_round or not has_attack_targets:
                         button_state = "disabled"
+                    elif current_mode == "attack":
+                        button_state = "active"  # Yellow border - mode is active
                     else:
-                        button_state = "active"
+                        button_state = "normal"  # Gray border - available but not selected
                 
                 elif action_id == "ranged":  
                     has_ranged_weapon = player_state.get('has_ranged_weapon', False)
@@ -812,15 +785,17 @@ class CombatEncounter:
                     
                     if not has_ranged_weapon or attacks_used >= attacks_per_round or not has_ranged_targets:
                         button_state = "disabled"
+                    elif current_mode == "ranged_attack":
+                        button_state = "active"  # Yellow border - mode is active
                     else:
-                        button_state = "active"
+                        button_state = "normal"  # Gray border - available but not selected
                 
                 elif action_id == "spell":
                     button_state = "disabled"  # Not implemented yet
                 elif action_id == "end_turn":
-                    button_state = "active"  # Always available
+                    button_state = "normal"  # Always available (never "active" since it doesn't toggle)
                 else:
-                    button_state = "active"
+                    button_state = "normal"
                 
                 draw_combat_button(surface, button_rect.x, button_rect.y, button_width, button_height,
                         action_label, button_font, button_state)
@@ -835,31 +810,82 @@ class CombatEncounter:
                 print(f"❌ Error rendering button {i}: {e}")
                 continue
                 
-        current_y += len(action_buttons) * (button_height + 10) + 30
+        current_y += len(action_buttons) * (button_height + 10) + 10  
+        
+        # Unit Inspector Panel - FIXED SPACE (always reserve space even if empty)
+        inspector_start_y = current_y
+        
+        # Read from CombatEngine (accessed via GameController)
+        inspected_unit = None
+        if controller and hasattr(controller, 'combat_engine'):
+            inspected_unit = getattr(controller.combat_engine, 'inspected_unit', None)
+        
+        if inspected_unit:
+            # Inspector is active - show unit info
+            draw_text(surface, "👁️ INSPECTING:", combat_log_font, 680, current_y, CYAN)
+            current_y += 25
+            
+            unit_name = inspected_unit.get('name', 'Unknown')
+            unit_type = inspected_unit.get('type', 'ally')  # 'enemy' or 'ally'
+            type_label = "Enemy" if unit_type == 'enemy' else "Ally"
+            
+            draw_text(surface, f"{unit_name} ({type_label})", combat_log_font, 680, current_y, WHITE)
+            current_y += 20
+            
+            # Calculate status from HP percentage
+            current_hp = inspected_unit.get('current_hp', 0)
+            max_hp = inspected_unit.get('max_hp', 1)
+            hp_percent = (current_hp / max_hp * 100) if max_hp > 0 else 0
+            
+            if hp_percent == 0:
+                status = "Defeated"
+                status_color = DARK_GRAY
+            elif hp_percent >= 90:
+                status = "Healthy"
+                status_color = GREEN
+            elif hp_percent >= 66:
+                status = "Hit"
+                status_color = YELLOW
+            elif hp_percent >= 21:
+                status = "Bloodied"
+                status_color = ORANGE
+            else:  # 1-20%
+                status = "Near Death"
+                status_color = RED
+            
+            draw_text(surface, f"Status: {status}", combat_log_font, 680, current_y, status_color)
+            current_y += 30
+        else:
+            # Inspector empty - still reserve the space (3 lines worth)
+            current_y += 65  # Reserve fixed height 
+
+       # Combat Log Header
+        draw_text(surface, "COMBAT LOG:", text_font, 680, current_y, YELLOW)
+        current_y += 25
         
         # Get combat log from combat_data
         log_messages = combat_data.get('combat_log', ["Combat begins!"])
         
-        # Display last 10 messages with text wrapping
-        recent_messages = log_messages[-12:]
+        # Display last 18 messages with text wrapping (expanded for more history)
+        recent_messages = log_messages[-16:]
         log_y = current_y
         log_max_width = 320  # Width of combat log panel area
         
         for message in recent_messages:
             # Wrap long messages to fit in panel using optimized wrap_text
-            wrapped_lines = wrap_text(message, text_font, log_max_width, WHITE)
+            wrapped_lines = wrap_text(message, combat_log_font, log_max_width, DARK_GREEN)
             
             for line_surface in wrapped_lines:
                 surface.blit(line_surface, (680, log_y))
                 log_y += 18  # Line spacing
         
-        # Back button
-        back_y = 680
-        back_rect = pygame.Rect(panel_x - 60, back_y, 120, 40)
+        # Exit button
+        exit_y = 710
+        exit_rect = pygame.Rect(self.grid_offset_x, exit_y, 80, 40)
         
-        draw_combat_button(surface, back_rect.x, back_rect.y, 120, 40, "BACK", button_font)
+        draw_combat_button(surface, exit_rect.x, exit_rect.y, 80, 40, "EXIT", button_font)
         clickable_areas["back_button"] = {
-            "rect": back_rect,
+            "rect": exit_rect,
             "action": "COMBAT_BACK"
         }
         
@@ -1004,23 +1030,55 @@ def draw_combat_screen(surface: pygame.Surface, game_state, fonts: Dict, images:
 def register_combat_system_events(event_manager, game_controller):
     """Register combat event handlers that actually work"""
     
+    def clear_inspector():
+        """Clear the unit inspector when starting an action"""
+        if game_controller:
+            game_controller.inspected_unit = None
+
     def handle_attack_action(event_data):
-        """Handle ATTACK button click"""  
-        print("ATTACK button clicked - switching to attack mode")
-        if game_controller: 
-            game_controller.set_action_mode("attack")
+        """Handle ATTACK button click - toggle on/off"""
+        if game_controller:
+            current_mode = getattr(game_controller, 'current_action_mode', None)
+            
+            if current_mode == "attack":
+                # Already in attack mode - toggle OFF
+                print("ATTACK button toggled OFF")
+                game_controller.set_action_mode(None)
+            else:
+                # Not in attack mode - toggle ON
+                print("ATTACK button clicked - switching to attack mode")
+                game_controller.set_action_mode("attack")
+                clear_inspector()  # Clear inspector when starting action
 
     def handle_ranged_action(event_data):
-        """Handle RANGED button click"""
-        print("RANGED button clicked - switching to ranged attack mode")
+        """Handle RANGED button click - toggle on/off"""
         if game_controller:
-            game_controller.set_action_mode("ranged_attack")
+            current_mode = getattr(game_controller, 'current_action_mode', None)
+            
+            if current_mode == "ranged_attack":
+                # Already in ranged mode - toggle OFF
+                print("RANGED button toggled OFF")
+                game_controller.set_action_mode(None)
+            else:
+                # Not in ranged mode - toggle ON
+                print("RANGED button clicked - switching to ranged attack mode")
+                game_controller.set_action_mode("ranged_attack")
+                clear_inspector()  # Clear inspector when starting action
 
     def handle_move_action(event_data):
-        """Handle MOVE button click"""
-        print("MOVE button clicked - switching to movement mode")
+        """Handle MOVE button click - toggle on/off"""
         if game_controller:
-            game_controller.set_action_mode("movement")
+            current_mode = getattr(game_controller, 'current_action_mode', None)
+            
+            if current_mode == "movement":
+                # Already in movement mode - toggle OFF
+                print("MOVE button toggled OFF")
+                game_controller.set_action_mode(None)
+            else:
+                # Not in movement mode - toggle ON
+                print("MOVE button clicked - switching to movement mode")
+                game_controller.set_action_mode("movement")
+                clear_inspector()  # Clear inspector when starting action 
 
     def handle_grid_click(event_data):
         grid_pos = event_data.get('grid_pos', [0, 0])
@@ -1029,6 +1087,7 @@ def register_combat_system_events(event_manager, game_controller):
         if game_controller:
             current_mode = getattr(game_controller, 'current_action_mode', None)
             
+            # If in an action mode (movement/attack), execute that action
             if current_mode == "movement":
                 result = game_controller.execute_player_move(grid_pos)
                 print(f"Movement result: {result}")
@@ -1037,7 +1096,18 @@ def register_combat_system_events(event_manager, game_controller):
                 print(f"Attack result: {result}")
             elif current_mode == "ranged_attack":                     
                 result = game_controller.execute_player_ranged_attack(grid_pos)
-                print(f"Ranged attack result: {result}")              
+                print(f"Ranged attack result: {result}")
+            else:
+                # No action mode active - check if clicking on a unit for inspection
+                unit_data = game_controller.get_unit_at_position(grid_pos)
+                
+                if unit_data:
+                    # Store in CombatEngine directly
+                    game_controller.inspected_unit = unit_data
+                    print(f"👁️ Inspecting: {unit_data.get('name', 'Unknown')}")
+                else:
+                    # Clear inspector if clicking empty space
+                    game_controller.inspected_unit = None   
 
     def handle_end_turn_action(event_data):
         """Handle END_TURN button click"""

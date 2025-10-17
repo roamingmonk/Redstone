@@ -5,7 +5,7 @@ Contains all drawing functions for UI elements, borders, buttons, etc.
 
 import pygame
 from .constants import (
-     WHITE, GRAY, DARK_GRAY, DARK_BROWN, DARK_GREEN, BLACK,BRIGHT_GREEN, 
+     WHITE, GRAY, DARK_GRAY, DARK_BROWN, DARK_GREEN, BLACK,BRIGHT_GREEN, YELLOW,
      BORDER_THICKNESS, BUTTON_SELECTED_BG, BUTTON_SELECTED_BORDER, BUTTON_SELECTED_TEXT,
      BUTTON_NORMAL_TEXT, BUTTON_NORMAL_BG, BUTTON_NORMAL_BORDER
      )
@@ -82,19 +82,22 @@ def draw_combat_button(surface, x, y, width, height, text, font, button_state="n
     """
     # Define colors based on state
     if button_state == "active":
+        # Active mode selected - Yellow border to stand out
         bg_color = DARK_GREEN
         text_color = BRIGHT_GREEN
-        border_color = BRIGHT_GREEN
-        border_width = 2
+        border_color = YELLOW  # ⭐ Changed from BRIGHT_GREEN
+        border_width = 3  # Thicker border for visibility
     elif button_state == "disabled":
+        # Disabled - All gray
         bg_color = DARK_GRAY
         text_color = GRAY
         border_color = GRAY
         border_width = 1
-    else:  # normal
-        bg_color = BLACK
-        text_color = WHITE
-        border_color = WHITE
+    else:  # normal (available but not selected)
+        # Normal - Green button, gray border, green text
+        bg_color = DARK_GREEN
+        text_color = BRIGHT_GREEN
+        border_color = DARK_GREEN
         border_width = 1
     
     # Draw button background
@@ -107,7 +110,7 @@ def draw_combat_button(surface, x, y, width, height, text, font, button_state="n
     text_rect = text_surface.get_rect(center=button_rect.center)
     surface.blit(text_surface, text_rect)
     
-    return button_rect
+    return
 
 def draw_button(surface, x, y, width, height, text, font, selected=False, text_color=None):
     """
