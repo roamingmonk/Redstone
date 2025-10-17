@@ -261,7 +261,14 @@ class MovementSystem:
                     return False
                     
             for enemy in self.combat_engine.combat_data.get("enemy_instances", []):
-                if enemy.get("current_hp", 0) > 0 and enemy.get("position") == position:
+                if enemy.get("current_hp", 0) <= 0:
+                    continue
+                
+                # Check BOTH actual position AND intended position (during animations)
+                enemy_pos = enemy.get("position")
+                enemy_intended = enemy.get("intended_position")
+                
+                if enemy_pos == position or enemy_intended == position:
                     return False
         
         return True

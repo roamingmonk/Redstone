@@ -1069,9 +1069,24 @@ class CombatAI:
         path = movement_system.find_path(start, target, can_phase, is_player=False)
         
         if path and len(path) > 1:
-            # Return position we can reach within movement_range
-            steps = min(movement_range + 1, len(path))  # +1 because path includes start
-            return path[steps - 1]
+            # For melee attacks, stop ADJACENT (one before target)
+            # Path includes start, so path[-1] is target, path[-2] is adjacent
+            max_steps = min(movement_range + 1, len(path))
+            
+            # Stop one tile before target (adjacent for melee)
+            destination_index = min(max_steps - 1, len(path) - 2)
+            
+            # Ensure we move at least one tile forward
+            if destination_index < 1:
+                destination_index = 1
+                
+            print(f"   🔍 Direct path debug:")
+            print(f"      Start: {start}, Target: {target}")
+            print(f"      Full path: {path}")
+            print(f"      Movement range: {movement_range}")
+            print(f"      Returning index {destination_index}: {path[destination_index]}")
+            
+            return path[destination_index]
         
         # No path found, stay put
         return start

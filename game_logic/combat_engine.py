@@ -253,7 +253,7 @@ class CombatEngine:
     # Replace or modify existing movement execution
     def move_entity(self, entity, target_x, target_y):
         return self.movement_system.move_entity(entity, target_x, target_y)
-
+    
     def _execute_enemy_move(self, enemy: Dict, target_position: List[int]) -> bool:
         """
         Execute enemy movement to target position with animation
@@ -273,20 +273,47 @@ class CombatEngine:
         # Check for incorporeal ability
         can_phase = enemy.get("movement", {}).get("movement_type") == "incorporeal"
         print(f"DEBUG: Enemy move - {enemy_name} ({enemy_id}) from {enemy_pos} to {target_position}, can_phase={can_phase}")
-    
-        # SPECIAL HANDLING FOR SHADOW GHOST/INCORPOREAL
+
+        # OCCUPATION CHECK: Prevent ending turn on occupied tiles
+        # Check if target is occupied by ANYONE (players or other enemies)
+        target_x, target_y = target_position
+        
+        # Check for players at target
+        for char_id, char_state in self.character_states.items():
+            if char_state.get('is_alive', True) and char_state.get('position') == target_position:
+                print(f"   ⚠️ BLOCKED: {enemy_name} cannot move to {target_position} - player there")
+                self._add_to_combat_log(f"{enemy_name} cannot reach desired position - tile occupied")
+                return False
+        
+        # Check for other enemies at target (don't check self)
+        enemy_instances = self.combat_data.get("enemy_instances", [])
+        for other_enemy in enemy_instances:
+            if other_enemy.get("current_hp", 0) <= 0:
+                continue
+            
+            other_id = other_enemy.get("instance_id")
+            if other_id == enemy_id:
+                continue  # Don't block ourselves
+            
+            # Check both current position and intended position
+            if other_enemy.get("position") == target_position or other_enemy.get("intended_position") == target_position:
+                print(f"   ⚠️ BLOCKED: {enemy_name} cannot move to {target_position} - another enemy there")
+                self._add_to_combat_log(f"{enemy_name} cannot reach desired position - tile occupied")
+                return False
+
+        # PATHFINDING: Different strategies for incorporeal vs regular enemies
         if can_phase:
-            # Create direct path for incorporeal entities
+            # Incorporeal: Create direct path (can phase through obstacles)
             path = [enemy_pos]  # Start with current position
             
             # Calculate step directions
             dx = 1 if target_position[0] > enemy_pos[0] else -1 if target_position[0] < enemy_pos[0] else 0
             dy = 1 if target_position[1] > enemy_pos[1] else -1 if target_position[1] < enemy_pos[1] else 0
             
-            # Generate path (x,y coordinates)
+            # Generate path step-by-step
             current = enemy_pos.copy()
             while current != target_position:
-                # Move diagonally when possible
+                # Move diagonally when possible (faster visual)
                 if current[0] != target_position[0] and current[1] != target_position[1]:
                     current[0] += dx
                     current[1] += dy
@@ -299,7 +326,7 @@ class CombatEngine:
                 # Add waypoint
                 path.append(current.copy())
         else:
-            # Standard pathfinding for regular enemies
+            # Regular enemies: Use standard pathfinding (respects obstacles)
             path = self.movement_system.find_path(
                 enemy_pos, 
                 target_position, 
@@ -308,7 +335,7 @@ class CombatEngine:
         
         print(f"DEBUG: Path for {enemy_name}: {path}")
         
-        # Validate if path exists and is within movement range
+        # Validate path exists and is within movement range
         if not path or len(path) - 1 > movement_range:
             self._add_to_combat_log(f"{enemy_name} cannot reach desired position")
             return False
@@ -321,7 +348,7 @@ class CombatEngine:
         )
         
         if success:
-            # Update intended position, but actual position will be updated by movement system
+            # Update intended position (actual position updated by movement system during animation)
             enemy["intended_position"] = target_position
             
             # Log movement
@@ -338,7 +365,7 @@ class CombatEngine:
             return True
         
         return False
-    
+
     def execute_enemy_turn(self, enemy_id: str):
         """Public method that redirects to the internal _execute_enemy_turn method"""
         return self._execute_enemy_turn(enemy_id)
@@ -1534,58 +1561,6 @@ class CombatEngine:
         # If we exhausted all actors and none are alive, combat should end
         print("⚠️ WARNING: All actors in turn order are unconscious/dead!")
         # Consider ending combat or triggering special defeat condition here
-    
-    def _execute_enemy_move(self, enemy: Dict, target_position: List[int]) -> bool:
-        """Execute enemy movement to target position"""
-        enemy_pos = enemy.get("position", [0, 0])
-        enemy_name = enemy.get("name", "Enemy")
-        movement_range = enemy.get("movement", {}).get("speed", 3)
-        enemy_id = enemy.get("instance_id", "")
-        
-        # Check for incorporeal ability
-        can_phase = enemy.get("movement", {}).get("movement_type") == "incorporeal"
-        
-        # CRITICAL CHECK: Ensure target tile isn't occupied (even for incorporeal)
-        if self._is_tile_occupied(target_position[0], target_position[1]):
-            self._add_to_combat_log(f"{enemy_name} cannot reach desired position - tile occupied")
-            return False
-        
-        # Pathfinding based on movement type
-        if can_phase:
-            # Direct path for incorporeal entities (they can pass THROUGH but not END ON other entities)
-            path = [enemy_pos, target_position]
-        else:
-            # Regular pathfinding for non-incorporeal entities
-            path = self.movement_system.find_path(enemy_pos, target_position, can_phase)
-        
-        # Validate if path exists and is within movement range
-        if not path or len(path) - 1 > movement_range:
-            self._add_to_combat_log(f"{enemy_name} cannot reach desired position")
-            return False
-        
-        # Start movement animation
-        success = self.movement_system.start_entity_movement(
-            enemy_id,
-            enemy_pos,
-            path
-        )
-        
-        if success:
-            # Rest of the method remains the same...
-            enemy["intended_position"] = target_position
-            self._add_to_combat_log(f"{enemy_name} moves toward {target_position}")
-            
-            # Emit movement event
-            self.event_manager.emit("COMBAT_UNIT_MOVED", {
-                "unit_type": "enemy",
-                "old_position": enemy_pos,
-                "new_position": target_position,
-                "animated": True
-            })
-            
-            return True
-        
-        return False
         
     def _find_nearest_party_member(self, enemy_pos: List[int]) -> List[int]:
         """Find the position of the nearest living party member"""
