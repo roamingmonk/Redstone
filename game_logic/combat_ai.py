@@ -1056,74 +1056,25 @@ class CombatAI:
         return best_pos
 
     def _find_direct_path_to_target(self, start: List[int], target: List[int], movement_range: int, combat_state: Dict = None) -> List[int]:
-        """Find direct path toward target, ignoring obstacles (for incorporeal movement)"""
-        start_x, start_y = start
-        target_x, target_y = target
+        """
+        Find direct path toward target using MovementSystem
+        Uses centralized pathfinding for consistency
+        """
+        movement_system = combat_state.get('movement_system')
+        if not movement_system:
+            raise RuntimeError("MovementSystem not available in combat_state - this should never happen!")
         
-        # CRITICAL FIX: Check if target position is final destination
-        # If we're heading toward a character/enemy, aim for adjacent tile instead
-        if combat_state:
-            # Check if this is a character position
-            character_states = combat_state.get('character_states', {})
-            is_character_pos = False
-            
-            for state in character_states.values():
-                if state.get('position') == target:
-                    is_character_pos = True
-                    break
-            
-            # If we're going directly toward a character, adjust to go adjacent instead
-            if is_character_pos:
-                # Calculate direction to target
-                dx = target_x - start_x
-                dy = target_y - start_y
-                
-                # Normalize direction
-                if dx != 0:
-                    dx = dx // abs(dx)
-                if dy != 0:
-                    dy = dy // abs(dy)
-                
-                # Target position is one step away from character
-                actual_target_x = target_x - dx
-                actual_target_y = target_y - dy
-                
-                # Update target for calculation
-                target_x, target_y = actual_target_x, actual_target_y
+        # Use MovementSystem to find actual path
+        can_phase = True  # This is for incorporeal movement
+        path = movement_system.find_path(start, target, can_phase, is_player=False)
         
-        # Original movement calculation continues...
-        dx = target_x - start_x
-        dy = target_y - start_y
+        if path and len(path) > 1:
+            # Return position we can reach within movement_range
+            steps = min(movement_range + 1, len(path))  # +1 because path includes start
+            return path[steps - 1]
         
-        # Calculate direction to move
-        move_x = 0
-        move_y = 0
-        
-        if dx != 0:
-            move_x = 1 if dx > 0 else -1
-        if dy != 0:
-            move_y = 1 if dy > 0 else -1
-        
-        # Move as far as possible toward target (up to movement_range)
-        new_x = start_x
-        new_y = start_y
-        
-        for step in range(movement_range):
-            # Try to move diagonally if both dx and dy exist
-            if abs(new_x + move_x - target_x) + abs(new_y + move_y - target_y) < abs(new_x - target_x) + abs(new_y - target_y):
-                new_x += move_x
-                new_y += move_y
-            # Otherwise move in axis with larger distance
-            elif abs(dx) > abs(dy):
-                new_x += move_x
-            else:
-                new_y += move_y
-            
-            # Stop if we reached target
-            if new_x == target_x and new_y == target_y:
-                break
-        
-        return [new_x, new_y]
+        # No path found, stay put
+        return start
 
     def _find_best_retreat_position(self, enemy_pos: List[int], player_pos: List[int],
                                movement_range: int, combat_state: Dict) -> List[int]:

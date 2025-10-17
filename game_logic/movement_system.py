@@ -141,7 +141,27 @@ class MovementSystem:
 
         # Special handling for incorporeal entities
         if can_phase:
-            # ...existing incorporeal code...
+            # Incorporeal entities can phase through obstacles - direct path
+            path = []
+            current_x, current_y = start_pos
+            end_x, end_y = end_pos
+            
+            # Build path step by step toward destination
+            while current_x != end_x or current_y != end_y:
+                path.append([current_x, current_y])
+                
+                # Move one step toward destination
+                if current_x < end_x:
+                    current_x += 1
+                elif current_x > end_x:
+                    current_x -= 1
+                elif current_y < end_y:
+                    current_y += 1
+                elif current_y > end_y:
+                    current_y -= 1
+            
+            # Add final position
+            path.append([end_x, end_y])
             return path
 
         # Check if start and end are the same

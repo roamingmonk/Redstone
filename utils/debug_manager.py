@@ -140,7 +140,7 @@ class DebugManager:
             
             # Calculate valid moves
             movement_range = enemy.get("movement", {}).get("speed", 3)
-            valid_moves = combat_engine.get_valid_moves(pos, movement_range)
+            valid_moves = combat_engine.movement_system.get_valid_moves(pos, movement_range, can_phase=False, is_player=False)
             
             print(f"   {name} [{instance_id[:4]}]: {pos} - HP: {hp}/{max_hp}")
             print(f"      Status: {status}")

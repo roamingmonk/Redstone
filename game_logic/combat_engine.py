@@ -361,16 +361,23 @@ class CombatEngine:
         enemy_name = enemy.get("name", "Enemy")
         self._add_to_combat_log(f"{enemy_name}'s turn")
         
-        # Calculate valid moves for this enemy
-        movement_range = enemy.get("movement", {}).get("speed", 3)
-        valid_moves = self.get_valid_moves(enemy.get("position", [0, 0]), movement_range)
+        # Calculate valid moves for this enemy using MovementSystem
+        can_phase = enemy.get("movement", {}).get("movement_type") == "incorporeal"
+        movement_range = self.movement_system.get_movement_range(enemy)
+        valid_moves = self.movement_system.get_valid_moves(
+            enemy.get("position", [0, 0]), 
+            movement_range, 
+            can_phase, 
+            is_player=False
+        )
 
         # AI plans ENTIRE turn (move + attack) in ONE call
         combat_state = {
             'character_states': self.character_states,
             'enemy_instances': enemy_instances,
             'battlefield': self.combat_data.get("battlefield", {}),
-            'valid_moves': valid_moves
+            'valid_moves': valid_moves,
+            'movement_system': self.movement_system  # NEW: Give AI access to pathfinding
         }
         
         # Get complete turn plan from AI
@@ -709,7 +716,7 @@ class CombatEngine:
                 )
             else:
                 # Fall back to existing method if movement system not available
-                valid_moves = self.get_valid_moves(position, movement_range)
+                valid_moves = self.movement_system.get_valid_moves(position, movement_range, can_phase, is_player=True)
                 
             print(f"Calculated {len(valid_moves)} valid movement tiles")
             
@@ -723,12 +730,6 @@ class CombatEngine:
         elif mode == "ranged_attack":
             # Your existing ranged attack highlighting code
             pass
-
-    def get_valid_moves(self, position, movement_range):
-        """Get valid moves for an entity"""
-        # Delegate to movement system
-        can_phase = False  # Determine if entity can phase
-        return self.movement_system.get_valid_moves(position, movement_range, can_phase)
 
     def _can_use_ranged_attack(self) -> bool:
         """Check if active character can use ranged attacks"""
@@ -2311,7 +2312,14 @@ class CombatEngine:
         # MOVEMENT
         if mode == "movement":
             movement_range = self.movement_system.get_movement_range(char_state)
-            return self.get_valid_moves(pos, movement_range)
+            # Check for incorporeal ability
+            can_phase = False
+            abilities = char_state.get('character_data', {}).get('abilities', [])
+            for ability in abilities:
+                if ability.get('id') == 'incorporeal':
+                    can_phase = True
+                    break
+            return self.movement_system.get_valid_moves(pos, movement_range, can_phase, is_player=True)
 
         # MELEE
         if mode == "attack":
