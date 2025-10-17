@@ -1368,6 +1368,49 @@ class CharacterEngine:
         
         print(f"⭐ {member_id.title()} gained {xp_amount} XP! (Total: {new_xp}) - {reason}")
     
+    def _award_individual_xp(self, character_id: str, xp_amount: int, reason: str = ""):
+        """
+        Award XP to a single character (for individual achievements like kills)
+        
+        Args:
+            character_id: 'player' or party member ID
+            xp_amount: Amount of XP to award
+            reason: Description of why XP was awarded
+        """
+        if character_id == 'player':
+            # Award to main player character
+            current_xp = self.game_state.character.get('experience', 0)
+            new_xp = current_xp + xp_amount
+            self.game_state.character['experience'] = new_xp
+            
+            # Track XP statistics
+            self.game_state.player_statistics['xp_from_combat'] += xp_amount
+            
+            # Floating notification
+            if self.event_manager:
+                try:
+                    self.event_manager.emit("SHOW_FLOATING_TEXT", {
+                        "text": f"+{xp_amount} XP",
+                        "color": (255, 223, 0),
+                        "duration": 2200,
+                    })
+                except Exception as e:
+                    print(f"⚠️ Floating text failed: {e}")
+            
+            print(f"⭐ {self.game_state.character.get('name', 'Player')} gained {xp_amount} XP! - {reason}")
+            
+            # Check for level up
+            if self.can_level_up():
+                print("🎊 Ready to level up!")
+        else:
+            # Award to specific party member
+            self.award_party_member_xp(character_id, xp_amount, reason)
+            
+            # Check if party member can level up
+            level_up_candidates = self.check_party_level_ups()
+            if character_id in level_up_candidates:
+                print(f"🎊 {character_id.title()} ready to level up!")
+
     def _get_party_member_starting_hp(self, member_id):
         """Get starting HP for party member based on their class"""
         # This would normally come from NPC data files
@@ -1614,9 +1657,15 @@ class CharacterEngine:
         """Handle XP_AWARDED events from quest/combat/discovery systems"""
         xp_amount = event_data.get('amount', 0)
         reason = event_data.get('reason', 'Unknown')
+        recipient = event_data.get('recipient', 'party')  # Default to party
         
         if xp_amount > 0:
-            self.award_party_experience(xp_amount, reason)
+            if recipient == 'party':
+                # Award to entire party (quests, victory bonuses)
+                self.award_party_experience(xp_amount, reason)
+            else:
+                # Award to specific character (individual kills)
+                self._award_individual_xp(recipient, xp_amount, reason)
 
     def _handle_quest_xp(self, event_data):
         """Handle QUEST_COMPLETED events with appropriate XP rewards"""

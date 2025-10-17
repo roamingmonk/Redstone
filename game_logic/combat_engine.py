@@ -1817,6 +1817,20 @@ class CombatEngine:
                     if new_hp <= 0:
                         self._add_to_combat_log(f"{target_name} defeated!")
                         
+                        # Award XP immediately to killer only
+                        xp_value = target_data.get('loot', {}).get('xp_value', 0)
+                        if xp_value > 0 and self.active_character_id:
+                            killer_name = self.character_states[self.active_character_id]['character_data'].get('name', 'Unknown')
+                            
+                            # Award XP to specific character who got the kill
+                            if self.event_manager:
+                                self.event_manager.emit("XP_AWARDED", {
+                                    'amount': xp_value,
+                                    'reason': f"defeated {target_name}",
+                                    'recipient': self.active_character_id  # Only the killer
+                                })
+                            self._add_to_combat_log(f"{killer_name} gained {xp_value} XP!")
+                        
                         # Track enemy defeats by name (for "most defeated" stat)
                         enemy_name = target_data.get('name', 'Unknown')
                         enemy_defeats = self.game_state.player_statistics.get('enemy_defeats', {})
