@@ -1083,8 +1083,8 @@ class CombatEngine:
         """Hard LOS blocker: walls, sight-blocking terrain, and (optionally) creatures."""
         battlefield = self.combat_data.get("battlefield", {})
 
-        # Walls (you already have this)
-        if self._is_wall_tile(x, y, battlefield):
+        # Walls - use MovementSystem for terrain checking
+        if self.movement_system._is_wall_tile(x, y, battlefield):
             return True
 
         # NEW: terrain that explicitly blocks sight (pillars/support beams, etc.)
@@ -1934,57 +1934,7 @@ class CombatEngine:
                 return max(1, int(damage_string))
                 
         except:
-            return 1  # Fallback
-    
-    def _is_tile_walkable(self, x: int, y: int, movement_type="ground") -> bool:
-        """
-        Check if tile at position is walkable
-        
-        Args:
-            x, y: Tile coordinates
-            movement_type: Type of movement (ground, flying, incorporeal)
-            
-        Returns:
-            bool: Whether the tile is walkable for the given movement type
-        """
-        battlefield = self.combat_data.get("battlefield", {})
-        
-        # Check walls - impassable for all except incorporeal
-        if self._is_wall_tile(x, y, battlefield) and movement_type != "incorporeal":
-            return False
-        
-        # Check obstacles - impassable for ground units but not incorporeal
-        if self._is_obstacle_tile(x, y, battlefield) and movement_type != "incorporeal":
-            return False
-        
-        # Check if another unit occupies this tile - none can pass through
-        if self._is_tile_occupied(x, y):
-            return False
-        
-        return True
-    
-    def _is_wall_tile(self, x: int, y: int, battlefield: Dict) -> bool:
-        """Check if tile position is a wall"""
-        terrain = battlefield.get('terrain', {})
-        walls = terrain.get('walls', [])
-        
-        for wall in walls:
-            if len(wall) == 4:
-                x1, y1, x2, y2 = wall
-                if self._point_on_line_segment(x, y, x1, y1, x2, y2):
-                    return True
-        return False
-    
-    def _is_obstacle_tile(self, x: int, y: int, battlefield: Dict) -> bool:
-        """Check if tile position has an obstacle"""
-        terrain = battlefield.get('terrain', {})
-        obstacles = terrain.get('obstacles', [])
-        
-        for obstacle in obstacles:
-            obs_pos = obstacle.get('position', [])
-            if len(obs_pos) == 2 and obs_pos[0] == x and obs_pos[1] == y:
-                return True
-        return False
+            return 1  # Fallback   
     
     def _is_tile_occupied(self, x: int, y: int) -> bool:
             """Check if a tile is occupied by any unit (party member or enemy)"""
@@ -2008,14 +1958,6 @@ class CombatEngine:
             #         return True  # Both corpses and living enemies block
 
             return False
-    
-    def _point_on_line_segment(self, px: int, py: int, x1: int, y1: int, x2: int, y2: int) -> bool:
-        """Check if point is on line segment"""
-        if x1 == x2:  # Vertical line
-            return px == x1 and min(y1, y2) <= py <= max(y1, y2)
-        elif y1 == y2:  # Horizontal line
-            return py == y1 and min(x1, x2) <= px <= max(x1, x2)
-        return False
     
     def _get_enemy_attack_targets(self, enemy_pos: List[int]) -> List[Dict]:
         """Get attack targets for enemy at position"""

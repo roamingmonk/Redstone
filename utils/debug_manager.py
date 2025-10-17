@@ -95,12 +95,12 @@ class DebugManager:
             status = "✅" if valid else "❌ OUT OF BOUNDS!"
             
             # Check if on wall
-            on_wall = combat_engine._is_wall_tile(x, y, battlefield)
+            on_wall = combat_engine.movement_system._is_wall_tile(x, y, battlefield)
             if on_wall:
                 status += " 🧱 ON WALL!"
             
             # Check if on obstacle
-            on_obstacle = combat_engine._is_obstacle_tile(x, y, battlefield)
+            on_obstacle = combat_engine.movement_system._is_obstacle_tile(x, y, battlefield)
             if on_obstacle:
                 status += " 📦 ON OBSTACLE!"
             
@@ -126,12 +126,12 @@ class DebugManager:
             status = "✅" if valid else "❌ OUT OF BOUNDS!"
             
             # Check if on wall
-            on_wall = combat_engine._is_wall_tile(x, y, battlefield)
+            on_wall = combat_engine.movement_system._is_wall_tile(x, y, battlefield)
             if on_wall:
                 status += " 🧱 ON WALL!"
             
             # Check if on obstacle
-            on_obstacle = combat_engine._is_obstacle_tile(x, y, battlefield)
+            on_obstacle = combat_engine.movement_system._is_obstacle_tile(x, y, battlefield)
             if on_obstacle:
                 status += " 📦 ON OBSTACLE!"
             

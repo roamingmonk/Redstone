@@ -45,6 +45,9 @@ class CombatEncounter:
 
     def render(self, surface: pygame.Surface, game_state, fonts: Dict, images: Dict, controller=None) -> Dict[str, Any]:
         """Main combat screen rendering - follows BaseLocation pattern"""
+         # Cache controller reference for helper methods
+        self.controller = controller
+        
         if controller and hasattr(controller, 'combat_engine') and hasattr(controller.combat_engine, 'movement_system'):
             #print("Updating movement animations...")
             controller.combat_engine.movement_system.update_movements()
@@ -233,7 +236,11 @@ class CombatEncounter:
                 
                 # === LAYERED RENDERING ===
                 # Layer 1: Floor tile (bottom)
-                if self._is_wall_tile(x, y, battlefield):
+                is_wall = False
+                if hasattr(self, 'controller') and self.controller and hasattr(self.controller, 'combat_engine'):
+                    is_wall = self.controller.combat_engine.movement_system._is_wall_tile(x, y, battlefield)
+                
+                if is_wall:
                     # Determine which wall tile to use
                     wall_type = self._get_wall_tile_type(x, y, battlefield)
                     # Get tile from current battlefield's tileset
@@ -247,7 +254,11 @@ class CombatEncounter:
                     self._draw_floor_tile(surface, screen_x, screen_y, floor_type)
                 
                 # Layer 2: Obstacles (middle) - drawn ON TOP of floor
-                if self._is_obstacle_tile(x, y, battlefield):
+                is_obstacle = False
+                if hasattr(self, 'controller') and self.controller and hasattr(self.controller, 'combat_engine'):
+                    is_obstacle = self.controller.combat_engine.movement_system._is_obstacle_tile(x, y, battlefield)
+                
+                if is_obstacle:
                     obstacle_type = self._get_obstacle_type(x, y, battlefield)
                     self._draw_obstacle_sprite(surface, screen_x, screen_y, obstacle_type)
                 
@@ -857,39 +868,6 @@ class CombatEncounter:
     # ==========================================
     # BATTLEFIELD HELPER METHODS
     # ==========================================
-    
-    def _is_wall_tile(self, x: int, y: int, battlefield: Dict) -> bool:
-        """Check if tile position is a wall"""
-        terrain = battlefield.get('terrain', {})
-        walls = terrain.get('walls', [])
-        
-        # Check if point is on any wall line segment
-        for wall in walls:
-            if len(wall) == 4:
-                x1, y1, x2, y2 = wall
-                if self._point_on_line_segment(x, y, x1, y1, x2, y2):
-                    return True
-        return False
-    
-    def _is_obstacle_tile(self, x: int, y: int, battlefield: Dict) -> bool:
-        """Check if tile position has an obstacle"""
-        terrain = battlefield.get('terrain', {})
-        obstacles = terrain.get('obstacles', [])
-        
-        for obstacle in obstacles:
-            obs_pos = obstacle.get('position', [])
-            if len(obs_pos) == 2 and obs_pos[0] == x and obs_pos[1] == y:
-                return True
-        return False
-
-    def _point_on_line_segment(self, px: int, py: int, x1: int, y1: int, x2: int, y2: int) -> bool:
-        """Check if point (px, py) is on line segment from (x1,y1) to (x2,y2)"""
-        # For grid-based walls, check if point is exactly on the line
-        if x1 == x2:  # Vertical line
-            return px == x1 and min(y1, y2) <= py <= max(y1, y2)
-        elif y1 == y2:  # Horizontal line
-            return py == y1 and min(x1, x2) <= px <= max(x1, x2)
-        return False
     
     def _handle_action_button(self, button_type: str, game_state, event_manager) -> Optional[str]:
         """Handle action button clicks"""

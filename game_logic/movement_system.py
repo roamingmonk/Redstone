@@ -228,20 +228,23 @@ class MovementSystem:
         
         if x < 0 or x >= width or y < 0 or y >= height:
             return False
-                
-        # If entity can phase through obstacles, skip obstacle checks
+        
+        # Determine movement type for terrain checking
+        movement_type = "incorporeal" if can_phase else "ground"
+        
+        # Check terrain using our new methods (no occupation check yet)
         if not can_phase:
-            # Check for walls and obstacles
-            if self.combat_engine._is_wall_tile(x, y, bf):
+            # Check for walls and obstacles using local methods
+            if self._is_wall_tile(x, y, bf):
                 return False
                     
-            if self.combat_engine._is_obstacle_tile(x, y, bf):
+            if self._is_obstacle_tile(x, y, bf):
                 return False
         
-        # Check for other entities
+        # Check for other entities (still using CombatEngine data)
         position = [x, y]
         
-        # CRITICAL FIX: For player characters AND PARTY MEMBERS, allow moving through other party members
+        # For player characters AND PARTY MEMBERS, allow moving through other party members
         if is_player:
             # Only check for enemy units
             enemy_instances = self.combat_engine.combat_data.get("enemy_instances", [])
@@ -258,11 +261,72 @@ class MovementSystem:
                     return False
                     
             for enemy in self.combat_engine.combat_data.get("enemy_instances", []):
-                if enemy.get("current_hp", 0) > 0 and enemy.get("position") == position and enemy.get("instance_id") != "current_entity_id":
+                if enemy.get("current_hp", 0) > 0 and enemy.get("position") == position:
                     return False
         
         return True
+    # ========== TERRAIN VALIDATION METHODS ==========
     
+    def _is_wall_tile(self, x: int, y: int, battlefield: Dict) -> bool:
+        """Check if tile position is a wall"""
+        terrain = battlefield.get('terrain', {})
+        walls = terrain.get('walls', [])
+        
+        for wall in walls:
+            if len(wall) == 4:
+                x1, y1, x2, y2 = wall
+                if self._point_on_line_segment(x, y, x1, y1, x2, y2):
+                    return True
+        return False
+    
+    def _is_obstacle_tile(self, x: int, y: int, battlefield: Dict) -> bool:
+        """Check if tile position has an obstacle"""
+        terrain = battlefield.get('terrain', {})
+        obstacles = terrain.get('obstacles', [])
+        
+        for obstacle in obstacles:
+            obs_pos = obstacle.get('position', [])
+            if len(obs_pos) == 2 and obs_pos[0] == x and obs_pos[1] == y:
+                return True
+        return False
+    
+    def _point_on_line_segment(self, px: int, py: int, x1: int, y1: int, x2: int, y2: int) -> bool:
+        """Check if point is on line segment"""
+        if x1 == x2:  # Vertical line
+            return px == x1 and min(y1, y2) <= py <= max(y1, y2)
+        elif y1 == y2:  # Horizontal line
+            return py == y1 and min(x1, x2) <= px <= max(x1, x2)
+        return False
+    
+    def is_tile_walkable(self, x: int, y: int, battlefield: Dict, movement_type: str = "ground", 
+                         check_occupation_callback=None) -> bool:
+        """
+        Check if tile at position is walkable
+        
+        Args:
+            x, y: Tile coordinates
+            battlefield: Battlefield data dict
+            movement_type: Type of movement (ground, flying, incorporeal)
+            check_occupation_callback: Function to check if tile is occupied by units
+            
+        Returns:
+            bool: Whether the tile is walkable for the given movement type
+        """
+        # Check walls - impassable for all except incorporeal
+        if self._is_wall_tile(x, y, battlefield) and movement_type != "incorporeal":
+            return False
+        
+        # Check obstacles - impassable for ground units but not incorporeal
+        if self._is_obstacle_tile(x, y, battlefield) and movement_type != "incorporeal":
+            return False
+        
+        # Check if another unit occupies this tile (if callback provided)
+        if check_occupation_callback and check_occupation_callback(x, y):
+            return False
+        
+        return True
+
+
     # ========== MOVEMENT ANIMATION METHODS ==========
     
     def start_entity_movement(self, entity_id: str, start_pos: List[int], path: List[List[int]]):
