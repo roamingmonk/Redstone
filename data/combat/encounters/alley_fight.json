@@ -21,18 +21,30 @@
       "position": [9, 3],
       "facing": "west"
     },
+     {
+      "enemy_id": "blight_shadow",
+      "position": [9, 5],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "thief_common",
+      "position": [3, 1],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "ogre_archer",
+      "position": [7, 3],
+      "facing": "west"
+    },
     {
       "enemy_id": "shadow_ghost",
-      "position": [11, 3],
+      "position": [9, 1],
       "facing": "west"
     }
   ],
   "player_party": {
     "starting_positions": [
-      [1, 7],
-      [2, 7],
-      [1, 8],
-      [2, 8]
+      [1, 9], [1, 10], [2, 9], [2, 8]
     ],
     "facing": "east"
   },

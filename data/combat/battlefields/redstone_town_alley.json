@@ -5,16 +5,16 @@
   "description": "A narrow alley between buildings. Crates and debris provide cover, but limit movement.",
   "dimensions": {
     "width": 13,
-    "height": 10
+    "height": 12
   },
   "tile_size": 48,
   "terrain": {
     "default": "cobblestone",
     "walls": [
       [0, 0, 12, 0],
-      [0, 9, 12, 9],
-      [0, 0, 0, 9],
-      [12, 0, 12, 9]
+      [0, 11, 12, 11],
+      [0, 0, 0, 11],
+      [12, 0, 12, 11]
     ],
     "obstacles": [
       {"type": "crate", "position": [3, 2], "blocks_movement": true, "blocks_sight": false},
@@ -32,10 +32,10 @@
   },
   "spawn_zones": {
     "player_start": [
-      [1, 7], [2, 7], [1, 8], [2, 8]
+      [1, 9], [1, 10], [2, 9], [2, 8]
     ],
     "enemy_spawns": [
-      [11, 1], [12, 2], [11, 7], [9, 3]
+      [11, 1], [12, 2], [11, 7], [9, 3], [9, 4], [9, 1], [11, 5]
     ],
     "exit_point": [1, 7]
   },

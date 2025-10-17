@@ -242,13 +242,16 @@ class CombatAI:
         """
         RANGED_PREFERENCE: Plan turn for skirmisher behavior
         Strategy: Stay at range 2-5, shoot, retreat if too close
+        Requires line of sight for ranged attacks
         Returns: {'move': pos or None, 'attack': data or None}
         """
         enemy_pos = enemy_data.get("position", [0, 0])
         
-        closest_player = self._find_closest_player(enemy_pos, combat_state)
+        # Find closest player WITH line of sight (ranged attacks require LOS)
+        closest_player = self._find_closest_player_with_los(enemy_pos, combat_state)
         if not closest_player:
-            return {'move': None, 'attack': None, 'reason': 'no players found'}
+            # No LOS to any target - try to reposition
+            return self._handle_no_los_fallback(enemy_data, combat_state, "ranged_preference")
         
         distance = closest_player['distance']
         
@@ -359,13 +362,24 @@ class CombatAI:
         HIT_AND_RUN: Goblin-style skirmisher
         Strategy: Attack FIRST (bow or scimitar), then retreat to maintain distance
         Uses "Nimble Escape" - can move after attacking
+        Requires line of sight for ranged attacks
         Returns: {'move': pos or None, 'attack': data or None}
         """
         enemy_pos = enemy_data.get("position", [0, 0])
         
-        closest_player = self._find_closest_player(enemy_pos, combat_state)
+        # Find closest player WITH line of sight (for ranged attacks)
+        closest_player = self._find_closest_player_with_los(enemy_pos, combat_state)
         if not closest_player:
-            return {'move': None, 'attack': None, 'reason': 'no players found'}
+            # No LOS for ranged - try melee or reposition
+            # Check if any player is adjacent for melee fallback
+            adjacent_players = self._find_adjacent_players(enemy_pos, combat_state)
+            if adjacent_players:
+                # Can do melee attack instead
+                closest_player = adjacent_players[0]
+                # Continue with the rest of the method using melee
+            else:
+                # No melee option either - reposition
+                return self._handle_no_los_fallback(enemy_data, combat_state, "hit_and_run")
         
         distance = closest_player['distance']
         player_pos = closest_player['position']
@@ -955,7 +969,83 @@ class CombatAI:
                 }
         
         return closest
-    
+
+    def _handle_no_los_fallback(self, enemy_data: Dict, combat_state: Dict, behavior_type: str) -> Dict:
+        """
+        Fallback behavior when ranged enemy has no line of sight to any target
+        
+        Args:
+            enemy_data: Enemy instance
+            combat_state: Current combat state
+            behavior_type: AI behavior type (for context)
+        
+        Returns:
+            Action dict
+        """
+        enemy_pos = enemy_data.get("position", [0, 0])
+        enemy_name = enemy_data.get("name", "Enemy")
+        
+        # Strategy: Try to reposition to get LOS
+        # Find closest player (ignoring LOS) and try to move toward them
+        closest_player = self._find_closest_player(enemy_pos, combat_state)
+        
+        if not closest_player:
+            return {'move': None, 'attack': None, 'reason': 'no targets available'}
+        
+        # Try to move closer to get LOS
+        movement_range = enemy_data.get("movement", {}).get("speed", 3)
+        new_pos = self._find_best_move_toward_target(
+            enemy_pos,
+            closest_player['position'],
+            movement_range,
+            combat_state
+        )
+        
+        if new_pos != enemy_pos:
+            return {
+                'move': new_pos,
+                'attack': None,
+                'reason': f'repositioning for LOS on {closest_player["name"]}'
+            }
+        
+        # Can't move - hold position
+        return {'move': None, 'attack': None, 'reason': 'no LOS and cannot reposition'}
+
+    def _find_closest_player_with_los(self, enemy_pos: List[int], combat_state: Dict) -> Optional[Dict]:
+        """
+        Find closest player that has line of sight
+        Returns: {'id': str, 'name': str, 'position': [x,y], 'distance': int} or None
+        """
+        character_states = combat_state.get('character_states', {})
+        
+        closest_player = None
+        closest_distance = float('inf')
+        
+        for char_id, char_state in character_states.items():
+            if not char_state.get('is_alive', True):
+                continue
+            
+            char_pos = char_state.get('position', [0, 0])
+            
+            # Check LOS first (critical for ranged planning)
+            if not self._check_line_of_sight(enemy_pos, char_pos, combat_state):
+                continue  # Skip targets without LOS
+            
+            distance = self._manhattan_distance(enemy_pos, char_pos)
+            
+            if distance < closest_distance:
+                closest_distance = distance
+                closest_player = {
+                    'id': char_id,
+                    'name': char_state.get('name', 'Player'),
+                    'position': char_pos,
+                    'distance': distance,
+                    'current_hp': char_state.get('character_data', {}).get('current_hp', 10),
+                    'max_hp': char_state.get('character_data', {}).get('max_hp', 10)
+                }
+        
+        return closest_player
+
     def _find_weakest_player(self, enemy_pos: List[int], combat_state: Dict) -> Optional[Dict]:
         """
         Find the party member with lowest current HP (wounded prey)
@@ -1079,7 +1169,7 @@ class CombatAI:
             # Ensure we move at least one tile forward
             if destination_index < 1:
                 destination_index = 1
-                
+
             print(f"   🔍 Direct path debug:")
             print(f"      Start: {start}, Target: {target}")
             print(f"      Full path: {path}")
@@ -1119,11 +1209,18 @@ class CombatAI:
     def _check_line_of_sight(self, start_pos: List[int], end_pos: List[int], combat_state: Dict) -> bool:
         """
         Check if there's line of sight between two positions
-        Note: CombatEngine will do the real check, this is a simple estimate for AI
+        Delegates to CombatEngine for authoritative LOS check
         """
-        # For now, assume LOS exists - CombatEngine will validate
-        # TODO: Import actual LOS check from combat_engine if needed for smarter AI
-        return True
+        combat_engine = combat_state.get('combat_engine')
+        if not combat_engine:
+            # Fallback if engine not available (shouldn't happen)
+            return True
+        
+        # Use engine's authoritative LOS check
+        return combat_engine._has_line_of_sight(
+            start_pos[0], start_pos[1],
+            end_pos[0], end_pos[1]
+        )
 
     def _find_retreat_position_from_player(self, enemy_pos: List[int], player_pos: List[int], 
                                        combat_state: Dict, min_distance: int = 2) -> Optional[List[int]]:

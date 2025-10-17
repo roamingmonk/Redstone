@@ -2055,6 +2055,26 @@ Files Modified: data/narrative_schema.json, data/dialogues/patron_selection_gare
 **Implementation:** AI evaluates entire tactical situation once, plans optimal move+attack combination; ranged_preference backs away then shoots, rush moves into melee then attacks; encounter ai_behavior optional, defaults to enemy.behavior.tactics.
 **Benefits:** Enemies use full action economy matching players; strategic coordination (move to optimal position THEN attack); extensible pattern for future behaviors; single source of truth for turn planning.
 
+
+# ADR-130: Enemy AI Tactical Improvements - Collision Prevention & LOS Integration
+# Date: [Today's Date]
+# Status: Implemented
+**Context:** Shadow Ghost pathfinding onto player tiles; enemies stacking on same position; ranged enemies attacking without line of sight
+**Decision:** Enhanced AI planning with collision detection, proper adjacent positioning for melee, and line-of-sight validation for ranged attacks
+**Implementation:**
+- Modified _find_direct_path_to_target() to stop adjacent (not on target) for melee attacks
+- Added intended_position checks in _execute_enemy_move() for collision prevention
+- Integrated CombatEngine._has_line_of_sight() into AI planning via combat_state
+- Created _find_closest_player_with_los() for ranged target selection
+- Added _handle_no_los_fallback() for intelligent repositioning when LOS blocked
+- Updated ranged_preference and hit_and_run behaviors to require LOS for ranged attacks
+
+**Consequences:**
+- Positive: Realistic tactical combat with proper positioning and LOS rules; enemies reposition intelligently
+- Gameplay: Terrain becomes tactically important; players can use cover; ranged enemies behave believably
+- Architecture: Single source of truth for LOS (CombatEngine); AI properly delegates validation
+```
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

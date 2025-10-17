@@ -404,7 +404,8 @@ class CombatEngine:
             'enemy_instances': enemy_instances,
             'battlefield': self.combat_data.get("battlefield", {}),
             'valid_moves': valid_moves,
-            'movement_system': self.movement_system  # NEW: Give AI access to pathfinding
+            'movement_system': self.movement_system,
+            'combat_engine': self
         }
         
         # Get complete turn plan from AI
