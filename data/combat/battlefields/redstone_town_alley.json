@@ -17,17 +17,17 @@
       [12, 0, 12, 11]
     ],
     "obstacles": [
-      {"type": "crate", "position": [3, 2], "blocks_movement": true, "blocks_sight": false},
-      {"type": "crate", "position": [3, 3], "blocks_movement": true, "blocks_sight": false},
-      {"type": "barrel", "position": [10, 6], "blocks_movement": true, "blocks_sight": false},
-      {"type": "debris", "position": [7, 4], "blocks_movement": true, "blocks_sight": false},
-      {"type": "crate", "position": [11, 2], "blocks_movement": true, "blocks_sight": false},
-      {"type": "wall", "position": [8, 1], "blocks_movement": true, "blocks_sight": true},
-      {"type": "wall", "position": [8, 2], "blocks_movement": true, "blocks_sight": true},
-      {"type": "wall", "position": [8, 3], "blocks_movement": true, "blocks_sight": true},
-      {"type": "wall", "position": [8, 4], "blocks_movement": true, "blocks_sight": true},
-      {"type": "wall", "position": [8, 5], "blocks_movement": true, "blocks_sight": true},
-      {"type": "wall", "position": [8, 6], "blocks_movement": true, "blocks_sight": true}
+      {"type": "crate", "position": [3, 2], "blocks_movement": true, "blocks_sight": false, "cover_value": 1},
+      {"type": "crate", "position": [3, 3], "blocks_movement": true, "blocks_sight": false, "cover_value": 1},
+      {"type": "barrel", "position": [10, 6], "blocks_movement": true, "blocks_sight": false, "cover_value": 1},
+      {"type": "debris", "position": [7, 4], "blocks_movement": true, "blocks_sight": false, "cover_value": 0},
+      {"type": "crate", "position": [11, 2], "blocks_movement": true, "blocks_sight": false, "cover_value": 1},
+      {"type": "wall", "position": [8, 1], "blocks_movement": true, "blocks_sight": true, "cover_value": 2},
+      {"type": "wall", "position": [8, 2], "blocks_movement": true, "blocks_sight": true, "cover_value": 2},
+      {"type": "wall", "position": [8, 3], "blocks_movement": true, "blocks_sight": true, "cover_value": 2},
+      {"type": "wall", "position": [8, 4], "blocks_movement": true, "blocks_sight": true, "cover_value": 2},
+      {"type": "wall", "position": [8, 5], "blocks_movement": true, "blocks_sight": true, "cover_value": 2},
+      {"type": "wall", "position": [8, 6], "blocks_movement": true, "blocks_sight": true, "cover_value": 2}
     ]
   },
   "spawn_zones": {

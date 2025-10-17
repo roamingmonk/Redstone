@@ -2073,7 +2073,27 @@ Files Modified: data/narrative_schema.json, data/dialogues/patron_selection_gare
 - Positive: Realistic tactical combat with proper positioning and LOS rules; enemies reposition intelligently
 - Gameplay: Terrain becomes tactically important; players can use cover; ranged enemies behave believably
 - Architecture: Single source of truth for LOS (CombatEngine); AI properly delegates validation
-```
+
+# ADR-131: Combat UI Refinement - Inspector & Toggle Buttons
+# Date: OCt 17, 2025
+# Status: Implemented
+Context: Combat UI needed better unit information display and clearer action mode feedback. Players couldn't inspect enemies without committing to actions.
+Decision:Added clickable unit inspector panel (shows name, type, HP status)
+Implemented toggle buttons with yellow border for active modes (click again to deselect)
+Removed redundant Active/HP/Class display from right panel
+Expanded combat log to 18 lines with system font for readability
+Moved EXIT button to bottom-left, aligned with grid
+Implementation:
+combat_engine.py: Added inspected_unit tracking, increased combat_log payload to 20 messages
+combat_system.py: Inspector panel with fixed spacing, toggle button handlers, visual state management
+graphics.py: Updated draw_combat_button() with normal/active/disabled states (gray/yellow/gray borders)
+constants.py: Added combat_log system font for clarity
+Consequences:
+Players can gather intel on enemies before committing to actions
+Clearer visual feedback for which action mode is active
+More combat history visible for tactical decisions
+Combat log more readable during intense encounters
+
 
 ```
 ## ADR-XXX: <Short title>

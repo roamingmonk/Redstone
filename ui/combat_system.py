@@ -822,15 +822,15 @@ class CombatEncounter:
         
         if inspected_unit:
             # Inspector is active - show unit info
-            draw_text(surface, "👁️ INSPECTING:", combat_log_font, 680, current_y, CYAN)
-            current_y += 25
+            draw_text(surface, "INSPECTING:", text_font, 680, current_y, YELLOW)
+            current_y += 20
             
             unit_name = inspected_unit.get('name', 'Unknown')
             unit_type = inspected_unit.get('type', 'ally')  # 'enemy' or 'ally'
             type_label = "Enemy" if unit_type == 'enemy' else "Ally"
             
             draw_text(surface, f"{unit_name} ({type_label})", combat_log_font, 680, current_y, WHITE)
-            current_y += 20
+            current_y += 15
             
             # Calculate status from HP percentage
             current_hp = inspected_unit.get('current_hp', 0)
@@ -854,10 +854,10 @@ class CombatEncounter:
                 status_color = RED
             
             draw_text(surface, f"Status: {status}", combat_log_font, 680, current_y, status_color)
-            current_y += 30
+            current_y += 20
         else:
             # Inspector empty - still reserve the space (3 lines worth)
-            current_y += 65  # Reserve fixed height 
+            current_y += 55  # Reserve fixed height 
 
        # Combat Log Header
         draw_text(surface, "COMBAT LOG:", text_font, 680, current_y, YELLOW)
@@ -873,7 +873,7 @@ class CombatEncounter:
         
         for message in recent_messages:
             # Wrap long messages to fit in panel using optimized wrap_text
-            wrapped_lines = wrap_text(message, combat_log_font, log_max_width, DARK_GREEN)
+            wrapped_lines = wrap_text(message, combat_log_font, log_max_width, WHITE)
             
             for line_surface in wrapped_lines:
                 surface.blit(line_surface, (680, log_y))

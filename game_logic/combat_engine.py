@@ -986,7 +986,7 @@ class CombatEngine:
         x0, y0 = a
         x1, y1 = b
         xi0, yi0 = int(x0), int(y0)
-        xi1, yi1 = int(x1), int(y1)   # ← the missing piece
+        xi1, yi1 = int(x1), int(y1)   
 
         cells: list[list[int]] = []
         dx = abs(x1 - x0)
@@ -1125,6 +1125,24 @@ class CombatEngine:
             "creature_rays": creature_hits,
         }
     
+    def _get_cover_ac_bonus(self, cover_level: str) -> int:
+        """
+        Convert cover level to AC bonus (D&D 5E rules)
+        
+        Args:
+            cover_level: 'none', 'half', 'three_quarters', or 'full'
+            
+        Returns:
+            int: AC bonus from cover
+        """
+        cover_bonuses = {
+            'none': 0,
+            'half': 2,
+            'three_quarters': 5,
+            'full': 99  # Effectively untargetable
+        }
+        return cover_bonuses.get(cover_level, 0)
+
     def _is_obstacle(self, cell):
         x, y = cell
         return self._is_tile_blocked_for_los(x, y)
@@ -1151,8 +1169,22 @@ class CombatEngine:
         ob = self._get_obstacle_at(x, y)
         if not ob:
             return None
+        
+        # Support both string-based "provides_cover" and integer "cover_value"
         tag = ob.get("provides_cover")
-        return tag if tag in ("half", "three_quarters", "full") else None
+        if tag in ("half", "three_quarters", "full"):
+            return tag
+        
+        # Convert cover_value integer to cover string
+        cover_value = ob.get("cover_value", 0)
+        if cover_value == 1:
+            return "half"
+        elif cover_value == 2:
+            return "three_quarters"
+        elif cover_value >= 3:
+            return "full"
+        
+        return None
 
     def _cell_has_creature(self, x: int, y: int) -> bool:
         for st in self.character_states.values():
@@ -1415,12 +1447,17 @@ class CombatEngine:
         
         # Cover bump (+2 half, +5 three-quarters); full cover never reaches here (filtered)
         cover_level = self._compute_cover(char_pos, target_position)["level"]
+        cover_bonus = 0
         if cover_level == "half":
+            cover_bonus = 2
             target_ac += 2
         elif cover_level == "three_quarters":
+            cover_bonus = 5
             target_ac += 5
-        # (optional) add a log line so players learn the rule
-        self._add_to_combat_log(f"Cover: {cover_level.replace('_',' ')} → AC {target_ac}")
+        
+        # Log cover bonus for player awareness
+        if cover_bonus > 0:
+            self._add_to_combat_log(f"Target has {cover_level.replace('_',' ')} cover (+{cover_bonus} AC)")
 
         self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
         
@@ -1658,7 +1695,28 @@ class CombatEngine:
                 damage_string = self.stats_calculator.calculate_weapon_damage(self.game_state)[0]
                 
                 # Target AC from enemy stats
-                target_ac = target_data.get("stats", {}).get("ac", 10)
+                base_ac = target_data.get("stats", {}).get("ac", 10)
+                
+                # Check for cover bonus (ranged attacks only)
+                cover_bonus = 0
+                if self.current_action_mode == "ranged_attack":
+                    attacker_pos = self.character_states[self.active_character_id]["position"]
+                    defender_pos = target_data.get("position", [0, 0])
+                    
+                    # Use existing 5-ray cover computation system
+                    cover_data = self._compute_cover(attacker_pos, defender_pos, creatures_grant_cover=False)
+                    cover_level = cover_data.get("level", "none")
+                    cover_bonus = self._get_cover_ac_bonus(cover_level)
+                    
+                    if cover_level != "none":
+                        self._add_to_combat_log(f"Target has {cover_level} cover! (+{cover_bonus} AC)")
+                    
+                    # Full cover = can't target (should be blocked by UI, but safety check)
+                    if cover_level == "full":
+                        self._add_to_combat_log("Target has full cover - cannot attack!")
+                        return False
+                
+                target_ac = base_ac + cover_bonus
                 
             else:
                 # Enemy attacking player/party
@@ -1684,9 +1742,34 @@ class CombatEngine:
                 
                 # Use party member AC or player AC
                 if target_char_id and target_char_id != 'player':
-                    target_ac = target_data.get('ac', 10)
+                    base_ac = target_data.get('ac', 10)
                 else:
-                    target_ac = self.stats_calculator.calculate_armor_class(self.game_state)[0]
+                    base_ac = self.stats_calculator.calculate_armor_class(self.game_state)[0]
+                
+                # Check for cover bonus (ranged attacks only)
+                cover_bonus = 0
+                enemy_attack_type = attacker_data.get("attacks", [{}])[0].get("attack_type", "melee")
+                if enemy_attack_type == "ranged":
+                    attacker_pos = attacker_data.get("position", [0, 0])
+                    
+                    # Get defender position from character_states
+                    defender_char_state = self.character_states.get(target_char_id, {})
+                    defender_pos = defender_char_state.get("position", [0, 0])
+                    
+                    # Use existing 5-ray cover computation system
+                    cover_data = self._compute_cover(attacker_pos, defender_pos, creatures_grant_cover=False)
+                    cover_level = cover_data.get("level", "none")
+                    cover_bonus = self._get_cover_ac_bonus(cover_level)
+                    
+                    if cover_level != "none":
+                        self._add_to_combat_log(f"Target has {cover_level} cover! (+{cover_bonus} AC)")
+                    
+                    # Full cover = enemy can't target (AI should avoid this)
+                    if cover_level == "full":
+                        self._add_to_combat_log("Target has full cover - attack blocked!")
+                        return False
+                
+                target_ac = base_ac + cover_bonus
             
             # Roll attack (d20 + bonus vs AC)
             attack_roll = random.randint(1, 20)
@@ -1860,9 +1943,33 @@ class CombatEngine:
                     break
             
             if target_char_id and target_char_id != 'player':
-                target_ac = target_data.get('ac', 10)
+                base_ac = target_data.get('ac', 10)
             else:
-                target_ac = self.stats_calculator.calculate_armor_class(self.game_state)[0]
+                base_ac = self.stats_calculator.calculate_armor_class(self.game_state)[0]
+            
+            # Check for cover bonus (ranged attacks only)
+            cover_bonus = 0
+            if weapon_attack.get("attack_type") == "ranged":
+                attacker_pos = attacker_data.get("position", [0, 0])
+                
+                # Get defender position from character_states
+                defender_char_state = self.character_states.get(target_char_id, {})
+                defender_pos = defender_char_state.get("position", [0, 0])
+                
+                # Use existing 5-ray cover computation system
+                cover_data = self._compute_cover(attacker_pos, defender_pos, creatures_grant_cover=False)
+                cover_level = cover_data.get("level", "none")
+                cover_bonus = self._get_cover_ac_bonus(cover_level)
+                
+                if cover_level != "none":
+                    self._add_to_combat_log(f"Target has {cover_level} cover! (+{cover_bonus} AC)")
+                
+                # Full cover = can't attack
+                if cover_level == "full":
+                    self._add_to_combat_log("Target has full cover - attack blocked!")
+                    return False
+            
+            target_ac = base_ac + cover_bonus
             
             # Roll attack
             attack_roll = random.randint(1, 20)
