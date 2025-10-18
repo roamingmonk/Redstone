@@ -2221,6 +2221,10 @@ class CombatEngine:
         # Store loot data
         self.game_state.combat_loot_data = loot_data
         
+        # Clear defeated enemies list now that loot is calculated
+        self.defeated_enemies_loot_data = []
+        print(f"🧹 Cleared defeated enemies loot data after calculation")
+        
         # Open loot overlay via overlay system
         if not hasattr(self.game_state, 'overlay_state'):
             from ui.screen_manager import OverlayState

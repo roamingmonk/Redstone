@@ -285,9 +285,6 @@ def load_fonts():
     fonts['normal'] = fonts['fantasy_medium']
     fonts['small'] = fonts['fantasy_small']
     fonts['tiny'] = fonts['fantasy_tiny']
-
-    # Combat log uses clean system font for readability
-    fonts['combat_log'] = _create_font(None, FONT_SIZE_MICRO)  # Always use system font
     
     return fonts
 
@@ -412,7 +409,6 @@ def _create_placeholder_image(width, height, title_text, subtitle_text="Missing 
         pass  # If font rendering fails, just show blank placeholder
     
     return placeholder
-
 
 def _load_single_image(filepath, target_size, create_placeholder=True, placeholder_title=""):
     """

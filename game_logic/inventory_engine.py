@@ -89,14 +89,13 @@ class InventoryEngine:
                 return False
 
             # Add to GameState inventory (the authoritative data)
-            category_key = self._get_inventory_category_key(category)
-            
-            if category_key not in self.game_state.inventory:
-                self.game_state.inventory[category_key] = []
+            # category is already normalized by _determine_item_category()
+            if category not in self.game_state.inventory:
+                self.game_state.inventory[category] = []
             
             # Add items (with stacking support)
             for _ in range(quantity):
-                self.game_state.inventory[category_key].append(item_template['id'])
+                self.game_state.inventory[category].append(item_template['id'])
             
             item_name = item_template.get('name', item_id)
             qty_text = f"{quantity}x " if quantity > 1 else ""
@@ -390,15 +389,13 @@ class InventoryEngine:
         """Check if player has specific item by ID"""
         try:
             if not hasattr(self.game_state, 'inventory'):
-                
                 return False
                 
             inventory = self.game_state.inventory
             
             if category:
-                category_key = self._get_inventory_category_key(category)
-                result = category_key in inventory and item_id in inventory[category_key]
-                return result
+                # Category should already be normalized ('weapons', 'armor', 'consumables', 'items')
+                return category in inventory and item_id in inventory[category]
             
             # Search all categories
             for category_list in inventory.values():
@@ -407,7 +404,7 @@ class InventoryEngine:
             
             return False
         except Exception as e:
-            print(f"❌ DEBUG has_item exception: {e}")
+            print(f"❌ Error checking inventory for {item_id}: {e}")
             return False
     
     def get_item_count(self, item_name: str) -> int:
@@ -472,34 +469,35 @@ class InventoryEngine:
         return None
     
     def _determine_item_category(self, item_template: Dict) -> str:
-        """Determine category from item template"""
-        item_type = item_template.get('type', '').lower()
+        """Determine category from item template with validation"""
+        category = item_template.get('category', 'items')
+        item_id = item_template.get('id', 'unknown')
         
-        if item_type in ['weapon', 'sword', 'axe', 'bow']:
-            return 'weapons'
-        elif item_type in ['armor', 'shield', 'helmet', 'boots']:
-            return 'armor'
-        elif item_type in ['potion', 'food', 'consumable']:
-            return 'consumables'
-        else:
-            return 'items'
-    
-    def _get_inventory_category_key(self, category: str) -> str:
-        """Standardize category key for inventory storage"""
-        category_lower = category.lower()
+        # Normalize to lowercase
+        category = category.lower()
         
-        # If already plural and valid, return as-is
-        if category_lower in ['weapons', 'armor', 'consumables', 'items']:
-            return category_lower
+        # Valid categories
+        valid_categories = ['weapons', 'armor', 'consumables', 'items']
         
-        # Map singular to plural
-        category_mapping = {
+        # Check if already valid (plural form)
+        if category in valid_categories:
+            return category
+        
+        # Handle singular forms
+        singular_to_plural = {
             'weapon': 'weapons',
             'consumable': 'consumables',
             'item': 'items'
         }
         
-        return category_mapping.get(category_lower, category_lower)
+        if category in singular_to_plural:
+            return singular_to_plural[category]
+        
+        # Invalid category - log error and fallback
+        print(f"⚠️ ITEM DATA ERROR: Item '{item_id}' has invalid category '{category}'")
+        print(f"   Valid categories: {valid_categories}")
+        print(f"   Defaulting to 'items' category")
+        return 'items'
     
     def get_item_subcategory(self, item_id):
         """Get subcategory for an item using ItemManager data"""

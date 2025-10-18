@@ -6,7 +6,8 @@ Built using BaseTabbedOverlay for proper integration
 
 import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay
-from utils.constants import *
+from utils.constants import (WHITE, GREEN, YELLOW, BLACK, GRAY, BLUE, RED, CORNFLOWER_BLUE,
+                             DARK_GRAY, BUTTON_NORMAL_BG, BUTTON_NORMAL_BORDER,BUTTON_NORMAL_TEXT)
 from utils.graphics import draw_text
 
 class CombatLootOverlay(BaseTabbedOverlay):
@@ -41,28 +42,15 @@ class CombatLootOverlay(BaseTabbedOverlay):
         content_x = content_rect.x + 20
         content_y = content_rect.y + 20
         
-        # Gold section
+        # Gold section - Auto-collected
         gold_font = fonts.get('normal', fonts['normal'])
         
-        if self.gold_collected:
-            gold_text = gold_font.render(f"Gold Collected: {total_gold}", True, GREEN)
-        else:
-            gold_text = gold_font.render(f"Gold Found: {total_gold}", True, YELLOW)
-        
-        surface.blit(gold_text, (content_x, content_y))
-        
-        # Collect Gold button
-        self.collect_gold_button = None
+        # Auto-collect gold on first render
         if not self.gold_collected and total_gold > 0:
-            self.collect_gold_button = pygame.Rect(content_x + 400, content_y - 5, 150, 30)
-            #print(f"🔍 Created collect_gold_button at: {self.collect_gold_button}")
-
-            pygame.draw.rect(surface, GREEN, self.collect_gold_button)
-            pygame.draw.rect(surface, WHITE, self.collect_gold_button, 2)
-            button_font = fonts.get('small', fonts['normal'])
-            button_text = button_font.render("Collect Gold", True, BLACK)
-            button_rect = button_text.get_rect(center=self.collect_gold_button.center)
-            surface.blit(button_text, button_rect)
+            self._collect_gold(game_state)
+        
+        gold_text = gold_font.render(f"Gold Collected: {total_gold}", True, GREEN)
+        surface.blit(gold_text, (content_x, content_y))
         
         # Items section
         items_y = content_y + 60
@@ -88,7 +76,7 @@ class CombatLootOverlay(BaseTabbedOverlay):
                 
                 # Highlight if hovered
                 if self.hovered_item == item_id:
-                    pygame.draw.rect(surface, DARK_BLUE, row_rect)
+                    pygame.draw.rect(surface, CORNFLOWER_BLUE, row_rect)
                 
                 # Checkbox
                 checkbox_rect = pygame.Rect(content_x + 10, item_y + 8, 20, 20)
@@ -115,25 +103,25 @@ class CombatLootOverlay(BaseTabbedOverlay):
         
         # Bottom buttons
         button_y = content_rect.bottom - 60
-        button_font = fonts.get('normal', fonts['normal'])
+        button_font = fonts.get('small', fonts['normal'])
         
         # Take Selected
         self.take_button = pygame.Rect(content_x, button_y, 150, 40)
-        pygame.draw.rect(surface, GREEN, self.take_button)
+        pygame.draw.rect(surface, BUTTON_NORMAL_BG, self.take_button)
         pygame.draw.rect(surface, WHITE, self.take_button, 2)
-        take_text = button_font.render("Take Selected", True, BLACK)
+        take_text = button_font.render("Take Selected", True, WHITE)
         surface.blit(take_text, take_text.get_rect(center=self.take_button.center))
         
         # Take All
         self.take_all_button = pygame.Rect(content_x + 170, button_y, 150, 40)
-        pygame.draw.rect(surface, BLUE, self.take_all_button)
+        pygame.draw.rect(surface, BUTTON_NORMAL_BG, self.take_all_button)
         pygame.draw.rect(surface, WHITE, self.take_all_button, 2)
         take_all_text = button_font.render("Take All", True, WHITE)
         surface.blit(take_all_text, take_all_text.get_rect(center=self.take_all_button.center))
         
         # Leave All
         self.leave_button = pygame.Rect(content_x + 340, button_y, 150, 40)
-        pygame.draw.rect(surface, RED, self.leave_button)
+        pygame.draw.rect(surface, BUTTON_NORMAL_BG, self.leave_button)
         pygame.draw.rect(surface, WHITE, self.leave_button, 2)
         leave_text = button_font.render("Leave All", True, WHITE)
         surface.blit(leave_text, leave_text.get_rect(center=self.leave_button.center))
@@ -147,13 +135,6 @@ class CombatLootOverlay(BaseTabbedOverlay):
         game_state = self.screen_manager._current_game_state if self.screen_manager else None
         if not game_state:
             return False
-        
-        # Collect gold button
-        if hasattr(self, 'collect_gold_button') and self.collect_gold_button:
-            if self.collect_gold_button.collidepoint(mouse_pos):
-                print("💰 COLLECT GOLD CLICKED!")
-                self._collect_gold(game_state)
-                return True
         
         # Item checkboxes
         if hasattr(self, 'item_rects'):
@@ -202,8 +183,6 @@ class CombatLootOverlay(BaseTabbedOverlay):
         items = loot_data.get('items', [])
         
         inventory_engine = None
-        
-        # Try multiple paths to get inventory_engine
         if hasattr(self, 'screen_manager') and self.screen_manager:
             if hasattr(self.screen_manager, '_current_game_controller'):
                 game_controller = self.screen_manager._current_game_controller
@@ -218,22 +197,15 @@ class CombatLootOverlay(BaseTabbedOverlay):
                     inventory_engine.add_item(item_id, quantity)
                     print(f"📦 Added {quantity}x {item_data['name']}")
         
-        if not self.gold_collected:
-            self._collect_gold(game_state)
-        
         self._close_loot_screen(game_state)
     
     def _take_all_items(self, game_state):
         """Take all items"""
-        if not self.gold_collected:
-            self._collect_gold(game_state)
-        
         loot_data = getattr(game_state, 'combat_loot_data', {})
         items = loot_data.get('items', [])
         
         inventory_engine = None
         
-        # Try multiple paths to get inventory_engine
         if hasattr(self, 'screen_manager') and self.screen_manager:
             if hasattr(self.screen_manager, '_current_game_controller'):
                 game_controller = self.screen_manager._current_game_controller
