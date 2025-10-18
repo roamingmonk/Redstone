@@ -681,5 +681,287 @@
         "description": "Memories within provide emotional strength"
       }
     }
+  ],
+  "loot_items":[
+    {
+      "id": "rat_pelt",
+      "name": "Rat Pelt",
+      "description": "A smelly rat hide. Merchants will buy it for a pittance.",
+      "base_cost": 1,
+      "category": "items",
+      "icon_file": "rat_pelt.png",
+      "consumable": false,
+      "weight": 0.5,
+      "rarity": "common"
+    },
+    {
+      "id": "diseased_fang",
+      "name": "Diseased Fang",
+      "description": "A nasty tooth from a giant rat. Alchemists might want this.",
+      "base_cost": 2,
+      "category": "items",
+      "icon_file": "diseased_fang.png",
+      "consumable": false,
+      "weight": 0.1,
+      "rarity": "common"
+    },
+    {
+      "id": "rat_tail",
+      "name": "Rat Tail",
+      "description": "A disgusting trophy. Some pay coin for pest proof.",
+      "base_cost": 1,
+      "category": "items",
+      "icon_file": "rat_tail.png",
+      "consumable": false,
+      "weight": 0.1,
+      "rarity": "common"
+    },
+    {
+      "id": "goblin_ear",
+      "name": "Goblin Ear",
+      "description": "Proof of a goblin kill. Bounties are paid for these.",
+      "base_cost": 3,
+      "category": "items",
+      "icon_file": "goblin_ear.png",
+      "consumable": false,
+      "weight": 0.1,
+      "rarity": "common"
+    },
+    {
+      "id": "rusty_dagger",
+      "name": "Rusty Dagger",
+      "description": "A corroded blade. Barely worth melting down.",
+      "base_cost": 1,
+      "category": "weapons",
+      "icon_file": "rusty_dagger.png",
+      "consumable": false,
+      "weight": 1,
+      "rarity": "common",
+      "combat_stats": {
+        "damage_dice": "1d4-1",
+        "damage_type": "piercing",
+        "attack_bonus": -1,
+        "range": "melee",
+        "weapon_properties": ["light", "damaged"],
+        "abilities_used": ["strength", "dexterity"]
+      }
+    },
+    {
+      "id": "crude_shortbow",
+      "name": "Crude Shortbow",
+      "description": "A poorly made bow. The string is frayed.",
+      "base_cost": 8,
+      "category": "weapons",
+      "icon_file": "crude_shortbow.png",
+      "consumable": false,
+      "weight": 2,
+      "rarity": "common",
+      "combat_stats": {
+        "damage_dice": "1d6",
+        "damage_type": "piercing",
+        "attack_bonus": -1,
+        "range": "ranged",
+        "weapon_properties": ["crude"],
+        "abilities_used": ["dexterity"]
+      }
+    },
+    {
+      "id": "tattered_leather_scraps",
+      "name": "Tattered Leather Scraps",
+      "description": "Worn leather pieces. Could be repaired or sold for scrap.",
+      "base_cost": 2,
+      "category": "armor",
+      "subcategory": "body_armor",
+      "icon_file": "tattered_leather.png",
+      "consumable": false,
+      "weight": 5,
+      "rarity": "common",
+      "combat_stats": {
+        "armor_class": 10,
+        "armor_type": "light",
+        "dex_modifier": "full",
+        "stealth_disadvantage": false
+      }
+    },
+    {
+      "id": "kobold_scale",
+      "name": "Kobold Scale",
+      "description": "A shimmering scale from a kobold. Collectors pay for exotic specimens.",
+      "base_cost": 4,
+      "category": "items",
+      "icon_file": "kobold_scale.png",
+      "consumable": false,
+      "weight": 0.1,
+      "rarity": "uncommon"
+    },
+    {
+      "id": "kobold_trap_parts",
+      "name": "Kobold Trap Parts",
+      "description": "Springs, wire, and mechanisms. Could be useful for a tinkerer.",
+      "base_cost": 5,
+      "category": "items",
+      "icon_file": "trap_parts.png",
+      "consumable": false,
+      "weight": 1,
+      "rarity": "common"
+    },
+    {
+      "id": "bone_fragment",
+      "name": "Bone Fragment",
+      "description": "A piece of ancient bone. Still has dark magic clinging to it.",
+      "base_cost": 3,
+      "category": "items",
+      "icon_file": "bone_fragment.png",
+      "consumable": false,
+      "weight": 0.5,
+      "rarity": "common"
+    },
+    {
+      "id": "rusted_shortsword",
+      "name": "Rusted Shortsword",
+      "description": "An old blade covered in rust. Barely functional.",
+      "base_cost": 5,
+      "category": "weapons",
+      "icon_file": "rusted_shortsword.png",
+      "consumable": false,
+      "weight": 3,
+      "rarity": "common",
+      "combat_stats": {
+        "damage_dice": "1d6-1",
+        "damage_type": "slashing",
+        "attack_bonus": -1,
+        "range": "melee",
+        "weapon_properties": ["damaged"],
+        "abilities_used": ["strength"]
+      }
+    },
+    {
+      "id": "cracked_wooden_shield",
+      "name": "Cracked Wooden Shield",
+      "description": "A broken shield. Might stop one blow before falling apart.",
+      "base_cost": 3,
+      "category": "armor",
+      "subcategory": "shield",
+      "icon_file": "cracked_shield.png",
+      "consumable": false,
+      "weight": 6,
+      "rarity": "common",
+      "combat_stats": {
+        "armor_class": 1,
+        "armor_type": "shield",
+        "damaged": true
+      }
+    },
+    {
+      "id": "shadow_essence",
+      "name": "Shadow Essence",
+      "description": "A wisp of darkness captured in a vial. Necromancers seek this.",
+      "base_cost": 15,
+      "category": "items",
+      "icon_file": "shadow_essence.png",
+      "consumable": false,
+      "weight": 0.1,
+      "rarity": "rare"
+    },
+    {
+      "id": "spectral_fragment",
+      "name": "Spectral Fragment",
+      "description": "A shard of ghostly energy. Glows faintly in darkness.",
+      "base_cost": 20,
+      "category": "items",
+      "icon_file": "spectral_fragment.png",
+      "consumable": false,
+      "weight": 0,
+      "rarity": "rare"
+    },
+    {
+      "id": "cursed_talisman",
+      "name": "Cursed Talisman",
+      "description": "A dark amulet that pulses with malevolent energy.",
+      "base_cost": 25,
+      "category": "items",
+      "icon_file": "cursed_talisman.png",
+      "consumable": false,
+      "weight": 0.2,
+      "rarity": "rare",
+      "special_effects": {
+        "warning": "May attract unwanted attention",
+        "description": "Radiates dark magic"
+      }
+    },
+    {
+      "id": "cult_robes",
+      "name": "Cult Robes",
+      "description": "Dark robes marked with sinister symbols. Disturbing to wear.",
+      "base_cost": 10,
+      "category": "armor",
+      "subcategory": "body_armor",
+      "icon_file": "cult_robes.png",
+      "consumable": false,
+      "weight": 4,
+      "rarity": "uncommon",
+      "combat_stats": {
+        "armor_class": 10,
+        "armor_type": "light",
+        "dex_modifier": "full",
+        "stealth_disadvantage": false
+      }
+    },
+    {
+      "id": "ritual_dagger",
+      "name": "Ritual Dagger",
+      "description": "A ceremonial blade with dark runes. Still sharp and deadly.",
+      "base_cost": 12,
+      "category": "weapons",
+      "icon_file": "ritual_dagger.png",
+      "consumable": false,
+      "weight": 1,
+      "rarity": "uncommon",
+      "combat_stats": {
+        "damage_dice": "1d4+1",
+        "damage_type": "piercing",
+        "attack_bonus": 1,
+        "range": "melee",
+        "weapon_properties": ["finesse", "light", "ritual"],
+        "abilities_used": ["strength", "dexterity"]
+      }
+    },
+    {
+      "id": "stolen_coin_purse",
+      "name": "Stolen Coin Purse",
+      "description": "A small purse with someone else's initials. Contains a few coins.",
+      "base_cost": 8,
+      "category": "items",
+      "icon_file": "coin_purse.png",
+      "consumable": false,
+      "weight": 0.5,
+      "rarity": "common"
+    },
+    {
+      "id": "lockpicks",
+      "name": "Lockpicks",
+      "description": "A set of thieves' tools. Well-worn but functional.",
+      "base_cost": 15,
+      "category": "items",
+      "icon_file": "lockpicks.png",
+      "consumable": false,
+      "weight": 0.5,
+      "rarity": "uncommon",
+      "special_effects": {
+        "lockpicking_bonus": 2,
+        "description": "Provides bonus to lockpicking attempts"
+      }
+    },
+    {
+      "id": "cheap_cloak",
+      "name": "Cheap Cloak",
+      "description": "A worn traveler's cloak. Has seen better days.",
+      "base_cost": 3,
+      "category": "items",
+      "icon_file": "cheap_cloak.png",
+      "consumable": false,
+      "weight": 2,
+      "rarity": "common"
+    }
   ]
 }

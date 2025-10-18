@@ -112,7 +112,12 @@ class ItemLoader:
         all_items = []
         all_items.extend(self.get_merchant_items())
         all_items.extend(self.get_equipment_items())
+        all_items.extend(self.get_loot_items())
         return all_items
+    
+    def get_loot_items(self):
+        """Get all loot-only items (not sold by merchants)"""
+        return self.items_data.get('loot_items', [])
     
     def get_item_by_id(self, item_id):
         """Get a specific item by its ID"""

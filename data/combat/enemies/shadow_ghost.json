@@ -45,9 +45,13 @@
     }
   ],
   "loot": {
-    "xp_value": 125,
-    "gold_range": [0, 5],
-    "items": ["spectral_essence"]
+    "xp_value": 100,
+    "gold_range": [0, 1],
+    "items": [],
+    "item_drops": [
+    {"item_id": "spectral_fragment", "drop_chance": 0.7, "quantity_range": [1, 1]},
+    {"item_id": "shadow_essence", "drop_chance": 0.2, "quantity_range": [1, 1]}
+  ]
   },
   "behavior": {
     "aggression": "high",

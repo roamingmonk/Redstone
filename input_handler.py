@@ -267,6 +267,24 @@ class InputHandler:
         if len(self.click_history) > self.max_click_history:
             self.click_history.pop(0)
         
+        # PRIORITY 0: If ANY modal overlay is open, handle it FIRST and block underlying screen
+        if hasattr(self, 'game_controller') and self.game_controller:
+            game_state = self.game_controller.game_state
+            if hasattr(game_state, 'overlay_state') and game_state.overlay_state.has_any_overlay_open():
+                active_overlay_id = game_state.overlay_state.get_active_overlay()
+                
+                # List of overlays that DON'T use BaseTabbedOverlay (legacy system)
+                legacy_overlays = ['load_game', 'merchant_shop', 'save_game']
+                
+                # If it's a modern BaseTabbedOverlay, route and block
+                if active_overlay_id not in legacy_overlays:
+                    if self._handle_registered_overlay_input(mouse_pos):
+                        return True
+                    # If overlay didn't handle it, still block the click
+                    if self.debug_input:
+                        print(f"🚫 Click blocked by modal overlay: {active_overlay_id}")
+                    return True
+        
         #if self.debug_input:
             #print(f"🖱️ IH:  Mouse click at {mouse_pos} on screen '{current_screen}'")
         
@@ -333,10 +351,6 @@ class InputHandler:
     
         # Handle dialogue state input
         if self._handle_dialogue_state_input(mouse_pos):
-            return True
-
-        # Universal overlay input handling 
-        if self._handle_registered_overlay_input(mouse_pos):
             return True
         
         if self._handle_overlay_clicks(mouse_pos, current_screen):
@@ -471,9 +485,6 @@ class InputHandler:
             for state_flag, overlay_instance in self.overlay_registry.items():
                 if overlay_instance.overlay_id == active_overlay_id:
                     try:
-                        if self.debug_input:
-                            print(f"🎯 Routing input to registered overlay: {active_overlay_id}")
-                        
                         # Try mouse click
                         if overlay_instance.handle_mouse_click(mouse_pos):
                             if self.debug_input:

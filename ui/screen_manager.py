@@ -19,6 +19,7 @@ from screens.character_overlay import draw_character_sheet_screen
 from screens.quest_overlay import draw_quest_overlay
 from screens.inventory_overlay import draw_inventory_screen
 from screens.save_game import draw_save_game_screen
+from screens.combat_loot_overlay import draw_combat_loot_screen
 from ui.shopping_overlay import ShoppingOverlay
 from game_logic.commerce_engine import get_commerce_engine
 from ui.combat_system import CombatEncounter
@@ -1005,6 +1006,8 @@ class ScreenManager:
             from screens.quest_overlay import draw_quest_overlay
             from screens.character_overlay import draw_character_sheet_screen
             from screens.help_overlay import draw_help_screen
+            from screens.combat_loot_overlay import draw_combat_loot_screen
+
             from screens.gambling_dice import (
                 draw_dice_bets_screen, draw_dice_rolling_screen,
                 draw_dice_results_screen, draw_dice_rules_screen
@@ -1075,15 +1078,6 @@ class ScreenManager:
             
             self.register_render_function("combat", draw_combat_screen,
                 enter_hook=lambda _: self.register_combat_screen_clickables())
-
-            # Combat System - Step 1 (not sure why this is designed differently
-            # #TODO Should this be updated?
-            # try:
-            #      setup_combat_system_integration(self, self.event_manager, self._current_game_controller)
-            #      print("✅ CombatSystem (Step 1) registered!")
-            # except Exception as e:
-            #      print(f"⚠️ CombatSystem registration failed: {e}")
-
 
             print(f"🎨 All screen render functions registered: {len(self.render_functions)} total")
             
@@ -1599,6 +1593,10 @@ class ScreenManager:
                     draw_help_screen(self.screen, game_state, self.fonts, self.images)
                 elif active_overlay_id == "statistics_key":
                     draw_statistics_screen(self.screen, game_state, self.fonts, self.images)
+                elif active_overlay_id == "statistics_key":
+                    draw_statistics_screen(self.screen, game_state, self.fonts, self.images)
+                elif active_overlay_id == "combat_loot":
+                    draw_combat_loot_screen(self.screen, game_state, self.fonts, self.images)
         
         # DEATH OVERLAY (special - always renders on top if active)
         if getattr(game_state, 'death_overlay_active', False):

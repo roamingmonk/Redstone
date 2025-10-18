@@ -2094,6 +2094,12 @@ Clearer visual feedback for which action mode is active
 More combat history visible for tactical decisions
 Combat log more readable during intense encounters
 
+# ADR-132: Combat Loot Collection System
+**Status:** Implemented
+**Context:** Players needed rewards after combat victories - gold and items from defeated enemies
+**Decision:** Created modal overlay using BaseTabbedOverlay for post-combat loot selection with checkbox UI
+**Consequences:** (+) Clean loot collection flow, (+) Reuses established overlay architecture, (-) Minor tech debt: overlay accesses inventory_engine via screen_manager instead of event system
+**Alternatives Considered:** Event-driven buttons like inventory overlay (deferred for v2), immediate auto-loot (rejected - removes player choice)
 
 ```
 ## ADR-XXX: <Short title>

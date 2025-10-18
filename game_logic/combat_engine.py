@@ -58,7 +58,7 @@ class CombatEngine:
         self.combat_log = []
         self.current_action_mode = None  # Track current UI interaction mode
         self.item_manager = item_manager
-
+        self.defeated_enemies_loot_data = []
         self.character_states = {}  # Dict of character_id -> state
         self.active_character_id = None  # Currently acting character
         self.inspected_unit = None  # Unit currently being inspected by player
@@ -1831,6 +1831,12 @@ class CombatEngine:
                                 })
                             self._add_to_combat_log(f"{killer_name} gained {xp_value} XP!")
                         
+                        # Store defeated enemy data for loot calculation
+                        self.defeated_enemies_loot_data.append({
+                            'name': target_name,
+                            'loot': target_data.get('loot', {})
+                        })
+                        
                         # Track enemy defeats by name (for "most defeated" stat)
                         enemy_name = target_data.get('name', 'Unknown')
                         enemy_defeats = self.game_state.player_statistics.get('enemy_defeats', {})
@@ -2208,6 +2214,20 @@ class CombatEngine:
             "encounter_id": self.combat_data.get("encounter", {}).get("encounter_id"),
             "rewards": rewards
         })
+        
+        # Calculate total loot from defeated enemies + encounter bonuses
+        loot_data = self._calculate_combat_loot(rewards)
+        
+        # Store loot data
+        self.game_state.combat_loot_data = loot_data
+        
+        # Open loot overlay via overlay system
+        if not hasattr(self.game_state, 'overlay_state'):
+            from ui.screen_manager import OverlayState
+            self.game_state.overlay_state = OverlayState()
+        
+        self.game_state.overlay_state.open_overlay("combat_loot")
+        print(f"💰 Combat loot overlay opened: {loot_data['total_gold']} gold, {len(loot_data['items'])} item types")
     
     def _handle_combat_defeat(self):
         """Handle combat defeat"""
@@ -2355,6 +2375,76 @@ class CombatEngine:
         
         # TODO: Award items from rewards["items"]
     
+    def _calculate_combat_loot(self, encounter_rewards: Dict) -> Dict:
+        """
+        Calculate total loot from all defeated enemies plus encounter bonuses
+        
+        Returns dict with:
+            'total_gold': int
+            'items': [{'item_id': str, 'quantity': int, 'name': str}, ...]
+        """
+        import random
+        
+        total_gold = 0
+        items_dict = {}  # item_id -> quantity
+        
+        # 1) Roll gold and items from each defeated enemy
+        for enemy_loot_data in self.defeated_enemies_loot_data:
+            loot = enemy_loot_data.get('loot', {})
+            
+            # Roll gold from enemy's gold_range
+            gold_range = loot.get('gold_range', [0, 0])
+            if len(gold_range) == 2:
+                enemy_gold = random.randint(gold_range[0], gold_range[1])
+                total_gold += enemy_gold
+            
+            # Roll for item drops
+            item_drops = loot.get('item_drops', [])
+            for drop_entry in item_drops:
+                item_id = drop_entry.get('item_id')
+                drop_chance = drop_entry.get('drop_chance', 0.0)
+                quantity_range = drop_entry.get('quantity_range', [1, 1])
+                
+                # Roll for drop
+                if random.random() <= drop_chance:
+                    # Roll quantity
+                    if len(quantity_range) == 2:
+                        quantity = random.randint(quantity_range[0], quantity_range[1])
+                    else:
+                        quantity = 1
+                    
+                    # Add to items dict (stacking)
+                    items_dict[item_id] = items_dict.get(item_id, 0) + quantity
+        
+        # 2) Add encounter bonus gold
+        encounter_gold = encounter_rewards.get('gold', 0)
+        total_gold += encounter_gold
+        
+        # 3) Add encounter bonus items (guaranteed drops)
+        encounter_items = encounter_rewards.get('items', [])
+        for item_id in encounter_items:
+            items_dict[item_id] = items_dict.get(item_id, 0) + 1
+        
+        # 4) Convert items_dict to list format with names
+        items_list = []
+        for item_id, quantity in items_dict.items():
+            # Get display name from ItemManager
+            if self.item_manager:
+                display_name = self.item_manager.get_display_name(item_id)
+            else:
+                display_name = item_id.replace('_', ' ').title()
+            
+            items_list.append({
+                'item_id': item_id,
+                'quantity': quantity,
+                'name': display_name
+            })
+        
+        return {
+            'total_gold': total_gold,
+            'items': items_list
+        }
+
     def _get_current_actor_name(self) -> str:
         """Get display name of current actor"""
         if self.current_phase == CombatPhase.SETUP:

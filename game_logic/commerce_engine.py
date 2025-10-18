@@ -145,13 +145,12 @@ class CommerceEngine:
     def can_afford_cart(self, merchant_id: str) -> bool:
         return self.get_cart_total(merchant_id) <= self.game_state.character.get("gold", 0)
 
-    # CALL THIS METHOD TO RESET STOCK FOR MERCHANTS, maybe after a 'rest'
+    # TODO CALL THIS METHOD TO RESET STOCK FOR MERCHANTS, maybe after a 'rest'
     def restock_merchant(self, merchant_id: str):
         """Reset merchant to full stock (call on rest/new day)"""
         self._initialize_merchant_stock(merchant_id)  # Resets to full
         print(f"🔄 {merchant_id} restocked")
 
-# Call this when player rests at inn or after quest completion
     def register_event_handlers(self, event_manager):
         """Register commerce event handlers"""
         event_manager.register("COMMERCE_PURCHASE", self._handle_purchase)

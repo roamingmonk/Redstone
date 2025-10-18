@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-10-16 10:18)
+﻿## Repository Structure (generated 2025-10-18 07:41)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -180,6 +180,7 @@ C:.
 |   |   |       small_cellar.json
 |   |   |       
 |   |   +---encounters
+|   |   |       alley_fight copy.json
 |   |   |       alley_fight.json
 |   |   |       tavern_basement_rats.json
 |   |   |       
@@ -262,6 +263,7 @@ C:.
 |   |   event_manager.py
 |   |   inventory_engine.py
 |   |   item_manager.py
+|   |   movement_system.py
 |   |   npc_manager.py
 |   |   player_manager.py
 |   |   quest_engine.py
@@ -280,6 +282,7 @@ C:.
 +---screens
 |   |   character_creation.py
 |   |   character_overlay.py
+|   |   combat_loot_overlay.py
 |   |   gambling_dice.py
 |   |   help_overlay.py
 |   |   intro_scenes.py

@@ -45,8 +45,13 @@
   ],
   "loot": {
     "xp_value": 25,
-    "gold_range": [1, 5],
-    "items": ["rusty_dagger"]
+    "gold_range": [0, 5],
+    "items": ["rusty_dagger"],
+    "item_drops": [
+    {"item_id": "kobold_scale", "drop_chance": 0.6, "quantity_range": [1, 2]},
+    {"item_id": "kobold_trap_parts", "drop_chance": 0.4, "quantity_range": [1, 1]},
+    {"item_id": "rusty_dagger", "drop_chance": 0.3, "quantity_range": [1, 1]}
+  ]
   },
   "behavior": {
     "aggression": "medium",

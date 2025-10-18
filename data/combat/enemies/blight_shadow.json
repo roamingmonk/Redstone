@@ -46,9 +46,13 @@
     }
   ],
   "loot": {
-    "xp_value": 100,
+    "xp_value": 75,
     "gold_range": [0, 3],
-    "items": ["corrupted_shadow_essence"]
+    "items": [],
+    "item_drops": [
+    {"item_id": "shadow_essence", "drop_chance": 0.8, "quantity_range": [1, 2]},
+    {"item_id": "cursed_talisman", "drop_chance": 0.2, "quantity_range": [1, 1]}
+  ]
   },
   "behavior": {
     "aggression": "very_high",

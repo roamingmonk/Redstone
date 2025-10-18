@@ -52,8 +52,13 @@
   ],
   "loot": {
     "xp_value": 50,
-    "gold_range": [2, 8],
-    "items": ["bone_dust", "rusty_sword"]
+    "gold_range": [0, 2],
+    "items": ["rusty_shortsword"],
+    "item_drops": [
+    {"item_id": "bone_fragment", "drop_chance": 0.8, "quantity_range": [1, 3]},
+    {"item_id": "rusted_shortsword", "drop_chance": 0.5, "quantity_range": [1, 1]},
+    {"item_id": "cracked_wooden_shield", "drop_chance": 0.3, "quantity_range": [1, 1]}
+  ]
   },
   "behavior": {
     "aggression": "high",

@@ -47,8 +47,13 @@
   ],
   "loot": {
     "xp_value": 50,
-    "gold_range": [5, 15],
-    "items": ["cultist_robes", "dark_symbol"]
+    "gold_range": [2, 8],
+    "items": [],
+    "item_drops": [
+    {"item_id": "cult_robes", "drop_chance": 0.6, "quantity_range": [1, 1]},
+    {"item_id": "ritual_dagger", "drop_chance": 0.4, "quantity_range": [1, 1]},
+    {"item_id": "cursed_talisman", "drop_chance": 0.3, "quantity_range": [1, 1]}
+  ]
   },
   "behavior": {
     "aggression": "high",

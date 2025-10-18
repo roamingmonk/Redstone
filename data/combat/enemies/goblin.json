@@ -44,9 +44,14 @@
     }
   ],
   "loot": {
-    "xp_value": 50,
-    "gold_range": [3, 10],
-    "items": ["short_bow", "arrows"]
+  "xp_value": 50,
+  "gold_range": [1, 4],
+  "items": "shortbow, arrow",
+  "item_drops": [
+    {"item_id": "goblin_ear", "drop_chance": 0.7, "quantity_range": [1, 1]},
+    {"item_id": "crude_shortbow", "drop_chance": 0.4, "quantity_range": [1, 1]},
+    {"item_id": "tattered_leather_scraps", "drop_chance": 0.3, "quantity_range": [1, 1]}
+  ]
   },
   "behavior": {
     "aggression": "high",
