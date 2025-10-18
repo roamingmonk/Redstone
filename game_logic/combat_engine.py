@@ -197,7 +197,8 @@ class CombatEngine:
                     'character_data': member,  # Store full character data
                     'spell_slots_max': spell_slots_max,
                     'spell_slots_remaining': spell_slots_max,
-                    'spells_known': spells_known
+                    'spells_known': spells_known,
+                    'spells_cast_this_turn': 0
                 }
             
             print(f"✅ Initialized {len(party_members)} party members")
@@ -786,6 +787,32 @@ class CombatEngine:
 
     def set_action_mode(self, mode: str):
         """Set the current action mode and calculate valid actions"""
+        
+        # 🔥 CHECK SPELL LIMIT BEFORE ENTERING SPELL MODE!
+        if mode == "spell":
+            if not self.active_character_id:
+                print("❌ No active character for spell mode")
+                return
+            
+            char_state = self.character_states.get(self.active_character_id)
+            if not char_state:
+                print("❌ Character state not found")
+                return
+            
+            # Check if already cast a spell this turn
+            spells_cast = char_state.get('spells_cast_this_turn', 0)
+            if spells_cast >= 1:
+                self._add_to_combat_log("Already cast a spell this turn!")
+                print("❌ Cannot enter spell mode - already cast this turn")
+                return  # Don't enter spell mode!
+            
+            # Check if has spell slots
+            spell_slots = char_state.get('spell_slots_remaining', 0)
+            if spell_slots <= 0:
+                self._add_to_combat_log("No spell slots remaining!")
+                print("❌ Cannot enter spell mode - no spell slots")
+                return  # Don't enter spell mode!
+        
         print(f"Action mode set to: {mode}")
         self.current_action_mode = mode
         
@@ -814,21 +841,15 @@ class CombatEngine:
                     break
             
             # Get movement range
-            char_state = self.character_states.get(self.active_character_id)
             movement_range = self.movement_system.get_movement_range(char_state) if char_state else 5
             
             # Calculate valid moves
             is_player = True  # Player characters can move through allies
-            valid_moves = []
             
-            # Use movement system if available
-            if hasattr(self, 'movement_system'):
-                valid_moves = self.movement_system.get_valid_moves(
-                    position, movement_range, can_phase, is_player
-                )
-            else:
-                # Fall back to existing method if movement system not available
-                valid_moves = self.movement_system.get_valid_moves(position, movement_range, can_phase, is_player=True)
+            # Use movement system
+            valid_moves = self.movement_system.get_valid_moves(
+                position, movement_range, can_phase, is_player
+            )
                 
             print(f"Calculated {len(valid_moves)} valid movement tiles")
             
@@ -837,14 +858,49 @@ class CombatEngine:
         
         elif mode == "attack":
             # Your existing attack highlighting code
-            pass
+            if self.active_character_id:
+                char_state = self.character_states.get(self.active_character_id)
+                if char_state:
+                    char_position = char_state['position']
+                    attack_targets = self.get_attack_targets(char_position, attack_range=1, requires_los=False)
+                    
+                    # Extract just the positions for highlighting
+                    target_positions = [t["position"] for t in attack_targets]
+                    self.combat_data["highlighted_tiles"] = target_positions
+                    print(f"Calculated {len(target_positions)} valid attack targets")
             
         elif mode == "ranged_attack":
             # Your existing ranged attack highlighting code
-            pass
+            if self.active_character_id:
+                char_state = self.character_states.get(self.active_character_id)
+                if char_state:
+                    char_position = char_state['position']
+                    
+                    # Check if character has a ranged weapon
+                    if not self._has_ranged_weapon_equipped(char_state):
+                        print("❌ No ranged weapon equipped")
+                        self.current_action_mode = None
+                        return
+                    
+                    # Get ranged attack targets with LOS and cover info
+                    ranged_targets = self.get_attack_targets(
+                        char_position, 
+                        attack_range=8, 
+                        requires_los=True,
+                        include_cover=True
+                    )
+                    
+                    # Store targets with cover data for UI
+                    self.combat_data["highlighted_targets"] = ranged_targets
+                    
+                    # Also store positions for backward compatibility
+                    target_positions = [t["position"] for t in ranged_targets]
+                    self.combat_data["highlighted_tiles"] = target_positions
+                    
+                    print(f"Calculated {len(target_positions)} valid ranged targets")
+        
         elif mode == "spell":
-            # Clear any existing highlighted tiles
-            self.combat_data["highlighted_tiles"] = []
+            # Spell mode - just entered, waiting for spell selection
             print("🪄 Entered spell casting mode")
 
         elif mode == "spell_targeting":
@@ -867,6 +923,7 @@ class CombatEngine:
             
             print(f"✨ Targeting {spell_data['name']} - {len(valid_targets)} valid targets")
             self._add_to_combat_log(f"Select target for {spell_data['name']}")
+
 
     def _can_use_ranged_attack(self) -> bool:
         """Check if active character can use ranged attacks"""
@@ -1678,6 +1735,7 @@ class CombatEngine:
                     # Reset action flags for this character
                     char_state['has_moved'] = False
                     char_state['attacks_used'] = 0
+                    char_state['spells_cast_this_turn'] = 0 
                     
                     char_name = char_state['name']
                     self._add_to_combat_log(f"{char_name}'s turn")
@@ -2330,6 +2388,12 @@ class CombatEngine:
             traceback.print_exc()
             self.game_state.death_quote = '"The adventure ends here." - Unknown'
 
+        # 🔥 CLOSE LOOT OVERLAY FIRST (if open)
+        if hasattr(self.game_state, 'overlay_state'):
+            if self.game_state.overlay_state.get_active_overlay() == "combat_loot":
+                self.game_state.overlay_state.close_overlay()
+                print("💰 Closed loot overlay before death screen")
+
         # Show death overlay
         self.game_state.death_overlay_active = True
         print("💀 Death overlay activated")
@@ -2795,6 +2859,14 @@ class CombatEngine:
             return False
         
         char_state = self.character_states[self.active_character_id]
+        
+        # 🔥 CHECK IF ALREADY CAST A SPELL THIS TURN
+        spells_cast = char_state.get('spells_cast_this_turn', 0)
+        if spells_cast >= 1:
+            self._add_to_combat_log("Already cast a spell this turn!")
+            print("❌ Already cast a spell this turn")
+            return False
+        
         spell_id = self.selected_spell_id
         spell_data = self.spell_data.get(spell_id)
         
@@ -2813,10 +2885,12 @@ class CombatEngine:
         # Cast the spell
         self._execute_spell_effect(spell_data, affected_positions, char_state)
         
-        # Consume spell slot
+       # Consume spell slot
         char_state['spell_slots_remaining'] -= 1
+        char_state['spells_cast_this_turn'] += 1  # ← ADD THIS
         print(f"🔮 Spell slots: {char_state['spell_slots_remaining']}/{char_state['spell_slots_max']}")
-        
+        print(f"🔮 Spells cast this turn: {char_state['spells_cast_this_turn']}")
+                
         # Clear spell selection and mode
         self.selected_spell_id = None
         self.set_action_mode(None)

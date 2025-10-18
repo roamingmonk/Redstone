@@ -406,14 +406,6 @@ class CombatEncounter:
             # Draw body as dark gray circle
             pygame.draw.circle(surface, DARK_GRAY, (screen_x, screen_y), self.tile_size // 3)
             
-            # # Draw an X over the corpse to show it's dead
-            # pygame.draw.line(surface, BLUE, 
-            #             (screen_x - 8, screen_y - 8), 
-            #             (screen_x + 8, screen_y + 8), 2)
-            # pygame.draw.line(surface, BLUE, 
-            #             (screen_x - 8, screen_y + 8), 
-            #             (screen_x + 8, screen_y - 8), 2)
-            
             # Character label
             name = char_state.get('name', 'P')
             label = name[0].upper()
@@ -504,10 +496,11 @@ class CombatEncounter:
             text_surface = font.render(label, True, WHITE)
             text_rect = text_surface.get_rect(center=(screen_x, screen_y))
             surface.blit(text_surface, text_rect)
-            
-            # Draw HP bar - same as your original code
+
+            # 🔥 GET char_data FIRST (before using it!)
             char_data = char_state.get('character_data', {})
-            
+
+            # Get current HP from the correct source
             if char_id == 'player':
                 current_hp = controller.game_state.character.get('current_hp', 10)
                 max_hp = controller.game_state.character.get('hit_points', 10)
@@ -521,8 +514,15 @@ class CombatEncounter:
                         current_hp = member.get('current_hp', current_hp)
                         max_hp = member.get('hp', member.get('hit_points', max_hp))
                         break
-            
+
+            # Draw HP bar (ONLY ONCE!)
             self._draw_hp_bar(surface, screen_x, screen_y, current_hp, max_hp)
+
+            # Draw spell slot dots (only for spellcasters)
+            spell_slots_remaining = char_state.get('spell_slots_remaining', 0)
+            spell_slots_max = char_state.get('spell_slots_max', 0)
+            if spell_slots_max > 0:
+                self._draw_spell_slots(surface, screen_x, screen_y, spell_slots_remaining, spell_slots_max)
         
         # Render enemy units - DEAD FIRST, then LIVING (for proper Z-order)
         enemy_instances = combat_data.get("enemy_instances", [])
@@ -785,18 +785,18 @@ class CombatEncounter:
                         button_state = "normal"  # Gray border - available but not selected
                 
                 elif action_id == "spell":
-                    # Check if character has spells and spell slots
-                    char_state = character_states.get(active_character_id, {})
-                    spell_slots_remaining = char_state.get('spell_slots_remaining', 0)
-                    spells_known = char_state.get('spells_known', [])
+                    # Check spell slots AND if already cast this turn
+                    spell_slots_remaining = active_char_state.get('spell_slots_remaining', 0)
+                    spells_known = active_char_state.get('spells_known', [])
+                    spells_cast = active_char_state.get('spells_cast_this_turn', 0)
                     
-                    if spell_slots_remaining > 0 and len(spells_known) > 0:
-                        if current_mode == "spell":
-                            button_state = "active"  # Yellow border - spell mode active
-                        else:
-                            button_state = "normal"  # Gray border - can cast spells
+                    # Disable if: no slots, no spells, or already cast this turn
+                    if spell_slots_remaining <= 0 or len(spells_known) == 0 or spells_cast >= 1:
+                        button_state = "disabled"
+                    elif current_mode == "spell":
+                        button_state = "active"  # Yellow border - spell mode active
                     else:
-                        button_state = "disabled"  # No spells or no slots
+                        button_state = "normal"  # Gray border - can cast spells
                 elif action_id == "end_turn":
                     button_state = "normal"  # Always available (never "active" since it doesn't toggle)
                 else:
@@ -994,6 +994,32 @@ class CombatEncounter:
         
         # White border
         pygame.draw.rect(surface, WHITE, (bar_x, bar_y, bar_width, bar_height), 1)
+    
+    def _draw_spell_slots(self, surface: pygame.Surface, center_x: int, center_y: int,
+                     slots_remaining: int, slots_max: int):
+        """Draw spell slot dots below HP bar"""
+        if slots_max <= 0:
+            return  # No spell slots to show
+        
+        dot_size = 4
+        dot_spacing = 6
+        total_width = (slots_max * dot_size) + ((slots_max - 1) * 2)  # dots + gaps
+        
+        # Position below HP bar (HP bar ends at center_y + 18, add 6px gap)
+        dots_x = center_x - (total_width // 2)
+        dots_y = center_y + 24
+        
+        # Draw each dot
+        for i in range(slots_max):
+            dot_x = dots_x + (i * dot_spacing)
+            
+            # CYAN if slot available, GRAY if used
+            dot_color = CYAN if i < slots_remaining else GRAY
+            
+            # Draw dot as small filled circle
+            pygame.draw.circle(surface, dot_color, (dot_x, dots_y), dot_size // 2)
+    
+    
     # ==========================================
     # ERROR HANDLING
     # ==========================================
