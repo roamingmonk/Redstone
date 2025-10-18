@@ -261,6 +261,7 @@ class GameState:
             'ac': npc_ac,  # Store AC from NPC JSON
             'stats': npc_template.get('stats', {}).copy(),
             'equipment': npc_template.get('equipment', {}).copy(),
+            'spells': npc_template.get('spells', {}).copy(),  
             'effects': []
 }
         

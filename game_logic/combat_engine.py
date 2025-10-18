@@ -44,6 +44,7 @@ class CombatEngine:
         self.combat_loader = get_combat_loader()
         self.stats_calculator = get_stats_calculator()
         self.combat_ai = get_combat_ai()
+        self.spell_data = self._load_spell_data()
         
         # Initialize movement system
         self.movement_system = get_movement_system(self)
@@ -181,6 +182,10 @@ class CombatEngine:
                 character_id = member['id']
                 position = shuffled_positions[idx] if idx < len(shuffled_positions) else [0, 0]
                 
+                # Initialize spell slots from character data
+                spell_slots_max = self._get_max_spell_slots(member)
+                spells_known = self._get_character_spells(member)
+                
                 self.character_states[character_id] = {
                     'id': character_id, 
                     'name': member['name'],
@@ -189,11 +194,19 @@ class CombatEngine:
                     'attacks_used': 0,
                     'is_alive': True,
                     'dexterity': member.get('stats', {}).get('dexterity', 10),
-                    'character_data': member  # Store full character data
+                    'character_data': member,  # Store full character data
+                    'spell_slots_max': spell_slots_max,
+                    'spell_slots_remaining': spell_slots_max,
+                    'spells_known': spells_known
                 }
             
             print(f"✅ Initialized {len(party_members)} party members")
             
+            # DEBUG: Print spell data for all characters
+            for char_id, char_state in self.character_states.items():
+                print(f"🔮 {char_state.get('name')}: spell_slots={char_state.get('spell_slots_max')}/{char_state.get('spell_slots_remaining')}, spells_known={char_state.get('spells_known')}")
+
+
             # Set up turn order (simple: player first, then enemies)
             self._initialize_turn_order()
             
@@ -250,8 +263,22 @@ class CombatEngine:
 
     def validate_movement(self, entity, target_x, target_y):
         return self.movement_system.validate_move(entity, target_x, target_y)
-    
-    # Replace or modify existing movement execution
+
+    def _load_spell_data(self) -> dict:
+        """Load spell definitions from JSON"""
+        try:
+            spell_file = os.path.join('data', 'spells.json')
+            with open(spell_file, 'r') as f:
+                spells = json.load(f)
+            print(f"✨ Loaded {len(spells)} spell definitions")
+            return spells
+        except FileNotFoundError:
+            print("⚠️ spells.json not found - spell system disabled")
+            return {}
+        except Exception as e:
+            print(f"❌ Error loading spells: {e}")
+            return {}    
+        
     def move_entity(self, entity, target_x, target_y):
         return self.movement_system.move_entity(entity, target_x, target_y)
     
@@ -584,7 +611,8 @@ class CombatEngine:
                 'equipment': member_data.get('equipment', {}),  
                 'current_hp': current_hp,
                 'max_hp': max_hp,
-                'ac': member_data.get('ac', 10)  # Add AC for combat resolution
+                'ac': member_data.get('ac', 10),  
+                'spells': member_data.get('spells', {})  
             }
             party.append(party_member)
         
@@ -814,6 +842,31 @@ class CombatEngine:
         elif mode == "ranged_attack":
             # Your existing ranged attack highlighting code
             pass
+        elif mode == "spell":
+            # Clear any existing highlighted tiles
+            self.combat_data["highlighted_tiles"] = []
+            print("🪄 Entered spell casting mode")
+
+        elif mode == "spell_targeting":
+            # Player selected a spell, now show valid targets
+            print("🎯 Entered spell targeting mode")
+            
+            if not hasattr(self, 'selected_spell_id'):
+                print("❌ No spell selected!")
+                return
+            
+            # Get the selected spell data
+            spell_data = self.spell_data.get(self.selected_spell_id)
+            if not spell_data:
+                print(f"❌ Spell not found: {self.selected_spell_id}")
+                return
+            
+            # Get valid targets based on spell range and type
+            valid_targets = self._get_spell_targets(self.selected_spell_id)
+            self.combat_data["highlighted_tiles"] = valid_targets
+            
+            print(f"✨ Targeting {spell_data['name']} - {len(valid_targets)} valid targets")
+            self._add_to_combat_log(f"Select target for {spell_data['name']}")
 
     def _can_use_ranged_attack(self) -> bool:
         """Check if active character can use ranged attacks"""
@@ -2599,6 +2652,345 @@ class CombatEngine:
         """Add message to combat log"""
         self.combat_log.append(message)
         #print(f"🎯 {message}")  # Also print to console for debugging
+    
+    #++++++++++++++ SPELL METHODS +++++++++++++++++++++++++++++++++++++++++
+    def _get_max_spell_slots(self, character_data: dict) -> int:
+        """Get maximum spell slots for character based on class and level"""
+        char_class = character_data.get('class', '').lower()
+        level = character_data.get('level', 1)
+        
+        # Spellcasting classes get slots
+        if char_class in ['wizard', 'cleric']:
+            # Simple progression: 2 slots at level 1, +1 per level
+            return 2 + (level - 1)
+        
+        # Non-casters have no slots
+        return 0
+
+    def _get_character_spells(self, character_data: dict) -> list:
+        """Get list of spell IDs this character knows"""
+        # DEBUG - get name first
+        char_name = character_data.get('name', 'Unknown')
+        
+        # Check for spells in character data
+        spells_data = character_data.get('spells', {})
+        
+        # DEBUG
+        print(f"🔍 _get_character_spells for {char_name}:")
+        print(f"   spells_data type: {type(spells_data)}")
+        print(f"   spells_data: {spells_data}")
+        
+        # Handle different spell data formats
+        if isinstance(spells_data, dict):
+            # Format: {"spells_known": ["cure_wounds", "bless"]}
+            spells_known = spells_data.get('spells_known', [])
+        elif isinstance(spells_data, list):
+            # Format: ["cure_wounds", "bless"]
+            spells_known = spells_data
+        else:
+            spells_known = []
+        
+        print(f"   After parsing - spells_known: {spells_known}")
+        
+        # Convert spell names to lowercase IDs
+        spell_ids = []
+        for spell in spells_known:
+            # Convert "Cure Wounds" to "cure_wounds"
+            spell_id = spell.lower().replace(' ', '_')
+            # Only add if we have definition for it
+            if spell_id in self.spell_data:
+                spell_ids.append(spell_id)
+                print(f"   ✅ Added spell: {spell_id}")
+            else:
+                print(f"   ❌ Spell not in spell_data: {spell_id}")
+        
+        print(f"   Final spell_ids: {spell_ids}")
+        return spell_ids
+
+    def get_available_spells(self, character_id: str) -> list:
+        """
+        Get list of spells character can currently cast
+        Returns list of dicts with spell info
+        """
+        if character_id not in self.character_states:
+            return []
+        
+        char_state = self.character_states[character_id]
+        
+        # Check if character has spell slots remaining
+        if char_state.get('spell_slots_remaining', 0) <= 0:
+            return []
+        
+        # Get spells known
+        spells_known = char_state.get('spells_known', [])
+        
+        # Build list of castable spells with full data
+        available_spells = []
+        for spell_id in spells_known:
+            if spell_id in self.spell_data:
+                spell_info = self.spell_data[spell_id].copy()
+                available_spells.append(spell_info)
+        
+        return available_spells
+    
+    def _get_spell_targets(self, spell_id: str) -> list:
+        """Get valid target positions for a spell"""
+        if not self.active_character_id:
+            return []
+        
+        char_state = self.character_states.get(self.active_character_id)
+        if not char_state:
+            return []
+        
+        spell_data = self.spell_data.get(spell_id)
+        if not spell_data:
+            return []
+        
+        caster_pos = char_state['position']
+        spell_range = spell_data.get('range', 1)
+        target_type = spell_data.get('target_type', 'any')
+        
+        valid_targets = []
+        
+        # Check all positions within range
+        for dx in range(-spell_range, spell_range + 1):
+            for dy in range(-spell_range, spell_range + 1):
+                target_pos = [caster_pos[0] + dx, caster_pos[1] + dy]
+                
+                # Allow caster position for ally-targeted spells (like healing)
+                if target_pos == caster_pos:
+                    if target_type != "ally":
+                        continue  # Only skip self for non-ally spells
+                
+                # Check manhattan distance
+                distance = abs(dx) + abs(dy)
+                if distance > spell_range:
+                    continue
+                
+                # Check if position has valid target
+                if target_type == "ally":
+                    # Only target party members
+                    for char_id, state in self.character_states.items():
+                        if state['position'] == target_pos and state.get('is_alive', True):
+                            valid_targets.append(target_pos)
+                            break
+                elif target_type == "enemy":
+                    # Only target enemies
+                    for enemy in self.combat_data.get("enemy_instances", []):
+                        if enemy['position'] == target_pos and enemy.get('current_hp', 0) > 0:
+                            valid_targets.append(target_pos)
+                            break
+                else:  # "all" or "any"
+                    # Target any position (for AOE spells)
+                    valid_targets.append(target_pos)
+        
+        return valid_targets
+    
+    def execute_spell_cast(self, target_position: List[int]) -> bool:
+        """Execute spell casting on target position"""
+        if self.current_phase != CombatPhase.PLAYER_TURN:
+            return False
+        
+        if not self.active_character_id or not hasattr(self, 'selected_spell_id'):
+            return False
+        
+        char_state = self.character_states[self.active_character_id]
+        spell_id = self.selected_spell_id
+        spell_data = self.spell_data.get(spell_id)
+        
+        if not spell_data:
+            return False
+        
+        # Validate target is in valid targets
+        valid_targets = self._get_spell_targets(spell_id)
+        if target_position not in valid_targets:
+            self._add_to_combat_log("Invalid target!")
+            return False
+        
+        # Get affected area (for AOE spells like Fireball)
+        affected_positions = self._get_spell_affected_area(spell_data, target_position)
+        
+        # Cast the spell
+        self._execute_spell_effect(spell_data, affected_positions, char_state)
+        
+        # Consume spell slot
+        char_state['spell_slots_remaining'] -= 1
+        print(f"🔮 Spell slots: {char_state['spell_slots_remaining']}/{char_state['spell_slots_max']}")
+        
+        # Clear spell selection and mode
+        self.selected_spell_id = None
+        self.set_action_mode(None)
+        
+        # Mark action used
+        char_state['has_acted'] = True
+        
+        return True
+    
+    def _get_spell_affected_area(self, spell_data: dict, target_position: List[int]) -> List[List[int]]:
+        """Get all positions affected by spell (for AOE)"""
+        area_type = spell_data.get('area_type', 'single')
+        area_size = spell_data.get('area_size', 1)
+        
+        affected = []
+        
+        if area_type == "single":
+            # Single target only
+            affected.append(target_position)
+        
+        elif area_type == "area":
+            # Square area (e.g., 3x3 for Fireball)
+            half_size = area_size // 2
+            for dx in range(-half_size, half_size + 1):
+                for dy in range(-half_size, half_size + 1):
+                    pos = [target_position[0] + dx, target_position[1] + dy]
+                    affected.append(pos)
+        
+        elif area_type == "line":
+            # Line from caster toward target (like Lightning Bolt)
+            char_state = self.character_states[self.active_character_id]
+            caster_pos = char_state['position']
+            
+            # Calculate direction
+            dx = 1 if target_position[0] > caster_pos[0] else -1 if target_position[0] < caster_pos[0] else 0
+            dy = 1 if target_position[1] > caster_pos[1] else -1 if target_position[1] < caster_pos[1] else 0
+            
+            # Create line
+            current = caster_pos.copy()
+            for _ in range(area_size):
+                current = [current[0] + dx, current[1] + dy]
+                affected.append(current.copy())
+        
+        return affected
+
+    def _execute_spell_effect(self, spell_data: dict, affected_positions: List[List[int]], caster_state: dict):
+        """Apply spell effects to all affected positions"""
+        spell_name = spell_data.get('name', 'Spell')
+        damage_type = spell_data.get('damage_type', 'damage')
+        caster_name = caster_state.get('name', 'Caster')
+        caster_level = caster_state.get('character_data', {}).get('level', 1)
+        
+        # Roll damage/healing
+        damage_amount = self._roll_spell_damage(spell_data, caster_state, caster_level)
+        
+        self._add_to_combat_log(f"{caster_name} casts {spell_name}!")
+        
+        # Apply to all affected positions
+        for pos in affected_positions:
+            # Check party members
+            for char_id, char_state in self.character_states.items():
+                if char_state['position'] == pos and char_state.get('is_alive', True):
+                    self._apply_spell_to_character(char_state, damage_amount, damage_type, spell_name)
+            
+            # Check enemies
+            for enemy in self.combat_data.get("enemy_instances", []):
+                if enemy['position'] == pos and enemy.get('current_hp', 0) > 0:
+                    self._apply_spell_to_enemy(enemy, damage_amount, damage_type, spell_name)
+
+    def _roll_spell_damage(self, spell_data: dict, caster_state: dict, caster_level: int) -> int:
+        """Roll spell damage/healing amount"""
+        damage_dice = spell_data.get('damage_dice', '1d8')
+        scales_with_level = spell_data.get('scales_with_level', False)
+        add_stat_modifier = spell_data.get('add_stat_modifier')
+        
+        print(f"🎲 DEBUG: damage_dice={damage_dice}, scales={scales_with_level}, caster_level={caster_level}")
+        
+        # Parse dice notation (e.g., "1d8" or "3d6")
+        if 'd' in damage_dice:
+            num_dice, die_size = damage_dice.split('d')
+            num_dice = int(num_dice)
+            die_size = int(die_size)
+            
+            # Scale with level if specified
+            if scales_with_level:
+                num_dice = num_dice * caster_level
+            
+            print(f"🎲 DEBUG: Rolling {num_dice}d{die_size}")
+            
+            # Roll the dice
+            total = sum(random.randint(1, die_size) for _ in range(num_dice))
+            print(f"🎲 DEBUG: Rolled {total}")
+        else:
+            total = int(damage_dice)
+        
+        # Add stat modifier if specified
+        if add_stat_modifier:
+            char_data = caster_state.get('character_data', {})
+            stats = char_data.get('stats', {})
+            stat_value = stats.get(add_stat_modifier, 10)
+            modifier = (stat_value - 10) // 2
+            print(f"🎲 DEBUG: Adding {add_stat_modifier} modifier: stat={stat_value}, mod={modifier}")
+            total += modifier
+        
+        print(f"🎲 DEBUG: Final total: {total}")
+        return max(1, total)  # Minimum 1
+
+    def _apply_spell_to_character(self, char_state: dict, amount: int, damage_type: str, spell_name: str):
+        """Apply spell effect to a party member"""
+        #TODO need to update this to apply the appropriate damage/ healing to player vs. party member (like resolve attack with weapon method)
+        ##
+        ##
+        char_name = char_state.get('name', 'Character')
+        char_data = char_state.get('character_data', {})
+        
+        print(f"💊 DEBUG: Applying {amount} {damage_type} to {char_name}")
+        print(f"💊 DEBUG: char_data keys: {char_data.keys()}")
+
+        if damage_type == "healing":
+            # Heal the character
+            old_hp = self.game_state.character.get('current_hp', 0)
+            max_hp = char_data.get('max_hp', char_data.get('hit_points', 10))
+            
+            print(f"💊 DEBUG: old_hp={old_hp}, max_hp={max_hp}")
+            
+            new_hp = min(old_hp + amount, max_hp)
+            char_data['current_hp'] = new_hp
+            actual_healing = new_hp - old_hp
+
+            self.game_state.character["current_hp"] = new_hp
+            
+            print(f"💊 DEBUG: new_hp={new_hp}, actual_healing={actual_healing}")
+
+            self._add_to_combat_log(f"{char_name} healed for {actual_healing} HP!")
+        else:
+            # Damage the character
+            old_hp = char_data.get('current_hp', 0)
+            new_hp = max(0, old_hp - amount)
+            char_data['current_hp'] = new_hp
+            
+            self.game_state.character["current_hp"] = new_hp
+
+            self._add_to_combat_log(f"{char_name} takes {amount} damage!")
+            
+            if new_hp <= 0:
+                char_state['is_alive'] = False
+                self._add_to_combat_log(f"{char_name} is unconscious!")
+
+    def _apply_spell_to_enemy(self, enemy: dict, amount: int, damage_type: str, spell_name: str):
+        """Apply spell effect to an enemy"""
+        enemy_name = enemy.get('name', 'Enemy')
+        
+        if damage_type == "healing":
+            # Heal enemy (rare but possible)
+            old_hp = enemy.get('current_hp', 0)
+            max_hp = enemy.get('max_hp', 10)
+            new_hp = min(old_hp + amount, max_hp)
+            enemy['current_hp'] = new_hp
+            actual_healing = new_hp - old_hp
+            
+            self._add_to_combat_log(f"{enemy_name} healed for {actual_healing} HP!")
+        else:
+            # Damage enemy
+            old_hp = enemy.get('current_hp', 0)
+            new_hp = max(0, old_hp - amount)
+            enemy['current_hp'] = new_hp
+            
+            self._add_to_combat_log(f"{enemy_name} takes {amount} damage!")
+            
+            if new_hp <= 0:
+                self._add_to_combat_log(f"{enemy_name} is defeated!")
+                # Check victory
+                if self._check_victory_conditions():
+                    self._handle_combat_victory()
 
 def initialize_combat_engine(game_state, event_manager, save_manager=None, item_manager=None):
     """

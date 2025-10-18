@@ -23,8 +23,8 @@
         "shield": "None"
     },
     "spells": {
-        "cantrips_known": ["Mage Hand", "Light", "Prestidigitation"],
-        "spells_known": ["Magic Missile", "Shield", "Detect Magic", "Sleep", "Burning Hands", "Comprehend Languages"]
+        "cantrips_known": ["Light"],
+        "spells_known": ["Magic Missile", "Shield", "Fireball", "Sleep", "Burning Hands", "Comprehend Languages"]
     },
     "character_details": {
         "background": "Elven scholar specializing in ancient magic",

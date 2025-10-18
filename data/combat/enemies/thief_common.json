@@ -3,9 +3,9 @@
   "name": "Thief",
   "description": "A street-smart cutpurse in dark leather armor. Quick with a blade and quicker to disappear when things go south.",
   "stats": {
-    "hp": 1,
-    "max_hp": 1,
-    "ac": 15,
+    "hp": 18,
+    "max_hp": 18,
+    "ac": 14,
     "strength": 10,
     "dexterity": 17,
     "constitution": 12,
@@ -51,13 +51,13 @@
     }
   ],
   "loot": {
-    "xp_value": 5,
+    "xp_value": 25,
     "gold_range": [3, 10],
     "items": ["leather_armor", "thieves_tools", "lockpicks"],
     "item_drops": [
     {"item_id": "stolen_coin_purse", "drop_chance": 0.7, "quantity_range": [1, 1]},
     {"item_id": "lockpicks", "drop_chance": 0.5, "quantity_range": [1, 1]},
-    {"item_id": "rusty_dagger", "drop_chance": 0.99, "quantity_range": [1, 1]},
+    {"item_id": "rusty_dagger", "drop_chance": 0.6, "quantity_range": [1, 1]},
     {"item_id": "cheap_cloak", "drop_chance": 0.3, "quantity_range": [1, 1]},
     {"item_id": "leather_armor", "drop_chance": 0.1, "quantity_range": [1, 1]}
   ]

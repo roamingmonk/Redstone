@@ -1,0 +1,29 @@
+{
+  "cure_wounds": {
+    "id": "cure_wounds",
+    "name": "Cure Wounds",
+    "damage_dice": "1d8",
+    "damage_type": "healing",
+    "area_type": "single",
+    "range": 1,
+    "slot_cost": 1,
+    "target_type": "ally",
+    "scales_with_level": true,
+    "add_stat_modifier": "wisdom",
+    "description": "Restore HP to adjacent ally. Heals 1d8 per caster level + WIS modifier."
+  },
+  "fireball": {
+    "id": "fireball",
+    "name": "Fireball",
+    "damage_dice": "3d6",
+    "damage_type": "fire",
+    "area_type": "area",
+    "area_size": 3,
+    "range": 7,
+    "slot_cost": 1,
+    "target_type": "all",
+    "scales_with_level": true,
+    "scaling_type": "add_dice",
+    "description": "3x3 area of devastating fire. Level 1=3d6, Level 2=4d6, etc. Damages ALL units including allies!"
+  }
+}

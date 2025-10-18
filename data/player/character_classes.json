@@ -130,8 +130,8 @@
         "spell_slots": {
           "1st": 2
         },
-        "starting_cantrips": ["Mage Hand", "Light", "Prestidigitation"],
-        "starting_spells": ["Magic Missile", "Shield", "Detect Magic", "Sleep", "Burning Hands", "Comprehend Languages"]
+        "starting_cantrips": ["Light"],
+        "starting_spells": ["Magic Missile", "Shield", "Fire ball", "Sleep", "Burning Hands"]
       },
       "proficiencies": {
         "armor": [],
