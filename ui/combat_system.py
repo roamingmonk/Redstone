@@ -114,23 +114,13 @@ class CombatEncounter:
         return floor_tile_map.get(default_floor, 'stone_floor_16x16')
 
     def _register_with_input_handler(self, clickable_areas: Dict, controller):
-        #print(f"🔍 Total clickable areas to register: {len(clickable_areas)}")
-        
-        # # Show what we're trying to register
-        # for area_id in clickable_areas.keys():
-        #     if area_id.startswith("button_"):
-        #         print(f"  🔘 Button area: {area_id}")
-        
-        
         """Register combat clickables with InputHandler using existing infrastructure"""
-        
-        
         
         try:
             if hasattr(controller, 'screen_manager') and hasattr(controller.screen_manager, 'input_handler'):
                 input_handler = controller.screen_manager.input_handler
                 
-                # Use the existing register_combat_clickables method - it's already perfect!
+                # Register clickable areas
                 input_handler.register_combat_clickables('combat', clickable_areas)
                 
             else:
@@ -138,6 +128,8 @@ class CombatEncounter:
                 
         except Exception as e:
             print(f"❌ Error registering combat clickables: {e}")
+            import traceback
+            traceback.print_exc()
 
     # ==========================================
     # MAIN RENDERING METHODS
@@ -692,12 +684,14 @@ class CombatEncounter:
                 return
             # If no targets and no tiles, just fall through and return
 
-        # 2) Movement &  melee paths 
+        # 2) Movement, melee, and spell targeting paths 
         highlighted_tiles = combat_data.get('highlighted_tiles', [])
         if current_action == "attack":
             border_color = (255, 0, 0); border_width = 3
         elif current_action == "movement":
             border_color = (0, 255, 0); border_width = 3
+        elif current_action == "spell_targeting":
+            border_color = (0, 255, 255); border_width = 3  # Cyan for spell targets
         else:
             return
 
@@ -791,7 +785,18 @@ class CombatEncounter:
                         button_state = "normal"  # Gray border - available but not selected
                 
                 elif action_id == "spell":
-                    button_state = "disabled"  # Not implemented yet
+                    # Check if character has spells and spell slots
+                    char_state = character_states.get(active_character_id, {})
+                    spell_slots_remaining = char_state.get('spell_slots_remaining', 0)
+                    spells_known = char_state.get('spells_known', [])
+                    
+                    if spell_slots_remaining > 0 and len(spells_known) > 0:
+                        if current_mode == "spell":
+                            button_state = "active"  # Yellow border - spell mode active
+                        else:
+                            button_state = "normal"  # Gray border - can cast spells
+                    else:
+                        button_state = "disabled"  # No spells or no slots
                 elif action_id == "end_turn":
                     button_state = "normal"  # Always available (never "active" since it doesn't toggle)
                 else:
@@ -800,18 +805,68 @@ class CombatEncounter:
                 draw_combat_button(surface, button_rect.x, button_rect.y, button_width, button_height,
                         action_label, button_font, button_state)
 
-                if action_id not in ["spell"]:  # Register all buttons including ranged
-                    clickable_areas[f"button_{action_id}"] = {
-                        "rect": button_rect,
-                        "action": action_id.upper(),
-                        "button_type": action_id
-                    }
+                # Register all action buttons as clickable
+                clickable_areas[f"button_{action_id}"] = {
+                    "rect": button_rect,
+                    "action": action_id.upper(),
+                    "button_type": action_id
+                }
             except Exception as e:
                 print(f"❌ Error rendering button {i}: {e}")
                 continue
                 
-        current_y += len(action_buttons) * (button_height + 10) + 10  
+        # Save the y position after buttons for later use
+        post_buttons_y = current_y + len(action_buttons) * (button_height + 10) + 10
         
+        # If in spell mode, show available spells TO THE RIGHT of action buttons
+        current_mode = combat_data.get('current_action_mode', None)
+        spell_list_x = panel_x + 80  # Position to the right of the buttons
+        spell_list_y = panel_y - 30  # Start at same height as buttons
+        
+        if current_mode == "spell" and active_character_id:
+            char_state = character_states.get(active_character_id, {})
+            
+            # Get available spells from combat engine
+            if controller and hasattr(controller, 'combat_engine'):
+                available_spells = controller.combat_engine.get_available_spells(active_character_id)
+                if available_spells:
+                    # Draw "SELECT SPELL:" header
+                    spell_header_font = fonts.get('fantasy_micro', button_font)
+                    spell_header = spell_header_font.render("SELECT SPELL:", True, YELLOW)
+                    surface.blit(spell_header, (spell_list_x, spell_list_y))
+                    spell_list_y += 25
+                    
+                    # Draw spell buttons with smaller font
+                    spell_button_font = fonts.get('fantasy_micro', text_font)
+                    for spell_data in available_spells:
+                        spell_id = spell_data.get('id')
+                        spell_name = spell_data.get('name')
+                        
+                        # Truncate long spell names
+                        if len(spell_name) > 14:
+                            spell_display = spell_name[:12] + ".."
+                        else:
+                            spell_display = spell_name
+                        
+                        spell_button_rect = pygame.Rect(spell_list_x, spell_list_y, 120, 22)
+                        
+                        # Draw spell button
+                        draw_combat_button(surface, spell_button_rect.x, spell_button_rect.y, 
+                                        120, 22, spell_display, spell_button_font, "normal")
+                        
+                        # Register as clickable
+                        clickable_areas[f"spell_{spell_id}"] = {
+                            "rect": spell_button_rect,
+                            "action": "SELECT_SPELL",
+                            "spell_id": spell_id
+                        }
+                        
+                        spell_list_y += 25
+                
+        # Use the saved position for elements below buttons
+        current_y = post_buttons_y
+
+
         # Unit Inspector Panel - FIXED SPACE (always reserve space even if empty)
         inspector_start_y = current_y
         
@@ -895,27 +950,6 @@ class CombatEncounter:
     # BATTLEFIELD HELPER METHODS
     # ==========================================
     
-    def _handle_action_button(self, button_type: str, game_state, event_manager) -> Optional[str]:
-        """Handle action button clicks"""
-        print(f"🎯 Action button clicked: {button_type}")
-        
-        if button_type == "move":
-            self.selected_action = "move"
-            # TODO: Highlight valid movement squares
-            
-        elif button_type == "attack":
-            self.selected_action = "attack"
-            # TODO: Highlight valid attack targets
-            
-        elif button_type == "end_turn":
-            event_manager.emit("COMBAT_END_TURN", {})
-            self.selected_action = None
-        
-        elif button_type == "ranged":                
-            self.selected_action = "ranged_attack"   
-        
-        return None
-
     def _draw_dotted_border(self, surface, rect, color, width=3, gap=4):
         # draw dotted lines on four edges
         def dotted_line(p1, p2):
@@ -1097,6 +1131,9 @@ def register_combat_system_events(event_manager, game_controller):
             elif current_mode == "ranged_attack":                     
                 result = game_controller.execute_player_ranged_attack(grid_pos)
                 print(f"Ranged attack result: {result}")
+            elif current_mode == "spell_targeting":
+                result = game_controller.execute_spell_cast(grid_pos)
+                print(f"Spell cast result: {result}")
             else:
                 # No action mode active - check if clicking on a unit for inspection
                 unit_data = game_controller.get_unit_at_position(grid_pos)
@@ -1116,6 +1153,21 @@ def register_combat_system_events(event_manager, game_controller):
             # Call the proper combat engine method
             game_controller.end_player_turn()
             print("Player turn ended via combat engine")
+    
+    def handle_spell_action(event_data):
+        """Handle SPELL button click - toggle on/off"""
+        if game_controller:
+            current_mode = getattr(game_controller, 'current_action_mode', None)
+            
+            if current_mode == "spell":
+                # Already in spell mode - toggle OFF
+                print("SPELL button toggled OFF")
+                game_controller.set_action_mode(None)
+            else:
+                # Not in spell mode - toggle ON
+                print("SPELL button clicked - switching to spell casting mode")
+                game_controller.set_action_mode("spell")
+                clear_inspector()  # Clear inspector when starting action
         
     def handle_combat_back(event_data):
         """Handle return to previous screen"""
@@ -1139,11 +1191,27 @@ def register_combat_system_events(event_manager, game_controller):
                 game_controller.game_state.screen = "redstone_town"
             
             print(f"Returning to: {game_controller.game_state.screen}")
+
+    def handle_spell_select(event_data):
+        """Handle clicking on a specific spell"""
+        print(f"🔍 handle_spell_select called with: {event_data}")  # ADD THIS
+        if game_controller:
+            spell_id = event_data.get('spell_id')
+            print(f"🔍 spell_id extracted: {spell_id}")  # ADD THIS
+            if spell_id:
+                print(f"✨ Spell selected: {spell_id}")
+                # Store selected spell in game controller
+                game_controller.selected_spell_id = spell_id
+                # Change mode to targeting
+                game_controller.set_action_mode("spell_targeting")
+                clear_inspector()
     
     # Register the actual event names being emitted
     event_manager.register("MOVE", handle_move_action)
     event_manager.register("ATTACK", handle_attack_action)
     event_manager.register("RANGED", handle_ranged_action)
+    event_manager.register("SPELL", handle_spell_action)
+    event_manager.register("SELECT_SPELL", handle_spell_select) 
     event_manager.register("END_TURN", handle_end_turn_action)
     event_manager.register("GRID_CLICK", handle_grid_click)
     event_manager.register("COMBAT_BACK", handle_combat_back)

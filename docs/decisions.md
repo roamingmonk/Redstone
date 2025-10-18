@@ -2101,6 +2101,16 @@ Combat log more readable during intense encounters
 **Consequences:** (+) Clean loot collection flow, (+) Reuses established overlay architecture, (-) Minor tech debt: overlay accesses inventory_engine via screen_manager instead of event system
 **Alternatives Considered:** Event-driven buttons like inventory overlay (deferred for v2), immediate auto-loot (rejected - removes player choice)
 
+# ADR-133: Start implementation of spell casting system
+**Status:** Accepted
+**Context:** Add functionality to all for spell casting for npcs
+**Decision:** created system in combat files to allow for casting spells. 
+**Consequences:** Add spells.json, and updated combat_engine, combat_system, input_manager to link spell system.  partially implemented. Only cure wounds work, but only healing player. 
+**Next steps :** Need to fix incomplete implementation,  apply range spell damage spells (fireball), remove technical debt.
+
+
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected
