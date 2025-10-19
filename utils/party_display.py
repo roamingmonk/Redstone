@@ -2,11 +2,11 @@
 import pygame
 import os
 from utils.constants import (
-    WHITE, BRIGHT_GREEN, GRAY,
+    WHITE, BRIGHT_GREEN, GRAY, SOFT_YELLOW, RED,
     NPC_PORTRAITS_PATH, PLAYER_PORTRAITS_PATH,
     PARTY_PANEL_WIDTH, PARTY_PANEL_X,  
     PORTRAIT_SIZE, PORTRAIT_SPACING,   
-    FRAME_THICKNESS, MALE_PORTRAITS_PATH           
+    FRAME_THICKNESS, MALE_PORTRAITS_PATH          
 )
 from utils.graphics import draw_centered_text
 
@@ -60,7 +60,7 @@ def draw_party_status_panel(surface, game_state, fonts):
     return portrait_rects
 
 def draw_party_portrait(surface, x, y, character_name, game_state, fonts, is_player=False):
-    """Draw individual party member portrait"""
+    """Draw individual party member portrait with HP bar"""
     
     # Try to load portrait
     portrait = load_portrait(character_name, is_player)
@@ -77,6 +77,56 @@ def draw_party_portrait(surface, x, y, character_name, game_state, fonts, is_pla
     # Draw frame
     pygame.draw.rect(surface, WHITE, (x, y, PORTRAIT_SIZE, PORTRAIT_SIZE), FRAME_THICKNESS)
     
+    # Draw HP bar below portrait
+    _draw_hp_bar_under_portrait(surface, x, y, character_name, game_state, is_player)
+
+def _draw_hp_bar_under_portrait(surface, portrait_x, portrait_y, character_name, game_state, is_player):
+    """Draw color-coded HP bar at bottom of portrait (inside the frame)"""
+    # Get HP values
+    if is_player:
+        current_hp = game_state.character.get('current_hp', 10)
+        max_hp = game_state.character.get('hit_points', 10)
+    else:
+        # Find party member data
+        current_hp = 10
+        max_hp = 10
+        for member in game_state.party_member_data:
+            if member.get('id') == character_name:
+                current_hp = member.get('current_hp', 10)
+                max_hp = member.get('hp', member.get('hit_points', 10))
+                break
+    
+    # Calculate HP percentage for color determination
+    hp_percent = (current_hp / max_hp * 100) if max_hp > 0 else 0
+    
+    # Color-code based on HP percentage (matching character sheet)
+    if hp_percent > 66:
+        hp_color = BRIGHT_GREEN
+    elif hp_percent > 33:
+        hp_color = SOFT_YELLOW
+    else:
+        hp_color = RED
+    
+    # HP bar dimensions - INSIDE portrait at bottom
+    bar_width = PORTRAIT_SIZE - 8  # Leave 4px margin on each side
+    bar_height = 5
+    bar_x = portrait_x + 4  # 4px from left edge
+    bar_y = portrait_y + PORTRAIT_SIZE - bar_height - 4  # 4px from bottom
+    
+    # Black background for contrast
+    pygame.draw.rect(surface, (0, 0, 0), (bar_x, bar_y, bar_width, bar_height))
+    
+    # Background (dark gray = missing HP) - slightly transparent
+    pygame.draw.rect(surface, (40, 40, 40), (bar_x + 1, bar_y + 1, bar_width - 2, bar_height - 2))
+    
+    # Foreground (color-coded current HP)
+    if max_hp > 0:
+        hp_fraction = current_hp / max_hp
+        filled_width = int((bar_width - 2) * hp_fraction)
+        pygame.draw.rect(surface, hp_color, (bar_x + 1, bar_y + 1, filled_width, bar_height - 2))
+    
+    # White border for definition
+    pygame.draw.rect(surface, WHITE, (bar_x, bar_y, bar_width, bar_height), 1)
 
 def draw_empty_portrait_slot(surface, x, y):
     """Draw empty portrait slot"""

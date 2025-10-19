@@ -240,10 +240,11 @@
       "description": "A lucky Lantern provided by Hendrik to light your way.",
       "base_cost": 150,
       "category": "items",
+      "subcategory": "special",
       "icon_file": "henrik_lantern.png",
       "consumable": false,
       "weight": 1,
-      "rarity": "special",
+      "rarity": "only_one",
       "stackable": false,
       "special_effects": {
         "morale_bonus": 1,

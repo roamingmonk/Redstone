@@ -9,9 +9,9 @@
       "price_modifier": 1.0,
       "sell_multiplier": 0.4,
       "stock_categories": ["consumables", "items"],
-      "exclude_subcategories": ["trinket"],
+      "exclude_subcategories": ["trinkets","special"],
       "buy_categories": ["consumables", "items"],
-      "exclude_buy_subcategories": ["trinket"],
+      "exclude_buy_subcategories": ["trinket", "special"],
       "stock_filter": {
         "include_ids": ["strong_ale", "trail_rations", "torch", "shortbow"],
         "max_rarity": "common"
@@ -34,9 +34,9 @@
       "price_modifier": 1.1,
       "sell_multiplier": 0.5,
       "stock_categories": ["weapons", "armor", "consumables", "items"],
-      "exclude_subcategories": ["trinket"],
+      "exclude_subcategories": ["trinket", "special"],
       "buy_categories": ["weapons", "armor", "consumables", "items"],
-      "exclude_buy_subcategories": ["trinket"],
+      "exclude_buy_subcategories": ["trinket", "special"],
       "stock_filter": {
         "max_rarity": "uncommon"
       },
