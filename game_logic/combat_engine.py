@@ -1467,6 +1467,10 @@ class CombatEngine:
                 target_name = target_enemy.get("name", "Enemy")
                 self._add_to_combat_log(f"{target_name} defeated!")
                 
+                # 🔥 CHECK IF PLAYER DIED FIRST (defeat takes priority!)
+                if self.current_phase == CombatPhase.DEFEAT:
+                    return True  # Player already dead, don't check victory
+                
                 # Check victory conditions
                 if self._check_victory_conditions():
                     self._handle_combat_victory()
@@ -1610,6 +1614,10 @@ class CombatEngine:
                     member_kills = self.game_state.player_statistics['party_member_kills']
                     member_kills[self.active_character_id] = member_kills.get(self.active_character_id, 0) + 1
 
+                # 🔥 CHECK IF PLAYER DIED FIRST (defeat takes priority!)
+                if self.current_phase == CombatPhase.DEFEAT:
+                    return True  # Player already dead, don't check victory
+                
                 if self._check_victory_conditions():
                     self._handle_combat_victory()
                     return True

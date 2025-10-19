@@ -64,6 +64,14 @@ class CombatEncounter:
             battlefield = combat_data.get("battlefield", {})
             self.current_tileset = battlefield.get("tileset", "cellar")  # Default to cella
 
+            # 🔥 ADD THIS SECTION HERE - Track mouse hover for spell AOE preview
+            mouse_pos = pygame.mouse.get_pos()
+            hover_grid_pos = self._screen_to_grid(mouse_pos[0], mouse_pos[1])
+            
+            # Store hover position in combat engine for spell preview
+            if controller and hasattr(controller, 'combat_engine'):
+                controller.combat_engine.hover_grid_pos = hover_grid_pos
+
         except Exception as e:
             print(f"❌ Combat data error: {e}")
             return self._render_data_error(surface, fonts, str(e))
@@ -266,7 +274,15 @@ class CombatEncounter:
                 }
         
         return clickable_areas
-    
+
+    def _screen_to_grid(self, screen_x: int, screen_y: int) -> List[int]:
+        """Convert screen coordinates to grid position"""
+        grid_x = (screen_x - self.grid_offset_x) // self.tile_size
+        grid_y = (screen_y - self.grid_offset_y) // self.tile_size
+        
+        # Return grid position (even if out of bounds - caller will validate)
+        return [grid_x, grid_y]
+
     def _get_wall_tile_type(self, x: int, y: int, battlefield: Dict) -> str:
         """Determine which wall tile to use based on which wall lines it belongs to"""
         walls = battlefield.get('terrain', {}).get('walls', [])
@@ -691,10 +707,64 @@ class CombatEncounter:
         elif current_action == "movement":
             border_color = (0, 255, 0); border_width = 3
         elif current_action == "spell_targeting":
-            border_color = (0, 255, 255); border_width = 3  # Cyan for spell targets
+            # Check if it's an AOE spell like Fireball
+            controller = getattr(self, 'controller', None)
+            if controller and hasattr(controller, 'combat_engine'):
+                engine = controller.combat_engine
+                
+                # Get selected spell
+                if hasattr(engine, 'selected_spell_id'):
+                    spell_data = engine.spell_data.get(engine.selected_spell_id, {})
+                    
+                    # 🔥 AOE SPELL (Fireball) - Show red 3x3 preview
+                    if spell_data.get('area_type') == 'area':
+                        area_size = spell_data.get('area_size', 3)
+                        hover_pos = getattr(engine, 'hover_grid_pos', None)
+                        
+                        # 🔥 KEY FIX: Check if hover_pos is valid (not None)
+                        if hover_pos is not None:
+                            
+                            # Get battlefield dimensions
+                            battlefield = combat_data.get("battlefield", {})
+                            dimensions = battlefield.get("dimensions", {"width": 8, "height": 8})
+                            grid_width = dimensions.get("width", 8)
+                            grid_height = dimensions.get("height", 8)
+                        
+                            # Calculate area around hover position
+                            half_size = area_size // 2
+                            
+                            for dx in range(-half_size, half_size + 1):
+                                for dy in range(-half_size, half_size + 1):
+                                    preview_x = hover_pos[0] + dx
+                                    preview_y = hover_pos[1] + dy
+                                    
+                                    # 🔥 Only draw if within battlefield bounds
+                                    if 0 <= preview_x < grid_width and 0 <= preview_y < grid_height:
+                                        screen_x = self.grid_offset_x + (preview_x * self.tile_size)
+                                        screen_y = self.grid_offset_y + (preview_y * self.tile_size)
+                                        
+                                        # Semi-transparent red fill
+                                        red_surface = pygame.Surface((self.tile_size, self.tile_size))
+                                        red_surface.set_alpha(100)  # 40% opacity
+                                        red_surface.fill((255, 0, 0))  # Red
+                                        surface.blit(red_surface, (screen_x, screen_y))
+                                        
+                                        # Red border
+                                        pygame.draw.rect(surface, (255, 0, 0), 
+                                                    (screen_x, screen_y, self.tile_size, self.tile_size), 3)
+                        return  # Done with AOE preview
+                    
+                    # Single-target spell - show cyan highlights on valid targets
+                    border_color = (0, 255, 255); border_width = 3
+                else:
+                    # No spell selected yet - default cyan
+                    border_color = (0, 255, 255); border_width = 3
+            else:
+                border_color = (0, 255, 255); border_width = 3  # Cyan for spell targets
         else:
             return
 
+        # Draw highlighted tiles (for non-AOE or fallback)
         for x, y in highlighted_tiles:
             rect = pygame.Rect(
                 self.grid_offset_x + x * self.tile_size,
