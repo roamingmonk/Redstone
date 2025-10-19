@@ -798,6 +798,7 @@ class CombatEncounter:
             {"id": "attack", "label": "Attack"},
             {"id": "ranged", "label": "Ranged"},
             {"id": "spell", "label": "Cast Spell"},
+            {"id": "action", "label": "Action"},
             {"id": "end_turn", "label": "End Turn"}
         ]
         
@@ -859,6 +860,7 @@ class CombatEncounter:
                     spell_slots_remaining = active_char_state.get('spell_slots_remaining', 0)
                     spells_known = active_char_state.get('spells_known', [])
                     spells_cast = active_char_state.get('spells_cast_this_turn', 0)
+                    has_acted = active_char_state.get('has_acted', False) 
                     
                     # Disable if: no slots, no spells, or already cast this turn
                     if spell_slots_remaining <= 0 or len(spells_known) == 0 or spells_cast >= 1:
@@ -867,6 +869,19 @@ class CombatEncounter:
                         button_state = "active"  # Yellow border - spell mode active
                     else:
                         button_state = "normal"  # Gray border - can cast spells
+                elif action_id == "action":
+                    # Check if character has used their action this turn
+                    has_acted = active_char_state.get('has_acted', False)
+                    spells_cast = active_char_state.get('spells_cast_this_turn', 0)
+                    
+                    # Disable if already used action OR cast spell
+                    if has_acted or spells_cast >= 1:
+                        button_state = "disabled"
+                    elif current_mode == "action":
+                        button_state = "active"  # Yellow border - action mode active
+                    else:
+                        button_state = "normal"  # Gray border - can use action
+
                 elif action_id == "end_turn":
                     button_state = "normal"  # Always available (never "active" since it doesn't toggle)
                 else:
@@ -930,6 +945,50 @@ class CombatEncounter:
                             "action": "SELECT_SPELL",
                             "spell_id": spell_id
                         }
+                        
+                        spell_list_y += 25
+        
+        # If in action mode, show available actions TO THE RIGHT of action buttons
+        if current_mode == "action" and active_character_id:
+            char_state = character_states.get(active_character_id, {})
+            
+            # Get available actions from combat engine
+            if controller and hasattr(controller, 'combat_engine'):
+                available_actions = controller.combat_engine.get_available_actions(active_character_id)
+                if available_actions:
+                    # Draw "SELECT ACTION:" header
+                    action_header_font = fonts.get('fantasy_micro', button_font)
+                    action_header = action_header_font.render("SELECT ACTION:", True, YELLOW)
+                    surface.blit(action_header, (spell_list_x, spell_list_y))
+                    spell_list_y += 25
+                    
+                    # Draw action buttons with smaller font
+                    action_button_font = fonts.get('fantasy_micro', text_font)
+                    for action_data in available_actions:
+                        action_id = action_data.get('id')
+                        action_name = action_data.get('name')
+                        available = action_data.get('available', True)
+                        
+                        # Truncate long action names
+                        if len(action_name) > 14:
+                            action_display = action_name[:12] + ".."
+                        else:
+                            action_display = action_name
+                        
+                        action_button_rect = pygame.Rect(spell_list_x, spell_list_y, 120, 22)
+                        
+                        # Draw action button (gray out if unavailable)
+                        button_state = "normal" if available else "disabled"
+                        draw_combat_button(surface, action_button_rect.x, action_button_rect.y, 
+                                        120, 22, action_display, action_button_font, button_state)
+                        
+                        # Register as clickable (only if available)
+                        if available:
+                            clickable_areas[f"action_{action_id}"] = {
+                                "rect": action_button_rect,
+                                "action": "SELECT_ACTION",
+                                "action_id": action_id
+                            }
                         
                         spell_list_y += 25
                 
@@ -1265,6 +1324,28 @@ def register_combat_system_events(event_manager, game_controller):
                 game_controller.set_action_mode("spell")
                 clear_inspector()  # Clear inspector when starting action
         
+    def handle_action_button(event_data):
+        """Handle ACTION button click - toggle on/off"""
+        if game_controller:
+            current_mode = getattr(game_controller, 'current_action_mode', None)
+            
+            if current_mode == "action":
+                # Already in action mode - toggle OFF
+                print("ACTION button toggled OFF")
+                game_controller.set_action_mode(None)
+            else:
+                # Not in action mode - toggle ON
+                print("ACTION button clicked - switching to action mode")
+                game_controller.set_action_mode("action")
+                clear_inspector()  # Clear inspector when starting action
+    
+    def handle_select_action(event_data):
+        """Handle clicking on a specific action (healing potion, combat surge, etc)"""
+        action_id = event_data.get('action_id')
+        if action_id and game_controller:
+            print(f"🎯 Executing action: {action_id}")
+            game_controller.execute_player_action(action_id)
+                
     def handle_combat_back(event_data):
         """Handle return to previous screen"""
         print("🔙 COMBAT_BACK EVENT HANDLER CALLED!")
@@ -1307,7 +1388,9 @@ def register_combat_system_events(event_manager, game_controller):
     event_manager.register("ATTACK", handle_attack_action)
     event_manager.register("RANGED", handle_ranged_action)
     event_manager.register("SPELL", handle_spell_action)
-    event_manager.register("SELECT_SPELL", handle_spell_select) 
+    event_manager.register("SELECT_SPELL", handle_spell_select)
+    event_manager.register("ACTION", handle_action_button)
+    event_manager.register("SELECT_ACTION", handle_select_action)
     event_manager.register("END_TURN", handle_end_turn_action)
     event_manager.register("GRID_CLICK", handle_grid_click)
     event_manager.register("COMBAT_BACK", handle_combat_back)

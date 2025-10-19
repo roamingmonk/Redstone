@@ -125,7 +125,15 @@ class InputHandler:
                             area_data["rect"].width, area_data["rect"].height),
                     "payload": {"spell_id": spell_id}
                 })
-
+            elif area_id.startswith("action_"):
+                action = area_data.get("action", "SELECT_ACTION")
+                action_id = area_data.get("action_id")
+                regions.append({
+                    "action": action,
+                    "rect": (area_data["rect"].x, area_data["rect"].y,
+                            area_data["rect"].width, area_data["rect"].height),
+                    "payload": {"action_id": action_id}
+                })
             elif area_id == "back_button":
                 regions.append({
                     "action": "COMBAT_BACK",

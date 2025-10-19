@@ -1742,6 +1742,7 @@ class CombatEngine:
                     
                     # Reset action flags for this character
                     char_state['has_moved'] = False
+                    char_state['has_acted'] = False
                     char_state['attacks_used'] = 0
                     char_state['spells_cast_this_turn'] = 0 
                     
@@ -2805,6 +2806,66 @@ class CombatEngine:
         
         return available_spells
     
+    # def get_available_actions(self, character_id: str) -> list:
+    #     """
+    #     Get list of actions character can currently use
+    #     Returns list of dicts with action info
+    #     """
+    #     if character_id not in self.character_states:
+    #         return []
+        
+    #     char_state = self.character_states[character_id]
+    #     char_data = char_state.get('character_data', {})
+        
+    #     available_actions = []
+        
+    #     # ACTION 1: Healing Potion (if party has any)
+    #     healing_potion_count = self._get_party_item_count('healing_potion')
+    #     if healing_potion_count > 0:
+    #         available_actions.append({
+    #             'id': 'use_healing_potion',
+    #             'name': f'Healing Potion ({healing_potion_count})',
+    #             'description': 'Restores 2d4+2 HP',
+    #             'available': True
+    #         })
+        
+    #     # ACTION 2: Combat Surge (Fighter only, once per day)
+    #     abilities = char_data.get('abilities', [])
+    #     if 'Combat Surge' in abilities:
+    #         # Check if already used today (we'll track in character state)
+    #         combat_surge_used = char_state.get('combat_surge_used_today', False)
+    #         available_actions.append({
+    #             'id': 'combat_surge',
+    #             'name': 'Combat Surge',
+    #             'description': 'Take an extra action this turn',
+    #             'available': not combat_surge_used
+    #         })
+        
+    #     # ACTION 3: Second Wind (Fighter only, once per short rest)
+    #     if 'Second Wind' in abilities:
+    #         second_wind_used = char_state.get('second_wind_used', False)
+    #         available_actions.append({
+    #             'id': 'second_wind',
+    #             'name': 'Second Wind',
+    #             'description': 'Regain 1d10 + Fighter level HP',
+    #             'available': not second_wind_used
+    #         })
+        
+    #     return available_actions
+    
+    # def _get_party_item_count(self, item_id: str) -> int:
+    #     """Get count of specific item in party inventory"""
+    #     inventory = self.game_state.inventory
+        
+    #     # Check consumables category
+    #     consumables = inventory.get('consumables', [])
+    #     count = 0
+    #     for item in consumables:
+    #         if item == item_id:
+    #             count += 1
+        
+    #     return count
+
     def _get_spell_targets(self, spell_id: str) -> list:
         """Get valid target positions for a spell"""
         if not self.active_character_id:
@@ -3153,6 +3214,232 @@ class CombatEngine:
                 # Check victory
                 if self._check_victory_conditions():
                     self._handle_combat_victory()
+
+    # ============ ACTION SYSTEM (Healing Potions, Class Abilities) ============
+    
+    def get_available_actions(self, character_id: str) -> list:
+        """Get available actions from character's abilities and inventory"""
+        if character_id not in self.character_states:
+            return []
+        
+        char_state = self.character_states[character_id]
+        char_data = char_state.get('character_data', {})
+        available_actions = []
+        
+        # 1. CONSUMABLE ITEMS - Healing potions from inventory
+        healing_potion_count = self._get_party_item_count('healing_potion')
+        if healing_potion_count > 0 and self.item_manager:
+            item_def = self.item_manager.get_item_by_id('healing_potion')
+            if item_def and item_def.get('consumable_effects'):
+                available_actions.append({
+                    'id': 'use_healing_potion',
+                    'name': f"Healing Potion ({healing_potion_count})",
+                    'description': item_def['consumable_effects'].get('description', 'Restores HP'),
+                    'available': True,
+                    'source': 'item',
+                    'item_def': item_def
+                })
+        
+        # 2. CLASS ABILITIES - From character_classes.json
+        char_class = char_data.get('class', 'fighter')
+        class_data = self._load_class_data_from_json(char_class)
+        feature_descriptions = class_data.get('feature_descriptions', {})
+        current_abilities = char_data.get('abilities', [])
+        
+        for ability_name in current_abilities:
+            if ability_name in feature_descriptions:
+                feature = feature_descriptions[ability_name]
+                combat_action = feature.get('combat_action', {})
+                
+                if combat_action.get('enabled', False):
+                    state_key = ability_name.lower().replace(' ', '_')
+                    is_available = self._is_ability_available(state_key, combat_action, char_state)
+                    
+                    available_actions.append({
+                        'id': state_key,
+                        'name': ability_name,
+                        'description': feature.get('description', ''),
+                        'available': is_available,
+                        'source': 'class_ability',
+                        'combat_action': combat_action
+                    })
+        
+        return available_actions
+    
+    def _is_ability_available(self, state_key: str, combat_action: dict, char_state: dict) -> bool:
+        """Check if ability can be used"""
+        usage_limit = combat_action.get('usage_limit', 'unlimited')
+        
+        if usage_limit == 'once_per_day':
+            return not char_state.get(f'{state_key}_used_today', False)
+        elif usage_limit == 'once_per_short_rest':
+            return not char_state.get(f'{state_key}_used', False)
+        elif usage_limit == 'unlimited':
+            return True
+        return True
+    
+    def _get_party_item_count(self, item_id: str) -> int:
+        """Get count of item in party inventory"""
+        return self.game_state.inventory.get('consumables', []).count(item_id)
+    
+    def _load_class_data_from_json(self, char_class: str) -> dict:
+        """Load class data from character_classes.json"""
+        try:
+            import os, json
+            classes_path = os.path.join('data', 'player', 'character_classes.json')
+            with open(classes_path, 'r') as f:
+                data = json.load(f)
+                return data.get('character_classes', {}).get(char_class, {})
+        except Exception as e:
+            print(f"❌ Error loading class data: {e}")
+            return {}
+    
+    def execute_player_action(self, action_id: str) -> bool:
+        """Execute special action - routes to appropriate handler"""
+        if not self.active_character_id:
+            return False
+        
+        char_state = self.character_states[self.active_character_id]
+        char_data = char_state.get('character_data', {})
+        char_name = char_state.get('name', 'Character')
+        
+        # Find the action
+        available_actions = self.get_available_actions(self.active_character_id)
+        action_data = next((a for a in available_actions if a['id'] == action_id), None)
+        
+        if not action_data:
+            return False
+        
+        # Route based on source
+        if action_data['source'] == 'item':
+            return self._execute_item_action(action_data, char_state, char_data, char_name)
+        elif action_data['source'] == 'class_ability':
+            return self._execute_class_ability(action_data, char_state, char_data, char_name)
+        
+        return False
+    
+    def _execute_item_action(self, action_data, char_state, char_data, char_name):
+        """Use healing potion - reuses existing _roll_damage()"""
+        item_def = action_data.get('item_def', {})
+        healing_dice = item_def.get('consumable_effects', {}).get('healing', '2d4+2')
+        
+        # Roll healing amount
+        heal_amount = self._roll_damage(healing_dice)
+        
+        # Get character ID
+        char_id = char_data.get('id')
+        
+        print(f"🔍 DEBUG: char_id = '{char_id}'")
+        
+        # ALWAYS read from live game_state, never from combat snapshot
+        if char_id == 'player':
+            # Player character - read from game_state.character
+            current_hp = self.game_state.character.get('current_hp', 10)
+            max_hp = self.game_state.character.get('hit_points', 10)
+            
+            print(f"🔍 DEBUG Player healing:")
+            print(f"   current_hp from game_state: {current_hp}")
+            print(f"   max_hp from game_state: {max_hp}")
+            print(f"   heal_amount rolled: {heal_amount}")
+            
+            new_hp = min(current_hp + heal_amount, max_hp)
+            actual_healing = new_hp - current_hp
+            
+            # Update live game state
+            self.game_state.character['current_hp'] = new_hp
+            # ALSO update combat snapshot
+            char_data['current_hp'] = new_hp
+            
+            print(f"   new_hp: {new_hp}")
+            print(f"   actual_healing: {actual_healing}")
+            
+        else:
+            # Party member - find in party_member_data
+            target_member = None
+            for party_member in self.game_state.party_member_data:
+                if party_member.get('id') == char_id:
+                    target_member = party_member
+                    break
+            
+            if target_member:
+                current_hp = target_member.get('current_hp', 10)
+                max_hp = target_member.get('max_hit_points', target_member.get('hit_points', 10))
+                new_hp = min(current_hp + heal_amount, max_hp)
+                actual_healing = new_hp - current_hp
+                
+                # Update live game state
+                target_member['current_hp'] = new_hp
+                # ALSO update combat snapshot
+                char_data['current_hp'] = new_hp
+            else:
+                print(f"❌ ERROR: Party member {char_id} not found!")
+                return False
+        
+        # Remove potion from inventory
+        consumables = self.game_state.inventory.get('consumables', [])
+        if 'healing_potion' in consumables:
+            consumables.remove('healing_potion')
+        
+        self._add_to_combat_log(f"{char_name} drinks a healing potion!")
+        self._add_to_combat_log(f"Healed for {actual_healing} HP ({current_hp} -> {new_hp})")
+        
+        char_state['has_acted'] = True
+        self.set_action_mode(None)
+        return True
+
+    def _execute_class_ability(self, action_data, char_state, char_data, char_name):
+        """Execute class ability"""
+        combat_action = action_data.get('combat_action', {})
+        effect_type = combat_action.get('effect_type')
+        state_key = action_data['id']
+        ability_name = action_data['name']
+        
+        if effect_type == 'healing':
+            # REUSE existing _roll_damage method!
+            dice_str = combat_action.get('dice', '1d8')
+            heal_amount = self._roll_damage(dice_str)
+            
+            if combat_action.get('level_bonus'):
+                heal_amount += char_data.get('level', 1)
+            
+            current_hp = char_data.get('current_hp', 10)
+            max_hp = char_data.get('hit_points', 10)
+            new_hp = min(current_hp + heal_amount, max_hp)
+            actual_healing = new_hp - current_hp
+            
+            char_data['current_hp'] = new_hp
+            
+            self._add_to_combat_log(f"{char_name} uses {ability_name}!")
+            self._add_to_combat_log(f"Regained {actual_healing} HP ({current_hp} → {new_hp})")
+            
+            # Mark as used
+            if combat_action.get('usage_limit') == 'once_per_day':
+                char_state[f'{state_key}_used_today'] = True
+            elif combat_action.get('usage_limit') == 'once_per_short_rest':
+                char_state[f'{state_key}_used'] = True
+            
+            if combat_action.get('consumes_action', True):
+                char_state['has_acted'] = True
+            
+        elif effect_type == 'extra_action':
+            # Combat Surge
+            char_state[f'{state_key}_used_today'] = True
+            char_state['has_acted'] = False
+            char_state['attacks_used'] = 0
+            
+            self._add_to_combat_log(f"{char_name} uses {ability_name}!")
+            self._add_to_combat_log("Take another action this turn!")
+            
+        else:
+            # Placeholder for other effects
+            self._add_to_combat_log(f"{char_name} uses {ability_name}!")
+            self._add_to_combat_log("(Effect not yet implemented)")
+            
+            if combat_action.get('consumes_action', True):
+                char_state['has_acted'] = True
+        
+        self.set_action_mode(None)
+        return True
 
 def initialize_combat_engine(game_state, event_manager, save_manager=None, item_manager=None):
     """

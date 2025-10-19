@@ -51,17 +51,66 @@
           "description": "Gain Shield Focus - activate once per day for +1 AC during one combat"
         },
         "level_5": {
-          "features": ["Terror Resistance"],
-          "description": "Gain Terror Resistance - +1 bonus vs fear effects"
+          "features": ["Second Wind"],
+          "description": "Gain ability to heal during combat for 1d10 + constitution modifier"
         }
       },
       "feature_descriptions": {
-        "Fighting Style": "Choose a specialized combat technique that enhances your martial prowess.",
-        "Second Wind": "Regain hit points equal to 1d10 + fighter level once per short rest.",
-        "Combat Surge": "Once per day, take an additional action during combat. Resets after rest.",
-        "Extra Attack": "Make 2 attacks per combat round instead of 1.",
-        "Shield Focus": "Once per day, gain +1 AC for one entire combat encounter.",
-        "Terror Resistance": "+1 bonus to saving throws against fear effects."
+        "Fighting Style": {
+          "description": "Choose a specialized combat technique that enhances your martial prowess.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Second Wind": {
+          "description": "Regain hit points equal to 1d10 + fighter level once per short rest.",
+          "combat_action": {
+            "enabled": true,
+            "effect_type": "healing",
+            "dice": "1d10",
+            "level_bonus": true,
+            "usage_limit": "once_per_short_rest",
+            "consumes_action": true,
+            "target": "self"
+          }
+        },
+        "Combat Surge": {
+          "description": "Once per day, take an additional action during combat. Resets after rest.",
+          "combat_action": {
+            "enabled": true,
+            "effect_type": "extra_action",
+            "usage_limit": "once_per_day",
+            "consumes_action": false,
+            "target": "self"
+          }
+        },
+        "Extra Attack": {
+          "description": "Make 2 attacks per combat round instead of 1.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Shield Focus": {
+          "description": "Once per day, gain +1 AC for one entire combat encounter.",
+          "combat_action": {
+            "enabled": true,
+            "effect_type": "buff",
+            "ac_bonus": 1,
+            "duration": "combat",
+            "usage_limit": "once_per_day",
+            "consumes_action": true,
+            "target": "self"
+          }
+        },
+        "Terror Resistance": {
+          "description": "+1 bonus to saving throws against fear effects.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        }
       },
       "proficiencies": {
         "armor": ["Light Armor", "Medium Armor", "Heavy Armor", "Shields"],
@@ -122,6 +171,50 @@
         "level_5": {
           "features": ["Arcane Ward"],
           "description": "Gain Arcane Ward - magical protection against damage"
+        }
+      },
+      "feature_descriptions": {
+        "Spellcasting": {
+          "description": "Cast arcane spells from your spellbook.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Arcane Recovery": {
+          "description": "Once per day during a short rest, recover expended spell slots.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Arcane Tradition": {
+          "description": "Choose your school of magic specialization.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Cantrip Formulas": {
+          "description": "Learn additional cantrip versatility.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Spell Focus": {
+          "description": "+1 to spell attack rolls and save DCs.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Arcane Ward": {
+          "description": "Magical protection against damage.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
         }
       },
       "spellcasting": {
@@ -196,6 +289,63 @@
           "description": "Gain Uncanny Dodge - halve damage from one attack per turn"
         }
       },
+      "feature_descriptions": {
+        "Expertise": {
+          "description": "Double proficiency bonus for two skills.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Sneak Attack": {
+          "description": "Deal extra damage when you have advantage.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Thieves' Cant": {
+          "description": "Secret language of thieves and rogues.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Cunning Action": {
+          "description": "Dash, disengage, or hide as a bonus action.",
+          "combat_action": {
+            "enabled": true,
+            "effect_type": "bonus_action",
+            "usage_limit": "unlimited",
+            "consumes_action": false,
+            "target": "self"
+          }
+        },
+        "Roguish Archetype": {
+          "description": "Choose your roguish specialization.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Improved Sneak Attack": {
+          "description": "Sneak Attack damage increases to 2d6.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Uncanny Dodge": {
+          "description": "Halve damage from one attack per turn.",
+          "combat_action": {
+            "enabled": true,
+            "effect_type": "defensive_reaction",
+            "usage_limit": "once_per_turn",
+            "consumes_action": false,
+            "target": "self"
+          }
+        }
+      },
       "proficiencies": {
         "armor": ["Light Armor"],
         "weapons": ["Simple Weapons", "Hand Crossbows", "Longswords", "Rapiers", "Shortswords"],
@@ -254,6 +404,57 @@
         "level_5": {
           "features": ["Blessed Recovery"],
           "description": "Regain spell slots more efficiently during rest"
+        }
+      },
+      "feature_descriptions": {
+        "Spellcasting": {
+          "description": "Cast divine spells granted by your deity.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Divine Domain": {
+          "description": "Choose your divine specialization.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Channel Divinity": {
+          "description": "Harness divine energy once per rest.",
+          "combat_action": {
+            "enabled": true,
+            "effect_type": "channel_divinity",
+            "usage_limit": "once_per_short_rest",
+            "consumes_action": true,
+            "target": "special"
+          }
+        },
+        "Destroy Undead": {
+          "description": "Channel Divinity can destroy undead.",
+          "combat_action": {
+            "enabled": true,
+            "effect_type": "turn_undead",
+            "range": 6,
+            "usage_limit": "channel_divinity",
+            "consumes_action": true,
+            "target": "area"
+          }
+        },
+        "Divine Strike": {
+          "description": "Weapon attacks deal additional radiant damage.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
+        },
+        "Blessed Recovery": {
+          "description": "Regain spell slots more efficiently during rest.",
+          "combat_action": {
+            "enabled": false,
+            "passive": true
+          }
         }
       },
       "spellcasting": {

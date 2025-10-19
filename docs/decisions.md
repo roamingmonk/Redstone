@@ -2108,6 +2108,14 @@ Combat log more readable during intense encounters
 **Consequences:** Add spells.json, and updated combat_engine, combat_system, input_manager to link spell system.  partially implemented. Only cure wounds work, but only healing player. 
 **Next steps :** Need to fix incomplete implementation,  apply range spell damage spells (fireball), remove technical debt.
 
+# ADR-134: Combat Action System
+# Status: Accepted
+# Date: October 19, 2025
+**Context:** Combat lacked mechanism for class abilities and consumable item usage beyond basic attacks/spells.
+**Decision:** Implemented data-driven Action button that reads abilities from character_classes.json and items from inventory, displaying available actions based on usage limits.
+**Implementation:** Added Action button to combat UI; enhanced character_classes.json with combat_action metadata; created get_available_actions() and execute_player_action() methods; made Action and Spell mutually exclusive.
+**Consequences:** Abilities now add via JSON edits only; healing potions usable in combat; action economy properly enforced (Move + one offensive action per turn).
+Files Modified: combat_system.py, combat_engine.py, character_classes.json, input_handler.py
 
 
 
