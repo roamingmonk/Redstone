@@ -175,3 +175,114 @@ def get_character_color(character_name, is_player=False):
         'lyra': (47, 79, 47),       # Dark Green - Thief
     }
     return colors.get(character_name, GRAY)
+
+def draw_compact_party_panel(surface, game_state, panel_x, panel_y, 
+                             portrait_size=60, selected_member=None):
+    """
+    Draw compact 4-portrait vertical party panel (reusable for any overlay)
+    
+    Args:
+        surface: pygame surface to draw on
+        game_state: game state reference
+        panel_x: X position for panel
+        panel_y: Y position for panel
+        portrait_size: size of each portrait (default 60x60)
+        selected_member: ID of selected party member for highlighting
+        
+    Returns:
+        dict: {member_id: pygame.Rect} for click detection
+    """
+    portrait_spacing = 5
+    portrait_rects = {}
+    
+    # Build party list (player + up to 3 NPCs)
+    party_list = ['player'] + list(game_state.party_members)[:3]
+    
+    for i in range(4):
+        portrait_y = panel_y + (i * (portrait_size + portrait_spacing))
+        
+        if i < len(party_list):
+            member_id = party_list[i]
+            is_player = (member_id == 'player')
+            
+            # Draw portrait
+            portrait = load_portrait(member_id, is_player)
+            
+            if portrait:
+                # Scale to specified size
+                portrait = pygame.transform.scale(portrait, (portrait_size, portrait_size))
+                surface.blit(portrait, (panel_x, portrait_y))
+            else:
+                # Fallback color
+                color = get_character_color(member_id, is_player)
+                pygame.draw.rect(surface, color, (panel_x, portrait_y, portrait_size, portrait_size))
+            
+            # Draw HP bar inside portrait
+            _draw_compact_hp_bar(surface, panel_x, portrait_y, portrait_size, 
+                               member_id, game_state, is_player)
+            
+            # Selection highlight (yellow border if selected)
+            if selected_member == member_id:
+                pygame.draw.rect(surface, (255, 255, 0), 
+                               (panel_x - 2, portrait_y - 2, portrait_size + 4, portrait_size + 4), 3)
+            else:
+                # Normal white border
+                pygame.draw.rect(surface, WHITE, (panel_x, portrait_y, portrait_size, portrait_size), 2)
+            
+            # Store clickable rect
+            portrait_rects[member_id] = pygame.Rect(panel_x, portrait_y, portrait_size, portrait_size)
+        else:
+            # Empty slot (grayed out)
+            pygame.draw.rect(surface, GRAY, (panel_x, portrait_y, portrait_size, portrait_size))
+            pygame.draw.rect(surface, WHITE, (panel_x, portrait_y, portrait_size, portrait_size), 2)
+    
+    return portrait_rects
+
+
+def _draw_compact_hp_bar(surface, portrait_x, portrait_y, portrait_size, 
+                        member_id, game_state, is_player):
+    """Draw HP bar inside compact portrait"""
+    # Get HP values
+    if is_player:
+        current_hp = game_state.character.get('current_hp', 10)
+        max_hp = game_state.character.get('hit_points', 10)
+    else:
+        current_hp = 10
+        max_hp = 10
+        for member in game_state.party_member_data:
+            if member.get('id') == member_id:
+                current_hp = member.get('current_hp', 10)
+                max_hp = member.get('hp', member.get('hit_points', 10))
+                break
+    
+    # Calculate HP percentage
+    hp_percent = (current_hp / max_hp * 100) if max_hp > 0 else 0
+    
+    # Color-code (matching character sheet)
+    if hp_percent > 66:
+        hp_color = BRIGHT_GREEN
+    elif hp_percent > 33:
+        hp_color = (255, 223, 0)  # SOFT_YELLOW
+    else:
+        hp_color = (255, 0, 0)  # RED
+    
+    # Bar dimensions (inside portrait)
+    bar_width = portrait_size - 8
+    bar_height = 4
+    bar_x = portrait_x + 4
+    bar_y = portrait_y + portrait_size - bar_height - 4
+    
+    # Black background
+    pygame.draw.rect(surface, (0, 0, 0), (bar_x, bar_y, bar_width, bar_height))
+    
+    # Dark gray background
+    pygame.draw.rect(surface, (40, 40, 40), (bar_x + 1, bar_y + 1, bar_width - 2, bar_height - 2))
+    
+    # Color-coded HP
+    if max_hp > 0:
+        hp_fraction = current_hp / max_hp
+        filled_width = int((bar_width - 2) * hp_fraction)
+        pygame.draw.rect(surface, hp_color, (bar_x + 1, bar_y + 1, filled_width, bar_height - 2))
+    
+    # White border
+    pygame.draw.rect(surface, WHITE, (bar_x, bar_y, bar_width, bar_height), 1)

@@ -11,9 +11,10 @@ ARCHITECTURE BREAKTHROUGH:
 - ZERO PlayerManager dependencies!
 """
 
-from typing import List, Dict, Optional, Tuple
-from datetime import datetime
 import pygame
+from typing import List, Dict, Optional, Tuple, Any
+from datetime import datetime
+from utils.constants import (GREEN)
 
 class InventoryEngine:
     """
@@ -23,7 +24,7 @@ class InventoryEngine:
     Uses pure GameState authority - no competing data sources!
     """
     
-    def __init__(self, game_state_ref, item_manager_ref):
+    def __init__(self, game_state_ref, item_manager_ref, event_manager_ref=None):
         """
         Initialize inventory engine with GameState authority
         
@@ -31,9 +32,16 @@ class InventoryEngine:
             game_state_ref: Reference to GameState (THE data authority)
             item_manager_ref: Reference to ItemManager for item templates
         """
+
+        print(f"🔍 DEBUG InventoryEngine.__init__ called:")
+        print(f"   game_state_ref: {game_state_ref is not None}")
+        print(f"   item_manager_ref: {item_manager_ref is not None}")
+        print(f"   event_manager_ref: {event_manager_ref}")
+
         self.game_state = game_state_ref  # THE single source of truth
         self.item_manager = item_manager_ref #used to store the reference
-        
+        self.event_manager = event_manager_ref  # Store event manager
+
         # Equipment slot configuration (expandable design)
         self.equipment_slots = {
             'weapon': {'display_name': 'Weapon', 'category': 'weapons'},
@@ -45,8 +53,12 @@ class InventoryEngine:
         #print("   📋 Data Authority: GameState")
         print("   🏪 Item Source: ItemManager")
     
-        if hasattr(game_state_ref, 'event_manager'):
-            self._register_inventory_events(game_state_ref.event_manager)
+        # Register events if event_manager provided
+        if event_manager_ref:
+            self._register_inventory_events(event_manager_ref)
+
+        # if hasattr(game_state_ref, 'event_manager'):
+        #     self._register_inventory_events(game_state_ref.event_manager)
 
     # ==========================================
     # CORE INVENTORY OPERATIONS
@@ -241,31 +253,132 @@ class InventoryEngine:
             print(f"❌ Error unequipping item: {e}")
             return False
     
-    def consume_item(self, item_id: str) -> bool:
+    def consume_item(self, item_id: str, target_member_id: str = None) -> dict:
         """
-        Consume an item (remove one from inventory)
-        Args:item_id: ID of item to consume
-        Returns:bool: True if successful
+        Consume an item and apply its effects
+        
+        Args:
+            item_id: ID of item to consume
+            target_member_id: ID of party member to apply effect to ('player', 'gareth', etc.)
+            
+        Returns:
+            dict: Results including success, effect_type, amount, target
         """
         try:
-            # Check consumables and items categories
+            # Get item template to check consumable effects
+            item_template = self._get_item_template(item_id)
+            if not item_template:
+                return {'success': False, 'message': 'Unknown item'}
+            
+            # Check if item exists in inventory
+            found_in_category = None
             for category in ['consumables', 'items']:
                 if item_id in self.game_state.inventory.get(category, []):
-                    self.game_state.inventory[category].remove(item_id)
-                    
-                    # Track consumption statistics - simplified
-                    current = self.game_state.player_statistics.get('items_consumed', 0)
-                    self.game_state.player_statistics['items_consumed'] = current + 1
-                    
-                    print(f"🍺 Consumed: {item_id}")
-                    return True
+                    found_in_category = category
+                    break
             
-            print(f"⚠️ Cannot consume {item_id} - not found")
-            return False
+            if not found_in_category:
+                return {'success': False, 'message': 'Item not in inventory'}
+            
+            # Get consumable effects
+            consumable_effects = item_template.get('consumable_effects', {})
+            if not consumable_effects:
+                return {'success': False, 'message': 'Item is not consumable'}
+            
+            # Check if target is specified for targeted effects
+            if 'healing' in consumable_effects and not target_member_id:
+                return {'success': False, 'message': 'Select party member'}
+            
+            # Apply effects based on type
+            result = {'success': True, 'effects': []}
+            
+            # Handle healing
+            if 'healing' in consumable_effects:
+                healing_formula = consumable_effects['healing']
+                healing_result = self._apply_healing(healing_formula, target_member_id)
+                result['effects'].append(healing_result)
+            
+            # Remove item from inventory
+            self.game_state.inventory[found_in_category].remove(item_id)
+            
+            # Track consumption statistics
+            current = self.game_state.player_statistics.get('items_consumed', 0)
+            self.game_state.player_statistics['items_consumed'] = current + 1
+            
+            item_name = item_template.get('name', item_id)
+            print(f"🍺 Consumed: {item_name}")
+            
+            return result
             
         except Exception as e:
             print(f"❌ Error consuming item: {e}")
-            return False
+            import traceback
+            traceback.print_exc()
+            return {'success': False, 'message': f'Error: {e}'}
+    
+    #TODO should we centralize healing ??
+    def _apply_healing(self, healing_formula: str, target_member_id: str) -> dict:
+        """
+        Apply healing to a party member using dice notation
+        
+        Args:
+            healing_formula: Dice notation (e.g., "2d4+2")
+            target_member_id: ID of target ('player', 'gareth', etc.)
+            
+        Returns:
+            dict: Healing details
+        """
+        from utils.dice_roller import roll_dice, format_roll_result
+        
+        # Roll healing amount
+        total, rolls, modifier = roll_dice(healing_formula)
+        
+        # Get target's current and max HP
+        if target_member_id == 'player':
+            current_hp = self.game_state.character.get('current_hp', 10)
+            max_hp = self.game_state.character.get('hit_points', 10)
+            target_name = self.game_state.character.get('name', 'Player')
+        else:
+            # Find party member
+            current_hp = 0
+            max_hp = 0
+            target_name = target_member_id
+            for member in self.game_state.party_member_data:
+                if member.get('id') == target_member_id:
+                    current_hp = member.get('current_hp', 10)
+                    max_hp = member.get('hp', member.get('hit_points', 10))
+                    target_name = member.get('name', target_member_id)
+                    break
+        
+        # Calculate actual healing (can't exceed max HP)
+        old_hp = current_hp
+        new_hp = min(current_hp + total, max_hp)
+        actual_healing = new_hp - old_hp
+        
+        # Apply healing to game state
+        if target_member_id == 'player':
+            self.game_state.character['current_hp'] = new_hp
+        else:
+            for member in self.game_state.party_member_data:
+                if member.get('id') == target_member_id:
+                    member['current_hp'] = new_hp
+                    break
+        
+        # Console output
+        roll_str = format_roll_result(healing_formula, total, rolls, modifier)
+        print(f"🎲 Healing Roll: {roll_str}")
+        print(f"💚 {target_name}: {old_hp}/{max_hp} HP → {new_hp}/{max_hp} HP (+{actual_healing} HP)")
+        
+        return {
+            'type': 'healing',
+            'target': target_name,
+            'target_id': target_member_id,
+            'amount': actual_healing,
+            'rolled': total,
+            'old_hp': old_hp,
+            'new_hp': new_hp,
+            'max_hp': max_hp
+        }
     
     def discard_item(self, item_id: str) -> bool:
         """  Discard an item permanently with validation
@@ -346,17 +459,62 @@ class InventoryEngine:
                 print(f"⚠️ Could not find item ID for: {selected_item_name}")
 
     def handle_inventory_consume_event(self, event_data):
-        """Handle INVENTORY_CONSUME_ITEM event"""
-        selected_item_name = getattr(self.game_state, 'inventory_selected', None)
-        if selected_item_name:
-            item_id = self._find_item_id_by_name(selected_item_name)  # FIXED TYPO
-            if item_id:
-                success = self.consume_item(item_id)
-                if success:
-                    # Clear selection if no more of that item
-                    current_items = self.game_state.get_items_by_category('consumables')
-                    if item_id not in current_items:
-                        self.game_state.inventory_selected = None
+        """Handle INVENTORY_CONSUME_ITEM event with party targeting"""
+        try:
+            selected_item = self.game_state.inventory_selected
+            if not selected_item:
+                print("⚠️ No item selected to consume")
+                self.game_state.inventory_status_message = "Select an item first"
+                self.game_state.inventory_status_time = pygame.time.get_ticks()
+                return
+            
+            # Get selected party member from event data
+            selected_party_member = event_data.get('target_member_id')
+            
+            if not selected_party_member:
+                print("⚠️ No party member selected for consumable")
+                self.game_state.inventory_status_message = "Select Party Member"
+                self.game_state.inventory_status_time = pygame.time.get_ticks()
+                return
+            
+            # Consume item with targeting
+            result = self.consume_item(selected_item, selected_party_member)
+            
+            if result.get('success'):
+                # Clear selection after successful consumption
+                self.game_state.inventory_selected = None
+                
+                # Get healing details for floating text
+                effects = result.get('effects', [])
+                if effects:
+                    healing_effect = effects[0]  # First effect
+                    target_name = healing_effect.get('target', 'Character')
+                    amount = healing_effect.get('amount', 0)
+                    
+                   # Trigger floating text notification
+                    if self.event_manager:
+                        print(f"🎯 DEBUG: Emitting SHOW_FLOATING_TEXT event for {target_name} +{amount} HP")
+                        self.event_manager.emit("SHOW_FLOATING_TEXT", {
+                            'text': f"+{amount} HP",
+                            'color': GREEN,  
+                            'duration': 2000
+                        })
+                    
+                    print(f"✅ Successfully consumed item on {target_name}")
+                else:
+                    print(f"✅ Successfully consumed item")
+                    
+            else:
+                # Show error message
+                message = result.get('message', 'Cannot consume item')
+                self.game_state.inventory_status_message = message
+                self.game_state.inventory_status_time = pygame.time.get_ticks()
+                print(f"❌ Consumption failed: {message}")
+                
+        except Exception as e:
+            print(f"❌ Error in consume event handler: {e}")
+            import traceback
+            traceback.print_exc()
 
     def handle_inventory_discard_event(self, event_data):
         """Handle INVENTORY_DISCARD_ITEM event"""
@@ -532,16 +690,15 @@ def initialize_inventory_engine(game_state_ref, item_manager_ref, event_manager_
         event_manager_ref: Reference to EventManager for event registration
     """
     global inventory_engine
-    inventory_engine = InventoryEngine(game_state_ref, item_manager_ref)
-    
-    # Register inventory events if EventManager is provided
-    if event_manager_ref:
-        inventory_engine._register_inventory_events(event_manager_ref)
-        print("✅ InventoryEngine events registered with EventManager")
-    else:
-        print("⚠️ InventoryEngine initialized without EventManager - events not registered")
+    inventory_engine = InventoryEngine(game_state_ref, item_manager_ref, event_manager_ref)
     
     print("🔧 Initialized InventoryEngine with Single Data Authority pattern")
+    
+    if event_manager_ref:
+        print("✅ InventoryEngine initialized with EventManager")
+    else:
+        print("⚠️ InventoryEngine initialized without EventManager")
+    
     return inventory_engine
 
 

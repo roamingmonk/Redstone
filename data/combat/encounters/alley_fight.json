@@ -7,11 +7,32 @@
   "enemies": [
     {
       "enemy_id": "thief_common",
-      "position": [1, 6],
+      "position": [11, 1],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "kobold",
+      "position": [10, 1],
+      "facing": "west",
+      "ai_behavior": "ranged_preference"
+    },
+    {
+      "enemy_id": "kobold",
+      "position": [5, 1],
+      "facing": "west",
+      "ai_behavior": "ranged_preference"
+    },
+    {
+      "enemy_id": "kobold",
+      "position": [2, 2],
+      "facing": "west",
+      "ai_behavior": "ranged_preference"
+    },
+    {
+      "enemy_id": "shadow_ghost",
+      "position": [9, 1],
       "facing": "west"
     }
-  
-    
   ],
   "player_party": {
     "starting_positions": [

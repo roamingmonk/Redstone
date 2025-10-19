@@ -1620,38 +1620,6 @@ class CharacterEngine:
         
         print("✅ Character data validated successfully")
         return True
-#TODO where is this character summary used???    
-    # def get_character_summary(self):
-    #     """
-    #     Get formatted character summary for display
-        
-    #     Returns:
-    #         dict: Character summary data
-    #     """
-    #     char = self.game_state.character
-        
-    #     summary = {
-    #         'name': char.get('name', 'Unknown'),
-    #         'class': char.get('class', 'fighter').title(),
-    #         'level': char.get('level', 1),
-    #         'hit_points': char.get('hit_points', 10),
-    #         'experience': char.get('experience', 0),
-    #         'stats': {
-    #             'Strength': char.get('strength', 10),
-    #             'Dexterity': char.get('dexterity', 10),
-    #             'Constitution': char.get('constitution', 10),
-    #             'Intelligence': char.get('intelligence', 10),
-    #             'Wisdom': char.get('wisdom', 10),
-    #             'Charisma': char.get('charisma', 10)
-    #         },
-    #         'equipment': {
-    #             'weapon': char.get('equipped_weapon', None),
-    #             'armor': char.get('equipped_armor', None),
-    #             'shield': char.get('equipped_shield', None)
-    #         }
-    #     }
-        
-    #     return summary
 
     def _handle_xp_award(self, event_data):
         """Handle XP_AWARDED events from quest/combat/discovery systems"""

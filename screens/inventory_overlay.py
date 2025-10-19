@@ -11,6 +11,7 @@ from utils.overlay_utils import (
     draw_popup_background, draw_chunky_border, draw_tab_button,
     draw_item_row, draw_button, SELECTION_COLOR
 )
+from utils.party_display import draw_party_portrait, draw_empty_portrait_slot, load_portrait, get_character_color, draw_compact_party_panel
 
 class InventoryOverlay(BaseTabbedOverlay):
     def __init__(self, screen_manager=None, item_manager=None):
@@ -28,7 +29,11 @@ class InventoryOverlay(BaseTabbedOverlay):
         self.button_rects = {}
         self.status_message = ""
         self.status_message_time = 0
-    
+
+        # Consumables tab - party targeting
+        self.party_portrait_rects = {}
+        self.selected_party_member = None
+
     def render_tab_content(self, surface, active_tab, game_state, fonts, images):
         """REQUIRED: Render content for the active tab"""
         try:
@@ -75,6 +80,15 @@ class InventoryOverlay(BaseTabbedOverlay):
         
         # Draw content border
         draw_chunky_border(surface, content_x, content_y, content_width, content_height)
+        
+        # Draw party panel ONLY on consumables tab (must be after border, before table)
+        if current_tab == "consumables":
+            panel_x = content_x + content_width - 80  # 80px from right edge
+            panel_y = content_y + 10
+            self.party_portrait_rects = draw_compact_party_panel(
+                surface, game_state, panel_x, panel_y, 
+                portrait_size= 70, selected_member=self.selected_party_member
+            )
         
         # Table setup using constants
         table_x = content_x + SPACING['margin']
@@ -186,7 +200,12 @@ class InventoryOverlay(BaseTabbedOverlay):
             is_selected = (getattr(game_state, 'inventory_selected', None) == item_name)
             
             # Draw row background (highlighted if selected)
-            row_width = table_width - SPACING['margin']
+            # Shorten on consumables tab to avoid portrait overlap
+            if current_tab == "consumables":
+                row_width = table_width - 180  # Leave room for party portraits
+            else:
+                row_width = table_width - SPACING['margin']
+            
             if is_selected:
                 pygame.draw.rect(surface, SELECTION_COLOR, 
                                 (table_x + 10, current_row_y - 2, row_width, row_height))
@@ -297,7 +316,20 @@ class InventoryOverlay(BaseTabbedOverlay):
             print("⚠️ Cannot access game_state from inventory overlay")
             return False
         
-        # Handle item selection clicks (THIS WAS MISSING!)
+        # Check party portrait clicks (CONSUMABLES TAB ONLY)
+        if game_state.inventory_tab == "consumables":
+            for member_id, portrait_rect in self.party_portrait_rects.items():
+                if portrait_rect.collidepoint(mouse_pos):
+                    # Toggle selection
+                    if self.selected_party_member == member_id:
+                        self.selected_party_member = None  # Deselect
+                        print(f"🎯 Deselected party member: {member_id}")
+                    else:
+                        self.selected_party_member = member_id  # Select
+                        print(f"🎯 Selected party member: {member_id}")
+                    return True
+
+        # Handle item selection clicks
         for i, item_rect in enumerate(self.item_rects):
             if item_rect.collidepoint(mouse_pos):
                 if i < len(self.item_names_in_order):
@@ -309,26 +341,53 @@ class InventoryOverlay(BaseTabbedOverlay):
                         game_state.inventory_selected = selected_item  # Select
                     return True
 
-               # CHECK ACTION BUTTONS (THIS WAS COMPLETELY MISSING!)
+               # CHECK ACTION BUTTONS 
         if hasattr(self, 'button_rects'):
             for button_name, button_rect in self.button_rects.items():
                 if button_rect and button_rect.collidepoint(mouse_pos):
                     print(f"🎯 Button clicked: {button_name}")
                     
-                    # Emit the appropriate event
+                    # SPECIAL HANDLING FOR CONSUME BUTTON
+                    if button_name == 'consume':
+                        selected_item = getattr(game_state, 'inventory_selected', None)
+                        
+                        if not selected_item:
+                            # No item selected
+                            game_state.inventory_status_message = "Select an item first"
+                            game_state.inventory_status_time = pygame.time.get_ticks()
+                            return True
+                        
+                        if not self.selected_party_member:
+                            # No party member selected
+                            game_state.inventory_status_message = "Select Party Member"
+                            game_state.inventory_status_time = pygame.time.get_ticks()
+                            return True
+                        
+                        # Both selected - emit event with target
+                        if hasattr(self, 'screen_manager') and hasattr(self.screen_manager, 'input_handler'):
+                            self.screen_manager.input_handler.event_manager.emit(
+                                'INVENTORY_CONSUME_ITEM', 
+                                {
+                                    'button': button_name, 
+                                    'overlay_type': 'inventory',
+                                    'target_member_id': self.selected_party_member
+                                }
+                            )
+                            # Clear party selection after use
+                            self.selected_party_member = None
+                            return True
+                    
+                    # STANDARD BUTTON HANDLING FOR OTHER BUTTONS
                     if hasattr(self, 'screen_manager') and hasattr(self.screen_manager, 'input_handler'):
                         event_type = None
                         if button_name == 'equip':
                             event_type = 'INVENTORY_EQUIP_ITEM'
                         elif button_name == 'unequip':
                             event_type = 'INVENTORY_UNEQUIP_ITEM'
-                        elif button_name == 'consume':
-                            event_type = 'INVENTORY_CONSUME_ITEM'
                         elif button_name == 'discard':
                             event_type = 'INVENTORY_DISCARD_ITEM'
                         
                         if event_type:
-                            #print(f"🚀 Emitting event: {event_type}")
                             self.screen_manager.input_handler.event_manager.emit(
                                 event_type, 
                                 {'button': button_name, 'overlay_type': 'inventory'}
