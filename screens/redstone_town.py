@@ -11,7 +11,7 @@ from utils.party_display import draw_party_status_panel
 from utils.tile_graphics import get_tile_graphics_manager
 from utils.narrative_schema import narrative_schema
 from data.maps.redstone_town_map import BUILDING_ENTRANCES
-from utils.npc_manager import get_npc_manager
+from utils.world_npc_spawner import get_world_npc_spawner
 
 # Import town map data
 try:
@@ -240,7 +240,7 @@ class RedstoneTownNavigation:
                         
                         # Mark as talked
                         
-                        get_npc_manager().mark_npc_talked(npc_id, game_state)
+                        get_world_npc_spawner().mark_npc_talked(npc_id, game_state)
                     else:
                         # NPC dialogue not implemented yet - use placeholder from data
                         self.showing_temp_message = True

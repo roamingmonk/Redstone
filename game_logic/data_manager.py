@@ -14,7 +14,7 @@ from datetime import datetime
 
 # Import core data managers that do not depend on the game engines
 from game_logic.item_manager import ItemLoader
-from game_logic.npc_manager import NPCManager
+from game_logic.npc_data_loader import NPCDataLoader
 from utils.location_loader import LocationManager
 from game_logic.character_engine import initialize_character_engine
 from game_logic.inventory_engine import initialize_inventory_engine
@@ -49,7 +49,7 @@ class DataManager:
         
         # Data manager instances
         self.item_manager = ItemLoader()
-        self.npc_manager = NPCManager()
+        self.npc_data_loader = NPCDataLoader()
         self.location_manager = LocationManager()
 
         print("🏗️ DataManager initialized - Ready to coordinate all data loading")
@@ -82,7 +82,7 @@ class DataManager:
             self.item_manager.load_data()
             self.system_health['items'] = True
             
-            self.npc_manager.load_data()
+            self.npc_data_loader.load_data()
             self.system_health['npcs'] = True
             
             # Phase 2: Create data summaries
@@ -168,9 +168,9 @@ class DataManager:
                 validation_passed = False
         
         # Validate NPC system  
-        if self.npc_manager and self.system_health['npcs']:
+        if self.npc_data_loader and self.system_health['npcs']:
             try:
-                npc_count = len(getattr(self.npc_manager, 'npcs_data', {}))
+                npc_count = len(getattr(self.npc_data_loader, 'npcs_data', {}))
                 if npc_count == 0:
                     print("⚠️ Warning: No NPCs loaded")
                     validation_passed = False
@@ -217,7 +217,7 @@ class DataManager:
         """
         manager_map = {
             'items': self.item_manager,
-            'npcs': self.npc_manager, 
+            'npcs': self.npc_data_loader, 
             'locations': self.location_manager,
             #'dialogue': self.dialogue_engine,
         }

@@ -4,7 +4,7 @@ Debug Manager - Professional Debug Infrastructure
 Handles all debugging functionality, keeping GameController lean
 """
 import pygame
-from utils.npc_manager import get_npc_manager
+from utils.world_npc_spawner import get_world_npc_spawner
 from screens.redstone_town import _town_navigation_instance
 from utils.narrative_schema import narrative_schema
 
@@ -218,7 +218,7 @@ class DebugManager:
         
         
         print("\n👥 NPC SPAWN CONDITIONS:")
-        npc_mgr = get_npc_manager()
+        npc_mgr = get_world_npc_spawner()
         
         # Check Redstone Town NPCs
         if 'redstone_town' in npc_mgr.location_npcs:
@@ -308,7 +308,7 @@ class DebugManager:
             
             # Show NPC count
             try:
-                npc_mgr = get_npc_manager()
+                npc_mgr = get_world_npc_spawner()
                 active_npcs = npc_mgr.get_active_npcs('redstone_town', self.game_state)
                 lines.append(f"NPCs: {len(active_npcs)} spawned")
             except:

@@ -9,7 +9,7 @@ from utils.constants import *
 from utils.graphics import draw_border, draw_button, draw_centered_text
 from utils.party_display import draw_party_status_panel, PARTY_PANEL_WIDTH
 from utils.tile_graphics import get_tile_graphics_manager
-from utils.npc_manager import get_npc_manager
+from utils.world_npc_spawner import get_world_npc_spawner
 
 def calculate_required_direction(entrance_x, entrance_y, building_pos):
     """
@@ -77,8 +77,8 @@ class NavigationRenderer:
         # Graphics manager
         self.graphics_manager = get_tile_graphics_manager()
 
-        # NPC manager
-        self.npc_manager = get_npc_manager()
+        # world npc spawner
+        self.npc_manager = get_world_npc_spawner()
         self.location_id = config.get('location_id', 'unknown')
 
     def check_valid_entrance(self, player_x, player_y, player_direction):

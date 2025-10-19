@@ -1,10 +1,10 @@
 import json
 import os
 
-class NPCManager:
+class NPCDataLoader:
     """Professional NPC management system for RPG games
-    
-    Handles loading NPC data from JSON files and managing character information.
+    Handles loading NPC data from JSON files for dialogue and recruitment systems.
+    This is the JSON data loader - for world map spawning, see utils/world_npc_spawner.py
     Follows industry-standard separation of data and logic.
     """
     
@@ -102,5 +102,5 @@ class NPCManager:
             return npc['recruitment'].get('success_text', 'They join your party!')
         return 'They join your party!'
 
-# Global NPC manager instance
-npc_manager = NPCManager()
+# Global NPC data loader instance
+npc_data_loader = NPCDataLoader()

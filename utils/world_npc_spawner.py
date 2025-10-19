@@ -1,6 +1,8 @@
-# utils/npc_manager.py
+# utils/world_npc_spawner.py
 """
-NPC Manager - Singleton utility for NPC spawning, state, and interactions
+World NPC Spawner - Singleton utility for tile-based NPC spawning and interactions
+Manages NPC placement, movement, and interactions on tile-based world maps.
+For NPC data loading, see game_logic/npc_data_loader.py
 Follows TileGraphicsManager pattern for consistency
 """
 
@@ -8,7 +10,7 @@ import pygame
 from utils.tile_graphics import get_tile_graphics_manager
 from data.maps.redstone_town_map import get_location_npcs
 
-class NPCManager:
+class WorldNPCSpawner:
     """Manages NPC spawning, state, and interaction across all locations"""
     
     _instance = None
@@ -17,12 +19,12 @@ class NPCManager:
     def __new__(cls):
         """Singleton pattern - ensures single instance"""
         if cls._instance is None:
-            cls._instance = super(NPCManager, cls).__new__(cls)
+            cls._instance = super(WorldNPCSpawner, cls).__new__(cls)
         return cls._instance
     
     def __init__(self):
         # Only initialize once (singleton pattern)
-        if NPCManager._initialized:
+        if WorldNPCSpawner._initialized:
             return
         
         # Cache for loaded NPC definitions per location
@@ -31,8 +33,8 @@ class NPCManager:
         # Sprite cache (reuses TileGraphicsManager for actual sprites    
         self.graphics = get_tile_graphics_manager()
         
-        NPCManager._initialized = True
-        print("👥 NPC Manager initialized (singleton)")
+        WorldNPCSpawner._initialized = True
+        print("👥 World NPC Spawner initialized (singleton)")
     
     def load_location_npcs(self, location_id):
         """
@@ -218,11 +220,11 @@ class NPCManager:
         }
 
 # Singleton accessor
-_npc_manager = None
+_world_npc_spawner = None  
 
-def get_npc_manager():
-    """Get the shared NPC manager instance"""
-    global _npc_manager
-    if _npc_manager is None:
-        _npc_manager = NPCManager()
-    return _npc_manager
+def get_world_npc_spawner():  
+    """Get the shared World NPC Spawner instance"""
+    global _world_npc_spawner  
+    if _world_npc_spawner is None:
+        _world_npc_spawner = WorldNPCSpawner()  
+    return _world_npc_spawner
