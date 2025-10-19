@@ -263,6 +263,56 @@ class CommerceEngine:
         result = mapping.get(item_type, "items")    
         print(f"🛒 DEBUG: Mapped '{item_type}' to '{result}'")
         return result
+    
+    def should_refresh_merchant(self, merchant_id: str) -> bool:
+        """
+        Check if merchant should refresh inventory (day changed since last refresh)
+        Returns True if refresh needed
+        """
+        if not hasattr(self.game_state, 'merchant_last_refresh'):
+            self.game_state.merchant_last_refresh = {}
+            return True  # First time, refresh
+        
+        last_refresh = self.game_state.merchant_last_refresh.get(merchant_id)
+        if not last_refresh:
+            return True  # Never refreshed
+        
+        # Check if day changed using game_state time tracking
+        current_day = getattr(self.game_state, 'current_day', 'monday')
+        last_day = last_refresh.get('day', 'monday')
+        
+        # If day changed, refresh
+        if current_day != last_day:
+            print(f"🔄 Merchant {merchant_id} needs refresh - day changed from {last_day} to {current_day}")
+            return True
+        
+        return False
+    
+    def refresh_merchant_stock(self, merchant_id: str):
+        """
+        Refresh merchant inventory - resets stock to base levels, removes player-sold loot
+        """
+        print(f"🔄 Refreshing merchant stock for: {merchant_id}")
+        
+        # Get base merchant config
+        merchant_data = self._get_merchant_data(merchant_id)
+        if not merchant_data:
+            print(f"❌ Cannot refresh - no merchant data for {merchant_id}")
+            return
+        
+        # Reset stock to base levels (this removes player-sold items)
+        self._initialize_merchant_stock(merchant_id)
+        
+        # Update last refresh time
+        if not hasattr(self.game_state, 'merchant_last_refresh'):
+            self.game_state.merchant_last_refresh = {}
+        
+        self.game_state.merchant_last_refresh[merchant_id] = {
+            'day': getattr(self.game_state, 'current_day', 'monday'),
+            'time': getattr(self.game_state, 'time_of_day', 'day')
+        }
+        
+        print(f"✅ Merchant {merchant_id} refreshed on {self.game_state.current_day}")
             
 
 # ==========================================

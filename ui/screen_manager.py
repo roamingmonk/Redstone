@@ -729,6 +729,18 @@ class ScreenManager:
                     
                     # Store merchant data in game state
                     game_state = self._current_game_controller.game_state
+
+                    # Check if merchant needs refresh (day changed, removes player-sold loot)
+                    commerce_engine = self._current_game_controller.commerce_engine
+                    if commerce_engine and commerce_engine.should_refresh_merchant(merchant_id):
+                        commerce_engine.refresh_merchant_stock(merchant_id)
+                        # Reload merchant inventory after refresh
+                        merchant_inventory = item_manager.get_merchant_inventory(merchant_id)
+                        if merchant_inventory:
+                            merchant_items = merchant_inventory.get('items', [])
+                            merchant_data['items'] = merchant_items
+                            print(f"✅ Merchant {merchant_id} stock refreshed")
+
                     setattr(game_state, 'current_merchant_data', merchant_data)
                     setattr(game_state, 'current_merchant_id', merchant_id)
                     setattr(game_state, 'shopping_return_dialogue', f"{source_location}_{merchant_id}")

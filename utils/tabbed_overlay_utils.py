@@ -422,13 +422,13 @@ class BaseTabbedOverlay:
         pass
     
     def on_overlay_opened(self, game_state):
-        """
-        OVERRIDE THIS: Called when overlay is opened
-        
-        Args:
-            game_state: Current game state
-        """
-        self.is_open = True
+        """Called when shop overlay opens - clear carts for fresh start"""
+        super().on_overlay_opened(game_state)  # Call parent first
+        self.sell_cart.clear()
+        self.sell_cart_total = 0
+        self.buy_page = 0
+        self.sell_page = 0
+        print("🔄 Shopping overlay opened - sell cart cleared")
     
     def on_overlay_closed(self, game_state):
         """

@@ -12,7 +12,7 @@ from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT,
                            LAYOUT_BUTTON_Y, LAYOUT_DIALOG_TEXT_Y, LAYOUT_BUTTON_CENTER_Y)
 from utils.constants import (CORNFLOWER_BLUE, BLACK, WHITE, CYAN, RED, WARNING_RED, SOFT_YELLOW,
                              DARK_GRAY, DARKEST_GRAY, BRIGHT_GREEN, DARK_BROWN)
-from game_logic.item_manager import item_manager  
+from game_logic.item_manager import item_manager, get_rarity_level
 
 # trying to fix get_cart_total pull 
 from game_logic.commerce_engine import get_commerce_engine
@@ -240,17 +240,14 @@ class ShoppingOverlay(BaseTabbedOverlay):
         stock_categories = merchant_config.get('stock_categories', [])
         
         # Title
-        title_y = content_rect.y + 10
+        title_y = content_rect.y + 15
         draw_centered_text(surface, f"Sell Items to {merchant_data['merchant_name']}",
                         fonts.get('fantasy_medium', fonts['normal']), title_y, SOFT_YELLOW)
-        
         # Info text
         info_y = title_y + 35
-        draw_centered_text(surface, f"Buying items at {int(sell_multiplier * 100)}% of value",
-                        fonts.get('fantasy_small', fonts['normal']), info_y, DARK_GRAY)
         
         # Table headers
-        header_y = info_y + 40
+        header_y = info_y + 10
         header_font = fonts.get('fantasy_small', fonts['normal'])
         
         icon_x = content_rect.x + 20
@@ -357,7 +354,8 @@ class ShoppingOverlay(BaseTabbedOverlay):
             surface.blit(qty_surface, (qty_x + 20, current_y))
 
             #Cart Qty    
-            cart_qty = self.sell_cart.get(item_name, 0)
+            item_id = item_data.get('item_id', item_name)
+            cart_qty = self.sell_cart.get(item_id, 0)
             if cart_qty > 0:
                 cart_surface = item_font.render(str(cart_qty), True, BRIGHT_GREEN)
                 surface.blit(cart_surface, (cart_x + 20, current_y))
@@ -386,11 +384,9 @@ class ShoppingOverlay(BaseTabbedOverlay):
             if item_data
         )
         
-        draw_centered_text(surface, f"Your Gold: {player_gold} gp",
-                        fonts.get('fantasy_medium', fonts['normal']), bottom_y, BRIGHT_GREEN)
-        
-        draw_centered_text(surface, f"Sell Total: +{self.sell_cart_total} gp",
-                        fonts.get('fantasy_small', fonts['normal']), bottom_y + 25, SOFT_YELLOW)
+        sell_summary = f"Your Gold: {player_gold} gp  --  Sell Total: +{self.sell_cart_total} gp"
+        draw_centered_text(surface, sell_summary,
+                        fonts.get('fantasy_medium', fonts['normal']), bottom_y + 25, BRIGHT_GREEN)
         
         # Action buttons
         button_y = bottom_y + 60
@@ -562,6 +558,7 @@ class ShoppingOverlay(BaseTabbedOverlay):
 
     def _handle_sell_item_click(self, item_index):
         """Handle clicking on an item to add to sell cart"""
+        print(f"🔍 DEBUG: Current sell_cart contents: {self.sell_cart}") 
         game_state = self.screen_manager._current_game_controller.game_state
         merchant_data = getattr(game_state, 'current_merchant_data', None)
         
@@ -575,15 +572,16 @@ class ShoppingOverlay(BaseTabbedOverlay):
             
             if 0 <= item_index < len(sellable_items):
                 item_data = sellable_items[item_index]
-                item_name = item_data['name']
+                item_id = item_data['item_id']      # ← USE ITEM_ID
+                item_name = item_data['name']        # ← Keep for display
                 
                 # Add to sell cart (max = owned quantity)
                 max_qty = item_data['quantity']
-                current_in_cart = self.sell_cart.get(item_name, 0)
+                current_in_cart = self.sell_cart.get(item_id, 0)  # ← Use item_id as key
                 
                 if current_in_cart < max_qty:
-                    self.sell_cart[item_name] = current_in_cart + 1
-                    print(f"🛒 Added {item_name} to sell cart ({self.sell_cart[item_name]}/{max_qty})")
+                    self.sell_cart[item_id] = current_in_cart + 1  # ← Store by item_id
+                    print(f"🛒 Added {item_name} (ID: {item_id}) to sell cart ({self.sell_cart[item_id]}/{max_qty})")
                 else:
                     print(f"⚠️ Already have all {item_name} in sell cart")
 
@@ -592,7 +590,7 @@ class ShoppingOverlay(BaseTabbedOverlay):
         sellable = []
         
         # Get all player inventory items
-        from collections import Counter
+        
         all_items = []
         for category in ['weapons', 'armor', 'items', 'consumables']:
             items_in_category = game_state.inventory.get(category, [])
@@ -623,7 +621,11 @@ class ShoppingOverlay(BaseTabbedOverlay):
             excluded_buy_subcats = set(merchant_config.get('exclude_buy_subcategories', []))
             item_subcat = item_def.get('subcategory', '')
             if item_subcat and item_subcat in excluded_buy_subcats:
-                print(f"🚫 Merchant won't buy trinket: {item_def.get('name')}")
+                continue
+            # RESTRICTION: Block special and only_one rarity items from being sold
+            item_rarity = item_def.get('rarity', 'common')
+            if get_rarity_level(item_rarity) >= 999:  # Special or only_one
+                print(f"🚫 Cannot sell special item: {item_def.get('name')} (rarity: {item_rarity})")
                 continue
 
             base_cost = item_def.get('base_cost', item_def.get('cost', 1))
@@ -658,32 +660,46 @@ class ShoppingOverlay(BaseTabbedOverlay):
         items_sold = 0
         print(f"DEBUG: sell_cart contents: {self.sell_cart}")
         print(f"DEBUG: sell_cart items: {list(self.sell_cart.items())}")
-       # Process each item in sell cart
-        for item_name, qty in self.sell_cart.items():
+        
+        # Process each item in sell cart
+        for item_id, qty in self.sell_cart.items():
             # Get item definition for base cost
-            print(f"DEBUG: Processing sell cart item: '{item_name}' qty: {qty}")
-            item_def = game_state.item_manager.get_item_by_id(item_name)
+            print(f"DEBUG: Processing sell cart item: '{item_id}' qty: {qty}")
+            item_def = game_state.item_manager.get_item_by_id(item_id)
             if not item_def:
-                print(f"DEBUG: Could not find item by ID '{item_name}' in sell cart")
+                print(f"DEBUG: Could not find item by ID '{item_id}' in sell cart")
                 continue
+            
             base_cost = item_def.get('base_cost', item_def.get('cost', 1))
-            #Calculate total value first, THEN convert to int
+            item_category = item_def.get('category', 'items')
+            
+            # Calculate total value first, THEN convert to int
             total_item_value = base_cost * qty * sell_multiplier
             item_gold = max(1, int(total_item_value))  # Minimum 1 gold for any sale
             
-            # Remove from inventory
-            for category in ['weapons', 'armor', 'items', 'consumables']:
-                inventory_items = game_state.inventory.get(category, [])
-                for _ in range(qty):
-                    if item_name in inventory_items:
-                        inventory_items.remove(item_name)
-                        items_sold += 1
+            # Remove from inventory (use item's category directly)
+            removed_count = 0
+            inventory_items = game_state.inventory.get(item_category, [])
+            
+            for _ in range(qty):
+                if item_id in inventory_items:
+                    inventory_items.remove(item_id)
+                    removed_count += 1
+                    items_sold += 1
+            
+            print(f"✅ Removed {removed_count} x '{item_id}' from inventory")
             
             total_gold += item_gold
-            print(f"💰 Sold {qty} {item_name} for {item_gold} gold (base: {base_cost}, multiplier: {sell_multiplier})")
+            print(f"💰 Sold {qty} {item_id} for {item_gold} gold (base: {base_cost}, multiplier: {sell_multiplier})")
         
         # Add gold to player
         game_state.character['gold'] += total_gold
+        
+        # Update statistics (safely check if keys exist)
+        if hasattr(game_state, 'player_statistics'):
+            stats = game_state.player_statistics
+            stats['items_sold'] = stats.get('items_sold', 0) + items_sold
+            stats['gold_earned_trading'] = stats.get('gold_earned_trading', 0) + total_gold
         
         # Clear sell cart
         self.sell_cart.clear()

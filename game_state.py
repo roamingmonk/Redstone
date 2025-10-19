@@ -150,6 +150,9 @@ class GameState:
         #Tracking remaining stock per merchant
         self.merchant_stocks = {}
         
+        # Merchant refresh tracking (for cleaning player-sold loot)
+        self.merchant_last_refresh = {}
+        
         # Save/load system state (game mechanics)
         self.load_selected_slot = None
         self.load_status_message = "Select a save file to load or delete"

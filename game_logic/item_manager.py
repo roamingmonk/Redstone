@@ -2,6 +2,25 @@ import json
 import os
 import pygame
 from utils.constants import GRAY, WHITE
+from typing import Dict, List, Optional
+
+# Rarity hierarchy for merchant filtering (D&D 5e standard)
+RARITY_HIERARCHY = {
+    'common': 0,
+    'uncommon': 1,
+    'rare': 2,
+    'very_rare': 3,
+    'legendary': 4,
+    'artifact': 5,
+    # Special categories should never appear in merchant stock
+    'special': 999,
+    'only_one': 999
+}
+
+def get_rarity_level(rarity_str: str) -> int:
+    """Convert rarity string to numeric level for comparison"""
+    return RARITY_HIERARCHY.get(rarity_str.lower() if rarity_str else 'common', 0)
+
 
 class ItemLoader:
     """Professional item management system for RPG games
@@ -15,9 +34,7 @@ class ItemLoader:
         self.items_data = {}
         self.merchant_data = {}
         self.item_icons = {}
-        #self.load_items()
-        #self.load_merchant_data()
-        #self.load_item_icons()
+
         print("DEBUG: ItemLoader initialization complete (Constructor)")
 
     def load_data(self):
@@ -107,12 +124,19 @@ class ItemLoader:
         """Get all equipment items (weapons, armor, etc.)"""
         return self.items_data.get('equipment_items', [])
     
-    def get_all_items(self):
-        """Get all items from all categories"""
+    def get_all_items(self, include_loot=False):
+        """
+        Get all items from all categories
+        Args:include_loot: If True, includes loot_items array. Default False for merchant filtering.
+        Returns: List of item definitions
+        """
         all_items = []
         all_items.extend(self.get_merchant_items())
         all_items.extend(self.get_equipment_items())
-        all_items.extend(self.get_loot_items())
+        
+        if include_loot:
+            all_items.extend(self.get_loot_items())
+        
         return all_items
     
     def get_loot_items(self):
@@ -120,8 +144,8 @@ class ItemLoader:
         return self.items_data.get('loot_items', [])
     
     def get_item_by_id(self, item_id):
-        """Get a specific item by its ID"""
-        for item in self.get_all_items():
+        """Get a specific item by its ID - searches all items including loot"""
+        for item in self.get_all_items(include_loot=True):  # Search everything for ID lookups
             if item['id'] == item_id:
                 return item
         return None
@@ -205,17 +229,21 @@ class ItemLoader:
 
         # Build candidate item ids from filters
         include_ids = set(merchant.get('stock_filter', {}).get('include_ids', []))
-        
+
         allowed_cats = set(merchant.get('stock_categories', []))
-        
+
         max_rarity = merchant.get('stock_filter', {}).get('max_rarity')
         excluded_subcats = set(merchant.get('exclude_subcategories', []))
+
+        # Convert max_rarity to numeric level for comparison
+        max_rarity_level = get_rarity_level(max_rarity) if max_rarity else 999
+        print(f"🔧 DEBUG: Merchant max_rarity: '{max_rarity}' (level {max_rarity_level})")
         
         # Collect items - prioritize include_ids over categories
         candidates = []
         seen = set()
         
-        for item in self.get_all_items():
+        for item in self.get_all_items(include_loot=False):  # Only merchant items for base stock
             item_category = item.get('category', 'NONE')
             print(f"📦 DEBUG: GMI: Item: {item['id']}, category: '{item_category}', allowed: {item_category in allowed_cats}")
             
@@ -226,6 +254,14 @@ class ItemLoader:
             item_subcat = item.get('subcategory', '')
             if item_subcat and item_subcat in excluded_subcats:
                 print(f"🚫 Excluded by subcategory: '{item_subcat}': {item['id']}")
+                continue
+
+            # Check rarity filtering - block items above merchant's max_rarity
+            item_rarity = item.get('rarity', 'common')
+            item_rarity_level = get_rarity_level(item_rarity)
+
+            if item_rarity_level > max_rarity_level:
+                print(f"🚫 Excluded by rarity: '{item_rarity}' (level {item_rarity_level}) exceeds max '{max_rarity}' (level {max_rarity_level}): {item['id']}")
                 continue
                 
             # If include_ids is specified, ONLY use those items

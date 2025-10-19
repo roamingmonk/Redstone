@@ -646,6 +646,7 @@
       "stackable": true,
       "max_stack": 10,
       "consumable_effects": {
+        "healing": "0d4+1",
         "sustenance": 1,
         "description": "Provides nourishment for one day of travel"
       }
