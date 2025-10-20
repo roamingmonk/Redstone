@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-10-18 07:41)
+﻿## Repository Structure (generated 2025-10-19 20:42)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -78,7 +78,8 @@ C:.
 |       |   |       Carved_bone_dice.PNG
 |       |   |       chainmail.PNG
 |       |   |       crystal_pendant.jpg
-|       |   |       empty_small_leather_pouch_that_jingles.jpg
+|       |   |       empty_bottle.png
+|       |   |       empty_small_leather_pouch_that_jingles.png
 |       |   |       feathered_dream_catcher.png
 |       |   |       glass_vial_with_swirling_mist.png
 |       |   |       healing_potion.PNG
@@ -87,7 +88,7 @@ C:.
 |       |   |       holy_symbol.png
 |       |   |       iron_ring_with_strange_symbols.jpg
 |       |   |       leather_armor.PNG
-|       |   |       leather_pouch_with_dried_herbs.jpg
+|       |   |       leather_pouch_with_dried_herbs.png
 |       |   |       light_crossbow.png
 |       |   |       longsword.PNG
 |       |   |       mace.png
@@ -172,16 +173,19 @@ C:.
 |   |   items.json
 |   |   merchants.json
 |   |   narrative_schema.json
+|   |   spells.json
 |   |   __init__.py
 |   |   
 |   +---combat
+|   |   |   actions.json
+|   |   |   
 |   |   +---battlefields
 |   |   |       redstone_town_alley.json
 |   |   |       small_cellar.json
 |   |   |       
 |   |   +---encounters
-|   |   |       alley_fight copy.json
 |   |   |       alley_fight.json
+|   |   |       alley_fight_2.json
 |   |   |       tavern_basement_rats.json
 |   |   |       
 |   |   \---enemies
@@ -264,8 +268,8 @@ C:.
 |   |   inventory_engine.py
 |   |   item_manager.py
 |   |   movement_system.py
-|   |   npc_manager.py
-|   |   player_manager.py
+|   |   npc_data_loader.py
+|   |   player_managers.py
 |   |   quest_engine.py
 |   |   save_manager.py
 |   |   
@@ -320,17 +324,18 @@ C:.
 |   |   constants.py
 |   |   debug_manager.py
 |   |   dialogue_ui_utils.py
+|   |   dice_roller.py
 |   |   graphics.py
 |   |   location_loader.py
 |   |   narrative_schema.py
 |   |   npc_display.py
-|   |   npc_manager.py
 |   |   overlay_utils.py
 |   |   party_display.py
 |   |   quest_system.py
 |   |   stats_calculator.py
 |   |   tabbed_overlay_utils.py
 |   |   tile_graphics.py
+|   |   world_npc_spawner.py
 |   |   xp_manager.py
 |   |   __init__.py
 |   |   

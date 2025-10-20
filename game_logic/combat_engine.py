@@ -90,6 +90,7 @@ class CombatEngine:
             combat_context: Location-specific context from calling screen
         Returns: bool: True if combat started successfully
         """
+        
         # Ensure party member data is synced before combat
         self.game_state.sync_party_member_data()
         print(f"🔄 Synced party data before combat")
@@ -174,7 +175,6 @@ class CombatEngine:
             party_members = self._get_active_party_members()
             
             # Assign positions to party members (shuffle positions randomly)
-            import random
             shuffled_positions = player_positions.copy()
             random.shuffle(shuffled_positions)
             
@@ -186,6 +186,15 @@ class CombatEngine:
                 spell_slots_max = self._get_max_spell_slots(member)
                 spells_known = self._get_character_spells(member)
                 
+                # Build character data with abilities
+                if character_id == 'player':
+                    # For player, get abilities from main character data
+                    char_data_copy = member.copy()
+                    char_data_copy['abilities'] = self.game_state.character.get('abilities', [])
+                else:
+                    # For party members, member data should already have abilities
+                    char_data_copy = member
+
                 self.character_states[character_id] = {
                     'id': character_id, 
                     'name': member['name'],
@@ -194,7 +203,7 @@ class CombatEngine:
                     'attacks_used': 0,
                     'is_alive': True,
                     'dexterity': member.get('stats', {}).get('dexterity', 10),
-                    'character_data': member,  # Store full character data
+                    'character_data': char_data_copy,  # Store full character data WITH abilities
                     'spell_slots_max': spell_slots_max,
                     'spell_slots_remaining': spell_slots_max,
                     'spells_known': spells_known,
@@ -2631,9 +2640,15 @@ class CombatEngine:
             can_phase = False
             abilities = char_state.get('character_data', {}).get('abilities', [])
             for ability in abilities:
-                if ability.get('id') == 'incorporeal':
-                    can_phase = True
-                    break
+                # FIX: abilities can be either strings OR dicts
+                if isinstance(ability, dict):
+                    if ability.get('id') == 'incorporeal':
+                        can_phase = True
+                        break
+                elif isinstance(ability, str):
+                    if ability.lower() == 'incorporeal':
+                        can_phase = True
+                        break
             return self.movement_system.get_valid_moves(pos, movement_range, can_phase, is_player=True)
 
         # MELEE
@@ -2806,66 +2821,6 @@ class CombatEngine:
         
         return available_spells
     
-    # def get_available_actions(self, character_id: str) -> list:
-    #     """
-    #     Get list of actions character can currently use
-    #     Returns list of dicts with action info
-    #     """
-    #     if character_id not in self.character_states:
-    #         return []
-        
-    #     char_state = self.character_states[character_id]
-    #     char_data = char_state.get('character_data', {})
-        
-    #     available_actions = []
-        
-    #     # ACTION 1: Healing Potion (if party has any)
-    #     healing_potion_count = self._get_party_item_count('healing_potion')
-    #     if healing_potion_count > 0:
-    #         available_actions.append({
-    #             'id': 'use_healing_potion',
-    #             'name': f'Healing Potion ({healing_potion_count})',
-    #             'description': 'Restores 2d4+2 HP',
-    #             'available': True
-    #         })
-        
-    #     # ACTION 2: Combat Surge (Fighter only, once per day)
-    #     abilities = char_data.get('abilities', [])
-    #     if 'Combat Surge' in abilities:
-    #         # Check if already used today (we'll track in character state)
-    #         combat_surge_used = char_state.get('combat_surge_used_today', False)
-    #         available_actions.append({
-    #             'id': 'combat_surge',
-    #             'name': 'Combat Surge',
-    #             'description': 'Take an extra action this turn',
-    #             'available': not combat_surge_used
-    #         })
-        
-    #     # ACTION 3: Second Wind (Fighter only, once per short rest)
-    #     if 'Second Wind' in abilities:
-    #         second_wind_used = char_state.get('second_wind_used', False)
-    #         available_actions.append({
-    #             'id': 'second_wind',
-    #             'name': 'Second Wind',
-    #             'description': 'Regain 1d10 + Fighter level HP',
-    #             'available': not second_wind_used
-    #         })
-        
-    #     return available_actions
-    
-    # def _get_party_item_count(self, item_id: str) -> int:
-    #     """Get count of specific item in party inventory"""
-    #     inventory = self.game_state.inventory
-        
-    #     # Check consumables category
-    #     consumables = inventory.get('consumables', [])
-    #     count = 0
-    #     for item in consumables:
-    #         if item == item_id:
-    #             count += 1
-        
-    #     return count
-
     def _get_spell_targets(self, spell_id: str) -> list:
         """Get valid target positions for a spell"""
         if not self.active_character_id:
@@ -3224,6 +3179,11 @@ class CombatEngine:
         
         char_state = self.character_states[character_id]
         char_data = char_state.get('character_data', {})
+
+        print(f"🔍 DEBUG get_available_actions for {character_id}")
+        print(f"   char_data keys: {char_data.keys()}")
+        print(f"   abilities in char_data: {char_data.get('abilities', [])}")
+
         available_actions = []
         
         # 1. CONSUMABLE ITEMS - Healing potions from inventory
@@ -3402,15 +3362,48 @@ class CombatEngine:
             if combat_action.get('level_bonus'):
                 heal_amount += char_data.get('level', 1)
             
-            current_hp = char_data.get('current_hp', 10)
-            max_hp = char_data.get('hit_points', 10)
-            new_hp = min(current_hp + heal_amount, max_hp)
-            actual_healing = new_hp - current_hp
+            # Get character ID to determine where to read HP from
+            char_id = char_data.get('id')
             
-            char_data['current_hp'] = new_hp
+            # ✅ ALWAYS read from live game_state, never from combat snapshot
+            if char_id == 'player':
+                # Player character - read from game_state.character
+                current_hp = self.game_state.character.get('current_hp', 10)
+                max_hp = self.game_state.character.get('hit_points', 10)
+                
+                new_hp = min(current_hp + heal_amount, max_hp)
+                actual_healing = new_hp - current_hp
+                
+                # Update live game state
+                self.game_state.character['current_hp'] = new_hp
+                # ALSO update combat snapshot
+                char_data['current_hp'] = new_hp
+                
+            else:
+                # Party member - find in party_member_data
+                target_member = None
+                for party_member in self.game_state.party_member_data:
+                    if party_member.get('id') == char_id:
+                        target_member = party_member
+                        break
+                
+                if target_member:
+                    current_hp = target_member.get('current_hp', 10)
+                    max_hp = target_member.get('max_hit_points', target_member.get('hit_points', 10))
+                    new_hp = min(current_hp + heal_amount, max_hp)
+                    actual_healing = new_hp - current_hp
+                    
+                    # Update live game state
+                    target_member['current_hp'] = new_hp
+                    # ALSO update combat snapshot
+                    char_data['current_hp'] = new_hp
+                else:
+                    print(f"❌ ERROR: Party member {char_id} not found!")
+                    self.set_action_mode(None)
+                    return True
             
             self._add_to_combat_log(f"{char_name} uses {ability_name}!")
-            self._add_to_combat_log(f"Regained {actual_healing} HP ({current_hp} → {new_hp})")
+            self._add_to_combat_log(f"Regained {actual_healing} HP ({current_hp} -> {new_hp})")
             
             # Mark as used
             if combat_action.get('usage_limit') == 'once_per_day':

@@ -1711,6 +1711,16 @@ class CharacterEngine:
         self.game_state.character['level'] = 1
         self.game_state.character['experience'] = 0
         
+        # ✅ ADD LEVEL 1 ABILITIES
+        class_data = self._load_class_data_from_json(character_class)
+        level_1_features = class_data.get('level_1_features', [])
+        
+        if 'abilities' not in self.game_state.character:
+            self.game_state.character['abilities'] = []
+        
+        self.game_state.character['abilities'].extend(level_1_features)
+        print(f"✅ Added Level 1 abilities: {level_1_features}")
+
         # Roll starting gold based on class
         if 'gold' not in self.game_state.character:
             self.roll_starting_gold()

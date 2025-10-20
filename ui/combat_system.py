@@ -1198,19 +1198,27 @@ def draw_combat_screen(surface: pygame.Surface, game_state, fonts: Dict, images:
     Follows established screen function pattern
     """
     
-    # Create combat encounter UI (get encounter ID from game state or context)
+    # Get encounter ID from game state
     encounter_id = getattr(game_state, 'current_combat_encounter', 'tavern_basement_rats')
-    combat_encounter = CombatEncounter(encounter_id)
     
     # Initialize the encounter in CombatEngine if not already started
     if controller and controller.combat_engine:
         if not controller.combat_engine.combat_data:
             combat_context = getattr(game_state, 'combat_context', None)
-            controller.combat_engine.start_encounter(encounter_id, combat_context)
+            success = controller.combat_engine.start_encounter(encounter_id, combat_context)
+            if not success:
+                # If combat initialization fails, show error and return empty clickables
+                error_font = fonts.get('BODY', fonts.get('body'))
+                error_text = error_font.render("Failed to initialize combat", True, (255, 0, 0))
+                surface.blit(error_text, (400, 300))
+                return {}
+    
+    # Create combat encounter UI (only for rendering - state lives in combat_engine)
+    combat_encounter = CombatEncounter(encounter_id)
     
     # Delegate to combat encounter render method
     clickable_areas = combat_encounter.render(surface, game_state, fonts, images, controller)
-    #print(f"🎯 Combat clickable areas: {list(clickable_areas.keys())}")
+    
     return clickable_areas
 # ==========================================
 # EVENT HANDLERS
