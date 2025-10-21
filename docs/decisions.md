@@ -2117,7 +2117,14 @@ Combat log more readable during intense encounters
 **Consequences:** Abilities now add via JSON edits only; healing potions usable in combat; action economy properly enforced (Move + one offensive action per turn).
 Files Modified: combat_system.py, combat_engine.py, character_classes.json, input_handler.py
 
-
+# ADR-135: Combat Effect System Refactor
+**Status:** Accepted
+**Date:** October 20, 2025
+**Context:** Combat had 500+ lines of duplicate HP modification code across 6+ methods; adding new spells/abilities required editing multiple files; healing behaved differently in/out of combat.
+**Decision:** Created utils/combat_effects.py as single source of truth for all HP modifications; refactored spells, attacks, abilities, and items to use unified effect resolver with data-driven definitions.
+**Implementation:** Built CombatEffectResolver with three HP modification methods (player/party/enemy); integrated across healing potions, spells (Cure Wounds, Fireball), attacks (melee/ranged), and class abilities (Second Wind); removed 6 duplicate methods (~500 lines); added level scaling, stat modifiers, and minimum 1 damage enforcement.
+**Consequences:** (+) New spells/abilities require only JSON edits, (+) Healing consistent everywhere, (+) ~500 lines eliminated, (+) Foundation for future buff/debuff system, (-) Minor: attacks still have separate hit-roll logic (intentional design).
+**Files Modified:** combat_engine.py, inventory_engine.py | Files Created: utils/combat_effects.py
 
 ```
 ## ADR-XXX: <Short title>

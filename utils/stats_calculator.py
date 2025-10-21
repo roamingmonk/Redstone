@@ -7,6 +7,7 @@ Calculates AC, attacks, damage, and all modifiers from multiple sources
 import json
 import os
 from typing import Dict, List, Tuple, Optional
+from utils.buff_manager import get_buff_manager
 
 class StatsCalculator:
     """
@@ -19,6 +20,10 @@ class StatsCalculator:
         self.class_data = {}
         self.load_game_data()
     
+        # Initialize buff manager for stat modifications
+        # Use a simple wrapper to get ItemManager-compatible interface
+        self.buff_manager = None  # Lazy initialization on first use
+        
     def load_game_data(self):
         """Load items and class data from JSON files"""
         try:
@@ -35,6 +40,27 @@ class StatsCalculator:
             self.items_data = {"merchant_items": []}
             self.class_data = {"character_classes": {}}
     
+    def _ensure_buff_manager(self):
+        """
+        Lazy initialization of buff manager
+        Uses self as item manager (StatsCalculator has get_item_by_id method)
+        """
+        if self.buff_manager is None:
+            self.buff_manager = get_buff_manager(self)
+    
+    def get_item_by_id(self, item_id: str) -> Optional[Dict]:
+        """
+        Find item data by ID (required for BuffManager compatibility)
+        
+        Args:
+            item_id: Item identifier
+            
+        Returns:
+            Item data dict or None if not found
+        """
+        # BuffManager expects this method, just delegate to get_item_by_name
+        return self.get_item_by_name(item_id)
+
     def get_ability_modifier(self, ability_score: int) -> int:
         """Standard D&D ability modifier calculation"""
         return (ability_score - 10) // 2
@@ -100,30 +126,17 @@ class StatsCalculator:
             total_ac += shield_ac
             breakdown.append(f"{equipped_shield}: +{shield_ac}")
         
-        # Check for AC bonuses from special items (trinkets, etc.)
-        processed_items = set()  # Prevent duplicate processing
-        for category in ['items', 'consumables']:
-            for item_name in game_state.inventory.get(category, []):
-                # Skip if we've already processed this item type
-                if item_name in processed_items:
-                    continue
-                processed_items.add(item_name)
-                
-                item_data = self.get_item_by_name(item_name)
-                if item_data:
-                    # Check combat_stats AC bonus
-                    if 'combat_stats' in item_data:
-                        ac_bonus = item_data['combat_stats'].get('armor_class', 0)
-                        if ac_bonus > 0:
-                            total_ac += ac_bonus
-                            breakdown.append(f"{item_name}: +{ac_bonus}")
-                    
-                    # Check special_effects AC bonus (don't double-count)
-                    elif 'special_effects' in item_data:
-                        ac_bonus = item_data['special_effects'].get('ac_bonus', 0)
-                        if ac_bonus > 0:
-                            total_ac += ac_bonus
-                            breakdown.append(f"{item_name}: +{ac_bonus}")
+        # Check for AC bonuses from trinkets and special items
+        self._ensure_buff_manager()
+        equipment_ac_bonus, equipment_breakdown = self.buff_manager.get_effective_stat(
+            'armor_class', 0, game_state
+        )
+        
+        # Add equipment bonuses (excluding base value from breakdown)
+        if equipment_ac_bonus > 0:
+            total_ac += equipment_ac_bonus
+            # Skip the "Base: 0" entry, just add the actual bonuses
+            breakdown.extend([b for b in equipment_breakdown if not b.startswith('Base:')])
         
         return total_ac, breakdown
     
