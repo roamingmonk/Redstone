@@ -4,11 +4,9 @@ Title Screen and Main Menu - Professional RPG start experience
 """
 
 import pygame
-from utils.constants import *
+from utils.constants import (WHITE, BLACK, YELLOW, DARK_GRAY, CYAN, GRAY, BROWN)
 from utils.graphics import draw_border, draw_button, draw_centered_text
 from utils.animation import SpriteAnimation
-
-BROWN = (170, 85, 0)
 
 # Drawing functions (duplicated here to avoid import issues)
 def draw_text_with_shadow(surface, text, font, x, y, text_color=WHITE, shadow_color=DARK_GRAY, shadow_offset=3):

@@ -14,6 +14,9 @@ YELLOW = (255, 255, 0)
 ORANGE = (255, 165, 0)     
 PURPLE = (128, 0, 128)
 
+#Yellow
+WARM_GOLD = (255, 223, 0)
+
 #GREENS
 GREEN = (0, 255, 0)
 DARK_GREEN = (0, 128, 0)

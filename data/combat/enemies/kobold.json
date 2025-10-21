@@ -27,7 +27,7 @@
       "damage_dice": "1d4",
       "attack_bonus": 2,
       "attack_type": "ranged",
-      "range": 5,
+      "range": 8,
       "description": "A stone hurled from a crude sling"
     }
   ],

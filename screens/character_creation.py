@@ -11,9 +11,13 @@ from game_logic.character_engine import get_character_engine
 from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, 
                            LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
                            LAYOUT_BUTTON_Y, LAYOUT_DIALOG_TEXT_Y, LAYOUT_BUTTON_CENTER_Y,
-                           MALE_PORTRAITS_PATH, FEMALE_PORTRAITS_PATH
+                           MALE_PORTRAITS_PATH, FEMALE_PORTRAITS_PATH,
+                           #Colors
+                           WHITE, DARK_GRAY, GRAY, BLACK, SOFT_YELLOW, BROWN,
+                           CYAN, WARNING_RED, TITLE_GREEN, YELLOW,
+                           #Buttons
+                           BUTTON_SIZES, SCREEN_WIDTH
 )
-from utils.constants import *
 from utils.graphics import (draw_centered_text, draw_border, draw_button, 
                             create_input_box, draw_text_with_shadow, 
                             calculate_best_font_for_button)

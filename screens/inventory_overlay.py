@@ -5,11 +5,12 @@ Converted to Universal Overlay System using BaseTabbedOverlay
 
 import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay
-from utils.constants import *
+from utils.constants import (WHITE, BRIGHT_GREEN, LIGHT_BROWN, YELLOW, BLACK,
+                             SPACING, CORNFLOWER_BLUE, BUTTON_SIZES)
 from utils.graphics import draw_centered_text, draw_text
 from utils.overlay_utils import (
     draw_popup_background, draw_chunky_border, draw_tab_button,
-    draw_item_row, draw_button, SELECTION_COLOR
+    draw_item_row, draw_button
 )
 from utils.party_display import draw_party_portrait, draw_empty_portrait_slot, load_portrait, get_character_color, draw_compact_party_panel
 
@@ -207,7 +208,7 @@ class InventoryOverlay(BaseTabbedOverlay):
                 row_width = table_width - SPACING['margin']
             
             if is_selected:
-                pygame.draw.rect(surface, SELECTION_COLOR, 
+                pygame.draw.rect(surface, CORNFLOWER_BLUE, 
                                 (table_x + 10, current_row_y - 2, row_width, row_height))
             
             # Store row rectangle for click detection

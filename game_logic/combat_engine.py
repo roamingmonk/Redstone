@@ -14,6 +14,7 @@ from utils.stats_calculator import get_stats_calculator
 from game_logic.combat_ai import get_combat_ai
 from game_logic.movement_system import get_movement_system
 from game_logic.movement_system import MovementSystem
+from utils.combat_effects import get_effect_resolver
 
 class CombatPhase(Enum):
     """Combat phase tracking"""
@@ -45,9 +46,11 @@ class CombatEngine:
         self.stats_calculator = get_stats_calculator()
         self.combat_ai = get_combat_ai()
         self.spell_data = self._load_spell_data()
+
+        # Effect resolver for unified HP modification
+        self.effect_resolver = get_effect_resolver(game_state, event_manager)
         
         # Initialize movement system
-        self.movement_system = get_movement_system(self)
         self.movement_system = MovementSystem(self)
         print("✅ Movement system initialized")
 
@@ -1551,10 +1554,24 @@ class CombatEngine:
             attack_bonus = self.stats_calculator.calculate_attack_bonus(self.game_state)[0]
             damage_string = self.stats_calculator.calculate_weapon_damage(self.game_state)[0]
         else:
-            # NPC ranged attack - use DEX modifier
+             # NPC ranged attack - use DEX modifier for attack AND damage
             char_dex = char_data.get('stats', {}).get('dexterity', 10)
             dex_mod = (char_dex - 10) // 2
-            attack_bonus = dex_mod + 2  # +2 proficiency
+            
+            # Get proficiency bonus from character data (or calculate from level)
+            proficiency = char_data.get('proficiency_bonus', 0)
+            if proficiency == 0:
+                # Fallback: calculate from level if not stored
+                level = char_data.get('level', 1)
+                proficiency = 2 + ((level - 1) // 4)  # D&D 5e formula
+            
+            attack_bonus = dex_mod + proficiency
+
+             # Add DEX modifier to damage
+            if dex_mod > 0:
+                damage_string = f"{damage_string}+{dex_mod}"
+            elif dex_mod < 0:
+                damage_string = f"{damage_string}{dex_mod}"  # Negative already has minus sign
         
         # Roll attack
         attack_roll = random.randint(1, 20)
@@ -1585,14 +1602,28 @@ class CombatEngine:
         self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
         
         if total_attack >= target_ac:
-            # Hit!
-            damage = self._roll_damage(damage_string)
-            self._add_to_combat_log(f"Hit! {damage} damage")
+            # Hit! Effect resolver will roll damage
+            effect_def = {
+                'effect_type': 'damage',
+                'dice': damage_string  # Pass weapon damage directly (e.g., "1d6")
+            }
             
-            current_hp = target_enemy.get("current_hp", 0)
-            new_hp = max(0, current_hp - damage)
-            target_enemy["current_hp"] = new_hp
-            self._add_to_combat_log(f"{target_enemy['name']}: {new_hp}/{target_enemy.get('stats', {}).get('hp', 0)} HP")
+            target = {
+                'type': 'enemy',
+                'id': target_enemy.get('instance_id', 'enemy'),
+                'data': target_enemy
+            }
+            
+            results = self.effect_resolver.resolve_effect(effect_def, [target])
+            
+            if results:
+                result = results[0]
+                damage = result['magnitude']  # Get rolled damage
+                new_hp = result['new_hp']
+                max_hp = result['max_hp']
+                
+                self._add_to_combat_log(f"Hit! {damage} damage")
+                self._add_to_combat_log(f"{target_enemy['name']}: {new_hp}/{max_hp} HP")
             
             if new_hp <= 0:
                 self._add_to_combat_log(f"{target_enemy['name']} defeated!")
@@ -1917,30 +1948,43 @@ class CombatEngine:
             
             # Check if attack hits
             if total_attack >= target_ac:
-                # Hit! Roll damage
-                if attacker_type == "player": self.game_state.player_statistics['hits'] += 1 
-                damage = self._roll_damage(damage_string)
-                
-                # Track biggest hit and total damage for player
-                if attacker_type == "player":
-                    # Safe access with .get() for backward compatibility with old saves
-                    current_biggest = self.game_state.player_statistics.get('biggest_hit', 0)
-                    if damage > current_biggest:
-                        self.game_state.player_statistics['biggest_hit'] = damage
-                    
-                    # Track cumulative damage dealt
-                    total_damage = self.game_state.player_statistics.get('total_damage_dealt', 0)
-                    self.game_state.player_statistics['total_damage_dealt'] = total_damage + damage
-                
-                self._add_to_combat_log(f"Hit! {damage} damage")
+                # Hit! Effect resolver will roll damage
+                if attacker_type == "player": 
+                    self.game_state.player_statistics['hits'] += 1
                 
                 # Apply damage based on attacker type
                 if attacker_type == "player":
-                    # Player hitting enemy
-                    current_hp = target_data.get("current_hp", 0)
-                    new_hp = max(0, current_hp - damage)
-                    target_data["current_hp"] = new_hp
-                    self._add_to_combat_log(f"{target_name}: {new_hp}/{target_data.get('stats', {}).get('hp', 0)} HP")
+                    # Player hitting enemy - USE EFFECT RESOLVER
+                    effect_def = {
+                        'effect_type': 'damage',
+                        'dice': damage_string  # Weapon damage (e.g., "1d8+2")
+                    }
+                    
+                    target = {
+                        'type': 'enemy',
+                        'id': target_data.get('instance_id', 'enemy'),
+                        'data': target_data
+                    }
+                    
+                    results = self.effect_resolver.resolve_effect(effect_def, [target])
+                    
+                    if results:
+                        result = results[0]
+                        damage = result['magnitude']  # Get rolled damage
+                        target_name = result['target_name']
+                        new_hp = result['new_hp']
+                        max_hp = result['max_hp']
+                        
+                        # Track biggest hit and total damage
+                        current_biggest = self.game_state.player_statistics.get('biggest_hit', 0)
+                        if damage > current_biggest:
+                            self.game_state.player_statistics['biggest_hit'] = damage
+                        
+                        total_damage = self.game_state.player_statistics.get('total_damage_dealt', 0)
+                        self.game_state.player_statistics['total_damage_dealt'] = total_damage + damage
+                        
+                        self._add_to_combat_log(f"Hit! {damage} damage")
+                        self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
                     
                     # Track kills when enemy defeated
                     if new_hp <= 0:
@@ -1987,7 +2031,7 @@ class CombatEngine:
                             member_kills[self.active_character_id] = member_kills.get(self.active_character_id, 0) + 1
                             self.game_state.player_statistics['party_member_kills'] = member_kills
                 else:
-                    # Enemy hitting party member
+                    # Enemy hitting party member - USE EFFECT RESOLVER
 
                     # Find the correct character state to damage
                     target_char_id = None
@@ -1997,14 +2041,55 @@ class CombatEngine:
                             break
                     
                     if target_char_id:
-                        char_state = self.character_states[target_char_id]
+                        # Build effect definition
+                        effect_def = {
+                            'effect_type': 'damage',
+                            'dice': damage_string  # Enemy damage (e.g., "1d4+1")
+                        }
                         
-                        # Check if targeting main player or party member
-                        if target_char_id == 'player':
-                            # Damage main player character
-                            current_hp = self.game_state.character.get("current_hp", 0)
-                            new_hp = max(0, current_hp - damage)
-                            self.game_state.character["current_hp"] = new_hp
+                        # Build target
+                        target_type = 'player' if target_char_id == 'player' else 'party_member'
+                        target = {
+                            'type': target_type,
+                            'id': target_char_id
+                        }
+                        
+                        # Apply damage through effect resolver
+                        results = self.effect_resolver.resolve_effect(effect_def, [target])
+                        
+                        if results:
+                            result = results[0]
+                            damage = result['magnitude']  # Get rolled damage
+                            new_hp = result['new_hp']
+                            is_alive = result['is_alive']
+                            
+                            # Update combat snapshot
+                            target_data["current_hp"] = new_hp
+                            char_state['is_alive'] = is_alive
+                            
+                            # Combat log
+                            self._add_to_combat_log(f"Hit! {damage} damage")
+                            self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
+                            
+                            # Check defeat conditions
+                            if target_char_id == 'player' and not is_alive:
+                                char_state['is_alive'] = False
+                                self._add_to_combat_log(f"{target_name} has fallen!")
+                                self._handle_combat_defeat()
+                            elif not is_alive:
+                                char_state['is_conscious'] = False
+                                self._add_to_combat_log(f"{target_name} is knocked unconscious!")
+                                
+                                # Track party member knockouts
+                                self.game_state.player_statistics['party_knockouts'] += 1
+                                
+                                # Check if ALL party members knocked out
+                                all_unconscious = all(
+                                    not cs.get('is_alive', True) 
+                                    for cs in self.character_states.values()
+                                )
+                                if all_unconscious:
+                                    self._handle_combat_defeat()
                             
                             # Show current/max HP in combat log
                             max_hp = self.game_state.character.get("hit_points", 0)
@@ -2016,38 +2101,6 @@ class CombatEngine:
                                 self._add_to_combat_log(f"{target_name} has fallen!")
                                 # Player death triggers immediate defeat
                                 self._handle_combat_defeat()
-                        else:
-                            # Damage party member (NPC)
-                            for member in self.game_state.party_member_data:
-                                if member['id'] == target_char_id:
-                                    current_hp = member.get("current_hp", member.get('hp', 0))
-                                    new_hp = max(0, current_hp - damage)
-                                    member["current_hp"] = new_hp
-                                    
-                                    # Also update character_data in combat state
-                                    target_data["current_hp"] = new_hp
-                                    
-                                    # Show current/max HP in combat log
-                                    max_hp = member.get('hp', member.get('hit_points', 0))
-                                    self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
-                                    
-                                    # Check if character defeated (knocked out, not dead!)
-                                    if new_hp <= 0:
-                                        char_state['is_alive'] = False
-                                        char_state['is_conscious'] = False
-                                        self._add_to_combat_log(f"{target_name} is knocked unconscious!")
-
-                                        # Track party member knockouts
-                                        self.game_state.player_statistics['party_knockouts'] += 1
-                                        
-                                        # Check if ALL party members are knocked out (defeat)
-                                        all_unconscious = all(
-                                            not cs.get('is_alive', True) 
-                                            for cs in self.character_states.values()
-                                        )
-                                        if all_unconscious:
-                                            self._handle_combat_defeat()
-                                    break
                 
                 return True
             else:
@@ -2128,54 +2181,57 @@ class CombatEngine:
             self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
             
             if total_attack >= target_ac:
-                # Hit! Roll damage
-                damage = self._roll_damage(damage_string)
-                self._add_to_combat_log(f"Hit! {damage} damage")
+                # Hit! Use effect resolver for damage
+                effect_def = {
+                    'effect_type': 'damage',
+                    'dice': damage_string  # Weapon damage (e.g., "1d6+2")
+                }
                 
-                # Apply damage (same logic as _resolve_attack)
-                if target_char_id == 'player':
-                        # Damage main player
-                        current_hp = self.game_state.character.get("current_hp", 0)
-                        new_hp = max(0, current_hp - damage)
-                        self.game_state.character["current_hp"] = new_hp
+                # Build target
+                target_type = 'player' if target_char_id == 'player' else 'party_member'
+                target = {
+                    'type': target_type,
+                    'id': target_char_id
+                }
+                
+                # Apply damage through effect resolver
+                results = self.effect_resolver.resolve_effect(effect_def, [target])
+                
+                if results:
+                    result = results[0]
+                    damage = result['magnitude']
+                    new_hp = result['new_hp']
+                    max_hp = result['max_hp']
+                    is_alive = result['is_alive']
+                    
+                    # Update combat snapshot
+                    if target_char_id != 'player':
+                        target_data["current_hp"] = new_hp
+                    
+                    char_state = self.character_states.get(target_char_id)
+                    if char_state:
+                        char_state['is_alive'] = is_alive
+                        if not is_alive and target_char_id != 'player':
+                            char_state['is_conscious'] = False
+                    
+                    # Combat log
+                    self._add_to_combat_log(f"Hit! {damage} damage")
+                    self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
+                    
+                    # Check defeat conditions
+                    if target_char_id == 'player' and not is_alive:
+                        self._add_to_combat_log(f"{target_name} has fallen!")
+                        self._handle_combat_defeat()
+                    elif not is_alive:
+                        self._add_to_combat_log(f"{target_name} is knocked unconscious!")
                         
-                        max_hp = self.game_state.character.get("hit_points", 0)
-                        self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
-                        
-                        # Check if player defeated - INSTANT DEATH!
-                        if new_hp <= 0:
-                            char_state = self.character_states.get(target_char_id)
-                            if char_state:
-                                char_state['is_alive'] = False
-                            self._add_to_combat_log(f"{target_name} has fallen!")
-                            # Player death triggers immediate defeat
+                        # Check if ALL party members knocked out
+                        all_unconscious = all(
+                            not cs.get('is_alive', True) 
+                            for cs in self.character_states.values()
+                        )
+                        if all_unconscious:
                             self._handle_combat_defeat()
-                else:
-                    # Damage party member
-                    for member in self.game_state.party_member_data:
-                        if member['id'] == target_char_id:
-                            current_hp = member.get("current_hp", member.get('hp', 0))
-                            new_hp = max(0, current_hp - damage)
-                            member["current_hp"] = new_hp
-                            target_data["current_hp"] = new_hp
-                            
-                            max_hp = member.get('hp', member.get('hit_points', 0))
-                            self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
-                            
-                            if new_hp <= 0:
-                                char_state = self.character_states.get(target_char_id)
-                                if char_state:
-                                    char_state['is_alive'] = False
-                                    char_state['is_conscious'] = False
-                                    self._add_to_combat_log(f"{target_name} is knocked unconscious!")
-                                
-                                all_unconscious = all(
-                                    not cs.get('is_alive', True) 
-                                    for cs in self.character_states.values()
-                                )
-                                if all_unconscious:
-                                    self._handle_combat_defeat()
-                            break
                 
                 return True
             else:
@@ -2188,41 +2244,6 @@ class CombatEngine:
             traceback.print_exc()
             self._add_to_combat_log("Attack failed!")
             return False
-    
-    def _roll_damage(self, damage_string: str) -> int:
-        """
-        Roll damage from dice notation (e.g., "1d4+1")
-        
-        Args:
-            damage_string: Damage in dice notation
-            
-        Returns:
-            int: Rolled damage amount
-        """
-        try:
-            # Simple parser for "XdY+Z" format
-            if '+' in damage_string:
-                dice_part, bonus_part = damage_string.split('+')
-                bonus = int(bonus_part)
-            elif '-' in damage_string:
-                dice_part, bonus_part = damage_string.split('-')
-                bonus = -int(bonus_part)
-            else:
-                dice_part = damage_string
-                bonus = 0
-            
-            if 'd' in dice_part:
-                num_dice, die_size = dice_part.split('d')
-                num_dice = int(num_dice)
-                die_size = int(die_size)
-                
-                total = sum(random.randint(1, die_size) for _ in range(num_dice))
-                return max(1, total + bonus)  # Minimum 1 damage
-            else:
-                return max(1, int(damage_string))
-                
-        except:
-            return 1  # Fallback   
     
     def _is_tile_occupied(self, x: int, y: int) -> bool:
             """Check if a tile is occupied by any unit (party member or enemy)"""
@@ -2961,214 +2982,108 @@ class CombatEngine:
         return affected
 
     def _execute_spell_effect(self, spell_data: dict, affected_positions: List[List[int]], caster_state: dict):
-        """Apply spell effects to all affected positions"""
+        """
+        Apply spell effects to all affected positions
+        NOW USES EFFECT RESOLVER - Universal system!
+        """
         spell_name = spell_data.get('name', 'Spell')
         damage_type = spell_data.get('damage_type', 'damage')
         caster_name = caster_state.get('name', 'Caster')
-        caster_level = caster_state.get('character_data', {}).get('level', 1)
+        caster_data = caster_state.get('character_data', {})
         
-        # Roll damage/healing
-        damage_amount = self._roll_spell_damage(spell_data, caster_state, caster_level)
+        # Build effect definition from spell data
+        effect_def = {
+            'effect_type': 'healing' if damage_type == 'healing' else 'damage',
+            'dice': spell_data.get('damage_dice', '1d8'),
+            'scales_with_level': spell_data.get('scales_with_level', False),
+            'add_stat_modifier': spell_data.get('add_stat_modifier')
+        }
         
-        self._add_to_combat_log(f"{caster_name} casts {spell_name}!")
+        # Build source data for level scaling and stat modifiers
+        source_data = {
+            'level': caster_data.get('level', 1),
+            'stats': caster_data.get('stats', {})
+        }
         
-        # Apply to all affected positions
+        # Build targets list from affected positions
+        targets = []
         for pos in affected_positions:
-            # Check party members
+            # Check party members at this position
             for char_id, char_state in self.character_states.items():
                 if char_state['position'] == pos and char_state.get('is_alive', True):
-                    self._apply_spell_to_character(char_state, damage_amount, damage_type, spell_name)
+                    target_type = 'player' if char_id == 'player' else 'party_member'
+                    targets.append({
+                        'type': target_type,
+                        'id': char_id,
+                        'position': pos,
+                        'char_state': char_state  # Keep reference for snapshot update
+                    })
             
-            # Check enemies
+            # Check enemies at this position
             for enemy in self.combat_data.get("enemy_instances", []):
                 if enemy['position'] == pos and enemy.get('current_hp', 0) > 0:
-                    self._apply_spell_to_enemy(enemy, damage_amount, damage_type, spell_name)
-
-    def _roll_spell_damage(self, spell_data: dict, caster_state: dict, caster_level: int) -> int:
-        """Roll spell damage/healing amount"""
-        damage_dice = spell_data.get('damage_dice', '1d8')
-        scales_with_level = spell_data.get('scales_with_level', False)
-        add_stat_modifier = spell_data.get('add_stat_modifier')
+                    targets.append({
+                        'type': 'enemy',
+                        'id': enemy.get('instance_id'),
+                        'position': pos,
+                        'data': enemy  # Enemy dict for direct modification
+                    })
         
-        print(f"🎲 DEBUG: damage_dice={damage_dice}, scales={scales_with_level}, caster_level={caster_level}")
+        # Resolve effect through universal system
+        results = self.effect_resolver.resolve_effect(effect_def, targets, source_data)
         
-        # Parse dice notation (e.g., "1d8" or "3d6")
-        if 'd' in damage_dice:
-            num_dice, die_size = damage_dice.split('d')
-            num_dice = int(num_dice)
-            die_size = int(die_size)
-            
-            # Scale with level if specified
-            if scales_with_level:
-                num_dice = num_dice * caster_level
-            
-            print(f"🎲 DEBUG: Rolling {num_dice}d{die_size}")
-            
-            # Roll the dice
-            total = sum(random.randint(1, die_size) for _ in range(num_dice))
-            print(f"🎲 DEBUG: Rolled {total}")
-        else:
-            total = int(damage_dice)
+        # Combat log
+        self._add_to_combat_log(f"{caster_name} casts {spell_name}!")
         
-        # Add stat modifier if specified
-        if add_stat_modifier:
-            char_data = caster_state.get('character_data', {})
-            stats = char_data.get('stats', {})
-            stat_value = stats.get(add_stat_modifier, 10)
-            modifier = (stat_value - 10) // 2
-            print(f"🎲 DEBUG: Adding {add_stat_modifier} modifier: stat={stat_value}, mod={modifier}")
-            total += modifier
-        
-        print(f"🎲 DEBUG: Final total: {total}")
-        return max(1, total)  # Minimum 1
-
-    def _apply_spell_to_character(self, char_state: dict, amount: int, damage_type: str, spell_name: str):
-        """Apply spell effect to a party member"""
-        
-        char_name = char_state.get('name', 'Character')
-        char_data = char_state.get('character_data', {})
-        
-        # Get the ID from char_data
-        char_id = char_data.get('id')
-        
-        print(f"💊 DEBUG: Applying {amount} {damage_type} to {char_name} (id: {char_id})")
-
-        if damage_type == "healing":
-            # 🔥 GET OLD_HP AND MAX_HP FROM LIVE GAME_STATE, NOT SNAPSHOT!
-            if char_id == 'player':
-                # Player character - read from game_state.character
-                old_hp = self.game_state.character.get('current_hp', 0)
-                max_hp = self.game_state.character.get('hit_points', 10)
-            else:
-                # Party member - find in live game_state.party_member_data
-                old_hp = 0
-                max_hp = 10
-                for member in self.game_state.party_member_data:
-                    if member.get('id') == char_id:
-                        old_hp = member.get('current_hp', 0)
-                        max_hp = member.get('hp', member.get('hit_points', 10))
-                        break
+        # Process results and update combat snapshots
+        for result in results:
+            target_name = result['target_name']
+            magnitude = result['magnitude']
+            effect_type = result['effect_type']
+            new_hp = result['new_hp']
+            max_hp = result['max_hp']
+            is_alive = result['is_alive']
             
-            print(f"💊 DEBUG: LIVE old_hp={old_hp}, max_hp={max_hp}")
+            # Find the target to update combat snapshot
+            target = next((t for t in targets if t['id'] == result['target_id']), None)
             
-            # Calculate healing
-            new_hp = min(old_hp + amount, max_hp)
-            actual_healing = new_hp - old_hp
-            
-            print(f"💊 DEBUG: new_hp={new_hp}, actual_healing={actual_healing}")
-            
-            # 🎯 APPLY TO CORRECT CHARACTER IN GAME_STATE
-            if char_id == 'player':
-                # Update main player
-                self.game_state.character["current_hp"] = new_hp
-                max_hp_display = self.game_state.character.get("hit_points", max_hp)
-                self._add_to_combat_log(f"{char_name}: {new_hp}/{max_hp_display} HP")
-                
-            else:
-                # Update party member - loop through list to find them
-                for member in self.game_state.party_member_data:
-                    if member.get('id') == char_id:
-                        member["current_hp"] = new_hp
-                        
-                        max_hp_display = member.get('hp', member.get('hit_points', max_hp))
-                        self._add_to_combat_log(f"{char_name}: {new_hp}/{max_hp_display} HP")
-                        break
-            
-            # Also update the snapshot in char_state for UI consistency
-            char_data["current_hp"] = new_hp
-            
-            self._add_to_combat_log(f"{char_name} healed for {actual_healing} HP!")
-            
-        else:
-            # 🔥 DAMAGE - ALSO READ FROM LIVE GAME_STATE!
-            if char_id == 'player':
-                # Player character - read from game_state.character
-                old_hp = self.game_state.character.get('current_hp', 0)
-                max_hp = self.game_state.character.get('hit_points', 0)
-            else:
-                # Party member - find in live game_state.party_member_data
-                old_hp = 0
-                max_hp = 0
-                for member in self.game_state.party_member_data:
-                    if member.get('id') == char_id:
-                        old_hp = member.get('current_hp', 0)
-                        max_hp = member.get('hp', member.get('hit_points', 0))
-                        break
-            
-            print(f"💊 DEBUG: LIVE Damage - old_hp={old_hp}")
-            
-            # Calculate damage
-            new_hp = max(0, old_hp - amount)
-            
-            print(f"💊 DEBUG: new_hp={new_hp}")
-            
-            # 🎯 APPLY TO CORRECT CHARACTER IN GAME_STATE
-            if char_id == 'player':
-                # Damage main player
-                self.game_state.character["current_hp"] = new_hp
-                max_hp_display = self.game_state.character.get("hit_points", 0)
-                self._add_to_combat_log(f"{char_name}: {new_hp}/{max_hp_display} HP")
-                
-                # Check if player defeated - INSTANT DEATH!
-                if new_hp <= 0:
-                    char_state['is_alive'] = False
-                    self._add_to_combat_log(f"{char_name} has fallen!")
-                    self._handle_combat_defeat()
+            if target:
+                if target['type'] in ['player', 'party_member']:
+                    # Update combat snapshot for party members
+                    char_state = target['char_state']
+                    char_data = char_state.get('character_data', {})
+                    char_data['current_hp'] = new_hp
+                    char_state['is_alive'] = is_alive
                     
+                    if not is_alive:
+                        char_state['is_conscious'] = False
+                # Enemy data already updated by effect resolver
+            
+            # Combat log messages
+            if effect_type == 'healing':
+                self._add_to_combat_log(f"{target_name} healed for {magnitude} HP! ({new_hp}/{max_hp})")
             else:
-                # Damage party member
-                for member in self.game_state.party_member_data:
-                    if member.get('id') == char_id:
-                        member["current_hp"] = new_hp
-                        
-                        max_hp_display = member.get('hp', member.get('hit_points', 0))
-                        self._add_to_combat_log(f"{char_name}: {new_hp}/{max_hp_display} HP")
-                        
-                        if new_hp <= 0:
-                            char_state['is_alive'] = False
-                            char_state['is_conscious'] = False
-                            self._add_to_combat_log(f"{char_name} is knocked unconscious!")
-                            
-                            # Check if whole party wiped
-                            all_unconscious = all(
-                                not cs.get('is_alive', True) 
-                                for cs in self.character_states.values()
-                            )
-                            if all_unconscious:
-                                self._handle_combat_defeat()
-                        break
-            
-            # Also update the snapshot in char_state for UI consistency
-            char_data["current_hp"] = new_hp
-            
-            self._add_to_combat_log(f"{char_name} takes {amount} damage!")
-
-    def _apply_spell_to_enemy(self, enemy: dict, amount: int, damage_type: str, spell_name: str):
-        """Apply spell effect to an enemy"""
-        enemy_name = enemy.get('name', 'Enemy')
+                self._add_to_combat_log(f"{target_name} takes {magnitude} damage! ({new_hp}/{max_hp})")
+                
+                if not is_alive:
+                    self._add_to_combat_log(f"{target_name} is defeated!")
         
-        if damage_type == "healing":
-            # Heal enemy (rare but possible)
-            old_hp = enemy.get('current_hp', 0)
-            max_hp = enemy.get('max_hp', 10)
-            new_hp = min(old_hp + amount, max_hp)
-            enemy['current_hp'] = new_hp
-            actual_healing = new_hp - old_hp
-            
-            self._add_to_combat_log(f"{enemy_name} healed for {actual_healing} HP!")
-        else:
-            # Damage enemy
-            old_hp = enemy.get('current_hp', 0)
-            new_hp = max(0, old_hp - amount)
-            enemy['current_hp'] = new_hp
-            
-            self._add_to_combat_log(f"{enemy_name} takes {amount} damage!")
-            
-            if new_hp <= 0:
-                self._add_to_combat_log(f"{enemy_name} is defeated!")
-                # Check victory
-                if self._check_victory_conditions():
-                    self._handle_combat_victory()
+        # Check victory/defeat conditions
+        if any(not r['is_alive'] and r['target_type'] == 'player' for r in results):
+            self._handle_combat_defeat()
+        elif any(not r['is_alive'] and r['target_type'] in ['player', 'party_member'] for r in results):
+            # Check if all party members down
+            all_unconscious = all(
+                not cs.get('is_alive', True) 
+                for cs in self.character_states.values()
+            )
+            if all_unconscious:
+                self._handle_combat_defeat()
+        
+        # Check if enemies defeated
+        if self._check_victory_conditions():
+            self._handle_combat_victory()
+
 
     # ============ ACTION SYSTEM (Healing Potions, Class Abilities) ============
     
@@ -3180,9 +3095,9 @@ class CombatEngine:
         char_state = self.character_states[character_id]
         char_data = char_state.get('character_data', {})
 
-        print(f"🔍 DEBUG get_available_actions for {character_id}")
-        print(f"   char_data keys: {char_data.keys()}")
-        print(f"   abilities in char_data: {char_data.get('abilities', [])}")
+        # print(f"🔍 DEBUG get_available_actions for {character_id}")
+        # print(f"   char_data keys: {char_data.keys()}")
+        # print(f"   abilities in char_data: {char_data.get('abilities', [])}")
 
         available_actions = []
         
@@ -3279,72 +3194,57 @@ class CombatEngine:
         return False
     
     def _execute_item_action(self, action_data, char_state, char_data, char_name):
-        """Use healing potion - reuses existing _roll_damage()"""
+        """
+        Use consumable item (healing potion, etc.)
+        NOW USES EFFECT RESOLVER - Same logic as out-of-combat!
+        """
         item_def = action_data.get('item_def', {})
-        healing_dice = item_def.get('consumable_effects', {}).get('healing', '2d4+2')
-        
-        # Roll healing amount
-        heal_amount = self._roll_damage(healing_dice)
+        consumable_effects = item_def.get('consumable_effects', {})
+        healing_dice = consumable_effects.get('healing', '2d4+2')
         
         # Get character ID
         char_id = char_data.get('id')
         
-        print(f"🔍 DEBUG: char_id = '{char_id}'")
+        # Build effect definition
+        effect_def = {
+            'effect_type': 'healing',
+            'dice': healing_dice
+        }
         
-        # ALWAYS read from live game_state, never from combat snapshot
-        if char_id == 'player':
-            # Player character - read from game_state.character
-            current_hp = self.game_state.character.get('current_hp', 10)
-            max_hp = self.game_state.character.get('hit_points', 10)
-            
-            print(f"🔍 DEBUG Player healing:")
-            print(f"   current_hp from game_state: {current_hp}")
-            print(f"   max_hp from game_state: {max_hp}")
-            print(f"   heal_amount rolled: {heal_amount}")
-            
-            new_hp = min(current_hp + heal_amount, max_hp)
-            actual_healing = new_hp - current_hp
-            
-            # Update live game state
-            self.game_state.character['current_hp'] = new_hp
-            # ALSO update combat snapshot
-            char_data['current_hp'] = new_hp
-            
-            print(f"   new_hp: {new_hp}")
-            print(f"   actual_healing: {actual_healing}")
-            
-        else:
-            # Party member - find in party_member_data
-            target_member = None
-            for party_member in self.game_state.party_member_data:
-                if party_member.get('id') == char_id:
-                    target_member = party_member
-                    break
-            
-            if target_member:
-                current_hp = target_member.get('current_hp', 10)
-                max_hp = target_member.get('max_hit_points', target_member.get('hit_points', 10))
-                new_hp = min(current_hp + heal_amount, max_hp)
-                actual_healing = new_hp - current_hp
-                
-                # Update live game state
-                target_member['current_hp'] = new_hp
-                # ALSO update combat snapshot
-                char_data['current_hp'] = new_hp
-            else:
-                print(f"❌ ERROR: Party member {char_id} not found!")
-                return False
+        # Build target
+        target_type = 'player' if char_id == 'player' else 'party_member'
+        target = {
+            'type': target_type,
+            'id': char_id
+        }
         
-        # Remove potion from inventory
+        # Resolve effect through universal system
+        results = self.effect_resolver.resolve_effect(effect_def, [target])
+        
+        if not results:
+            self._add_to_combat_log("Item use failed!")
+            return False
+        
+        result = results[0]
+        
+        # Update combat snapshot to match game_state
+        char_data['current_hp'] = result['new_hp']
+        char_state['is_alive'] = result['is_alive']
+        
+        # Remove item from inventory
+        item_id = item_def.get('id', 'healing_potion')
         consumables = self.game_state.inventory.get('consumables', [])
-        if 'healing_potion' in consumables:
-            consumables.remove('healing_potion')
+        if item_id in consumables:
+            consumables.remove(item_id)
         
-        self._add_to_combat_log(f"{char_name} drinks a healing potion!")
-        self._add_to_combat_log(f"Healed for {actual_healing} HP ({current_hp} -> {new_hp})")
+        # Combat log
+        self._add_to_combat_log(f"{char_name} uses {item_def.get('name', 'item')}!")
+        self._add_to_combat_log(f"Healed for {result['magnitude']} HP ({result['old_hp']} -> {result['new_hp']})")
         
+        # Mark action used
         char_state['has_acted'] = True
         self.set_action_mode(None)
+        
         return True
 
     def _execute_class_ability(self, action_data, char_state, char_data, char_name):
@@ -3355,55 +3255,44 @@ class CombatEngine:
         ability_name = action_data['name']
         
         if effect_type == 'healing':
-            # REUSE existing _roll_damage method!
-            dice_str = combat_action.get('dice', '1d8')
-            heal_amount = self._roll_damage(dice_str)
+            # Build effect definition from ability data
+            effect_def = {
+                'effect_type': 'healing',
+                'dice': combat_action.get('dice', '1d8'),
+                'add_level_bonus': combat_action.get('level_bonus', False)
+            }
             
-            if combat_action.get('level_bonus'):
-                heal_amount += char_data.get('level', 1)
-            
-            # Get character ID to determine where to read HP from
+            # Build target (self-heal for now)
             char_id = char_data.get('id')
+            target_type = 'player' if char_id == 'player' else 'party_member'
+            target = {
+                'type': target_type,
+                'id': char_id
+            }
             
-            # ✅ ALWAYS read from live game_state, never from combat snapshot
-            if char_id == 'player':
-                # Player character - read from game_state.character
-                current_hp = self.game_state.character.get('current_hp', 10)
-                max_hp = self.game_state.character.get('hit_points', 10)
-                
-                new_hp = min(current_hp + heal_amount, max_hp)
-                actual_healing = new_hp - current_hp
-                
-                # Update live game state
-                self.game_state.character['current_hp'] = new_hp
-                # ALSO update combat snapshot
-                char_data['current_hp'] = new_hp
-                
-            else:
-                # Party member - find in party_member_data
-                target_member = None
-                for party_member in self.game_state.party_member_data:
-                    if party_member.get('id') == char_id:
-                        target_member = party_member
-                        break
-                
-                if target_member:
-                    current_hp = target_member.get('current_hp', 10)
-                    max_hp = target_member.get('max_hit_points', target_member.get('hit_points', 10))
-                    new_hp = min(current_hp + heal_amount, max_hp)
-                    actual_healing = new_hp - current_hp
-                    
-                    # Update live game state
-                    target_member['current_hp'] = new_hp
-                    # ALSO update combat snapshot
-                    char_data['current_hp'] = new_hp
-                else:
-                    print(f"❌ ERROR: Party member {char_id} not found!")
-                    self.set_action_mode(None)
-                    return True
+            # Build source data for modifiers
+            source_data = {
+                'level': char_data.get('level', 1),
+                'stats': char_data.get('stats', {})
+            }
             
+            # Resolve effect through universal system
+            results = self.effect_resolver.resolve_effect(effect_def, [target], source_data)
+            
+            if not results:
+                self._add_to_combat_log(f"{ability_name} failed!")
+                self.set_action_mode(None)
+                return False
+            
+            result = results[0]
+            
+            # Update combat snapshot to match game_state
+            char_data['current_hp'] = result['new_hp']
+            char_state['is_alive'] = result['is_alive']
+            
+            # Combat log
             self._add_to_combat_log(f"{char_name} uses {ability_name}!")
-            self._add_to_combat_log(f"Regained {actual_healing} HP ({current_hp} -> {new_hp})")
+            self._add_to_combat_log(f"Regained {result['magnitude']} HP ({result['old_hp']} -> {result['new_hp']})")
             
             # Mark as used
             if combat_action.get('usage_limit') == 'once_per_day':

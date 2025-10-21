@@ -15,7 +15,7 @@ from utils.graphics import draw_centered_text
 # PARTY_PANEL_X = 1024 - PARTY_PANEL_WIDTH
 # PORTRAIT_SIZE = 110
 # PORTRAIT_SPACING = 10
-#FRAME_THICKNESS = 3
+# FRAME_THICKNESS = 3
 
 def draw_party_status_panel(surface, game_state, fonts):
     """

@@ -9,10 +9,6 @@ from utils.constants import (BLACK, WHITE, SOFT_YELLOW, CORNFLOWER_BLUE,
                              DARKEST_GRAY, DARK_GRAY, LIGHTEST_GRAY, VERY_DARK_GRAY,
                              BROWN, DARK_BROWN, RECESSED_BROWN, LIGHT_BROWN, BRIGHT_GREEN)
 
-# Colors for popup screens
-#BROWN = (101, 67, 33)
-#DARK_BROWN = (70, 45, 20)
-
 # Let's try this color for row highlighting - classic RPG blue
 SELECTION_COLOR = CORNFLOWER_BLUE  # Light blue
 

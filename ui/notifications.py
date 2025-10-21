@@ -5,10 +5,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import List, Tuple, Optional, Dict
-
+from utils.constants import (WARM_GOLD)
 import pygame
 
-DEFAULT_COLOR = (255, 223, 0)  # Warm gold similar to XP highlight
 DEFAULT_FONT_KEY = "normal"
 DEFAULT_DURATION = 2200  # milliseconds
 DEFAULT_RISE_DISTANCE = 60
@@ -46,7 +45,7 @@ class FloatingTextManager:
         self,
         text: str,
         *,
-        color: Tuple[int, int, int] = DEFAULT_COLOR,
+        color: Tuple[int, int, int] = WARM_GOLD,
         duration: int = DEFAULT_DURATION,
         position: Optional[Tuple[int, int]] = None,
         font_key: str = DEFAULT_FONT_KEY,
@@ -80,11 +79,11 @@ class FloatingTextManager:
             if reason:
                 text = f"{text} - {reason}"
 
-        raw_color = data.get("color", DEFAULT_COLOR)
+        raw_color = data.get("color", WARM_GOLD)
         if isinstance(raw_color, (list, tuple)) and len(raw_color) >= 3:
             color = tuple(int(c) for c in raw_color[:3])
         else:
-            color = DEFAULT_COLOR
+            color = WARM_GOLD
         duration = int(data.get("duration", DEFAULT_DURATION))
         raw_position = data.get("position")
         position: Optional[Tuple[int, int]]

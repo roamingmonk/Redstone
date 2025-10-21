@@ -12,7 +12,6 @@ Responsibilities:
 
 from typing import Dict, List, Optional, Tuple
 
-
 class CombatAI:
     """
     AI behavior manager for tactical combat

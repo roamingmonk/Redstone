@@ -9,7 +9,9 @@ This replaces ALL NPC-specific dialogue functions with a single universal system
 """
 
 import pygame
-from utils.constants import *
+from utils.constants import (DIALOGUE_BG_COLOR, DIALOGUE_BORDER_COLOR, DIALOGUE_OPTION_COLOR,
+                             DIALOGUE_TITLE_COLOR, DIALOGUE_TEXT_COLOR,
+                             WHITE)
 from utils.graphics import draw_border, draw_button
 from utils.npc_display import draw_npc_portrait
 from utils.party_display import draw_party_status_panel

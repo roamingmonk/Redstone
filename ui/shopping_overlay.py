@@ -7,9 +7,9 @@ import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay, TabDefinition
 from collections import Counter
 from utils.graphics import draw_centered_text
-from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, 
-                           LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
-                           LAYOUT_BUTTON_Y, LAYOUT_DIALOG_TEXT_Y, LAYOUT_BUTTON_CENTER_Y)
+# from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, 
+#                            LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
+#                            LAYOUT_BUTTON_Y, LAYOUT_DIALOG_TEXT_Y, LAYOUT_BUTTON_CENTER_Y)
 from utils.constants import (CORNFLOWER_BLUE, BLACK, WHITE, CYAN, RED, WARNING_RED, SOFT_YELLOW,
                              DARK_GRAY, DARKEST_GRAY, BRIGHT_GREEN, DARK_BROWN)
 from game_logic.item_manager import item_manager, get_rarity_level

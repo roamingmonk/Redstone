@@ -5,7 +5,8 @@ PHASE 1: DISABLE DUAL RENDERING - Let generic_dialogue_handler.py take over
 """
 
 import pygame
-from utils.constants import *
+from utils.constants import (DIALOGUE_BG_COLOR, DIALOGUE_BORDER_COLOR,
+                             DIALOGUE_TEXT_COLOR, DIALOGUE_TITLE_COLOR)
 from utils.graphics import draw_button
 from utils.npc_display import draw_npc_portrait
 from utils.constants import wrap_text as constants_wrap_text

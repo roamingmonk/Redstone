@@ -6,7 +6,6 @@ Supports standard RPG dice notation: XdY+Z
 import random
 import re
 
-
 def roll_dice(dice_string):
     """
     Roll dice from standard notation and return total + details

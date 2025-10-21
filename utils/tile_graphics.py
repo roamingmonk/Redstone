@@ -13,7 +13,8 @@ This utility can be used by:
 
 import pygame
 import os
-from utils.constants import *
+from utils.constants import (BLACK, RED, WHITE,
+                             TILES_PATH)
 
 class TileGraphicsManager:
     """

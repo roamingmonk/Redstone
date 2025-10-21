@@ -4,7 +4,7 @@ Save Game Screen - Full screen overlay for save file management
 """
 
 import pygame
-from utils.constants import *
+from utils.constants import (BLACK, YELLOW, BLUE, WHITE, DARK_GRAY)
 from utils.graphics import draw_border, draw_button, draw_centered_text
 from datetime import datetime
 

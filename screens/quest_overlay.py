@@ -6,13 +6,9 @@ Integrates with professional quest system for real quest data
 
 import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay
-from utils.constants import *
+from utils.constants import (YELLOW, WHITE, BRIGHT_GREEN, BROWN, DARK_GRAY, CORNFLOWER_BLUE,
+                             wrap_text)
 from utils.graphics import draw_text
-from utils.constants import wrap_text
-from utils.overlay_utils import (
-    draw_chunky_border, WHITE, BLACK, BRIGHT_GREEN, BROWN, 
-    DARK_GRAY, SELECTION_COLOR
-)
 
 class QuestOverlay(BaseTabbedOverlay):
     """Professional 2-tab quest log overlay (Active | Completed)"""
@@ -253,7 +249,7 @@ class QuestOverlay(BaseTabbedOverlay):
 
             # Highlight selected quest
             if self.selected_quest == quest['id']:
-                pygame.draw.rect(surface, SELECTION_COLOR, quest_rect)
+                pygame.draw.rect(surface, CORNFLOWER_BLUE, quest_rect)
             
             # Draw quest status indicator
             status_x = quest_list_x + 15

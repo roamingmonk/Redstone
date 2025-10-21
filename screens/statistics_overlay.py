@@ -8,7 +8,8 @@ Uses BaseTabbedOverlay for consistent UI experience
 
 import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay
-from utils.constants import *
+from utils.constants import (WHITE, BRIGHT_GREEN,
+                             SPACING)
 from utils.graphics import draw_text
 from utils.overlay_utils import (
     draw_popup_background, draw_chunky_border,

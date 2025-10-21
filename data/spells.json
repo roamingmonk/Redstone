@@ -2,7 +2,7 @@
   "cure_wounds": {
     "id": "cure_wounds",
     "name": "Cure Wounds",
-    "damage_dice": "1d8",
+    "damage_dice": "1d4",
     "damage_type": "healing",
     "area_type": "single",
     "range": 1,

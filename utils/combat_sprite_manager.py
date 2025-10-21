@@ -6,7 +6,9 @@ Follows TileGraphicsManager pattern for consistency
 
 import pygame
 import os
-from utils.constants import *
+from utils.constants import (COMBAT_WALLS_PATH, COMBAT_OBSTACLES_PATH,COMBAT_FLOORS_PATH,
+                             COMBAT_FLOOR_TILE_SIZE, COMBAT_TILE_SIZE,
+                             DARK_GRAY, BROWN, WHITE)
 
 class CombatSpriteManager:
     """

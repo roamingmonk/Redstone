@@ -9,9 +9,8 @@ Single tab for now, but framework ready for expansion.
 
 import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay
-from utils.overlay_utils import *
 from utils.graphics import draw_text
-from utils.constants import CYAN
+from utils.constants import (CYAN, WHITE)
 
 class HelpOverlay(BaseTabbedOverlay):
     """

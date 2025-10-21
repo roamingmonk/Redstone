@@ -5,7 +5,9 @@ Handles camera, movement, rendering, and input for all tile-based locations
 """
 
 import pygame
-from utils.constants import *
+from utils.constants import (RED, YELLOW, WHITE, GREEN,
+                             SCREEN_WIDTH, LAYOUT_IMAGE_HEIGHT, LAYOUT_DIALOG_HEIGHT,
+                             LAYOUT_DIALOG_Y)
 from utils.graphics import draw_border, draw_button, draw_centered_text
 from utils.party_display import draw_party_status_panel, PARTY_PANEL_WIDTH
 from utils.tile_graphics import get_tile_graphics_manager

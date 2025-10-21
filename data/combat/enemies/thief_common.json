@@ -27,7 +27,7 @@
       "damage_dice": "1d4+3",
       "attack_bonus": 5,
       "attack_type": "ranged",
-      "range": 4,
+      "range": 8,
       "description": "A well-aimed thrown dagger"
     }
   ],

@@ -7,7 +7,9 @@ Follows existing ui pattern for screen presentation layers
 import pygame
 import time
 from typing import Dict, Any, Optional, List
-from utils.constants import *
+from utils.constants import (BLACK, BRIGHT_GREEN, YELLOW, DARK_GRAY, CYAN,
+                             WHITE, RED, BLUE, GREEN, GRAY, ORANGE, 
+                             wrap_text)
 from utils.graphics import draw_combat_button, draw_centered_text, draw_text
 from utils.combat_loader import get_combat_loader
 from game_logic.combat_engine import CombatPhase

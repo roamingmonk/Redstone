@@ -13,8 +13,10 @@ DESIGN PHILOSOPHY:
 
 import pygame
 from typing import List, Dict, Any, Optional, Tuple
-from utils.overlay_utils import *
-from utils.constants import SPACING, DARK_GRAY, BRIGHT_GREEN, GRAY, WALNUT_BROWN
+from utils.overlay_utils import draw_tab_button, draw_chunky_border
+from utils.constants import (SPACING, 
+                             DARK_GRAY, BRIGHT_GREEN, GRAY, WALNUT_BROWN,
+                             WHITE)
 from utils.graphics import draw_centered_text
 
 # ========================================

@@ -5,7 +5,8 @@ Redstone Town Navigation - Using shared NavigationRenderer utility
 
 import pygame
 from ui.base_location_navigation import NavigationRenderer, calculate_required_direction
-from utils.constants import *
+from utils.constants import (BLACK, WHITE,
+                             LAYOUT_IMAGE_Y, LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT)
 from utils.graphics import draw_border, draw_centered_text
 from utils.party_display import draw_party_status_panel
 from utils.tile_graphics import get_tile_graphics_manager

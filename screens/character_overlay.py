@@ -15,14 +15,15 @@ import json
 import os
 import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay
-from utils.overlay_utils import *
 from utils.graphics import draw_text
-from utils.constants import *
 from utils.party_display import load_portrait, get_character_color
 from game_logic.character_engine import CharacterEngine
 from utils.narrative_schema import narrative_schema
 from utils.stats_calculator import get_stats_calculator
-from utils.constants import MALE_PORTRAITS_PATH
+from utils.constants import (MALE_PORTRAITS_PATH,
+                             CYAN, RED, YELLOW, GRAY, WHITE, SOFT_YELLOW,
+                             BRIGHT_GREEN, BLACK
+                             )
 
 class CharacterOverlay(BaseTabbedOverlay):
     """

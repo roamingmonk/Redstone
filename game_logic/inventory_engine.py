@@ -316,10 +316,10 @@ class InventoryEngine:
             traceback.print_exc()
             return {'success': False, 'message': f'Error: {e}'}
     
-    #TODO should we centralize healing ??
     def _apply_healing(self, healing_formula: str, target_member_id: str) -> dict:
         """
         Apply healing to a party member using dice notation
+        NOW USES EFFECT RESOLVER - Single source of truth!
         
         Args:
             healing_formula: Dice notation (e.g., "2d4+2")
@@ -328,56 +328,52 @@ class InventoryEngine:
         Returns:
             dict: Healing details
         """
+        from utils.combat_effects import get_effect_resolver
+        
+        # Get effect resolver
+        effect_resolver = get_effect_resolver(self.game_state, self.event_manager)
+        
+        # Build effect definition
+        effect_def = {
+            'effect_type': 'healing',
+            'dice': healing_formula
+        }
+        
+        # Build target
+        target_type = 'player' if target_member_id == 'player' else 'party_member'
+        target = {
+            'type': target_type,
+            'id': target_member_id
+        }
+        
+        # Resolve effect through universal system
+        results = effect_resolver.resolve_effect(effect_def, [target])
+        
+        if not results:
+            return {
+                'type': 'healing',
+                'target': target_member_id,
+                'amount': 0,
+                'old_hp': 0,
+                'new_hp': 0
+            }
+        
+        # Get result
+        result = results[0]
+        
+        # Console output (keep existing format)
         from utils.dice_roller import roll_dice, format_roll_result
-        
-        # Roll healing amount
-        total, rolls, modifier = roll_dice(healing_formula)
-        
-        # Get target's current and max HP
-        if target_member_id == 'player':
-            current_hp = self.game_state.character.get('current_hp', 10)
-            max_hp = self.game_state.character.get('hit_points', 10)
-            target_name = self.game_state.character.get('name', 'Player')
-        else:
-            # Find party member
-            current_hp = 0
-            max_hp = 0
-            target_name = target_member_id
-            for member in self.game_state.party_member_data:
-                if member.get('id') == target_member_id:
-                    current_hp = member.get('current_hp', 10)
-                    max_hp = member.get('hp', member.get('hit_points', 10))
-                    target_name = member.get('name', target_member_id)
-                    break
-        
-        # Calculate actual healing (can't exceed max HP)
-        old_hp = current_hp
-        new_hp = min(current_hp + total, max_hp)
-        actual_healing = new_hp - old_hp
-        
-        # Apply healing to game state
-        if target_member_id == 'player':
-            self.game_state.character['current_hp'] = new_hp
-        else:
-            for member in self.game_state.party_member_data:
-                if member.get('id') == target_member_id:
-                    member['current_hp'] = new_hp
-                    break
-        
-        # Console output
-        roll_str = format_roll_result(healing_formula, total, rolls, modifier)
-        print(f"🎲 Healing Roll: {roll_str}")
-        print(f"💚 {target_name}: {old_hp}/{max_hp} HP → {new_hp}/{max_hp} HP (+{actual_healing} HP)")
+        print(f"💚 {result['target_name']}: {result['old_hp']}/{result['max_hp']} HP → {result['new_hp']}/{result['max_hp']} HP (+{result['magnitude']} HP)")
         
         return {
             'type': 'healing',
-            'target': target_name,
-            'target_id': target_member_id,
-            'amount': actual_healing,
-            'rolled': total,
-            'old_hp': old_hp,
-            'new_hp': new_hp,
-            'max_hp': max_hp
+            'target': result['target_name'],
+            'target_id': result['target_id'],
+            'amount': result['magnitude'],
+            'rolled': result['magnitude'],  # For backwards compatibility
+            'old_hp': result['old_hp'],
+            'new_hp': result['new_hp'],
+            'max_hp': result['max_hp']
         }
     
     def discard_item(self, item_id: str) -> bool:
