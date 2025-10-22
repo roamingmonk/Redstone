@@ -16,7 +16,8 @@
     "id": "fireball",
     "name": "Fireball",
     "damage_dice": "3d6",
-    "damage_type": "fire",
+    "damage_type": "damage",
+    "elemental_type": "fire",
     "area_type": "area",
     "area_size": 3,
     "range": 7,
@@ -25,5 +26,35 @@
     "scales_with_level": true,
     "scaling_type": "add_dice",
     "description": "3x3 area of devastating fire. Level 1=3d6, Level 2=4d6, etc. Damages ALL units including allies!"
+  },
+    "inflict_wounds": {
+    "id": "inflict_wounds",
+    "name": "Inflict Wounds",
+    "damage_dice": "1d12",
+    "damage_type": "damage",
+    "elemental_type": "necrotic",
+    "area_type": "single",
+    "range": 1,
+    "slot_cost": 1,
+    "target_type": "enemy",
+    "scales_with_level": true,
+    "add_stat_modifier": "wisdom",
+    "description": "inflicts HP damage to enemy through touch. Damages 1d12 per caster level + WIS modifier."
+  },
+  "magic_dart": {
+  "id": "magic_dart",
+  "name": "Magic Dart",
+  "damage_dice": "1d4+1",
+  "damage_type": "damage",
+  "elemental_type": "force",
+  "area_type": "single",
+  "range": 10,
+  "slot_cost": 1,
+  "target_type": "enemy",
+  "auto_hit": true,                    
+  "requires_line_of_sight": true,      
+  "scales_with_level": false,
+  "description": "Unerring missile of magical force. Always hits target within line of sight."
   }
+
 }

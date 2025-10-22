@@ -13,6 +13,10 @@
     "wisdom": 12,
     "charisma": 14
   },
+  "resistances": {
+    "poison": 0.5
+  },
+  "immunities": ["fire", "necrotic"],
   "attacks": [
     {
       "name": "Chilling Touch",

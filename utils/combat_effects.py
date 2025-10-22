@@ -66,6 +66,7 @@ class CombatEffectResolver:
         Returns:
             List of result dicts with applied effects
         """
+        print(f"🔍 FULL EFFECT DEFINITION: {effect_definition}")
         results = []
         
         # Calculate magnitude ONCE for all targets (AOE spells roll once!)
@@ -73,23 +74,73 @@ class CombatEffectResolver:
             effect_definition, 
             source_data
         )
+
+        effect_type = effect_definition.get('effect_type', EffectType.DAMAGE)
+        damage_type = effect_definition.get('elemental_type', 'physical')
+        print(f"\n🎯 EFFECT RESOLVER DEBUG:")
+        print(f"   Effect Type: {effect_type}")
+        print(f"   Damage Type: {damage_type}")
+        print(f"   Base Magnitude: {magnitude}")
         
         # Apply same magnitude to all targets
         for target in targets:
-            # Apply to appropriate target type
+            # Apply resistances to magnitude
+            final_magnitude = self._apply_resistances_to_magnitude(
+                magnitude, target, effect_definition
+            )
+
+            # ADD THIS LINE:
+            if effect_type == 'damage':
+                self._debug_resistance_check(target, damage_type, magnitude, final_magnitude)
+    
+            
+            # Your existing _apply_to_target call (unchanged)
             result = self._apply_to_target(
                 target,
-                magnitude,
+                final_magnitude,  # Resistance-modified magnitude
                 effect_definition.get('effect_type', EffectType.DAMAGE)
             )
             
             if result:
+                # Add original damage for resistance logging
+                if effect_type == 'damage':
+                    result['original_damage'] = magnitude
                 results.append(result)
         
         return results
     
     # ==================== MAGNITUDE CALCULATION ====================
-    
+
+    def _apply_resistances_to_magnitude(self, base_magnitude: int, target: Dict, 
+                                    effect_definition: Dict) -> int:
+        """
+        Apply damage resistances to magnitude before HP modification
+        
+        Args:
+            base_magnitude: Original effect magnitude  
+            target: Target data
+            effect_definition: Effect parameters including damage_type
+            
+        Returns:
+            Modified magnitude after resistance calculations
+        """
+        effect_type = effect_definition.get('effect_type', 'damage')
+        
+        # Only apply resistances to damage effects
+        if effect_type != 'damage':
+            return base_magnitude
+        
+        damage_type = effect_definition.get('elemental_type', 'physical')
+        resistance_multiplier = self._get_resistance_multiplier(target, damage_type)
+        
+        final_magnitude = int(base_magnitude * resistance_multiplier)
+        
+        # Ensure minimum 1 damage unless completely immune
+        if resistance_multiplier > 0 and final_magnitude < 1:
+            final_magnitude = 1
+        
+        return final_magnitude
+
     def _calculate_effect_magnitude(self, effect_def: Dict, source_data: Dict = None) -> int:
         """
         Calculate effect magnitude from dice notation and modifiers
@@ -177,7 +228,7 @@ class CombatEffectResolver:
         
         return None
     
-    # ==================== HP MODIFICATION (SINGLE SOURCE OF TRUTH) ====================
+    # ==================== HP MODIFICATION  ====================
     
     def _modify_player_hp(self, magnitude: int, effect_type: str) -> Dict:
         """
@@ -308,13 +359,53 @@ class CombatEffectResolver:
             'target_name': name,
             'target_type': 'enemy',
             'effect_type': effect_type,
-            'magnitude': actual_change,
+            'magnitude': magnitude,
             'old_hp': current_hp,
             'new_hp': new_hp,
             'max_hp': max_hp,
             'is_alive': is_alive
         }
 
+    # ==================== Modifications  ====================
+    def _get_resistance_multiplier(self, target: Dict, damage_type: str) -> float:
+        """
+        Get damage resistance multiplier for target
+        
+        Returns: 0.0=immune, 0.5=resistant, 1.0=normal, 2.0=vulnerable
+        """
+        target_data = target.get('data', target)
+        
+        # Check immunities first
+        immunities = target_data.get('immunities', [])
+        if damage_type in immunities:
+            return 0.0
+        
+        # Check resistances
+        resistances = target_data.get('resistances', {})
+        if damage_type in resistances:
+            return resistances[damage_type]
+        
+        # Check vulnerabilities  
+        vulnerabilities = target_data.get('vulnerabilities', {})
+        if damage_type in vulnerabilities:
+            return vulnerabilities[damage_type]
+        
+        # Normal damage
+        return 1.0
+
+    def _debug_resistance_check(self, target: Dict, damage_type: str, base_magnitude: int, final_magnitude: int):
+        """Debug resistance calculations"""
+        target_data = target.get('data', target)
+        target_name = target_data.get('name', 'Unknown')
+        
+        print(f"\n🛡️ RESISTANCE DEBUG:")
+        print(f"   Target: {target_name}")
+        print(f"   Damage Type: {damage_type}")
+        print(f"   Base Damage: {base_magnitude}")
+        print(f"   Final Damage: {final_magnitude}")
+        print(f"   Resistances: {target_data.get('resistances', 'None')}")
+        print(f"   Immunities: {target_data.get('immunities', 'None')}")
+        print(f"   Vulnerabilities: {target_data.get('vulnerabilities', 'None')}")
 
 # ==================== GLOBAL SINGLETON ====================
 

@@ -158,9 +158,6 @@
       "consumable": false,
       "weight": 0,
       "rarity": "special",
-      "combat_stats": {
-        "armor_class": 1
-      },
       "special_effects": {
         "ac_bonus": 1,
         "description": "The mysterious jingling provides inexplicable protection"
@@ -284,9 +281,6 @@
       "consumable": false,
       "weight": 0,
       "rarity": "special",
-      "combat_stats": {
-        "armor_class": 1
-      },
       "special_effects": {
         "ac_bonus": 1,
         "description": "The strange symbols provide mystical protection"
@@ -521,9 +515,6 @@
       "consumable": false,
       "weight": 0,
       "rarity": "special",
-      "combat_stats": {
-        "armor_class": 1
-      },
       "special_effects": {
         "ac_bonus": 1,
         "description": "Ancient runes ward against harm"

@@ -13,6 +13,10 @@
     "wisdom": 10,
     "charisma": 8
   },
+  "resistances": {
+    "fire": 0.5
+  },
+  "immunities": ["poison", "necrotic"],
   "attacks": [
     {
       "name": "Shadow Tendril",

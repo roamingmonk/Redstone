@@ -464,7 +464,7 @@
           "1st": 2
         },
         "starting_cantrips": ["Sacred Flame", "Light", "Thaumaturgy"],
-        "starting_spells": ["Cure Wounds", "Guiding Bolt", "Sanctuary", "Bless"]
+        "starting_spells": ["Cure Wounds", "Guiding Bolt", "Sanctuary", "Bless", "Inflict Wounds"]
       },
       "proficiencies": {
         "armor": ["Light Armor", "Medium Armor", "Shields"],

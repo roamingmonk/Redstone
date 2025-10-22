@@ -26,6 +26,7 @@ class DebugManager:
         self.event_manager.register("DEBUG_SAVE_STATE", self.handle_save_debug)
         self.event_manager.register("NPC_DEBUG", self.handle_npc_debug)
         self.event_manager.register("COMBAT_DEBUG", self.handle_combat_debug)  
+        self.event_manager.register("BUFF_DEBUG", self.handle_buff_debug)
 
         self.event_manager.register("TIME_ADVANCED", self.handle_time_advanced)
         self.event_manager.register("PARTY_RESTED", self.handle_party_rested)
@@ -61,6 +62,136 @@ class DebugManager:
         
         self._debug_combat_positions(self.combat_engine)
     
+    def handle_buff_debug(self, data):
+        """Handle F9 - Show resistance/buff debug info"""
+        print("🛡️ F9 - Resistance/Buff Debug Requested")
+        
+        # Check if in combat vs out of combat
+        if self.combat_engine and hasattr(self.combat_engine, 'combat_data') and self.combat_engine.combat_data:
+            self._debug_combat_resistances()
+        else:
+            self._debug_out_of_combat_status()
+    
+    def _debug_combat_resistances(self):
+        """Show resistance/buff info during combat"""
+        print("\n" + "="*60)
+        print("🛡️ COMBAT RESISTANCE & BUFF DEBUG")
+        print("="*60)
+        
+        # Get combat data
+        combat_data = self.combat_engine.get_combat_data_for_ui()
+        
+        # Player and party resistances
+        print("👥 PARTY STATUS:")
+        character_states = combat_data.get("character_states", {})
+        for char_id, char_state in character_states.items():
+            if not char_state.get('is_alive', True):
+                continue
+            
+            char_data = char_state.get('character_data', {})
+            name = char_state.get('name', char_id)
+            hp = char_data.get('current_hp', '?')
+            max_hp = char_data.get('max_hp', '?')
+            
+            print(f"\n  🏹 {name} [{char_id}] - HP: {hp}/{max_hp}")
+            
+            # Show resistances (from equipment/buffs)
+            resistances = char_data.get('resistances', {})
+            immunities = char_data.get('immunities', [])
+            vulnerabilities = char_data.get('vulnerabilities', [])
+            
+            if resistances or immunities or vulnerabilities:
+                if resistances:
+                    print(f"    🛡️ Resistances: {resistances}")
+                if immunities:
+                    print(f"    ⚫ Immunities: {immunities}")
+                if vulnerabilities:
+                    print(f"    🔴 Vulnerabilities: {vulnerabilities}")
+            else:
+                print("    ⚪ No special resistances")
+            
+            # Show active buffs (AC bonuses, etc.)
+            # TODO: This will be expanded when buff system is implemented
+            
+        # Enemy resistances
+        print("\n👹 ENEMY STATUS:")
+        enemy_instances = combat_data.get("enemy_instances", [])
+        for enemy in enemy_instances:
+            if enemy.get("current_hp", 0) <= 0:
+                continue
+            
+            name = enemy.get("name", "Enemy")
+            hp = enemy.get("current_hp", 0)
+            max_hp = enemy.get("stats", {}).get("hp", 1)
+            instance_id = enemy.get("instance_id", "???")
+            
+            print(f"\n  💀 {name} [{instance_id[:4]}] - HP: {hp}/{max_hp}")
+            
+            # Show enemy resistances from JSON
+            resistances = enemy.get("resistances", {})
+            immunities = enemy.get("immunities", [])
+            vulnerabilities = enemy.get("vulnerabilities", [])
+            
+            if resistances or immunities or vulnerabilities:
+                if resistances:
+                    print(f"    🛡️ Resistances: {resistances}")
+                if immunities:
+                    print(f"    ⚫ Immunities: {immunities}")
+                if vulnerabilities:
+                    print(f"    🔴 Vulnerabilities: {vulnerabilities}")
+            else:
+                print("    ⚪ No special resistances")
+        
+        print("="*60 + "\n")
+    
+    def _debug_out_of_combat_status(self):
+        """Show status info when not in combat"""
+        print("\n" + "="*50)
+        print("🛡️ OUT-OF-COMBAT STATUS DEBUG")
+        print("="*50)
+        
+        # Player status
+        if hasattr(self.game_state, 'character'):
+            char = self.game_state.character
+            name = char.get('name', 'Player')
+            hp = char.get('hp', char.get('current_hp', '?'))
+            max_hp = char.get('hit_points', char.get('max_hp', '?'))
+            
+            print(f"🏹 {name} (Player) - HP: {hp}/{max_hp}")
+            
+            # TODO: Show equipment-based resistances
+            # This would require checking equipped armor/trinkets
+            print("    📝 Equipment resistances: [Not yet implemented]")
+            
+            # Show spell slots
+            spell_slots = char.get('spell_slots', {})
+            if spell_slots:
+                print(f"    🔮 Spell Slots: {spell_slots}")
+            
+            # Show class abilities
+            char_class = char.get('character_class', 'Unknown')
+            level = char.get('level', 1)
+            print(f"    ⚔️ Class: {char_class} (Level {level})")
+        
+        # Party member status
+        if hasattr(self.game_state, 'party_members') and self.game_state.party_members:
+            print(f"\n👥 PARTY MEMBERS:")
+            for member_id in self.game_state.party_members:
+                member_data = self.game_state.get_party_member_data(member_id)
+                if member_data:
+                    name = member_data.get('name', member_id)
+                    hp = member_data.get('current_hp', '?')
+                    max_hp = member_data.get('max_hit_points', member_data.get('hp', '?'))
+                    char_class = member_data.get('character_class', 'Unknown')
+                    level = member_data.get('level', 1)
+                    
+                    print(f"  🗡️ {name} - HP: {hp}/{max_hp} - {char_class} (Level {level})")
+                    print("      📝 Equipment resistances: [Not yet implemented]")
+        else:
+            print(f"\n👥 PARTY MEMBERS: None recruited")
+        
+        print("="*50 + "\n")
+
     def _debug_combat_positions(self, combat_engine):
         """Display all combat unit positions with validation"""
         print("\n" + "="*60)

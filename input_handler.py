@@ -61,6 +61,7 @@ class InputHandler:
             pygame.K_F5: ("SAVE_REQUESTED", {"slot": "quick_save"}),
             pygame.K_F6: ("COMBAT_DEBUG", {}),       # Combat Position debug
             pygame.K_F7: ("SAVE_GAME", {}),          # Opens save overlay
+            pygame.K_F9: ("BUFF_DEBUG", {}),          # debug key
             pygame.K_F10: ("LOAD_GAME", {}),         # Opens load overlay
             
             pygame.K_ESCAPE: ("ESCAPE_PRESSED", {})

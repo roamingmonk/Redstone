@@ -2995,6 +2995,7 @@ class CombatEngine:
         effect_def = {
             'effect_type': 'healing' if damage_type == 'healing' else 'damage',
             'dice': spell_data.get('damage_dice', '1d8'),
+            'elemental_type': spell_data.get('elemental_type', 'physical'), 
             'scales_with_level': spell_data.get('scales_with_level', False),
             'add_stat_modifier': spell_data.get('add_stat_modifier')
         }
@@ -3063,7 +3064,21 @@ class CombatEngine:
             if effect_type == 'healing':
                 self._add_to_combat_log(f"{target_name} healed for {magnitude} HP! ({new_hp}/{max_hp})")
             else:
-                self._add_to_combat_log(f"{target_name} takes {magnitude} damage! ({new_hp}/{max_hp})")
+                # Show HP before and after for clarity
+                old_hp = result['old_hp']
+                
+                if not is_alive:
+                    self._add_to_combat_log(f"{target_name} takes {magnitude} damage! ({old_hp}->0/{max_hp}) - KILLED!")
+                else:
+                    self._add_to_combat_log(f"{target_name} takes {magnitude} damage! ({old_hp}->{new_hp}/{max_hp})")
+                
+                # Add resistance message if applicable
+                if 'original_damage' in result:
+                    original_damage = result['original_damage']
+                    target_hp_before = result['old_hp']
+                    resistance_msg = self._get_resistance_message(target_name, spell_data.get('elemental_type', 'physical'), original_damage, magnitude, target_hp_before)
+                    if resistance_msg:
+                        self._add_to_combat_log(resistance_msg)
                 
                 if not is_alive:
                     self._add_to_combat_log(f"{target_name} is defeated!")
@@ -3084,6 +3099,27 @@ class CombatEngine:
         if self._check_victory_conditions():
             self._handle_combat_victory()
 
+    def _get_resistance_message(self, target_name: str, damage_type: str, base_damage: int, final_damage: int, target_max_takeable: int = None) -> str:
+        """
+        Generate user-friendly resistance message for combat log
+        Only show resistance messages for actual resistance, not HP limits
+        """
+        # If we have max takeable damage info, use it to determine if reduction was due to resistances
+        if target_max_takeable is not None:
+            # The damage was capped by HP, not resistances
+            if final_damage == target_max_takeable and base_damage > target_max_takeable:
+                return ""  # Don't show resistance message for HP-limited damage
+        
+        # Check for actual resistance effects
+        if final_damage == 0 and base_damage > 0:
+            return f"{target_name} is IMMUNE to {damage_type.upper()}!"
+        elif final_damage < base_damage:
+            resistance_percent = int((1 - final_damage/base_damage) * 100)
+            return f"{target_name} resists {damage_type.upper()} ({base_damage}->{final_damage} damage, {resistance_percent}% reduced)"
+        elif final_damage > base_damage:
+            return f"{target_name} is VULNERABLE to {damage_type.upper()}! ({base_damage}→{final_damage} damage)"
+        else:
+            return ""
 
     # ============ ACTION SYSTEM (Healing Potions, Class Abilities) ============
     
