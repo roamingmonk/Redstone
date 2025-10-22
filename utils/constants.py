@@ -202,6 +202,7 @@ FONT_SIZE_MEDIUM = 26
 FONT_SIZE_SMALL = 22
 FONT_SIZE_TINY = 18
 FONT_SIZE_MICRO = 16
+FONT_SIZE_COMBAT_LOG = 16 
 
 # Font size list (for utilities)
 FONT_SIZES = {
@@ -209,7 +210,8 @@ FONT_SIZES = {
     'medium': FONT_SIZE_MEDIUM,
     'small': FONT_SIZE_SMALL,
     'tiny': FONT_SIZE_TINY,
-    'micro': FONT_SIZE_MICRO
+    'micro': FONT_SIZE_MICRO,
+    'combat_log': FONT_SIZE_COMBAT_LOG 
 }
 
 def _create_font(font_path, size, use_system_fallback=True):
@@ -288,6 +290,9 @@ def load_fonts():
     fonts['normal'] = fonts['fantasy_medium']
     fonts['small'] = fonts['fantasy_small']
     fonts['tiny'] = fonts['fantasy_tiny']
+
+    # Combat log uses fallback font for readability (not fantasy font)  
+    fonts['combat_log'] = _create_font(None, FONT_SIZE_COMBAT_LOG) 
     
     return fonts
 
