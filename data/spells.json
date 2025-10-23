@@ -23,6 +23,9 @@
     "range": 7,
     "slot_cost": 1,
     "target_type": "all",
+    "attack_type": "saving_throw",
+    "save_type": "dexterity",
+    "requires_line_of_sight": true ,
     "scales_with_level": true,
     "scaling_type": "add_dice",
     "description": "3x3 area of devastating fire. Level 1=3d6, Level 2=4d6, etc. Damages ALL units including allies!"
@@ -37,6 +40,8 @@
     "range": 1,
     "slot_cost": 1,
     "target_type": "enemy",
+    "attack_type": "saving_throw",
+    "save_type": "consitution",
     "scales_with_level": true,
     "add_stat_modifier": "wisdom",
     "description": "inflicts HP damage to enemy through touch. Damages 1d12 per caster level + WIS modifier."
@@ -51,10 +56,25 @@
   "range": 10,
   "slot_cost": 1,
   "target_type": "enemy",
-  "auto_hit": true,                    
+  "attack_type": "auto_hit",                  
   "requires_line_of_sight": true,      
   "scales_with_level": false,
   "description": "Unerring missile of magical force. Always hits target within line of sight."
-  }
-
+  },
+  "firebolt": {
+  "id": "firebolt",
+  "name": "Firebolt", 
+  "damage_dice": "1d10",
+  "damage_type": "damage",
+  "elemental_type": "fire",
+  "area_type": "single",
+  "range": 12,
+  "slot_cost": 0,
+  "target_type": "enemy",
+  "attack_type": "spell_attack",
+  "requires_line_of_sight": true,
+  "scales_with_level": false,
+  "scaling_type": "add_dice",
+  "description": "A mote of fire streaks toward a target. Ranged spell attack. 1d10 fire damage, +1d10 per level."
+}
 }

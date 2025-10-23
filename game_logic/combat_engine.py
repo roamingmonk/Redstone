@@ -10,6 +10,7 @@ import random
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
 from utils.combat_loader import get_combat_loader
+from utils.dice_roller import roll_dice
 from utils.stats_calculator import get_stats_calculator
 from game_logic.combat_ai import get_combat_ai
 from game_logic.movement_system import get_movement_system
@@ -2777,7 +2778,7 @@ class CombatEngine:
         return 0
 
     def _get_character_spells(self, character_data: dict) -> list:
-        """Get list of spell IDs this character knows"""
+        """Get list of spell IDs this character knows (cantrips + spells)"""
         # DEBUG - get name first
         char_name = character_data.get('name', 'Unknown')
         
@@ -2789,21 +2790,27 @@ class CombatEngine:
         print(f"   spells_data type: {type(spells_data)}")
         print(f"   spells_data: {spells_data}")
         
+        all_known_spells = []
+        
         # Handle different spell data formats
         if isinstance(spells_data, dict):
-            # Format: {"spells_known": ["cure_wounds", "bless"]}
+            # Get cantrips and spells separately
+            cantrips_known = spells_data.get('cantrips_known', [])
             spells_known = spells_data.get('spells_known', [])
+            all_known_spells = cantrips_known + spells_known  # ← COMBINE BOTH LISTS
+            print(f"   cantrips_known: {cantrips_known}")
+            print(f"   spells_known: {spells_known}")
         elif isinstance(spells_data, list):
-            # Format: ["cure_wounds", "bless"]
-            spells_known = spells_data
+            # Format: ["cure_wounds", "bless"] (legacy format)
+            all_known_spells = spells_data
         else:
-            spells_known = []
+            all_known_spells = []
         
-        print(f"   After parsing - spells_known: {spells_known}")
+        print(f"   After parsing - all_known_spells: {all_known_spells}")
         
         # Convert spell names to lowercase IDs
         spell_ids = []
-        for spell in spells_known:
+        for spell in all_known_spells:
             # Convert "Cure Wounds" to "cure_wounds"
             spell_id = spell.lower().replace(' ', '_')
             # Only add if we have definition for it
@@ -2815,6 +2822,27 @@ class CombatEngine:
         
         print(f"   Final spell_ids: {spell_ids}")
         return spell_ids
+
+    def _calculate_spell_save_dc(self, caster_data: dict, spell_data: dict) -> int:
+        """Calculate spell save DC: 8 + proficiency + casting stat modifier"""
+        base_dc = 8
+        
+        # Get proficiency bonus from level
+        level = caster_data.get('level', 1)
+        proficiency = 2 + ((level - 1) // 4)  # Standard D&D progression
+        
+        # Get casting stat modifier (INT for wizards, WIS for clerics)
+        char_class = caster_data.get('character_class', '').lower()
+        casting_stat = 'intelligence' if char_class == 'wizard' else 'wisdom'
+        
+        stats = caster_data.get('stats', {})
+        stat_value = stats.get(casting_stat, 10)
+        stat_modifier = (stat_value - 10) // 2
+        
+        # Check for spell-specific DC override
+        spell_dc_bonus = spell_data.get('dc_bonus', 0)
+        
+        return base_dc + proficiency + stat_modifier + spell_dc_bonus
 
     def get_available_spells(self, character_id: str) -> list:
         """
@@ -2927,12 +2955,39 @@ class CombatEngine:
         # Get affected area (for AOE spells like Fireball)
         affected_positions = self._get_spell_affected_area(spell_data, target_position)
         
+       # Handle different attack types
+        attack_type = spell_data.get('attack_type', 'auto_hit')
+
+        if attack_type == 'spell_attack':
+            # Make spell attack roll
+            if not self._make_spell_attack_roll(spell_data, char_state, target_position):
+                self._add_to_combat_log("Spell missed!")
+                # Still consume spell slot and action for missed spell
+                slot_cost = spell_data.get('slot_cost', 1)
+                if slot_cost > 0:
+                    char_state['spell_slots_remaining'] -= slot_cost
+                    print(f"🔮 Consumed {slot_cost} spell slot(s)")
+                else:
+                    print(f"🔮 Cantrip cast - no spell slot consumed")
+                char_state['spells_cast_this_turn'] += 1
+                char_state['has_acted'] = True
+                self.selected_spell_id = None
+                self.set_action_mode(None)
+                return True
+            else:
+                self._add_to_combat_log("Spell hits!")
+                
+        elif attack_type == 'saving_throw':
+            # Apply saving throws to affected targets
+            affected_positions = self._apply_saving_throws(spell_data, affected_positions)
+            # Some targets may have saved for half damage
+
         # Cast the spell
         self._execute_spell_effect(spell_data, affected_positions, char_state)
         
-       # Consume spell slot
-        char_state['spell_slots_remaining'] -= 1
-        char_state['spells_cast_this_turn'] += 1  # ← ADD THIS
+    #    # Consume spell slot
+    #     char_state['spell_slots_remaining'] -= 1
+    #     char_state['spells_cast_this_turn'] += 1  # ← ADD THIS
         print(f"🔮 Spell slots: {char_state['spell_slots_remaining']}/{char_state['spell_slots_max']}")
         print(f"🔮 Spells cast this turn: {char_state['spells_cast_this_turn']}")
                 
@@ -2944,7 +2999,61 @@ class CombatEngine:
         char_state['has_acted'] = True
         
         return True
-    
+
+    def _make_spell_attack_roll(self, spell_data: dict, char_state: dict, target_position: List[int]) -> bool:
+        """Make spell attack roll against target AC"""
+        
+        caster_data = char_state.get('character_data', {})
+        caster_name = char_state.get('name', 'Caster')
+        
+        # Find target at position
+        target_data = None
+        target_name = "Target"
+        
+        # Check enemies first
+        for enemy in self.combat_data.get("enemy_instances", []):
+            if enemy['position'] == target_position and enemy.get('current_hp', 0) > 0:
+                target_data = enemy
+                target_name = enemy.get('name', 'Enemy')
+                break
+        
+        # Check party members
+        if not target_data:
+            for char_id, target_state in self.character_states.items():
+                if target_state['position'] == target_position and target_state.get('is_alive', True):
+                    target_data = target_state.get('character_data', {})
+                    target_name = target_state.get('name', char_id)
+                    break
+        
+        if not target_data:
+            return False
+        
+        # Calculate attack bonus: proficiency + casting stat modifier
+        level = caster_data.get('level', 1)
+        proficiency = 2 + ((level - 1) // 4)
+        
+        char_class = caster_data.get('character_class', '').lower()
+        casting_stat = 'intelligence' if char_class == 'wizard' else 'wisdom'
+        
+        stats = caster_data.get('stats', {})
+        stat_value = stats.get(casting_stat, 10)
+        stat_modifier = (stat_value - 10) // 2
+        
+        attack_bonus = proficiency + stat_modifier
+        
+        # Get target AC
+        target_ac = target_data.get('ac', 10)
+        
+        # Roll attack
+        attack_roll = random.randint(1, 20)
+        total_attack = attack_roll + attack_bonus
+        
+        # Combat log
+        self._add_to_combat_log(f"{caster_name} casts {spell_data.get('name', 'spell')} at {target_name}")
+        self._add_to_combat_log(f"Spell attack: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
+        
+        return total_attack >= target_ac
+
     def _get_spell_affected_area(self, spell_data: dict, target_position: List[int]) -> List[List[int]]:
         """Get all positions affected by spell (for AOE)"""
         area_type = spell_data.get('area_type', 'single')

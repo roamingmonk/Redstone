@@ -929,11 +929,18 @@ class CombatEncounter:
                         spell_id = spell_data.get('id')
                         spell_name = spell_data.get('name')
                         
-                        # Truncate long spell names
-                        if len(spell_name) > 14:
-                            spell_display = spell_name[:12] + ".."
+                        # Add asterisk for cantrips, then handle truncation
+                        slot_cost = spell_data.get('slot_cost', 1)
+                        if slot_cost == 0:
+                            spell_name_with_indicator = f"{spell_name}*"
                         else:
-                            spell_display = spell_name
+                            spell_name_with_indicator = spell_name
+                        
+                        # Truncate long spell names (after adding indicator)
+                        if len(spell_name_with_indicator) > 14:
+                            spell_display = spell_name_with_indicator[:12] + ".."
+                        else:
+                            spell_display = spell_name_with_indicator
                         
                         spell_button_rect = pygame.Rect(spell_list_x, spell_list_y, 120, 22)
                         

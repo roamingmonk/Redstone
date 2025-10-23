@@ -2126,6 +2126,7 @@ Files Modified: combat_system.py, combat_engine.py, character_classes.json, inpu
 **Consequences:** (+) New spells/abilities require only JSON edits, (+) Healing consistent everywhere, (+) ~500 lines eliminated, (+) Foundation for future buff/debuff system, (-) Minor: attacks still have separate hit-roll logic (intentional design).
 **Files Modified:** combat_engine.py, inventory_engine.py | Files Created: utils/combat_effects.py
 
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

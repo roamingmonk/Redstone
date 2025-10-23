@@ -223,7 +223,7 @@
         "spell_slots": {
           "1st": 2
         },
-        "starting_cantrips": ["Light"],
+        "starting_cantrips": ["Light", "Firebolt"],
         "starting_spells": ["Magic Missile", "Shield", "Fire ball", "Sleep", "Burning Hands"]
       },
       "proficiencies": {

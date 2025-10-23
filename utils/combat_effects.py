@@ -89,7 +89,6 @@ class CombatEffectResolver:
                 magnitude, target, effect_definition
             )
 
-            # ADD THIS LINE:
             if effect_type == 'damage':
                 self._debug_resistance_check(target, damage_type, magnitude, final_magnitude)
     
