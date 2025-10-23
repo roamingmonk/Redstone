@@ -7,6 +7,7 @@ Follows TileGraphicsManager pattern for consistency
 import pygame
 import os
 from utils.constants import (COMBAT_WALLS_PATH, COMBAT_OBSTACLES_PATH,COMBAT_FLOORS_PATH,
+                             EFFECTS_SPRITES_PATH,
                              COMBAT_FLOOR_TILE_SIZE, COMBAT_TILE_SIZE,
                              DARK_GRAY, BROWN, WHITE)
 
@@ -39,6 +40,7 @@ class CombatSpriteManager:
         # Load all combat graphics
         self.load_obstacle_sprites()
         self.load_floor_tiles()
+        self.load_spell_effects()
         # Wall tiles loaded on-demand per battlefield!
         
         CombatSpriteManager._initialized = True
@@ -154,6 +156,41 @@ class CombatSpriteManager:
             except Exception as e:
                 print(f"⚠️ Error loading {floor_type}: {e}")
                 self.floor_tiles[floor_type] = self._create_floor_fallback()
+    
+    def load_spell_effects(self):
+        """Load spell effect sprites (lightning bolts, fireballs, etc.)"""
+        # Lightning Bolt images
+        lightning_files = {
+            'lightning_h_v': 'lightning_bolt_h_v.png',
+            'lightning_diag': 'lightning_bolt_diag.png'
+        }
+        
+        for effect_key, filename in lightning_files.items():
+            filepath = os.path.join(EFFECTS_SPRITES_PATH, filename)
+            
+            try:
+                if os.path.exists(filepath):
+                    sprite = pygame.image.load(filepath).convert_alpha()
+                    self.effect_sprites[effect_key] = sprite
+                    print(f"⚡ Spell effect loaded: {effect_key}")
+                else:
+                    self.effect_sprites[effect_key] = self._create_effect_fallback()
+                    print(f"⚠️ Missing effect sprite: {filename}, using fallback")
+            except Exception as e:
+                print(f"⚠️ Error loading {filename}: {e}")
+                self.effect_sprites[effect_key] = self._create_effect_fallback()
+    
+    def _create_effect_fallback(self):
+        """Create placeholder for missing spell effect"""
+        surface = pygame.Surface((COMBAT_TILE_SIZE, COMBAT_TILE_SIZE), pygame.SRCALPHA)
+        # Draw a simple lightning bolt placeholder
+        pygame.draw.line(surface, (100, 200, 255), (24, 0), (24, 48), 3)
+        pygame.draw.line(surface, (200, 230, 255), (24, 0), (24, 48), 1)
+        return surface
+
+    def get_effect_sprite(self, effect_type):
+        """Get spell effect sprite by type"""
+        return self.effect_sprites.get(effect_type, self._create_effect_fallback())
     
     def _create_obstacle_fallback(self, obstacle_type, size=32):
         """Create placeholder for missing obstacle sprite"""

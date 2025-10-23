@@ -68,6 +68,12 @@ class CombatEngine:
         self.active_character_id = None  # Currently acting character
         self.inspected_unit = None  # Unit currently being inspected by player
 
+        # line spell Animation System
+        self.active_spell_animation = None  # Current spell animation state
+        self.animation_start_time = 0
+        self.animation_tiles = []  # List of tiles to animate
+        self.animation_current_tile = 0  # Current tile being shown
+
         #Register combat events (following SaveManager pattern)
         if event_manager:
             from ui.combat_system import register_combat_system_events
@@ -80,6 +86,30 @@ class CombatEngine:
         
         print("CombatEngine initialized")
     
+    def update_spell_animations(self):
+        """Update active spell animations - call this each frame"""
+        import time
+        
+        if self.active_spell_animation is None:
+            return False  # No animation running
+        
+        current_time = time.time()
+        elapsed = current_time - self.animation_start_time
+        
+        # Lightning bolt animation: 0.05 seconds per tile (fast!)
+        time_per_tile = 0.10
+        target_tile = int(elapsed / time_per_tile)
+        
+        if target_tile >= len(self.animation_tiles):
+            # Animation complete
+            self.active_spell_animation = None
+            self.animation_tiles = []
+            self.animation_current_tile = 0
+            return False  # Animation finished
+        else:
+            self.animation_current_tile = target_tile
+            return True  # Animation still playing
+
     def _reset_action_mode_for_active(self):
         """Safe default when a new actor becomes active."""
         # pick your default; movement is usually nicest for UX
@@ -2984,7 +3014,20 @@ class CombatEngine:
             # When Phase 2 implemented, uncomment this:
             # affected_positions = self._apply_saving_throws(spell_data, affected_positions)
 
-        # Cast the spell
+        # Start spell animation if it's a line spell
+        if spell_data.get('area_type') == 'line' and len(affected_positions) > 0:
+            import time
+            self.active_spell_animation = {
+                'type': 'lightning_bolt',
+                'caster_pos': char_state['position'],
+                'spell_data': spell_data
+            }
+            self.animation_tiles = affected_positions.copy()
+            self.animation_current_tile = 0
+            self.animation_start_time = time.time()
+            print(f"⚡ Starting lightning animation: {len(affected_positions)} tiles")
+        
+        # Cast the spell (damage will apply immediately, animation is visual only)
         self._execute_spell_effect(spell_data, affected_positions, char_state)
         
         # Consume spell slot (for auto_hit and saving_throw spells)
