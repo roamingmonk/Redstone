@@ -179,6 +179,33 @@ class CombatSpriteManager:
             except Exception as e:
                 print(f"⚠️ Error loading {filename}: {e}")
                 self.effect_sprites[effect_key] = self._create_effect_fallback()
+        
+        # 🔥 Fireball Animation Frames
+        fireball_sheet_path = os.path.join(EFFECTS_SPRITES_PATH, 'fireball_burn.png')
+        
+        try:
+            if os.path.exists(fireball_sheet_path):
+                sprite_sheet = pygame.image.load(fireball_sheet_path).convert_alpha()
+                
+                # Extract 10 frames (48x48 each) from horizontal sprite sheet
+                fireball_frames = []
+                frame_width = 48
+                frame_height = 48
+                
+                for i in range(10):
+                    # Extract each frame from the sprite sheet
+                    frame = pygame.Surface((frame_width, frame_height), pygame.SRCALPHA)
+                    frame.blit(sprite_sheet, (0, 0), (i * frame_width, 0, frame_width, frame_height))
+                    fireball_frames.append(frame)
+                
+                self.effect_sprites['fireball_frames'] = fireball_frames
+                print(f"🔥 Fireball animation loaded: 10 frames")
+            else:
+                print(f"⚠️ Missing fireball sprite sheet, using fallback")
+                self.effect_sprites['fireball_frames'] = [self._create_effect_fallback() for _ in range(10)]
+        except Exception as e:
+            print(f"⚠️ Error loading fireball animation: {e}")
+            self.effect_sprites['fireball_frames'] = [self._create_effect_fallback() for _ in range(10)]
     
     def _create_effect_fallback(self):
         """Create placeholder for missing spell effect"""

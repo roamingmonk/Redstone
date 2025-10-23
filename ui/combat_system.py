@@ -204,6 +204,44 @@ class CombatEncounter:
                     
                     surface.blit(particle_surf, (int(screen_x - size), int(screen_y - size)))
 
+
+        elif anim_type == 'fireball':
+            # Get fireball frames
+            fireball_frames = self.sprite_manager.get_effect_sprite('fireball_frames')
+            
+            if fireball_frames and len(fireball_frames) > 0:
+                tile_data = engine.active_spell_animation.get('tile_data', [])
+                current_time = time.time()
+                elapsed = current_time - engine.animation_start_time
+                
+                # Render each tile with its own animation state
+                for tile_info in tile_data:
+                    tile_pos = tile_info['position']
+                    start_delay = tile_info['start_delay']
+                    frame_offset = tile_info['frame_offset']
+                    
+                    # Check if this tile should be visible yet (expansion effect)
+                    if elapsed < start_delay:
+                        continue  # Tile hasn't ignited yet
+                    
+                    # Calculate which frame to show (0.1 seconds per frame, looping)
+                    tile_elapsed = elapsed - start_delay
+                    frame_time = 0.1  # Each frame shows for 0.1 seconds
+                    frame_index = (int(tile_elapsed / frame_time) + frame_offset) % 10
+                    
+                    # Get the frame
+                    frame = fireball_frames[frame_index]
+                    
+                    # Calculate screen position
+                    screen_x = self.grid_offset_x + (tile_pos[0] * self.tile_size)
+                    screen_y = self.grid_offset_y + (tile_pos[1] * self.tile_size)
+                    
+                    # Center the frame on the tile
+                    frame_rect = frame.get_rect()
+                    frame_rect.center = (screen_x + self.tile_size // 2, screen_y + self.tile_size // 2)
+                    
+                    surface.blit(frame, frame_rect)
+
     def handle_action(self, action_data: Dict[str, Any], game_state, event_manager) -> Optional[str]:
         action_type = action_data.get('action', '')
         

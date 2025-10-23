@@ -91,8 +91,6 @@ class CombatEngine:
     
     def update_spell_animations(self):
         """Update active spell animations - call this each frame"""
-        import time
-        import random
         
         current_time = time.time()
         
@@ -117,33 +115,52 @@ class CombatEngine:
         
         elapsed = current_time - self.animation_start_time
         
-        # Lightning bolt animation: 0.08 seconds per tile
-        time_per_tile = 0.08
-        target_tile = int(elapsed / time_per_tile)
+        # Get animation type
+        anim_type = self.active_spell_animation.get('type')
         
-        # Check if animation complete
-        if target_tile >= len(self.animation_tiles):
-            # Animation complete - hold for fade
-            total_duration = len(self.animation_tiles) * time_per_tile + 0.3  # Extra time for fade
-            if elapsed >= total_duration:
+        if anim_type == 'lightning_bolt':
+            # Lightning bolt animation: 0.08 seconds per tile
+            time_per_tile = 0.08
+            target_tile = int(elapsed / time_per_tile)
+            
+            # Check if animation complete
+            if target_tile >= len(self.animation_tiles):
+                # Animation complete - hold for fade
+                total_duration = len(self.animation_tiles) * time_per_tile + 0.3  # Extra time for fade
+                if elapsed >= total_duration:
+                    self.active_spell_animation = None
+                    self.animation_tiles = []
+                    self.animation_current_tile = 0
+                    self.animation_alpha = 255
+                    return False  # Animation finished
+                else:
+                    # Keep showing all tiles but fade
+                    self.animation_current_tile = len(self.animation_tiles) - 1
+                    fade_start = len(self.animation_tiles) * time_per_tile
+                    fade_elapsed = elapsed - fade_start
+                    fade_progress = fade_elapsed / 0.3
+                    self.animation_alpha = int(255 * (1.0 - fade_progress))
+            else:
+                # Still animating - advance to next tile
+                self.animation_current_tile = target_tile
+                self.animation_alpha = 255  # Full brightness during animation
+            
+            return True  # Animation still playing
+        
+        elif anim_type == 'fireball':
+            # 🔥 Fireball burns for x seconds total
+            burn_duration = 3.0  # ← CHANGE THIS VALUE to adjust burn time
+            
+            if elapsed >= burn_duration:
+                # Animation complete
                 self.active_spell_animation = None
                 self.animation_tiles = []
-                self.animation_current_tile = 0
-                self.animation_alpha = 255
-                return False  # Animation finished
+                return False
             else:
-                # Keep showing all tiles but fade
-                self.animation_current_tile = len(self.animation_tiles) - 1
-                fade_start = len(self.animation_tiles) * time_per_tile
-                fade_elapsed = elapsed - fade_start
-                fade_progress = fade_elapsed / 0.3
-                self.animation_alpha = int(255 * (1.0 - fade_progress))
-        else:
-            # Still animating - advance to next tile
-            self.animation_current_tile = target_tile
-            self.animation_alpha = 255  # Full brightness during animation
+                # Animation still playing - tiles will animate independently
+                return True
         
-        return True  # Animation still playing
+        return False  # Default fallback
 
     def _reset_action_mode_for_active(self):
         """Safe default when a new actor becomes active."""
@@ -3082,6 +3099,58 @@ class CombatEngine:
                     self.impact_particles.append(particle)
             
             print(f"⚡ Starting lightning animation: {len(affected_positions)} tiles, {len(self.impact_particles)} particles")
+
+            # 🔥 Start fireball animation if it's an area spell
+        elif spell_data.get('area_type') == 'area' and len(affected_positions) > 0:
+            
+            # Calculate distance from center for each tile (for expansion effect)
+            center_pos = target_position
+            tile_data = []
+            
+            for tile_pos in affected_positions:
+                # Manhattan distance from center
+                distance = abs(tile_pos[0] - center_pos[0]) + abs(tile_pos[1] - center_pos[1])
+                
+                # Random frame offset (0-9) for staggered animation
+                frame_offset = random.randint(0, 9)
+                
+                tile_data.append({
+                    'position': tile_pos,
+                    'distance': distance,
+                    'frame_offset': frame_offset,
+                    'start_delay': distance * 0.08  # Tiles further from center start later
+                })
+            
+            self.active_spell_animation = {
+                'type': 'fireball',
+                'center_pos': center_pos,
+                'spell_data': spell_data,
+                'tile_data': tile_data
+            }
+            self.animation_tiles = affected_positions.copy()
+            self.animation_start_time = time.time()
+            
+            # Create fire particles at impact
+            self.impact_particles = []
+            for tile_pos in affected_positions:
+                # 8 particles per tile (more than lightning)
+                for _ in range(8):
+                    particle = {
+                        'x': tile_pos[0],
+                        'y': tile_pos[1],
+                        'vx': random.uniform(-0.2, 0.2),
+                        'vy': random.uniform(-0.3, -0.1),  # Bias upward (fire rises)
+                        'life': 1.0,
+                        'color': random.choice([
+                            (255, 200, 0),    # Orange
+                            (255, 150, 0),    # Dark orange
+                            (255, 100, 0),    # Red-orange
+                            (255, 255, 100)   # Yellow
+                        ])
+                    }
+                    self.impact_particles.append(particle)
+            
+            print(f"🔥 Starting fireball animation: {len(affected_positions)} tiles, {len(self.impact_particles)} particles")
         
         # Cast the spell (damage will apply immediately, animation is visual only)
         self._execute_spell_effect(spell_data, affected_positions, char_state)
