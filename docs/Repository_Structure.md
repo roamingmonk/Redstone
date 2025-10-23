@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-10-19 20:42)
+﻿## Repository Structure (generated 2025-10-23 09:34)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -8,6 +8,7 @@ C:.
 |   main.py
 |   README.md
 |   test_combat_data_loading.py
+|   test_combat_effects.py
 |   
 +---.vscode
 |       settings.json
@@ -319,6 +320,8 @@ C:.
 |           
 +---utils
 |   |   animation.py
+|   |   buff_manager.py
+|   |   combat_effects.py
 |   |   combat_loader.py
 |   |   combat_sprite_manager.py
 |   |   constants.py

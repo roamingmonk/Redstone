@@ -76,5 +76,22 @@
   "scales_with_level": false,
   "scaling_type": "add_dice",
   "description": "A mote of fire streaks toward a target. Ranged spell attack. 1d10 fire damage, +1d10 per level."
-}
+  },
+  "lightning_bolt": {
+    "id": "lightning_bolt",
+    "name": "Lightning Bolt",
+    "damage_dice": "8d6",
+    "damage_type": "damage",
+    "elemental_type": "lightning",
+    "area_type": "line",
+    "area_size": 6,
+    "line_width": 1,
+    "range": 6,
+    "slot_cost": 1,
+    "target_type": "all",
+    "attack_type": "saving_throw",
+    "save_type": "dexterity",
+    "requires_line_of_sight": true,
+    "description": "6-tile line of lightning. DEX save or take 8d6 lightning damage. Hits ALL units in line!"
+  }
 }

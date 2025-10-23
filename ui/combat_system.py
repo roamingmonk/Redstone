@@ -754,7 +754,69 @@ class CombatEncounter:
                                         # Red border
                                         pygame.draw.rect(surface, (255, 0, 0), 
                                                     (screen_x, screen_y, self.tile_size, self.tile_size), 3)
-                        return  # Done with AOE preview
+                    # ⚡ LINE SPELL (Lightning Bolt) - Show red line preview
+                    elif spell_data.get('area_type') == 'line':
+                        hover_pos = getattr(engine, 'hover_grid_pos', None)
+                        
+                        if hover_pos is not None:
+                            # Get caster position
+                            char_state = engine.character_states.get(engine.active_character_id)
+                            if char_state:
+                                caster_pos = char_state['position']
+                                
+                                # Calculate direction from caster to hover position
+                                dx = 1 if hover_pos[0] > caster_pos[0] else -1 if hover_pos[0] < caster_pos[0] else 0
+                                dy = 1 if hover_pos[1] > caster_pos[1] else -1 if hover_pos[1] < caster_pos[1] else 0
+                                
+                                # Get spell range
+                                area_size = spell_data.get('area_size', 6)
+                                
+                                # Get battlefield dimensions
+                                battlefield = combat_data.get("battlefield", {})
+                                dimensions = battlefield.get("dimensions", {"width": 8, "height": 8})
+                                grid_width = dimensions.get("width", 8)
+                                grid_height = dimensions.get("height", 8)
+                                
+                                # Calculate line tiles (same logic as combat_engine)
+                                current = caster_pos.copy()
+                                for step in range(area_size):
+                                    # Move to next tile
+                                    current = [current[0] + dx, current[1] + dy]
+                                    
+                                    # Check bounds
+                                    if not (0 <= current[0] < grid_width and 0 <= current[1] < grid_height):
+                                        break
+                                    
+                                    # Check walls (stop at walls)
+                                    if engine.movement_system._is_wall_tile(current[0], current[1], battlefield):
+                                        break
+                                    
+                                    # Check terrain obstacles
+                                    terrain = battlefield.get('terrain', {})
+                                    blocked = False
+                                    for ob in terrain.get('obstacles', []):
+                                        if ob.get('position') == [current[0], current[1]] and ob.get('blocks_sight', False):
+                                            blocked = True
+                                            break
+                                    
+                                    if blocked:
+                                        break
+                                    
+                                    # Draw this tile in red
+                                    screen_x = self.grid_offset_x + (current[0] * self.tile_size)
+                                    screen_y = self.grid_offset_y + (current[1] * self.tile_size)
+                                    
+                                    # Semi-transparent red fill (same as Fireball)
+                                    red_surface = pygame.Surface((self.tile_size, self.tile_size))
+                                    red_surface.set_alpha(100)  # 40% opacity
+                                    red_surface.fill((255, 0, 0))  # Red
+                                    surface.blit(red_surface, (screen_x, screen_y))
+                                    
+                                    # Red border
+                                    pygame.draw.rect(surface, (255, 0, 0), 
+                                                (screen_x, screen_y, self.tile_size, self.tile_size), 3)
+                        
+                        return  # Done with line preview
                     
                     # Single-target spell - show cyan highlights on valid targets
                     border_color = (0, 255, 255); border_width = 3

@@ -2978,16 +2978,26 @@ class CombatEngine:
                 self._add_to_combat_log("Spell hits!")
                 
         elif attack_type == 'saving_throw':
-            # Apply saving throws to affected targets
-            affected_positions = self._apply_saving_throws(spell_data, affected_positions)
-            # Some targets may have saved for half damage
+            # TODO: Phase 2 - Implement actual saving throw mechanics
+            # For now, all targets take full damage (no saves)
+            self._add_to_combat_log("⚠️ Saving throws not yet implemented - full damage to all!")
+            # When Phase 2 implemented, uncomment this:
+            # affected_positions = self._apply_saving_throws(spell_data, affected_positions)
 
         # Cast the spell
         self._execute_spell_effect(spell_data, affected_positions, char_state)
         
-    #    # Consume spell slot
-    #     char_state['spell_slots_remaining'] -= 1
-    #     char_state['spells_cast_this_turn'] += 1  # ← ADD THIS
+        # Consume spell slot (for auto_hit and saving_throw spells)
+        # spell_attack already consumed above if it missed
+        if attack_type != 'spell_attack':
+            slot_cost = spell_data.get('slot_cost', 1)
+            if slot_cost > 0:
+                char_state['spell_slots_remaining'] -= slot_cost
+                print(f"🔮 Consumed {slot_cost} spell slot(s)")
+            else:
+                print(f"🔮 Cantrip cast - no spell slot consumed")
+            char_state['spells_cast_this_turn'] += 1
+        
         print(f"🔮 Spell slots: {char_state['spell_slots_remaining']}/{char_state['spell_slots_max']}")
         print(f"🔮 Spells cast this turn: {char_state['spells_cast_this_turn']}")
                 
@@ -3054,6 +3064,63 @@ class CombatEngine:
         
         return total_attack >= target_ac
 
+    def _calculate_line_tiles(self, start_pos: List[int], direction: Tuple[int, int], 
+                                length: int, width: int = 1) -> List[List[int]]:
+            """
+            Calculate tiles affected by a line spell (like Lightning Bolt)
+            
+            Args:
+                start_pos: Starting position [x, y]
+                direction: Direction tuple (dx, dy) where each is -1, 0, or 1
+                length: Maximum length of line in tiles
+                width: Width of line (default 1 for single-tile width)
+                
+            Returns:
+                List of [x, y] positions affected by the line
+            """
+            affected = []
+            dx, dy = direction
+            
+            # For width=1, we just project a single line
+            if width == 1:
+                current = start_pos.copy()
+                for step in range(length):
+                    # Move to next tile in direction
+                    current = [current[0] + dx, current[1] + dy]
+                    
+                    # Check if blocked by wall/terrain (creatures don't block line spells!)
+                    battlefield = self.combat_data.get("battlefield", {})
+                    
+                    # Check walls
+                    if self.movement_system._is_wall_tile(current[0], current[1], battlefield):
+                        print(f"⚡ Line spell blocked at {current} by wall")
+                        break
+                    
+                    # Check sight-blocking terrain (pillars, etc.)
+                    terrain = battlefield.get('terrain', {})
+                    blocked_by_terrain = False
+                    for ob in terrain.get('obstacles', []):
+                        if ob.get('position') == [current[0], current[1]] and ob.get('blocks_sight', False):
+                            print(f"⚡ Line spell blocked at {current} by terrain obstacle")
+                            blocked_by_terrain = True
+                            break
+                    
+                    if blocked_by_terrain:
+                        break
+                    
+                    # Check if out of battlefield bounds
+                    battlefield = self.combat_data.get("battlefield", {})
+                    grid_width = battlefield.get("width", 8)
+                    grid_height = battlefield.get("height", 8)
+                    
+                    if not (0 <= current[0] < grid_width and 0 <= current[1] < grid_height):
+                        print(f"⚡ Line spell out of bounds at {current}")
+                        break
+                    
+                    affected.append(current.copy())
+            
+            return affected
+
     def _get_spell_affected_area(self, spell_data: dict, target_position: List[int]) -> List[List[int]]:
         """Get all positions affected by spell (for AOE)"""
         area_type = spell_data.get('area_type', 'single')
@@ -3074,19 +3141,50 @@ class CombatEngine:
                     affected.append(pos)
         
         elif area_type == "line":
-            # Line from caster toward target (like Lightning Bolt)
-            char_state = self.character_states[self.active_character_id]
-            caster_pos = char_state['position']
-            
-            # Calculate direction
-            dx = 1 if target_position[0] > caster_pos[0] else -1 if target_position[0] < caster_pos[0] else 0
-            dy = 1 if target_position[1] > caster_pos[1] else -1 if target_position[1] < caster_pos[1] else 0
-            
-            # Create line
-            current = caster_pos.copy()
-            for _ in range(area_size):
-                current = [current[0] + dx, current[1] + dy]
-                affected.append(current.copy())
+                # Line from caster toward target (like Lightning Bolt)
+                char_state = self.character_states[self.active_character_id]
+                caster_pos = char_state['position']
+                
+                # Calculate direction
+                dx = 1 if target_position[0] > caster_pos[0] else -1 if target_position[0] < caster_pos[0] else 0
+                dy = 1 if target_position[1] > caster_pos[1] else -1 if target_position[1] < caster_pos[1] else 0
+                
+                # Get battlefield dimensions
+                battlefield = self.combat_data.get("battlefield", {})
+                grid_width = battlefield.get("width", 8)
+                grid_height = battlefield.get("height", 8)
+                
+                # Calculate line tiles (creatures don't block, only walls/terrain)
+                current = caster_pos.copy()
+                for step in range(area_size):
+                    # Move to next tile in direction
+                    current = [current[0] + dx, current[1] + dy]
+                    
+                    # Check if out of battlefield bounds
+                    if not (0 <= current[0] < grid_width and 0 <= current[1] < grid_height):
+                        print(f"⚡ Line spell out of bounds at {current}")
+                        break
+                    
+                    # Check if blocked by wall
+                    if self.movement_system._is_wall_tile(current[0], current[1], battlefield):
+                        print(f"⚡ Line spell blocked at {current} by wall")
+                        break
+                    
+                    # Check if blocked by sight-blocking terrain
+                    terrain = battlefield.get('terrain', {})
+                    blocked_by_terrain = False
+                    for ob in terrain.get('obstacles', []):
+                        if ob.get('position') == [current[0], current[1]] and ob.get('blocks_sight', False):
+                            print(f"⚡ Line spell blocked at {current} by terrain obstacle")
+                            blocked_by_terrain = True
+                            break
+                    
+                    if blocked_by_terrain:
+                        break
+                    
+                    # Add this tile to affected list (creatures don't block!)
+                    affected.append(current.copy())
+                    print(f"⚡ Line spell affects tile {current}")
         
         return affected
 
