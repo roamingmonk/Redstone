@@ -7,6 +7,7 @@ Follows existing game_logic pattern for core game systems
 import json
 import os
 import random
+import time
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
 from utils.combat_loader import get_combat_loader
@@ -73,6 +74,8 @@ class CombatEngine:
         self.animation_start_time = 0
         self.animation_tiles = []  # List of tiles to animate
         self.animation_current_tile = 0  # Current tile being shown
+        self.animation_alpha = 255  # Current transparency (255=opaque, 0=transparent)
+        self.impact_particles = []  # Active particle effects
 
         #Register combat events (following SaveManager pattern)
         if event_manager:
@@ -89,26 +92,58 @@ class CombatEngine:
     def update_spell_animations(self):
         """Update active spell animations - call this each frame"""
         import time
+        import random
         
+        current_time = time.time()
+        
+        # Update impact particles
+        particles_to_remove = []
+        for i, particle in enumerate(self.impact_particles):
+            # Update particle position
+            particle['x'] += particle['vx']
+            particle['y'] += particle['vy']
+            particle['life'] -= 0.02  # Decay
+            
+            if particle['life'] <= 0:
+                particles_to_remove.append(i)
+        
+        # Remove dead particles (reverse order to maintain indices)
+        for i in reversed(particles_to_remove):
+            self.impact_particles.pop(i)
+        
+        # Update spell animation
         if self.active_spell_animation is None:
             return False  # No animation running
         
-        current_time = time.time()
         elapsed = current_time - self.animation_start_time
         
-        # Lightning bolt animation: 0.05 seconds per tile (fast!)
-        time_per_tile = 0.10
+        # Lightning bolt animation: 0.08 seconds per tile
+        time_per_tile = 0.08
         target_tile = int(elapsed / time_per_tile)
         
+        # Check if animation complete
         if target_tile >= len(self.animation_tiles):
-            # Animation complete
-            self.active_spell_animation = None
-            self.animation_tiles = []
-            self.animation_current_tile = 0
-            return False  # Animation finished
+            # Animation complete - hold for fade
+            total_duration = len(self.animation_tiles) * time_per_tile + 0.3  # Extra time for fade
+            if elapsed >= total_duration:
+                self.active_spell_animation = None
+                self.animation_tiles = []
+                self.animation_current_tile = 0
+                self.animation_alpha = 255
+                return False  # Animation finished
+            else:
+                # Keep showing all tiles but fade
+                self.animation_current_tile = len(self.animation_tiles) - 1
+                fade_start = len(self.animation_tiles) * time_per_tile
+                fade_elapsed = elapsed - fade_start
+                fade_progress = fade_elapsed / 0.3
+                self.animation_alpha = int(255 * (1.0 - fade_progress))
         else:
+            # Still animating - advance to next tile
             self.animation_current_tile = target_tile
-            return True  # Animation still playing
+            self.animation_alpha = 255  # Full brightness during animation
+        
+        return True  # Animation still playing
 
     def _reset_action_mode_for_active(self):
         """Safe default when a new actor becomes active."""
@@ -3016,7 +3051,7 @@ class CombatEngine:
 
         # Start spell animation if it's a line spell
         if spell_data.get('area_type') == 'line' and len(affected_positions) > 0:
-            import time
+            
             self.active_spell_animation = {
                 'type': 'lightning_bolt',
                 'caster_pos': char_state['position'],
@@ -3025,7 +3060,28 @@ class CombatEngine:
             self.animation_tiles = affected_positions.copy()
             self.animation_current_tile = 0
             self.animation_start_time = time.time()
-            print(f"⚡ Starting lightning animation: {len(affected_positions)} tiles")
+            self.animation_alpha = 255
+            
+            # Create impact particles at each affected tile
+            self.impact_particles = []
+            for tile_pos in affected_positions:
+                # 6 particles per tile
+                for _ in range(6):
+                    particle = {
+                        'x': tile_pos[0],
+                        'y': tile_pos[1],
+                        'vx': random.uniform(-0.15, 0.15),  # Velocity in grid units
+                        'vy': random.uniform(-0.15, 0.15),
+                        'life': 1.0,  # 1.0 = full life
+                        'color': random.choice([
+                            (255, 255, 255),  # White
+                            (200, 230, 255),  # Light cyan
+                            (100, 200, 255)   # Cyan
+                        ])
+                    }
+                    self.impact_particles.append(particle)
+            
+            print(f"⚡ Starting lightning animation: {len(affected_positions)} tiles, {len(self.impact_particles)} particles")
         
         # Cast the spell (damage will apply immediately, animation is visual only)
         self._execute_spell_effect(spell_data, affected_positions, char_state)

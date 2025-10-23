@@ -97,78 +97,112 @@ class CombatEncounter:
         return clickable_areas
 
     def _render_spell_animations(self, surface: pygame.Surface, controller):
-            """Render active spell animations like lightning bolt"""
-            if not controller or not hasattr(controller, 'combat_engine'):
-                return
-            
-            engine = controller.combat_engine
-            
-            if engine.active_spell_animation is None:
-                return
-            
-            # 🔍 DEBUG: Animation is active!
-            print(f"🎨 Rendering animation: tile {engine.animation_current_tile + 1}/{len(engine.animation_tiles)}")
+        """Render active spell animations like lightning bolt"""
+        if not controller or not hasattr(controller, 'combat_engine'):
+            return
+        
+        engine = controller.combat_engine
 
-            anim_type = engine.active_spell_animation.get('type')
+        # No screen shake (removed)
+        shake_x, shake_y = 0, 0
+        
+        if engine.active_spell_animation is None:
+            return
+        
+        # 🔍 DEBUG: Animation is active!
+        print(f"🎨 Rendering animation: tile {engine.animation_current_tile + 1}/{len(engine.animation_tiles)}")
+
+        anim_type = engine.active_spell_animation.get('type')
+        
+        if anim_type == 'lightning_bolt':
+            # Get animation state
+            tiles_to_show = engine.animation_current_tile + 1  # Show tiles up to current
+            caster_pos = engine.active_spell_animation['caster_pos']
             
-            if anim_type == 'lightning_bolt':
-                # Get animation state
-                tiles_to_show = engine.animation_current_tile + 1  # Show tiles up to current
-                caster_pos = engine.active_spell_animation['caster_pos']
+            # Calculate direction for rotation
+            if len(engine.animation_tiles) > 0:
+                first_tile = engine.animation_tiles[0]
+                dx = first_tile[0] - caster_pos[0]
+                dy = first_tile[1] - caster_pos[1]
                 
-                # Calculate direction for rotation
-                if len(engine.animation_tiles) > 0:
-                    first_tile = engine.animation_tiles[0]
-                    dx = first_tile[0] - caster_pos[0]
-                    dy = first_tile[1] - caster_pos[1]
+                # Normalize direction
+                if dx != 0:
+                    dx = dx // abs(dx)
+                if dy != 0:
+                    dy = dy // abs(dy)
+                
+                # Determine which image and rotation to use
+                is_diagonal = (dx != 0 and dy != 0)
+                
+                if is_diagonal:
+                    base_image = self.sprite_manager.get_effect_sprite('lightning_diag')
+                    # NE=0°, SE=90°, SW=180°, NW=270°
+                    if dx > 0 and dy < 0:  # NE
+                        angle = 0
+                    elif dx > 0 and dy > 0:  # SE
+                        angle = 90
+                    elif dx < 0 and dy > 0:  # SW
+                        angle = 180
+                    else:  # NW
+                        angle = 270
+                else:
+                    base_image = self.sprite_manager.get_effect_sprite('lightning_h_v')
+                    # N=0°, E=90°, S=180°, W=270°
+                    if dy < 0:  # North
+                        angle = 0
+                    elif dx > 0:  # East
+                        angle = 90
+                    elif dy > 0:  # South
+                        angle = 180
+                    else:  # West
+                        angle = 270
+                
+                if base_image:
+                    # Rotate the image
+                    rotated = pygame.transform.rotate(base_image, angle)
                     
-                    # Normalize direction
-                    if dx != 0:
-                        dx = dx // abs(dx)
-                    if dy != 0:
-                        dy = dy // abs(dy)
-                    
-                    # Determine which image and rotation to use
-                    is_diagonal = (dx != 0 and dy != 0)
-                    
-                    if is_diagonal:
-                        base_image = self.sprite_manager.get_effect_sprite('lightning_diag')
-                        # NE=0°, SE=90°, SW=180°, NW=270°
-                        if dx > 0 and dy < 0:  # NE
-                            angle = 0
-                        elif dx > 0 and dy > 0:  # SE
-                            angle = 90
-                        elif dx < 0 and dy > 0:  # SW
-                            angle = 180
-                        else:  # NW
-                            angle = 270
-                    else:
-                        base_image = self.sprite_manager.get_effect_sprite('lightning_h_v')
-                        # N=0°, E=90°, S=180°, W=270°
-                        if dy < 0:  # North
-                            angle = 0
-                        elif dx > 0:  # East
-                            angle = 90
-                        elif dy > 0:  # South
-                            angle = 180
-                        else:  # West
-                            angle = 270
-                    
-                    if base_image:
-                        # Rotate the image
-                        rotated = pygame.transform.rotate(base_image, angle)
+                    # Draw lightning on all tiles up to current animation point
+                    tiles_to_show = engine.animation_current_tile + 1
+                    for i in range(min(tiles_to_show, len(engine.animation_tiles))):
+                        tile_pos = engine.animation_tiles[i]
+                        screen_x = self.grid_offset_x + (tile_pos[0] * self.tile_size)
+                        screen_y = self.grid_offset_y + (tile_pos[1] * self.tile_size)
                         
-                        # Draw lightning on all tiles up to current animation point
-                        for i in range(min(tiles_to_show, len(engine.animation_tiles))):
-                            tile_pos = engine.animation_tiles[i]
-                            screen_x = self.grid_offset_x + (tile_pos[0] * self.tile_size)
-                            screen_y = self.grid_offset_y + (tile_pos[1] * self.tile_size)
-                            
-                            # Center the rotated image on the tile
-                            rect = rotated.get_rect()
-                            rect.center = (screen_x + self.tile_size // 2, screen_y + self.tile_size // 2)
-                            
-                            surface.blit(rotated, rect)
+                        # Apply alpha fade
+                        rotated.set_alpha(engine.animation_alpha)
+                        
+                        # Apply screen shake to position
+                        shaken_rect = rotated.get_rect()
+                        shaken_rect.center = (
+                            screen_x + self.tile_size // 2 + shake_x,
+                            screen_y + self.tile_size // 2 + shake_y
+                        )
+                        
+                        surface.blit(rotated, shaken_rect)
+            
+            # Render impact particles (OUTSIDE the if base_image block!)
+            if engine.impact_particles:
+                for particle in engine.impact_particles:
+                    # Convert grid position to screen position
+                    screen_x = self.grid_offset_x + (particle['x'] * self.tile_size) + self.tile_size // 2
+                    screen_y = self.grid_offset_y + (particle['y'] * self.tile_size) + self.tile_size // 2
+                    
+                    # Apply screen shake
+                    screen_x += shake_x
+                    screen_y += shake_y
+                    
+                    # Particle size based on life (starts at 5, shrinks to 1)
+                    size = int(2 + (3 * particle['life']))
+                    
+                    # Particle alpha based on life
+                    alpha = int(255 * particle['life'])
+                    
+                    # Create particle surface with alpha
+                    particle_surf = pygame.Surface((size * 2, size * 2), pygame.SRCALPHA)
+                    color_with_alpha = particle['color'] + (alpha,)
+                    pygame.draw.circle(particle_surf, color_with_alpha, (size, size), size)
+                    
+                    surface.blit(particle_surf, (int(screen_x - size), int(screen_y - size)))
 
     def handle_action(self, action_data: Dict[str, Any], game_state, event_manager) -> Optional[str]:
         action_type = action_data.get('action', '')
