@@ -2126,6 +2126,89 @@ Files Modified: combat_system.py, combat_engine.py, character_classes.json, inpu
 **Consequences:** (+) New spells/abilities require only JSON edits, (+) Healing consistent everywhere, (+) ~500 lines eliminated, (+) Foundation for future buff/debuff system, (-) Minor: attacks still have separate hit-roll logic (intentional design).
 **Files Modified:** combat_engine.py, inventory_engine.py | Files Created: utils/combat_effects.py
 
+# ADR-136: Spell Handler System Refactor
+
+## Status
+Accepted and Implemented (2025-10-24)
+
+## Context
+- Spell logic was hardcoded in `combat_engine.py` with if/elif chains for each spell type (line, area, single)
+- Animation rendering was hardcoded in `combat_system.py` with separate branches for lightning_bolt, burning_hands, fireball
+- Adding new spells required modifying core combat engine code in multiple places
+- No separation of concerns between spell mechanics, targeting, and visual effects
+- Duplicate logic for line spell calculations and particle creation across spell types
+
+## Decision
+Implemented **Strategy Pattern** with **Handler Registry** for spell system:
+
+### Architecture Changes:
+- **Created `game_logic/spell_handlers.py`**: Abstract `SpellHandler` base class with three concrete handlers (`SingleTargetSpellHandler`, `LineSpellHandler`, `AreaSpellHandler`)
+- **Created `ui/spell_animation_renderer.py`**: Centralized animation rendering with renderer registry mapping animation types to render methods
+- **Created `SpellHandlerRegistry`**: Maps `area_type` (single/line/area) to appropriate handler
+- **Updated `spells.json`**: Added `"animation"` field to each spell with generic types (fire_projectile, lightning_line, fire_area, etc.)
+- **Refactored `combat_engine.py`**: Replaced hardcoded spell logic with handler delegation for targeting, area calculation, animation setup, and particle creation
+- **Injected dependencies**: `movement_system` injected into handlers for wall/obstacle checking
+
+### Handler Responsibilities:
+- **`calculate_affected_tiles()`**: Determines which grid tiles are hit by spell
+- **`get_valid_targets()`**: Calculates valid targeting positions based on range and target type
+- **`setup_animation()`**: Creates animation data structure for renderer
+- **`create_particles()`**: Generates particle effects with elemental-specific colors
+
+### Animation System:
+- **Renderer registry**: Maps animation names (fire_projectile, lightning_line, etc.) to render methods
+- **Three render types**: `_render_line_animation()`, `_render_area_burst()`, `_render_projectile()`
+- **Data-driven**: Animation type read from `spells.json` instead of spell ID hardcoding
+- **Projectile animations**: New system for single-target spells (firebolt, magic dart) with travel animation
+
+### Bug Fixes During Refactor:
+- **Spell-per-turn limiting**: Fixed `spells_cast_this_turn` not incrementing for spell_attack hits
+- **Projectile miss animations**: Spell attacks now show animation even on miss (projectile flies but no damage)
+- **Delayed death visuals**: Projectile targets stay alive visually until projectile impacts using `death_animation_time`
+- **Self-targeting healing**: Fixed `SingleTargetSpellHandler` to allow ally spells to target caster
+
+## Consequences
+
+### Positive:
+- **Adding new spells is trivial**: Only requires JSON data, no code changes for existing spell types
+- **Spell types are reusable**: All fire projectiles use same handler, all line spells share logic
+- **Separation of concerns**: Game logic (handlers) separate from visuals (renderer) separate from data (JSON)
+- **Extensible**: New spell types require one new handler class and registry entry
+- **Testable**: Handlers can be unit tested in isolation from combat engine
+- **Reduced code duplication**: Common logic (line calculation, particle generation) in one place
+- **Better animation system**: Generic types (fire_projectile) scale better than spell-specific names (firebolt)
+
+### Negative:
+- **More files**: Added two new files (`spell_handlers.py`, `spell_animation_renderer.py`)
+- **Indirection**: Following spell execution requires understanding handler registry pattern
+- **Learning curve**: New developers must understand Strategy Pattern and dependency injection
+
+### Technical Debt Removed:
+- Deleted `_calculate_line_tiles()` method (lines 3260-3315) - replaced by `LineSpellHandler.calculate_affected_tiles()`
+- Removed hardcoded animation type detection (lines 3069-3178) - replaced by handler `setup_animation()`
+- Removed inline particle creation - moved to handler `create_particles()` methods
+- Eliminated spell-specific if/elif chains in `_render_spell_animations()` - replaced with renderer registry
+
+### Migration Path:
+- Existing spells.json updated with animation field
+- Old animation code paths remain temporarily for backwards compatibility
+- Handlers use existing movement_system for wall checking (injected via combat_engine init)
+- Effect resolution system unchanged (already abstracted via `effect_resolver`)
+
+## Related Files Modified:
+- `game_logic/spell_handlers.py` (NEW)
+- `ui/spell_animation_renderer.py` (NEW)
+- `game_logic/combat_engine.py` (execute_spell_cast, _get_spell_affected_area, __init__)
+- `ui/combat_system.py` (_render_spell_animations, _render_battlefield_units)
+- `utils/combat_sprite_manager.py` (added firebolt sprite loading)
+- `data/spells.json` (added animation field to all spells)
+
+## Notes:
+- `utils/animation.py` remains unchanged (used only for title menu, not spell animations)
+- Future spell types (cone, sphere, chain) will add new handlers to registry
+- Projectile animation system ready for ice_knife, acid_arrow when sprites added
+- Death animation delay system can be extended to other spell types if needed
+
 
 ```
 ## ADR-XXX: <Short title>

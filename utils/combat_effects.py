@@ -84,9 +84,16 @@ class CombatEffectResolver:
         
         # Apply same magnitude to all targets
         for target in targets:
+            # Apply damage multiplier from saving throws FIRST
+            working_magnitude = magnitude
+            damage_multiplier = target.get('damage_multiplier', 1.0)
+            if damage_multiplier != 1.0:
+                working_magnitude = int(magnitude * damage_multiplier)
+                print(f"⚖️ Save multiplier {damage_multiplier}: {magnitude} -> {working_magnitude}")
+            
             # Apply resistances to magnitude
             final_magnitude = self._apply_resistances_to_magnitude(
-                magnitude, target, effect_definition
+                working_magnitude, target, effect_definition
             )
 
             if effect_type == 'damage':

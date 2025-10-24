@@ -68,7 +68,10 @@ class SpellAnimationRenderer:
         is_diagonal = (dx != 0 and dy != 0)
         
         # Determine sprite prefix based on animation type
-        sprite_prefix = 'burning_hands' if anim_type == 'burning_hands' else 'lightning'
+        if anim_type in ['burning_hands', 'fire_line']:
+            sprite_prefix = 'burning_hands'
+        else:
+            sprite_prefix = 'lightning'
         
         if is_diagonal:
             sprite_key = f'{sprite_prefix}_diag'

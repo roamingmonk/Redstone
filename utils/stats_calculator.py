@@ -62,9 +62,114 @@ class StatsCalculator:
         return self.get_item_by_name(item_id)
 
     def get_ability_modifier(self, ability_score: int) -> int:
-        """Standard D&D ability modifier calculation"""
+        """Standard ability modifier calculation"""
         return (ability_score - 10) // 2
     
+    def calculate_proficiency_bonus(self, level: int) -> int:
+        """
+        Calculate proficiency bonus based on character level
+        
+        Standard D&D 5e progression:
+        - Levels 1-4:  +2
+        - Levels 5-8:  +3
+        - Levels 9-12: +4
+        - Levels 13-16: +5
+        - Levels 17-20: +6
+        
+        Args:
+            level: Character level (1-20)
+            
+        Returns:
+            Proficiency bonus as integer
+        """
+        if level < 1:
+            return 2  # Minimum for safety
+        return 2 + ((level - 1) // 4)
+
+    def calculate_save_modifier(self, stats: dict, save_type: str, 
+                                    proficiencies: list, level: int) -> int:
+            """
+            Calculate saving throw modifier for a character
+            
+            Formula: ability_modifier + proficiency_bonus (if proficient)
+            
+            Args:
+                stats: Dict of ability scores {'strength': 14, 'dexterity': 12, ...}
+                save_type: Which save ('strength', 'dexterity', 'constitution', 
+                        'intelligence', 'wisdom', 'charisma')
+                proficiencies: List of saves this character is proficient in
+                level: Character level (for proficiency bonus calculation)
+                
+            Returns:
+                Total saving throw modifier as integer
+                
+            Example:
+                Fighter level 3 with STR 16, proficient in STR saves
+                -> (16-10)//2 + 2 = +3 + +2 = +5
+            """
+            # Get base ability modifier
+            ability_score = stats.get(save_type, 10)
+            ability_mod = self.get_ability_modifier(ability_score)
+            
+            # Add proficiency bonus if proficient in this save
+            if save_type in proficiencies:
+                prof_bonus = self.calculate_proficiency_bonus(level)
+                return ability_mod + prof_bonus
+            
+            # Not proficient - just ability modifier
+            return ability_mod
+
+    def calculate_spell_save_dc(self, caster_data: dict) -> int:
+            """
+            Calculate spell save DC for a caster
+            
+            Formula: 8 + proficiency_bonus + casting_stat_modifier
+            
+            Args:
+                caster_data: Character data dict with stats, level, and class info
+                
+            Returns:
+                Spell save DC as integer
+                
+            Example:
+                Level 3 Wizard with INT 16 (+3 mod)
+                -> 8 + 2 (prof) + 3 (INT) = DC 13
+            """
+            # Get caster level
+            level = caster_data.get('level', 1)
+            
+            # Get proficiency bonus
+            prof_bonus = self.calculate_proficiency_bonus(level)
+            
+            # Determine casting stat based on class
+            char_class = caster_data.get('class', 'fighter').lower()
+            
+            # Map class to primary casting ability
+            casting_stat_map = {
+                'wizard': 'intelligence',
+                'sorcerer': 'charisma',
+                'warlock': 'charisma',
+                'cleric': 'wisdom',
+                'druid': 'wisdom',
+                'ranger': 'wisdom',
+                'paladin': 'charisma',
+                'bard': 'charisma',
+                'fighter': 'intelligence',  # Eldritch Knight subclass
+                'rogue': 'intelligence'      # Arcane Trickster subclass
+            }
+            
+            casting_stat = casting_stat_map.get(char_class, 'intelligence')
+            
+            # Get casting stat modifier
+            stats = caster_data.get('stats', {})
+            stat_value = stats.get(casting_stat, 10)
+            stat_modifier = self.get_ability_modifier(stat_value)
+            
+            # Calculate DC
+            dc = 8 + prof_bonus + stat_modifier
+            
+            return dc
+
     def get_item_by_name(self, item_name: str) -> Optional[Dict]:
         """Find item data by name OR ID"""
         if not item_name:

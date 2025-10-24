@@ -13,6 +13,7 @@
     "wisdom": 13,
     "charisma": 10
   },
+  "saving_throw_proficiencies": ["intelligence", "wisdom"],
   "attacks": [
     {
       "name": "Ritual Dagger",

@@ -13,6 +13,7 @@
     "wisdom": 10,
     "charisma": 8
   },
+  "saving_throw_proficiencies": ["constitution"],
   "resistances": {
     "fire": 0.5
   },

@@ -2920,26 +2920,26 @@ class CombatEngine:
         print(f"   Final spell_ids: {spell_ids}")
         return spell_ids
 
-    def _calculate_spell_save_dc(self, caster_data: dict, spell_data: dict) -> int:
-        """Calculate spell save DC: 8 + proficiency + casting stat modifier"""
-        base_dc = 8
+    # def _calculate_spell_save_dc(self, caster_data: dict, spell_data: dict) -> int:
+    #     """Calculate spell save DC: 8 + proficiency + casting stat modifier"""
+    #     base_dc = 8
         
-        # Get proficiency bonus from level
-        level = caster_data.get('level', 1)
-        proficiency = 2 + ((level - 1) // 4)  # Standard D&D progression
+    #     # Get proficiency bonus from level
+    #     level = caster_data.get('level', 1)
+    #     proficiency = 2 + ((level - 1) // 4)  # Standard D&D progression
         
-        # Get casting stat modifier (INT for wizards, WIS for clerics)
-        char_class = caster_data.get('character_class', '').lower()
-        casting_stat = 'intelligence' if char_class == 'wizard' else 'wisdom'
+    #     # Get casting stat modifier (INT for wizards, WIS for clerics)
+    #     char_class = caster_data.get('character_class', '').lower()
+    #     casting_stat = 'intelligence' if char_class == 'wizard' else 'wisdom'
         
-        stats = caster_data.get('stats', {})
-        stat_value = stats.get(casting_stat, 10)
-        stat_modifier = (stat_value - 10) // 2
+    #     stats = caster_data.get('stats', {})
+    #     stat_value = stats.get(casting_stat, 10)
+    #     stat_modifier = (stat_value - 10) // 2
         
-        # Check for spell-specific DC override
-        spell_dc_bonus = spell_data.get('dc_bonus', 0)
+    #     # Check for spell-specific DC override
+    #     spell_dc_bonus = spell_data.get('dc_bonus', 0)
         
-        return base_dc + proficiency + stat_modifier + spell_dc_bonus
+    #     return base_dc + proficiency + stat_modifier + spell_dc_bonus
 
     def get_available_spells(self, character_id: str) -> list:
         """
@@ -3065,11 +3065,11 @@ class CombatEngine:
                 # Don't return - continue to animation!
                 
         elif attack_type == 'saving_throw':
-            # TODO: Phase 2 - Implement actual saving throw mechanics
-            # For now, all targets take full damage (no saves)
-            self._add_to_combat_log("⚠️ Saving throws not yet implemented - full damage to all!")
-            # When Phase 2 implemented, uncomment this:
-            # affected_positions = self._apply_saving_throws(spell_data, affected_positions)
+            # Apply saving throws - characters get advantage if proficient
+            caster_data = char_state.get('character_data', {})
+            save_results = self._apply_saving_throws(spell_data, caster_data, affected_positions)
+            # Store save results for damage modification
+            spell_save_results = save_results
 
         # Set up animation using handler
         if len(affected_positions) > 0:
@@ -3078,12 +3078,21 @@ class CombatEngine:
                 char_state['position'],
                 affected_positions
             )
+            # DEBUG: Check animation coordinates
+            print(f"🎬 Animation setup: {self.active_spell_animation}")
+            print(f"   Caster pos: {char_state['position']}")
+            print(f"   Target pos: {affected_positions[0] if affected_positions else 'none'}")
+            
             self.animation_tiles = affected_positions.copy()
             self.animation_start_time = time.time()
 
         # Apply effects ONLY if spell hit
         if spell_hit:
-            self._execute_spell_effect(spell_data, affected_positions, char_state)
+            # Pass save results if this was a saving throw spell
+            if attack_type == 'saving_throw' and 'spell_save_results' in locals():
+                self._execute_spell_effect(spell_data, affected_positions, char_state, spell_save_results)
+            else:
+                self._execute_spell_effect(spell_data, affected_positions, char_state)
         else:
             print("💨 Spell missed - no damage applied")
 
@@ -3109,18 +3118,17 @@ class CombatEngine:
         # ⚡ ALWAYS increment spell counter
         char_state['spells_cast_this_turn'] += 1
 
-        print(f"🔮 Spell slots: {char_state['spell_slots_remaining']}/{char_state['spell_slots_max']}")
+        print(f"🔮 Spell slots: {char_state['spell_slots_remaining']}/{char_state.get('spell_slots_max', 0)}")
         print(f"🔮 Spells cast this turn: {char_state['spells_cast_this_turn']}")
-
-        # Clear spell selection and mode
-        self.selected_spell_id = None
-        self.set_action_mode(None)
         
-        # Mark action used
+        # Mark character as having acted (spell counts as main action)
         char_state['has_acted'] = True
         
+        # Clear action mode
+        self.current_action_mode = None
+        
         return True
-
+    
     def _make_spell_attack_roll(self, spell_data: dict, char_state: dict, target_position: List[int]) -> bool:
         """Make spell attack roll against target AC"""
         
@@ -3174,6 +3182,194 @@ class CombatEngine:
         self._add_to_combat_log(f"Spell attack: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
         
         return total_attack >= target_ac
+
+    def _make_saving_throw(self, target_data: dict, save_type: str, dc: int, 
+                            is_player_or_party: bool) -> dict:
+            """
+            Roll a saving throw for a target against a DC
+            
+            With advantage if proficient (roll twice, take higher)
+            
+            Args:
+                target_data: Character/enemy data dict with stats
+                save_type: Type of save ('dexterity', 'constitution', etc.)
+                dc: Difficulty Class to beat
+                is_player_or_party: True if player/party, False if enemy
+                
+            Returns:
+                Dict with save results: {
+                    'success': bool,
+                    'roll': int,
+                    'modifier': int,
+                    'total': int,
+                    'had_advantage': bool
+                }
+            """
+            # Get stats and level
+            stats = target_data.get('stats', {})
+            level = target_data.get('level', 1)
+            
+            # Get proficiencies
+            if is_player_or_party:
+                # Player/Party: Look up from character class
+                char_class = target_data.get('class', 'fighter').lower()
+                class_data = self.stats_calculator.class_data.get('character_classes', {}).get(char_class, {})
+                proficiencies = class_data.get('saving_throw_proficiencies', [])
+            else:
+                # Enemy: Stored directly in enemy data
+                proficiencies = target_data.get('saving_throw_proficiencies', [])
+            
+            # Calculate save modifier
+            save_modifier = self.stats_calculator.calculate_save_modifier(
+                stats, save_type, proficiencies, level
+            )
+            
+            # Roll with advantage if proficient
+            has_advantage = save_type in proficiencies
+            
+            if has_advantage:
+                # Roll twice, take higher
+                roll1 = random.randint(1, 20)
+                roll2 = random.randint(1, 20)
+                roll = max(roll1, roll2)
+                print(f"🎲 Advantage roll: {roll1}, {roll2} -> using {roll}")
+            else:
+                # Single roll
+                roll = random.randint(1, 20)
+            
+            # Calculate total
+            total = roll + save_modifier
+            success = total >= dc
+            
+            return {
+                'success': success,
+                'roll': roll,
+                'modifier': save_modifier,
+                'total': total,
+                'had_advantage': has_advantage
+            }
+
+    def _apply_saving_throws(self, spell_data: dict, caster_data: dict, 
+                                affected_positions: List) -> dict:
+            """
+            Apply saving throws to all targets affected by a spell
+            
+            Args:
+                spell_data: Spell definition with save_type
+                caster_data: Caster's character data (for DC calculation)
+                affected_positions: List of [x, y] positions hit by spell
+                
+            Returns:
+                Dict mapping position tuples to save results:
+                {
+                    (x, y): {
+                        'success': bool,
+                        'damage_multiplier': float,  # 0.5 if saved, 1.0 if failed
+                        'target_name': str,
+                        'save_result': dict  # Full result from _make_saving_throw
+                    }
+                }
+            """
+            save_type = spell_data.get('save_type', 'dexterity')
+            
+            # Calculate spell save DC
+            dc = self.stats_calculator.calculate_spell_save_dc(caster_data)
+            
+            save_results = {}
+            
+            # Check each affected position
+            for pos in affected_positions:
+                pos_tuple = tuple(pos)
+                
+                # Find what's at this position
+                target_data = None
+                target_name = None
+                is_player_or_party = False
+                
+                # Check player
+                player_char_state = self.character_states.get('player')
+                if player_char_state and player_char_state['position'] == pos:
+                    target_data = player_char_state.get('character_data', {})
+                    target_name = target_data.get('name', 'Player')
+                    is_player_or_party = True
+                
+                # Check party members
+                if not target_data:
+                    for member_id, member_state in self.character_states.items():
+                        if member_id != 'player' and member_state['position'] == pos:
+                            target_data = member_state.get('character_data', {})
+                            target_name = target_data.get('name', member_id)
+                            is_player_or_party = True
+                            break
+                
+                # Check enemies
+                if not target_data:
+                    enemy_instances = self.combat_data.get("enemy_instances", [])
+                    for enemy in enemy_instances:
+                        if enemy.get("position") == pos and enemy.get("current_hp", 0) > 0:
+                            target_data = enemy
+                            target_name = enemy.get('name', 'Enemy')
+                            is_player_or_party = False
+                            break
+                
+                # If we found a target, check immunity/resistance first
+                if target_data:
+                    # Check for immunity or resistance to this damage type
+                    elemental_type = spell_data.get('elemental_type')
+                    
+                    # Get immunities and resistances
+                    immunities = target_data.get('immunities', [])
+                    resistances = target_data.get('resistances', {})
+                    
+                    # IMMUNE = no save needed, 0 damage
+                    if elemental_type and elemental_type in immunities:
+                        self._add_to_combat_log(
+                            f"{target_name} is IMMUNE to {elemental_type} - no save needed!"
+                        )
+                        save_results[pos_tuple] = {
+                            'success': True,  # Treat as auto-success
+                            'damage_multiplier': 0.0,  # Immune = 0 damage
+                            'target_name': target_name,
+                            'save_result': {'immune': True}
+                        }
+                        continue  # Skip to next target
+                    
+                    # RESISTANT = auto-succeed save (half damage)
+                    if elemental_type and elemental_type in resistances:
+                        self._add_to_combat_log(
+                            f"{target_name} is RESISTANT to {elemental_type} - auto-saves!"
+                        )
+                        save_results[pos_tuple] = {
+                            'success': True,
+                            'damage_multiplier': 0.5,  # Resistance = half damage
+                            'target_name': target_name,
+                            'save_result': {'resistant': True}
+                        }
+                        continue  # Skip to next target
+                    
+                    # No immunity/resistance - roll the save normally
+                    save_result = self._make_saving_throw(
+                        target_data, save_type, dc, is_player_or_party
+                    )
+                    
+                    # Log the result
+                    success_text = "SUCCESS" if save_result['success'] else "FAILED"
+                    advantage_text = " (advantage)" if save_result['had_advantage'] else ""
+                    self._add_to_combat_log(
+                        f"{target_name} {save_type.upper()} save{advantage_text}: "
+                        f"{save_result['roll']}+{save_result['modifier']}={save_result['total']} "
+                        f"vs DC {dc} - {success_text}"
+                    )
+                    
+                    # Store result with damage multiplier
+                    save_results[pos_tuple] = {
+                        'success': save_result['success'],
+                        'damage_multiplier': 0.5 if save_result['success'] else 1.0,
+                        'target_name': target_name,
+                        'save_result': save_result
+                    }
+            
+            return save_results
 
     def _calculate_line_tiles(self, start_pos: List[int], direction: Tuple[int, int], 
                                 length: int, width: int = 1) -> List[List[int]]:
@@ -3247,11 +3443,12 @@ class CombatEngine:
             battlefield
         )
 
-    def _execute_spell_effect(self, spell_data: dict, affected_positions: List[List[int]], caster_state: dict):
+    def _execute_spell_effect(self, spell_data: dict, affected_positions: List[List[int]], caster_state: dict, save_results=None):
         """
         Apply spell effects to all affected positions
         NOW USES EFFECT RESOLVER - Universal system!
         """
+        
         spell_name = spell_data.get('name', 'Spell')
         damage_type = spell_data.get('damage_type', 'damage')
         caster_name = caster_state.get('name', 'Caster')
@@ -3300,10 +3497,50 @@ class CombatEngine:
                         'position': pos,
                         'data': enemy  # Enemy dict for direct modification
                     })
+    
+       # CRITICAL: Add damage multipliers to targets BEFORE resolve_effect
+        if save_results and effect_def.get('effect_type') == 'damage':
+            for target in targets:
+                target_pos = tuple(target['position'])
+                if target_pos in save_results:
+                    target['damage_multiplier'] = save_results[target_pos]['damage_multiplier']
         
         # Resolve effect through universal system
         results = self.effect_resolver.resolve_effect(effect_def, targets, source_data)
+
+        # Apply half damage for successful saves
         
+        # if save_results and spell_data.get('damage_type', 'damage') == 'damage':
+        #     for result in results:
+        #         # Find this target's position
+        #         target_id = result.get('target_id')
+        #         target_pos = None
+                
+        #         if target_id == 'player':
+        #             target_pos = tuple(self.character_states['player']['position'])
+        #         else:
+        #             # Check party members
+        #             for member_state in self.character_states.values():
+        #                 if member_state.get('character_data', {}).get('id') == target_id:
+        #                     target_pos = tuple(member_state['position'])
+        #                     break
+        #             # Check enemies
+        #                 if not target_pos:
+        #                     enemy_instances = self.combat_data.get("enemy_instances", [])
+        #                     for enemy in enemy_instances:
+        #                         if enemy.get("instance_id") == target_id:
+        #                             target_pos = tuple(enemy.get("position"))
+        #                             break
+                
+        #         # Halve damage if they saved
+        #         if target_pos and target_pos in save_results and save_results[target_pos]['success']:
+        #             original_damage = result.get('magnitude', 0)
+        #             halved_damage = original_damage // 2  # Round down per D&D rules
+        #             result['magnitude'] = halved_damage
+        #             result['old_hp'] = result['new_hp'] + (original_damage - halved_damage)
+        #             result['new_hp'] = result['old_hp'] - halved_damage
+        #             print(f"💪 {result['target_name']} saved! Damage reduced: {original_damage} -> {halved_damage}")
+
         # Combat log
         self._add_to_combat_log(f"{caster_name} casts {spell_name}!")
         
@@ -3339,21 +3576,21 @@ class CombatEngine:
             if effect_type == 'healing':
                 self._add_to_combat_log(f"{target_name} healed for {magnitude} HP! ({new_hp}/{max_hp})")
             else:
-                # Show HP before and after for clarity
-                old_hp = result['old_hp']
-                
-                if not is_alive:
-                    self._add_to_combat_log(f"{target_name} takes {magnitude} damage! ({old_hp}->0/{max_hp}) - KILLED!")
-                else:
-                    self._add_to_combat_log(f"{target_name} takes {magnitude} damage! ({old_hp}->{new_hp}/{max_hp})")
-                
-                # Add resistance message if applicable
+                # Add resistance message FIRST if applicable
                 if 'original_damage' in result:
                     original_damage = result['original_damage']
                     target_hp_before = result['old_hp']
                     resistance_msg = self._get_resistance_message(target_name, spell_data.get('elemental_type', 'physical'), original_damage, magnitude, target_hp_before)
                     if resistance_msg:
                         self._add_to_combat_log(resistance_msg)
+                
+                # THEN show the damage result
+                old_hp = result['old_hp']
+                
+                if not is_alive:
+                    self._add_to_combat_log(f"{target_name} takes {magnitude} damage! ({old_hp}->0/{max_hp}) - KILLED!")
+                else:
+                    self._add_to_combat_log(f"{target_name} takes {magnitude} damage! ({old_hp}->{new_hp}/{max_hp})")
                 
                 if not is_alive:
                     self._add_to_combat_log(f"{target_name} is defeated!")

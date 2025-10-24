@@ -13,6 +13,7 @@
     "wisdom": 7,
     "charisma": 8
   },
+  "saving_throw_proficiencies": [],
   "attacks": [
     {
       "name": "Rusty Dagger",

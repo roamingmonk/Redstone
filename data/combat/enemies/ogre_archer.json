@@ -13,6 +13,7 @@
     "wisdom": 8,
     "charisma": 8
   },
+  "saving_throw_proficiencies": ["strength", "constitution"],
   "attacks": [
     {
       "name": "Shortbow",

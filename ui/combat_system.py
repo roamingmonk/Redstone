@@ -1111,7 +1111,11 @@ class CombatEncounter:
                         
                 elif action_id == "attack":
                     has_attack_targets = player_state.get('has_attack_targets', False)
-                    if attacks_used >= attacks_per_round or not has_attack_targets:
+                    has_acted = active_char_state.get('has_acted', False)
+                    spells_cast = active_char_state.get('spells_cast_this_turn', 0)
+                    
+                    # Disable if: used all attacks, no targets, already acted, or cast spell
+                    if attacks_used >= attacks_per_round or not has_attack_targets or has_acted or spells_cast >= 1:
                         button_state = "disabled"
                     elif current_mode == "attack":
                         button_state = "active"  # Yellow border - mode is active
@@ -1121,8 +1125,11 @@ class CombatEncounter:
                 elif action_id == "ranged":  
                     has_ranged_weapon = player_state.get('has_ranged_weapon', False)
                     has_ranged_targets = player_state.get('has_ranged_targets', False)
+                    has_acted = active_char_state.get('has_acted', False)
+                    spells_cast = active_char_state.get('spells_cast_this_turn', 0)
                     
-                    if not has_ranged_weapon or attacks_used >= attacks_per_round or not has_ranged_targets:
+                    # Disable if: no weapon, used all attacks, no targets, already acted, or cast spell
+                    if not has_ranged_weapon or attacks_used >= attacks_per_round or not has_ranged_targets or has_acted or spells_cast >= 1:
                         button_state = "disabled"
                     elif current_mode == "ranged_attack":
                         button_state = "active"  # Yellow border - mode is active
@@ -1134,10 +1141,14 @@ class CombatEncounter:
                     spell_slots_remaining = active_char_state.get('spell_slots_remaining', 0)
                     spells_known = active_char_state.get('spells_known', [])
                     spells_cast = active_char_state.get('spells_cast_this_turn', 0)
-                    has_acted = active_char_state.get('has_acted', False) 
+                    has_acted = active_char_state.get('has_acted', False)
                     
-                    # Disable if: no slots, no spells, or already cast this turn
-                    if spell_slots_remaining <= 0 or len(spells_known) == 0 or spells_cast >= 1:
+                    # Can cast if: (has slots OR has any spells) AND haven't cast yet AND haven't acted
+                    # Note: Button will show disabled spells in gray in the spell picker
+                    can_cast = (spell_slots_remaining > 0 or len(spells_known) > 0)
+                    
+                    # Disable if: can't cast, already cast, or already acted
+                    if not can_cast or spells_cast >= 1 or has_acted:
                         button_state = "disabled"
                     elif current_mode == "spell":
                         button_state = "active"  # Yellow border - spell mode active

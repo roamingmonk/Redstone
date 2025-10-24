@@ -13,6 +13,7 @@
     "wisdom": 11,
     "charisma": 14
   },
+  "saving_throw_proficiencies": ["dexterity", "charisma"],
   "attacks": [
     {
       "name": "Short Sword",

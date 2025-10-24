@@ -13,6 +13,7 @@
     "wisdom": 12,
     "charisma": 14
   },
+  "saving_throw_proficiencies": [ "dexterity", "constitution"],
   "resistances": {
     "poison": 0.5
   },
