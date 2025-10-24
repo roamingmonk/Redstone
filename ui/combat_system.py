@@ -14,6 +14,7 @@ from utils.graphics import draw_combat_button, draw_centered_text, draw_text
 from utils.combat_loader import get_combat_loader
 from game_logic.combat_engine import CombatPhase
 from utils.combat_sprite_manager import get_combat_sprite_manager
+from ui.spell_animation_renderer import SpellAnimationRenderer
 
 class CombatEncounter:
     """
@@ -29,6 +30,9 @@ class CombatEncounter:
         
         # Get sprite manager (singleton)
         self.sprite_manager = get_combat_sprite_manager()
+
+        # Initialize renderer to None (will be created when needed)
+        self.spell_animation_renderer = None
 
         # UI state
         self.selected_action = None
@@ -51,6 +55,11 @@ class CombatEncounter:
          # Cache controller reference for helper methods
         self.controller = controller
         
+         # Initialize spell animation renderer
+        if self.spell_animation_renderer is None and self.sprite_manager:
+            self.spell_animation_renderer = SpellAnimationRenderer(self.sprite_manager)
+        
+
         if controller and hasattr(controller, 'combat_engine') and hasattr(controller.combat_engine, 'movement_system'):
             #print("Updating movement animations...")
             controller.combat_engine.movement_system.update_movements()
@@ -97,157 +106,184 @@ class CombatEncounter:
         return clickable_areas
 
     def _render_spell_animations(self, surface: pygame.Surface, controller):
-        """Render active spell animations like lightning bolt"""
+        """COMPLETELY NEW METHOD"""
         if not controller or not hasattr(controller, 'combat_engine'):
             return
         
         engine = controller.combat_engine
-
-        # No screen shake (removed)
-        shake_x, shake_y = 0, 0
         
         if engine.active_spell_animation is None:
             return
         
-        # 🔍 DEBUG: Animation is active!
-        print(f"🎨 Rendering animation: tile {engine.animation_current_tile + 1}/{len(engine.animation_tiles)}")
-
-        anim_type = engine.active_spell_animation.get('type')
+        # Calculate elapsed time
+        current_time = time.time()
+        elapsed = current_time - engine.animation_start_time
         
-        if anim_type in ['lightning_bolt', 'burning_hands']:
-            # Get animation state
-            tiles_to_show = engine.animation_current_tile + 1  # Show tiles up to current
-            caster_pos = engine.active_spell_animation['caster_pos']
-            
-            # Calculate direction for rotation
-            if len(engine.animation_tiles) > 0:
-                first_tile = engine.animation_tiles[0]
-                dx = first_tile[0] - caster_pos[0]
-                dy = first_tile[1] - caster_pos[1]
-                
-                # Normalize direction
-                if dx != 0:
-                    dx = dx // abs(dx)
-                if dy != 0:
-                    dy = dy // abs(dy)
-                
-                # Determine which image and rotation to use
-                is_diagonal = (dx != 0 and dy != 0)
-                
-                # Determine which sprite to use based on animation type
-                sprite_prefix = 'burning_hands' if anim_type == 'burning_hands' else 'lightning'
-                
-                if is_diagonal:
-                    sprite_key = f'{sprite_prefix}_diag'
-                    base_image = self.sprite_manager.get_effect_sprite(sprite_key)
-                    print(f"🔍 Loading diagonal sprite: {sprite_key}, Got: {base_image is not None}")
-                    # NE=0°, SE=90°, SW=180°, NW=270°
-                    if dx > 0 and dy < 0:  # NE
-                        angle = 0
-                    elif dx > 0 and dy > 0:  # SE
-                        angle = 90
-                    elif dx < 0 and dy > 0:  # SW
-                        angle = 180
-                    else:  # NW
-                        angle = 270
-                else:
-                    sprite_key = f'{sprite_prefix}_h_v'
-                    base_image = self.sprite_manager.get_effect_sprite(sprite_key)
-                    print(f"🔍 Loading h_v sprite: {sprite_key}, Got: {base_image is not None}")
-                    # N=0°, E=90°, S=180°, W=270°
-                    if dy < 0:  # North
-                        angle = 0
-                    elif dx > 0:  # East
-                        angle = 90
-                    elif dy > 0:  # South
-                        angle = 180
-                    else:  # West
-                        angle = 270
-                
-                if base_image:
-                    # Rotate the image
-                    rotated = pygame.transform.rotate(base_image, angle)
-                    
-                    # Draw lightning on all tiles up to current animation point
-                    tiles_to_show = engine.animation_current_tile + 1
-                    for i in range(min(tiles_to_show, len(engine.animation_tiles))):
-                        tile_pos = engine.animation_tiles[i]
-                        screen_x = self.grid_offset_x + (tile_pos[0] * self.tile_size)
-                        screen_y = self.grid_offset_y + (tile_pos[1] * self.tile_size)
-                        
-                        # Apply alpha fade
-                        rotated.set_alpha(engine.animation_alpha)
-                        
-                        # Apply screen shake to position
-                        shaken_rect = rotated.get_rect()
-                        shaken_rect.center = (
-                            screen_x + self.tile_size // 2 + shake_x,
-                            screen_y + self.tile_size // 2 + shake_y
-                        )
-                        
-                        surface.blit(rotated, shaken_rect)
-            
-            # Render impact particles (OUTSIDE the if base_image block!)
-            if engine.impact_particles:
-                for particle in engine.impact_particles:
-                    # Convert grid position to screen position
-                    screen_x = self.grid_offset_x + (particle['x'] * self.tile_size) + self.tile_size // 2
-                    screen_y = self.grid_offset_y + (particle['y'] * self.tile_size) + self.tile_size // 2
-                    
-                    # Apply screen shake
-                    screen_x += shake_x
-                    screen_y += shake_y
-                    
-                    # Particle size based on life (starts at 5, shrinks to 1)
-                    size = int(2 + (3 * particle['life']))
-                    
-                    # Particle alpha based on life
-                    alpha = int(255 * particle['life'])
-                    
-                    # Create particle surface with alpha
-                    particle_surf = pygame.Surface((size * 2, size * 2), pygame.SRCALPHA)
-                    color_with_alpha = particle['color'] + (alpha,)
-                    pygame.draw.circle(particle_surf, color_with_alpha, (size, size), size)
-                    
-                    surface.blit(particle_surf, (int(screen_x - size), int(screen_y - size)))
+        # Delegate to animation renderer
+        self.spell_animation_renderer.render(
+            surface=surface,
+            animation_data=engine.active_spell_animation,
+            grid_offset=(self.grid_offset_x, self.grid_offset_y),
+            tile_size=self.tile_size,
+            elapsed_time=elapsed,
+            current_tile=engine.animation_current_tile,
+            animation_alpha=engine.animation_alpha,
+            particles=engine.impact_particles
+        )
 
 
-        elif anim_type == 'fireball':
-            # Get fireball frames
-            fireball_frames = self.sprite_manager.get_effect_sprite('fireball_frames')
+    # def _render_spell_animations(self, surface: pygame.Surface, controller):
+        # """Render active spell animations like lightning bolt"""
+        # if not controller or not hasattr(controller, 'combat_engine'):
+        #     return
+        
+        # engine = controller.combat_engine
+
+        # # No screen shake (removed)
+        # shake_x, shake_y = 0, 0
+        
+        # if engine.active_spell_animation is None:
+        #     return
+        
+        # # 🔍 DEBUG: Animation is active!
+        # print(f"🎨 Rendering animation: tile {engine.animation_current_tile + 1}/{len(engine.animation_tiles)}")
+
+        # anim_type = engine.active_spell_animation.get('type')
+        
+        # if anim_type in ['lightning_bolt', 'burning_hands']:
+        #     # Get animation state
+        #     tiles_to_show = engine.animation_current_tile + 1  # Show tiles up to current
+        #     caster_pos = engine.active_spell_animation['caster_pos']
             
-            if fireball_frames and len(fireball_frames) > 0:
-                tile_data = engine.active_spell_animation.get('tile_data', [])
-                current_time = time.time()
-                elapsed = current_time - engine.animation_start_time
+        #     # Calculate direction for rotation
+        #     if len(engine.animation_tiles) > 0:
+        #         first_tile = engine.animation_tiles[0]
+        #         dx = first_tile[0] - caster_pos[0]
+        #         dy = first_tile[1] - caster_pos[1]
                 
-                # Render each tile with its own animation state
-                for tile_info in tile_data:
-                    tile_pos = tile_info['position']
-                    start_delay = tile_info['start_delay']
-                    frame_offset = tile_info['frame_offset']
+        #         # Normalize direction
+        #         if dx != 0:
+        #             dx = dx // abs(dx)
+        #         if dy != 0:
+        #             dy = dy // abs(dy)
+                
+        #         # Determine which image and rotation to use
+        #         is_diagonal = (dx != 0 and dy != 0)
+                
+        #         # Determine which sprite to use based on animation type
+        #         sprite_prefix = 'burning_hands' if anim_type == 'burning_hands' else 'lightning'
+                
+        #         if is_diagonal:
+        #             sprite_key = f'{sprite_prefix}_diag'
+        #             base_image = self.sprite_manager.get_effect_sprite(sprite_key)
+        #             print(f"🔍 Loading diagonal sprite: {sprite_key}, Got: {base_image is not None}")
+        #             # NE=0°, SE=90°, SW=180°, NW=270°
+        #             if dx > 0 and dy < 0:  # NE
+        #                 angle = 0
+        #             elif dx > 0 and dy > 0:  # SE
+        #                 angle = 90
+        #             elif dx < 0 and dy > 0:  # SW
+        #                 angle = 180
+        #             else:  # NW
+        #                 angle = 270
+        #         else:
+        #             sprite_key = f'{sprite_prefix}_h_v'
+        #             base_image = self.sprite_manager.get_effect_sprite(sprite_key)
+        #             print(f"🔍 Loading h_v sprite: {sprite_key}, Got: {base_image is not None}")
+        #             # N=0°, E=90°, S=180°, W=270°
+        #             if dy < 0:  # North
+        #                 angle = 0
+        #             elif dx > 0:  # East
+        #                 angle = 90
+        #             elif dy > 0:  # South
+        #                 angle = 180
+        #             else:  # West
+        #                 angle = 270
+                
+        #         if base_image:
+        #             # Rotate the image
+        #             rotated = pygame.transform.rotate(base_image, angle)
                     
-                    # Check if this tile should be visible yet (expansion effect)
-                    if elapsed < start_delay:
-                        continue  # Tile hasn't ignited yet
+        #             # Draw lightning on all tiles up to current animation point
+        #             tiles_to_show = engine.animation_current_tile + 1
+        #             for i in range(min(tiles_to_show, len(engine.animation_tiles))):
+        #                 tile_pos = engine.animation_tiles[i]
+        #                 screen_x = self.grid_offset_x + (tile_pos[0] * self.tile_size)
+        #                 screen_y = self.grid_offset_y + (tile_pos[1] * self.tile_size)
+                        
+        #                 # Apply alpha fade
+        #                 rotated.set_alpha(engine.animation_alpha)
+                        
+        #                 # Apply screen shake to position
+        #                 shaken_rect = rotated.get_rect()
+        #                 shaken_rect.center = (
+        #                     screen_x + self.tile_size // 2 + shake_x,
+        #                     screen_y + self.tile_size // 2 + shake_y
+        #                 )
+                        
+        #                 surface.blit(rotated, shaken_rect)
+            
+        #     # Render impact particles (OUTSIDE the if base_image block!)
+        #     if engine.impact_particles:
+        #         for particle in engine.impact_particles:
+        #             # Convert grid position to screen position
+        #             screen_x = self.grid_offset_x + (particle['x'] * self.tile_size) + self.tile_size // 2
+        #             screen_y = self.grid_offset_y + (particle['y'] * self.tile_size) + self.tile_size // 2
                     
-                    # Calculate which frame to show (0.1 seconds per frame, looping)
-                    tile_elapsed = elapsed - start_delay
-                    frame_time = 0.1  # Each frame shows for 0.1 seconds
-                    frame_index = (int(tile_elapsed / frame_time) + frame_offset) % 10
+        #             # Apply screen shake
+        #             screen_x += shake_x
+        #             screen_y += shake_y
                     
-                    # Get the frame
-                    frame = fireball_frames[frame_index]
+        #             # Particle size based on life (starts at 5, shrinks to 1)
+        #             size = int(2 + (3 * particle['life']))
                     
-                    # Calculate screen position
-                    screen_x = self.grid_offset_x + (tile_pos[0] * self.tile_size)
-                    screen_y = self.grid_offset_y + (tile_pos[1] * self.tile_size)
+        #             # Particle alpha based on life
+        #             alpha = int(255 * particle['life'])
                     
-                    # Center the frame on the tile
-                    frame_rect = frame.get_rect()
-                    frame_rect.center = (screen_x + self.tile_size // 2, screen_y + self.tile_size // 2)
+        #             # Create particle surface with alpha
+        #             particle_surf = pygame.Surface((size * 2, size * 2), pygame.SRCALPHA)
+        #             color_with_alpha = particle['color'] + (alpha,)
+        #             pygame.draw.circle(particle_surf, color_with_alpha, (size, size), size)
                     
-                    surface.blit(frame, frame_rect)
+        #             surface.blit(particle_surf, (int(screen_x - size), int(screen_y - size)))
+
+
+        # elif anim_type == 'fireball':
+        #     # Get fireball frames
+        #     fireball_frames = self.sprite_manager.get_effect_sprite('fireball_frames')
+            
+        #     if fireball_frames and len(fireball_frames) > 0:
+        #         tile_data = engine.active_spell_animation.get('tile_data', [])
+        #         current_time = time.time()
+        #         elapsed = current_time - engine.animation_start_time
+                
+        #         # Render each tile with its own animation state
+        #         for tile_info in tile_data:
+        #             tile_pos = tile_info['position']
+        #             start_delay = tile_info['start_delay']
+        #             frame_offset = tile_info['frame_offset']
+                    
+        #             # Check if this tile should be visible yet (expansion effect)
+        #             if elapsed < start_delay:
+        #                 continue  # Tile hasn't ignited yet
+                    
+        #             # Calculate which frame to show (0.1 seconds per frame, looping)
+        #             tile_elapsed = elapsed - start_delay
+        #             frame_time = 0.1  # Each frame shows for 0.1 seconds
+        #             frame_index = (int(tile_elapsed / frame_time) + frame_offset) % 10
+                    
+        #             # Get the frame
+        #             frame = fireball_frames[frame_index]
+                    
+        #             # Calculate screen position
+        #             screen_x = self.grid_offset_x + (tile_pos[0] * self.tile_size)
+        #             screen_y = self.grid_offset_y + (tile_pos[1] * self.tile_size)
+                    
+        #             # Center the frame on the tile
+        #             frame_rect = frame.get_rect()
+        #             frame_rect.center = (screen_x + self.tile_size // 2, screen_y + self.tile_size // 2)
+                    
+        #             surface.blit(frame, frame_rect)
 
     def handle_action(self, action_data: Dict[str, Any], game_state, event_manager) -> Optional[str]:
         action_type = action_data.get('action', '')
@@ -705,11 +741,24 @@ class CombatEncounter:
         
         # Render enemy units - DEAD FIRST, then LIVING (for proper Z-order)
         enemy_instances = combat_data.get("enemy_instances", [])
-        
-        # Separate dead and living enemies
-        dead_enemies = [e for e in enemy_instances if e.get("current_hp", 0) <= 0]
-        living_enemies = [e for e in enemy_instances if e.get("current_hp", 0) > 0]
-        
+
+        # Separate enemies considering death animation delay
+        current_time = time.time()
+        dead_enemies = []
+        living_enemies = []
+
+        for enemy in enemy_instances:
+            current_hp = enemy.get("current_hp", 0)
+            death_time = enemy.get('death_animation_time', 0)
+            
+            # Enemy is alive if HP > 0, OR if death animation is still pending
+            is_visually_alive = current_hp > 0 or (current_hp <= 0 and death_time > 0 and current_time < death_time)
+            
+            if is_visually_alive:
+                living_enemies.append(enemy)
+            else:
+                dead_enemies.append(enemy)
+                
         # LAYER 1: Render dead enemies as darkened corpses (bottom layer)
         for enemy in dead_enemies:
             position = enemy.get("position", [])

@@ -17,6 +17,7 @@ from game_logic.combat_ai import get_combat_ai
 from game_logic.movement_system import get_movement_system
 from game_logic.movement_system import MovementSystem
 from utils.combat_effects import get_effect_resolver
+from game_logic.spell_handlers import SpellHandlerRegistry
 
 class CombatPhase(Enum):
     """Combat phase tracking"""
@@ -76,6 +77,13 @@ class CombatEngine:
         self.animation_current_tile = 0  # Current tile being shown
         self.animation_alpha = 255  # Current transparency (255=opaque, 0=transparent)
         self.impact_particles = []  # Active particle effects
+        
+        self.spell_handler_registry = SpellHandlerRegistry()
+        
+        #  Inject movement_system into all handlers        
+        for handler in self.spell_handler_registry._handlers.values():
+            handler.movement_system = self.movement_system  # Give handlers access
+
 
         #Register combat events (following SaveManager pattern)
         if event_manager:
@@ -90,77 +98,84 @@ class CombatEngine:
         print("CombatEngine initialized")
     
     def update_spell_animations(self):
-        """Update active spell animations - call this each frame"""
+        """Update spell animation state"""
+        if self.active_spell_animation is None:
+            return
         
         current_time = time.time()
-        
-        # Update impact particles
-        particles_to_remove = []
-        for i, particle in enumerate(self.impact_particles):
-            # Update particle position
-            particle['x'] += particle['vx']
-            particle['y'] += particle['vy']
-            particle['life'] -= 0.02  # Decay
-            
-            if particle['life'] <= 0:
-                particles_to_remove.append(i)
-        
-        # Remove dead particles (reverse order to maintain indices)
-        for i in reversed(particles_to_remove):
-            self.impact_particles.pop(i)
-        
-        # Update spell animation
-        if self.active_spell_animation is None:
-            return False  # No animation running
-        
         elapsed = current_time - self.animation_start_time
+
+        anim_type = self.active_spell_animation.get('type', '')
         
-        # Get animation type
-        anim_type = self.active_spell_animation.get('type')
-        
-        if anim_type in ['lightning_bolt', 'burning_hands']:
-            # Lightning bolt animation: 0.08 seconds per tile
-            time_per_tile = 0.08
-            target_tile = int(elapsed / time_per_tile)
+        # Line animations
+        if anim_type in ['lightning_line', 'fire_line', 'lightning_bolt', 'burning_hands']:
+            # Tile-by-tile reveal (0.05 seconds per tile)
+            tiles_revealed = int(elapsed / 0.05)
+            self.animation_current_tile = tiles_revealed
             
-            # Check if animation complete
-            if target_tile >= len(self.animation_tiles):
-                # Animation complete - hold for fade
-                total_duration = len(self.animation_tiles) * time_per_tile + 0.3  # Extra time for fade
-                if elapsed >= total_duration:
+            # Fade out after all tiles shown
+            if tiles_revealed >= len(self.animation_tiles):
+                fade_start = len(self.animation_tiles) * 0.05
+                fade_elapsed = elapsed - fade_start
+                self.animation_alpha = max(0, 255 - int(fade_elapsed * 500))
+                
+                # Clear animation when fully faded
+                if self.animation_alpha <= 0:
                     self.active_spell_animation = None
                     self.animation_tiles = []
-                    self.animation_current_tile = 0
-                    self.animation_alpha = 255
-                    return False  # Animation finished
-                else:
-                    # Keep showing all tiles but fade
-                    self.animation_current_tile = len(self.animation_tiles) - 1
-                    fade_start = len(self.animation_tiles) * time_per_tile
-                    fade_elapsed = elapsed - fade_start
-                    fade_progress = fade_elapsed / 0.3
-                    self.animation_alpha = int(255 * (1.0 - fade_progress))
-            else:
-                # Still animating - advance to next tile
-                self.animation_current_tile = target_tile
-                self.animation_alpha = 255  # Full brightness during animation
+                    self.impact_particles = []
+                    print("⚡ Animation cleared")  # DEBUG
             
-            return True  # Animation still playing
+            # Update particles
+            if self.impact_particles:
+                for particle in self.impact_particles[:]:
+                    particle['x'] += particle['vx']
+                    particle['y'] += particle['vy']
+                    particle['life'] -= 0.02
+                    if particle['life'] <= 0:
+                        self.impact_particles.remove(particle)
         
-        elif anim_type == 'fireball':
-            # 🔥 Fireball burns for x seconds total
-            burn_duration = 3.0  # ← CHANGE THIS VALUE to adjust burn time
-            
-            if elapsed >= burn_duration:
-                # Animation complete
+        # Area animations (fireball)
+        elif anim_type in ['fireball', 'fire_area']:
+            # Fireball lasts 1.5 seconds total
+            if elapsed > 1.5:
                 self.active_spell_animation = None
                 self.animation_tiles = []
-                return False
-            else:
-                # Animation still playing - tiles will animate independently
-                return True
+                self.impact_particles = []
+                print("🔥 Animation cleared")  # DEBUG
+            
+            # Update particles
+            if self.impact_particles:
+                for particle in self.impact_particles[:]:
+                    particle['x'] += particle['vx']
+                    particle['y'] += particle['vy']
+                    particle['vy'] += 0.01  # Gravity
+                    particle['life'] -= 0.015
+                    if particle['life'] <= 0:
+                        self.impact_particles.remove(particle)
         
-        return False  # Default fallback
+        # Projectile animations
+        elif anim_type in ['fire_projectile', 'force_projectile', 'cold_projectile', 'acid_projectile']:
+            # Projectile travels for 0.5 seconds, then impact lasts 0.3 seconds
+            if elapsed > 0.8:
+                # ⚡ NEW: Clear death animation delays on all enemies
+                for enemy in self.combat_data.get("enemy_instances", []):
+                    if 'death_animation_time' in enemy:
+                        del enemy['death_animation_time']
+                
+                self.active_spell_animation = None
+                self.animation_tiles = []
+                self.impact_particles = []
+                print("💫 Projectile animation cleared")
+            
+            # Update particles
+            if self.impact_particles:
+                for particle in self.impact_particles[:]:
+                    particle['x'] += particle['vx']
+                    particle['y'] += particle['vy']
+                    particle['life'] -= 0.03
+                    if particle['life'] <= 0:
+                        self.impact_particles.remove(particle)
 
     def _reset_action_mode_for_active(self):
         """Safe default when a new actor becomes active."""
@@ -2958,65 +2973,40 @@ class CombatEngine:
             return []
         
         char_state = self.character_states.get(self.active_character_id)
-        if not char_state:
-            return []
-        
         spell_data = self.spell_data.get(spell_id)
-        if not spell_data:
+
+        if not char_state or not spell_data:
             return []
         
-        caster_pos = char_state['position']
-        spell_range = spell_data.get('range', 1)
-        target_type = spell_data.get('target_type', 'any')
+         # USE HANDLER instead of manual logic
+        area_type = spell_data.get('area_type', 'single')
+        handler = self.spell_handler_registry.get_handler(area_type)
+
+        battlefield = self.combat_data.get("battlefield", {})
+
+        return handler.get_valid_targets(
+            spell_data,
+            char_state['position'],
+            battlefield,
+            self.character_states,
+            self.combat_data.get("enemy_instances", [])
+        )
         
-        valid_targets = []
-        
-        # Check all positions within range
-        for dx in range(-spell_range, spell_range + 1):
-            for dy in range(-spell_range, spell_range + 1):
-                target_pos = [caster_pos[0] + dx, caster_pos[1] + dy]
-                
-                # Allow caster position for ally-targeted spells (like healing)
-                if target_pos == caster_pos:
-                    if target_type != "ally":
-                        continue  # Only skip self for non-ally spells
-                
-                # Check manhattan distance
-                distance = abs(dx) + abs(dy)
-                if distance > spell_range:
-                    continue
-                
-                # Check if position has valid target
-                if target_type == "ally":
-                    # Only target party members
-                    for char_id, state in self.character_states.items():
-                        if state['position'] == target_pos and state.get('is_alive', True):
-                            valid_targets.append(target_pos)
-                            break
-                elif target_type == "enemy":
-                    # Only target enemies
-                    for enemy in self.combat_data.get("enemy_instances", []):
-                        if enemy['position'] == target_pos and enemy.get('current_hp', 0) > 0:
-                            valid_targets.append(target_pos)
-                            break
-                else:  # "all" or "any"
-                    # Target any position (for AOE spells)
-                    valid_targets.append(target_pos)
-        
-        return valid_targets
-    
     def execute_spell_cast(self, target_position: List[int]) -> bool:
         """Execute spell casting on target position"""
         if self.current_phase != CombatPhase.PLAYER_TURN:
+            print("❌ Not player turn")
             return False
         
         if not self.active_character_id or not hasattr(self, 'selected_spell_id'):
+            print("❌ No active character or spell selected")
             return False
         
         char_state = self.character_states[self.active_character_id]
         
         # 🔥 CHECK IF ALREADY CAST A SPELL THIS TURN
         spells_cast = char_state.get('spells_cast_this_turn', 0)
+        print(f"🔮 DEBUG: spells_cast_this_turn = {spells_cast}")  # DEBUG
         if spells_cast >= 1:
             self._add_to_combat_log("Already cast a spell this turn!")
             print("❌ Already cast a spell this turn")
@@ -3026,38 +3016,53 @@ class CombatEngine:
         spell_data = self.spell_data.get(spell_id)
         
         if not spell_data:
+            print("❌ Spell data not found")
             return False
         
         # Validate target is in valid targets
         valid_targets = self._get_spell_targets(spell_id)
+        print(f"🎯 Valid targets for {spell_id}: {valid_targets}")
+        print(f"🎯 Clicked target: {target_position}")
+        
         if target_position not in valid_targets:
             self._add_to_combat_log("Invalid target!")
+            print(f"❌ Target {target_position} not in valid targets!")
             return False
         
-        # Get affected area (for AOE spells like Fireball)
-        affected_positions = self._get_spell_affected_area(spell_data, target_position)
+        spell_data = self.spell_data.get(spell_id)
+        area_type = spell_data.get('area_type', 'single')
         
-       # Handle different attack types
+        # Get appropriate handler
+        handler = self.spell_handler_registry.get_handler(area_type)
+        
+        # Calculate affected tiles using handler
+        affected_positions = handler.calculate_affected_tiles(
+            spell_data, 
+            char_state['position'], 
+            target_position,
+            self.combat_data.get("battlefield", {})
+        )
+        
+       # Handle attack resolution (spell_attack, saving_throw, etc.)
         attack_type = spell_data.get('attack_type', 'auto_hit')
 
+        # Track whether spell hit (for damage application later)
+        spell_hit = True  # Default to hit for auto_hit and saving_throw
+
         if attack_type == 'spell_attack':
-            # Make spell attack roll
-            if not self._make_spell_attack_roll(spell_data, char_state, target_position):
+            spell_hit = self._make_spell_attack_roll(spell_data, char_state, target_position)
+            if spell_hit:
+                self._add_to_combat_log("Spell hits!")
+            else:
                 self._add_to_combat_log("Spell missed!")
-                # Still consume spell slot and action for missed spell
+                # Consume spell slot for missed spell
                 slot_cost = spell_data.get('slot_cost', 1)
                 if slot_cost > 0:
                     char_state['spell_slots_remaining'] -= slot_cost
                     print(f"🔮 Consumed {slot_cost} spell slot(s)")
                 else:
                     print(f"🔮 Cantrip cast - no spell slot consumed")
-                char_state['spells_cast_this_turn'] += 1
-                char_state['has_acted'] = True
-                self.selected_spell_id = None
-                self.set_action_mode(None)
-                return True
-            else:
-                self._add_to_combat_log("Spell hits!")
+                # Don't return - continue to animation!
                 
         elif attack_type == 'saving_throw':
             # TODO: Phase 2 - Implement actual saving throw mechanics
@@ -3066,134 +3071,47 @@ class CombatEngine:
             # When Phase 2 implemented, uncomment this:
             # affected_positions = self._apply_saving_throws(spell_data, affected_positions)
 
-        # ⚡🔥 Start line spell animation (lightning bolt or burning hands)
-        if spell_data.get('area_type') == 'line' and len(affected_positions) > 0:
-            # Determine spell type based on elemental_type (more reliable!)
-            is_fire_spell = False
-            
-            # Check elemental type in spell data
-            elemental_type = spell_data.get('elemental_type')
-            if elemental_type == 'fire':
-                is_fire_spell = True
-            
-            # Also check in effects as fallback
-            if not is_fire_spell:
-                for effect in spell_data.get('effects', []):
-                    if effect.get('elemental_type') == 'fire':
-                        is_fire_spell = True
-                        break
-            
-            animation_type = 'burning_hands' if is_fire_spell else 'lightning_bolt'
-            
-            print(f"🔥 Spell: {self.selected_spell_id}, Elemental: {elemental_type}, Fire?: {is_fire_spell}, Animation: {animation_type}")
-            
-            self.active_spell_animation = {
-                'type': animation_type,  # ← Changed from hardcoded 'lightning_bolt'
-                'caster_pos': char_state['position'],
-                'spell_data': spell_data
-            }
+        # Set up animation using handler
+        if len(affected_positions) > 0:
+            self.active_spell_animation = handler.setup_animation(
+                spell_data,
+                char_state['position'],
+                affected_positions
+            )
             self.animation_tiles = affected_positions.copy()
-            self.animation_current_tile = 0
             self.animation_start_time = time.time()
-            self.animation_alpha = 255
-            
-            # Create impact particles at each affected tile
-            # 🔥 Fire particles are orange/red, lightning are cyan/white
-            particle_colors = [
-                (255, 150, 0),   # Orange
-                (255, 100, 0),   # Red-orange  
-                (255, 200, 50)   # Yellow-orange
-            ] if is_fire_spell else [
-                (255, 255, 255),  # White
-                (200, 230, 255),  # Light cyan
-                (100, 200, 255)   # Cyan
-            ]
-            
-            self.impact_particles = []
-            for tile_pos in affected_positions:
-                # 6 particles per tile
-                for _ in range(6):
-                    particle = {
-                        'x': tile_pos[0],
-                        'y': tile_pos[1],
-                        'vx': random.uniform(-0.15, 0.15),
-                        'vy': random.uniform(-0.15, 0.15),
-                        'life': 1.0,
-                        'color': random.choice(particle_colors)
-                    }
-                    self.impact_particles.append(particle)
-            
-            print(f"{'🔥' if is_fire_spell else '⚡'} Starting {animation_type} animation: {len(affected_positions)} tiles, {len(self.impact_particles)} particles")
 
-            # 🔥 Start fireball animation if it's an area spell
-        elif spell_data.get('area_type') == 'area' and len(affected_positions) > 0:
-            
-            # Calculate distance from center for each tile (for expansion effect)
-            center_pos = target_position
-            tile_data = []
-            
-            for tile_pos in affected_positions:
-                # Manhattan distance from center
-                distance = abs(tile_pos[0] - center_pos[0]) + abs(tile_pos[1] - center_pos[1])
-                
-                # Random frame offset (0-9) for staggered animation
-                frame_offset = random.randint(0, 9)
-                
-                tile_data.append({
-                    'position': tile_pos,
-                    'distance': distance,
-                    'frame_offset': frame_offset,
-                    'start_delay': distance * 0.08  # Tiles further from center start later
-                })
-            
-            self.active_spell_animation = {
-                'type': 'fireball',
-                'center_pos': center_pos,
-                'spell_data': spell_data,
-                'tile_data': tile_data
-            }
-            self.animation_tiles = affected_positions.copy()
-            self.animation_start_time = time.time()
-            
-            # Create fire particles at impact
-            self.impact_particles = []
-            for tile_pos in affected_positions:
-                # 8 particles per tile (more than lightning)
-                for _ in range(8):
-                    particle = {
-                        'x': tile_pos[0],
-                        'y': tile_pos[1],
-                        'vx': random.uniform(-0.2, 0.2),
-                        'vy': random.uniform(-0.3, -0.1),  # Bias upward (fire rises)
-                        'life': 1.0,
-                        'color': random.choice([
-                            (255, 200, 0),    # Orange
-                            (255, 150, 0),    # Dark orange
-                            (255, 100, 0),    # Red-orange
-                            (255, 255, 100)   # Yellow
-                        ])
-                    }
-                    self.impact_particles.append(particle)
-            
-            print(f"🔥 Starting fireball animation: {len(affected_positions)} tiles, {len(self.impact_particles)} particles")
-        
-        # Cast the spell (damage will apply immediately, animation is visual only)
-        self._execute_spell_effect(spell_data, affected_positions, char_state)
-        
-        # Consume spell slot (for auto_hit and saving_throw spells)
-        # spell_attack already consumed above if it missed
-        if attack_type != 'spell_attack':
+        # Apply effects ONLY if spell hit
+        if spell_hit:
+            self._execute_spell_effect(spell_data, affected_positions, char_state)
+        else:
+            print("💨 Spell missed - no damage applied")
+
+        # Consume spell slot (only if spell HIT for spell_attack, or always for other types)
+        if attack_type == 'spell_attack' and spell_hit:
+            # For spell_attack that hit, consume slot here
             slot_cost = spell_data.get('slot_cost', 1)
             if slot_cost > 0:
                 char_state['spell_slots_remaining'] -= slot_cost
                 print(f"🔮 Consumed {slot_cost} spell slot(s)")
             else:
                 print(f"🔮 Cantrip cast - no spell slot consumed")
-            char_state['spells_cast_this_turn'] += 1
-        
+        elif attack_type != 'spell_attack':
+            # For non-attack spells, always consume slot
+            slot_cost = spell_data.get('slot_cost', 1)
+            if slot_cost > 0:
+                char_state['spell_slots_remaining'] -= slot_cost
+                print(f"🔮 Consumed {slot_cost} spell slot(s)")
+            else:
+                print(f"🔮 Cantrip cast - no spell slot consumed")
+        # Note: spell_attack that missed already consumed slot above
+
+        # ⚡ ALWAYS increment spell counter
+        char_state['spells_cast_this_turn'] += 1
+
         print(f"🔮 Spell slots: {char_state['spell_slots_remaining']}/{char_state['spell_slots_max']}")
         print(f"🔮 Spells cast this turn: {char_state['spells_cast_this_turn']}")
-                
+
         # Clear spell selection and mode
         self.selected_spell_id = None
         self.set_action_mode(None)
@@ -3315,71 +3233,19 @@ class CombatEngine:
             return affected
 
     def _get_spell_affected_area(self, spell_data: dict, target_position: List[int]) -> List[List[int]]:
-        """Get all positions affected by spell (for AOE)"""
+        """SIMPLIFIED - delegates to handlers"""
         area_type = spell_data.get('area_type', 'single')
-        area_size = spell_data.get('area_size', 1)
+        handler = self.spell_handler_registry.get_handler(area_type)
         
-        affected = []
+        char_state = self.character_states.get(self.active_character_id)
+        battlefield = self.combat_data.get("battlefield", {})
         
-        if area_type == "single":
-            # Single target only
-            affected.append(target_position)
-        
-        elif area_type == "area":
-            # Square area (e.g., 3x3 for Fireball)
-            half_size = area_size // 2
-            for dx in range(-half_size, half_size + 1):
-                for dy in range(-half_size, half_size + 1):
-                    pos = [target_position[0] + dx, target_position[1] + dy]
-                    affected.append(pos)
-        
-        elif area_type == "line":
-                # Line from caster toward target (like Lightning Bolt)
-                char_state = self.character_states[self.active_character_id]
-                caster_pos = char_state['position']
-                
-                # Calculate direction
-                dx = 1 if target_position[0] > caster_pos[0] else -1 if target_position[0] < caster_pos[0] else 0
-                dy = 1 if target_position[1] > caster_pos[1] else -1 if target_position[1] < caster_pos[1] else 0
-                
-                # Get battlefield dimensions
-                battlefield = self.combat_data.get("battlefield", {})
-                grid_width = battlefield.get("width", 8)
-                grid_height = battlefield.get("height", 8)
-                
-                # Calculate line tiles (creatures don't block, only walls/terrain)
-                current = caster_pos.copy()
-                for step in range(area_size):
-                    # Move to next tile in direction
-                    current = [current[0] + dx, current[1] + dy]
-                    
-                    # Check if out of battlefield bounds
-                    if not (0 <= current[0] < grid_width and 0 <= current[1] < grid_height):
-                        print(f"⚡ Line spell out of bounds at {current}")
-                        break
-                    
-                    # Check if blocked by wall
-                    if self.movement_system._is_wall_tile(current[0], current[1], battlefield):
-                        print(f"⚡ Line spell blocked at {current} by wall")
-                        break
-                    
-                    # Check if blocked by sight-blocking terrain
-                    terrain = battlefield.get('terrain', {})
-                    blocked_by_terrain = False
-                    for ob in terrain.get('obstacles', []):
-                        if ob.get('position') == [current[0], current[1]] and ob.get('blocks_sight', False):
-                            print(f"⚡ Line spell blocked at {current} by terrain obstacle")
-                            blocked_by_terrain = True
-                            break
-                    
-                    if blocked_by_terrain:
-                        break
-                    
-                    # Add this tile to affected list (creatures don't block!)
-                    affected.append(current.copy())
-                    print(f"⚡ Line spell affects tile {current}")
-        
-        return affected
+        return handler.calculate_affected_tiles(
+            spell_data,
+            char_state['position'],
+            target_position,
+            battlefield
+        )
 
     def _execute_spell_effect(self, spell_data: dict, affected_positions: List[List[int]], caster_state: dict):
         """
@@ -3391,6 +3257,11 @@ class CombatEngine:
         caster_name = caster_state.get('name', 'Caster')
         caster_data = caster_state.get('character_data', {})
         
+        # Check if this is a projectile animation
+        animation_type = spell_data.get('animation', 'default')
+        is_projectile = 'projectile' in animation_type
+        projectile_impact_time = time.time() + 0.5 if is_projectile else 0  # 0.5s travel time
+
         # Build effect definition from spell data
         effect_def = {
             'effect_type': 'healing' if damage_type == 'healing' else 'damage',
@@ -3458,7 +3329,11 @@ class CombatEngine:
                     
                     if not is_alive:
                         char_state['is_conscious'] = False
-                # Enemy data already updated by effect resolver
+                elif target['type'] == 'enemy':
+                    # ⚡ NEW: For enemies killed by projectiles, delay visual death
+                    if not is_alive and is_projectile:
+                        target['data']['death_animation_time'] = projectile_impact_time
+                    print(f"💀 {target_name} will show death at {projectile_impact_time}")
             
             # Combat log messages
             if effect_type == 'healing':

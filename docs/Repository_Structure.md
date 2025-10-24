@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-10-23 09:34)
+﻿## Repository Structure (generated 2025-10-24 12:35)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -9,6 +9,7 @@ C:.
 |   README.md
 |   test_combat_data_loading.py
 |   test_combat_effects.py
+|   test_handlers.py
 |   
 +---.vscode
 |       settings.json
@@ -120,6 +121,16 @@ C:.
 |       |   \---ui
 |       +---sprites
 |       |   +---effects
+|       |   |       burning_hands_diag.png
+|       |   |       burning_hands_h_v.png
+|       |   |       fireball_burn.png
+|       |   |       firebolt_diag.png
+|       |   |       firebolt_h_v.png
+|       |   |       force_diag.png
+|       |   |       force_h_v.png
+|       |   |       lightning_bolt_diag.png
+|       |   |       lightning_bolt_h_v.png
+|       |   |       
 |       |   +---enemies
 |       |   +---fire
 |       |   |       campfire_animation.png
@@ -252,7 +263,6 @@ C:.
 +---docs
 |       adding_npc_dialogue.md
 |       decisions.md
-|       KNOWN_ISSUES.md
 |       project_context copy.md
 |       project_context.md
 |       Repository_Structure.md
@@ -273,6 +283,7 @@ C:.
 |   |   player_managers.py
 |   |   quest_engine.py
 |   |   save_manager.py
+|   |   spell_handlers.py
 |   |   
 |           
 +---saves
@@ -315,6 +326,7 @@ C:.
 |   |   screen_handlers.py
 |   |   screen_manager.py
 |   |   shopping_overlay.py
+|   |   spell_animation_renderer.py
 |   |   __init__.py
 |   |   
 |           

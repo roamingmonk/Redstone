@@ -159,6 +159,49 @@ class CombatSpriteManager:
     
     def load_spell_effects(self):
         """Load spell effect sprites (lightning bolts, fireballs, etc.)"""
+        
+        effects_path = os.path.join('assets', 'images', 'sprites', 'effects')
+        
+        # Load Force projectile sprites
+        try:
+            # Horizontal/Vertical firebolt
+            force_h_v_path = os.path.join(effects_path, 'force_h_v.png')
+            if os.path.exists(force_h_v_path):
+                sprite = pygame.image.load(force_h_v_path).convert_alpha()
+                sprite = pygame.transform.scale(sprite, (48, 48))
+                self.effect_sprites['force_h_v'] = sprite
+                print("🔥 Loaded force_h_v.png")
+            
+            # Diagonal firebolt
+            force_diag_path = os.path.join(effects_path, 'force_diag.png')
+            if os.path.exists(firebolt_diag_path):
+                sprite = pygame.image.load(force_diag_path).convert_alpha()
+                sprite = pygame.transform.scale(sprite, (48, 48))
+                self.effect_sprites['force_diag'] = sprite
+                print("🔥 Loaded force_diag.png")
+        except Exception as e:
+            print(f"⚠️ Error loading firebolt sprites: {e}")
+
+        # Load Firebolt projectile sprites
+        try:
+            # Horizontal/Vertical firebolt
+            firebolt_h_v_path = os.path.join(effects_path, 'firebolt_h_v.png')
+            if os.path.exists(firebolt_h_v_path):
+                sprite = pygame.image.load(firebolt_h_v_path).convert_alpha()
+                sprite = pygame.transform.scale(sprite, (48, 48))
+                self.effect_sprites['firebolt_h_v'] = sprite
+                print("🔥 Loaded firebolt_h_v.png")
+            
+            # Diagonal firebolt
+            firebolt_diag_path = os.path.join(effects_path, 'firebolt_diag.png')
+            if os.path.exists(firebolt_diag_path):
+                sprite = pygame.image.load(firebolt_diag_path).convert_alpha()
+                sprite = pygame.transform.scale(sprite, (48, 48))
+                self.effect_sprites['firebolt_diag'] = sprite
+                print("🔥 Loaded firebolt_diag.png")
+        except Exception as e:
+            print(f"⚠️ Error loading firebolt sprites: {e}")
+            
         # Lightning Bolt images
         lightning_files = {
             'lightning_h_v': 'lightning_bolt_h_v.png',
@@ -179,6 +222,7 @@ class CombatSpriteManager:
             except Exception as e:
                 print(f"⚠️ Error loading {filename}: {e}")
                 self.effect_sprites[effect_key] = self._create_effect_fallback()
+        
         # 🔥 burning_hands images (same pattern as lightning)
         burning_hands_files = {
             'burning_hands_h_v': 'burning_hands_h_v.png',
