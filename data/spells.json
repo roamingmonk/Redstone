@@ -93,5 +93,22 @@
     "save_type": "dexterity",
     "requires_line_of_sight": true,
     "description": "6-tile line of lightning. DEX save or take 8d6 lightning damage. Hits ALL units in line!"
-  }
+  },
+  "burning_hands": {
+    "id": "burning_hands",
+    "name": "Burning Hands",
+    "damage_dice": "3d6",
+    "damage_type": "damage",
+    "elemental_type": "fire",
+    "area_type": "line",
+    "area_size": 4,
+    "line_width": 1,
+    "range": 4,
+    "slot_cost": 1,
+    "target_type": "all",
+    "attack_type": "saving_throw",
+    "save_type": "dexterity",
+    "requires_line_of_sight": true,
+    "description": "Short-range cone of flames. DEX save or take 3d6 fire damage."
+}
 }

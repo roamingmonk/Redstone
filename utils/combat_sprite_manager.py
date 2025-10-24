@@ -179,7 +179,27 @@ class CombatSpriteManager:
             except Exception as e:
                 print(f"⚠️ Error loading {filename}: {e}")
                 self.effect_sprites[effect_key] = self._create_effect_fallback()
+        # 🔥 burning_hands images (same pattern as lightning)
+        burning_hands_files = {
+            'burning_hands_h_v': 'burning_hands_h_v.png',
+            'burning_hands_diag': 'burning_hands_diag.png'
+        }
         
+        for effect_key, filename in burning_hands_files.items():
+            filepath = os.path.join(EFFECTS_SPRITES_PATH, filename)
+            
+            try:
+                if os.path.exists(filepath):
+                    sprite = pygame.image.load(filepath).convert_alpha()
+                    self.effect_sprites[effect_key] = sprite
+                    print(f"🔥 Spell effect loaded: {effect_key}")
+                else:
+                    self.effect_sprites[effect_key] = self._create_effect_fallback()
+                    print(f"⚠️ Missing effect sprite: {filename}, using fallback")
+            except Exception as e:
+                print(f"⚠️ Error loading {filename}: {e}")
+                self.effect_sprites[effect_key] = self._create_effect_fallback()
+
         # 🔥 Fireball Animation Frames
         fireball_sheet_path = os.path.join(EFFECTS_SPRITES_PATH, 'fireball_burn.png')
         

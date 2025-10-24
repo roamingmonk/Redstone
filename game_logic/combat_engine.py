@@ -118,7 +118,7 @@ class CombatEngine:
         # Get animation type
         anim_type = self.active_spell_animation.get('type')
         
-        if anim_type == 'lightning_bolt':
+        if anim_type in ['lightning_bolt', 'burning_hands']:
             # Lightning bolt animation: 0.08 seconds per tile
             time_per_tile = 0.08
             target_tile = int(elapsed / time_per_tile)
@@ -3066,11 +3066,29 @@ class CombatEngine:
             # When Phase 2 implemented, uncomment this:
             # affected_positions = self._apply_saving_throws(spell_data, affected_positions)
 
-        # Start spell animation if it's a line spell
+        # ⚡🔥 Start line spell animation (lightning bolt or burning hands)
         if spell_data.get('area_type') == 'line' and len(affected_positions) > 0:
+            # Determine spell type based on elemental_type (more reliable!)
+            is_fire_spell = False
+            
+            # Check elemental type in spell data
+            elemental_type = spell_data.get('elemental_type')
+            if elemental_type == 'fire':
+                is_fire_spell = True
+            
+            # Also check in effects as fallback
+            if not is_fire_spell:
+                for effect in spell_data.get('effects', []):
+                    if effect.get('elemental_type') == 'fire':
+                        is_fire_spell = True
+                        break
+            
+            animation_type = 'burning_hands' if is_fire_spell else 'lightning_bolt'
+            
+            print(f"🔥 Spell: {self.selected_spell_id}, Elemental: {elemental_type}, Fire?: {is_fire_spell}, Animation: {animation_type}")
             
             self.active_spell_animation = {
-                'type': 'lightning_bolt',
+                'type': animation_type,  # ← Changed from hardcoded 'lightning_bolt'
                 'caster_pos': char_state['position'],
                 'spell_data': spell_data
             }
@@ -3080,6 +3098,17 @@ class CombatEngine:
             self.animation_alpha = 255
             
             # Create impact particles at each affected tile
+            # 🔥 Fire particles are orange/red, lightning are cyan/white
+            particle_colors = [
+                (255, 150, 0),   # Orange
+                (255, 100, 0),   # Red-orange  
+                (255, 200, 50)   # Yellow-orange
+            ] if is_fire_spell else [
+                (255, 255, 255),  # White
+                (200, 230, 255),  # Light cyan
+                (100, 200, 255)   # Cyan
+            ]
+            
             self.impact_particles = []
             for tile_pos in affected_positions:
                 # 6 particles per tile
@@ -3087,18 +3116,14 @@ class CombatEngine:
                     particle = {
                         'x': tile_pos[0],
                         'y': tile_pos[1],
-                        'vx': random.uniform(-0.15, 0.15),  # Velocity in grid units
+                        'vx': random.uniform(-0.15, 0.15),
                         'vy': random.uniform(-0.15, 0.15),
-                        'life': 1.0,  # 1.0 = full life
-                        'color': random.choice([
-                            (255, 255, 255),  # White
-                            (200, 230, 255),  # Light cyan
-                            (100, 200, 255)   # Cyan
-                        ])
+                        'life': 1.0,
+                        'color': random.choice(particle_colors)
                     }
                     self.impact_particles.append(particle)
             
-            print(f"⚡ Starting lightning animation: {len(affected_positions)} tiles, {len(self.impact_particles)} particles")
+            print(f"{'🔥' if is_fire_spell else '⚡'} Starting {animation_type} animation: {len(affected_positions)} tiles, {len(self.impact_particles)} particles")
 
             # 🔥 Start fireball animation if it's an area spell
         elif spell_data.get('area_type') == 'area' and len(affected_positions) > 0:

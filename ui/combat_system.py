@@ -114,7 +114,7 @@ class CombatEncounter:
 
         anim_type = engine.active_spell_animation.get('type')
         
-        if anim_type == 'lightning_bolt':
+        if anim_type in ['lightning_bolt', 'burning_hands']:
             # Get animation state
             tiles_to_show = engine.animation_current_tile + 1  # Show tiles up to current
             caster_pos = engine.active_spell_animation['caster_pos']
@@ -134,8 +134,13 @@ class CombatEncounter:
                 # Determine which image and rotation to use
                 is_diagonal = (dx != 0 and dy != 0)
                 
+                # Determine which sprite to use based on animation type
+                sprite_prefix = 'burning_hands' if anim_type == 'burning_hands' else 'lightning'
+                
                 if is_diagonal:
-                    base_image = self.sprite_manager.get_effect_sprite('lightning_diag')
+                    sprite_key = f'{sprite_prefix}_diag'
+                    base_image = self.sprite_manager.get_effect_sprite(sprite_key)
+                    print(f"🔍 Loading diagonal sprite: {sprite_key}, Got: {base_image is not None}")
                     # NE=0°, SE=90°, SW=180°, NW=270°
                     if dx > 0 and dy < 0:  # NE
                         angle = 0
@@ -146,7 +151,9 @@ class CombatEncounter:
                     else:  # NW
                         angle = 270
                 else:
-                    base_image = self.sprite_manager.get_effect_sprite('lightning_h_v')
+                    sprite_key = f'{sprite_prefix}_h_v'
+                    base_image = self.sprite_manager.get_effect_sprite(sprite_key)
+                    print(f"🔍 Loading h_v sprite: {sprite_key}, Got: {base_image is not None}")
                     # N=0°, E=90°, S=180°, W=270°
                     if dy < 0:  # North
                         angle = 0
