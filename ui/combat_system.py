@@ -1671,10 +1671,10 @@ def register_combat_system_events(event_manager, game_controller):
 
     def handle_spell_select(event_data):
         """Handle clicking on a specific spell"""
-        print(f"🔍 handle_spell_select called with: {event_data}")  # ADD THIS
+        print(f"🔍 handle_spell_select called with: {event_data}") 
         if game_controller:
             spell_id = event_data.get('spell_id')
-            print(f"🔍 spell_id extracted: {spell_id}")  # ADD THIS
+            print(f"🔍 spell_id extracted: {spell_id}")  
             if spell_id:
                 print(f"✨ Spell selected: {spell_id}")
                 # Store selected spell in game controller

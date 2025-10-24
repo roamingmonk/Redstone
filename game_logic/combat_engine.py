@@ -916,12 +916,20 @@ class CombatEngine:
                 print("❌ Cannot enter spell mode - already cast this turn")
                 return  # Don't enter spell mode!
             
-            # Check if has spell slots
+            # Check if has spell slots OR cantrips
             spell_slots = char_state.get('spell_slots_remaining', 0)
-            if spell_slots <= 0:
-                self._add_to_combat_log("No spell slots remaining!")
-                print("❌ Cannot enter spell mode - no spell slots")
+            spells_known = char_state.get('spells_known', [])
+            
+            # Allow spell mode if: has slots OR has any spells known (cantrips)
+            if spell_slots <= 0 and len(spells_known) == 0:
+                self._add_to_combat_log("No spells available!")
+                print("❌ Cannot enter spell mode - no spells known")
                 return  # Don't enter spell mode!
+            
+            # If no slots but has spells, they can only cast cantrips
+            if spell_slots <= 0:
+                self._add_to_combat_log("No spell slots - cantrips only!")
+                print("🕯️ Spell mode: Cantrips only")
         
         print(f"Action mode set to: {mode}")
         self.current_action_mode = mode
@@ -2920,27 +2928,6 @@ class CombatEngine:
         print(f"   Final spell_ids: {spell_ids}")
         return spell_ids
 
-    # def _calculate_spell_save_dc(self, caster_data: dict, spell_data: dict) -> int:
-    #     """Calculate spell save DC: 8 + proficiency + casting stat modifier"""
-    #     base_dc = 8
-        
-    #     # Get proficiency bonus from level
-    #     level = caster_data.get('level', 1)
-    #     proficiency = 2 + ((level - 1) // 4)  # Standard D&D progression
-        
-    #     # Get casting stat modifier (INT for wizards, WIS for clerics)
-    #     char_class = caster_data.get('character_class', '').lower()
-    #     casting_stat = 'intelligence' if char_class == 'wizard' else 'wisdom'
-        
-    #     stats = caster_data.get('stats', {})
-    #     stat_value = stats.get(casting_stat, 10)
-    #     stat_modifier = (stat_value - 10) // 2
-        
-    #     # Check for spell-specific DC override
-    #     spell_dc_bonus = spell_data.get('dc_bonus', 0)
-        
-    #     return base_dc + proficiency + stat_modifier + spell_dc_bonus
-
     def get_available_spells(self, character_id: str) -> list:
         """
         Get list of spells character can currently cast
@@ -2950,12 +2937,7 @@ class CombatEngine:
             return []
         
         char_state = self.character_states[character_id]
-        
-        # Check if character has spell slots remaining
-        if char_state.get('spell_slots_remaining', 0) <= 0:
-            return []
-        
-        # Get spells known
+        spell_slots = char_state.get('spell_slots_remaining', 0)
         spells_known = char_state.get('spells_known', [])
         
         # Build list of castable spells with full data
@@ -2963,10 +2945,14 @@ class CombatEngine:
         for spell_id in spells_known:
             if spell_id in self.spell_data:
                 spell_info = self.spell_data[spell_id].copy()
-                available_spells.append(spell_info)
+                slot_cost = spell_info.get('slot_cost', 1)
+                
+                # Include spell if: has slots OR it's a cantrip
+                if spell_slots > 0 or slot_cost == 0:
+                    available_spells.append(spell_info)
         
         return available_spells
-    
+
     def _get_spell_targets(self, spell_id: str) -> list:
         """Get valid target positions for a spell"""
         if not self.active_character_id:
@@ -3082,7 +3068,7 @@ class CombatEngine:
             print(f"🎬 Animation setup: {self.active_spell_animation}")
             print(f"   Caster pos: {char_state['position']}")
             print(f"   Target pos: {affected_positions[0] if affected_positions else 'none'}")
-            
+
             self.animation_tiles = affected_positions.copy()
             self.animation_start_time = time.time()
 

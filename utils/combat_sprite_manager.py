@@ -172,7 +172,7 @@ class CombatSpriteManager:
                 self.effect_sprites['force_h_v'] = sprite
                 print("🔥 Loaded force_h_v.png")
             
-            # Diagonal firebolt
+            # Diagonal force
             force_diag_path = os.path.join(effects_path, 'force_diag.png')
             if os.path.exists(firebolt_diag_path):
                 sprite = pygame.image.load(force_diag_path).convert_alpha()
@@ -180,7 +180,7 @@ class CombatSpriteManager:
                 self.effect_sprites['force_diag'] = sprite
                 print("🔥 Loaded force_diag.png")
         except Exception as e:
-            print(f"⚠️ Error loading firebolt sprites: {e}")
+            print(f"⚠️ Error loading force sprites: {e}")
 
         # Load Firebolt projectile sprites
         try:
