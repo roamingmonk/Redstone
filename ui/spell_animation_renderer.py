@@ -15,6 +15,9 @@ class SpellAnimationRenderer:
             'fire_area': self._render_area_burst,
             'fire_projectile': self._render_projectile,
             'force_projectile': self._render_projectile,
+            'cold_projectile': self._render_projectile,
+            'acid_projectile': self._render_projectile,
+            'radiant_projectile': self._render_projectile,
             # Add more as needed
         }
     
