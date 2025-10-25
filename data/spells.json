@@ -134,5 +134,21 @@
     "save_type": "dexterity",
     "requires_line_of_sight": true,
     "description": "Short-range cone of flames. DEX save or take 3d6 fire damage."
+},
+"ice_knife": {
+  "id": "ice_knife",
+  "name": "Ice Knife",
+  "damage_dice": "1d10",
+  "damage_type": "damage",
+  "elemental_type": "cold",
+  "animation": "cold_projectile",
+  "area_type": "single",
+  "range": 10,
+  "slot_cost": 1,
+  "target_type": "enemy",
+  "attack_type": "spell_attack",
+  "requires_line_of_sight": true,
+  "scales_with_level": false,
+  "description": "A shard of ice streaks toward a target. Ranged spell attack. 1d10 cold damage."
 }
 }

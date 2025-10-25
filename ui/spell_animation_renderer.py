@@ -196,21 +196,21 @@ class SpellAnimationRenderer:
             surface.blit(particle_surf, (int(screen_x - size), int(screen_y - size)))
 
     def _render_projectile(self, anim_data, context):
-        """Render projectile spells (firebolt, magic dart, etc.)"""
+        """Render projectile spells (firebolt, magic dart, etc.) with impact effects"""
         surface = context['surface']
         grid_offset = context['grid_offset']
         tile_size = context['tile_size']
         elapsed = context['elapsed']
         alpha = context.get('alpha', 255)
-        
+
         start_pos = anim_data.get('start_pos')
         end_pos = anim_data.get('end_pos')
         animation_type = anim_data.get('type', 'fire_projectile')
-        
+
         if not start_pos or not end_pos:
             return
-        
-        # Map animation type to sprite prefix
+
+        # Map animation type to sprite prefix and impact color
         sprite_prefix_map = {
             'fire_projectile': 'firebolt',
             'force_projectile': 'force',
@@ -218,7 +218,15 @@ class SpellAnimationRenderer:
             'acid_projectile': 'acid'
         }
 
+        impact_color_map = {
+            'fire_projectile': (255, 150, 0),
+            'force_projectile': (150, 100, 255),
+            'cold_projectile': (100, 200, 255),
+            'acid_projectile': (100, 255, 100)
+        }
+
         sprite_prefix = sprite_prefix_map.get(animation_type, 'firebolt')
+        impact_color = impact_color_map.get(animation_type, (255, 255, 255))
 
         # Calculate projectile travel duration (0.5 seconds)
         travel_duration = 0.5
@@ -270,29 +278,97 @@ class SpellAnimationRenderer:
             else:  # West
                 angle = 270
         
-        # Render the projectile
-        if base_image:
-            rotated = pygame.transform.rotate(base_image, angle)
-            rotated.set_alpha(alpha)
-            
-            sprite_rect = rotated.get_rect()
-            sprite_rect.center = (int(screen_x), int(screen_y))
-            
-            surface.blit(rotated, sprite_rect)
-            print(f"🔥 Rendering {sprite_key} at ({int(screen_x)}, {int(screen_y)})")  # DEBUG
+        # Render the projectile if it hasn't reached the target yet
+        if progress < 1.0:
+            if base_image:
+                rotated = pygame.transform.rotate(base_image, angle)
+                rotated.set_alpha(alpha)
+
+                sprite_rect = rotated.get_rect()
+                sprite_rect.center = (int(screen_x), int(screen_y))
+
+                surface.blit(rotated, sprite_rect)
+                print(f"🎯 Rendering {sprite_key} at ({int(screen_x)}, {int(screen_y)}) - Progress: {progress:.2f}")
+            else:
+                # Fallback: draw a colored circle
+                print(f"⚠️ Sprite '{sprite_key}' not found, using fallback")
+                fallback_colors = {
+                    'firebolt': (255, 100, 0),
+                    'fire': (255, 100, 0),
+                    'force': (150, 100, 255),
+                    'ice': (100, 200, 255),
+                    'acid': (100, 255, 100)
+                }
+                color = fallback_colors.get(sprite_prefix, (255, 255, 255))
+                pygame.draw.circle(surface, color, (int(screen_x), int(screen_y)), 8)
         else:
-            # Fallback: draw a colored circle
-            print(f"⚠️ Sprite '{sprite_key}' not found, using fallback")  # DEBUG
-            fallback_colors = {
-                'firebolt': (255, 100, 0),
-                'fire': (255, 100, 0),
-                'force': (150, 100, 255),
-                'ice': (100, 200, 255),
-                'acid': (100, 255, 100)
-            }
-            color = fallback_colors.get(sprite_prefix, (255, 255, 255))
-            pygame.draw.circle(surface, color, (int(screen_x), int(screen_y)), 8)
-        
+            # Projectile has hit - render impact effect
+            impact_elapsed = elapsed - travel_duration
+            impact_duration = 0.3  # Impact lasts 0.3 seconds
+
+            if impact_elapsed < impact_duration:
+                # Calculate impact animation progress
+                impact_progress = impact_elapsed / impact_duration
+
+                # Screen position of impact
+                impact_screen_x = grid_offset[0] + (end_pos[0] * tile_size) + (tile_size // 2)
+                impact_screen_y = grid_offset[1] + (end_pos[1] * tile_size) + (tile_size // 2)
+
+                # Map animation type to impact sprite key
+                impact_sprite_map = {
+                    'fire_projectile': 'firebolt_impact',
+                    'force_projectile': 'force_impact',
+                    'cold_projectile': 'ice_impact'
+                }
+
+                impact_sprite_key = impact_sprite_map.get(animation_type)
+                impact_sprite = self.sprite_manager.get_effect_sprite(impact_sprite_key) if impact_sprite_key else None
+
+                # Try to use impact sprite if available
+                if impact_sprite and hasattr(impact_sprite, 'get_width'):
+                    # Use the actual impact sprite
+                    impact_alpha = int(255 * (1.0 - impact_progress))  # Fade out
+
+                    # Scale sprite based on progress (starts at 50%, grows to 150%)
+                    scale_factor = 0.5 + (impact_progress * 1.0)
+                    sprite_width = int(impact_sprite.get_width() * scale_factor)
+                    sprite_height = int(impact_sprite.get_height() * scale_factor)
+
+                    # Scale and apply alpha
+                    scaled_sprite = pygame.transform.scale(impact_sprite, (sprite_width, sprite_height))
+                    scaled_sprite.set_alpha(impact_alpha)
+
+                    # Center on impact location
+                    sprite_rect = scaled_sprite.get_rect()
+                    sprite_rect.center = (int(impact_screen_x), int(impact_screen_y))
+
+                    surface.blit(scaled_sprite, sprite_rect)
+                    print(f"💥 Rendering {impact_sprite_key} sprite at ({impact_screen_x}, {impact_screen_y}) - Progress: {impact_progress:.2f}")
+                else:
+                    # Fallback to procedural impact effect
+                    # Expanding ring effect
+                    max_radius = 20
+                    ring_radius = int(max_radius * impact_progress)
+                    ring_alpha = int(255 * (1.0 - impact_progress))  # Fade out
+
+                    # Draw expanding ring
+                    ring_surface = pygame.Surface((max_radius * 2, max_radius * 2), pygame.SRCALPHA)
+                    pygame.draw.circle(ring_surface, (*impact_color, ring_alpha),
+                                    (max_radius, max_radius), ring_radius, 3)
+                    surface.blit(ring_surface,
+                            (impact_screen_x - max_radius, impact_screen_y - max_radius))
+
+                    # Draw flash at center
+                    flash_alpha = int(200 * (1.0 - impact_progress))
+                    flash_size = int(10 * (1.0 - impact_progress * 0.5))
+                    flash_surface = pygame.Surface((flash_size * 2, flash_size * 2), pygame.SRCALPHA)
+                    pygame.draw.circle(flash_surface, (*impact_color, flash_alpha),
+                                    (flash_size, flash_size), flash_size)
+                    surface.blit(flash_surface,
+                            (impact_screen_x - flash_size, impact_screen_y - flash_size))
+
+                    print(f"💥 Rendering procedural impact at ({impact_screen_x}, {impact_screen_y}) - Progress: {impact_progress:.2f}")
+
         # Render trail particles
         self._render_particles(context.get('particles', []), context)
 

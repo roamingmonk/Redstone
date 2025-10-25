@@ -170,15 +170,15 @@ class CombatSpriteManager:
                 sprite = pygame.image.load(force_h_v_path).convert_alpha()
                 sprite = pygame.transform.scale(sprite, (48, 48))
                 self.effect_sprites['force_h_v'] = sprite
-                print("🔥 Loaded force_h_v.png")
+                print("💜 Loaded force_h_v.png")
             
             # Diagonal force
             force_diag_path = os.path.join(effects_path, 'force_diag.png')
-            if os.path.exists(firebolt_diag_path):
+            if os.path.exists(force_diag_path):
                 sprite = pygame.image.load(force_diag_path).convert_alpha()
                 sprite = pygame.transform.scale(sprite, (48, 48))
                 self.effect_sprites['force_diag'] = sprite
-                print("🔥 Loaded force_diag.png")
+                print("💜 Loaded force_diag.png")
         except Exception as e:
             print(f"⚠️ Error loading force sprites: {e}")
 
@@ -202,6 +202,46 @@ class CombatSpriteManager:
         except Exception as e:
             print(f"⚠️ Error loading firebolt sprites: {e}")
             
+        # Load Ice Knife projectile sprites
+        try:
+            # Horizontal/Vertical ice
+            ice_h_v_path = os.path.join(effects_path, 'ice_h_v.png')
+            if os.path.exists(ice_h_v_path):
+                sprite = pygame.image.load(ice_h_v_path).convert_alpha()
+                sprite = pygame.transform.scale(sprite, (48, 48))
+                self.effect_sprites['ice_h_v'] = sprite
+                print("❄️ Loaded ice_h_v.png")
+
+            # Diagonal ice
+            ice_diag_path = os.path.join(effects_path, 'ice_diag.png')
+            if os.path.exists(ice_diag_path):
+                sprite = pygame.image.load(ice_diag_path).convert_alpha()
+                sprite = pygame.transform.scale(sprite, (48, 48))
+                self.effect_sprites['ice_diag'] = sprite
+                print("❄️ Loaded ice_diag.png")
+        except Exception as e:
+            print(f"⚠️ Error loading ice sprites: {e}")
+
+        # Load Impact sprites (for projectile hit effects)
+        impact_sprites = {
+            'firebolt_impact': 'firebolt_impact.png',
+            'force_impact': 'force_impact.png',
+            'ice_impact': 'ice_impact.png'
+        }
+
+        for sprite_key, filename in impact_sprites.items():
+            filepath = os.path.join(effects_path, filename)
+            try:
+                if os.path.exists(filepath):
+                    sprite = pygame.image.load(filepath).convert_alpha()
+                    # Keep impact sprites at their original size for now
+                    self.effect_sprites[sprite_key] = sprite
+                    print(f"💥 Impact sprite loaded: {sprite_key}")
+                else:
+                    print(f"⚠️ Missing impact sprite: {filename}")
+            except Exception as e:
+                print(f"⚠️ Error loading {filename}: {e}")
+        
         # Lightning Bolt images
         lightning_files = {
             'lightning_h_v': 'lightning_bolt_h_v.png',
