@@ -1763,6 +1763,33 @@ class CombatEngine:
         self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
         
         if total_attack >= target_ac:
+            # *** CREATE PROJECTILE ANIMATION ***
+            char_pos = char_state['position']
+            
+            # Determine projectile type based on weapon
+            projectile_type = 'arrow_projectile'  # Default to arrow
+            
+            if weapon_id:
+                weapon_lower = weapon_id.lower()
+                if 'sling' in weapon_lower:
+                    projectile_type = 'bullet_projectile'
+                elif 'bow' in weapon_lower or 'crossbow' in weapon_lower:
+                    projectile_type = 'arrow_projectile'
+                # Add more weapon types as needed
+            
+            # Create animation data (same pattern as spell projectiles)
+            self.active_spell_animation = {
+                'type': projectile_type,
+                'start_pos': char_pos,
+                'end_pos': target_position,
+                'weapon_type': weapon_id
+            }
+            self.animation_start_time = time.time()
+            self.animation_tiles = [target_position]
+            
+            print(f"🏹 Weapon projectile animation created: {projectile_type}")
+            print(f"   From {char_pos} to {target_position}")
+            
             # Hit! Effect resolver will roll damage
             effect_def = {
                 'effect_type': 'damage',

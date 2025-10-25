@@ -18,6 +18,9 @@ class SpellAnimationRenderer:
             'cold_projectile': self._render_projectile,
             'acid_projectile': self._render_projectile,
             'radiant_projectile': self._render_projectile,
+            # Weapon projectiles
+            'arrow_projectile': self._render_projectile,
+            'bullet_projectile': self._render_projectile,
             # Add more as needed
         }
     
@@ -221,14 +224,20 @@ class SpellAnimationRenderer:
             'fire_projectile': 'firebolt',
             'force_projectile': 'force',
             'cold_projectile': 'ice',
-            'acid_projectile': 'acid'
+            'acid_projectile': 'acid',
+             # Weapon projectiles
+            'arrow_projectile': 'arrow',
+            'bullet_projectile': 'bullet'
         }
 
         impact_color_map = {
             'fire_projectile': (255, 150, 0),
             'force_projectile': (150, 100, 255),
             'cold_projectile': (100, 200, 255),
-            'acid_projectile': (100, 255, 100)
+            'acid_projectile': (100, 255, 100),
+            # Weapon projectiles (gray/brown impact)
+            'arrow_projectile': (150, 150, 150),
+            'bullet_projectile': (139, 90, 43)
         }
 
         sprite_prefix = sprite_prefix_map.get(animation_type, 'firebolt')

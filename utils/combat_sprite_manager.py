@@ -222,6 +222,46 @@ class CombatSpriteManager:
         except Exception as e:
             print(f"⚠️ Error loading ice sprites: {e}")
 
+        # Load Arrow projectile sprites (for bows/crossbows)
+        try:
+            # Horizontal/Vertical arrow
+            arrow_h_v_path = os.path.join(effects_path, 'arrow_h_v.png')
+            if os.path.exists(arrow_h_v_path):
+                sprite = pygame.image.load(arrow_h_v_path).convert_alpha()
+                sprite = pygame.transform.scale(sprite, (48, 48))
+                self.effect_sprites['arrow_h_v'] = sprite
+                print("🏹 Loaded arrow_h_v.png")
+            
+            # Diagonal arrow
+            arrow_diag_path = os.path.join(effects_path, 'arrow_diag.png')
+            if os.path.exists(arrow_diag_path):
+                sprite = pygame.image.load(arrow_diag_path).convert_alpha()
+                sprite = pygame.transform.scale(sprite, (48, 48))
+                self.effect_sprites['arrow_diag'] = sprite
+                print("🏹 Loaded arrow_diag.png")
+        except Exception as e:
+            print(f"⚠️ Error loading arrow sprites: {e}")
+
+        # Load Bullet projectile sprites (for slings)
+        try:
+            # Horizontal/Vertical bullet
+            bullet_h_v_path = os.path.join(effects_path, 'bullet_h_v.png')
+            if os.path.exists(bullet_h_v_path):
+                sprite = pygame.image.load(bullet_h_v_path).convert_alpha()
+                sprite = pygame.transform.scale(sprite, (48, 48))
+                self.effect_sprites['bullet_h_v'] = sprite
+                print("🪨 Loaded bullet_h_v.png")
+            
+            # Diagonal bullet
+            bullet_diag_path = os.path.join(effects_path, 'bullet_diag.png')
+            if os.path.exists(bullet_diag_path):
+                sprite = pygame.image.load(bullet_diag_path).convert_alpha()
+                sprite = pygame.transform.scale(sprite, (48, 48))
+                self.effect_sprites['bullet_diag'] = sprite
+                print("🪨 Loaded bullet_diag.png")
+        except Exception as e:
+            print(f"⚠️ Error loading bullet sprites: {e}")
+
         # Load Impact sprites (for projectile hit effects)
         impact_sprites = {
             'firebolt_impact': 'firebolt_impact.png',
