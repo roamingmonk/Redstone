@@ -207,6 +207,8 @@ class SpellAnimationRenderer:
         grid_offset = context['grid_offset']
 
         clip_rect = surface.get_clip()
+        # print(f"🔍 Surface clip rect: {clip_rect}")
+        # print(f"🔍 Surface flags: {surface.get_flags()}")
 
         tile_size = context['tile_size']
         elapsed = context['elapsed']
@@ -225,7 +227,7 @@ class SpellAnimationRenderer:
             'force_projectile': 'force',
             'cold_projectile': 'ice',
             'acid_projectile': 'acid',
-             # Weapon projectiles
+            # Weapon projectiles
             'arrow_projectile': 'arrow',
             'bullet_projectile': 'bullet'
         }
@@ -243,6 +245,12 @@ class SpellAnimationRenderer:
         sprite_prefix = sprite_prefix_map.get(animation_type, 'firebolt')
         impact_color = impact_color_map.get(animation_type, (255, 255, 255))
 
+        # *** CLASSIFICATION: Directional vs Omnidirectional sprites ***
+        DIRECTIONAL_PROJECTILES = ['arrow', 'force', 'ice', 'acid']
+        OMNIDIRECTIONAL_PROJECTILES = ['firebolt', 'bullet']
+        
+        is_directional = sprite_prefix in DIRECTIONAL_PROJECTILES
+
         # Calculate projectile travel duration (0.5 seconds)
         travel_duration = 0.5
         progress = min(elapsed / travel_duration, 1.0)
@@ -259,63 +267,103 @@ class SpellAnimationRenderer:
         dx = end_pos[0] - start_pos[0]
         dy = end_pos[1] - start_pos[1]
         
-        # Normalize direction
-        if dx != 0:
-            dx = dx / abs(dx)
-        if dy != 0:
-            dy = dy / abs(dy)
-        
-        # Determine which sprite to use
-        is_diagonal = (dx != 0 and dy != 0)
-        
-        if is_diagonal:
-            sprite_key = f'{sprite_prefix}_diag'
-            base_image = self.sprite_manager.get_effect_sprite(sprite_key)
-            # NE=0°, SE=90°, SW=180°, NW=270°
-            if dx > 0 and dy < 0:  # NE
-                angle = 0
-            elif dx > 0 and dy > 0:  # SE
-                angle = 90
-            elif dx < 0 and dy > 0:  # SW
-                angle = 180
-            else:  # NW
-                angle = 270
-        else:
+        # *** DIRECTIONAL PROJECTILES: Use precise angle-based rotation ***
+        if is_directional:
+            import math
+            
+            # Calculate exact angle from start to end
+            angle_rad = math.atan2(dy, dx)
+            angle_deg = math.degrees(angle_rad)
+            
+            # atan2 gives: 0° = EAST, 90° = SOUTH, -90° = NORTH, ±180° = WEST
+            # Our base sprite points NORTH (which is -90° in atan2)
+            # Formula: rotation = -(angle_from_east + 90)
+            rotation_angle = -(angle_deg + 90)
+            
+            # Use h_v sprite as base (drawn pointing NORTH ↑)
             sprite_key = f'{sprite_prefix}_h_v'
             base_image = self.sprite_manager.get_effect_sprite(sprite_key)
-            # N=0°, E=90°, S=180°, W=270°
-            if dy < 0:  # North
-                angle = 0
-            elif dx > 0:  # East
-                angle = 90
-            elif dy > 0:  # South
-                angle = 180
-            else:  # West
-                angle = 270
+            
+            # Render the projectile if it hasn't reached the target yet
+            if progress < 1.0:
+                if base_image:
+                    rotated = pygame.transform.rotate(base_image, rotation_angle)
+                    rotated.set_alpha(alpha)
+
+                    sprite_rect = rotated.get_rect()
+                    sprite_rect.center = (int(screen_x), int(screen_y))
+
+                    surface.blit(rotated, sprite_rect)
+                else:
+                    # Fallback: draw a colored circle
+                    print(f"⚠️ Sprite '{sprite_key}' not found, using fallback")
+                    fallback_colors = {
+                        'arrow': (139, 90, 43),
+                        'force': (150, 100, 255),
+                        'ice': (100, 200, 255),
+                        'acid': (100, 255, 100)
+                    }
+                    color = fallback_colors.get(sprite_prefix, (255, 255, 255))
+                    pygame.draw.circle(surface, color, (int(screen_x), int(screen_y)), 8)
         
-        # Render the projectile if it hasn't reached the target yet
-        if progress < 1.0:
-            if base_image:
-                rotated = pygame.transform.rotate(base_image, angle)
-                rotated.set_alpha(alpha)
-
-                sprite_rect = rotated.get_rect()
-                sprite_rect.center = (int(screen_x), int(screen_y))
-
-                surface.blit(rotated, sprite_rect)
-            else:
-                # Fallback: draw a colored circle
-                print(f"⚠️ Sprite '{sprite_key}' not found, using fallback")
-                fallback_colors = {
-                    'firebolt': (255, 100, 0),
-                    'fire': (255, 100, 0),
-                    'force': (150, 100, 255),
-                    'ice': (100, 200, 255),
-                    'acid': (100, 255, 100)
-                }
-                color = fallback_colors.get(sprite_prefix, (255, 255, 255))
-                pygame.draw.circle(surface, color, (int(screen_x), int(screen_y)), 8)
+        # *** OMNIDIRECTIONAL PROJECTILES: Use existing 4-way rotation system ***
         else:
+            # Normalize direction
+            if dx != 0:
+                dx = dx / abs(dx)
+            if dy != 0:
+                dy = dy / abs(dy)
+            
+            # Determine which sprite to use
+            is_diagonal = (dx != 0 and dy != 0)
+            
+            if is_diagonal:
+                sprite_key = f'{sprite_prefix}_diag'
+                base_image = self.sprite_manager.get_effect_sprite(sprite_key)
+                # Base diagonal sprite points NORTHEAST (↗)
+                if dx > 0 and dy < 0:  # NE
+                    angle = 0
+                elif dx > 0 and dy > 0:  # SE
+                    angle = 270  # 90° clockwise
+                elif dx < 0 and dy > 0:  # SW
+                    angle = 180
+                else:  # NW (dx < 0 and dy < 0)
+                    angle = 90  # 90° counter-clockwise
+            else:
+                sprite_key = f'{sprite_prefix}_h_v'
+                base_image = self.sprite_manager.get_effect_sprite(sprite_key)
+                # Base h_v sprite points NORTH (↑)
+                if dy < 0:  # North
+                    angle = 0
+                elif dx > 0:  # East
+                    angle = 270  # 90° clockwise
+                elif dy > 0:  # South
+                    angle = 180
+                else:  # West (dx < 0)
+                    angle = 90  # 90° counter-clockwise
+            
+            # Render the projectile if it hasn't reached the target yet
+            if progress < 1.0:
+                if base_image:
+                    rotated = pygame.transform.rotate(base_image, angle)
+                    rotated.set_alpha(alpha)
+
+                    sprite_rect = rotated.get_rect()
+                    sprite_rect.center = (int(screen_x), int(screen_y))
+
+                    surface.blit(rotated, sprite_rect)
+                else:
+                    # Fallback: draw a colored circle
+                    print(f"⚠️ Sprite '{sprite_key}' not found, using fallback")
+                    fallback_colors = {
+                        'firebolt': (255, 100, 0),
+                        'bullet': (139, 90, 43)
+                    }
+                    color = fallback_colors.get(sprite_prefix, (255, 255, 255))
+                    pygame.draw.circle(surface, color, (int(screen_x), int(screen_y)), 8)
+        
+        # *** IMPACT EFFECT (same for all projectiles) ***
+        if progress >= 1.0:
             # Projectile has hit - render impact effect
             impact_elapsed = elapsed - travel_duration
             impact_duration = 0.3  # Impact lasts 0.3 seconds
@@ -382,6 +430,7 @@ class SpellAnimationRenderer:
 
         # Render trail particles
         self._render_particles(context.get('particles', []), context)
+
 
     def _render_default(self, anim_data, context):
         """Fallback renderer - simple flash effect"""

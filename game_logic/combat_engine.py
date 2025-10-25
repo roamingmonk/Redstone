@@ -1789,7 +1789,7 @@ class CombatEngine:
             
             print(f"🏹 Weapon projectile animation created: {projectile_type}")
             print(f"   From {char_pos} to {target_position}")
-            
+
             # Hit! Effect resolver will roll damage
             effect_def = {
                 'effect_type': 'damage',
@@ -2369,6 +2369,40 @@ class CombatEngine:
             self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
             
             if total_attack >= target_ac:
+                # *** CREATE PROJECTILE ANIMATION FOR RANGED ATTACKS ***
+                if weapon_attack.get("attack_type") == "ranged":
+                    attacker_pos = attacker_data.get("position", [0, 0])
+                    
+                    # Get target position from character_states
+                    target_pos = None
+                    for char_id, char_state in self.character_states.items():
+                        if char_state.get('character_data') == target_data:
+                            target_pos = char_state.get('position', [0, 0])
+                            break
+                    
+                    if target_pos:
+                        # Determine projectile type based on weapon name
+                        weapon_name = weapon_attack.get("name", "").lower()
+                        projectile_type = 'arrow_projectile'  # Default
+                        
+                        if 'sling' in weapon_name or 'stone' in weapon_name:
+                            projectile_type = 'bullet_projectile'
+                        elif 'bow' in weapon_name or 'crossbow' in weapon_name or 'arrow' in weapon_name:
+                            projectile_type = 'arrow_projectile'
+                        
+                        # Create animation data
+                        self.active_spell_animation = {
+                            'type': projectile_type,
+                            'start_pos': attacker_pos,
+                            'end_pos': target_pos,
+                            'weapon_type': weapon_name
+                        }
+                        self.animation_start_time = time.time()
+                        self.animation_tiles = [target_pos]
+                        
+                        print(f"🏹 Enemy projectile animation: {projectile_type}")
+                        print(f"   From {attacker_pos} to {target_pos}")
+
                 # Hit! Use effect resolver for damage
                 effect_def = {
                     'effect_type': 'damage',
