@@ -202,6 +202,11 @@ class SpellAnimationRenderer:
         """Render projectile spells (firebolt, magic dart, etc.) with impact effects"""
         surface = context['surface']
         grid_offset = context['grid_offset']
+
+        clip_rect = surface.get_clip()
+        print(f"🔍 Surface clip rect: {clip_rect}")
+        print(f"🔍 Surface flags: {surface.get_flags()}")
+
         tile_size = context['tile_size']
         elapsed = context['elapsed']
         alpha = context.get('alpha', 255)
@@ -291,7 +296,6 @@ class SpellAnimationRenderer:
                 sprite_rect.center = (int(screen_x), int(screen_y))
 
                 surface.blit(rotated, sprite_rect)
-                print(f"🎯 Rendering {sprite_key} at ({int(screen_x)}, {int(screen_y)}) - Progress: {progress:.2f}")
             else:
                 # Fallback: draw a colored circle
                 print(f"⚠️ Sprite '{sprite_key}' not found, using fallback")
@@ -346,7 +350,6 @@ class SpellAnimationRenderer:
                     sprite_rect.center = (int(impact_screen_x), int(impact_screen_y))
 
                     surface.blit(scaled_sprite, sprite_rect)
-                    print(f"💥 Rendering {impact_sprite_key} sprite at ({impact_screen_x}, {impact_screen_y}) - Progress: {impact_progress:.2f}")
                 else:
                     # Fallback to procedural impact effect
                     # Expanding ring effect
@@ -369,8 +372,6 @@ class SpellAnimationRenderer:
                                     (flash_size, flash_size), flash_size)
                     surface.blit(flash_surface,
                             (impact_screen_x - flash_size, impact_screen_y - flash_size))
-
-                    print(f"💥 Rendering procedural impact at ({impact_screen_x}, {impact_screen_y}) - Progress: {impact_progress:.2f}")
 
         # Render trail particles
         self._render_particles(context.get('particles', []), context)

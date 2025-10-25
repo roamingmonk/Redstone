@@ -124,7 +124,8 @@ class CombatEngine:
                     self.active_spell_animation = None
                     self.animation_tiles = []
                     self.impact_particles = []
-                    print("⚡ Animation cleared")  # DEBUG
+                    self.animation_alpha = 255 
+                    print("⚡ Animation cleared")  
             
             # Update particles
             if self.impact_particles:
@@ -142,7 +143,8 @@ class CombatEngine:
                 self.active_spell_animation = None
                 self.animation_tiles = []
                 self.impact_particles = []
-                print("🔥 Animation cleared")  # DEBUG
+                self.animation_alpha = 255 
+                print("🔥 Animation cleared")  
             
             # Update particles
             if self.impact_particles:
@@ -158,7 +160,7 @@ class CombatEngine:
         elif anim_type in ['fire_projectile', 'force_projectile', 'cold_projectile', 'acid_projectile']:
             # Projectile travels for 0.5 seconds, then impact lasts 0.3 seconds
             if elapsed > 0.8:
-                # ⚡ NEW: Clear death animation delays on all enemies
+                #  Clear death animation delays on all enemies
                 for enemy in self.combat_data.get("enemy_instances", []):
                     if 'death_animation_time' in enemy:
                         del enemy['death_animation_time']
@@ -166,6 +168,7 @@ class CombatEngine:
                 self.active_spell_animation = None
                 self.animation_tiles = []
                 self.impact_particles = []
+                self.animation_alpha = 255 
                 print("💫 Projectile animation cleared")
             
             # Update particles
@@ -1496,9 +1499,6 @@ class CombatEngine:
         if not path or len(path) - 1 > movement_range:
             self._add_to_combat_log("Invalid movement target!")
             return False
-        
-        # Add debugging for the path:
-        print(f"DEBUG: Path calculated: {path}")
 
         # Start movement animation
         success = self.movement_system.start_entity_movement(
@@ -2992,7 +2992,6 @@ class CombatEngine:
         
         # 🔥 CHECK IF ALREADY CAST A SPELL THIS TURN
         spells_cast = char_state.get('spells_cast_this_turn', 0)
-        print(f"🔮 DEBUG: spells_cast_this_turn = {spells_cast}")  # DEBUG
         if spells_cast >= 1:
             self._add_to_combat_log("Already cast a spell this turn!")
             print("❌ Already cast a spell this turn")

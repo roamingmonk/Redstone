@@ -434,7 +434,6 @@ class MovementSystem:
                     movement['start_pos'] = target
                     movement['target_pos'] = movement['path'][movement['current_index']]
                     movement['start_time'] = current_time
-                    print(f"DEBUG: Moving to next segment: {movement['start_pos']} → {movement['target_pos']}")
         
         # Remove completed movements
         for entity_id in entities_completed:
