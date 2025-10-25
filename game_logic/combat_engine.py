@@ -840,6 +840,29 @@ class CombatEngine:
                         include_cover=True,              # ← NEW param (see part B)
                     )
                     data["highlighted_targets"] = targets  # each has {"position", ..., "cover"}
+        
+        # Add spell targeting with LOS/cover (same treatment as ranged)
+            if self.current_phase == CombatPhase.PLAYER_TURN and self.current_action_mode == "spell_targeting":
+                char_state = self.character_states.get(self.active_character_id)
+                if char_state and hasattr(self, 'selected_spell_id'):
+                    spell_data = self.spell_data.get(self.selected_spell_id)
+                    if spell_data:
+                        area_type = spell_data.get('area_type', 'single')
+                        requires_los = spell_data.get('requires_line_of_sight', False)
+                        
+                        # Only for single-target spells with LOS
+                        if area_type == 'single' and requires_los:
+                            spell_range = spell_data.get('range', 10)
+                            
+                            spell_targets = self.get_attack_targets(
+                                actor_position=char_state['position'],
+                                attack_range=spell_range,
+                                requires_los=True,
+                                include_cover=True  # Show cover for tactical info
+                            )
+                            
+                            data["highlighted_spell_targets"] = spell_targets
+        
         except Exception as e:
             # Keep UI resilient; fall back to classic highlights if anything hiccups
             print(f"[get_combat_data_for_ui] cover enrich failed: {e}")
@@ -1038,7 +1061,39 @@ class CombatEngine:
                 print(f"❌ Spell not found: {self.selected_spell_id}")
                 return
             
-            # Get valid targets based on spell range and type
+            # Check if it's a single-target projectile spell with LOS requirement
+            area_type = spell_data.get('area_type', 'single')
+            requires_los = spell_data.get('requires_line_of_sight', False)
+            
+            # For single-target spells with LOS, use the same system as ranged attacks
+            if area_type == 'single' and requires_los:
+                if self.active_character_id:
+                    char_state = self.character_states.get(self.active_character_id)
+                    if char_state:
+                        char_position = char_state['position']
+                        spell_range = spell_data.get('range', 10)
+                        
+                        # Use get_attack_targets with LOS and cover (same as ranged attacks)
+                        # Note: Cover doesn't affect spell AC, but we show it for tactical info
+                        spell_targets = self.get_attack_targets(
+                            char_position,
+                            attack_range=spell_range,
+                            requires_los=True,
+                            include_cover=True  # Show cover for tactical awareness
+                        )
+                        
+                        # Store targets with cover data for UI
+                        self.combat_data["highlighted_spell_targets"] = spell_targets
+                        
+                        # Also store positions for backward compatibility
+                        target_positions = [t["position"] for t in spell_targets]
+                        self.combat_data["highlighted_tiles"] = target_positions
+                        
+                        print(f"✨ Targeting {spell_data['name']} - {len(target_positions)} valid targets with LOS")
+                        self._add_to_combat_log(f"Select target for {spell_data['name']}")
+                        return
+            
+            # For other spell types (AOE, line, or non-LOS), use original logic
             valid_targets = self._get_spell_targets(self.selected_spell_id)
             self.combat_data["highlighted_tiles"] = valid_targets
             
@@ -2810,6 +2865,18 @@ class CombatEngine:
                 pos, attack_range=weapon_range, requires_los=True
             )
             return [t["position"] for t in targets]
+         # SPELL TARGETING
+        if mode == "spell_targeting":
+            if not hasattr(self, 'selected_spell_id'):
+                return []
+            
+            spell_data = self.spell_data.get(self.selected_spell_id)
+            if not spell_data:
+                return []
+            
+            # Get valid spell targets using handler
+            valid_targets = self._get_spell_targets(self.selected_spell_id)
+            return valid_targets
 
         return tiles
 

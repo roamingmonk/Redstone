@@ -17,7 +17,7 @@
   "resistances": {
     "poison": 0.5
   },
-  "immunities": ["fire", "necrotic"],
+  "immunities": ["fire", "necrotic", "cold"],
   "attacks": [
     {
       "name": "Chilling Touch",

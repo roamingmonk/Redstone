@@ -912,6 +912,38 @@ class CombatEncounter:
                 return
             # If no targets and no tiles, just fall through and return
 
+        # 1.5) SINGLE-TARGET PROJECTILE SPELL with LOS (same visual treatment as ranged)
+        if current_action == "spell_targeting":
+            # Check if we have spell target data with LOS
+            spell_targets = combat_data.get("highlighted_spell_targets")
+            
+            if spell_targets:  # Single-target spell with LOS data
+                color = (255, 0, 0); border_width = 3  # RED for spells (not cyan like ranged weapons)
+                
+                for t in spell_targets:
+                    x, y = t["position"]
+                    rect = pygame.Rect(
+                        self.grid_offset_x + x * self.tile_size,
+                        self.grid_offset_y + y * self.tile_size,
+                        self.tile_size, self.tile_size
+                    )
+                    cover = t.get("cover", "none")
+                    if cover == "none":
+                        pygame.draw.rect(surface, color, rect, border_width)          # solid red
+                    else:
+                        self._draw_dotted_border(surface, rect, color, width=border_width)  # dotted red
+                
+                # LOS line to hovered tile (same as ranged attacks)
+                if getattr(self, "_hover_grid", None):
+                    origin = combat_data["character_states"][combat_data["active_character_id"]]["position"]
+                    preview = self.game_controller.combat_engine.get_ranged_preview(origin, self._hover_grid)
+                    cells = preview.get("cells", [])
+                    # Use red for spells instead of cyan
+                    line_color = (255, 0, 0) if preview.get("has_los", False) else (255, 64, 64)
+                    self._draw_dotted_los(surface, cells, line_color, width=2, gap=6)
+                
+                return  # Done with spell targeting overlay
+
         # 2) Movement, melee, and spell targeting paths 
         highlighted_tiles = combat_data.get('highlighted_tiles', [])
         if current_action == "attack":
@@ -1028,13 +1060,13 @@ class CombatEncounter:
                         
                         return  # Done with line preview
                     
-                    # Single-target spell - show cyan highlights on valid targets
-                    border_color = (0, 255, 255); border_width = 3
+                    # Single-target spell (non-LOS or melee range) - show red highlights
+                    border_color = (255, 0, 0); border_width = 3
                 else:
-                    # No spell selected yet - default cyan
-                    border_color = (0, 255, 255); border_width = 3
+                    # No spell selected yet - default red
+                    border_color = (255, 0, 0); border_width = 3
             else:
-                border_color = (0, 255, 255); border_width = 3  # Cyan for spell targets
+                border_color = (255, 0, 0); border_width = 3  # Red for spell targets
         else:
             return
 

@@ -204,8 +204,6 @@ class SpellAnimationRenderer:
         grid_offset = context['grid_offset']
 
         clip_rect = surface.get_clip()
-        print(f"🔍 Surface clip rect: {clip_rect}")
-        print(f"🔍 Surface flags: {surface.get_flags()}")
 
         tile_size = context['tile_size']
         elapsed = context['elapsed']
