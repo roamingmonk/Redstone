@@ -87,7 +87,7 @@ class ItemLoader:
         """Load all item icons with fallback to placeholder"""
         items_dir = os.path.join('assets', 'images', 'icons','items')
 
-        for item in self.get_all_items():
+        for item in self.get_all_items(include_loot=True):
             icon_name = item.get('icon_file', f"{item['id']}.png")
             icon_path = os.path.join(items_dir, icon_name)
 

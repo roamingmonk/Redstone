@@ -1864,34 +1864,41 @@ class CombatEngine:
 
         self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
         
+        self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
+        
+        # *** CREATE PROJECTILE ANIMATION (for both hit and miss) ***
+        char_pos = char_state['position']
+        
+        # Determine projectile type based on weapon
+        projectile_type = 'arrow_projectile'  # Default to arrow
+        
+        if weapon_id:
+            weapon_lower = weapon_id.lower()
+            if 'sling' in weapon_lower:
+                projectile_type = 'bullet_projectile'
+            elif 'bow' in weapon_lower or 'crossbow' in weapon_lower:
+                projectile_type = 'arrow_projectile'
+            # Add more weapon types as needed
+        
+        # Create animation data (same pattern as spell projectiles)
+        self.active_spell_animation = {
+            'type': projectile_type,
+            'start_pos': char_pos,
+            'end_pos': target_position,
+            'weapon_type': weapon_id,
+            'hit': False  # Will be set to True if attack hits
+        }
+        self.animation_start_time = time.time()
+        self.animation_tiles = [target_position]
+        
+        print(f"🏹 Weapon projectile animation created: {projectile_type}")
+        print(f"   From {char_pos} to {target_position}")
+        
+        # Check if attack hit
         if total_attack >= target_ac:
-            # *** CREATE PROJECTILE ANIMATION ***
-            char_pos = char_state['position']
+            # Mark animation as a hit
+            self.active_spell_animation['hit'] = True
             
-            # Determine projectile type based on weapon
-            projectile_type = 'arrow_projectile'  # Default to arrow
-            
-            if weapon_id:
-                weapon_lower = weapon_id.lower()
-                if 'sling' in weapon_lower:
-                    projectile_type = 'bullet_projectile'
-                elif 'bow' in weapon_lower or 'crossbow' in weapon_lower:
-                    projectile_type = 'arrow_projectile'
-                # Add more weapon types as needed
-            
-            # Create animation data (same pattern as spell projectiles)
-            self.active_spell_animation = {
-                'type': projectile_type,
-                'start_pos': char_pos,
-                'end_pos': target_position,
-                'weapon_type': weapon_id
-            }
-            self.animation_start_time = time.time()
-            self.animation_tiles = [target_position]
-            
-            print(f"🏹 Weapon projectile animation created: {projectile_type}")
-            print(f"   From {char_pos} to {target_position}")
-
             # Hit! Effect resolver will roll damage
             effect_def = {
                 'effect_type': 'damage',
@@ -2470,41 +2477,47 @@ class CombatEngine:
             self._add_to_combat_log(f"{attacker_name} attacks {target_name}")
             self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
             
+            # *** CREATE PROJECTILE ANIMATION FOR RANGED ATTACKS (for both hit and miss) ***
+            if weapon_attack.get("attack_type") == "ranged":
+                attacker_pos = attacker_data.get("position", [0, 0])
+                
+                # Get target position from character_states
+                target_pos = None
+                for char_id, char_state in self.character_states.items():
+                    if char_state.get('character_data') == target_data:
+                        target_pos = char_state.get('position', [0, 0])
+                        break
+                
+                if target_pos:
+                    # Determine projectile type based on weapon name
+                    weapon_name = weapon_attack.get("name", "").lower()
+                    projectile_type = 'arrow_projectile'  # Default
+                    
+                    if 'sling' in weapon_name or 'stone' in weapon_name:
+                        projectile_type = 'bullet_projectile'
+                    elif 'bow' in weapon_name or 'crossbow' in weapon_name or 'arrow' in weapon_name:
+                        projectile_type = 'arrow_projectile'
+                    
+                    # Create animation data
+                    self.active_spell_animation = {
+                        'type': projectile_type,
+                        'start_pos': attacker_pos,
+                        'end_pos': target_pos,
+                        'weapon_type': weapon_name,
+                        'hit': False  # Will be set to True if attack hits
+                    }
+                    self.animation_start_time = time.time()
+                    self.animation_tiles = [target_pos]
+                    
+                    print(f"🏹 Enemy projectile animation: {projectile_type}")
+                    print(f"   From {attacker_pos} to {target_pos}")
+            
+            # Check if attack hit
             if total_attack >= target_ac:
-                # *** CREATE PROJECTILE ANIMATION FOR RANGED ATTACKS ***
-                if weapon_attack.get("attack_type") == "ranged":
-                    attacker_pos = attacker_data.get("position", [0, 0])
-                    
-                    # Get target position from character_states
-                    target_pos = None
-                    for char_id, char_state in self.character_states.items():
-                        if char_state.get('character_data') == target_data:
-                            target_pos = char_state.get('position', [0, 0])
-                            break
-                    
-                    if target_pos:
-                        # Determine projectile type based on weapon name
-                        weapon_name = weapon_attack.get("name", "").lower()
-                        projectile_type = 'arrow_projectile'  # Default
-                        
-                        if 'sling' in weapon_name or 'stone' in weapon_name:
-                            projectile_type = 'bullet_projectile'
-                        elif 'bow' in weapon_name or 'crossbow' in weapon_name or 'arrow' in weapon_name:
-                            projectile_type = 'arrow_projectile'
-                        
-                        # Create animation data
-                        self.active_spell_animation = {
-                            'type': projectile_type,
-                            'start_pos': attacker_pos,
-                            'end_pos': target_pos,
-                            'weapon_type': weapon_name
-                        }
-                        self.animation_start_time = time.time()
-                        self.animation_tiles = [target_pos]
-                        
-                        print(f"🏹 Enemy projectile animation: {projectile_type}")
-                        print(f"   From {attacker_pos} to {target_pos}")
-
+                # Mark animation as a hit (if ranged animation was created)
+                if self.active_spell_animation and weapon_attack.get("attack_type") == "ranged":
+                    self.active_spell_animation['hit'] = True
+                
                 # Hit! Use effect resolver for damage
                 effect_def = {
                     'effect_type': 'damage',
@@ -3297,6 +3310,11 @@ class CombatEngine:
                 char_state['position'],
                 affected_positions
             )
+            
+            # Mark whether spell hit (for visual differentiation on projectiles)
+            if self.active_spell_animation:
+                self.active_spell_animation['hit'] = spell_hit
+            
             # DEBUG: Check animation coordinates
             print(f"🎬 Animation setup: {self.active_spell_animation}")
             print(f"   Caster pos: {char_state['position']}")

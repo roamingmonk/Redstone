@@ -368,19 +368,46 @@ class SpellAnimationRenderer:
                     color = fallback_colors.get(sprite_prefix, (255, 255, 255))
                     pygame.draw.circle(surface, color, (int(screen_x), int(screen_y)), 8)
         
-        # *** IMPACT EFFECT (same for all projectiles) ***
+        # *** IMPACT EFFECT ***
         if progress >= 1.0:
-            # Projectile has hit - render impact effect
+            # Check if this was a hit or miss
+            is_hit = anim_data.get('hit', True)  # Default True for backward compatibility with spells
+            
             impact_elapsed = elapsed - travel_duration
+            
+            # Screen position of impact/miss
+            impact_screen_x = grid_offset[0] + (end_pos[0] * tile_size) + (tile_size // 2)
+            impact_screen_y = grid_offset[1] + (end_pos[1] * tile_size) + (tile_size // 2)
+            
+            if not is_hit:
+                # MISS - Show small "whiff" effect
+                miss_duration = 0.2  # Shorter than hit impact
+                
+                if impact_elapsed < miss_duration:
+                    miss_progress = impact_elapsed / miss_duration
+                    
+                    # Small puff of dust/smoke
+                    max_radius = 8  # Much smaller than hit (was 20)
+                    puff_radius = int(max_radius * miss_progress)
+                    puff_alpha = int(150 * (1.0 - miss_progress))  # Fade out, dimmer than hit
+                    
+                    # Gray/white puff
+                    puff_color = (200, 200, 200)  # Light gray
+                    
+                    puff_surface = pygame.Surface((max_radius * 2, max_radius * 2), pygame.SRCALPHA)
+                    pygame.draw.circle(puff_surface, (*puff_color, puff_alpha),
+                                     (max_radius, max_radius), puff_radius, 2)  # Thin ring
+                    surface.blit(puff_surface,
+                               (impact_screen_x - max_radius, impact_screen_y - max_radius))
+                
+                return  # Don't show hit impact
+            
+            # HIT - Render full impact effect
             impact_duration = 0.3  # Impact lasts 0.3 seconds
 
             if impact_elapsed < impact_duration:
                 # Calculate impact animation progress
                 impact_progress = impact_elapsed / impact_duration
-
-                # Screen position of impact
-                impact_screen_x = grid_offset[0] + (end_pos[0] * tile_size) + (tile_size // 2)
-                impact_screen_y = grid_offset[1] + (end_pos[1] * tile_size) + (tile_size // 2)
 
                 # Map animation type to impact sprite key
                 impact_sprite_map = {

@@ -66,8 +66,8 @@ class SingleTargetSpellHandler(SpellHandler):
         # print(f"   Target type: {target_type}")
         # print(f"   Caster pos: {caster_pos}")
         # print(f"   Available characters: {len(characters)}")
-        for char_id, char_state in characters.items():
-            print(f"      - {char_id}: {char_state.get('name')} at {char_state.get('position')} (alive: {char_state.get('is_alive', True)})")
+        #for char_id, char_state in characters.items():
+            #print(f"      - {char_id}: {char_state.get('name')} at {char_state.get('position')} (alive: {char_state.get('is_alive', True)})")
         
         valid_targets = []
         
