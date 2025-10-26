@@ -6,31 +6,25 @@
   "difficulty": "variable",
   "enemies": [
     {
-      "enemy_id": "giant_rat",
-      "position": [4, 1],
+      "enemy_id": "cult_leader",
+      "position": [8, 9],
       "facing": "west"
       
     },
     {
       "enemy_id": "cultist",
-      "position": [5, 3],
-      "facing": "west"
-      
-    },
-    {
-      "enemy_id": "goblin",
-      "position": [2, 4],
+      "position": [9, 9],
       "facing": "west"
       
     },
     {
       "enemy_id": "cultist",
-      "position": [2, 2],
+      "position": [10, 1],
       "facing": "west"
     },
     {
       "enemy_id": "ogre_archer",
-      "position": [1, 1],
+      "position": [1, 5],
       "facing": "west",
       "ai_behavior": "ranged_preference"
     }

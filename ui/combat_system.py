@@ -433,18 +433,21 @@ class CombatEncounter:
             #print(f"DEBUG: Active movements: {len(active_movements)}")
             #for entity_id, movement in active_movements.items():
                 #print(f"DEBUG: Movement for {entity_id}: {movement['moving']}, {movement['start_pos']} → {movement['target_pos']}")
-    
+
         # Update movement animations if movement system exists
         if controller and hasattr(controller, 'combat_engine') and hasattr(controller.combat_engine, 'movement_system'):
             controller.combat_engine.movement_system.update_movements()
             # ⚡ Update spell animations
             controller.combat_engine.update_spell_animations()
         
-        # Render all party members
+        # ==========================================
+        # STEP 1: SEPARATE ALL UNITS INTO LIVING/DEAD
+        # ==========================================
+        
         character_states = combat_data.get("character_states", {})
         active_character_id = combat_data.get("active_character_id")
         
-        # First, separate living and dead characters
+        # Separate living and dead characters
         living_characters = []
         dead_characters = []
 
@@ -454,7 +457,29 @@ class CombatEncounter:
             else:
                 dead_characters.append((char_id, char_state))
 
-        # Render unconsious characters first (so they appear below)
+        # Separate enemies considering death animation delay
+        enemy_instances = combat_data.get("enemy_instances", [])
+        current_time = time.time()
+        dead_enemies = []
+        living_enemies = []
+
+        for enemy in enemy_instances:
+            current_hp = enemy.get("current_hp", 0)
+            death_time = enemy.get('death_animation_time', 0)
+            
+            # Enemy is alive if HP > 0, OR if death animation is still pending
+            is_visually_alive = current_hp > 0 or (current_hp <= 0 and death_time > 0 and current_time < death_time)
+            
+            if is_visually_alive:
+                living_enemies.append(enemy)
+            else:
+                dead_enemies.append(enemy)
+
+        # ==========================================
+        # STEP 2: RENDER ALL DEFEATED UNITS FIRST (BOTTOM LAYER)
+        # ==========================================
+        
+        # LAYER 1: Render defeated characters
         for char_id, char_state in dead_characters:
             position = char_state.get('position')
             if not position or len(position) != 2:
@@ -475,7 +500,38 @@ class CombatEncounter:
             text_rect = text_surface.get_rect(center=(screen_x, screen_y))
             surface.blit(text_surface, text_rect)
 
-        # Then render living characters
+        # LAYER 2: Render defeated enemies (MOVED HERE - before living units!)
+        for enemy in dead_enemies:
+            position = enemy.get("position", [])
+            if len(position) == 2:
+                x, y = position
+                screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
+                screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6
+                
+                # Draw corpse as dark gray circle (instead of red)
+                pygame.draw.circle(surface, DARK_GRAY, (screen_x, screen_y), self.tile_size // 3)
+                
+                # Draw an X over the corpse to show it's dead
+                pygame.draw.line(surface, RED, 
+                            (screen_x - 8, screen_y - 8), 
+                            (screen_x + 8, screen_y + 8), 2)
+                pygame.draw.line(surface, RED, 
+                            (screen_x - 8, screen_y + 8), 
+                            (screen_x + 8, screen_y - 8), 2)
+                
+                # Enemy label (first letter of name) - so you know WHAT died
+                name = enemy.get("name", "E")
+                label = name[0].upper()
+                font = pygame.font.Font(None, 24)
+                text_surface = font.render(f"†{label}", True, WHITE)
+                text_rect = text_surface.get_rect(center=(screen_x, screen_y))
+                surface.blit(text_surface, text_rect)
+        
+        # ==========================================
+        # STEP 3: RENDER ALL LIVING UNITS (TOP LAYER)
+        # ==========================================
+        
+        # LAYER 3: Render living characters
         for char_id, char_state in living_characters:
             # Your existing code for rendering living characters
             
@@ -585,54 +641,7 @@ class CombatEncounter:
             if spell_slots_max > 0:
                 self._draw_spell_slots(surface, screen_x, screen_y, spell_slots_remaining, spell_slots_max)
         
-        # Render enemy units - DEAD FIRST, then LIVING (for proper Z-order)
-        enemy_instances = combat_data.get("enemy_instances", [])
-
-        # Separate enemies considering death animation delay
-        current_time = time.time()
-        dead_enemies = []
-        living_enemies = []
-
-        for enemy in enemy_instances:
-            current_hp = enemy.get("current_hp", 0)
-            death_time = enemy.get('death_animation_time', 0)
-            
-            # Enemy is alive if HP > 0, OR if death animation is still pending
-            is_visually_alive = current_hp > 0 or (current_hp <= 0 and death_time > 0 and current_time < death_time)
-            
-            if is_visually_alive:
-                living_enemies.append(enemy)
-            else:
-                dead_enemies.append(enemy)
-                
-        # LAYER 1: Render dead enemies as darkened corpses (bottom layer)
-        for enemy in dead_enemies:
-            position = enemy.get("position", [])
-            if len(position) == 2:
-                x, y = position
-                screen_x = self.grid_offset_x + (x * self.tile_size) + (self.tile_size // 2)
-                screen_y = self.grid_offset_y + (y * self.tile_size) + (self.tile_size // 2) - 6
-                
-                # Draw corpse as dark gray circle (instead of red)
-                pygame.draw.circle(surface, DARK_GRAY, (screen_x, screen_y), self.tile_size // 3)
-                
-                # Draw an X over the corpse to show it's dead
-                pygame.draw.line(surface, RED, 
-                            (screen_x - 8, screen_y - 8), 
-                            (screen_x + 8, screen_y + 8), 2)
-                pygame.draw.line(surface, RED, 
-                            (screen_x - 8, screen_y + 8), 
-                            (screen_x + 8, screen_y - 8), 2)
-                
-                # Enemy label (first letter of name) - so you know WHAT died
-                name = enemy.get("name", "E")
-                label = name[0].upper()
-                font = pygame.font.Font(None, 24)
-                text_surface = font.render(f"†{label}", True, WHITE)
-                text_rect = text_surface.get_rect(center=(screen_x, screen_y))
-                surface.blit(text_surface, text_rect)
-        
-        # LAYER 2: Render living enemies (top layer - will appear over corpses)
+        # LAYER 4: Render living enemies (top layer - will appear over everything)
         for enemy in living_enemies:
             # Get enemy ID
             enemy_id = enemy.get("instance_id", "")
