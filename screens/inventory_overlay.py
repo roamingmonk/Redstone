@@ -24,6 +24,13 @@ class InventoryOverlay(BaseTabbedOverlay):
         self.add_tab("items", "ITEMS", hotkey=pygame.K_3)
         self.add_tab("consumables", "CONSUMABLES", hotkey=pygame.K_4)
         
+        # PAGINATION VARIABLES:
+        self.weapons_page = 0
+        self.armor_page = 0
+        self.items_page = 0
+        self.consumables_page = 0
+        self.items_per_page = 7  # Standard across all tabbed overlays
+
         # Initialize inventory-specific data
         self.item_rects = []
         self.item_names_in_order = []
@@ -160,7 +167,7 @@ class InventoryOverlay(BaseTabbedOverlay):
             surface.blit(header_surface, (equipped_x, table_y + 8))
     
     def _render_item_list(self, surface, game_state, fonts, images, current_tab, 
-                         table_x, item_y, table_width, item_manager=None):
+                     table_x, item_y, table_width, item_manager=None):
         """Render the list of items for current category"""
         # Reset item tracking
         self.item_rects = []
@@ -181,12 +188,47 @@ class InventoryOverlay(BaseTabbedOverlay):
         for item in current_items:
             item_counts[item] = item_counts.get(item, 0) + 1
         
-        # Store item names in display order for click detection
-        self.item_names_in_order = list(item_counts.keys())
+        # PAGINATION CALCULATIONS :
+        all_items = list(item_counts.items())
+        total_items = len(all_items)
+        
+        # Get current page for active tab
+        if current_tab == "weapons":
+            current_page = self.weapons_page
+        elif current_tab == "armor":
+            current_page = self.armor_page
+        elif current_tab == "items":
+            current_page = self.items_page
+        else:  # consumables
+            current_page = self.consumables_page
+        
+        # Calculate total pages
+        total_pages = max(1, (total_items + self.items_per_page - 1) // self.items_per_page)
+        
+        # Clamp current page (prevent out of bounds)
+        if current_page >= total_pages:
+            current_page = total_pages - 1
+            # Update the page variable
+            if current_tab == "weapons":
+                self.weapons_page = current_page
+            elif current_tab == "armor":
+                self.armor_page = current_page
+            elif current_tab == "items":
+                self.items_page = current_page
+            else:
+                self.consumables_page = current_page
+        
+        # Slice items for current page
+        start_idx = current_page * self.items_per_page
+        end_idx = min(start_idx + self.items_per_page, total_items)
+        page_items = all_items[start_idx:end_idx]
+        
+        # Store item names in display order for click detection (from page items)
+        self.item_names_in_order = [item_name for item_name, qty in page_items]
         
         # Display items using standard spacing
         item_font = fonts.get('fantasy_small', fonts['normal'])
-        row_height = 32  # Slightly larger than line_height for better readability
+        row_height = 32
         
         # Column positions
         icon_x = table_x + 10
@@ -194,14 +236,13 @@ class InventoryOverlay(BaseTabbedOverlay):
         qty_x = table_x + 500
         equipped_x = table_x + 600
         
-        for i, (item_name, quantity) in enumerate(item_counts.items()):
+        for i, (item_name, quantity) in enumerate(page_items):
             current_row_y = item_y + i * row_height
             
             # Check if this item is selected
             is_selected = (getattr(game_state, 'inventory_selected', None) == item_name)
             
             # Draw row background (highlighted if selected)
-            # Shorten on consumables tab to avoid portrait overlap
             if current_tab == "consumables":
                 row_width = table_width - 180  # Leave room for party portraits
             else:
@@ -221,15 +262,13 @@ class InventoryOverlay(BaseTabbedOverlay):
                 icon = item_manager.get_item_icon(item_name)
                 surface.blit(icon, (icon_x_pos, current_row_y - 5))
             else:
-                # Fallback: draw "X" if no ItemManager available
                 icon_surface = item_font.render("X", True, BLACK)
                 surface.blit(icon_surface, (icon_x_pos + 10, current_row_y))
                 print(f"❌ No ItemManager available for icon: {item_name}")
-
-                
-            # Convert item ID to display name for rendering
+            
+            # Convert item ID to display name
             display_name = item_manager.get_display_name(item_name)
-
+            
             # Draw item details
             desc_surface = item_font.render(display_name, True, BLACK)
             surface.blit(desc_surface, (desc_x, current_row_y))
@@ -242,6 +281,25 @@ class InventoryOverlay(BaseTabbedOverlay):
                 equipped_text = "x" if is_equipped else ""
                 equipped_surface = item_font.render(equipped_text, True, BLACK)
                 surface.blit(equipped_surface, (equipped_x + 20, current_row_y))
+        
+        # PAGINATION DISPLAY:
+        if total_pages > 1:
+            page_y = item_y + (self.items_per_page * row_height) 
+            page_text = f"Page {current_page + 1} of {total_pages}"
+            
+            # position on right side of tab
+            page_font = fonts.get('fantasy_small', fonts['normal'])
+            page_surface = page_font.render(page_text, True, YELLOW)
+            page_x = 800 
+            surface.blit(page_surface, (page_x, page_y))
+            
+            # Navigation hint
+            hint_y = page_y + 5 #was 25
+            hint_text = "UP/DOWN or P/N to navigate pages"
+            hint_font = fonts.get('fantasy_tiny', fonts['small'])
+            hint_surface = hint_font.render(hint_text, True, WHITE)
+            hint_x = table_x + (table_width - hint_surface.get_width()) // 2
+            surface.blit(hint_surface, (hint_x, hint_y))
     
     def _render_action_buttons(self, surface, game_state, fonts, current_tab, 
                               content_x, button_y, content_width):
@@ -413,7 +471,54 @@ class InventoryOverlay(BaseTabbedOverlay):
                     return True
 
         return False
+
+    def previous_page(self) -> bool:
+        """Navigate to previous page based on active tab"""
+        active_tab = self.get_active_tab()
+        if not active_tab:
+            return False
         
+        tab_id = active_tab.tab_id
+        
+        if tab_id == "weapons" and self.weapons_page > 0:
+            self.weapons_page -= 1
+            return True
+        elif tab_id == "armor" and self.armor_page > 0:
+            self.armor_page -= 1
+            return True
+        elif tab_id == "items" and self.items_page > 0:
+            self.items_page -= 1
+            return True
+        elif tab_id == "consumables" and self.consumables_page > 0:
+            self.consumables_page -= 1
+            return True
+        
+        return False
+
+    def next_page(self) -> bool:
+        """Navigate to next page based on active tab"""
+        active_tab = self.get_active_tab()
+        if not active_tab:
+            return False
+        
+        tab_id = active_tab.tab_id
+        
+        if tab_id == "weapons":
+            self.weapons_page += 1
+            return True
+        elif tab_id == "armor":
+            self.armor_page += 1
+            return True
+        elif tab_id == "items":
+            self.items_page += 1
+            return True
+        elif tab_id == "consumables":
+            self.consumables_page += 1
+            return True
+        
+        return False
+
+
     def on_overlay_opened(self, game_state):
         """Optional: Called when overlay opens"""
         super().on_overlay_opened(game_state)
