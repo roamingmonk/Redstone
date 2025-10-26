@@ -872,8 +872,8 @@ class CharacterEngine:
         hit_points = max(1, hit_points)
         
         # Update GameState directly (Single Data Authority)
-        self.game_state.character['hit_points'] = hit_points #max hit points
-        self.game_state.character['current_hp'] = hit_points 
+        self.game_state.character['max_hp'] = hit_points # Maximum hit points
+        self.game_state.character['current_hp'] = hit_points # Current hit pointsS
         
         return hit_points
     
@@ -1168,11 +1168,11 @@ class CharacterEngine:
         self.game_state.character.setdefault('experience', 0)
         
         # Increase max HP
-        current_max = self.game_state.character.get('hit_points', 10)
-        self.game_state.character['hit_points'] = current_max + hp_gain
+        current_max = self.game_state.character.get('max_hp', 10)
+        self.game_state.character['max_hp'] = current_max + hp_gain
 
          # Level ups fully restore health to the new maximum
-        self.game_state.character['current_hp'] = self.game_state.character['hit_points']
+        self.game_state.character['current_hp'] = self.game_state.character['max_hp']
 
         # Track abilities gained
         if 'abilities' not in self.game_state.character:
@@ -1182,7 +1182,7 @@ class CharacterEngine:
         level_up_results = {
             'new_level': new_level,
             'hp_gain': hp_gain,
-            'new_total_hp': self.game_state.character['hit_points'],
+            'new_total_hp': self.game_state.character['max_hp'],
             'abilities_gained': new_abilities,
             'class': character_class
         }
@@ -1358,7 +1358,7 @@ class CharacterEngine:
             self.game_state.party_xp[member_id] = {
                 'experience': 0, 
                 'level': 1,
-                'hit_points': self._get_party_member_starting_hp(member_id)
+                'max_hp': self._get_party_member_starting_hp(member_id)
             }
         
         # Award XP
@@ -1521,15 +1521,13 @@ class CharacterEngine:
         member_data['level'] = new_level
         
         # Get OLD max HP (not current HP!)
-        old_max_hp = member_data.get('hit_points', member_data.get('hp', 10))
+        old_max_hp = member_data.get('max_hp', 10)
 
         # Calculate NEW max HP
         new_max_hp = old_max_hp + hp_gain
 
         # Update all HP fields to new maximum
-        member_data['hit_points'] = new_max_hp
-        member_data['hp'] = new_max_hp
-        member_data['max_hit_points'] = new_max_hp
+        member_data['max_hp'] = new_max_hp
 
         # Full heal on level up (same as player)
         member_data['current_hp'] = new_max_hp
@@ -1540,7 +1538,7 @@ class CharacterEngine:
             'member_id': member_id,
             'new_level': new_level,
             'hp_gain': hp_gain,
-            'new_total_hp': member_data['hit_points']
+            'new_total_hp': member_data['max_hp']
         }
 
     def get_trinket_effects(self):
@@ -1561,35 +1559,6 @@ class CharacterEngine:
         
         return effects
 
-    # def get_party_member_info(self, member_id):
-    #     """Get complete info for a party member"""
-    #     if 'party_xp' not in self.game_state.__dict__:
-    #         return None
-        
-    #     if member_id not in self.game_state.party_xp:
-    #         return None
-        
-    #     member_data = self.game_state.party_xp[member_id]
-        
-
-    #     #TODO   Don;t we need to update this hardcoded xp requirements as well??
-    #     # Calculate XP to next level
-    #     current_level = member_data.get('level', 1)
-    #     current_xp = member_data.get('experience', 0)
-    #     xp_requirements = {1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500}
-        
-    #     next_level_xp = xp_requirements.get(current_level + 1, 999999)
-    #     xp_to_next = max(0, next_level_xp - current_xp)
-        
-    #     return {
-    #         'id': member_id,
-    #         'level': current_level,
-    #         'experience': current_xp,
-    #         'hit_points': member_data.get('hit_points', 10),
-    #         'xp_to_next_level': xp_to_next,
-    #         'can_level_up': self.can_party_member_level_up(member_id)
-    #     }
-
     # ==========================================
     # CHARACTER VALIDATION & UTILITY
     # ==========================================
@@ -1603,7 +1572,7 @@ class CharacterEngine:
             bool: True if character data is valid
         """
         required_fields = ['name', 'class', 'strength', 'dexterity', 'constitution', 
-                          'intelligence', 'wisdom', 'charisma', 'hit_points', 'gold']
+                          'intelligence', 'wisdom', 'charisma', 'max_hp', 'gold']
         
         for field in required_fields:
             if field not in self.game_state.character:
@@ -1704,7 +1673,7 @@ class CharacterEngine:
         character_class = self.game_state.character.get('class', 'fighter')
         
         # Calculate class-specific starting stats
-        if 'hit_points' not in self.game_state.character:
+        if 'max_hp' not in self.game_state.character:
             self.calculate_hp()
         
         # Set starting level and XP

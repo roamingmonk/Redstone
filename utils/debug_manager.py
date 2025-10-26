@@ -154,8 +154,8 @@ class DebugManager:
         if hasattr(self.game_state, 'character'):
             char = self.game_state.character
             name = char.get('name', 'Player')
-            hp = char.get('hp', char.get('current_hp', '?'))
-            max_hp = char.get('hit_points', char.get('max_hp', '?'))
+            hp = char.get('current_hp', '?')
+            max_hp = char.get('max_hp', '?')
             
             print(f"🏹 {name} (Player) - HP: {hp}/{max_hp}")
             
@@ -181,7 +181,7 @@ class DebugManager:
                 if member_data:
                     name = member_data.get('name', member_id)
                     hp = member_data.get('current_hp', '?')
-                    max_hp = member_data.get('max_hit_points', member_data.get('hp', '?'))
+                    max_hp = member_data.get('max_hp', '?')
                     char_class = member_data.get('character_class', 'Unknown')
                     level = member_data.get('level', 1)
                     
@@ -716,14 +716,14 @@ class DebugManager:
             for member_id in self.game_state.party_members:
                 member_data = self.game_state.get_party_member_data(member_id)
                 if member_data:
-                    # Party members use: current_hp and max_hit_points
-                    max_hp = member_data.get('max_hit_points', member_data.get('hp', 20))
+                    # Party members use: current_hp and max_hp
+                    max_hp = member_data.get('max_hp', 20)
                     member_data['current_hp'] = max_hp
                     print(f"  ❤️ {member_id} healed to {max_hp} HP")
         
         # Also heal player (uses hp and max_hp)
         if hasattr(self.game_state, 'character'):
-            max_hp = self.game_state.character.get('hit_points', 20)
+            max_hp = self.game_state.character.get('max_hp', 20)
             self.game_state.character['current_hp'] = max_hp
             print(f"  ❤️ Player healed to {max_hp} HP")
         

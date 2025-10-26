@@ -227,7 +227,7 @@ class CombatEngine:
                     
                     # CRITICAL: Store current HP and restore to max for the save
                     original_hp = self.game_state.character.get("current_hp", 0)
-                    max_hp = self.game_state.character.get("hit_points", 10)
+                    max_hp = self.game_state.character.get("max_hp", 10)
                     
                     # Temporarily restore to full HP for the autosave
                     self.game_state.character["current_hp"] = max_hp
@@ -260,7 +260,7 @@ class CombatEngine:
              
             # SAFETY: Ensure current_hp exists before combat
             if 'current_hp' not in self.game_state.character:
-                max_hp = self.game_state.character.get('hit_points', 10)
+                max_hp = self.game_state.character.get('max_hp', 10)
                 self.game_state.character['current_hp'] = max_hp
                 print(f"⚠️ Initialized missing current_hp to {max_hp}")
                 
@@ -801,8 +801,8 @@ class CombatEngine:
                 'constitution': self.game_state.character.get('constitution', 10),
             },
             'current_hp': self.game_state.character.get('current_hp', 
-                                                        self.game_state.character.get('hit_points', 20)),
-            'max_hp': self.game_state.character.get('hit_points', 20),
+                                                        self.game_state.character.get('max_hp', 20)),
+            'max_hp': self.game_state.character.get('max_hp', 20),
             'equipment': {
                 'weapon': self.game_state.character.get('equipped_weapon'),
                 'armor': self.game_state.character.get('equipped_armor'),
@@ -815,7 +815,7 @@ class CombatEngine:
         # Add recruited party members
         for member_data in self.game_state.party_member_data:
             # Read HP from member data (initialized in game_state)
-            max_hp = member_data.get('hp', member_data.get('hit_points', 20))
+            max_hp = member_data.get('max_hp', 20)
             current_hp = member_data.get('current_hp', max_hp)
             
             party_member = {
@@ -858,7 +858,7 @@ class CombatEngine:
                 # Get HP from correct source
                 if char_id == 'player':
                     current_hp = self.game_state.character.get('current_hp', 10)
-                    max_hp = self.game_state.character.get('hit_points', 10)
+                    max_hp = self.game_state.character.get('max_hp', 10)
                 else:
                     current_hp = char_data.get('current_hp', 10)
                     max_hp = char_data.get('max_hp', 10)
@@ -2382,7 +2382,7 @@ class CombatEngine:
                                     self._handle_combat_defeat()
                             
                             # Show current/max HP in combat log
-                            max_hp = self.game_state.character.get("hit_points", 0)
+                            max_hp = self.game_state.character.get("max_hp", 0)
                             self._add_to_combat_log(f"{target_name}: {new_hp}/{max_hp} HP")
                             
                             # Check if player defeated - INSTANT DEATH!

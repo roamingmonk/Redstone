@@ -79,9 +79,9 @@ class PlayerManager:
                 player_template['player_data']['portraits']['selected'] = game_state.selected_portrait
             
             # Hit points and derived stats
-            hit_points = character_data.get('hit_points', 10)
-            player_template['progression']['hit_points']['current'] = hit_points
-            player_template['progression']['hit_points']['maximum'] = hit_points
+            hit_points = character_data.get('max_hp', 10)
+            player_template['progression']['max_hp'] = hit_points
+            player_template['progression']['current_hp'] = hit_points
             
             # Starting inventory
             player_template['inventory']['gold'] = character_data.get('gold', 50)
@@ -211,7 +211,8 @@ class PlayerManager:
             'class': self.player_data.get('class', 'fighter'),
             'stats': self.get_player_stats(),
             'equipment': self.get_player_equipment(),
-            'hit_points': self.player_data.get('progression', {}).get('hit_points', {}),
+            'max_hp': self.player_data.get('progression', {}).get('max_hp', 10),
+            'current_hp': self.player_data.get('progression', {}).get('current_hp', 10),
             'is_player': True
         }
     
@@ -228,7 +229,8 @@ class PlayerManager:
             'name': self.player_data.get('name'),
             'gender': self.player_data.get('player_data', {}).get('gender'),
             'trinket': self.player_data.get('player_data', {}).get('trinket'),
-            'hit_points': self.player_data.get('progression', {}).get('hit_points', {}).get('maximum', 10),
+            'max_hp': self.player_data.get('progression', {}).get('max_hp', 10),
+            'current_hp': self.player_data.get('progression', {}).get('current_hp', 10),
             'gold': self.player_data.get('inventory', {}).get('gold', 0),
             **self.player_data.get('stats', {})
         })
@@ -357,9 +359,9 @@ class PlayerManager:
     def update_hit_points(self, current_hp, max_hp=None):
         """Update player hit points and save immediately"""
         if self.player_data:
-            self.player_data['progression']['hit_points']['current'] = current_hp
+            self.player_data['progression']['current_hp'] = current_hp
             if max_hp is not None:
-                self.player_data['progression']['hit_points']['maximum'] = max_hp
+                self.player_data['progression']['max_hp'] = max_hp
             self.save_player()
             print(f"❤️ Hit points updated: {current_hp}")
             return True

@@ -811,12 +811,13 @@ class CombatAI:
                 char_data = char_state.get('character_data', {})
                 
                 # Get current HP
+                #TODO this doesnt make sense.  consider revising.
                 if char_id == 'player':
                     current_hp = char_data.get('current_hp', 10)
-                    max_hp = char_data.get('hit_points', char_data.get('max_hp', 10))
+                    max_hp = char_data.get('max_hp', 10)
                 else:
                     current_hp = char_data.get('current_hp', 10)
-                    max_hp = char_data.get('max_hp', char_data.get('hit_points', 10))
+                    max_hp = char_data.get('max_hp', 10)
                 
                 # Track weakest adjacent
                 if current_hp < lowest_adjacent_hp:
@@ -1205,14 +1206,15 @@ class CombatAI:
             char_data = char_state.get('character_data', {})
             
             # Get current HP
+            #TODO  this doesnt make sense.  consider revising.
             if char_id == 'player':
                 # Player character - might need special handling
                 current_hp = char_data.get('current_hp', 10)
-                max_hp = char_data.get('hit_points', char_data.get('max_hp', 10))
+                max_hp = char_data.get('max_hp', 10)
             else:
                 # Party member
                 current_hp = char_data.get('current_hp', 10)
-                max_hp = char_data.get('max_hp', char_data.get('hit_points', 10))
+                max_hp = char_data.get('max_hp', 10)
             
             # Track the one with lowest CURRENT HP (absolute, not percentage)
             # This makes wounded characters high priority targets

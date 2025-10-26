@@ -597,7 +597,7 @@ def draw_summary_screen(surface, game_state, fonts, images=None):
     # Hit Points - label in white, value in Yellow
     label_surface = font_med.render("Hit Points: ", True, WHITE)
     surface.blit(label_surface, (80, y_pos))
-    hit_points = game_state.character.get('hit_points', 'Calculating...')
+    hit_points = game_state.character.get('max_hp', 'Calculating...')
     value_surface = font_med.render(str(hit_points), True, SOFT_YELLOW)
     surface.blit(value_surface, (80 + label_surface.get_width(), y_pos))
     y_pos += line_height

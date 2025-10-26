@@ -248,7 +248,7 @@ class CombatEffectResolver:
             Result dict with old/new HP and status
         """
         current_hp = self.game_state.character.get('current_hp', 10)
-        max_hp = self.game_state.character.get('hit_points', 10)
+        max_hp = self.game_state.character.get('max_hp', 10)
         name = self.game_state.character.get('name', 'Player')
         
         if effect_type == EffectType.HEALING:
@@ -300,7 +300,7 @@ class CombatEffectResolver:
             return None
         
         current_hp = target_member.get('current_hp', 10)
-        max_hp = target_member.get('max_hit_points', target_member.get('hit_points', 10))
+        max_hp = target_member.get('max_hp', 10)
         name = target_member.get('name', char_id)
         
         if effect_type == EffectType.HEALING:

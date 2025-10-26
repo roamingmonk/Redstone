@@ -2209,6 +2209,13 @@ Implemented **Strategy Pattern** with **Handler Registry** for spell system:
 - Projectile animation system ready for ice_knife, acid_arrow when sprites added
 - Death animation delay system can be extended to other spell types if needed
 
+# ADR-137-Refactored hp variable to standarize hp variable naming across player and NPCs to eliminate recurring bugs. 
+**Current Problem:**
+- Player uses: `hit_points` (max) + `current_hp` (current)
+- NPCs use: `max_hit_points` (max) + `current_hp` (current)
+**Solution:**
+- Both use: `max_hp` (max) + `current_hp` (current)
+
 
 ```
 ## ADR-XXX: <Short title>

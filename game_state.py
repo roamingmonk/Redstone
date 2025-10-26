@@ -51,9 +51,8 @@ class GameState:
             # Progression tracking
             'level': 1,
             'experience': 0,
-            'hit_points': 10,   #Max hip points
-            'current_hp': 10,   #Current hip points
-            'max_hp'
+            'max_hp': 10,   #Max hit points
+            'current_hp': 10,   #Current hit points
             'abilities': [],  
             
             # Resources
@@ -257,10 +256,8 @@ class GameState:
             'class': npc_template.get('class', 'Fighter'),
             'level': npc_template.get('level', 1),
             'experience': 0,  # Start at 0 XP
-            'hp': npc_hp,  # Use 'hp' to match NPC JSON format
-            'hit_points': npc_hp,  # Also store as hit_points for compatibility
-            'current_hp': npc_hp,  # Initialize current HP to max! ← CRITICAL FIX
-            'max_hit_points': npc_hp,
+            'max_hp' : npc_hp,  #Maximum hit points             
+            'current_hp': npc_hp,  # Current HP 
             'ac': npc_ac,  # Store AC from NPC JSON
             'stats': npc_template.get('stats', {}).copy(),
             'equipment': npc_template.get('equipment', {}).copy(),
@@ -359,7 +356,7 @@ class GameState:
             'intelligence': self.character.get('intelligence', 10),
             'wisdom': self.character.get('wisdom', 10),
             'charisma': self.character.get('charisma', 10),
-            'hit_points': self.character.get('hit_points', 10),
+            'max_hp': self.character.get('max_hp', 10),
             'gold': self.character.get('gold', 0),
             'trinket': self.character.get('trinket', 'None')
         }

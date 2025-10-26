@@ -85,7 +85,7 @@ def _draw_hp_bar_under_portrait(surface, portrait_x, portrait_y, character_name,
     # Get HP values
     if is_player:
         current_hp = game_state.character.get('current_hp', 10)
-        max_hp = game_state.character.get('hit_points', 10)
+        max_hp = game_state.character.get('max_hp', 10)
     else:
         # Find party member data
         current_hp = 10
@@ -93,7 +93,7 @@ def _draw_hp_bar_under_portrait(surface, portrait_x, portrait_y, character_name,
         for member in game_state.party_member_data:
             if member.get('id') == character_name:
                 current_hp = member.get('current_hp', 10)
-                max_hp = member.get('hp', member.get('hit_points', 10))
+                max_hp = member.get('max_hp', 10)
                 break
     
     # Calculate HP percentage for color determination
@@ -245,14 +245,14 @@ def _draw_compact_hp_bar(surface, portrait_x, portrait_y, portrait_size,
     # Get HP values
     if is_player:
         current_hp = game_state.character.get('current_hp', 10)
-        max_hp = game_state.character.get('hit_points', 10)
+        max_hp = game_state.character.get('max_hp', 10)
     else:
         current_hp = 10
         max_hp = 10
         for member in game_state.party_member_data:
             if member.get('id') == member_id:
                 current_hp = member.get('current_hp', 10)
-                max_hp = member.get('hp', member.get('hit_points', 10))
+                max_hp = member.get('max_hp', 10)
                 break
     
     # Calculate HP percentage

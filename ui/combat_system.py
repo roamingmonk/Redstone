@@ -564,7 +564,7 @@ class CombatEncounter:
             # Get current HP from the correct source
             if char_id == 'player':
                 current_hp = controller.game_state.character.get('current_hp', 10)
-                max_hp = controller.game_state.character.get('hit_points', 10)
+                max_hp = controller.game_state.character.get('max_hp', 10)
             else:
                 # NPC - read from party_member_data
                 current_hp = char_data.get('current_hp', 10)
@@ -573,7 +573,7 @@ class CombatEncounter:
                 for member in controller.game_state.party_member_data:
                     if member.get('id') == char_id:
                         current_hp = member.get('current_hp', current_hp)
-                        max_hp = member.get('hp', member.get('hit_points', max_hp))
+                        max_hp = member.get('max_hp', max_hp)
                         break
 
             # Draw HP bar (ONLY ONCE!)

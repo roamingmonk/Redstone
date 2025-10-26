@@ -197,7 +197,7 @@ class CharacterOverlay(BaseTabbedOverlay):
             current_y += 35
         
         # Hit Points (current/max format)
-        max_hp = character.get('hit_points', 10)
+        max_hp = character.get('max_hp', 10)
         current_hp = character.get('current_hp', 10)
         HP_label = normal_font.render("Hit Points: ", True, WHITE)
         surface.blit(HP_label, (left_section_x, current_y))
@@ -210,7 +210,6 @@ class CharacterOverlay(BaseTabbedOverlay):
         else:
             hp_color = RED
 
-        max_hp = character.get('hit_points', 10)
         value_surface = normal_font.render(f" {current_hp}/{max_hp}", True, hp_color)
         surface.blit(value_surface, (left_section_x + HP_label.get_width(), current_y))
         current_y += 45
@@ -634,8 +633,8 @@ class CharacterOverlay(BaseTabbedOverlay):
             left_y += 25
 
             # HP with color coding
-            current_hp = npc_info.get('current_hp', npc_info.get('hp', 0))
-            max_hp = npc_info.get('hp', npc_info.get('hit_points', 0))
+            current_hp = npc_info.get('current_hp', 0)
+            max_hp = npc_info.get('max_hp', 0)
             hp_percent = (current_hp / max_hp * 100) if max_hp > 0 else 0
 
             # Color code HP
