@@ -721,10 +721,10 @@ class DebugManager:
                     member_data['current_hp'] = max_hp
                     print(f"  ❤️ {member_id} healed to {max_hp} HP")
         
-        # Also heal player (uses hp and max_hp)
+        # Also heal player (uses hit_points for max, current_hp for current)
         if hasattr(self.game_state, 'character'):
             max_hp = self.game_state.character.get('hit_points', 20)
-            self.game_state.character['hp'] = max_hp
+            self.game_state.character['current_hp'] = max_hp
             print(f"  ❤️ Player healed to {max_hp} HP")
         
         # Auto-save after resting
