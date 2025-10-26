@@ -3,6 +3,8 @@
 import pygame
 import time
 import random
+from utils.constants import (BLACK, BRIGHT_GREEN, YELLOW, DARK_GRAY, CYAN,
+                             WHITE, RED, BLUE, GREEN, GRAY, ORANGE, SKYBLUE_AQUA)
 
 class SpellAnimationRenderer:
     """Centralized spell animation rendering"""
@@ -18,6 +20,7 @@ class SpellAnimationRenderer:
             'cold_projectile': self._render_projectile,
             'acid_projectile': self._render_projectile,
             'radiant_projectile': self._render_projectile,
+            'necrotic_projectile': self._render_projectile, 
             # Weapon projectiles
             'arrow_projectile': self._render_projectile,
             'bullet_projectile': self._render_projectile,
@@ -227,6 +230,7 @@ class SpellAnimationRenderer:
             'force_projectile': 'force',
             'cold_projectile': 'ice',
             'acid_projectile': 'acid',
+            'necrotic_projectile': 'necrotic',
             # Weapon projectiles
             'arrow_projectile': 'arrow',
             'bullet_projectile': 'bullet'
@@ -237,6 +241,7 @@ class SpellAnimationRenderer:
             'force_projectile': (150, 100, 255),
             'cold_projectile': (100, 200, 255),
             'acid_projectile': (100, 255, 100),
+            'necrotic_projectile': (100, 0, 100),  #purple
             # Weapon projectiles (gray/brown impact)
             'arrow_projectile': (150, 150, 150),
             'bullet_projectile': (139, 90, 43)
@@ -247,7 +252,7 @@ class SpellAnimationRenderer:
 
         # *** CLASSIFICATION: Directional vs Omnidirectional sprites ***
         DIRECTIONAL_PROJECTILES = ['arrow', 'force', 'ice', 'acid']
-        OMNIDIRECTIONAL_PROJECTILES = ['firebolt', 'bullet']
+        OMNIDIRECTIONAL_PROJECTILES = ['firebolt', 'bullet', 'necrotic']
         
         is_directional = sprite_prefix in DIRECTIONAL_PROJECTILES
 
@@ -356,8 +361,9 @@ class SpellAnimationRenderer:
                     # Fallback: draw a colored circle
                     print(f"⚠️ Sprite '{sprite_key}' not found, using fallback")
                     fallback_colors = {
-                        'firebolt': (255, 100, 0),
-                        'bullet': (139, 90, 43)
+                        'firebolt': RED,
+                        'bullet': (139, 90, 43),
+                        'necrotic': BLACK
                     }
                     color = fallback_colors.get(sprite_prefix, (255, 255, 255))
                     pygame.draw.circle(surface, color, (int(screen_x), int(screen_y)), 8)
@@ -380,7 +386,8 @@ class SpellAnimationRenderer:
                 impact_sprite_map = {
                     'fire_projectile': 'firebolt_impact',
                     'force_projectile': 'force_impact',
-                    'cold_projectile': 'ice_impact'
+                    'cold_projectile': 'ice_impact',
+                    'necrotic_projectile': 'ice_impact'
                 }
 
                 impact_sprite_key = impact_sprite_map.get(animation_type)

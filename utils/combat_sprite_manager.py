@@ -222,6 +222,27 @@ class CombatSpriteManager:
         except Exception as e:
             print(f"⚠️ Error loading ice sprites: {e}")
 
+         # Load necrotic projectile sprites
+        try:
+            # Horizontal/Vertical ice
+            necrotic_h_v_path = os.path.join(effects_path, 'necrotic_h_v.png')
+            if os.path.exists(necrotic_h_v_path):
+                sprite = pygame.image.load(necrotic_h_v_path).convert_alpha()
+                sprite = pygame.transform.scale(sprite, (48, 48))
+                self.effect_sprites['necrotic_h_v'] = sprite
+                print(" Loaded necrotic_h_v.png")
+
+            # Diagonal ice
+            necrotic_diag_path = os.path.join(effects_path, 'necrotic_diag.png')
+            if os.path.exists(ice_diag_path):
+                sprite = pygame.image.load(necrotic_diag_path).convert_alpha()
+                sprite = pygame.transform.scale(sprite, (48, 48))
+                self.effect_sprites['necrotic_diag'] = sprite
+                print(" Loaded necrotic_diag.png")
+        except Exception as e:
+            print(f"⚠️ Error loading necrotic sprites: {e}")
+
+
         # Load Arrow projectile sprites (for bows/crossbows)
         try:
             # Horizontal/Vertical arrow

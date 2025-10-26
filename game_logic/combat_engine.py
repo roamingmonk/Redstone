@@ -8,6 +8,7 @@ import json
 import os
 import random
 import time
+import pygame
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
 from utils.combat_loader import get_combat_loader
@@ -510,6 +511,9 @@ class CombatEngine:
 
     def execute_enemy_turn(self, enemy_id: str):
         """Public method that redirects to the internal _execute_enemy_turn method"""
+        # Base delay for all enemy turns (improves game pacing)
+        
+        #pygame.time.wait(500)  # 0.5 seconds - lets player read combat log
         return self._execute_enemy_turn(enemy_id)
 
     def _execute_enemy_turn(self, enemy_id: str):
@@ -547,7 +551,8 @@ class CombatEngine:
             'battlefield': self.combat_data.get("battlefield", {}),
             'valid_moves': valid_moves,
             'movement_system': self.movement_system,
-            'combat_engine': self
+            'combat_engine': self,
+            'spell_data': self.spell_data
         }
         
         # Get complete turn plan from AI
@@ -609,6 +614,10 @@ class CombatEngine:
         attack_name = selected_attack.get("name", "Attack")
         attack_type = selected_attack.get("attack_type", "melee")
         
+        # ✨ NEW: Handle spell attacks differently!
+        if attack_type == "spell":
+            return self._execute_enemy_spell(enemy, target_char_id, selected_attack)
+        
         self._add_to_combat_log(f"{enemy_name} attacks {target_name} with {attack_name}!")
         
         # For ranged attacks, check line of sight
@@ -639,6 +648,97 @@ class CombatEngine:
         
         return success
     
+    def _execute_enemy_spell(self, enemy: Dict, target_char_id: str, spell_attack: Dict) -> bool:
+        """
+        Execute spell attack from enemy using the same pipeline as players
+        """
+        enemy_name = enemy.get("name", "Enemy")
+        spell_cost = spell_attack.get("spell_cost", 0)
+        
+        # Check spell slots
+        current_slots = enemy.get("current_spell_slots", 0)
+        if spell_cost > 0 and current_slots < spell_cost:
+            self._add_to_combat_log(f"{enemy_name} is out of spell slots!")
+            return False
+        
+        # Load spell data from spells.json
+        spell_id = spell_attack.get('spell_id')
+        if not spell_id:
+            self._add_to_combat_log(f"Error: {spell_attack.get('name')} missing spell_id!")
+            return False
+        
+        spell_data = self.spell_data.get(spell_id)
+        if not spell_data:
+            self._add_to_combat_log(f"Error: Spell {spell_id} not found!")
+            return False
+        
+        # Get target position
+        target_char_state = self.character_states.get(target_char_id)
+        if not target_char_state:
+            return False
+        
+        target_pos = target_char_state.get('position')
+
+        # Get target position
+        target_char_state = self.character_states.get(target_char_id)
+        if not target_char_state:
+            return False
+        
+        target_pos = target_char_state.get('position')
+        
+        # Use the SAME spell handler system as players
+        area_type = spell_data.get('area_type', 'single')
+        handler = self.spell_handler_registry.get_handler(area_type)
+        
+        affected_positions = handler.calculate_affected_tiles(
+            spell_data,
+            enemy.get('position'),
+            target_pos,
+            self.combat_data.get("battlefield", {})
+        )
+        
+        # NOW set up animation (after affected_positions exists!)
+        animation_type = spell_data.get('animation', 'default')
+        print(f"🏹 Enemy spell animation: {animation_type}")
+        print(f"   From {enemy.get('position')} to {target_pos}")
+        
+        self.active_spell_animation = {
+            'type': animation_type,
+            'start_pos': enemy.get('position'),
+            'end_pos': target_pos,
+            'elemental_type': spell_data.get('elemental_type', 'force')
+        }
+        self.animation_start_time = time.time()
+        self.animation_tiles = affected_positions
+        
+        # Build enemy caster state (same format as char_state)
+        enemy_caster_state = {
+            'name': enemy_name,
+            'character_data': {
+                'level': 1,
+                'stats': enemy.get('stats', {})
+            }
+        }
+        
+        # Consume spell slot
+        if spell_cost > 0:
+            enemy["current_spell_slots"] -= spell_cost
+        
+        # Use SAME execution path as players!
+        self._execute_spell_effect(
+            spell_data,
+            affected_positions,
+            enemy_caster_state,
+            None,  # save_results
+            is_enemy_caster=True
+        )
+        
+        pygame.display.flip()       
+        
+        #pygame.time.wait(600)  # 0.6 seconds for area effects
+        
+        return True
+
     def _has_ranged_weapon_equipped(self, char_state: Dict) -> bool:
         """Check if character has ranged weapon equipped by checking item data"""
         char_data = char_state.get('character_data', {})
@@ -2981,7 +3081,11 @@ class CombatEngine:
                 break
 
         # Reuse your attack distance rule (or call the same internal function)
-        in_range = self._distance_rule(origin, target)  # Manhattan/Chebyshev/etc.
+        # Simple manhattan distance check
+        dx = abs(target[0] - origin[0])
+        dy = abs(target[1] - origin[1])
+        distance = dx + dy
+        in_range = distance <= 12  # Standard ranged weapon range
         has_los = blocked_idx is None
 
         return {
@@ -3556,7 +3660,8 @@ class CombatEngine:
             battlefield
         )
 
-    def _execute_spell_effect(self, spell_data: dict, affected_positions: List[List[int]], caster_state: dict, save_results=None):
+    def _execute_spell_effect(self, spell_data: dict, affected_positions: List[List[int]], 
+                              caster_state: dict, save_results=None, is_enemy_caster: bool = False):
         """
         Apply spell effects to all affected positions
         NOW USES EFFECT RESOLVER - Universal system!
@@ -3589,27 +3694,54 @@ class CombatEngine:
         
         # Build targets list from affected positions
         targets = []
+        target_type_filter = spell_data.get('target_type', 'all')
+        
+        # FLIP PERSPECTIVE if enemy caster!
+        if is_enemy_caster:
+            if target_type_filter == 'enemy':
+                target_type_filter = 'ally'  # Enemy's enemies = our allies
+            elif target_type_filter == 'ally':
+                target_type_filter = 'enemy'  # Enemy's allies = our enemies
+
+        # ADD DEBUG HERE:
+        print(f"   🎯 TARGET BUILDING DEBUG:")
+        print(f"      Spell: {spell_data.get('name', 'Unknown')}")
+        print(f"      Original target_type: {spell_data.get('target_type', 'all')}")
+        print(f"      Is enemy caster: {is_enemy_caster}")
+        print(f"      Final target_type_filter: {target_type_filter}")
+        print(f"      Affected positions: {affected_positions}")
+        
         for pos in affected_positions:
-            # Check party members at this position
-            for char_id, char_state in self.character_states.items():
-                if char_state['position'] == pos and char_state.get('is_alive', True):
-                    target_type = 'player' if char_id == 'player' else 'party_member'
-                    targets.append({
-                        'type': target_type,
-                        'id': char_id,
-                        'position': pos,
-                        'char_state': char_state  # Keep reference for snapshot update
-                    })
+            # Check party members at this position (if appropriate)
+            if target_type_filter in ['all', 'ally']:
+                for char_id, char_state in self.character_states.items():
+                    if char_state['position'] == pos and char_state.get('is_alive', True):
+                        # Determine target type
+                        current_target_type = 'player' if char_id == 'player' else 'party_member'
+                        
+                        # Add to targets list
+                        targets.append({
+                            'type': current_target_type,
+                            'id': char_id,
+                            'position': pos,
+                            'name': char_state.get('name', char_id),
+                            'current_hp': char_state.get('character_data', {}).get('current_hp', 10),
+                            'data': char_state.get('character_data', {})
+                        })
             
-            # Check enemies at this position
-            for enemy in self.combat_data.get("enemy_instances", []):
-                if enemy['position'] == pos and enemy.get('current_hp', 0) > 0:
-                    targets.append({
-                        'type': 'enemy',
-                        'id': enemy.get('instance_id'),
-                        'position': pos,
-                        'data': enemy  # Enemy dict for direct modification
-                    })
+            # Check enemies at this position (if appropriate)
+            if target_type_filter in ['all', 'enemy']:
+                for enemy in self.combat_data.get("enemy_instances", []):
+                    if enemy.get("position") == pos and enemy.get("current_hp", 0) > 0:
+                        # Add to targets list
+                        targets.append({
+                            'type': 'enemy',
+                            'id': enemy.get('instance_id', 'unknown'),
+                            'position': pos,
+                            'name': enemy.get('name', 'Enemy'),
+                            'current_hp': enemy.get('current_hp', 0),
+                            'data': enemy
+                        })
     
        # CRITICAL: Add damage multipliers to targets BEFORE resolve_effect
         if save_results and effect_def.get('effect_type') == 'damage':
@@ -3618,41 +3750,11 @@ class CombatEngine:
                 if target_pos in save_results:
                     target['damage_multiplier'] = save_results[target_pos]['damage_multiplier']
         
+        print(f"   🎯 TARGETS FOUND: {len(targets)}")
         # Resolve effect through universal system
+        for t in targets:
+            print(f"      - {t.get('name')} at {t.get('position')}")
         results = self.effect_resolver.resolve_effect(effect_def, targets, source_data)
-
-        # Apply half damage for successful saves
-        
-        # if save_results and spell_data.get('damage_type', 'damage') == 'damage':
-        #     for result in results:
-        #         # Find this target's position
-        #         target_id = result.get('target_id')
-        #         target_pos = None
-                
-        #         if target_id == 'player':
-        #             target_pos = tuple(self.character_states['player']['position'])
-        #         else:
-        #             # Check party members
-        #             for member_state in self.character_states.values():
-        #                 if member_state.get('character_data', {}).get('id') == target_id:
-        #                     target_pos = tuple(member_state['position'])
-        #                     break
-        #             # Check enemies
-        #                 if not target_pos:
-        #                     enemy_instances = self.combat_data.get("enemy_instances", [])
-        #                     for enemy in enemy_instances:
-        #                         if enemy.get("instance_id") == target_id:
-        #                             target_pos = tuple(enemy.get("position"))
-        #                             break
-                
-        #         # Halve damage if they saved
-        #         if target_pos and target_pos in save_results and save_results[target_pos]['success']:
-        #             original_damage = result.get('magnitude', 0)
-        #             halved_damage = original_damage // 2  # Round down per D&D rules
-        #             result['magnitude'] = halved_damage
-        #             result['old_hp'] = result['new_hp'] + (original_damage - halved_damage)
-        #             result['new_hp'] = result['old_hp'] - halved_damage
-        #             print(f"💪 {result['target_name']} saved! Damage reduced: {original_damage} -> {halved_damage}")
 
         # Combat log
         self._add_to_combat_log(f"{caster_name} casts {spell_name}!")
@@ -3672,7 +3774,11 @@ class CombatEngine:
             if target:
                 if target['type'] in ['player', 'party_member']:
                     # Update combat snapshot for party members
-                    char_state = target['char_state']
+                    # Get char_state from character_states using target id
+                    char_state = self.character_states.get(target['id'])
+                    if not char_state:
+                        continue
+                    
                     char_data = char_state.get('character_data', {})
                     char_data['current_hp'] = new_hp
                     char_state['is_alive'] = is_alive

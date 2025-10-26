@@ -150,5 +150,22 @@
   "requires_line_of_sight": true,
   "scales_with_level": false,
   "description": "A shard of ice streaks toward a target. Ranged spell attack. 1d10 cold damage."
-}
+},
+"darkbolt": {
+  "id": "darkbolt",
+  "name": "Darkbolt", 
+  "damage_dice": "1d10",
+  "damage_type": "damage",
+  "elemental_type": "necrotic",
+  "animation": "necrotic_projectile",
+  "area_type": "single",
+  "range": 12,
+  "slot_cost": 0,
+  "target_type": "enemy",
+  "attack_type": "spell_attack",
+  "requires_line_of_sight": true,
+  "scales_with_level": false,
+  "scaling_type": "add_dice",
+  "description": "A mote of fire streaks toward a target. Ranged spell attack. 1d10 fire damage, +1d10 per level."
+  }
 }

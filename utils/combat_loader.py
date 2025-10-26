@@ -267,12 +267,17 @@ class CombatDataLoader:
         # Generate unique instance ID for tracking during combat
         enemy["instance_id"] = str(uuid.uuid4())[:8]
         
-        # Initialize combat state
+       # Initialize combat state
         enemy["current_hp"] = enemy["stats"]["hp"]
         enemy["status_effects"] = []
         enemy["actions_remaining"] = 1
         enemy["has_moved"] = False
         enemy["has_acted"] = False
+        
+        # Initialize spell slots (simple number for now)
+        max_slots = enemy.get("spell_slots", 0)
+        enemy["current_spell_slots"] = max_slots
+        enemy["max_spell_slots"] = max_slots
         
         return enemy
 
@@ -314,16 +319,22 @@ class CombatDataLoader:
         
         # Validate attacks array
         attacks = enemy_data.get('attacks', [])
-        if not isinstance(attacks, list) or len(attacks) == 0:
-            print(f"❌ Enemy must have at least one attack")
+        if not isinstance(attacks, list):
+            print(f"❌ Enemy attacks must be an array")
             return False
         
-        print(f"✅ Found {len(attacks)} attacks")
-        
-        # Validate each attack
         for i, attack in enumerate(attacks):
             print(f"🔍 Validating attack {i}: {attack.get('name', 'unnamed')}")
-            required_attack_fields = ['name', 'damage_dice', 'attack_bonus', 'attack_type', 'range']
+            
+            # Check if this is a spell attack (uses spell_id reference)
+            attack_type = attack.get('attack_type', '')
+            if attack_type == 'spell':
+                # Spell attacks only need: name, attack_type, spell_id, spell_cost
+                required_attack_fields = ['name', 'attack_type', 'spell_id']
+                print(f"   📜 Spell attack - validating spell reference")
+            else:
+                # Physical attacks need full data
+                required_attack_fields = ['name', 'damage_dice', 'attack_bonus', 'attack_type', 'range']
             for field in required_attack_fields:
                 if field not in attack:
                     print(f"❌ Attack missing required field: {field}")

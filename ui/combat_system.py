@@ -7,8 +7,8 @@ Follows existing ui pattern for screen presentation layers
 import pygame
 import time
 from typing import Dict, Any, Optional, List
-from utils.constants import (BLACK, BRIGHT_GREEN, YELLOW, DARK_GRAY, CYAN,
-                             WHITE, RED, BLUE, GREEN, GRAY, ORANGE, 
+from utils.constants import (BLACK, BRIGHT_GREEN, YELLOW, DARK_GRAY, CYAN, SOFT_YELLOW,
+                             WHITE, RED, BLUE, GREEN, GRAY, ORANGE, SKYBLUE_AQUA, 
                              wrap_text)
 from utils.graphics import draw_combat_button, draw_centered_text, draw_text
 from utils.combat_loader import get_combat_loader
@@ -130,160 +130,6 @@ class CombatEncounter:
             animation_alpha=engine.animation_alpha,
             particles=engine.impact_particles
         )
-
-
-    # def _render_spell_animations(self, surface: pygame.Surface, controller):
-        # """Render active spell animations like lightning bolt"""
-        # if not controller or not hasattr(controller, 'combat_engine'):
-        #     return
-        
-        # engine = controller.combat_engine
-
-        # # No screen shake (removed)
-        # shake_x, shake_y = 0, 0
-        
-        # if engine.active_spell_animation is None:
-        #     return
-        
-        # # 🔍 DEBUG: Animation is active!
-        # print(f"🎨 Rendering animation: tile {engine.animation_current_tile + 1}/{len(engine.animation_tiles)}")
-
-        # anim_type = engine.active_spell_animation.get('type')
-        
-        # if anim_type in ['lightning_bolt', 'burning_hands']:
-        #     # Get animation state
-        #     tiles_to_show = engine.animation_current_tile + 1  # Show tiles up to current
-        #     caster_pos = engine.active_spell_animation['caster_pos']
-            
-        #     # Calculate direction for rotation
-        #     if len(engine.animation_tiles) > 0:
-        #         first_tile = engine.animation_tiles[0]
-        #         dx = first_tile[0] - caster_pos[0]
-        #         dy = first_tile[1] - caster_pos[1]
-                
-        #         # Normalize direction
-        #         if dx != 0:
-        #             dx = dx // abs(dx)
-        #         if dy != 0:
-        #             dy = dy // abs(dy)
-                
-        #         # Determine which image and rotation to use
-        #         is_diagonal = (dx != 0 and dy != 0)
-                
-        #         # Determine which sprite to use based on animation type
-        #         sprite_prefix = 'burning_hands' if anim_type == 'burning_hands' else 'lightning'
-                
-        #         if is_diagonal:
-        #             sprite_key = f'{sprite_prefix}_diag'
-        #             base_image = self.sprite_manager.get_effect_sprite(sprite_key)
-        #             print(f"🔍 Loading diagonal sprite: {sprite_key}, Got: {base_image is not None}")
-        #             # NE=0°, SE=90°, SW=180°, NW=270°
-        #             if dx > 0 and dy < 0:  # NE
-        #                 angle = 0
-        #             elif dx > 0 and dy > 0:  # SE
-        #                 angle = 90
-        #             elif dx < 0 and dy > 0:  # SW
-        #                 angle = 180
-        #             else:  # NW
-        #                 angle = 270
-        #         else:
-        #             sprite_key = f'{sprite_prefix}_h_v'
-        #             base_image = self.sprite_manager.get_effect_sprite(sprite_key)
-        #             print(f"🔍 Loading h_v sprite: {sprite_key}, Got: {base_image is not None}")
-        #             # N=0°, E=90°, S=180°, W=270°
-        #             if dy < 0:  # North
-        #                 angle = 0
-        #             elif dx > 0:  # East
-        #                 angle = 90
-        #             elif dy > 0:  # South
-        #                 angle = 180
-        #             else:  # West
-        #                 angle = 270
-                
-        #         if base_image:
-        #             # Rotate the image
-        #             rotated = pygame.transform.rotate(base_image, angle)
-                    
-        #             # Draw lightning on all tiles up to current animation point
-        #             tiles_to_show = engine.animation_current_tile + 1
-        #             for i in range(min(tiles_to_show, len(engine.animation_tiles))):
-        #                 tile_pos = engine.animation_tiles[i]
-        #                 screen_x = self.grid_offset_x + (tile_pos[0] * self.tile_size)
-        #                 screen_y = self.grid_offset_y + (tile_pos[1] * self.tile_size)
-                        
-        #                 # Apply alpha fade
-        #                 rotated.set_alpha(engine.animation_alpha)
-                        
-        #                 # Apply screen shake to position
-        #                 shaken_rect = rotated.get_rect()
-        #                 shaken_rect.center = (
-        #                     screen_x + self.tile_size // 2 + shake_x,
-        #                     screen_y + self.tile_size // 2 + shake_y
-        #                 )
-                        
-        #                 surface.blit(rotated, shaken_rect)
-            
-        #     # Render impact particles (OUTSIDE the if base_image block!)
-        #     if engine.impact_particles:
-        #         for particle in engine.impact_particles:
-        #             # Convert grid position to screen position
-        #             screen_x = self.grid_offset_x + (particle['x'] * self.tile_size) + self.tile_size // 2
-        #             screen_y = self.grid_offset_y + (particle['y'] * self.tile_size) + self.tile_size // 2
-                    
-        #             # Apply screen shake
-        #             screen_x += shake_x
-        #             screen_y += shake_y
-                    
-        #             # Particle size based on life (starts at 5, shrinks to 1)
-        #             size = int(2 + (3 * particle['life']))
-                    
-        #             # Particle alpha based on life
-        #             alpha = int(255 * particle['life'])
-                    
-        #             # Create particle surface with alpha
-        #             particle_surf = pygame.Surface((size * 2, size * 2), pygame.SRCALPHA)
-        #             color_with_alpha = particle['color'] + (alpha,)
-        #             pygame.draw.circle(particle_surf, color_with_alpha, (size, size), size)
-                    
-        #             surface.blit(particle_surf, (int(screen_x - size), int(screen_y - size)))
-
-
-        # elif anim_type == 'fireball':
-        #     # Get fireball frames
-        #     fireball_frames = self.sprite_manager.get_effect_sprite('fireball_frames')
-            
-        #     if fireball_frames and len(fireball_frames) > 0:
-        #         tile_data = engine.active_spell_animation.get('tile_data', [])
-        #         current_time = time.time()
-        #         elapsed = current_time - engine.animation_start_time
-                
-        #         # Render each tile with its own animation state
-        #         for tile_info in tile_data:
-        #             tile_pos = tile_info['position']
-        #             start_delay = tile_info['start_delay']
-        #             frame_offset = tile_info['frame_offset']
-                    
-        #             # Check if this tile should be visible yet (expansion effect)
-        #             if elapsed < start_delay:
-        #                 continue  # Tile hasn't ignited yet
-                    
-        #             # Calculate which frame to show (0.1 seconds per frame, looping)
-        #             tile_elapsed = elapsed - start_delay
-        #             frame_time = 0.1  # Each frame shows for 0.1 seconds
-        #             frame_index = (int(tile_elapsed / frame_time) + frame_offset) % 10
-                    
-        #             # Get the frame
-        #             frame = fireball_frames[frame_index]
-                    
-        #             # Calculate screen position
-        #             screen_x = self.grid_offset_x + (tile_pos[0] * self.tile_size)
-        #             screen_y = self.grid_offset_y + (tile_pos[1] * self.tile_size)
-                    
-        #             # Center the frame on the tile
-        #             frame_rect = frame.get_rect()
-        #             frame_rect.center = (screen_x + self.tile_size // 2, screen_y + self.tile_size // 2)
-                    
-        #             surface.blit(frame, frame_rect)
 
     def handle_action(self, action_data: Dict[str, Any], game_state, event_manager) -> Optional[str]:
         action_type = action_data.get('action', '')
@@ -873,7 +719,7 @@ class CombatEncounter:
 
         # 1) Cover-aware ranged branch (preferred)
         if current_action == "ranged_attack":
-            color = (0, 200, 255); border_width = 3
+            color = (SKYBLUE_AQUA); border_width = 3
             targets = combat_data.get("highlighted_targets")
 
             if targets:  # data path with cover info
@@ -894,7 +740,7 @@ class CombatEncounter:
                     origin = combat_data["character_states"][combat_data["active_character_id"]]["position"]
                     preview = self.game_controller.combat_engine.get_ranged_preview(origin, self._hover_grid)
                     cells = preview.get("cells", [])
-                    line_color = (0, 200, 255) if preview.get("has_los", False) else (255, 64, 64)
+                    line_color = (SKYBLUE_AQUA) if preview.get("has_los", False) else (255, 64, 64)
                     self._draw_dotted_los(surface, cells, line_color, width=2, gap=6)
                 return
 
@@ -918,7 +764,28 @@ class CombatEncounter:
             spell_targets = combat_data.get("highlighted_spell_targets")
             
             if spell_targets:  # Single-target spell with LOS data
-                color = (255, 0, 0); border_width = 3  # RED for spells (not cyan like ranged weapons)
+                # Get engine FIRST before using it
+                controller = getattr(self, 'controller', None)
+                engine = None
+                if controller and hasattr(controller, 'combat_engine'):
+                    engine = controller.combat_engine
+                
+                # Determine color based on spell target type
+                spell_id = getattr(engine, 'selected_spell_id', None) if engine else None
+                if spell_id and engine:  # ← ADD 'and engine' CHECK!
+                    spell_data = engine.spell_data.get(spell_id, {})
+                    target_type = spell_data.get('target_type', 'enemy')
+                    
+                    if target_type == 'ally':
+                        color = CYAN  # CYAN for healing/buffs
+                    elif target_type == 'all':
+                        color = SOFT_YELLOW 
+                    else:
+                        color = RED  # RED for enemy targeting
+                else:
+                    color = RED  # Default RED
+                    
+                border_width = 2
                 
                 for t in spell_targets:
                     x, y = t["position"]
@@ -939,7 +806,7 @@ class CombatEncounter:
                     preview = self.game_controller.combat_engine.get_ranged_preview(origin, self._hover_grid)
                     cells = preview.get("cells", [])
                     # Use red for spells instead of cyan
-                    line_color = (255, 0, 0) if preview.get("has_los", False) else (255, 64, 64)
+                    line_color = RED if preview.get("has_los", False) else (255, 64, 64)
                     self._draw_dotted_los(surface, cells, line_color, width=2, gap=6)
                 
                 return  # Done with spell targeting overlay
@@ -947,9 +814,10 @@ class CombatEncounter:
         # 2) Movement, melee, and spell targeting paths 
         highlighted_tiles = combat_data.get('highlighted_tiles', [])
         if current_action == "attack":
-            border_color = (255, 0, 0); border_width = 3
+            border_color = RED; border_width = 3
         elif current_action == "movement":
-            border_color = (0, 255, 0); border_width = 3
+            border_color = GREEN; border_width = 3
+        
         elif current_action == "spell_targeting":
             # Check if it's an AOE spell like Fireball
             controller = getattr(self, 'controller', None)
@@ -990,11 +858,11 @@ class CombatEncounter:
                                         # Semi-transparent red fill
                                         red_surface = pygame.Surface((self.tile_size, self.tile_size))
                                         red_surface.set_alpha(100)  # 40% opacity
-                                        red_surface.fill((255, 0, 0))  # Red
+                                        red_surface.fill(RED)  # Red
                                         surface.blit(red_surface, (screen_x, screen_y))
                                         
                                         # Red border
-                                        pygame.draw.rect(surface, (255, 0, 0), 
+                                        pygame.draw.rect(surface, RED, 
                                                     (screen_x, screen_y, self.tile_size, self.tile_size), 3)
                     # ⚡ LINE SPELL (Lightning Bolt) - Show red line preview
                     elif spell_data.get('area_type') == 'line':
@@ -1051,17 +919,23 @@ class CombatEncounter:
                                     # Semi-transparent red fill (same as Fireball)
                                     red_surface = pygame.Surface((self.tile_size, self.tile_size))
                                     red_surface.set_alpha(100)  # 40% opacity
-                                    red_surface.fill((255, 0, 0))  # Red
+                                    red_surface.fill(RED)  # Red
                                     surface.blit(red_surface, (screen_x, screen_y))
                                     
                                     # Red border
-                                    pygame.draw.rect(surface, (255, 0, 0), 
+                                    pygame.draw.rect(surface, RED, 
                                                 (screen_x, screen_y, self.tile_size, self.tile_size), 3)
                         
                         return  # Done with line preview
                     
-                    # Single-target spell (non-LOS or melee range) - show red highlights
-                    border_color = (255, 0, 0); border_width = 3
+                    target_type = spell_data.get('target_type', 'enemy')
+                    if target_type == 'ally':
+                        border_color = CYAN  # CYAN for healing
+                    elif target_type == 'all':
+                        border_color = SOFT_YELLOW
+                    else:
+                        border_color = RED  # RED for enemies
+                    border_width = 3
                 else:
                     # No spell selected yet - default red
                     border_color = (255, 0, 0); border_width = 3
@@ -1071,7 +945,17 @@ class CombatEncounter:
             return
 
         # Draw highlighted tiles (for non-AOE or fallback)
+        # Get battlefield dimensions for bounds checking
+        battlefield = combat_data.get("battlefield", {})
+        dimensions = battlefield.get("dimensions", {"width": 13, "height": 12})
+        grid_width = dimensions.get("width", 13)
+        grid_height = dimensions.get("height", 12)
+
         for x, y in highlighted_tiles:
+            # Skip if outside battlefield bounds
+            if x < 0 or x >= grid_width or y < 0 or y >= grid_height:
+                continue
+                
             rect = pygame.Rect(
                 self.grid_offset_x + x * self.tile_size,
                 self.grid_offset_y + y * self.tile_size,
@@ -1443,7 +1327,7 @@ class CombatEncounter:
         if max_hp > 0:
             hp_percent = current_hp / max_hp
             green_width = int(bar_width * hp_percent)
-            pygame.draw.rect(surface, (0, 255, 0), (bar_x, bar_y, green_width, bar_height))
+            pygame.draw.rect(surface, GREEN, (bar_x, bar_y, green_width, bar_height))
         
         # White border
         pygame.draw.rect(surface, WHITE, (bar_x, bar_y, bar_width, bar_height), 1)
@@ -1533,7 +1417,7 @@ def draw_combat_screen(surface: pygame.Surface, game_state, fonts: Dict, images:
             if not success:
                 # If combat initialization fails, show error and return empty clickables
                 error_font = fonts.get('BODY', fonts.get('body'))
-                error_text = error_font.render("Failed to initialize combat", True, (255, 0, 0))
+                error_text = error_font.render("Failed to initialize combat", True, RED)
                 surface.blit(error_text, (400, 300))
                 return {}
     

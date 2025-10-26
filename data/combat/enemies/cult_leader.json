@@ -1,0 +1,84 @@
+{
+  "enemy_id": "cult_leader",
+  "name": "Cult Leader",
+  "description": "A charismatic fanatic wreathed in dark energy. Their eyes burn with unholy fervor, and eldritch power crackles at their fingertips. Other cultists follow them without question.",
+  "stats": {
+    "hp": 22,
+    "max_hp": 22,
+    "ac": 13,
+    "strength": 10,
+    "dexterity": 12,
+    "constitution": 13,
+    "intelligence": 14,
+    "wisdom": 16,
+    "charisma": 14
+  },
+  "saving_throw_proficiencies": ["intelligence", "wisdom", "charisma"],
+  "spell_slots": 3,
+  "resistances": {
+    "necrotic": 0.5
+  },
+  "attacks": [
+    {
+      "name": "Ceremonial Staff",
+      "damage_dice": "1d6+1",
+      "attack_bonus": 3,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A gnarled staff carved with blasphemous runes"
+    },
+    {
+      "name": "Fireball",
+      "attack_type": "spell",
+      "spell_id": "fireball",
+      "spell_cost": 1,
+      "attack_bonus": 5,
+      "description": "Unleashes a devastating burst of flame that consumes everything"
+    },
+    {
+      "name": "Inflict Wounds",
+      "attack_type": "spell",
+      "spell_id": "inflict_wounds",
+      "spell_cost": 1,
+      "attack_bonus": 5,
+      "description": "Channels dark energy through a touch of death"
+    }
+  ],
+  "movement": {
+    "speed": 3,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Dark Zealot",
+      "description": "Inspires nearby cultists. Never flees from combat.",
+      "effect_type": "morale",
+      "trigger": "always"
+    },
+    {
+      "name": "Necrotic Affinity",
+      "description": "Resistant to necrotic damage",
+      "effect_type": "resistance",
+      "trigger": "passive"
+    }
+  ],
+  "loot": {
+    "xp_value": 150,
+    "gold_range": [10, 30],
+    "items": [],
+    "item_drops": [
+      {"item_id": "cult_robes", "drop_chance": 0.9, "quantity_range": [1, 1]},
+      {"item_id": "ceremonial_staff", "drop_chance": 0.7, "quantity_range": [1, 1]},
+      {"item_id": "cursed_talisman", "drop_chance": 0.6, "quantity_range": [1, 1]},
+      {"item_id": "spell_scroll_fireball", "drop_chance": 0.3, "quantity_range": [1, 1]}
+    ]
+  },
+  "behavior": {
+    "aggression": "very_high",
+    "intelligence": "high",
+    "tactics": "spell_preference",
+    "acceptable_friendly_fire": 15,
+    "retreat_threshold": -1,
+    "notes": "Intelligent spellcaster. Will use Fireball even if it hits allies. Prefers staying at range 5-7 tiles. Uses Dark Bolt when conserving slots, Fireball for groups, Inflict Wounds if cornered."
+  }
+}

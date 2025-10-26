@@ -356,6 +356,150 @@ class CombatAI:
         # Fallback
         return {'move': None, 'attack': None, 'reason': 'no valid action'}
     
+    def _calculate_spell_preference_action(self, enemy_data: Dict, combat_state: Dict) -> Dict:
+        """
+        SPELL_PREFERENCE: Intelligent caster AI
+        Strategy: Maintain 4-7 tile casting range, prefer spells, consider friendly fire
+        Returns: {'move': pos or None, 'attack': data or None, 'reason': str}
+        """
+        enemy_pos = enemy_data.get("position", [0, 0])
+        
+        closest_player = self._find_closest_player(enemy_pos, combat_state)
+        if not closest_player:
+            return {'move': None, 'attack': None, 'reason': 'no players found'}
+        
+        distance = closest_player['distance']
+        behavior = enemy_data.get("behavior", {})
+        acceptable_ff = behavior.get("acceptable_friendly_fire", 3)
+        
+        # Get attacks using our new helper (spell_focused preference)
+        attacks = enemy_data.get("attacks", [])
+        
+        # CASE 1: At ideal casting range (4-7) - evaluate spell opportunities
+        if 4 <= distance <= 7:
+            attack_idx = self._select_best_attack(
+                enemy_data,
+                enemy_pos,
+                closest_player['position'],
+                behavior_type='spell_focused',
+                combat_state=combat_state
+            )
+            
+            if attack_idx is not None:
+                # Check friendly fire for AOE spells
+                selected_attack = attacks[attack_idx]
+                
+                # For now, simple friendly fire check
+                # TODO: In future, calculate actual AOE and count allies
+                # For single-target or non-AOE, just use it
+                
+                return {
+                    'move': None,
+                    'attack': {
+                        'target_id': closest_player['id'],
+                        'attack_index': attack_idx
+                    },
+                    'reason': f'at casting range ({distance}) - using {selected_attack.get("name", "spell")}'
+                }
+        
+        # CASE 2: Too close (<4) - back away to ideal range then cast
+        if distance < 4:
+            movement_range = enemy_data.get("movement", {}).get("speed", 3)
+            retreat_pos = self._find_retreat_position_from_player(
+                enemy_pos,
+                closest_player['position'],
+                combat_state,
+                min_distance=4
+            )
+            
+            if retreat_pos:
+                new_distance = self._manhattan_distance(retreat_pos, closest_player['position'])
+                
+                # Can we cast after backing away?
+                attack_idx = self._select_best_attack(
+                    enemy_data,
+                    retreat_pos,  # Check from NEW position
+                    closest_player['position'],
+                    behavior_type='spell_focused',
+                    combat_state=combat_state
+                )
+                
+                if attack_idx is not None:
+                    return {
+                        'move': retreat_pos,
+                        'attack': {
+                            'target_id': closest_player['id'],
+                            'attack_index': attack_idx
+                        },
+                        'reason': f'backing to range {new_distance} then casting'
+                    }
+                else:
+                    return {
+                        'move': retreat_pos,
+                        'attack': None,
+                        'reason': 'retreating from melee'
+                    }
+            
+            # Can't retreat - cornered! Use whatever attack is available
+            attack_idx = self._select_best_attack(
+                enemy_data,
+                enemy_pos,
+                closest_player['position'],
+                behavior_type='opportunistic',  # Take anything!
+                combat_state=combat_state
+            )
+            
+            if attack_idx is not None:
+                return {
+                    'move': None,
+                    'attack': {
+                        'target_id': closest_player['id'],
+                        'attack_index': attack_idx
+                    },
+                    'reason': 'cornered - desperate attack'
+                }
+        
+        # CASE 3: Too far (8+) - move to ideal casting range
+        if distance > 7:
+            movement_range = enemy_data.get("movement", {}).get("speed", 3)
+            new_pos = self._find_move_to_range(
+                enemy_pos,
+                closest_player['position'],
+                target_range=5,  # Aim for middle of ideal range
+                movement_range=movement_range,
+                combat_state=combat_state
+            )
+            
+            new_distance = self._manhattan_distance(new_pos, closest_player['position'])
+            
+            # Can we cast after moving closer?
+            attack_idx = self._select_best_attack(
+                enemy_data,
+                new_pos,
+                closest_player['position'],
+                behavior_type='spell_focused',
+                combat_state=combat_state
+            )
+            
+            if attack_idx is not None:
+                return {
+                    'move': new_pos,
+                    'attack': {
+                        'target_id': closest_player['id'],
+                        'attack_index': attack_idx
+                    },
+                    'reason': f'moving to range {new_distance} then casting'
+                }
+            else:
+                return {
+                    'move': new_pos,
+                    'attack': None,
+                    'reason': f'moving closer ({distance} -> {new_distance})'
+                }
+        
+        # Fallback - no valid action
+        return {'move': None, 'attack': None, 'reason': 'no valid spell actions'}
+
     def _calculate_hit_and_run_action(self, enemy_data: Dict, combat_state: Dict) -> Dict:
         """
         HIT_AND_RUN: Goblin-style skirmisher
@@ -509,15 +653,6 @@ class CombatAI:
         
         # Truly stuck - can't move, can't attack
         return {'move': None, 'attack': None, 'reason': 'cornered and no valid targets'}
-    
-    def _calculate_spell_preference_action(self, enemy_data: Dict, combat_state: Dict) -> Dict:
-        """
-        SPELL_PREFERENCE: Cultist-style ranged spell caster
-        - Stay at spell range
-        - Use spell attacks over melee
-        """
-        # TODO: Implement in next step
-        return self._calculate_rush_action(enemy_data, combat_state)
     
     def _calculate_stalker_action(self, enemy_data: Dict, combat_state: Dict) -> Dict:
         """
@@ -1269,6 +1404,8 @@ class CombatAI:
                 best_pos = move_pos
         
         return best_pos if best_pos != start_pos else None
+    
+    
 
     def _plan_rush_turn(self, enemy_data: Dict, combat_state: Dict) -> Dict:
         """
@@ -1432,6 +1569,147 @@ class CombatAI:
         
         # No ranged attack - fall back to rush behavior
         return self._plan_rush_turn(enemy_data, combat_state)
+
+    def _select_best_attack(self, enemy_data: Dict, enemy_pos: List[int], 
+                           target_pos: List[int], behavior_type: str, 
+                           combat_state: Dict) -> Optional[int]:
+        """
+        Select best attack from enemy's attacks array
+        
+        Args:
+            enemy_data: Enemy instance data
+            enemy_pos: Enemy's current position
+            target_pos: Target position
+            behavior_type: 'opportunistic', 'ranged_only', 'spell_focused', 'melee_only'
+            combat_state: Combat state dict
+            
+        Returns:
+            attack_index (int) or None if no valid attack
+        """
+        attacks = enemy_data.get("attacks", [])
+        if not attacks:
+            return None
+        
+        distance = self._manhattan_distance(enemy_pos, target_pos)
+        current_spell_slots = enemy_data.get("current_spell_slots", 0)
+        
+        # DEBUG
+        enemy_name = enemy_data.get("name", "Enemy")
+        print(f"   🎯 ATTACK SELECTION DEBUG for {enemy_name}:")
+        print(f"      Distance to target: {distance}")
+        print(f"      Current spell slots: {current_spell_slots}")
+        print(f"      Behavior type: {behavior_type}")
+        print(f"      Number of attacks: {len(attacks)}")
+
+        # Score each attack option
+        attack_scores = []
+        
+        for idx, attack in enumerate(attacks):
+            score = 0
+            attack_type = attack.get("attack_type", "melee")
+            attack_range = attack.get("range", 1)
+            spell_cost = attack.get("spell_cost", 0)
+            
+            # Get range - for spells, need to look up from spell data
+            if attack_type == "spell":
+                spell_id = attack.get("spell_id")
+                spell_data = combat_state.get('spell_data', {})
+                if spell_id and spell_data:
+                    spell_info = spell_data.get(spell_id, {})
+                    attack_range = spell_info.get("range", 1)
+                else:
+                    attack_range = attack.get("range", 1)  # Fallback
+            else:
+                attack_range = attack.get("range", 1)
+
+            # Skip if spell with no slots
+            if spell_cost > 0 and current_spell_slots < spell_cost:
+                continue
+            
+            # Check if attack is in range
+            if distance > attack_range:
+                print(f"      ❌ {attack.get('name')} out of range (need {attack_range}, have {distance})")
+                continue
+            
+            print(f"      ✅ {attack.get('name')} in range! Range={attack_range}, Distance={distance}")
+            
+            # Check line of sight for spells that require it
+            if attack_type == "spell":
+                spell_id = attack.get("spell_id")
+                spell_data = combat_state.get('spell_data', {})
+                if spell_id and spell_data:
+                    spell_info = spell_data.get(spell_id, {})
+                    requires_los = spell_info.get('requires_line_of_sight', False)
+                    
+                    if requires_los:
+                        # Use existing LOS system (same as ranged attacks!)
+                        combat_engine = combat_state.get('combat_engine')
+                        if combat_engine:
+                            has_los = combat_engine._has_line_of_sight(
+                                enemy_pos[0], enemy_pos[1],
+                                target_pos[0], target_pos[1]
+                            )
+                            
+                            if not has_los:
+                                print(f"      ❌ {attack.get('name')} blocked by walls (no LOS)")
+                                continue  # No line of sight, skip
+            
+            # BASE SCORE: Expected damage (rough estimate)
+            damage_dice = attack.get("damage_dice", "1d4")
+            # Simple heuristic: count dice (e.g., "3d6" = 3)
+            if 'd' in damage_dice:
+                num_dice = int(damage_dice.split('d')[0])
+                score += num_dice * 5
+            
+            # BEHAVIOR MODIFIERS
+            if behavior_type == "spell_focused":
+                if attack_type == "spell":
+                    score += 50  # Heavily prefer spells
+                elif attack_type == "ranged":
+                    score += 10  # Ranged okay
+                # Melee gets no bonus
+                
+            elif behavior_type == "ranged_only":
+                if attack_type == "ranged" or attack_type == "spell":
+                    score += 30  # Prefer ranged/spells
+                else:
+                    score -= 50  # Penalize melee heavily
+                    
+            elif behavior_type == "melee_only":
+                if attack_type == "melee":
+                    score += 30
+                else:
+                    score -= 30
+                    
+            elif behavior_type == "opportunistic":
+                # No strong preference, just use what's in range
+                score += 10
+            
+            # RANGE BONUS: Prefer attacks we can use at current distance
+            if distance <= attack_range:
+                score += 10
+            
+            # RESOURCE CONSERVATION: Penalize using spell slots if low
+            if spell_cost > 0:
+                if current_spell_slots <= 1:
+                    score -= 25  # Save last slot!
+                elif current_spell_slots <= 2:
+                    score -= 10  # Getting low
+            
+            attack_scores.append((idx, score, attack.get("name", "Attack")))
+        
+        # No valid attacks
+        if not attack_scores:
+            print(f"      ❌ NO VALID ATTACKS FOUND!")
+            return None
+        
+        # Return highest scoring attack
+        attack_scores.sort(key=lambda x: x[1], reverse=True)
+        best_idx, best_score, best_name = attack_scores[0]
+        
+        print(f"      🎯 Selected attack: {best_name} (index {best_idx}, score {best_score})")
+        
+        return best_idx
 
 # Singleton instance
 _combat_ai_instance = None

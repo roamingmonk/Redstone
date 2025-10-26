@@ -14,6 +14,7 @@
     "charisma": 10
   },
   "saving_throw_proficiencies": ["intelligence", "wisdom"],
+  "spell_slots": 2,
   "attacks": [
     {
       "name": "Ritual Dagger",
@@ -28,6 +29,7 @@
       "damage_dice": "1d8",
       "attack_bonus": 3,
       "attack_type": "spell",
+      "spell_id": "darkbolt",
       "range": 6,
       "description": "A bolt of shadowy energy that chills the soul",
       "spell_cost": 0,
@@ -60,6 +62,7 @@
     "aggression": "high",
     "intelligence": "medium",
     "tactics": "spell_preference",
+    "acceptable_friendly_fire": 10,
     "retreat_threshold": -1,
     "notes": "Prefers Dark Bolt at range, never retreats"
   }
