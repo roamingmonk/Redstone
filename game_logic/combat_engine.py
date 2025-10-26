@@ -2200,8 +2200,20 @@ class CombatEngine:
                 # Use party member AC or player AC
                 if target_char_id and target_char_id != 'player':
                     base_ac = target_data.get('ac', 10)
+                    # Check for temporary AC bonus on party members
+                    target_char_state = self.character_states.get(target_char_id, {})
+                    temp_ac_bonus = target_char_state.get('temp_ac_bonus', 0)
+                    if temp_ac_bonus > 0:
+                        base_ac += temp_ac_bonus
+                        self._add_to_combat_log(f"Shield Focus active! (+{temp_ac_bonus} AC)")
                 else:
                     base_ac = self.stats_calculator.calculate_armor_class(self.game_state)[0]
+                    # Check for temporary AC bonus on player
+                    player_char_state = self.character_states.get('player', {})
+                    temp_ac_bonus = player_char_state.get('temp_ac_bonus', 0)
+                    if temp_ac_bonus > 0:
+                        base_ac += temp_ac_bonus
+                        self._add_to_combat_log(f"Shield Focus active! (+{temp_ac_bonus} AC)")
                 
                 # Check for cover bonus (ranged attacks only)
                 cover_bonus = 0
@@ -2441,10 +2453,21 @@ class CombatEngine:
                     target_char_id = char_id
                     break
             
+            # Use party member AC or player AC
             if target_char_id and target_char_id != 'player':
                 base_ac = target_data.get('ac', 10)
+                # Check for temporary AC bonus on party members
+                target_char_state = self.character_states.get(target_char_id, {})
+                temp_ac_bonus = target_char_state.get('temp_ac_bonus', 0)
+                if temp_ac_bonus > 0:
+                    base_ac += temp_ac_bonus
             else:
                 base_ac = self.stats_calculator.calculate_armor_class(self.game_state)[0]
+                # Check for temporary AC bonus on player
+                player_char_state = self.character_states.get('player', {})
+                temp_ac_bonus = player_char_state.get('temp_ac_bonus', 0)
+                if temp_ac_bonus > 0:
+                    base_ac += temp_ac_bonus
             
             # Check for cover bonus (ranged attacks only)
             cover_bonus = 0
@@ -4098,6 +4121,34 @@ class CombatEngine:
             
             self._add_to_combat_log(f"{char_name} uses {ability_name}!")
             self._add_to_combat_log("Take another action this turn!")
+            
+        elif effect_type == 'buff':
+            # Handle buff abilities like Shield Focus
+            ac_bonus = combat_action.get('ac_bonus', 0)
+            duration = combat_action.get('duration', 'combat')
+            
+            if ac_bonus > 0 and duration == 'combat':
+                # Apply temporary AC bonus for this combat
+                char_state['temp_ac_bonus'] = char_state.get('temp_ac_bonus', 0) + ac_bonus
+                
+                self._add_to_combat_log(f"{char_name} uses {ability_name}!")
+                self._add_to_combat_log(f"+{ac_bonus} AC for the rest of combat!")
+                
+                # Mark as used for the day
+                if combat_action.get('usage_limit') == 'once_per_day':
+                    char_state[f'{state_key}_used_today'] = True
+                elif combat_action.get('usage_limit') == 'once_per_short_rest':
+                    char_state[f'{state_key}_used'] = True
+                
+                if combat_action.get('consumes_action', True):
+                    char_state['has_acted'] = True
+            else:
+                # Unsupported buff configuration
+                self._add_to_combat_log(f"{char_name} uses {ability_name}!")
+                self._add_to_combat_log("(Effect not yet implemented)")
+                
+                if combat_action.get('consumes_action', True):
+                    char_state['has_acted'] = True
             
         else:
             # Placeholder for other effects
