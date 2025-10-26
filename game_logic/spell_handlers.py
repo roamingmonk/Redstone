@@ -275,6 +275,53 @@ class AreaSpellHandler(SpellHandler):
         
         return valid_targets
 
+class SelfAreaSpellHandler(SpellHandler):
+    """Handles self-centered AOE spells (Bless, Mass Heal, etc.)"""
+    
+    def calculate_affected_tiles(self, spell_data, caster_pos, target_pos, battlefield):
+        """Calculate tiles in radius around caster (ignores target_pos)"""
+        area_size = spell_data.get('area_size', 6)
+        affected = []
+        
+        # Circle around caster position
+        for dx in range(-area_size, area_size + 1):
+            for dy in range(-area_size, area_size + 1):
+                # Manhattan distance
+                distance = abs(dx) + abs(dy)
+                if distance <= area_size:
+                    pos = [caster_pos[0] + dx, caster_pos[1] + dy]
+                    affected.append(pos)
+        
+        return affected
+    
+    def setup_animation(self, spell_data, caster_pos, affected_tiles):
+        """Setup expanding radial animation from caster"""
+        animation_id = spell_data.get('animation', 'area_burst')
+        elemental_type = spell_data.get('elemental_type', 'radiant')
+        
+        tile_data = []
+        for tile_pos in affected_tiles:
+            distance = abs(tile_pos[0] - caster_pos[0]) + abs(tile_pos[1] - caster_pos[1])
+            tile_data.append({
+                'position': tile_pos,
+                'distance': distance,
+                'frame_offset': random.randint(0, 9),
+                'start_delay': distance * 0.08
+            })
+        
+        return {
+            'type': animation_id,
+            'center_pos': caster_pos,  # Animation centers on caster
+            'tile_data': tile_data,
+            'elemental_type': elemental_type,
+            'hit': True
+        }
+    
+    def get_valid_targets(self, spell_data, caster_pos, battlefield, characters, enemies):
+        """For self-area spells, only the caster position is valid (click anywhere to cast)"""
+        # Return caster position - spell auto-casts on self when selected
+        return [caster_pos]
+
 class SpellHandlerRegistry:
     """Registry to lookup spell handler by area_type"""
     
@@ -282,7 +329,8 @@ class SpellHandlerRegistry:
         self._handlers = {
             'single': SingleTargetSpellHandler(),
             'line': LineSpellHandler(),
-            'area': AreaSpellHandler()
+            'area': AreaSpellHandler(),
+            'self_area': SelfAreaSpellHandler()
         }
     
     def get_handler(self, area_type: str) -> SpellHandler:

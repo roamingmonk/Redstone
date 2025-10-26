@@ -167,5 +167,24 @@
   "scales_with_level": false,
   "scaling_type": "add_dice",
   "description": "A mote of fire streaks toward a target. Ranged spell attack. 1d10 fire damage, +1d10 per level."
-  }
+  },
+  "bless": {
+  "id": "bless",
+  "name": "Bless",
+  "damage_type": "buff",
+  "elemental_type": "radiant",
+  "animation": "radiant_area",
+  "area_type": "self_area",
+  "area_size": 6,
+  "range": 0,
+  "slot_cost": 1,
+  "target_type": "ally",
+  "duration": "combat",
+  "scales_with_level": false,
+  "buff_effects": {
+    "attack_bonus": "1d4",
+    "save_bonus": "1d4"
+  },
+  "description": "Bless up to 3 allies within 6 tiles. They gain 1d4 to attack rolls and saving throws for the duration of combat."
+}
 }

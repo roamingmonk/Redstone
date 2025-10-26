@@ -84,6 +84,12 @@ class CombatEffectResolver:
         
         # Apply same magnitude to all targets
         for target in targets:
+            # Check if this is a buff effect
+            if effect_type == 'buff':
+                result = self._apply_buff_to_target(target, effect_definition)
+                results.append(result)
+                continue  # Skip damage/healing logic
+            
             # Apply damage multiplier from saving throws FIRST
             working_magnitude = magnitude
             damage_multiplier = target.get('damage_multiplier', 1.0)
@@ -115,6 +121,91 @@ class CombatEffectResolver:
         
         return results
     
+    def _apply_buff_to_target(self, target: Dict, effect_def: Dict) -> Dict:
+        """
+        Apply buff effects to a target
+        
+        Args:
+            target: Target dict with 'type', 'id', 'data', and optional other fields
+            effect_def: Buff definition with 'buff_effects', 'duration', 'spell_name'
+            
+        Returns:
+            Result dict with buff application info
+        """
+        target_type = target['type']
+        target_id = target['id']
+        
+        # Get target character data DIRECTLY from target (it's already there!)
+        char_data = target.get('data', {})
+        
+        if not char_data:
+            return {
+                'target_id': target_id,
+                'target_name': target.get('name', 'Unknown'),
+                'effect_type': 'buff',
+                'success': False,
+                'message': 'Target data not found',
+                'magnitude': 0,
+                'new_hp': target.get('current_hp', 0),
+                'max_hp': char_data.get('hit_points', 0),
+                'is_alive': True
+            }
+        
+        # Buffs only apply to allies (player/party members)
+        if target_type not in ['player', 'party_member']:
+            return {
+                'target_id': target_id,
+                'target_name': target.get('name', 'Unknown'),
+                'effect_type': 'buff',
+                'success': False,
+                'message': 'Cannot buff enemies',
+                'magnitude': 0,
+                'new_hp': target.get('current_hp', 0),
+                'max_hp': char_data.get('hit_points', 0),
+                'is_alive': True
+            }
+        
+        # Initialize active_buffs if not exists
+        if 'active_buffs' not in char_data:
+            char_data['active_buffs'] = []
+        
+        # Create buff data
+        buff_data = {
+            'spell_name': effect_def.get('spell_name', 'Unknown Buff'),
+            'duration': effect_def.get('duration', 'combat'),
+            'effects': effect_def.get('buff_effects', {}),
+            'applied_at': 'combat'  # Could track turn number
+        }
+        
+        # Add to active buffs (avoid duplicates)
+        spell_name = buff_data['spell_name']
+        existing_buff = next(
+            (b for b in char_data['active_buffs'] if b.get('spell_name') == spell_name),
+            None
+        )
+        
+        if existing_buff:
+            # Refresh duration
+            existing_buff['applied_at'] = 'combat'
+            message = f"{spell_name} refreshed"
+        else:
+            char_data['active_buffs'].append(buff_data)
+            message = f"{spell_name} applied"
+        
+        return {
+            'target_id': target_id,
+            'target_name': char_data.get('name', target.get('name', 'Unknown')),
+            'effect_type': 'buff',
+            'success': True,
+            'buff_name': spell_name,
+            'message': message,
+            'magnitude': 0,  # Buffs don't have magnitude
+            'new_hp': char_data.get('current_hp', target.get('current_hp', 0)),
+            'max_hp': char_data.get('hit_points', 0),
+            'is_alive': True,
+            'target_type': target_type
+        }
+
     # ==================== MAGNITUDE CALCULATION ====================
 
     def _apply_resistances_to_magnitude(self, base_magnitude: int, target: Dict, 

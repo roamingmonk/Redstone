@@ -36,6 +36,17 @@
       "description": "Unleashes a devastating burst of flame that consumes everything"
     },
     {
+      "name": "Dark Bolt",
+      "damage_dice": "1d8",
+      "attack_bonus": 3,
+      "attack_type": "spell",
+      "spell_id": "darkbolt",
+      "range": 6,
+      "description": "A bolt of shadowy energy that chills the soul",
+      "spell_cost": 0,
+      "damage_type": "necrotic"
+    },
+    {
       "name": "Inflict Wounds",
       "attack_type": "spell",
       "spell_id": "inflict_wounds",

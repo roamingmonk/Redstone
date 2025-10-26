@@ -1838,6 +1838,10 @@ class CombatEngine:
         
         # Roll attack
         attack_roll = random.randint(1, 20)
+
+        # Get buff bonuses to attack
+        buff_bonus = self._get_buff_bonus(char_data, 'attack_bonus')
+
         # Track critical hits/misses for player
         if self.active_character_id == 'player':
             if attack_roll == 20:
@@ -1846,7 +1850,7 @@ class CombatEngine:
                 self.game_state.player_statistics['critical_misses'] += 1
         
         target_ac = target_enemy.get("stats", {}).get("ac", 10)
-        total_attack = attack_roll + attack_bonus
+        total_attack = attack_roll + attack_bonus + buff_bonus  
         
         # Cover bump (+2 half, +5 three-quarters); full cover never reaches here (filtered)
         cover_level = self._compute_cover(char_pos, target_position)["level"]
@@ -1861,11 +1865,12 @@ class CombatEngine:
         # Log cover bonus for player awareness
         if cover_bonus > 0:
             self._add_to_combat_log(f"Target has {cover_level.replace('_',' ')} cover (+{cover_bonus} AC)")
+        # UPDATE LOG MESSAGE:
+        if buff_bonus > 0:
+            self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} + {buff_bonus} (Bless) = {total_attack} vs AC {target_ac}")
+        else:
+            self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
 
-        self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
-        
-        self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
-        
         # *** CREATE PROJECTILE ANIMATION (for both hit and miss) ***
         char_pos = char_state['position']
         
@@ -1937,6 +1942,13 @@ class CombatEngine:
                 enemy_defeats = self.game_state.player_statistics.get('enemy_defeats', {})
                 enemy_defeats[enemy_name] = enemy_defeats.get(enemy_name, 0) + 1
                 self.game_state.player_statistics['enemy_defeats'] = enemy_defeats
+                
+                # ADD THIS: Store defeated enemy data for loot calculation
+                self.defeated_enemies_loot_data.append({
+                    'name': enemy_name,  # ← Use enemy_name, not target_name
+                    'loot': target_enemy.get('loot', {})
+                })
+                print(f"📦 Stored loot data for defeated {enemy_name} (ranged)")
                 
                  # Track kill statistics
                 if self.active_character_id == 'player':
@@ -2242,7 +2254,11 @@ class CombatEngine:
             
             # Roll attack (d20 + bonus vs AC)
             attack_roll = random.randint(1, 20)
-            total_attack = attack_roll + attack_bonus
+
+            # Get buff bonuses to attack
+            buff_bonus = self._get_buff_bonus(attacker_data, 'attack_bonus')
+
+            total_attack = attack_roll + attack_bonus + buff_bonus
             # Track critical hits/misses for player attacks
             if attacker_type == "player":
                 if attack_roll == 20:
@@ -2253,7 +2269,11 @@ class CombatEngine:
                     self.game_state.player_statistics['critical_misses'] = current_crit_miss + 1
 
             self._add_to_combat_log(f"{attacker_name} attacks {target_name}")
-            self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
+           # UPDATE LOG MESSAGE:
+            if buff_bonus > 0:
+                self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} + {buff_bonus} (Bless) = {total_attack} vs AC {target_ac}")
+            else:
+                self._add_to_combat_log(f"Attack roll: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
             
             # Check if attack hits
             if total_attack >= target_ac:
@@ -2318,7 +2338,7 @@ class CombatEngine:
                             'name': target_name,
                             'loot': target_data.get('loot', {})
                         })
-                        
+                        print(f"📦 Stored loot data for defeated {target_name} (melee/ranged)")
                         # Track enemy defeats by name (for "most defeated" stat)
                         enemy_name = target_data.get('name', 'Unknown')
                         enemy_defeats = self.game_state.player_statistics.get('enemy_defeats', {})
@@ -2495,6 +2515,11 @@ class CombatEngine:
             
             # Roll attack
             attack_roll = random.randint(1, 20)
+
+            # Enemies don't currently get buff bonuses 
+            # But keep structure consistent for future enemy buff spells
+            buff_bonus = 0  # Enemies don't benefit from Bless for now
+
             total_attack = attack_roll + attack_bonus
             
             self._add_to_combat_log(f"{attacker_name} attacks {target_name}")
@@ -2905,28 +2930,50 @@ class CombatEngine:
         """
         import random
         
+        print("\n" + "="*70)
+        print("💰 LOOT CALCULATION DEBUG")
+        print("="*70)
+        
         total_gold = 0
         items_dict = {}  # item_id -> quantity
         
         # 1) Roll gold and items from each defeated enemy
-        for enemy_loot_data in self.defeated_enemies_loot_data:
+        print(f"\n📊 Processing {len(self.defeated_enemies_loot_data)} defeated enemies:")
+        
+        for idx, enemy_loot_data in enumerate(self.defeated_enemies_loot_data, 1):
+            enemy_name = enemy_loot_data.get('name', 'Unknown Enemy')
             loot = enemy_loot_data.get('loot', {})
+            
+            print(f"\n  Enemy #{idx}: {enemy_name}")
+            print(f"  {'─'*60}")
             
             # Roll gold from enemy's gold_range
             gold_range = loot.get('gold_range', [0, 0])
             if len(gold_range) == 2:
                 enemy_gold = random.randint(gold_range[0], gold_range[1])
                 total_gold += enemy_gold
+                print(f"  💰 Gold: Rolled {enemy_gold} from range [{gold_range[0]}, {gold_range[1]}]")
+            else:
+                print(f"  💰 Gold: No gold range defined")
             
             # Roll for item drops
             item_drops = loot.get('item_drops', [])
+            if item_drops:
+                print(f"  🎲 Rolling for {len(item_drops)} possible item drops:")
+            else:
+                print(f"  🎲 No item drops defined for this enemy")
+            
             for drop_entry in item_drops:
                 item_id = drop_entry.get('item_id')
                 drop_chance = drop_entry.get('drop_chance', 0.0)
                 quantity_range = drop_entry.get('quantity_range', [1, 1])
                 
                 # Roll for drop
-                if random.random() <= drop_chance:
+                roll = random.random()
+                drop_chance_pct = int(drop_chance * 100)
+                roll_pct = int(roll * 100)
+                
+                if roll <= drop_chance:
                     # Roll quantity
                     if len(quantity_range) == 2:
                         quantity = random.randint(quantity_range[0], quantity_range[1])
@@ -2935,15 +2982,24 @@ class CombatEngine:
                     
                     # Add to items dict (stacking)
                     items_dict[item_id] = items_dict.get(item_id, 0) + quantity
+                    
+                    print(f"    ✅ {item_id}: DROPPED! (Rolled {roll_pct}% ≤ {drop_chance_pct}%) - Quantity: {quantity}")
+                else:
+                    print(f"    ❌ {item_id}: no drop (Rolled {roll_pct}% > {drop_chance_pct}%)")
         
         # 2) Add encounter bonus gold
         encounter_gold = encounter_rewards.get('gold', 0)
-        total_gold += encounter_gold
+        if encounter_gold > 0:
+            print(f"\n  💎 Encounter Bonus Gold: +{encounter_gold}")
+            total_gold += encounter_gold
         
         # 3) Add encounter bonus items (guaranteed drops)
         encounter_items = encounter_rewards.get('items', [])
-        for item_id in encounter_items:
-            items_dict[item_id] = items_dict.get(item_id, 0) + 1
+        if encounter_items:
+            print(f"\n  🎁 Encounter Bonus Items (Guaranteed):")
+            for item_id in encounter_items:
+                items_dict[item_id] = items_dict.get(item_id, 0) + 1
+                print(f"    ✅ {item_id}: +1 (guaranteed)")
         
         # 4) Convert items_dict to list format with names
         items_list = []
@@ -2959,6 +3015,20 @@ class CombatEngine:
                 'quantity': quantity,
                 'name': display_name
             })
+        
+        # Final Summary
+        print(f"\n" + "="*70)
+        print(f"📦 FINAL LOOT SUMMARY")
+        print(f"="*70)
+        print(f"💰 Total Gold: {total_gold}")
+        print(f"🎒 Total Items: {len(items_list)} unique item types")
+        if items_list:
+            print(f"\n  Items collected:")
+            for item in items_list:
+                print(f"    • {item['name']} x{item['quantity']} ({item['item_id']})")
+        else:
+            print(f"  No items dropped")
+        print("="*70 + "\n")
         
         return {
             'total_gold': total_gold,
@@ -3435,11 +3505,21 @@ class CombatEngine:
         
         # Roll attack
         attack_roll = random.randint(1, 20)
-        total_attack = attack_roll + attack_bonus
+
+        # Get buff bonuses (caster_data should be available in context)
+        caster_data = char_state.get('character_data', {})
+        buff_bonus = self._get_buff_bonus(caster_data, 'attack_bonus')
+
+        total_attack = attack_roll + attack_bonus + buff_bonus
         
         # Combat log
         self._add_to_combat_log(f"{caster_name} casts {spell_data.get('name', 'spell')} at {target_name}")
-        self._add_to_combat_log(f"Spell attack: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
+
+        # UPDATE LOG MESSAGE:
+        if buff_bonus > 0:
+            self._add_to_combat_log(f"Spell attack: {attack_roll} + {attack_bonus} + {buff_bonus} (Bless) = {total_attack} vs AC {target_ac}")
+        else:
+            self._add_to_combat_log(f"Spell attack: {attack_roll} + {attack_bonus} = {total_attack} vs AC {target_ac}")
         
         return total_attack >= target_ac
 
@@ -3484,6 +3564,10 @@ class CombatEngine:
                 stats, save_type, proficiencies, level
             )
             
+            # Get buff bonuses to saving throws
+            buff_bonus = self._get_buff_bonus(target_data, 'save_bonus')
+            save_modifier += buff_bonus  # Add Bless bonus to saves
+
             # Roll with advantage if proficient
             has_advantage = save_type in proficiencies
             
@@ -3492,13 +3576,16 @@ class CombatEngine:
                 roll1 = random.randint(1, 20)
                 roll2 = random.randint(1, 20)
                 roll = max(roll1, roll2)
-                print(f"🎲 Advantage roll: {roll1}, {roll2} -> using {roll}")
+                if buff_bonus > 0:
+                    print(f"🎲 Advantage roll: {roll1}, {roll2} -> using {roll} + {buff_bonus} (Bless)")
+                else:
+                    print(f"🎲 Advantage roll: {roll1}, {roll2} -> using {roll}")
             else:
-                # Single roll
                 roll = random.randint(1, 20)
-            
-            # Calculate total
-            total = roll + save_modifier
+                if buff_bonus > 0:
+                    print(f"🎲 Save roll: {roll} + {save_modifier} (includes +{buff_bonus} Bless)")
+
+            total = roll + save_modifier  # save_modifier already includes buff_bonus
             success = total >= dc
             
             return {
@@ -3508,6 +3595,37 @@ class CombatEngine:
                 'total': total,
                 'had_advantage': has_advantage
             }
+
+    def _get_buff_bonus(self, char_data: dict, bonus_type: str) -> int:
+        """
+        Calculate total buff bonus of a specific type from active buffs
+        
+        Args:
+            char_data: Character data dict with 'active_buffs' list
+            bonus_type: Type of bonus ('attack_bonus', 'save_bonus', 'ac_bonus')
+            
+        Returns:
+            int: Total bonus from all active buffs (rolls dice if needed)
+        """
+        total_bonus = 0
+        
+        active_buffs = char_data.get('active_buffs', [])
+        
+        for buff in active_buffs:
+            effects = buff.get('effects', {})
+            
+            if bonus_type in effects:
+                dice_string = effects[bonus_type]
+                
+                # Roll the dice (e.g., "1d4" for Bless)
+                bonus_roll, rolls, modifier = roll_dice(dice_string)
+                total_bonus += bonus_roll   # Add the rolled bonus ONCE
+                
+                # Optional: Log which buff provided the bonus
+                buff_name = buff.get('spell_name', 'Unknown')
+                print(f"✨ {buff_name} grants +{bonus_roll} to {bonus_type}")
+        
+        return total_bonus
 
     def _apply_saving_throws(self, spell_data: dict, caster_data: dict, 
                                 affected_positions: List) -> dict:
@@ -3721,13 +3839,24 @@ class CombatEngine:
         projectile_impact_time = time.time() + 0.5 if is_projectile else 0  # 0.5s travel time
 
         # Build effect definition from spell data
-        effect_def = {
-            'effect_type': 'healing' if damage_type == 'healing' else 'damage',
-            'dice': spell_data.get('damage_dice', '1d8'),
-            'elemental_type': spell_data.get('elemental_type', 'physical'), 
-            'scales_with_level': spell_data.get('scales_with_level', False),
-            'add_stat_modifier': spell_data.get('add_stat_modifier')
-        }
+        damage_type = spell_data.get('damage_type', 'damage')
+
+        if damage_type == 'buff':
+            # Buff spell - different structure
+            effect_def = {
+                'effect_type': 'buff',
+                'buff_effects': spell_data.get('buff_effects', {}),
+                'duration': spell_data.get('duration', 'combat'),
+                'spell_name': spell_data.get('name', 'Unknown Spell')
+            }
+        else:
+            effect_def = {
+                'effect_type': 'healing' if damage_type == 'healing' else 'damage',
+                'dice': spell_data.get('damage_dice', '1d8'),
+                'elemental_type': spell_data.get('elemental_type', 'physical'), 
+                'scales_with_level': spell_data.get('scales_with_level', False),
+                'add_stat_modifier': spell_data.get('add_stat_modifier')
+            }
         
         # Build source data for level scaling and stat modifiers
         source_data = {
@@ -3810,6 +3939,8 @@ class CombatEngine:
             new_hp = result['new_hp']
             max_hp = result['max_hp']
             is_alive = result['is_alive']
+
+            print(f"🔍 Processing result: {target_name} | Type: {effect_type} | HP: {new_hp}/{max_hp} | Alive: {is_alive}")
             
             # Find the target to update combat snapshot
             target = next((t for t in targets if t['id'] == result['target_id']), None)
@@ -3837,6 +3968,13 @@ class CombatEngine:
             # Combat log messages
             if effect_type == 'healing':
                 self._add_to_combat_log(f"{target_name} healed for {magnitude} HP! ({new_hp}/{max_hp})")
+            elif effect_type == 'buff':
+                # Handle buff messages
+                if result.get('success'):
+                    buff_name = result.get('buff_name', 'Unknown')
+                    self._add_to_combat_log(f"{target_name} blessed with {buff_name}!")
+                else:
+                    self._add_to_combat_log(f"Buff failed on {target_name}")
             else:
                 # Add resistance message FIRST if applicable
                 if 'original_damage' in result:
@@ -3856,7 +3994,38 @@ class CombatEngine:
                 
                 if not is_alive:
                     self._add_to_combat_log(f"{target_name} is defeated!")
-        
+
+                    # Track defeated enemy loot data for ALL damage types
+                    if target['type'] == 'enemy':
+                        # Store defeated enemy data for loot calculation
+                        self.defeated_enemies_loot_data.append({
+                            'name': target_name,
+                            'loot': target['data'].get('loot', {})
+                        })
+                        print(f"📦 Stored loot data for defeated {target_name}")
+                        
+                        # Award XP to killer (if applicable)
+                        if effect_type == 'damage':
+                            xp_value = target['data'].get('loot', {}).get('xp_value', 0)
+                            if xp_value > 0:
+                                killer_name = caster_name  # The spell caster
+                                killer_id = caster_state.get('character_data', {}).get('id')
+                                
+                                # Award XP
+                                if killer_id:
+                                    self.event_manager.emit('XP_AWARDED', {
+                                        'amount': xp_value,
+                                        'reason': f'defeated {target_name}',
+                                        'recipient': killer_id
+                                    })
+                                    self._add_to_combat_log(f"{killer_name} gained {xp_value} XP!")
+                        
+                        # Track enemy defeats by name
+                        enemy_name = target['data'].get('name', 'Unknown')
+                        enemy_defeats = self.game_state.player_statistics.get('enemy_defeats', {})
+                        enemy_defeats[enemy_name] = enemy_defeats.get(enemy_name, 0) + 1
+                        self.game_state.player_statistics['enemy_defeats'] = enemy_defeats
+
         # Check victory/defeat conditions
         if any(not r['is_alive'] and r['target_type'] == 'player' for r in results):
             self._handle_combat_defeat()
