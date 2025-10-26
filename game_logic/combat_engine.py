@@ -697,20 +697,22 @@ class CombatEngine:
             self.combat_data.get("battlefield", {})
         )
         
-        # NOW set up animation (after affected_positions exists!)
+        # Set up animation using handler (same as player spells!)
         animation_type = spell_data.get('animation', 'default')
         print(f"🏹 Enemy spell animation: {animation_type}")
         print(f"   From {enemy.get('position')} to {target_pos}")
-        
-        self.active_spell_animation = {
-            'type': animation_type,
-            'start_pos': enemy.get('position'),
-            'end_pos': target_pos,
-            'elemental_type': spell_data.get('elemental_type', 'force')
-        }
+
+        # Use handler's setup_animation for proper area spell rendering
+        self.active_spell_animation = handler.setup_animation(
+            spell_data,
+            enemy.get('position'),
+            affected_positions
+        )
         self.animation_start_time = time.time()
         self.animation_tiles = affected_positions
-        
+
+        print(f"🎬 Enemy animation setup: {self.active_spell_animation}")
+                
         # Build enemy caster state (same format as char_state)
         enemy_caster_state = {
             'name': enemy_name,

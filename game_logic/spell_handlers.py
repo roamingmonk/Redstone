@@ -54,10 +54,20 @@ class SingleTargetSpellHandler(SpellHandler):
         return []
 
     def get_valid_targets(self, spell_data: dict, caster_pos: List[int], 
-                         battlefield: dict, characters: dict, enemies: list) -> List[List[int]]:
+                     battlefield: dict, characters: dict, enemies: list) -> List[List[int]]:
         """Get valid single-target positions within range"""
         spell_range = spell_data.get('range', 1)
         target_type = spell_data.get('target_type', 'enemy')
+        
+        # # DEBUG: Show what we're searching for
+        # print(f"🔍 get_valid_targets DEBUG:")
+        # print(f"   Spell: {spell_data.get('name', 'Unknown')}")
+        # print(f"   Range: {spell_range}")
+        # print(f"   Target type: {target_type}")
+        # print(f"   Caster pos: {caster_pos}")
+        # print(f"   Available characters: {len(characters)}")
+        for char_id, char_state in characters.items():
+            print(f"      - {char_id}: {char_state.get('name')} at {char_state.get('position')} (alive: {char_state.get('is_alive', True)})")
         
         valid_targets = []
         
@@ -80,6 +90,7 @@ class SingleTargetSpellHandler(SpellHandler):
                     # Check party members (including self)
                     for char_id, char_state in characters.items():
                         if char_state['position'] == target_pos and char_state.get('is_alive', True):
+                            
                             valid_targets.append(target_pos)
                             break
                 elif target_type == "enemy":
@@ -89,6 +100,7 @@ class SingleTargetSpellHandler(SpellHandler):
                             valid_targets.append(target_pos)
                             break
         
+        #print(f"   📋 Final valid targets: {valid_targets}")
         return valid_targets
 
 class LineSpellHandler(SpellHandler):

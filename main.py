@@ -88,7 +88,7 @@ def main():
     print("=== TERROR IN REDSTONE ===")
     print("Clean GameController architecture initialized!")
     print("All input and rendering handled by GameController")
-    print("Universal hotkeys: I/Q/C/H/L/F5/F7/F10/ESC")
+    print("Universal hotkeys: I/Q/C/H/L/Z/F5/F7/F10/ESC")
     print("==========================")
     
     # CLEAN MAIN GAME LOOP - GameController handles everything
