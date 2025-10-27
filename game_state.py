@@ -151,6 +151,12 @@ class GameState:
         
         # Merchant refresh tracking (for cleaning player-sold loot)
         self.merchant_last_refresh = {}
+
+        # Track items sold by player to merchants (separate from base stock)
+        self.merchant_player_sold = {}
+
+        # Track rest periods since last merchant refresh
+        self.merchant_rest_counter = {}
         
         # Save/load system state (game mechanics)
         self.load_selected_slot = None

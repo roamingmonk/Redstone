@@ -241,8 +241,6 @@ class InputHandler:
             
             for region in regions:
                 if region.rect.collidepoint(mouse_pos) and region.event_type == "LOCATION_ACTION":
-                    #if self.debug_input:
-                        #print(f"🎯 BaseLocation action clicked: {region.event_data}")
                     
                     # Emit the LOCATION_ACTION event
                     self.event_manager.emit("LOCATION_ACTION", region.event_data)

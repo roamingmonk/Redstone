@@ -727,6 +727,15 @@ class DebugManager:
             self.game_state.character['current_hp'] = max_hp
             print(f"  ❤️ Player healed to {max_hp} HP")
         
+        # NEW: Notify commerce engine about rest (for merchant inventory refresh)
+        try:
+            from game_logic.commerce_engine import get_commerce_engine
+            commerce = get_commerce_engine()
+            if commerce:
+                commerce.on_rest_taken()
+        except Exception as e:
+            print(f"⚠️ Failed to notify commerce engine of rest: {e}")
+        
         # Auto-save after resting
         if hasattr(self, 'event_manager') and hasattr(self.game_state, 'game_controller'):
             # Call save directly instead of emitting event

@@ -661,6 +661,18 @@ class ShoppingOverlay(BaseTabbedOverlay):
         print(f"DEBUG: sell_cart contents: {self.sell_cart}")
         print(f"DEBUG: sell_cart items: {list(self.sell_cart.items())}")
         
+        # Initialize merchant stock tracking if needed
+        if not hasattr(game_state, 'merchant_stocks'):
+            game_state.merchant_stocks = {}
+        if merchant_id not in game_state.merchant_stocks:
+            game_state.merchant_stocks[merchant_id] = {}
+        
+        # Initialize player-sold tracking if needed
+        if not hasattr(game_state, 'merchant_player_sold'):
+            game_state.merchant_player_sold = {}
+        if merchant_id not in game_state.merchant_player_sold:
+            game_state.merchant_player_sold[merchant_id] = {}
+        
         # Process each item in sell cart
         for item_id, qty in self.sell_cart.items():
             # Get item definition for base cost
@@ -689,6 +701,17 @@ class ShoppingOverlay(BaseTabbedOverlay):
             
             print(f"✅ Removed {removed_count} x '{item_id}' from inventory")
             
+            # NEW: Add sold items to merchant's stock
+            current_merchant_stock = game_state.merchant_stocks[merchant_id].get(item_id, 0)
+            game_state.merchant_stocks[merchant_id][item_id] = current_merchant_stock + qty
+            
+            # Track as player-sold item (for refresh logic)
+            current_player_sold = game_state.merchant_player_sold[merchant_id].get(item_id, 0)
+            game_state.merchant_player_sold[merchant_id][item_id] = current_player_sold + qty
+            
+            print(f"✅ Added {qty} x '{item_id}' to {merchant_id}'s inventory")
+            print(f"   Merchant now has {game_state.merchant_stocks[merchant_id][item_id]} {item_id}")
+            
             total_gold += item_gold
             print(f"💰 Sold {qty} {item_id} for {item_gold} gold (base: {base_cost}, multiplier: {sell_multiplier})")
         
@@ -703,8 +726,18 @@ class ShoppingOverlay(BaseTabbedOverlay):
         
         # Clear sell cart
         self.sell_cart.clear()
-        
+
         print(f"💰 Total: Sold {items_sold} items for {total_gold} gold")
+
+        # Refresh merchant data so BUY tab shows newly sold items
+        from game_logic.commerce_engine import get_commerce_engine
+        commerce = get_commerce_engine()
+        if commerce:
+            updated_merchant_data = commerce.get_merchant_inventory(merchant_id)
+            if updated_merchant_data:
+                # Update the cached merchant data in game_state
+                game_state.current_merchant_data = updated_merchant_data
+                print(f"🔄 Refreshed merchant data after sell - {len(updated_merchant_data.get('items', []))} items now in stock")
 
     def _handle_close(self):
         """Handle closing the overlay"""

@@ -16,14 +16,28 @@
         "include_ids": ["strong_ale", "trail_rations", "torch", "shortbow"],
         "max_rarity": "common"
       },
-      "default_stock_quantity": 5,
+      "default_stock_range": [1,5],
       "price_overrides": {
         "strong_ale": 2
       },
       "stock_overrides": {
         "strong_ale": 20,
         "bedroll": 2
-      }  
+      },
+      "stock_ranges": {
+        "healing_potion": [1, 5],
+        "strong_ale": [15, 25],
+        "trail_rations": [5, 15]
+      },
+      
+      "guaranteed_items": [
+        "strong_ale",
+        "trail_rations"
+      ],
+      
+      "optional_items": {
+        "healing_potion": 0.1        
+            }
     },
     "bernard": {
       "merchant_id": "bernard",
@@ -40,16 +54,36 @@
       "stock_filter": {
         "max_rarity": "uncommon"
       },
-      "default_stock_quantity": 3,
+      "default_stock_range": [0, 4],
+      
       "price_overrides": {
         "longsword": 45,
         "leather_armor": 35
       },
       "stock_overrides": {
-        "trail_rations": 10,
-        "torch": 15,
-        "healing_potion": 2
-      }
+        "torch": 15
+      },
+      
+      "stock_ranges": {
+        "healing_potion": [1, 5],
+        "strong_ale": [5, 25],
+        "torch": [10, 20],
+        "trail_rations": [5, 15]
+      },
+      
+      "guaranteed_items": [
+        "bedroll",
+        "hemp_rope",
+        "tinderbox",
+        "torch",
+        "trail_rations"
+      ],
+      
+      "optional_items": {
+        "healing_potion": 0.8,        
+        "shield_plus_1": 0.1         
+                   
+            }
     }
   }
 }

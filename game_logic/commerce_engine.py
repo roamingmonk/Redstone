@@ -194,12 +194,48 @@ class CommerceEngine:
         if not self.item_manager:
             print("❌ No ItemManager available")
             return None
-        return self.item_manager.get_merchant_inventory(merchant_id)
+        return self.item_manager.get_merchant_inventory(merchant_id, game_state=self.game_state)
 
     def get_stock_status(self, item_id: str, merchant_id: str) -> Dict:
         available = self._get_stock_limit(item_id, merchant_id)
         in_cart = self.game_state.shopping_cart.get(item_id, 0)
         return {"available": available, "in_cart": in_cart, "remaining": max(0, available - in_cart)}
+
+
+    def on_rest_taken(self):
+        """
+        Call this when player takes a rest (short or long)
+        Increments rest counter and refreshes merchants after 3 rests
+        """
+        print("🛌 CommerceEngine.on_rest_taken() called!")
+        
+        if not hasattr(self.game_state, 'merchant_rest_counter'):
+            self.game_state.merchant_rest_counter = {}
+        
+        # Get all merchants that have been visited (have initialized stock)
+        visited_merchants = set()
+        
+        if hasattr(self.game_state, 'merchant_stocks'):
+            visited_merchants.update(self.game_state.merchant_stocks.keys())
+        
+        if hasattr(self.game_state, 'merchant_player_sold'):
+            visited_merchants.update(self.game_state.merchant_player_sold.keys())
+        
+        print(f"🛌 Visited merchants: {visited_merchants}")
+        
+        # Increment rest counter for ALL visited merchants
+        for merchant_id in visited_merchants:
+            current_count = self.game_state.merchant_rest_counter.get(merchant_id, 0)
+            self.game_state.merchant_rest_counter[merchant_id] = current_count + 1
+            
+            print(f"🛌 Rest count for {merchant_id}: {self.game_state.merchant_rest_counter[merchant_id]}/3")
+            
+            # Refresh after 3 rests
+            if self.game_state.merchant_rest_counter[merchant_id] >= 3:
+                self.refresh_merchant_stock(merchant_id)
+                self.game_state.merchant_rest_counter[merchant_id] = 0
+                print(f"🔄 {merchant_id} inventory refreshed after 3 rests") 
+
 
     # ===============
     # PRIVATE HELPERS
@@ -227,18 +263,59 @@ class CommerceEngine:
         return self.game_state.merchant_stocks[merchant_id].get(item_id, 0)
 
     def _initialize_merchant_stock(self, merchant_id: str):
-        """Set up initial stock levels from merchant data"""
-        merchant_data = self._get_merchant_data(merchant_id)
-        if not merchant_data:
+        """Set up initial stock levels from BASE merchant data with variability"""
+        import random
+        
+        # Get FRESH base stock from ItemManager (without player-sold items)
+        if not self.item_manager:
             return
         
+        # Pass game_state=None to get ONLY base stock from merchants.json
+        merchant_inventory = self.item_manager.get_merchant_inventory(merchant_id, game_state=None)
+        if not merchant_inventory:
+            return
+        
+        # Get merchant config for variability settings
+        merchant_config = self.item_manager.merchant_data.get('merchants', {}).get(merchant_id, {})
+        
+        # Get default stock range (supports both old and new format)
+        default_stock_range = merchant_config.get('default_stock_range', None)
+        if default_stock_range is None:
+            # Fallback to old single-value format
+            default_qty = merchant_config.get('default_stock_quantity', 3)
+            default_stock_range = [default_qty, default_qty]  # No variability
+        
+        stock_overrides = merchant_config.get('stock_overrides', {})
+        stock_ranges = merchant_config.get('stock_ranges', {})
+        
+        # Reset to base stock
         self.game_state.merchant_stocks[merchant_id] = {}
-        for item in merchant_data.get('items', []):
+        
+        for item in merchant_inventory.get('items', []):
             item_id = item.get('item_id')
-            stock = item.get('stock', 5)  # Get from merchant data
+            
+            # Determine stock quantity (priority: stock_overrides > stock_ranges > default_stock_range)
+            if item_id in stock_overrides:
+                # Fixed override - no randomization
+                stock = stock_overrides[item_id]
+            elif item_id in stock_ranges:
+                # Item-specific range
+                min_stock, max_stock = stock_ranges[item_id]
+                stock = random.randint(min_stock, max_stock)
+                print(f"🎲 {item_id} stock: {stock} (range: {min_stock}-{max_stock})")
+            else:
+                # Use default range
+                min_stock, max_stock = default_stock_range
+                stock = random.randint(min_stock, max_stock)
+                if stock == 0:
+                    print(f"🎲 {item_id} out of stock this refresh (0/{max_stock})")
+                    continue  # Don't add to inventory - out of stock
+                print(f"🎲 {item_id} stock: {stock} (default range: {min_stock}-{max_stock})")
+            
+            # Add to merchant stock
             self.game_state.merchant_stocks[merchant_id][item_id] = stock
         
-        print(f"🛒 Initialized stock for {merchant_id}: {self.game_state.merchant_stocks[merchant_id]}")
+        print(f"🛒 Initialized BASE stock for {merchant_id}: {len(self.game_state.merchant_stocks[merchant_id])} items")
 
     def _get_item_cost(self, item_id: str, merchant_data: Dict) -> int:
         row = self._find_in_merchant_by_id(item_id, merchant_data)
@@ -288,6 +365,32 @@ class CommerceEngine:
         
         return False
     
+    # def refresh_merchant_stock(self, merchant_id: str):
+    #     """
+    #     Refresh merchant inventory - resets stock to base levels, removes player-sold loot
+    #     """
+    #     print(f"🔄 Refreshing merchant stock for: {merchant_id}")
+        
+    #     # Get base merchant config
+    #     merchant_data = self._get_merchant_data(merchant_id)
+    #     if not merchant_data:
+    #         print(f"❌ Cannot refresh - no merchant data for {merchant_id}")
+    #         return
+        
+    #     # Reset stock to base levels (this removes player-sold items)
+    #     self._initialize_merchant_stock(merchant_id)
+        
+    #     # Update last refresh time
+    #     if not hasattr(self.game_state, 'merchant_last_refresh'):
+    #         self.game_state.merchant_last_refresh = {}
+        
+    #     self.game_state.merchant_last_refresh[merchant_id] = {
+    #         'day': getattr(self.game_state, 'current_day', 'monday'),
+    #         'time': getattr(self.game_state, 'time_of_day', 'day')
+    #     }
+        
+    #     print(f"✅ Merchant {merchant_id} refreshed on {self.game_state.current_day}")
+    
     def refresh_merchant_stock(self, merchant_id: str):
         """
         Refresh merchant inventory - resets stock to base levels, removes player-sold loot
@@ -303,6 +406,16 @@ class CommerceEngine:
         # Reset stock to base levels (this removes player-sold items)
         self._initialize_merchant_stock(merchant_id)
         
+        # Clear player-sold items tracking
+        if hasattr(self.game_state, 'merchant_player_sold'):
+            if merchant_id in self.game_state.merchant_player_sold:
+                print(f"🗑️ Clearing player-sold items for {merchant_id}: {self.game_state.merchant_player_sold[merchant_id]}")
+                self.game_state.merchant_player_sold[merchant_id] = {}
+        
+        # Reset rest counter
+        if hasattr(self.game_state, 'merchant_rest_counter'):
+            self.game_state.merchant_rest_counter[merchant_id] = 0
+        
         # Update last refresh time
         if not hasattr(self.game_state, 'merchant_last_refresh'):
             self.game_state.merchant_last_refresh = {}
@@ -312,8 +425,7 @@ class CommerceEngine:
             'time': getattr(self.game_state, 'time_of_day', 'day')
         }
         
-        print(f"✅ Merchant {merchant_id} refreshed on {self.game_state.current_day}")
-            
+        print(f"✅ Merchant {merchant_id} refreshed on {self.game_state.current_day}")        
 
 # ==========================================
 # GLOBAL COMMERCE ENGINE MANAGEMENT (unchanged)

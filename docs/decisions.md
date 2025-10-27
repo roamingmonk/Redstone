@@ -2217,6 +2217,29 @@ Implemented **Strategy Pattern** with **Handler Registry** for spell system:
 - Both use: `max_hp` (max) + `current_hp` (current)
 
 
+Features:
+- Players can sell items to merchants (SELL tab)
+- Sold items appear in merchant's BUY inventory immediately
+- Merchant inventory refreshes after 3 rest periods
+- Variable stock ranges create dynamic inventory ([min, max])
+- Items can randomly be out of stock (0 quantity)
+- Stock initialized on first merchant visit and tracked per merchant
+
+Changes:
+- Added merchant_player_sold and merchant_rest_counter to game_state
+- Updated commerce_engine with on_rest_taken() for 3-rest refresh cycle
+- Modified _initialize_merchant_stock() to support stock ranges
+- Updated shopping_overlay to add sold items to merchant inventory
+- Integrated with PARTY_RESTED event in debug_manager
+- Enhanced merchants.json with default_stock_range and stock_ranges
+
+Technical:
+- game_state parameter passed to get_merchant_inventory() for player-sold items
+- Removed auto-refresh on day change (now only 3-rest cycle)
+- Stock initialization on first merchant visit prevents empty tracking
+
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

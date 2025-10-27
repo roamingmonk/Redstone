@@ -704,42 +704,50 @@ class ScreenManager:
                 merchant_config = item_manager.merchant_data.get('merchants', {}).get(merchant_id)
                 
                 if merchant_config:
-                    # Use the include_ids from the JSON config
-                    include_ids = merchant_config.get('stock_filter', {}).get('include_ids', [])
-                    all_items = item_manager.get_merchant_items()
-                    
-                    # Filter using the JSON configuration
-                    merchant_items = []
-                    for item in all_items:
-                        # Get merchant inventory using proper ItemManager method
-                        merchant_inventory = item_manager.get_merchant_inventory(merchant_id)
-                        if merchant_inventory:
-                            merchant_items = merchant_inventory.get('items', [])
-                            merchant_name = merchant_inventory.get('merchant_name', merchant_id)
-                        else:
-                            print(f"❌ No inventory returned for {merchant_id}")
-                            return
-                    
+                    # Get game state early so we can pass it to get_merchant_inventory
+                    game_state = self._current_game_controller.game_state
+
+                    # Get merchant inventory using proper ItemManager method (includes player-sold items)
+                    merchant_inventory = item_manager.get_merchant_inventory(merchant_id, game_state=game_state)
+                    if merchant_inventory:
+                        merchant_items = merchant_inventory.get('items', [])
+                        merchant_name = merchant_inventory.get('merchant_name', merchant_id)
+                    else:
+                        print(f"❌ No inventory returned for {merchant_id}")
+                        return
+
                     # Create the merchant data structure
                     merchant_data = {
                         'merchant_id': merchant_id,
-                        'merchant_name': merchant_name,  # Use the name from ItemManager
+                        'merchant_name': merchant_name,
                         'items': merchant_items
                     }
                     
+                    # Initialize merchant stock in commerce engine if not already done
+                    commerce_engine = self._current_game_controller.commerce_engine
+                    if commerce_engine:
+                        if not hasattr(game_state, 'merchant_stocks'):
+                            game_state.merchant_stocks = {}
+                        
+                        # Only initialize if this merchant hasn't been stocked yet
+                        if merchant_id not in game_state.merchant_stocks:
+                            commerce_engine._initialize_merchant_stock(merchant_id)
+                            print(f"🛒 First visit to {merchant_id} - stock initialized")
+
+
                     # Store merchant data in game state
                     game_state = self._current_game_controller.game_state
 
-                    # Check if merchant needs refresh (day changed, removes player-sold loot)
-                    commerce_engine = self._current_game_controller.commerce_engine
-                    if commerce_engine and commerce_engine.should_refresh_merchant(merchant_id):
-                        commerce_engine.refresh_merchant_stock(merchant_id)
-                        # Reload merchant inventory after refresh
-                        merchant_inventory = item_manager.get_merchant_inventory(merchant_id)
-                        if merchant_inventory:
-                            merchant_items = merchant_inventory.get('items', [])
-                            merchant_data['items'] = merchant_items
-                            print(f"✅ Merchant {merchant_id} stock refreshed")
+                    # # Check if merchant needs refresh (day changed, removes player-sold loot)
+                    # commerce_engine = self._current_game_controller.commerce_engine
+                    # if commerce_engine and commerce_engine.should_refresh_merchant(merchant_id):
+                    #     commerce_engine.refresh_merchant_stock(merchant_id)
+                    #     # Reload merchant inventory after refresh
+                    #     merchant_inventory = item_manager.get_merchant_inventory(merchant_id)
+                    #     if merchant_inventory:
+                    #         merchant_items = merchant_inventory.get('items', [])
+                    #         merchant_data['items'] = merchant_items
+                    #         print(f"✅ Merchant {merchant_id} stock refreshed")
 
                     setattr(game_state, 'current_merchant_data', merchant_data)
                     setattr(game_state, 'current_merchant_id', merchant_id)
@@ -760,15 +768,15 @@ class ScreenManager:
         
         print(f"❌ Failed to open shop for {merchant_id}")
 
-#########  TODO Keep as fallback until render shopping overlay is confirmed.  /////Plan to remove ////
-    def _render_merchant_shop(self, surface, game_state, fonts, images, controller):
-        """TEMPORARY: Render tabbed shopping overlay - will be removed once verified"""
-        if not hasattr(self, '_shopping_overlay'):
-            self._shopping_overlay = ShoppingOverlay(screen_manager=self)
+# #########  TODO Keep as fallback until render shopping overlay is confirmed.  /////Plan to remove ////
+#     def _render_merchant_shop(self, surface, game_state, fonts, images, controller):
+#         """TEMPORARY: Render tabbed shopping overlay - will be removed once verified"""
+#         if not hasattr(self, '_shopping_overlay'):
+#             self._shopping_overlay = ShoppingOverlay(screen_manager=self)
         
-        self._shopping_overlay.render(surface, game_state, fonts, images or {})
-        return True
-#########  TODO Keep as fallback until render shopping overlay is confirmed.  /////Plan to remove ////
+#         self._shopping_overlay.render(surface, game_state, fonts, images or {})
+#         return True
+# #########  TODO Keep as fallback until render shopping overlay is confirmed.  /////Plan to remove ////
     def _handle_shopping_back(self, event_data):
         """Handle BACK button - navigation only- TOBE REMOVED AFTER OVERLAY ADD"""
         print("🛒 BACK button clicked!")
@@ -780,7 +788,7 @@ class ScreenManager:
             'source_screen': "merchant_shop"
         })
 
-#########   TODO Keep as fallback until render shopping overlay is confirmed.  /////Plan to remove ////
+# #########   TODO Keep as fallback until render shopping overlay is confirmed.  /////Plan to remove ////
     def _handle_shopping_item_click(self, event_data):
         """Handle item row clicks - add to cart- TOBE REMOVED AFTER OVERLAY ADD"""
         item_index = event_data.get('item_index')
@@ -967,7 +975,6 @@ class ScreenManager:
             if hasattr(self, '_shopping_overlay') and self._shopping_overlay:
                 # Let the overlay handle its own clicks
                 print("🛒 Shopping overlay clickables registered")
-            
             # Register ESC to close (will be handled by overlay)
         else:
             print("⚠️ No InputHandler available for shopping overlay")
