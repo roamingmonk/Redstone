@@ -1,0 +1,337 @@
+{
+  "id": "hill_ruins_marcus_confrontation",
+  "npc_name": "Marcus Nightshade",
+  "description": "Special dialogue tree for confronting Marcus before the final battle. Allows players with his journals to make him flee.",
+  
+  "states": {
+    "standard_confrontation": {
+      "introduction": [
+        "*A tall figure in dark robes steps forward from the shadows*",
+        "*His eyes glow with unnatural light*",
+        "More fools come to die.",
+        "*He gestures dismissively*",
+        "The Master's work cannot be stopped.",
+        "The portal will open. The transcendence will be complete.",
+        "*He raises his hands, dark energy crackling*",
+        "You should have stayed in Redstone."
+      ],
+      "options": [
+        {
+          "id": "standard_fight",
+          "text": "Then we fight.",
+          "effects": [
+            {"type": "set_flag", "flag": "confronted_marcus_ruins", "value": true},
+            {"type": "start_combat", "encounter": "marcus_and_shadow_priest"}
+          ],
+          "next_state": "combat_begins"
+        },
+        {
+          "id": "try_reasoning",
+          "text": "There's still time to stop this madness!",
+          "next_state": "standard_rejection"
+        }
+      ]
+    },
+
+    "standard_rejection": {
+      "introduction": [
+        "*He laughs coldly*",
+        "Madness? You call THIS madness?",
+        "I have seen TRUTH. I have touched POWER.",
+        "You are blind. All of you.",
+        "*The energy around him intensifies*",
+        "Enough words. Face your end."
+      ],
+      "options": [
+        {
+          "id": "fight_now",
+          "text": "[Ready your weapon]",
+          "effects": [
+            {"type": "set_flag", "flag": "confronted_marcus_ruins", "value": true},
+            {"type": "start_combat", "encounter": "marcus_and_shadow_priest"}
+          ],
+          "next_state": "combat_begins"
+        }
+      ]
+    },
+
+    "journals_confrontation": {
+      "introduction": [
+        "*A tall figure in dark robes steps forward from the shadows*",
+        "*His eyes glow with unnatural light*",
+        "More fools come to—",
+        "*He stops mid-sentence as you pull out his journals*",
+        "*His expression flickers*",
+        "Where... where did you get those?"
+      ],
+      "options": [
+        {
+          "id": "use_trigger_phrase",
+          "text": "Knowledge serves life, not power. Remember?",
+          "next_state": "marcus_recognition"
+        },
+        {
+          "id": "cassia_gave_them",
+          "text": "Cassia gave them to me. She still believes in you.",
+          "next_state": "cassia_mention"
+        },
+        {
+          "id": "threat_approach",
+          "text": "Your past mistakes. They'll destroy you.",
+          "next_state": "wrong_approach"
+        }
+      ]
+    },
+
+    "marcus_recognition": {
+      "introduction": [
+        "*He staggers back as if struck*",
+        "That... those words...",
+        "*His hands shake*",
+        "Cassia. Our... our promise.",
+        "*The glow in his eyes flickers, dims slightly*",
+        "No. NO. The Master showed me the truth.",
+        "Power is the only—",
+        "*He clutches his head*",
+        "But the journals... my work... before..."
+      ],
+      "options": [
+        {
+          "id": "you_wanted_to_help",
+          "text": "You wanted to HELP people, Marcus. Remember?",
+          "next_state": "internal_struggle"
+        },
+        {
+          "id": "cassia_message",
+          "text": "Cassia never stopped loving who you were.",
+          "requirements": {"flag": "cassia_final_words_for_marcus"},
+          "next_state": "cassia_final_words"
+        },
+        {
+          "id": "youre_weak",
+          "text": "You're weak. The cult made you weak.",
+          "next_state": "wrong_approach"
+        }
+      ]
+    },
+
+    "cassia_mention": {
+      "introduction": [
+        "*The name hits him like a physical blow*",
+        "Cassia...",
+        "*His voice breaks*",
+        "She... she kept them? After everything?",
+        "*The energy around him wavers*",
+        "I... I became something she would hate.",
+        "*He looks at his hands*",
+        "Something I hate."
+      ],
+      "options": [
+        {
+          "id": "its_not_too_late",
+          "text": "It's not too late. You can still walk away.",
+          "next_state": "offer_escape"
+        },
+        {
+          "id": "she_still_loves_you",
+          "text": "She still loves you. The man you were.",
+          "requirements": {"flag": "cassia_final_words_for_marcus"},
+          "next_state": "cassia_final_words"
+        }
+      ]
+    },
+
+    "cassia_final_words": {
+      "introduction": [
+        "*Tears stream down his face*",
+        "She... she still...?",
+        "*He falls to his knees*",
+        "After what I've done? What I've become?",
+        "*From behind him, the Shadow Priest shouts*",
+        "MARCUS! What are you doing? KILL THEM!",
+        "*Marcus doesn't move*",
+        "I can't... I can't undo this. Can't take back the blood.",
+        "*He looks up at you*",
+        "But I can stop adding to it."
+      ],
+      "options": [
+        {
+          "id": "run_marcus",
+          "text": "Then run. Save yourself. Let her know you chose to live.",
+          "next_state": "marcus_flees"
+        }
+      ]
+    },
+
+    "internal_struggle": {
+      "introduction": [
+        "*He's frozen, memories warring with indoctrination*",
+        "Help people. Yes. That was... that was the purpose.",
+        "*He looks at the portal behind him, then at you*",
+        "But the Master... he promised transcendence. Power beyond—",
+        "*The Shadow Priest's voice booms*",
+        "ENOUGH! Marcus, destroy them NOW!",
+        "*Marcus's hands tremble*",
+        "I... I don't..."
+      ],
+      "options": [
+        {
+          "id": "offer_out",
+          "text": "You can still walk away. Save yourself.",
+          "next_state": "offer_escape"
+        },
+        {
+          "id": "fight_command",
+          "text": "Decide NOW. With us or against us!",
+          "next_state": "forced_fight"
+        }
+      ]
+    },
+
+    "offer_escape": {
+      "introduction": [
+        "*He looks at you with desperate eyes*",
+        "Walk away? After everything?",
+        "*The Shadow Priest rages*",
+        "COWARD! I should have known you lacked conviction!",
+        "*Marcus looks at the priest, then back at you*",
+        "He's right. I am a coward.",
+        "*He stumbles backward toward a side passage*",
+        "But maybe... maybe cowardice can save what's left of my soul.",
+        "*He looks at you one last time*",
+        "Tell Cassia... tell her I'm sorry. For all of it.",
+        "*He turns and flees into the darkness*"
+      ],
+      "options": [
+        {
+          "id": "let_him_go",
+          "text": "[Let him leave]",
+          "effects": [
+            {"type": "set_flag", "flag": "marcus_fled_battle", "value": true},
+            {"type": "set_flag", "flag": "confronted_marcus_ruins", "value": true},
+            {"type": "start_combat", "encounter": "shadow_priest_solo"}
+          ],
+          "next_state": "marcus_fled_combat"
+        }
+      ]
+    },
+
+    "marcus_flees": {
+      "introduction": [
+        "*He nods slowly, tears still falling*",
+        "Run. Yes. That's all I'm good for now.",
+        "*The Shadow Priest screams in rage*",
+        "TRAITOR! WEAKLING! You were NOTHING without me!",
+        "*Marcus stands, voice steady for the first time*",
+        "You're right. I was nothing.",
+        "*He looks at you*",
+        "But I'd rather be nothing than be this.",
+        "*He turns and runs toward a side passage*",
+        "Tell her... tell her I remembered. In the end.",
+        "*He vanishes into the shadows*"
+      ],
+      "options": [
+        {
+          "id": "face_priest",
+          "text": "[Turn to face the Shadow Priest]",
+          "effects": [
+            {"type": "set_flag", "flag": "marcus_fled_battle", "value": true},
+            {"type": "set_flag", "flag": "confronted_marcus_ruins", "value": true},
+            {"type": "start_combat", "encounter": "shadow_priest_solo"}
+          ],
+          "next_state": "marcus_fled_combat"
+        }
+      ]
+    },
+
+    "wrong_approach": {
+      "introduction": [
+        "*The flicker of humanity vanishes from his eyes*",
+        "You... you dare mock me?",
+        "*The dark energy surges back, stronger than before*",
+        "I am MORE than I ever was!",
+        "*He raises his hands*",
+        "I'll show you TRUE weakness!",
+        "*The Shadow Priest laughs*",
+        "Good, Marcus. Remember your training. End them."
+      ],
+      "options": [
+        {
+          "id": "fight_them_both",
+          "text": "[Prepare for battle]",
+          "effects": [
+            {"type": "set_flag", "flag": "confronted_marcus_ruins", "value": true},
+            {"type": "set_flag", "flag": "marcus_enraged", "value": true},
+            {"type": "start_combat", "encounter": "marcus_and_shadow_priest_hard"}
+          ],
+          "next_state": "combat_begins"
+        }
+      ]
+    },
+
+    "forced_fight": {
+      "introduction": [
+        "*The pressure breaks him*",
+        "I... I can't face what I've done!",
+        "*He attacks desperately*",
+        "Better to die in battle than live with the shame!",
+        "*The Shadow Priest grins*",
+        "Excellent. Channel that despair, Marcus. Make them suffer."
+      ],
+      "options": [
+        {
+          "id": "fight_begins",
+          "text": "[Defend yourself]",
+          "effects": [
+            {"type": "set_flag", "flag": "confronted_marcus_ruins", "value": true},
+            {"type": "set_flag", "flag": "marcus_desperate", "value": true},
+            {"type": "start_combat", "encounter": "marcus_and_shadow_priest"}
+          ],
+          "next_state": "combat_begins"
+        }
+      ]
+    },
+
+    "marcus_fled_combat": {
+      "introduction": [
+        "*The Shadow Priest turns his full fury on you*",
+        "You dare turn my disciple against me?",
+        "He was MINE! His power was MINE!",
+        "*Dark energy swirls around him*",
+        "No matter. I'll end you myself. And then I'll hunt him down.",
+        "Now... DIE!"
+      ],
+      "options": []
+    },
+
+    "combat_begins": {
+      "introduction": [
+        "*Battle is joined*"
+      ],
+      "options": []
+    }
+  },
+
+  "IMPLEMENTATION_NOTES": {
+    "when_to_trigger": "Before the final battle in Hill Ruins, check if player has 'marcus_journals' item",
+    "flow": [
+      "IF player has marcus_journals → Start with 'journals_confrontation'",
+      "ELSE → Start with 'standard_confrontation'",
+      "Player choices determine which combat encounter starts:",
+      "  - 'marcus_and_shadow_priest' = Normal difficulty (both enemies)",
+      "  - 'shadow_priest_solo' = Easier (Marcus fled, only priest)",
+      "  - 'marcus_and_shadow_priest_hard' = Harder (Marcus enraged, bonus stats)"
+    ],
+    "correct_path_to_make_marcus_flee": [
+      "1. Have marcus_journals item",
+      "2. Choose 'Knowledge serves life, not power' OR 'Cassia gave them to me'",
+      "3. Choose 'You wanted to HELP people' OR 'She still loves you' (if have cassia_final_words_for_marcus flag)",
+      "4. Choose 'Then run. Save yourself' OR 'You can still walk away'",
+      "Result: marcus_fled_battle flag set, only fight Shadow Priest"
+    ],
+    "wrong_paths": [
+      "Choose threatening/aggressive options → Marcus fights harder",
+      "Don't have journals → No special dialogue, standard fight"
+    ]
+  }
+}

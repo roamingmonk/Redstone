@@ -41,6 +41,16 @@
       "title": "The Sealed Shaft",
       "description": "Investigate the old mining shaft where strange noises have been heard",
       "type": "secondary"
+    },
+    "marcus_last_recipe": {
+      "title": "The Last Recipe",
+      "description": "Help Cassia complete Marcus's unfinished masterwork formula",
+      "type": "secondary"
+    },
+    "marcus_journals": {
+      "title": "His Last Words",
+      "description": "Cassia has entrusted you with Marcus's journals",
+      "type": "secondary"
     }
   },
 
@@ -72,7 +82,12 @@
     "return_to_henrik": "Report findings to Henrik",
     "ore_samples_found": "Discover Aethel Ore samples",
     "find_henrik_square": "Find out where to find Henrik (town square)",
-    "talk_to_henrik": "Speak with Henrik about the tremors"
+    "talk_to_henrik": "Speak with Henrik about the tremors",
+
+    "find_glowcap_mushrooms": "Gather Glowcap Mushrooms from the swamp",
+    "return_mushrooms_to_cassia": "Return the mushrooms to Cassia",
+    "read_marcus_journals": "Study Marcus's journals for cult information",
+    "confront_marcus": "Face Marcus Nightshade at the Hill Ruins"
   },
 
   "npcs": {
@@ -255,6 +270,34 @@
         "henrik_quest_reported": "reported_shaft_to_henrik",
         "cavia_sensitivity_noticed": "henrik_noticed_cavia_sensitivity"
       }
+    },
+    "cassia": {
+      "system_id": "cassia",
+      "full_name": "Cassia Nightshade",
+      "dialogue_file": "redstone_town_cassia",
+      "conversation_flag": "cassia_talked",
+      "location": "redstone_town",
+      "role": "merchant_alchemist",
+      "species": "human",
+      "story_flags": {
+        "shop_discovered": "learned_about_violet_mortar",
+        "bernard_referral": "bernard_mentioned_cassia",
+        "garrick_referral": "garrick_mentioned_cassia",
+        "garrick_backstory": "garrick_told_cassia_story",
+        "hinted_at_loss": "cassia_hinted_at_marcus",
+        "mentioned_marcus": "cassia_mentioned_marcus",
+        "told_marcus_story": "cassia_told_marcus_story",
+        "offered_to_help": "offered_to_help_cassia",
+        "recipe_quest_given": "cassia_gave_recipe_quest",
+        "recipe_quest_active": "recipe_quest_active",
+        "recipe_quest_complete": "completed_marcus_recipe",
+        "journals_received": "cassia_gave_journals",
+        "marcus_final_words": "cassia_final_words_for_marcus",
+        "marcus_confronted": "confronted_marcus_ruins",
+        "marcus_fled": "marcus_fled_battle",
+        "marcus_died": "marcus_died_in_battle",
+        "story_complete": "cassia_story_complete"
+      }
     }
   },
 
@@ -416,6 +459,24 @@
       "quest_objective": "main_story.recruit_party",
       "event_type": "QUEST_PROGRESS",
       "xp_reward": 0
+    },
+    "cassia_recipe_completion": {
+      "dialogue_flag": "completed_marcus_recipe",
+      "quest_objective": "marcus_last_recipe.return_mushrooms_to_cassia",
+      "event_type": "QUEST_COMPLETED",
+      "xp_reward": "quest_multipliers.side_task"
+    },
+    "cassia_journals_received": {
+      "dialogue_flag": "cassia_gave_journals",
+      "quest_objective": "marcus_journals.read_marcus_journals",
+      "event_type": "INFORMATION_DISCOVERED",
+      "xp_reward": "discovery_base"
+    },
+    "marcus_confrontation_resolved": {
+      "dialogue_flag": "cassia_story_complete",
+      "quest_objective": "marcus_journals.report_to_cassia",
+      "event_type": "QUEST_COMPLETED",
+      "xp_reward": "quest_multipliers.investigation"
     },
     "party_recruitment_triggers": {
       "gareth_recruited": {
@@ -596,6 +657,23 @@
         "find_henrik_square": ["garrick_mentioned_henrik"],
         "talk_to_henrik": ["henrik_talked"]
       }
+    },
+    "marcus_last_recipe": {
+      "type": "secondary",
+      "activation_flag": "cassia_gave_recipe_quest",
+      "objectives": {
+        "find_glowcap_mushrooms": ["recipe_quest_active && !completed_marcus_recipe"],
+        "return_mushrooms_to_cassia": ["completed_marcus_recipe"]
+      }
+    },
+    "marcus_journals": {
+      "type": "secondary",
+      "activation_flag": "cassia_gave_journals",
+      "objectives": {
+        "read_marcus_journals": ["cassia_gave_journals"],
+        "confront_marcus": ["confronted_marcus_ruins"],
+        "report_to_cassia": ["cassia_story_complete"]
+      }
     }
   },
 
@@ -692,6 +770,21 @@
       "shaft_complete": "cleared_kobold_mine && !reported_shaft_to_henrik",
       "post_quest_idle": "reported_shaft_to_henrik",
       "ruins_deflection": "henrik_talked && (learned_about_ruins || garrick_gave_ruins_info)"
-     }
+     },
+    "cassia": {
+      "bernard_referral": "bernard_mentioned_cassia && !cassia_talked",
+      "garrick_referral": "garrick_mentioned_cassia && !cassia_talked",
+      "first_meeting": "!cassia_talked",
+      "returning_customer": "cassia_talked && !cassia_told_marcus_story",
+      "checking_in": "cassia_talked && cassia_told_marcus_story && !cassia_gave_recipe_quest",
+      "recipe_quest_offer": "cassia_told_marcus_story && !cassia_gave_recipe_quest",
+      "quest_in_progress": "recipe_quest_active && !completed_marcus_recipe",
+      "post_quest_customer": "completed_marcus_recipe && !cassia_gave_journals",
+      "journal_transition": "completed_marcus_recipe && !cassia_gave_journals && (cleared_swamp_church || cleared_hill_ruins_initial || cleared_refugee_camp)",
+      "has_journals": "cassia_gave_journals && !cassia_story_complete",
+      "marcus_fled_ending": "cassia_gave_journals && marcus_fled_battle && !cassia_story_complete",
+      "marcus_died_ending": "cassia_gave_journals && marcus_died_in_battle && !cassia_story_complete",
+      "post_resolution": "cassia_story_complete"
+      }
     }
   }

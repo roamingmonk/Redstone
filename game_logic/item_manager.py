@@ -29,12 +29,12 @@ class ItemLoader:
     Follows industry-standard separation of data and logic.
     """
     
-    def __init__(self):
+    def __init__(self, game_state_ref=None):
         print("DEBUG: ItemLoader initializing...")
         self.items_data = {}
         self.merchant_data = {}
         self.item_icons = {}
-
+        self.game_state_ref = game_state_ref 
         print("DEBUG: ItemLoader initialization complete (Constructor)")
 
     def load_data(self):
@@ -217,12 +217,9 @@ class ItemLoader:
         except json.JSONDecodeError as e:
             self.merchant_data = {"merchants": {}}
 
-    def get_merchant_inventory(self, merchant_id):
-        """Materialize a merchant's inventory from declarative config"""
+    def get_merchant_inventory(self, merchant_id, game_state=None):
+        """Materialize a merchant's inventory from declarative config + player-sold items"""
         merchant = self.merchant_data.get('merchants', {}).get(merchant_id)
-        
-        print(f"🔧 DEBUG: GMI: Bernard merchant config: {merchant}")
-        
         if not merchant:
             print(f"❌ DEBUG: GMI: No merchant found for ID: {merchant_id}")
             return None
@@ -237,15 +234,31 @@ class ItemLoader:
 
         # Convert max_rarity to numeric level for comparison
         max_rarity_level = get_rarity_level(max_rarity) if max_rarity else 999
-        print(f"🔧 DEBUG: Merchant max_rarity: '{max_rarity}' (level {max_rarity_level})")
+        #print(f"🔧 DEBUG: Merchant max_rarity: '{max_rarity}' (level {max_rarity_level})")
         
         # Collect items - prioritize include_ids over categories
         candidates = []
         seen = set()
         
         for item in self.get_all_items(include_loot=False):  # Only merchant items for base stock
+            # ===== ADD DEBUG CODE HERE =====
+            # Validate item structure
+            if not isinstance(item, dict):
+                print(f"❌ ERROR: Item is not a dict! Type: {type(item)}, Value: {item}")
+                continue
+            
+            if 'id' not in item:
+                print(f"❌ ERROR: Item missing 'id' field!")
+                print(f"   Item keys: {list(item.keys())}")
+                print(f"   Item data: {item}")
+                continue
+            
+            if 'name' not in item:
+                print(f"⚠️ WARNING: Item '{item.get('id', 'UNKNOWN')}' missing 'name' field")
+            # ===== END DEBUG CODE =====
+            
             item_category = item.get('category', 'NONE')
-            print(f"📦 DEBUG: GMI: Item: {item['id']}, category: '{item_category}', allowed: {item_category in allowed_cats}")
+            #print(f"📦 DEBUG: GMI: Item: {item['id']}, category: '{item_category}', allowed: {item_category in allowed_cats}")
             
             if item['id'] in seen:
                 continue
@@ -253,7 +266,7 @@ class ItemLoader:
             # Check if item's subcategory is excluded
             item_subcat = item.get('subcategory', '')
             if item_subcat and item_subcat in excluded_subcats:
-                print(f"🚫 Excluded by subcategory: '{item_subcat}': {item['id']}")
+                #print(f"🚫 Excluded by subcategory: '{item_subcat}': {item['id']}")
                 continue
 
             # Check rarity filtering - block items above merchant's max_rarity
@@ -261,7 +274,7 @@ class ItemLoader:
             item_rarity_level = get_rarity_level(item_rarity)
 
             if item_rarity_level > max_rarity_level:
-                print(f"🚫 Excluded by rarity: '{item_rarity}' (level {item_rarity_level}) exceeds max '{max_rarity}' (level {max_rarity_level}): {item['id']}")
+               #print(f"🚫 Excluded by rarity: '{item_rarity}' (level {item_rarity_level}) exceeds max '{max_rarity}' (level {max_rarity_level}): {item['id']}")
                 continue
                 
             # If include_ids is specified, ONLY use those items
@@ -269,21 +282,39 @@ class ItemLoader:
                 if item['id'] in include_ids:
                     candidates.append(item)
                     seen.add(item['id'])
-                    print(f"✅ Included specific item: {item['id']}")
+                    #print(f"✅ Included specific item: {item['id']}")
             # Otherwise fall back to category filtering
             elif allowed_cats and item.get('category') in allowed_cats:
                 candidates.append(item)
                 seen.add(item['id'])
-                print(f"✅ Included category item: {item['id']}")
+                #print(f"✅ Included category item: {item['id']}")
             else:
                 print(f"❌ DEBUG: GMI: Skipped item: {item['id']} (category: {item.get('category', 'NONE')}, allowed: {allowed_cats})")
 
         print(f"🔧 DEBUG: GMI: Final filtered items: {[item['id'] for item in candidates]}")
+        # DEBUG: Check if player-sold items section is being reached
+        if game_state:
+            #print(f"🔍 DEBUG: has merchant_player_sold? {hasattr(game_state, 'merchant_player_sold')}")
+            if hasattr(game_state, 'merchant_player_sold'):
+                print(f"🔍 DEBUG: merchant_player_sold = {game_state.merchant_player_sold}")
+                #print(f"🔍 DEBUG: Looking for merchant_id '{merchant_id}' in merchant_player_sold")
+                if merchant_id in game_state.merchant_player_sold:
+                    print(f"🔍 DEBUG: Found items for {merchant_id}: {game_state.merchant_player_sold[merchant_id]}")
+        else:
+            print(f"❌ DEBUG: game_state is None!")
 
         # Rest of the method for pricing and formatting...
         mtype = merchant.get('merchant_type', 'standard')
         fallback_modifier = self.get_merchant_pricing(mtype)
-        default_stock = int(merchant.get('default_stock_quantity', 5))
+        # Get default stock (supports both range [min,max] and single value)
+        default_stock_range = merchant.get('default_stock_range', None)
+        if default_stock_range:
+            # Use middle of range for initial display (actual stock determined by commerce_engine)
+            default_stock = (default_stock_range[0] + default_stock_range[1]) // 2
+        else:
+            # Fallback to old format
+            default_stock = int(merchant.get('default_stock_quantity', 5))
+
         stock_over = merchant.get('stock_overrides', {})
 
         formatted_items = []
@@ -299,7 +330,34 @@ class ItemLoader:
                 'cost': price,
                 'stock': int(stock_over.get(item_id, default_stock)),
             })
-
+        
+        # Add player-sold items to inventory
+        if game_state:  # Only if game_state was passed
+            merchant_stocks = getattr(game_state, 'merchant_stocks', {})
+            merchant_player_sold = getattr(game_state, 'merchant_player_sold', {})
+            
+            if merchant_id in merchant_player_sold:
+                #print(f"🛒 DEBUG: Found player-sold items for {merchant_id}: {merchant_player_sold[merchant_id]}")
+                
+                for item_id, qty in merchant_player_sold[merchant_id].items():
+                    if item_id not in seen and qty > 0:
+                        item_def = self.get_item_by_id(item_id)
+                        if item_def:
+                            price = self.get_item_price(item_id, merchant=merchant, merchant_modifier=fallback_modifier)
+                            cat = self._normalize_category(item_def.get('category', 'items'))
+                            
+                            formatted_items.append({
+                                'item_id': item_id,
+                                'name': item_def['name'],
+                                'type': cat,
+                                'description': item_def.get('description', ''),
+                                'cost': price,
+                                'stock': merchant_stocks.get(merchant_id, {}).get(item_id, qty),
+                                'player_sold': True
+                            })
+                            seen.add(item_id)
+                            print(f"✅ Added player-sold item: {item_id} (qty: {qty})")
+        
         return {
             'merchant_id': merchant_id,
             'merchant_name': merchant.get('name', merchant_id),

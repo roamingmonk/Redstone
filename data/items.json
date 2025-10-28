@@ -20,6 +20,131 @@
       }
     },
     {
+      "id": "greater_healing_potion",
+      "name": "Greater Healing Potion",
+      "description": "A potent crimson elixir that mends even grievous wounds.",
+      "base_cost": 250,
+      "category": "consumables",
+      "icon_file": "greater_healing_potion.png",
+      "consumable": true,
+      "weight": 0.5,
+      "rarity": "rare",
+      "stackable": true,
+      "max_stack": 5,
+      "consumable_effects": {
+        "healing": "4d4+8",
+        "description": "Restores 4d4+8 hit points when consumed"
+      }
+    },
+    {
+      "id": "restoration_draught",
+      "name": "Restoration Draught",
+      "description": "A legendary golden potion that can bring someone back from death's door.",
+      "base_cost": 500,
+      "category": "consumables",
+      "icon_file": "restoration_draught.png",
+      "consumable": true,
+      "weight": 0.5,
+      "rarity": "rare",
+      "stackable": true,
+      "max_stack": 3,
+      "consumable_effects": {
+        "healing": "8d8+8",
+        "description": "Restores 8d8+8 hit points when consumed"
+      }
+    },
+    {
+      "id": "elixir_of_vigor",
+      "name": "Elixir of Vigor",
+      "description": "A shimmering blue potion that grants supernatural speed and strength.",
+      "base_cost": 300,
+      "category": "consumables", 
+      "icon_file": "elixir_of_vigor.png",
+      "consumable": true,
+      "weight": 0.5,
+      "rarity": "rare",
+      "stackable": true,
+      "max_stack": 3,
+      "consumable_effects": {
+        "extra_attack": "1",
+        "duration": "combat",
+        "description": "Grants one additional melee attack per turn for the duration of combat"
+      }
+    },
+    {
+      "id": "potion_of_clarity",
+      "name": "Potion of Clarity",
+      "description": "A crystal-clear potion that sharpens the mind and restores magical energy.",
+      "base_cost": 400,
+      "category": "consumables",
+      "icon_file": "potion_of_clarity.png", 
+      "consumable": true,
+      "weight": 0.5,
+      "rarity": "rare",
+      "stackable": true,
+      "max_stack": 3,
+      "consumable_effects": {
+        "spell_slot_recovery": "1",
+        "description": "Restores one expended spell slot of any level"
+      }
+    },
+    {
+      "id": "alchemist_fire",
+      "name": "Alchemist's Fire",
+      "description": "A volatile orange potion that imbues weapons with supernatural flame.",
+      "base_cost": 350,
+      "category": "consumables",
+      "icon_file": "alchemist_fire.png",
+      "consumable": true,
+      "weight": 0.5,
+      "rarity": "rare",
+      "stackable": true,
+      "max_stack": 3,
+      "consumable_effects": {
+        "damage_bonus": "1d6",
+        "damage_type": "fire",
+        "duration": "combat",
+        "description": "Adds 1d6 fire damage to all attacks for the duration of combat"
+      }
+    },
+    {
+      "id": "holy_water",
+      "name": "Holy Water",
+      "description": "Blessed water that burns the undead and heals the faithful.",
+      "base_cost": 200,
+      "category": "consumables",
+      "icon_file": "holy_water.png",
+      "consumable": true,
+      "weight": 0.5,
+      "rarity": "rare",
+      "stackable": true,
+      "max_stack": 5,
+      "consumable_effects": {
+        "healing": "3d8+6",
+        "damage_vs_undead": "2d6",
+        "description": "Restores 3d8+6 hit points, or deals 2d6 damage to undead creatures"
+      }
+    },
+    {
+      "id": "antidote",
+        "name": "Antidote",
+        "description": "A bitter green potion that neutralizes poisons and toxins.",
+        "base_cost": 100,
+        "category": "consumables",
+        "icon_file": "antidote.png",
+        "consumable": true,
+        "weight": 0.5,
+        "rarity": "uncommon",
+        "stackable": true,
+        "max_stack": 5,
+        "consumable_effects": {
+          "cure_poison": true,
+          "healing": "1d4",
+          "description": "Neutralizes poison and restores 1d4 hit points"
+       }
+    },
+    
+    {
       "id": "bedroll",
       "name": "Bedroll",
       "description": "A simple roll of bedding for sleeping on the road.",
@@ -29,6 +154,68 @@
       "consumable": false,
       "weight": 7,
       "rarity": "common"
+    },
+    {
+      "id": "glowcap_mushrooms",
+      "name": "Glowcap Mushrooms",
+      "description": "Bioluminescent mushrooms that emit a soft blue-green glow. Essential for advanced alchemical formulas.",
+      "base_cost": 0,
+      "category": "quest_items",
+      "icon_file": "glowcap_mushrooms.png",
+      "consumable": false,
+      "weight": 0.2,
+      "rarity": "rare",
+      "stackable": false,
+      "quest_item": true
+    },
+    {
+      "id": "marcus_masterwork_elixir",
+      "name": "Marcus's Masterwork Elixir",
+      "description": "A deep blue elixir of extraordinary potency, representing the pinnacle of alchemical achievement.",
+      "base_cost": 800,
+      "category": "consumables",
+      "icon_file": "marcus_masterwork_elixir.png",
+      "consumable": true,
+      "weight": 0.5,
+      "rarity": "legendary",
+      "stackable": true,
+      "max_stack": 1,
+      "consumable_effects": {
+        "healing": "6d8+15",
+        "temporary_hp": "10",
+        "stat_bonus": {"all_stats": 2,"duration": 3},
+        "description": "Restores 6d8+15 hit points, grants 10 temporary hit points, and increases all stats by +2 for 3 rounds"
+      }
+    },
+      {
+      "id": "marcus_journals",
+      "name": "Marcus's Journals",
+      "description": "A collection of worn leather journals documenting Marcus Nightshade's descent from idealistic alchemist to cult devotee. The pages smell faintly of chemicals and regret.",
+      "base_cost": 0,
+      "category": "quest_items",
+      "icon_file": "marcus_journals.png",
+      "consumable": false,
+      "weight": 2.0,
+      "rarity": "special",
+      "stackable": false,
+      "quest_item": true,
+      "readable": true,
+      "read_text": [
+        "ENTRY 1 - Three Years Ago:",
+        "Finally, real funding for my research! The benefactors are generous, and their interest in medicinal advancement seems genuine. If we can stabilize the healing properties I've theorized, we could save hundreds of lives. Cassia is cautious, but I know this is our chance.",
+        "",
+        "ENTRY 2 - Two Years, Eight Months Ago:",
+        "The ore samples they brought today... I've never seen anything like it. Aethel Ore, they call it. The resonance is unlike any mineral I've studied. When I hold it, I can almost hear... No. I'm being fanciful. It's just a unique crystalline structure. The potential applications are staggering.",
+        "",
+        "ENTRY 3 - Two Years, Three Months Ago:",
+        "The Master visited today. He speaks with such clarity about the ore's true nature. The others call it 'research,' but he showed me - it's so much more. There's power here beyond healing. Beyond mortal limitations. Cassia doesn't understand. She's afraid. But the Master says fear is natural when facing transcendence.",
+        "",
+        "ENTRY 4 - One Year, Nine Months Ago:",
+        "I returned to the Hill Ruins last night. Cassia was asleep. The portal chamber beneath... the way it hums with the ore's resonance. I can feel the veil thinning. The Master says I'm close to understanding. Knowledge serves life? No. Knowledge serves POWER. True power.",
+        "",
+        "ENTRY 5 - One Year, Six Months Ago (Final Entry):",
+        "Tomorrow I transcend. The ritual is prepared. The Master has shown me what lies beyond. I will leave this journal for whoever finds it. Tell Cassia... No. She chose fear over greatness. My only regret is that she'll never understand what I've become. The portal calls. I answer."
+      ]
     },
     {
       "id": "broken_compass",

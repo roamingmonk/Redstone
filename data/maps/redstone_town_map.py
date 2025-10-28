@@ -130,9 +130,9 @@ BUILDING_ENTRANCES = {
         'entrance_tiles': [(5, 9)],  #In front 
         'info': {
             'name': "Potion Shop",
-            'interaction_type': 'screen_transition',  # Or npc_dialogue
-            'screen': 'potion_shop',
-            'action': 'Enter potion shop'
+            'interaction_type': 'npc_dialogue',  # Or npc_dialogue
+            'npc_id': 'cassia',
+            'action': 'Talk to Cassia'
         }
     },
     'church': {

@@ -53,6 +53,11 @@
           "next_state": "business_talk"
         },
         {
+          "id": "about_potions",
+          "text": "You mentioned potions - do you specialize in those?",
+          "next_state": "potion_redirect_first_time"
+        },
+        {
           "id": "thanks_bernard",
           "text": "Thanks for the information.",
           "next_state": "exit"
@@ -141,11 +146,80 @@
           "next_state": "post_shopping"
         },
         {
+          "id": "about_potions_again",
+          "text": "Where was that potion shop you mentioned?",
+          "next_state": "potion_redirect_brief"
+        },
+        {
           "id": "just_visiting",
           "text": "Just saying hello.",
           "next_state": "exit"
         }
       ]
+    },
+    "potion_redirect_first_time": {
+  "introduction": [
+    "Healing draughts? Aye, I keep a few basic ones in stock.",
+    "*He leans in conspiratorially*",
+    "But if you need the GOOD stuff - real medicinal work?",
+    "Head to The Violet Mortar. Purple building, southeast side of town.",
+    "Cassia Nightshade runs it. Best alchemist in Redstone, hands down."
+  ],
+  "options": [
+    {
+      "id": "why_best",
+      "text": "What makes her the best?",
+      "next_state": "cassia_reputation"
+    },
+    {
+      "id": "thank_bernard",
+      "text": "Thanks for the recommendation.",
+      "effects": [
+        {"type": "set_flag", "flag": "bernard_mentioned_cassia", "value": true},
+        {"type": "set_flag", "flag": "learned_about_violet_mortar", "value": true}
+      ],
+      "next_state": "regular_customer"
     }
+  ]
+},
+
+  "potion_redirect_brief": {
+    "introduction": [
+      "The Violet Mortar - purple building, southeast side of town.",
+      "Cassia's the one you want for quality potions."
+    ],
+    "options": [
+      {
+        "id": "thanks_reminder",
+        "text": "Right, thanks.",
+        "effects": [
+          {"type": "set_flag", "flag": "bernard_mentioned_cassia", "value": true},
+          {"type": "set_flag", "flag": "learned_about_violet_mortar", "value": true}
+        ],
+        "next_state": "regular_customer"
+      }
+    ]
+  },
+
+  "cassia_reputation": {
+    "introduction": [
+      "*Bernard's expression softens*",
+      "She's got the touch. Learned from someone brilliant, I'm told.",
+      "Keeps to herself mostly, but her potions? They WORK.",
+      "Saved old Henrik's life last winter when he caught the shiver-sickness.",
+      "Town's lucky to have her."
+    ],
+    "options": [
+      {
+        "id": "got_it",
+        "text": "I'll check out her shop.",
+        "effects": [
+          {"type": "set_flag", "flag": "bernard_mentioned_cassia", "value": true},
+          {"type": "set_flag", "flag": "learned_about_violet_mortar", "value": true}
+        ],
+        "next_state": "regular_customer"
+      }
+    ]
+  }
   }
 }

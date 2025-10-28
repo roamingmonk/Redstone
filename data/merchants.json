@@ -16,14 +16,28 @@
         "include_ids": ["strong_ale", "trail_rations", "torch", "shortbow"],
         "max_rarity": "common"
       },
-      "default_stock_quantity": 5,
+      "default_stock_range": [1,5],
       "price_overrides": {
         "strong_ale": 2
       },
       "stock_overrides": {
         "strong_ale": 20,
         "bedroll": 2
-      }  
+      },
+      "stock_ranges": {
+        "healing_potion": [1, 5],
+        "strong_ale": [15, 25],
+        "trail_rations": [5, 15]
+      },
+      
+      "guaranteed_items": [
+        "strong_ale",
+        "trail_rations"
+      ],
+      
+      "optional_items": {
+        "healing_potion": 0.1        
+            }
     },
     "bernard": {
       "merchant_id": "bernard",
@@ -40,16 +54,115 @@
       "stock_filter": {
         "max_rarity": "uncommon"
       },
-      "default_stock_quantity": 3,
+      "default_stock_range": [0, 4],
+      
       "price_overrides": {
         "longsword": 45,
         "leather_armor": 35
       },
       "stock_overrides": {
-        "trail_rations": 10,
-        "torch": 15,
-        "healing_potion": 2
+        "torch": 15
+      },
+      
+      "stock_ranges": {
+        "healing_potion": [1, 5],
+        "strong_ale": [5, 25],
+        "torch": [10, 20],
+        "trail_rations": [5, 15]
+      },
+      
+      "guaranteed_items": [
+        "bedroll",
+        "hemp_rope",
+        "tinderbox",
+        "torch",
+        "trail_rations"
+      ],
+      
+      "optional_items": {
+        "healing_potion": 0.8,        
+        "shield_plus_1": 0.1         
+                   
+            }
+    },
+    "cassia": {
+    "merchant_id": "cassia",
+    "name": "Cassia Nightshade",
+    "location": "redstone_town",
+    "greeting": "Welcome to The Violet Mortar. Every potion is made with absolute precision.",
+    "merchant_type": "alchemist_specialist",
+    "price_modifier": 1.2,
+    "sell_multiplier": 0.6,
+    "stock_categories": [
+      "consumables"
+    ],
+    "exclude_subcategories": ["trinket"],
+    "buy_categories": [
+      "consumables",
+      "items"
+    ],
+    "exclude_buy_subcategories": [
+      "trinket",
+      "special"
+    ],
+    "stock_filter": {
+      "include_ids": [
+        "healing_potion",
+        "greater_healing_potion",
+        "antidote",
+        "restoration_draught",
+        "elixir_of_vigor",
+        "potion_of_clarity",
+        "alchemist_fire",
+        "holy_water"
+      ],
+      "max_rarity": "rare"
+    },
+    "default_stock_range": [2,6],
+    "price_overrides": {
+      "healing_potion": 30,
+      "greater_healing_potion": 75,
+      "antidote": 25,
+      "restoration_draught": 100
+    },
+    "stock_overrides": {
+      "healing_potion": 8,
+      "greater_healing_potion": 4
+    },
+    "stock_ranges": {
+      "healing_potion": [5,10],
+      "greater_healing_potion": [2,5],
+      "antidote": [3,8],
+      "restoration_draught": [1,3],
+      "elixir_of_vigor": [2,4],
+      "potion_of_clarity": [1,3],
+      "alchemist_fire": [2,5],
+      "holy_water": [2,4]
+    },
+    "guaranteed_items": [
+      "healing_potion",
+      "antidote"
+    ],
+    "optional_items": {
+      "greater_healing_potion": 0.9,
+      "restoration_draught": 0.6,
+      "elixir_of_vigor": 0.7,
+      "potion_of_clarity": 0.5,
+      "alchemist_fire": 0.6,
+      "holy_water": 0.3
+    },
+    "special_inventory": {
+      "NOTE": "After completing recipe quest, add marcus_masterwork_elixir to stock",
+      "post_quest_additions": {
+        "marcus_masterwork_elixir": {
+          "available_after_flag": "completed_marcus_recipe",
+          "stock": 1,
+          "price": 150,
+          "restock_rate": "never"
+        }
       }
-    }
+    },
+    "shop_description": "Cassia's shop is immaculately organized with labeled bottles arranged by effect and potency. The air smells of herbs and alchemical reagents. Everything is spotlessly clean - almost obsessively so."
+  }
   }
 }

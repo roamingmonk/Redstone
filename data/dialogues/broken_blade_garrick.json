@@ -69,6 +69,11 @@
           ],
           "next_state": "post_shopping"
         },
+        {
+          "id": "need_potions",
+          "text": "Got any healing potions for the road?",
+          "next_state": "garrick_potion_talk"
+        },
         { "id": "back_first2", "text": "Maybe later.", "next_state": "first_meeting" },
         { "id": "bye2", "text": "Thanks anyway.", "next_state": "exit" }
       ]
@@ -640,6 +645,11 @@
           ],
           "next_state": "tremor_discussion"
         },
+        {
+          "id": "potions_reminder",
+          "text": "Where can I get good healing potions?",
+          "next_state": "garrick_potion_brief"
+        },
     
         {
           "id": "goodbye_casual",
@@ -824,6 +834,72 @@
               "flag": "garrick_mentioned_henrik",
               "value": true
             }
+          ],
+          "next_state": "casual_chat"
+        }
+      ]
+    },
+    "garrick_potion_talk": {
+      "introduction": [
+        "*Garrick chuckles and shakes his head*",
+        "I keep strong ale and trail rations, friend. Not miracle cures.",
+        "You want proper potions, talk to Cassia at The Violet Mortar.",
+        "*He gestures vaguely southeast*",
+        "Purple building, can't miss it. She's the real deal."
+      ],
+      "options": [
+        {
+          "id": "ask_about_cassia",
+          "text": "What's she like?",
+          "next_state": "garrick_cassia_opinion"
+        },
+        {
+          "id": "thanks_garrick",
+          "text": "Appreciate it.",
+          "effects": [
+            {"type": "set_flag", "flag": "garrick_mentioned_cassia", "value": true},
+            {"type": "set_flag", "flag": "learned_about_violet_mortar", "value": true}
+          ],
+          "next_state": "casual_chat"
+        }
+      ]
+    },
+
+    "garrick_potion_brief": {
+      "introduction": [
+        "The Violet Mortar. Purple building, southeast.",
+        "Cassia's your woman for quality potions."
+      ],
+      "options": [
+        {
+          "id": "got_it",
+          "text": "Right, thanks.",
+          "effects": [
+            {"type": "set_flag", "flag": "garrick_mentioned_cassia", "value": true},
+            {"type": "set_flag", "flag": "learned_about_violet_mortar", "value": true}
+          ],
+          "next_state": "casual_chat"
+        }
+      ]
+    },
+
+    "garrick_cassia_opinion": {
+      "introduction": [
+        "*Garrick's voice drops*",
+        "Good woman. Quiet. Keeps to her work.",
+        "*He pauses, polishing a glass*",
+        "Lost someone a few years back. To the troubles.",
+        "Don't pry if she seems distant. She's got her reasons.",
+        "But her potions? Best you'll find for fifty miles."
+      ],
+      "options": [
+        {
+          "id": "understood",
+          "text": "Understood. I'll be respectful.",
+          "effects": [
+            {"type": "set_flag", "flag": "garrick_mentioned_cassia", "value": true},
+            {"type": "set_flag", "flag": "learned_about_violet_mortar", "value": true},
+            {"type": "set_flag", "flag": "garrick_told_cassia_story", "value": true}
           ],
           "next_state": "casual_chat"
         }

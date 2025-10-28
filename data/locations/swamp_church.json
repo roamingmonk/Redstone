@@ -1,0 +1,16 @@
+{
+"swamp_church": {
+      "NOTE": "Add this to areas where glowcap_mushrooms can be found",
+      "loot_tables": {
+        "glowcap_mushroom_node": {
+          "items": [
+            {
+              "item_id": "glowcap_mushrooms",
+              "quantity": 1,
+              "chance": 1
+            }
+          ]
+        }
+    }
+  }
+}
