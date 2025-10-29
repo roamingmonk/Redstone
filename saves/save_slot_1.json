@@ -1,67 +1,114 @@
 {
   "version": "2.0",
-  "timestamp": "2025-09-07T21:05:30.016297",
+  "timestamp": "2025-10-26T10:25:10.383710",
   "save_slot": 1,
   "character": {
-    "strength": 9,
-    "dexterity": 16,
-    "constitution": 13,
-    "intelligence": 9,
-    "wisdom": 12,
-    "charisma": 8,
-    "hit_points": 11,
+    "name": "Rhea Nightblade",
+    "class": "fighter",
+    "species": {
+      "id": "human",
+      "display_name": "Human",
+      "special_abilities": [],
+      "resistances": [],
+      "dialogue_flags": {
+        "is_human": true,
+        "is_cavia": false,
+        "is_dwarf": false,
+        "is_drow": false
+      }
+    },
     "gender": "female",
-    "name": "Zara Valorborn",
-    "selected_portrait_file": "player_female_05.jpg",
-    "selected_portrait_gender": "female",
-    "gold": 180,
-    "trinket": "Smooth river stone with ancient runes carved deep",
-    "level": 1,
-    "experience": 0,
-    "equipped_weapon": "Longsword",
-    "equipped_armor": "Leather Armor",
-    "equipped_shield": "Shield",
+    "trinket": "pressed_flowers",
+    "strength": 16,
+    "dexterity": 13,
+    "constitution": 10,
+    "intelligence": 11,
+    "wisdom": 12,
+    "charisma": 10,
+    "level": 3,
+    "experience": 1320,
+    "max_hp": 20,
+    "current_hp": 20,
     "abilities": [
-      "Combat Training",
-      "Weapon Mastery"
-    ]
+      "Fighting Style",
+      "Second Wind",
+      "Combat Surge",
+      "Extra Attack"
+    ],
+    "gold": 175,
+    "gambling_stats": {
+      "house_money": 427,
+      "game_active": true,
+      "win_streak": 0,
+      "loss_streak": 0,
+      "total_winnings": 0,
+      "total_losses": 0,
+      "games_played": 0,
+      "last_roll": [],
+      "current_bet": 0,
+      "last_result": {}
+    },
+    "is_cavia": false,
+    "selected_portrait_file": "player_female_02.jpg",
+    "selected_portrait_gender": "female",
+    "is_human": true,
+    "is_dwarf": false,
+    "is_drow": false,
+    "equipped_weapon": "longsword",
+    "equipped_armor": "leather_armor",
+    "equipped_shield": "shield"
   },
   "inventory": {
     "weapons": [
-      "Longsword",
-      "Longsword"
+      "longsword"
     ],
     "armor": [
-      "Leather Armor",
-      "Shield",
-      "Leather Armor",
-      "Shield"
+      "leather_armor",
+      "shield"
     ],
     "items": [
-      "Hemp Rope",
-      "Smooth river stone with ancient runes carved deep"
+      "pressed_flowers"
     ],
     "consumables": []
   },
-  "current_screen": "broken_blade_main",
-  "screen_history": [],
-  "previous_screen": null,
-  "party_members": [],
-  "tavern_visits": 0,
-  "locations_discovered": [],
-  "quest_flags": {},
-  "npc_recruitment_status": {},
-  "conversations_had": [],
-  "mayor_talked": false,
-  "mayor_mentioned": false,
-  "pete_attempted_recruitment": false,
-  "pete_showing_comedy": false,
-  "meredith_talked": false,
-  "garrick_talked": false,
-  "learned_about_church": false,
-  "learned_about_ruins": false,
-  "quest_active": false,
-  "just_got_quest": false,
+  "player_statistics": {
+    "areas_visited": 0,
+    "npcs_met": 5,
+    "items_consumed": 0,
+    "items_discarded": 0,
+    "xp_from_combat": 50,
+    "xp_from_noncombat": 1270,
+    "dice_games_played": 0,
+    "dice_total_winnings": 0,
+    "longest_win_streak": 0,
+    "longest_losing_streak": 0,
+    "highest_winning_roll": 0,
+    "total_gold_earned": 0,
+    "player_kills": 1,
+    "weapon_kills": {
+      "longsword": 1
+    },
+    "party_kills": 0,
+    "party_member_kills": {},
+    "hits": 1,
+    "misses": 0,
+    "critical_hits": 0,
+    "critical_misses": 0,
+    "biggest_hit": 10,
+    "party_knockouts": 0,
+    "enemy_defeats": {
+      "Ogre Archer": 1
+    },
+    "total_damage_dealt": 10,
+    "times_saved": 2
+  },
+  "npcs_encountered": [
+    "lyra",
+    "jenna",
+    "thorman",
+    "mayor",
+    "elara"
+  ],
   "quest_system": {
     "main_story": {
       "status": "active",
@@ -72,32 +119,40 @@
         },
         {
           "id": "meet_mayor",
-          "completed": false
+          "completed": true
         },
         {
           "id": "recruit_party",
+          "completed": true
+        },
+        {
+          "id": "learn_swamp_church",
           "completed": false
         },
         {
-          "id": "explore_ruins",
+          "id": "learn_hill_ruins",
           "completed": false
         },
         {
-          "id": "explore_church",
+          "id": "learn_refugee_camp",
           "completed": false
         },
         {
-          "id": "explore_camp",
+          "id": "explore_swamp_church",
           "completed": false
         },
         {
-          "id": "solve_mystery",
+          "id": "explore_hill_ruins",
+          "completed": false
+        },
+        {
+          "id": "explore_refugee_camp",
           "completed": false
         }
       ]
     },
     "party_building": {
-      "status": "inactive",
+      "status": "completed",
       "objectives": [
         {
           "id": "recruit_warrior",
@@ -105,42 +160,310 @@
         },
         {
           "id": "recruit_mage",
-          "completed": false
+          "completed": true
         },
         {
           "id": "recruit_cleric",
-          "completed": false
+          "completed": true
         },
         {
           "id": "recruit_rogue",
+          "completed": true
+        }
+      ]
+    },
+    "basement_rat_combat": {
+      "status": "inactive",
+      "objectives": [
+        {
+          "id": "accept_challenge",
+          "completed": false
+        },
+        {
+          "id": "clear_basement",
+          "completed": false
+        },
+        {
+          "id": "report_success",
+          "completed": false
+        }
+      ]
+    },
+    "intelligence_gathering": {
+      "status": "active",
+      "objectives": [
+        {
+          "id": "swamp_detailed_intel",
+          "completed": false
+        },
+        {
+          "id": "ruins_detailed_intel",
+          "completed": false
+        },
+        {
+          "id": "refugee_detailed_intel",
+          "completed": false
+        }
+      ]
+    },
+    "kobold_mine_investigation": {
+      "status": "inactive",
+      "objectives": [
+        {
+          "id": "find_old_mine",
+          "completed": false
+        },
+        {
+          "id": "clear_kobolds",
+          "completed": false
+        },
+        {
+          "id": "recover_ring",
+          "completed": false
+        },
+        {
+          "id": "return_to_henrik",
+          "completed": false
+        },
+        {
+          "id": "ore_samples_found",
+          "completed": false
+        }
+      ]
+    },
+    "find_henrik": {
+      "status": "inactive",
+      "objectives": [
+        {
+          "id": "find_henrik_square",
+          "completed": false
+        },
+        {
+          "id": "talk_to_henrik",
           "completed": false
         }
       ]
     }
   },
+  "npc_position_overrides": {},
+  "npcs_talked_today": [],
+  "npc_interaction_flags": {},
+  "time_of_day": "day",
+  "current_day": "tuesday",
+  "town_player_x": 5,
+  "town_player_y": 6,
+  "current_screen": "redstone_town",
+  "screen_history": [],
+  "previous_screen": "redstone_town",
+  "pending_combat_encounter": null,
+  "party_members": [
+    "elara",
+    "thorman",
+    "lyra"
+  ],
+  "party_member_data": [
+    {
+      "id": "thorman",
+      "name": "Thorman Stormhammer",
+      "class": "cleric",
+      "level": 3,
+      "experience": 1200,
+      "max_hp": 47,
+      "current_hp": 47,
+      "ac": 15,
+      "stats": {
+        "strength": 14,
+        "dexterity": 10,
+        "constitution": 16,
+        "intelligence": 12,
+        "wisdom": 15,
+        "charisma": 13
+      },
+      "equipment": {
+        "weapon": "Mace",
+        "armor": "Scale Mail",
+        "shield": "Shield"
+      },
+      "spells": {
+        "cantrips_known": [
+          "Sacred Flame",
+          "Light",
+          "Thaumaturgy"
+        ],
+        "spells_known": [
+          "Cure Wounds",
+          "Guiding Bolt",
+          "Sanctuary",
+          "Bless"
+        ]
+      },
+      "effects": []
+    },
+    {
+      "id": "elara",
+      "name": "Elara Moonwhisper",
+      "class": "wizard",
+      "level": 3,
+      "experience": 900,
+      "max_hp": 32,
+      "current_hp": 32,
+      "ac": 12,
+      "stats": {
+        "strength": 8,
+        "dexterity": 14,
+        "constitution": 12,
+        "intelligence": 16,
+        "wisdom": 13,
+        "charisma": 15
+      },
+      "equipment": {
+        "weapon": "Quarterstaff",
+        "armor": "None",
+        "shield": "None"
+      },
+      "spells": {
+        "cantrips_known": [
+          "Light"
+        ],
+        "spells_known": [
+          "Magic Missile",
+          "Shield",
+          "Fireball",
+          "Sleep",
+          "Burning Hands",
+          "Comprehend Languages"
+        ]
+      },
+      "effects": []
+    },
+    {
+      "id": "lyra",
+      "name": "Lyra Quickfingers",
+      "class": "rogue",
+      "level": 2,
+      "experience": 600,
+      "max_hp": 31,
+      "current_hp": 31,
+      "ac": 14,
+      "stats": {
+        "strength": 10,
+        "dexterity": 16,
+        "constitution": 13,
+        "intelligence": 14,
+        "wisdom": 12,
+        "charisma": 15
+      },
+      "equipment": {
+        "weapon": "shortbow",
+        "armor": "Leather Armor",
+        "shield": "None"
+      },
+      "spells": {},
+      "effects": []
+    }
+  ],
+  "tavern_visits": 0,
+  "locations_discovered": [],
+  "quest_flags": {},
+  "npc_recruitment_status": {},
+  "conversations_had": [],
+  "mayor_talked": true,
+  "mayor_mentioned": false,
+  "pete_attempted_recruitment": false,
+  "pete_showing_comedy": false,
+  "meredith_talked": false,
+  "garrick_talked": false,
+  "learned_about_church": false,
+  "learned_about_ruins": false,
+  "quest_active": true,
+  "just_got_quest": false,
   "showing_meredith_response": false,
   "showing_garrick_response": false,
-  "dice_game": {
-    "house_money": 536,
-    "current_bet": 0,
-    "last_roll": [
-      0,
-      0,
-      0
-    ],
-    "rolling": false,
-    "roll_start_time": 0,
-    "last_result": null,
-    "last_payout": 0,
-    "game_active": true,
-    "win_streak": 0,
-    "loss_streak": 0
-  },
+  "dice_game": {},
   "shopping_cart": {},
   "house_money": 50,
   "gambling_wins": 0,
   "gambling_losses": 0,
-  "equipped_weapon": null,
-  "equipped_armor": null,
-  "equipped_shield": null
+  "narrative_flags": {
+    "meredith_talked": false,
+    "meredith_mentioned_mayor": false,
+    "meredith_directed_to_mayor": false,
+    "meredith_gave_swamp_info": false,
+    "meredith_gave_ring_quest": false,
+    "returned_meredith_ring": false,
+    "meredith_mentioned_old_mine": false,
+    "meredith_worried_tremors": false,
+    "garrick_talked": false,
+    "garrick_gave_ruins_info": false,
+    "garrick_offered_basement": false,
+    "garrick_mentioned_mayor": false,
+    "accepted_basement_quest": false,
+    "completed_basement_combat": false,
+    "reported_basement_victory": false,
+    "garrick_paid": false,
+    "post_payment_acknowledged": false,
+    "garrick_mentioned_tremors": false,
+    "garrick_linked_tremors_ruins": false,
+    "pete_talked": false,
+    "pete_attempted_recruitment": false,
+    "pete_showing_comedy": false,
+    "pete_comedy_complete": false,
+    "pete_gave_refugee_info": false,
+    "mayor_talked": true,
+    "quest_active": true,
+    "mayor_mentioned_family": true,
+    "mayor_gave_swamp_info": true,
+    "mayor_gave_ruins_info": false,
+    "mayor_gave_refugee_info": false,
+    "main_quest_completed": false,
+    "reported_main_quest": false,
+    "mayor_paid_main_quest": false,
+    "mayor_worried_tremors": false,
+    "mayor_wants_ore_info": false,
+    "mayor_examined_ore_samples": false,
+    "gareth_talked": false,
+    "gareth_recruited": false,
+    "gareth_shared_story": false,
+    "elara_talked": true,
+    "elara_recruited": true,
+    "elara_shared_magic": false,
+    "thorman_talked": true,
+    "thorman_recruited": true,
+    "thorman_shared_faith": false,
+    "lyra_talked": true,
+    "lyra_recruited": true,
+    "lyra_shared_skills": false,
+    "bernard_talked": false,
+    "bernard_first_visit": false,
+    "bernard_shared_rumors": false,
+    "bernard_gave_discount": false,
+    "jenna_talked": true,
+    "jenna_gave_discount": true,
+    "henrik_talked": false,
+    "henrik_told_ore_story": false,
+    "henrik_shared_tremor_concern": false,
+    "henrik_mentioned_old_shaft": false,
+    "henrik_gave_shaft_quest": false,
+    "investigated_old_shaft": false,
+    "cleared_kobold_mine": false,
+    "retrieved_ore_samples": false,
+    "reported_shaft_to_henrik": false,
+    "henrik_noticed_cavia_sensitivity": false,
+    "learned_about_swamp_church": true,
+    "learned_about_ruins": false,
+    "learned_about_refugees": false,
+    "visited_town_square": false,
+    "visited_general_store": false,
+    "visited_mayor_office": false,
+    "discovered_old_mine_shaft": false
+  },
+  "computed_data": {
+    "recruited_count": 3,
+    "party_members": [
+      "elara",
+      "thorman",
+      "lyra"
+    ],
+    "can_recruit_more": false
+  }
 }
