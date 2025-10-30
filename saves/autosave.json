@@ -1,7 +1,6 @@
 {
   "version": "2.0",
-  "timestamp": "2025-10-28T19:35:07.385301",
-  "timestamp": "2025-10-29T20:44:39.585018",
+  "timestamp": "2025-10-29T20:59:43.200186",
   "save_slot": 0,
   "character": {
     "name": "Garlen Sliverblade",
@@ -23,60 +22,7 @@
     "strength": 18,
     "dexterity": 17,
     "constitution": 16,
-    "name": "Garlen Sliverblade",
-    "class": "fighter",
-    "species": {
-      "id": "human",
-      "display_name": "Human",
-      "special_abilities": [],
-      "resistances": [],
-      "dialogue_flags": {
-        "is_human": true,
-        "is_cavia": false,
-        "is_dwarf": false,
-        "is_drow": false
-      }
-    },
-    "gender": "male",
-    "trinket": "glass_vial_with_swirling_mist",
-    "strength": 18,
-    "dexterity": 17,
-    "constitution": 16,
     "intelligence": 12,
-    "wisdom": 14,
-    "charisma": 16,
-    "level": 4,
-    "experience": 6183,
-    "max_hp": 44,
-    "current_hp": 44,
-    "max_hpabilities": [],
-    "gold": 1198,
-    "gambling_stats": {
-      "house_money": 247,
-      "game_active": true,
-      "win_streak": 1,
-      "loss_streak": 0,
-      "total_winnings": 175,
-      "total_losses": 10,
-      "games_played": 2,
-      "last_roll": [
-        5,
-        5,
-        5
-      ],
-      "current_bet": 25,
-      "last_result": {
-        "combination": "Triple",
-        "payout": 175,
-        "description": "Amazing! Triple 5s!",
-        "game_continues": true
-      },
-      "rolling": true,
-      "roll_start_time": 68022,
-      "animation_skipped": true
-    },
-    "is_cavia": false,
-    "selected_portrait_file": "player_male_01.jpg",
     "wisdom": 14,
     "charisma": 16,
     "level": 4,
@@ -118,19 +64,7 @@
     "equipped_weapon": "shortbow",
     "equipped_armor": "chainmail",
     "equipped_shield": "shield",
-    "is_human": true,
-    "is_dwarf": false,
-    "is_drow": false,
-    "equipped_weapon": "shortbow",
-    "equipped_armor": "chainmail",
-    "equipped_shield": "shield",
     "abilities": [
-      "Second Wind",
-      "Combat Surge",
-      "Extra Attack",
-      "Shield Focus"
-    ],
-    "hp": 44
       "Second Wind",
       "Combat Surge",
       "Extra Attack",
@@ -144,14 +78,6 @@
       "shortbow",
       "crude_shortbow",
       "crude_shortbow",
-      "crude_shortbow",
-      "crude_shortbow",
-      "crude_shortbow",
-      "ritual_dagger"
-      "longsword",
-      "shortbow",
-      "crude_shortbow",
-      "crude_shortbow",
       "ritual_dagger",
       "crude_shortbow",
       "crude_shortbow",
@@ -159,14 +85,6 @@
       "ritual_dagger"
     ],
     "armor": [
-      "shield",
-      "chainmail",
-      "cult_robes",
-      "cult_robes",
-      "cult_robes",
-      "cult_robes",
-      "cult_robes",
-      "tattered_leather_scraps"
       "shield",
       "chainmail",
       "cult_robes",
@@ -245,104 +163,21 @@
       "Cultist": 11
     },
     "total_damage_dealt": 1028,
-    "times_saved": 62,
-    "items_sold": 52,
-    "gold_earned_trading": 309
-  },
-  "npcs_encountered": [
-    "elara",
-    "jenna",
-    "meredith",
-    "henrik",
-    "garrick",
-    "thorman",
-    "bernard",
-    "pete",
-    "lyra",
-    "mayor"
-  ],
-      "glass_vial_with_swirling_mist",
-      "torch",
-      "henriks_lantern",
-      "bedroll",
-      "tinderbox",
-      "tinderbox",
-      "thieves_tools",
-      "torch",
-      "holy_symbol",
-      "bedroll",
-      "holy_symbol",
-      "cursed_talisman",
-      "cursed_talisman",
-      "rat_tail",
-      "cursed_talisman"
-    ],
-    "consumables": [
-      "strong_ale",
-      "trail_rations",
-      "trail_rations",
-      "healing_potion",
-      "trail_rations"
-    ]
-  },
-  "player_statistics": {
-    "areas_visited": 0,
-    "npcs_met": 10,
-    "items_consumed": 4,
-    "items_discarded": 0,
-    "xp_from_combat": 2860,
-    "xp_from_noncombat": 3323,
-    "dice_games_played": 2,
-    "dice_total_winnings": 140,
-    "longest_win_streak": 1,
-    "longest_losing_streak": 1,
-    "highest_winning_roll": 150,
-    "total_gold_earned": 1070,
-    "player_kills": 44,
-    "weapon_kills": {
-      "longsword": 35,
-      "shortbow": 9
-    },
-    "party_kills": 65,
-    "party_member_kills": {
-      "lyra": 32,
-      "elara": 9,
-      "thorman": 24
-    },
-    "hits": 119,
-    "misses": 72,
-    "critical_hits": 4,
-    "critical_misses": 12,
-    "biggest_hit": 12,
-    "party_knockouts": 0,
-    "enemy_defeats": {
-      "Kobold": 18,
-      "Skeleton": 2,
-      "Goblin": 8,
-      "Thief": 26,
-      "Shadow Ghost": 21,
-      "Giant Rat": 5,
-      "Blight Shadow": 8,
-      "Ogre Archer": 13,
-      "Cult Leader": 5,
-      "Cultist": 11
-    },
-    "total_damage_dealt": 1028,
-    "times_saved": 62,
+    "times_saved": 63,
     "items_sold": 50,
     "gold_earned_trading": 298
   },
   "npcs_encountered": [
-    "elara",
     "henrik",
-    "pete",
-    "lyra",
-    "meredith",
     "bernard",
-    "mayor",
+    "pete",
+    "jenna",
     "garrick",
-    "thorman",
-    "jenna"
+    "elara",
+    "meredith",
+    "lyra",
+    "mayor",
+    "thorman"
   ],
   "quest_system": {
     "main_story": {
@@ -351,11 +186,9 @@
         {
           "id": "talk_to_npcs",
           "completed": true
-          "completed": true
         },
         {
           "id": "meet_mayor",
-          "completed": true
           "completed": true
         },
         {
@@ -376,38 +209,19 @@
         },
         {
           "id": "explore_swamp_church",
-          "completed": true
-        },
-        {
-          "id": "learn_swamp_church",
-          "completed": true
-        },
-        {
-          "id": "learn_hill_ruins",
-          "completed": true
-        },
-        {
-          "id": "learn_refugee_camp",
-          "completed": true
-        },
-        {
-          "id": "explore_swamp_church",
           "completed": false
         },
         {
           "id": "explore_hill_ruins",
-          "id": "explore_hill_ruins",
           "completed": false
         },
         {
-          "id": "explore_refugee_camp",
           "id": "explore_refugee_camp",
           "completed": false
         }
       ]
     },
     "party_building": {
-      "status": "completed",
       "status": "completed",
       "objectives": [
         {
@@ -417,28 +231,21 @@
         {
           "id": "recruit_mage",
           "completed": true
-          "completed": true
         },
         {
           "id": "recruit_cleric",
           "completed": true
-          "completed": true
         },
         {
           "id": "recruit_rogue",
-          "completed": true
           "completed": true
         }
       ]
     },
     "basement_rat_combat": {
       "status": "active",
-    "basement_rat_combat": {
-      "status": "active",
       "objectives": [
         {
-          "id": "accept_challenge",
-          "completed": true
           "id": "accept_challenge",
           "completed": true
         },
@@ -447,7 +254,6 @@
           "completed": false
         },
         {
-          "id": "clear_basement",
           "id": "report_success",
           "completed": false
         }
@@ -461,8 +267,6 @@
           "completed": true
         },
         {
-          "id": "report_success",
-          "completed": false
           "id": "ruins_detailed_intel",
           "completed": false
         },
@@ -472,14 +276,10 @@
         }
       ]
     },
-    "intelligence_gathering": {
-      "status": "active",
     "kobold_mine_investigation": {
       "status": "active",
       "objectives": [
         {
-          "id": "swamp_detailed_intel",
-          "completed": true
           "id": "find_old_mine",
           "completed": true
         },
@@ -488,13 +288,10 @@
           "completed": false
         },
         {
-          "id": "ruins_detailed_intel",
           "id": "recover_ring",
           "completed": false
         },
         {
-          "id": "refugee_detailed_intel",
-          "completed": true
           "id": "return_to_henrik",
           "completed": false
         },
@@ -504,8 +301,6 @@
         }
       ]
     },
-    "kobold_mine_investigation": {
-      "status": "active",
     "find_henrik": {
       "status": "completed",
       "objectives": [
@@ -523,16 +318,10 @@
       "status": "inactive",
       "objectives": [
         {
-          "id": "find_old_mine",
-          "completed": true
-        },
-        {
-          "id": "clear_kobolds",
           "id": "find_glowcap_mushrooms",
           "completed": false
         },
         {
-          "id": "recover_ring",
           "id": "return_mushrooms_to_cassia",
           "completed": false
         }
@@ -546,29 +335,14 @@
           "completed": false
         },
         {
-          "id": "return_to_henrik",
           "id": "confront_marcus",
           "completed": false
         },
         {
-          "id": "ore_samples_found",
           "id": "report_to_cassia",
           "completed": false
         }
       ]
-    },
-    "find_henrik": {
-      "status": "completed",
-      "objectives": [
-        {
-          "id": "find_henrik_square",
-          "completed": true
-        },
-        {
-          "id": "talk_to_henrik",
-          "completed": true
-        }
-      ]
     }
   },
   "npc_position_overrides": {},
@@ -578,138 +352,10 @@
   "npc_interaction_flags": {},
   "time_of_day": "day",
   "current_day": "wednesday",
-  "town_player_x": 9,
+  "town_player_x": 12,
   "town_player_y": 6,
   "current_screen": "redstone_town",
-    }
-  },
-  "npc_position_overrides": {},
-  "npcs_talked_today": [
-    "henrik"
-  ],
-  "npc_interaction_flags": {},
-  "time_of_day": "day",
-  "current_day": "wednesday",
-  "town_player_x": 7,
-  "town_player_y": 11,
-  "current_screen": "act_two_start",
   "screen_history": [],
-  "previous_screen": "redstone_town",
-  "pending_combat_encounter": null,
-  "party_members": [
-    "elara",
-    "thorman",
-    "lyra"
-  ],
-  "party_member_data": [
-    {
-      "id": "thorman",
-      "name": "Thorman Stormhammer",
-      "class": "cleric",
-      "level": 3,
-      "experience": 3978,
-      "hp": 41,
-      "hit_points": 41,
-      "current_hp": 41,
-      "max_hp": 41,
-      "ac": 15,
-      "stats": {
-        "strength": 14,
-        "dexterity": 10,
-        "constitution": 16,
-        "intelligence": 12,
-        "wisdom": 15,
-        "charisma": 13
-      },
-      "equipment": {
-        "weapon": "Mace",
-        "armor": "Scale Mail",
-        "shield": "Shield"
-      },
-      "spells": {
-        "cantrips_known": [
-          "Sacred Flame",
-          "Light",
-          "Thaumaturgy"
-        ],
-        "spells_known": [
-          "Cure Wounds",
-          "Inflict Wounds",
-          "Guiding Bolt",
-          "Sanctuary",
-          "Ice Knife",
-          "Bless"
-        ]
-      },
-      "effects": []
-    },
-    {
-      "id": "lyra",
-      "name": "Lyra Quickfingers",
-      "class": "rogue",
-      "level": 3,
-      "experience": 3678,
-      "hp": 37,
-      "hit_points": 37,
-      "current_hp": 37,
-      "max_hp": 37,
-      "ac": 14,
-      "stats": {
-        "strength": 10,
-        "dexterity": 16,
-        "constitution": 13,
-        "intelligence": 14,
-        "wisdom": 12,
-        "charisma": 15
-      },
-      "equipment": {
-        "weapon": "shortbow",
-        "armor": "Leather Armor",
-        "shield": "None"
-      },
-      "effects": []
-    },
-    {
-      "id": "elara",
-      "name": "Elara Moonwhisper",
-      "class": "wizard",
-      "level": 3,
-      "experience": 3378,
-      "hp": 28,
-      "hit_points": 20,
-      "current_hp": 28,
-      "max_hp": 28,
-      "ac": 12,
-      "stats": {
-        "strength": 8,
-        "dexterity": 14,
-        "constitution": 12,
-        "intelligence": 16,
-        "wisdom": 13,
-        "charisma": 15
-      },
-      "equipment": {
-        "weapon": "Quarterstaff",
-        "armor": "None",
-        "shield": "None"
-      },
-      "spells": {
-        "cantrips_known": [
-          "Light",
-          "Firebolt",
-          "Ice Knife"
-        ],
-        "spells_known": [
-          "Magic Dart",
-          "Shield",
-          "Fireball",
-          "Lightning Bolt",
-          "Burning Hands"
-        ]
-      },
-      "effects": []
-    }
-  ],
   "previous_screen": "redstone_town",
   "pending_combat_encounter": null,
   "party_members": [
@@ -833,110 +479,21 @@
   "conversations_had": [],
   "mayor_talked": true,
   "mayor_mentioned": true,
-  "mayor_talked": true,
-  "mayor_mentioned": true,
   "pete_attempted_recruitment": false,
   "pete_showing_comedy": false,
   "meredith_talked": true,
   "garrick_talked": true,
-  "meredith_talked": true,
-  "garrick_talked": true,
   "learned_about_church": false,
-  "learned_about_ruins": true,
-  "quest_active": true,
   "learned_about_ruins": true,
   "quest_active": true,
   "just_got_quest": false,
   "showing_meredith_response": false,
   "showing_garrick_response": false,
   "dice_game": {},
-  "dice_game": {},
   "shopping_cart": {},
   "house_money": 50,
   "gambling_wins": 0,
   "gambling_losses": 0,
-  "narrative_flags": {
-    "meredith_talked": true,
-    "meredith_mentioned_mayor": true,
-    "meredith_directed_to_mayor": true,
-    "meredith_gave_swamp_info": true,
-    "meredith_gave_ring_quest": false,
-    "returned_meredith_ring": false,
-    "meredith_mentioned_old_mine": false,
-    "meredith_worried_tremors": false,
-    "garrick_talked": true,
-    "garrick_gave_ruins_info": true,
-    "garrick_offered_basement": true,
-    "garrick_mentioned_mayor": true,
-    "accepted_basement_quest": true,
-    "completed_basement_combat": false,
-    "reported_basement_victory": false,
-    "garrick_paid": false,
-    "post_payment_acknowledged": false,
-    "garrick_mentioned_tremors": false,
-    "garrick_linked_tremors_ruins": false,
-    "pete_talked": true,
-    "pete_attempted_recruitment": false,
-    "pete_showing_comedy": false,
-    "pete_comedy_complete": false,
-    "pete_gave_refugee_info": true,
-    "mayor_talked": true,
-    "quest_active": true,
-    "mayor_mentioned_family": true,
-    "mayor_gave_swamp_info": true,
-    "mayor_gave_ruins_info": true,
-    "mayor_gave_refugee_info": true,
-    "main_quest_completed": false,
-    "reported_main_quest": false,
-    "mayor_paid_main_quest": false,
-    "mayor_worried_tremors": false,
-    "mayor_wants_ore_info": false,
-    "mayor_examined_ore_samples": false,
-    "gareth_talked": false,
-    "gareth_recruited": false,
-    "gareth_shared_story": false,
-    "elara_talked": true,
-    "elara_recruited": true,
-    "elara_shared_magic": false,
-    "thorman_talked": true,
-    "thorman_recruited": true,
-    "thorman_shared_faith": false,
-    "lyra_talked": true,
-    "lyra_recruited": true,
-    "lyra_shared_skills": false,
-    "bernard_talked": true,
-    "bernard_first_visit": false,
-    "bernard_shared_rumors": false,
-    "bernard_gave_discount": false,
-    "jenna_talked": true,
-    "jenna_gave_discount": true,
-    "henrik_talked": true,
-    "henrik_told_ore_story": true,
-    "henrik_shared_tremor_concern": true,
-    "henrik_mentioned_old_shaft": true,
-    "henrik_gave_shaft_quest": true,
-    "investigated_old_shaft": false,
-    "cleared_kobold_mine": false,
-    "retrieved_ore_samples": false,
-    "reported_shaft_to_henrik": false,
-    "henrik_noticed_cavia_sensitivity": false,
-    "learned_about_swamp_church": true,
-    "learned_about_ruins": true,
-    "learned_about_refugees": true,
-    "visited_town_square": false,
-    "visited_general_store": false,
-    "visited_mayor_office": false,
-    "discovered_old_mine_shaft": false
-  },
-  "computed_data": {
-    "recruited_count": 3,
-    "party_members": [
-      "elara",
-      "thorman",
-      "lyra"
-    ],
-    "can_recruit_more": false
-  }
   "narrative_flags": {
     "meredith_talked": true,
     "meredith_mentioned_mayor": true,
