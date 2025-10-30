@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "timestamp": "2025-10-28T20:11:15.296346",
+  "timestamp": "2025-10-29T20:44:39.585018",
   "save_slot": 0,
   "character": {
     "name": "Garlen Sliverblade",
@@ -26,7 +26,7 @@
     "wisdom": 14,
     "charisma": 16,
     "level": 4,
-    "experience": 6783,
+    "experience": 6183,
     "max_hp": 44,
     "current_hp": 44,
     "max_hpabilities": [],
@@ -122,11 +122,11 @@
   },
   "player_statistics": {
     "areas_visited": 0,
-    "npcs_met": 11,
+    "npcs_met": 10,
     "items_consumed": 4,
     "items_discarded": 0,
     "xp_from_combat": 2860,
-    "xp_from_noncombat": 3923,
+    "xp_from_noncombat": 3323,
     "dice_games_played": 2,
     "dice_total_winnings": 140,
     "longest_win_streak": 1,
@@ -168,17 +168,16 @@
     "gold_earned_trading": 298
   },
   "npcs_encountered": [
+    "elara",
+    "henrik",
+    "pete",
+    "lyra",
     "meredith",
     "bernard",
-    "elara",
-    "lyra",
-    "garrick",
-    "henrik",
     "mayor",
+    "garrick",
     "thorman",
-    "jenna",
-    "pete",
-    "cassia"
+    "jenna"
   ],
   "quest_system": {
     "main_story": {
@@ -316,7 +315,7 @@
       ]
     },
     "marcus_last_recipe": {
-      "status": "active",
+      "status": "inactive",
       "objectives": [
         {
           "id": "find_glowcap_mushrooms",
@@ -353,9 +352,9 @@
   "npc_interaction_flags": {},
   "time_of_day": "day",
   "current_day": "wednesday",
-  "town_player_x": 5,
-  "town_player_y": 9,
-  "current_screen": "redstone_town",
+  "town_player_x": 7,
+  "town_player_y": 11,
+  "current_screen": "act_two_start",
   "screen_history": [],
   "previous_screen": "redstone_town",
   "pending_combat_encounter": null,
@@ -370,7 +369,7 @@
       "name": "Thorman Stormhammer",
       "class": "cleric",
       "level": 3,
-      "experience": 4578,
+      "experience": 3978,
       "hp": 41,
       "hit_points": 41,
       "current_hp": 41,
@@ -411,7 +410,7 @@
       "name": "Lyra Quickfingers",
       "class": "rogue",
       "level": 3,
-      "experience": 4278,
+      "experience": 3678,
       "hp": 37,
       "hit_points": 37,
       "current_hp": 37,
@@ -437,7 +436,7 @@
       "name": "Elara Moonwhisper",
       "class": "wizard",
       "level": 3,
-      "experience": 3978,
+      "experience": 3378,
       "hp": 28,
       "hit_points": 20,
       "current_hp": 28,
@@ -560,7 +559,7 @@
     "retrieved_ore_samples": false,
     "reported_shaft_to_henrik": false,
     "henrik_noticed_cavia_sensitivity": false,
-    "cassia_talked": true,
+    "cassia_talked": false,
     "learned_about_violet_mortar": false,
     "bernard_mentioned_cassia": false,
     "garrick_mentioned_cassia": false,
@@ -569,8 +568,8 @@
     "cassia_mentioned_marcus": false,
     "cassia_told_marcus_story": false,
     "offered_to_help_cassia": false,
-    "cassia_gave_recipe_quest": true,
-    "recipe_quest_active": true,
+    "cassia_gave_recipe_quest": false,
+    "recipe_quest_active": false,
     "completed_marcus_recipe": false,
     "cassia_gave_journals": false,
     "cassia_final_words_for_marcus": false,
