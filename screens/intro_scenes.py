@@ -56,7 +56,9 @@ def get_fallback_intro_data():
                 "id": "intro_scene_1",
                 "title": "The Road to Redstone",
                 "content": [
-                    "The dusty trail stretches before you as you approach the mining town of Redstone. Tales of strange happenings and missing miners have reached even the distant cities, and local authorities are offering good coin for brave souls willing to investigate the growing darkness."
+                    "The dusty trail stretches before you as you approach the mining town of Redstone. "
+                    "Tales of strange happenings and missing miners have reached even the distant cities in the Crimson Reach, "
+                    "and local authorities are offering good coin for brave souls willing to investigate the growing darkness."
                 ],
                 "next_scene": "intro_scene_2",
                 "background_style": "road_dusk"
@@ -65,7 +67,10 @@ def get_fallback_intro_data():
                 "id": "intro_scene_2", 
                 "title": "Whispers in the Wind",
                 "content": [
-                    "As you crest the final hill, Redstone comes into view. The town seems quiet - too quiet for a place that should be bustling with mining activity. Smoke rises from only a few chimneys, and you notice several boarded-up buildings. Whatever troubles this place runs deeper than simple bandit raids."
+                    "As you crest the final hill, Redstone comes into view. The town seems quiet - "
+                    "too quiet for a place that should be bustling with mining activity. "
+                    "Smoke rises from only a few chimneys, and you notice several boarded-up buildings. "
+                    "Whatever troubles this place runs deeper than simple bandit raids."
                 ],
                 "next_scene": "intro_scene_3",
                 "background_style": "town_overlook"
@@ -74,7 +79,9 @@ def get_fallback_intro_data():
                 "id": "intro_scene_3",
                 "title": "The Broken Blade Beckons", 
                 "content": [
-                    "You guide your horse down the main street, noting the nervous glances of the few townspeople you see. At the town's center stands The Broken Blade tavern, its warm light a welcome beacon in the growing dusk. Perhaps the locals there will have answers... and maybe you'll find allies for whatever lies ahead."
+                    "You guide your horse down the main street, noting the nervous glances of the few townspeople you see. "
+                    "At the town's center stands The Broken Blade tavern, its warm light a welcome beacon in the growing dusk. "
+                    "Perhaps the locals there will have answers... and maybe you'll find allies for whatever lies ahead."
                 ],
                 "next_scene": "broken_blade",
                 "background_style": "tavern_approach"

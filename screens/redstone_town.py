@@ -189,6 +189,12 @@ class RedstoneTownNavigation:
                             # Contextual messages based on screen type
                             if screen == 'world_map':
                                 self.temp_message_text = "The town gates are sealed. The guards won't let anyone leave right now."
+                            elif screen == 'act_two_start':  
+                                if not game_state.mayor_talked or not game_state.quest_active:
+                                    self.temp_message_text = "You should speak with the Mayor before venturing beyond the walls."
+                                else:
+                                    # This shouldn't happen since screen is registered, but just in case
+                                    self.temp_message_text = "The investigation begins..."
                             else:
                                 self.temp_message_text = "Sorry, it's closed."
                 elif interaction_type == 'combat':

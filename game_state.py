@@ -122,6 +122,12 @@ class GameState:
         self.current_names = []
         self.selected_name = ""
         
+        # Act progression flags
+        self.act_two_started = False
+        self.act_two_complete = False
+        self.act_three_started = False
+        self.act_one_complete = False
+
         # Overlay state management (unified system)
         self.overlay_state = OverlayState()
 

@@ -166,14 +166,18 @@ BUILDING_ENTRANCES = {
         }    
     },
     'south_gate': {
-        'building_pos': (7, 12),
-        'entrance_tiles': [(7, 11)],  # Tile just north of south gate
-        'info': {
-            'name': "South Town Gate",
-            'interaction_type': 'screen_transition',
-            'screen': 'world_map',
-            'action': 'Exit to world map (South)'
-        }    
+    'building_pos': (7, 12),
+    'entrance_tiles': [(7, 11)],  # Tile just north of south gate
+    'info': {
+        'name': "South Town Gate",
+        'interaction_type': 'screen_transition',  
+        'screen': 'act_two_start',                      # Changed from 'world_map'
+        'action': 'Begin Investigation',
+        # 'requirements': {                               #Add requirements check
+        #     'flags': ['mayor_talked', 'quest_active'],
+        #     'message': "You should speak with the Mayor before venturing beyond the walls."
+        #     }
+        }
     },
         'alley': {
         'building_pos': [(12, 3), (12, 4), (12, 5)],  # Alley tiles (column 12, rows 3-5)

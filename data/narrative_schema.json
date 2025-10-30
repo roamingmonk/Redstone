@@ -306,6 +306,7 @@
       "display_name": "Swamp Church",
       "system_id": "swamp_church",
       "discovery_flag": "learned_about_swamp_church",
+      "completion_flag": "swamp_church_complete", 
       "quest_id": "explore_swamp_church",
       "source_npc": "meredith",
       "location_type": "investigation_site"
@@ -314,6 +315,7 @@
       "display_name": "Hill Ruins", 
       "system_id": "hill_ruins",
       "discovery_flag": "learned_about_ruins",
+      "completion_flag": "hill_ruins_complete", 
       "quest_id": "investigate_hill_ruins",
       "source_npc": "garrick",
       "location_type": "investigation_site"
@@ -322,6 +324,7 @@
       "display_name": "Refugee Camp",
       "system_id": "refugee_camp", 
       "discovery_flag": "learned_about_refugees",
+      "completion_flag": "refugee_camp_complete", 
       "quest_id": "find_refugee_camp",
       "source_npc": "mayor",
       "location_type": "investigation_site"
@@ -354,6 +357,7 @@
       "display_name": "Red Hollow Mine - Old Shaft",
       "system_id": "red_hollow_mine",
       "discovery_flag": "discovered_old_mine_shaft",
+      "completion_flag": "red_hollow_mine_complete", 
       "quest_id": "kobold_mine_investigation",
       "source_npc": "henrik",
       "location_type": "dungeon_combat"
@@ -786,5 +790,26 @@
       "marcus_died_ending": "cassia_gave_journals && marcus_died_in_battle && !cassia_story_complete",
       "post_resolution": "cassia_story_complete"
       }
+    },
+    "act_progression": {
+    "act_one": {
+      "name": "The Gathering Storm",
+      "start_flag": null,
+      "completion_flag": "act_one_complete",
+      "key_milestones": ["mayor_talked", "quest_active", "recruited_count >= 1"]
+    },
+    "act_two": {
+      "name": "The Investigation",
+      "start_flag": "act_two_started",
+      "completion_flag": "act_two_complete",
+      "key_milestones": ["swamp_church_complete", "hill_ruins_complete", "refugee_camp_complete"]
+    },
+    "act_three": {
+      "name": "The Final Confrontation",
+      "start_flag": "act_three_started",
+      "completion_flag": "main_quest_completed",
+      "key_milestones": ["entered_final_dungeon", "defeated_cult_leader", "rescued_mayors_family"]
     }
   }
+}
+

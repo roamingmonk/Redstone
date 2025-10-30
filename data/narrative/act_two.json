@@ -1,0 +1,24 @@
+{
+  "act_two_transition": {
+    "title": "ACT TWO: THE INVESTIGATION BEGINS",
+    "scenes": [
+      {
+        "id": "act_two_start",
+        "title": "The Investigation Begins",
+        "content": [
+          "With your companions assembled and the Mayor's urgent plea echoing in your mind, you prepare to venture beyond Redstone's walls.",
+          "Three locations demand investigation: the fog-shrouded church in the southern swamps, the ancient ruins overlooking the valley, and the refugee camp where displaced miners seek shelter.",
+          "Somewhere in these troubled lands lies the answer to Redstone's darkness. The tremors grow stronger. Time is running short."
+        ],
+        "next_scene": "exploration_hub",
+        "background_style": "town_overlook"
+      }
+    ],
+    "ui_config": {
+      "continue_button_text": "BEGIN EXPLORATION",
+      "title_color": "YELLOW",
+      "text_color": "WHITE",
+      "background_color": "BLACK"
+    }
+  }
+}

@@ -27,6 +27,9 @@ from ui.shopping_overlay import ShoppingOverlay
 from ui.generic_dialogue_handler import draw_generic_dialogue_screen
 from ui.death_overlay import create_death_overlay
 from screens.intro_scenes import draw_intro_scene_1, draw_intro_scene_2, draw_intro_scene_3
+from screens.act_two_transition import (draw_act_two_start, register_act_two_buttons, get_act_two_manager)
+
+
 from ui.screen_handlers import (handle_main_menu_clicks, handle_dice_bets_clicks,
                                 handle_dice_rolling_clicks, handle_dice_results_clicks,
                                 handle_dice_rules_clicks)
@@ -74,6 +77,9 @@ class ScreenManager:
         self.max_errors = 3
 
         self._current_game_controller = None 
+
+        # Initialize Act II transition manager 
+        self.act_two_manager = None  
 
         # Navigation route map for simple transitions
         self.navigation_routes = {
@@ -602,6 +608,20 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for intro scene registration")
 
+    def register_act_two_clickables(self):
+        """Register clickable buttons for ACT TWO transition screen"""
+        clickable_areas = self.current_clickables
+        
+        if "continue_button" in clickable_areas:
+            def on_continue_click():
+                self.event_manager.emit("ACT_TWO_CONTINUE", {})
+            
+            self.register_clickable(
+                "act_two_continue_button",
+                clickable_areas["continue_button"],
+                on_continue_click
+            )
+
     def register_load_screen_clickables(self):
         """Register load screen clickables when load overlay opens"""
         if hasattr(self, 'input_handler') and self.input_handler:
@@ -1069,6 +1089,12 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_intro_scene_clickables("intro_scene_2"))
             self.register_render_function("intro_scene_3", draw_intro_scene_3,
                 enter_hook=lambda _: self.register_intro_scene_clickables("intro_scene_3"))
+
+            self.register_render_function("act_two_start", draw_act_two_start,
+                enter_hook=lambda _: self.register_act_two_clickables())
+
+   
+
 
            # Broken Blade Tavern - BaseLocation System
             self._auto_register_location("broken_blade")
