@@ -1,45 +1,68 @@
 {
   "version": "2.0",
-  "timestamp": "2025-09-12T06:39:00.855114",
+  "timestamp": "2025-10-01T20:57:32.484533",
   "save_slot": 2,
   "character": {
-    "strength": 12,
-    "dexterity": 11,
-    "constitution": 9,
-    "intelligence": 11,
-    "wisdom": 8,
-    "charisma": 11,
-    "hit_points": 9,
-    "gender": "male",
-    "name": "Erik Frostborn",
-    "selected_portrait_file": "player_male_01.jpg",
-    "selected_portrait_gender": "male",
-    "gold": 160,
-    "trinket": "Smooth river stone with ancient runes carved deep",
-    "level": 1,
-    "experience": 0,
-    "equipped_weapon": "Longsword",
-    "equipped_armor": "Leather Armor",
-    "equipped_shield": "Shield",
+    "name": "Thyra Nightblade",
+    "class": "fighter",
+    "gender": "female",
+    "trinket": "Leather pouch with dried herbs",
+    "strength": 17,
+    "dexterity": 13,
+    "constitution": 14,
+    "intelligence": 12,
+    "wisdom": 14,
+    "charisma": 12,
+    "level": 3,
+    "experience": 1520,
+    "hit_points": 31,
+    "current_hp": 31,
+    "max_hpabilities": [],
+    "gold": 340,
+    "gambling_stats": {
+      "house_money": 354,
+      "game_active": true,
+      "win_streak": 1,
+      "loss_streak": 0,
+      "total_winnings": 175,
+      "total_losses": 75,
+      "games_played": 4,
+      "last_roll": [
+        3,
+        3,
+        3
+      ],
+      "current_bet": 25,
+      "last_result": {
+        "combination": "Triple",
+        "payout": 175,
+        "description": "Amazing! Triple 3s!",
+        "game_continues": true
+      },
+      "rolling": true,
+      "roll_start_time": 101806,
+      "animation_skipped": false
+    },
+    "selected_portrait_file": "player_female_02.jpg",
+    "selected_portrait_gender": "female",
+    "equipped_weapon": "longsword",
+    "equipped_armor": "leather_armor",
+    "equipped_shield": "shield",
     "abilities": [
-      "Combat Training",
-      "Weapon Mastery"
+      "Combat Surge",
+      "Extra Attack"
     ]
   },
   "inventory": {
     "weapons": [
-      "Longsword",
-      "Longsword"
+      "longsword"
     ],
     "armor": [
-      "Leather Armor",
-      "Shield",
-      "Leather Armor",
-      "Shield"
+      "leather_armor",
+      "shield"
     ],
     "items": [
-      "Hemp Rope",
-      "Smooth river stone with ancient runes carved deep"
+      "Leather pouch with dried herbs"
     ],
     "consumables": []
   },
@@ -49,28 +72,44 @@
       "objectives": [
         {
           "id": "talk_to_npcs",
-          "completed": false
+          "completed": true
         },
         {
           "id": "meet_mayor",
-          "completed": false
+          "completed": true
         },
         {
           "id": "recruit_party",
           "completed": false
         },
         {
-          "id": "investigate_locations",
+          "id": "learn_swamp_church",
+          "completed": true
+        },
+        {
+          "id": "learn_hill_ruins",
+          "completed": true
+        },
+        {
+          "id": "learn_refugee_camp",
+          "completed": true
+        },
+        {
+          "id": "explore_swamp_church",
           "completed": false
         },
         {
-          "id": "solve_mystery",
+          "id": "explore_hill_ruins",
+          "completed": false
+        },
+        {
+          "id": "explore_refugee_camp",
           "completed": false
         }
       ]
     },
     "party_building": {
-      "status": "inactive",
+      "status": "active",
       "objectives": [
         {
           "id": "recruit_warrior",
@@ -78,124 +117,148 @@
         },
         {
           "id": "recruit_mage",
-          "completed": false
+          "completed": true
         },
         {
           "id": "recruit_cleric",
-          "completed": false
+          "completed": true
         },
         {
           "id": "recruit_rogue",
+          "completed": true
+        }
+      ]
+    },
+    "basement_rat_combat": {
+      "status": "inactive",
+      "objectives": [
+        {
+          "id": "accept_challenge",
+          "completed": true
+        },
+        {
+          "id": "clear_basement",
+          "completed": false
+        },
+        {
+          "id": "report_success",
           "completed": false
         }
       ]
     },
-    "investigate_hill_ruins": {
-      "status": "inactive",
+    "intelligence_gathering": {
+      "status": "completed",
       "objectives": [
         {
-          "id": "learn_location",
-          "completed": false
+          "id": "swamp_detailed_intel",
+          "completed": true
         },
         {
-          "id": "travel_to_ruins",
-          "completed": false
+          "id": "ruins_detailed_intel",
+          "completed": true
         },
         {
-          "id": "explore_ruins",
-          "completed": false
-        },
-        {
-          "id": "find_evidence",
-          "completed": false
-        }
-      ]
-    },
-    "explore_swamp_church": {
-      "status": "inactive",
-      "objectives": [
-        {
-          "id": "learn_location",
-          "completed": false
-        },
-        {
-          "id": "travel_to_church",
-          "completed": false
-        },
-        {
-          "id": "explore_church",
-          "completed": false
-        },
-        {
-          "id": "find_evidence",
-          "completed": false
-        }
-      ]
-    },
-    "find_refugee_camp": {
-      "status": "inactive",
-      "objectives": [
-        {
-          "id": "learn_location",
-          "completed": false
-        },
-        {
-          "id": "travel_to_camp",
-          "completed": false
-        },
-        {
-          "id": "talk_to_refugees",
-          "completed": false
-        },
-        {
-          "id": "gather_information",
-          "completed": false
+          "id": "refugee_detailed_intel",
+          "completed": true
         }
       ]
     }
   },
-  "current_screen": "broken_blade_main",
+  "current_screen": "broken_blade",
   "screen_history": [],
-  "previous_screen": null,
-  "party_members": [],
+  "previous_screen": "broken_blade",
+  "pending_combat_encounter": null,
+  "party_members": [
+    "elara",
+    "thorman",
+    "lyra"
+  ],
   "tavern_visits": 0,
   "locations_discovered": [],
   "quest_flags": {},
   "npc_recruitment_status": {},
   "conversations_had": [],
-  "mayor_talked": false,
-  "mayor_mentioned": false,
+  "mayor_talked": true,
+  "mayor_mentioned": true,
   "pete_attempted_recruitment": false,
   "pete_showing_comedy": false,
-  "meredith_talked": false,
-  "garrick_talked": false,
+  "meredith_talked": true,
+  "garrick_talked": true,
   "learned_about_church": false,
-  "learned_about_ruins": false,
-  "quest_active": false,
+  "learned_about_ruins": true,
+  "quest_active": true,
   "just_got_quest": false,
   "showing_meredith_response": false,
   "showing_garrick_response": false,
-  "dice_game": {
-    "house_money": 518,
-    "current_bet": 0,
-    "last_roll": [
-      0,
-      0,
-      0
-    ],
-    "rolling": false,
-    "roll_start_time": 0,
-    "last_result": null,
-    "last_payout": 0,
-    "game_active": true,
-    "win_streak": 0,
-    "loss_streak": 0
-  },
+  "dice_game": {},
   "shopping_cart": {},
   "house_money": 50,
   "gambling_wins": 0,
   "gambling_losses": 0,
-  "equipped_weapon": null,
-  "equipped_armor": null,
-  "equipped_shield": null
+  "equipped_weapon": "longsword",
+  "equipped_armor": "leather_armor",
+  "equipped_shield": "shield",
+  "narrative_flags": {
+    "meredith_talked": true,
+    "meredith_mentioned_mayor": false,
+    "meredith_directed_to_mayor": false,
+    "meredith_gave_swamp_info": true,
+    "garrick_talked": true,
+    "garrick_gave_ruins_info": true,
+    "garrick_offered_basement": true,
+    "garrick_mentioned_mayor": true,
+    "accepted_basement_quest": true,
+    "completed_basement_combat": true,
+    "reported_basement_victory": false,
+    "garrick_paid": false,
+    "post_payment_acknowledged": false,
+    "pete_talked": true,
+    "pete_attempted_recruitment": false,
+    "pete_showing_comedy": false,
+    "pete_comedy_complete": false,
+    "pete_gave_refugee_info": true,
+    "mayor_talked": true,
+    "quest_active": true,
+    "mayor_mentioned_family": true,
+    "mayor_gave_swamp_info": true,
+    "mayor_gave_ruins_info": true,
+    "mayor_gave_refugee_info": true,
+    "main_quest_completed": false,
+    "reported_main_quest": false,
+    "mayor_paid_main_quest": false,
+    "gareth_talked": true,
+    "gareth_recruited": false,
+    "gareth_shared_story": false,
+    "elara_talked": true,
+    "elara_recruited": true,
+    "elara_shared_magic": false,
+    "thorman_talked": true,
+    "thorman_recruited": true,
+    "thorman_shared_faith": false,
+    "lyra_talked": true,
+    "lyra_recruited": true,
+    "lyra_shared_skills": false,
+    "bernard_talked": false,
+    "bernard_first_visit": false,
+    "bernard_shared_rumors": false,
+    "bernard_gave_discount": false,
+    "jenna_talked": false,
+    "jenna_explained_shop": false,
+    "jenna_offered_specials": false,
+    "learned_about_swamp_church": true,
+    "learned_about_ruins": true,
+    "learned_about_refugees": true,
+    "visited_town_square": false,
+    "visited_general_store": false,
+    "visited_mayor_office": false
+  },
+  "computed_data": {
+    "recruited_count": 3,
+    "party_members": [
+      "elara",
+      "thorman",
+      "lyra"
+    ],
+    "can_recruit_more": false
+  }
 }

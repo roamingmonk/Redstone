@@ -1,0 +1,31 @@
+{
+  "swamp_church_altar": {
+    "npc_name": "Desecrated Altar",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "dialogue": [
+          "The altar has been defaced with crude symbols painted in what appears to be dried blood.",
+          "Melted candles surround strange offerings - bones, rotting flowers, and small trinkets arranged in arcane patterns.",
+          "As you examine the altar more closely, you notice the floor behind it has been disturbed.",
+          "A hidden trapdoor has been recently used - whatever the cultists were doing, they went underground."
+        ],
+        "choices": [
+          {
+            "text": "[Continue]",
+            "next_state": "end",
+            "effects": [
+              {
+                "type": "set_flag",
+                "flag": "examined_altar",
+                "value": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

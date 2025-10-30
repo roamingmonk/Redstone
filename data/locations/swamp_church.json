@@ -1,16 +1,140 @@
 {
-"swamp_church": {
-      "NOTE": "Add this to areas where glowcap_mushrooms can be found",
-      "loot_tables": {
-        "glowcap_mushroom_node": {
-          "items": [
-            {
-              "item_id": "glowcap_mushrooms",
-              "quantity": 1,
-              "chance": 1
-            }
-          ]
+  "swamp_church": {
+    "location_id": "swamp_church",
+    "name": "Church in the Swamp",
+    "type": "investigation_site",
+    
+    "loot_tables": {
+      "swamp_church_pews": {
+        "items": [
+          {
+            "item_id": "glowcap_mushrooms",
+            "quantity": 1,
+            "chance": 1.0
+          },
+          {
+            "item_id": "silver_coins",
+            "quantity": 5,
+            "chance": 0.75
+          }
+        ]
+      },
+      "swamp_church_altar": {
+        "items": [
+          {
+            "item_id": "strange_relic",
+            "quantity": 1,
+            "chance": 1.0
+          }
+        ]
+      },
+      "swamp_church_crypt": {
+        "items": [
+          {
+            "item_id": "glowcap_mushrooms",
+            "quantity": 2,
+            "chance": 1.0
+          },
+          {
+            "item_id": "cult_documents",
+            "quantity": 1,
+            "chance": 1.0
+          },
+          {
+            "item_id": "healing_potion",
+            "quantity": 1,
+            "chance": 0.5
+          }
+        ]
+      }
+    },
+    
+    "areas": {
+      "exterior": {
+        "type": "action_hub",
+        "title": "CHURCH IN THE SWAMP - EXTERIOR",
+        "description": "A thick fog shrouds the ancient stone church...",
+        "actions": {
+          "examine_symbols": {
+            "type": "dialogue",
+            "label": "Examine Symbols",
+            "npc_id": "symbols",
+            "return_to": "swamp_church_exterior"
+          },
+          "enter_church": {
+            "type": "navigate",
+            "label": "Enter Church",
+            "target": "swamp_church_interior"
+          },
+          "leave": {
+            "type": "navigate",
+            "label": "Return to Region Map",
+            "target": "exploration_hub"
+          }
         }
+      },
+      "interior": {
+        "type": "action_hub",
+        "title": "CHURCH IN THE SWAMP - INTERIOR",
+        "description": "The church interior is in disarray...",
+        "actions": {
+          "search_pews": {
+            "type": "loot_check",
+            "label": "Search Pews",
+            "loot_table": "swamp_church_pews",
+            "description": "Look for items among the overturned benches.",
+            "one_time_flag": "searched_church_pews"
+          },
+          "examine_altar": {
+            "type": "dialogue",
+            "label": "Examine Altar",
+            "npc_id": "altar",
+            "return_to": "swamp_church_interior",
+            "description": "Investigate teh desecrated alter."
+          },
+          "enter_crypt": {
+            "type": "navigate",
+            "label": "Descend into Crypt",
+            "target": "swamp_church_crypt",
+            "requires_flag": "examined_altar"
+          },
+          "exit_church": {
+            "type": "navigate",
+            "label": "Exit Church",
+            "target": "swamp_church_exterior"
+          }
+        }
+      },
+      "crypt": {
+        "type": "action_hub",
+        "title": "CHURCH IN THE SWAMP - CRYPT",
+        "description": "Ancient stone steps lead down into a damp crypt...",
+        "actions": {
+          "search_crypt": {
+            "type": "loot_check",
+            "label": "Search the Crypt",
+            "loot_table": "swamp_church_crypt",
+            "description": "Search for useful items in the darkness.",
+            "one_time_flag": "searched_church_crypt"
+          },
+          "investigate_ritual": {
+            "type": "dialogue",
+            "label": "Investigate Ritual Site",
+            "npc_id": "ritual"
+          },
+          "confront_cultists": {
+            "type": "combat",
+            "label": "Confront Cultists",
+            "combat_encounter": "swamp_church_cultists",
+            "requires_flag": "investigated_ritual_site"
+          },
+          "return_upstairs": {
+            "type": "navigate",
+            "label": "Return Upstairs",
+            "target": "swamp_church_interior"
+          }
+        }
+      }
     }
   }
 }

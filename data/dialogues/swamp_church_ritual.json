@@ -1,0 +1,31 @@
+{
+  "swamp_church_ritual": {
+    "npc_name": "Ritual Site",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "investigate",
+    "states": {
+      "investigate": {
+        "dialogue": [
+          "The crypt has been converted into a ritual chamber. Symbols cover every surface, and the air reeks of sulfur and decay.",
+          "You find evidence of multiple ceremonies - burnt offerings, ritual implements, and disturbing drawings depicting some kind of summoning.",
+          "Fresh footprints in the dust suggest the cultists were here very recently.",
+          "You hear movement deeper in the crypt. They're still here."
+        ],
+        "choices": [
+          {
+            "text": "[Prepare for confrontation]",
+            "next_state": "end",
+            "effects": [
+              {
+                "type": "set_flag",
+                "flag": "investigated_ritual_site",
+                "value": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

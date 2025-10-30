@@ -16,22 +16,22 @@
             "talk_patrons": {
                 "type": "navigate",
                 "target": "patron_selection",
-                "label": "talk to patrons"
+                "label": "Talk to patrons"
             },
             "gamble": {
                 "type": "navigate", 
                 "target": "dice_bets",
-                "label": " gamble"
+                "label": "Dice Game"
             },
             "bartender": {
                 "type": "dialogue",
                 "npc_id": "garrick",
-                "label": "bartender"
+                "label": "Bartender"
             },
             "server": {
                 "type": "dialogue",
                 "npc_id": "meredith",
-                "label": "server"
+                "label": "Server"
             },
             "basement": {
               "type": "combat",
@@ -41,16 +41,16 @@
                 "flags": {
                   "accepted_basement_quest": true,
                   "completed_basement_combat": false
-                }
-              },
-              "combat_encounter": "tavern_basement_rats",
-              "combat_context": {
-                  "location_name": "Tavern Basement",
-                  "victory_description": "You clear the basement of the rat infestation.",
-                  "victory_quest_flags": {
-                      "completed_basement_combat": true
+                    }
+                  },
+                  "combat_encounter": "tavern_basement_rats",
+                  "combat_context": {
+                      "location_name": "Tavern Basement",
+                      "victory_description": "You clear the basement of the rat infestation.",
+                      "victory_quest_flags": {
+                          "completed_basement_combat": true
+                      }
                   }
-              }
             },
             "basement_visit": {
               "type": "navigate",

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
-  "timestamp": "2025-10-30T14:40:33.249816",
-  "save_slot": 0,
+  "timestamp": "2025-10-30T10:00:48.265584",
+  "save_slot": 4,
   "character": {
     "name": "Garlen Sliverblade",
     "class": "fighter",
@@ -168,15 +168,15 @@
     "gold_earned_trading": 298
   },
   "npcs_encountered": [
-    "meredith",
-    "thorman",
-    "henrik",
-    "garrick",
     "mayor",
-    "lyra",
+    "thorman",
     "pete",
-    "elara",
+    "garrick",
+    "meredith",
     "jenna",
+    "henrik",
+    "lyra",
+    "elara",
     "bernard"
   ],
   "quest_system": {
@@ -353,8 +353,8 @@
   "time_of_day": "day",
   "current_day": "thursday",
   "town_player_x": 7,
-  "town_player_y": 7,
-  "current_screen": "broken_blade",
+  "town_player_y": 11,
+  "current_screen": "redstone_town",
   "screen_history": [],
   "previous_screen": "redstone_town",
   "pending_combat_encounter": null,

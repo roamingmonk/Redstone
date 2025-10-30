@@ -1114,6 +1114,8 @@ class ScreenManager:
             self._auto_register_location("patron_selection")
             # Act II Exploration Hub
             self._auto_register_location("exploration_hub")
+            # Act II Investigation Locations
+            self._auto_register_location("swamp_church")
             # Redstown Town
             self.register_render_function("redstone_town", render_town_navigation)
 

@@ -367,9 +367,7 @@ class ActionHubLocation(BaseLocation):
             requirements = action_data.get('requirements')
             if self.evaluate_requirements(requirements, game_state):
                 available_actions[action_name] = action_data
-                #print(f"✅ Action '{action_name}' requirements met")
-            #else:
-                #print(f"❌ Action '{action_name}' requirements not met, skipping")
+
 
         if available_actions:             
             # Calculate flexible button widths based on text content
@@ -380,14 +378,27 @@ class ActionHubLocation(BaseLocation):
             # Calculate individual button widths
             button_configs = []
             total_text_width = 0
-            for action_name, action_data in actions.items():
-                # Check if this action requires a discovery flag
+            for action_name, action_data in available_actions.items():  # ✅ Use filtered dict
+                # NEW FORMAT: "requires_flag": "flag_name"
                 requires_flag = action_data.get('requires_flag')
                 if requires_flag and game_state:
-                    # Only show this action if the required flag is True
                     flag_value = getattr(game_state, requires_flag, False)
                     if not flag_value:
-                        continue  # Skip this button - player hasn't discovered it yet
+                        continue
+                
+                # OLD FORMAT: "requirements": {"flags": {"flag_name": true/false}}
+                requirements = action_data.get('requirements', {})
+                required_flags = requirements.get('flags', {})
+                if required_flags and game_state:
+                    # Check all required flags
+                    all_met = True
+                    for flag_name, expected_value in required_flags.items():
+                        actual_value = getattr(game_state, flag_name, False)
+                        if actual_value != expected_value:
+                            all_met = False
+                            break
+                    if not all_met:
+                        continue
                 
                 label = action_data.get('label', action_name.replace('_', ' ').title())
                 text_width = button_font.size(label)[0]

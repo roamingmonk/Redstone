@@ -11,7 +11,7 @@ This replaces ALL NPC-specific dialogue functions with a single universal system
 import pygame
 from utils.constants import (DIALOGUE_BG_COLOR, DIALOGUE_BORDER_COLOR, DIALOGUE_OPTION_COLOR,
                              DIALOGUE_TITLE_COLOR, DIALOGUE_TEXT_COLOR,
-                             WHITE)
+                             WHITE, BLACK)
 from utils.graphics import draw_border, draw_button
 from utils.npc_display import draw_npc_portrait
 from utils.party_display import draw_party_status_panel
@@ -104,7 +104,7 @@ def render_dialogue_screen_directly(surface, npc_id, conversation_data, game_sta
     #print(f"🎨 DIRECT RENDER: Rendering dialogue for {npc_id}")
     
     # Clear screen
-    surface.fill((0, 0, 0))
+    surface.fill(BLACK)
     
     # Draw NPC portrait using existing system
     draw_npc_portrait(surface, npc_id)
@@ -204,7 +204,7 @@ def draw_generic_response_screen(surface, npc_id, game_state, fonts, location_id
     response_lines = getattr(game_state, response_attr, ["Thank you for listening."])
     
     # Clear screen
-    surface.fill((0, 0, 0))
+    surface.fill(BLACK)
     
     # Draw NPC portrait
     draw_npc_portrait(surface, npc_id)
@@ -245,10 +245,9 @@ def draw_generic_fallback_screen(surface, npc_id, game_state, fonts):
     """Universal fallback screen if DialogueEngine not available"""
     #print(f"🧭 RENDER GDH: draw_generic_fallback_screen [{npc_id}] from {__file__}")
     
-    surface.fill((0, 0, 0))
+    surface.fill(BLACK)
     
-    # Draw NPC portrait automatically based on npc_id
-    draw_npc_portrait(surface, npc_id)
+    draw_npc_portrait(surface, npc_id, is_object=False, hide_portrait=False)
     
     # Get NPC name from ID (capitalize and format)
     npc_name = npc_id.replace('_', ' ').title()

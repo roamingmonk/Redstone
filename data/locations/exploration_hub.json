@@ -14,7 +14,7 @@
           "swamp_church": {
             "type": "navigate",
             "label": "Church in the Swamp",
-            "target": "swamp_church.exterior",
+            "target": "swamp_church_exterior",
             "description": "A fog-shrouded church deep in the marshlands where cult activity has been reported.",
             "requires_flag": "learned_about_swamp_church"
           },
