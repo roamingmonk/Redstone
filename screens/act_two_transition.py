@@ -55,7 +55,7 @@ def get_fallback_act_two_data():
                 "id": "act_two_start",
                 "title": "The Investigation Begins",
                 "content": [
-                    "With your companions assembled and the Mayor's urgent plea echoing in your mind, you prepare to venture beyond Redstone's walls.",
+                    "FALLBACK!!! With your companions assembled and the Mayor's urgent plea echoing in your mind, you prepare to venture beyond Redstone's walls.",
                     "Three locations demand investigation: the fog-shrouded church in the southern swamps, the ancient ruins overlooking the valley, and the refugee camp where displaced miners seek shelter.",
                     "Somewhere in these troubled lands lies the answer to Redstone's darkness. The tremors grow stronger. Time is running short."
                 ],

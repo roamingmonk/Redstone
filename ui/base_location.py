@@ -206,7 +206,6 @@ class BaseLocation(ABC):
         actions = area_data.get('actions', {})
         return list(actions.keys())
 
-
 class ActionHubLocation(BaseLocation):
     """
     Location type for areas with multiple action buttons
@@ -381,9 +380,16 @@ class ActionHubLocation(BaseLocation):
             # Calculate individual button widths
             button_configs = []
             total_text_width = 0
-
-            for action_name, action_data in available_actions.items():
-                label = action_data.get('label', action_name.replace('_', ' ')).title()
+            for action_name, action_data in actions.items():
+                # Check if this action requires a discovery flag
+                requires_flag = action_data.get('requires_flag')
+                if requires_flag and game_state:
+                    # Only show this action if the required flag is True
+                    flag_value = getattr(game_state, requires_flag, False)
+                    if not flag_value:
+                        continue  # Skip this button - player hasn't discovered it yet
+                
+                label = action_data.get('label', action_name.replace('_', ' ').title())
                 text_width = button_font.size(label)[0]
                 button_width = max(text_width + 40, 80)  # 40px padding, 80px minimum
                 button_configs.append({

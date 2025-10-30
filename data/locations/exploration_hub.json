@@ -1,0 +1,56 @@
+{
+  "exploration_hub": {
+    "location_id": "exploration_hub",
+    "name": "The Redstone Region",
+    "type": "action_hub",
+    "description": "Choose your investigation destination",
+    "areas": {
+      "main": {
+        "type": "action_hub",
+        "title": "THE REDSTONE REGION",
+        "description": "Several locations around Redstone demand investigation. Where will you travel?",
+        "background": "town_overlook",
+        "actions": {
+          "swamp_church": {
+            "type": "navigate",
+            "label": "Church in the Swamp",
+            "target": "swamp_church.exterior",
+            "description": "A fog-shrouded church deep in the marshlands where cult activity has been reported.",
+            "requires_flag": "learned_about_swamp_church"
+          },
+          "hill_ruins": {
+            "type": "navigate",
+            "label": "Ruins on the Hill",
+            "target": "hill_ruins.entrance",
+            "description": "Ancient watchtower overlooking the valley, glowing with strange lights at night.",
+            "requires_flag": "learned_about_ruins"
+          },
+          "refugee_camp": {
+            "type": "navigate",
+            "label": "Refugee Camp",
+            "target": "refugee_camp.main",
+            "description": "Makeshift settlement outside town where displaced miners seek shelter.",
+            "requires_flag": "learned_about_refugees"
+          },
+          "red_hollow_mine": {
+            "type": "navigate",
+            "label": "Red Hollow Mine",
+            "target": "red_hollow_mine.entrance",
+            "description": "Abandoned mine shaft sealed by fearful workers, now home to unknown dangers.",
+            "requires_flag": "discovered_old_mine_shaft"
+          },
+          "return_to_town": {
+            "type": "navigate",
+            "label": "Return to Redstone",
+            "target": "redstone_town.south_gate",
+            "description": "Head back to town for rest and resupply."
+          }
+        },
+        "properties": {
+          "lighting": "bright",
+          "safety": "safe"
+        }
+      }
+    }
+  }
+}

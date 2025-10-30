@@ -609,18 +609,31 @@ class ScreenManager:
             print("⚠️ No InputHandler available for intro scene registration")
 
     def register_act_two_clickables(self):
-        """Register clickable buttons for ACT TWO transition screen"""
-        clickable_areas = self.current_clickables
-        
-        if "continue_button" in clickable_areas:
-            def on_continue_click():
-                self.event_manager.emit("ACT_TWO_CONTINUE", {})
+        """
+        Register clickable buttons for ACT TWO transition screen
+        Follows intro_scenes pattern for consistency
+        """
+        if hasattr(self, 'input_handler') and self.input_handler:
+            # Get button coordinates by rendering the scene to temp surface
+            temp_surface = pygame.Surface((1024, 768))
             
-            self.register_clickable(
-                "act_two_continue_button",
-                clickable_areas["continue_button"],
-                on_continue_click
-            )
+            # Call the draw function to get button rects
+            scene_result = draw_act_two_start(temp_surface, None, self.fonts, self.images)
+            
+            if scene_result and "continue_button" in scene_result:
+                # Register CONTINUE button with semantic action
+                self.input_handler.register_clickable(
+                    "act_two_start",
+                    scene_result["continue_button"],
+                    "ACT_TWO_CONTINUE",
+                    {}
+                )
+                
+                print(f"🎬 Act II clickables registered")
+            else:
+                print(f"⚠️ Could not register Act II clickables")
+        else:
+            print("⚠️ No InputHandler available for Act II registration")
 
     def register_load_screen_clickables(self):
         """Register load screen clickables when load overlay opens"""
@@ -1095,10 +1108,13 @@ class ScreenManager:
 
    
 
-
-           # Broken Blade Tavern - BaseLocation System
+        # BaseLocation System
+            # Broken Blade Tavern 
             self._auto_register_location("broken_blade")
             self._auto_register_location("patron_selection")
+            # Act II Exploration Hub
+            self._auto_register_location("exploration_hub")
+            # Redstown Town
             self.register_render_function("redstone_town", render_town_navigation)
 
             # Utility screens

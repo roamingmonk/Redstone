@@ -22,7 +22,7 @@
     {
       "id": "greater_healing_potion",
       "name": "Greater Healing Potion",
-      "description": "A potent crimson elixir that mends even grievous wounds.",
+      "description": "A potent blue elixir that mends even grievous wounds.",
       "base_cost": 250,
       "category": "consumables",
       "icon_file": "greater_healing_potion.png",
@@ -56,7 +56,7 @@
     {
       "id": "elixir_of_vigor",
       "name": "Elixir of Vigor",
-      "description": "A shimmering blue potion that grants supernatural speed and strength.",
+      "description": "A shimmering potion that grants supernatural speed and strength.",
       "base_cost": 300,
       "category": "consumables", 
       "icon_file": "elixir_of_vigor.png",
