@@ -42,7 +42,7 @@
           "return_to_town": {
             "type": "navigate",
             "label": "Return to Redstone",
-            "target": "redstone_town.south_gate",
+            "target": "redstone_town",
             "description": "Head back to town for rest and resupply."
           }
         },

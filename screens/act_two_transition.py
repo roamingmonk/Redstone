@@ -91,17 +91,17 @@ class ActTwoTransitionManager:
         """Handle the start of Act II transition"""
         print("🎬 Starting Act II transition...")
         
-        # Set Act II started flag
-        if self.game_state:
-            self.game_state.act_two_started = True
-            print("✅ Act II flag set")
-        
         # Navigate to Act II screen
         self.event_manager.emit("SCREEN_CHANGE", {"target": "act_two_start"})
         
     def handle_continue(self, event_data):
         """Handle continuing from Act II transition to exploration hub"""
         print("🎬 Transitioning to exploration hub...")
+        
+        # Set flag so we only show Act II intro once
+        if self.game_state:
+            self.game_state.act_two_started = True
+            print("✅ Act II started flag set to True")
         
         scenes = self.act_two_data.get("scenes", [])
         if scenes:

@@ -161,8 +161,8 @@ BUILDING_ENTRANCES = {
         'info': {
             'name': "North Town Gate",
             'interaction_type': 'screen_transition',
-            'screen': 'world_map',
-            'action': 'Exit to world map (North)'
+            'screen': 'act_two_start',
+            'action': 'Begin Investigation'
         }    
     },
     'south_gate': {
@@ -170,8 +170,10 @@ BUILDING_ENTRANCES = {
     'entrance_tiles': [(7, 11)],  # Tile just north of south gate
     'info': {
         'name': "South Town Gate",
-        'interaction_type': 'screen_transition',  
-        'screen': 'act_two_start',                      # Changed from 'world_map'
+        'interaction_type': 'conditional_transition',  # Changed from screen_transition
+        'flag_check': 'act_two_started',
+        'if_true_screen': 'exploration_hub',           # Already seen intro
+        'if_false_screen': 'act_two_start',            # First time, show intro
         'action': 'Begin Investigation',
         # 'requirements': {                               #Add requirements check
         #     'flags': ['mayor_talked', 'quest_active'],

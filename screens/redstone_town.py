@@ -168,7 +168,41 @@ class RedstoneTownNavigation:
                                 self.temp_message_text = "The mayor is in an important meeting and cannot be disturbed."
                             else:
                                 self.temp_message_text = "They seem too busy to talk right now."
-                
+                elif interaction_type == 'conditional_transition':
+                    print(f"DEBUG: RT: Conditional Transition")
+                    
+                    # Get the flag to check and the target screens
+                    flag_check = self.current_building.get('flag_check')
+                    if_true_screen = self.current_building.get('if_true_screen')
+                    if_false_screen = self.current_building.get('if_false_screen')
+                    
+                    if flag_check and if_true_screen and if_false_screen and controller:
+                        # Check if flag is set on game_state
+                        flag_value = getattr(game_state, flag_check, False)
+                        
+                        # Route based on flag value
+                        target_screen = if_true_screen if flag_value else if_false_screen
+                        
+                        print(f"DEBUG: RT: Flag '{flag_check}' = {flag_value}, routing to '{target_screen}'")
+                        
+                        # CHECK: Is the target screen implemented?
+                        if hasattr(controller, 'screen_manager') and target_screen in controller.screen_manager.render_functions:
+                            controller.event_manager.emit("SCREEN_CHANGE", {
+                                'target_screen': target_screen,
+                                'source': 'town_navigation'
+                            })
+                        else:
+                            # Screen not implemented
+                            self.showing_temp_message = True
+                            self.temp_message_timer = pygame.time.get_ticks()
+                            self.temp_message_text = "The path ahead is not yet clear..."
+                    else:
+                        # Missing required configuration
+                        self.showing_temp_message = True
+                        self.temp_message_timer = pygame.time.get_ticks()
+                        self.temp_message_text = "Sorry, it's closed."
+
+
                 elif interaction_type == 'screen_transition':
                     print(f"DEBUG: RT: Screen Transition")
                     screen = self.current_building.get('screen')
