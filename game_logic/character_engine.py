@@ -873,7 +873,7 @@ class CharacterEngine:
         
         # Update GameState directly (Single Data Authority)
         self.game_state.character['max_hp'] = hit_points # Maximum hit points
-        self.game_state.character['current_hp'] = hit_points # Current hit pointsS
+        self.game_state.character['current_hp'] = hit_points # Current hit points
         
         return hit_points
     
