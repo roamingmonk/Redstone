@@ -460,9 +460,14 @@ class ActionHubLocation(BaseLocation):
         elif action_type == 'dialogue':
             npc_id = action_data.get('npc_id')
             if npc_id:
+                # Store the current screen for return navigation
+                current_screen = f"{self.location_id}_{self.current_area}"
+                return_screen_attr = f'{npc_id}_return_screen'
+                setattr(game_state, return_screen_attr, current_screen)
+                
                 event_manager.emit("SCREEN_CHANGE", {
                     "target_screen": f"{self.location_id}_{npc_id}",
-                    "source_screen": f"{self.location_id}_{self.current_area}"
+                    "source_screen": current_screen
                 })
                 return "dialogue_success"
         

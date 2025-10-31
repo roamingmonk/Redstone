@@ -2238,7 +2238,45 @@ Technical:
 - Removed auto-refresh on day change (now only 3-rest cycle)
 - Stock initialization on first merchant visit prevents empty tracking
 
+# ADR-138: Object Examination Dialogue System
+**Status:** Accepted  
+**Date:** 2025-10-31  
+**Session:** Session 10A-10B
+## Context
+Act II exploration requires examining environmental objects (altars, symbols, ritual sites) but the dialogue system only supported NPC conversations with portraits and narrative schema state mapping.
+## Decision
+Extended DialogueEngine to support object examinations via `is_object` metadata flag, using magnifying glass icon rendering, `initial_state` resolution, and separate statistics tracking.
+## Consequences
+- **Positive:** NPCs and objects use unified dialogue engine with conditional rendering (icon vs portrait, state resolution, statistics)
+- **Positive:** Backward compatible - existing NPC dialogues unchanged, defaults to `is_object=false`
+- **Positive:** Extensible icon system supports custom icons per object type
+- **Negative:** Dual code paths in rendering (if/else on is_object flag) increases complexity slightly
 
+## Implementation
+- Created `utils/object_display.py` for icon rendering with fallback support
+- Added `dialogue_metadata` cache in DialogueEngine storing is_object/hide_portrait/object_icon/display_name
+- Modified `get_conversation_options()` and `process_dialogue_choice()` to use `initial_state` for objects instead of narrative schema
+- Updated `generic_dialogue_handler.py` to conditionally render icons vs portraits and format titles ("EXAMINING THE..." for objects)
+- Split statistics: `npcs_met` counter for NPCs, `objects_examined` counter for objects
+- Fixed navigation: store `{npc_id}_return_screen` before dialogue for multi-area locations
+
+## Alternatives Considered
+- **Separate ObjectExaminationEngine:** Rejected - duplicates dialogue logic, increases maintenance burden
+- **NPC-only approach with generic portrait:** Rejected - breaks immersion, confuses player (talking to inanimate objects)
+- **Text-only examination (no dialogue system):** Rejected - loses unified UI, flags, effects integration
+
+## Technical Specifications
+- Dialogue JSON adds: `"is_object": true`, `"hide_portrait": true`, `"initial_state": "examine"`
+- Icon path: `assets/images/icons/characters/object_examination.png` (default magnifying glass)
+- Custom icons: `OBJECT_ICON_MAPPING` dictionary in `object_display.py`
+- State resolution: Objects use `initial_state`, NPCs use `get_current_dialogue_state()`
+- Navigation fix: `{npc_id}_return_screen` stores full screen name with area suffix (e.g., `swamp_church_exterior`)
+
+## Related
+- Act II Exploration System Implementation Plan (docs/Act_II_Exploration_System_Implementation_Plan.md)
+- ADR-046: BaseLocation Architecture
+- ADR-074: Narrative Schema System
+- Session 10A: Swamp Church investigation mechanics
 
 ```
 ## ADR-XXX: <Short title>

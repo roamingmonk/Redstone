@@ -5,17 +5,18 @@
     "hide_portrait": true,
     "initial_state": "investigate",
     "states": {
-      "investigate": {
-        "dialogue": [
+      "examine": {
+        "introduction": [
           "The crypt has been converted into a ritual chamber. Symbols cover every surface, and the air reeks of sulfur and decay.",
           "You find evidence of multiple ceremonies - burnt offerings, ritual implements, and disturbing drawings depicting some kind of summoning.",
           "Fresh footprints in the dust suggest the cultists were here very recently.",
           "You hear movement deeper in the crypt. They're still here."
         ],
-        "choices": [
+        "options": [
           {
+            "id": "continue",
             "text": "[Prepare for confrontation]",
-            "next_state": "end",
+            "next_state": "exit",
             "effects": [
               {
                 "type": "set_flag",

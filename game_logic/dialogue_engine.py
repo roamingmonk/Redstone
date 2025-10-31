@@ -39,6 +39,7 @@ class DialogueEngine:
         self.game_state = game_state
         self.item_manager = item_manager
         self.dialogues = {}  # Loaded dialogue trees
+        self.dialogue_metadata = {} # Store object/npc metatdata for UI Rendering
         self.quest_event_hooks = []  # Future QuestEngine integration
         self.event_manager = None 
         self.dialogue_source_screen = None  # Track where dialogue came from
@@ -65,13 +66,31 @@ class DialogueEngine:
             #print(f"🔍 LOAD DEBUG: File path: {file_path}")
             if not os.path.exists(file_path):
                 print(f"⚠️ Dialogue file not found: {file_path}")
-                #print(f"🔍 LOAD DEBUG: File does not exist: {file_path}")
                 return False
                 
             with open(file_path, 'r', encoding="utf-8") as f:
                 dialogue_data = json.load(f)
-                
-            self.dialogues[dialogue_id] = dialogue_data
+            
+            # Extract the inner dialogue tree (skip outer wrapper key)
+            # JSON structure: { "dialogue_id": { "npc_name": ..., "states": {...} } }
+            # We need to store the inner object, not the wrapper
+            dialogue_root = dialogue_data.get(dialogue_id, dialogue_data)
+            self.dialogues[dialogue_id] = dialogue_root
+            
+            #Extract and store metadata for UI rendering
+            metadata = {
+                'is_object': dialogue_root.get('is_object', False),
+                'hide_portrait': dialogue_root.get('hide_portrait', False),
+                'display_name': dialogue_root.get('npc_name', dialogue_id.replace('_', ' ').title()),
+                'object_icon': dialogue_root.get('object_icon', None)  # Optional custom icon
+            }
+            
+            self.dialogue_metadata[dialogue_id] = metadata
+            
+            # Debug log for object examinations
+            if metadata['is_object']:
+                print(f"📦 Loaded object examination: {dialogue_id} (is_object={metadata['is_object']})")
+            
             return True
             
         except Exception as e:
@@ -252,7 +271,14 @@ class DialogueEngine:
                 return self._get_fallback_dialogue(npc_id)
         
         dialogue_tree = self.dialogues[dialogue_id]
-        current_state = forced_state or self.get_current_dialogue_state(npc_id)
+        
+        # For object examinations, use initial_state from JSON instead of narrative schema
+        if dialogue_tree.get('is_object', False):
+            # Objects use initial_state from their JSON (e.g., "examine")
+            current_state = forced_state or dialogue_tree.get('initial_state', 'examine')
+        else:
+            # NPCs use narrative schema state mapping
+            current_state = forced_state or self.get_current_dialogue_state(npc_id)
 
         if current_state in dialogue_tree.get('states', {}):
             state_data = dialogue_tree['states'][current_state]
@@ -314,9 +340,16 @@ class DialogueEngine:
                 choice_id = options[choice_index]['id']
                 #print(f"🎭 DEBUG: Selected option ID: {choice_id}")
                 
+                # Get metadata first to determine state handling
+                metadata = self.get_dialogue_metadata(dialogue_file_id)
+                is_object = metadata.get('is_object', False)
+                
                 # Determine state BEFORE setting flags for consistency
-                current_state = self.get_current_dialogue_state(npc_id)
-                #print(f"🎭 DEBUG: Using state: {current_state} for choice processing")
+                # For objects, don't use narrative schema - let process_dialogue_choice use initial_state
+                if is_object:
+                    current_state = None  # Let process_dialogue_choice determine from initial_state
+                else:
+                    current_state = self.get_current_dialogue_state(npc_id)
                 
                 # NARRATIVE SCHEMA INTEGRATION - Set conversation flag AFTER state determination
                 conv_flag = narrative_schema.get_npc_conversation_flag(npc_id)
@@ -325,17 +358,39 @@ class DialogueEngine:
 
                 # Track NPC encounter for statistics
                 if npc_id not in self.game_state.npcs_encountered:
-                    self.game_state.npcs_encountered.add(npc_id)
-                    self.game_state.player_statistics['npcs_met'] += 1
-                    print(f"📊 New NPC met: {npc_id} (Total: {self.game_state.player_statistics['npcs_met']})")
+                    if not is_object:
+                        # This is an actual NPC conversation
+                        self.game_state.npcs_encountered.add(npc_id)
+                        self.game_state.player_statistics['npcs_met'] += 1
+                        print(f"📊 New NPC met: {npc_id} (Total: {self.game_state.player_statistics['npcs_met']})")
+                    else:
+                        # This is an object examination - track separately
+                        if not hasattr(self.game_state, 'objects_examined'):
+                            self.game_state.objects_examined = set()
+                        
+                        if npc_id not in self.game_state.objects_examined:
+                            self.game_state.objects_examined.add(npc_id)
+                            
+                            # Initialize counter if needed
+                            if 'objects_examined' not in self.game_state.player_statistics:
+                                self.game_state.player_statistics['objects_examined'] = 0
+                            
+                            self.game_state.player_statistics['objects_examined'] += 1
+                            print(f"🔍 Examined object: {npc_id} (Total objects: {self.game_state.player_statistics['objects_examined']})")
 
-                # Call existing business logic method with explicit state
+                # Call existing business logic method (current_state may be None for objects)
                 result = self.process_dialogue_choice(dialogue_file_id, npc_id, choice_id, current_state)
-                #print(f"🎭 DEBUG: Choice processing result: {result}")
+                
+                #Get metadata for response screen (needs to know if object)
+                metadata = self.get_dialogue_metadata(dialogue_file_id)
+                
                 if result:
                     # Handle conversation ending through event system
                     if result.get('conversation_ended'):
-                        #print(f"🎭 DEBUG: Conversation ended, emitting navigation event")
+                        # Clear metadata since conversation is ending
+                        conversation_attr = f'{npc_id}_conversation_data'
+                        setattr(self.game_state, conversation_attr, None)
+                        
                         self.event_manager.emit("DIALOGUE_ENDED", {
                             'npc_id': npc_id,
                             'return_to': result.get('return_to', 'location')
@@ -343,15 +398,26 @@ class DialogueEngine:
                         return result
                     elif result.get('new_conversation'):
                         new_conv = result['new_conversation']
+                        # Inject metadata into new conversation data
+                        new_conv['is_object'] = metadata.get('is_object', False)
+                        new_conv['object_icon'] = metadata.get('object_icon', None)
                         setattr(self.game_state, f'{npc_id}_conversation_data', new_conv)
-                        #print(f"🎭 DEBUG: Engine result ready for UI handler")
                         return result
                     else:
                         # Fallback for old response format
                         response_lines = result.get('response', [])
                         setattr(self.game_state, f'{npc_id}_dialogue_response', response_lines)
                         setattr(self.game_state, f'showing_{npc_id}_response', True)
-                        #print(f"🎭 DEBUG: Response stored, registering dialogue state handler")
+                        
+                        # Store metadata for response screen
+                        conversation_attr = f'{npc_id}_conversation_data'
+                        conversation_data = {
+                            'is_object': metadata.get('is_object', False),
+                            'object_icon': metadata.get('object_icon', None),
+                            'display_name': metadata.get('display_name', npc_id.title())
+                        }
+                        setattr(self.game_state, conversation_attr, conversation_data)
+                        
                         return result
             else:
                 print(f"❌ DEBUG: Invalid choice index {choice_index} for {npc_id} (only {len(options)} options available)")
@@ -458,13 +524,29 @@ class DialogueEngine:
                             target_screen = prev
 
                         if not target_screen:
-                            location_id = getattr(self.game_state, f'{npc_id}_current_location', None)
-                            if location_id:
-                               # Some locations need _main suffix, others dont
-                            #    if location_id == 'broken_blade':
-                            #        target_screen = f'{location_id}_main'
-                            #    else:
-                                   target_screen = location_id
+                            # Strategy 1: Use stored return screen (set when dialogue started)
+                            return_screen_attr = f'{npc_id}_return_screen'
+                            stored_return = getattr(self.game_state, return_screen_attr, None)
+                            
+                            if stored_return:
+                                target_screen = stored_return
+                                print(f"🔙 Using stored return screen: {target_screen}")
+                            else:
+                                # Strategy 2: Try ScreenManager's previous_screen
+                                if self.event_manager:
+                                    sm = self.event_manager.get_service('screen_manager')
+                                    if sm and hasattr(sm, 'previous_screen'):
+                                        prev = getattr(sm, 'previous_screen', None)
+                                        dialogue_screen_name = f"{getattr(self.game_state, f'{npc_id}_current_location', '')}_{npc_id}"
+                                        
+                                        if prev and prev != dialogue_screen_name:
+                                            target_screen = prev
+                                
+                                # Strategy 3: Fallback to location_id (works for single-area locations)
+                                if not target_screen:
+                                    location_id = getattr(self.game_state, f'{npc_id}_current_location', None)
+                                    if location_id:
+                                        target_screen = location_id
 
                         if target_screen:
                             self.event_manager.emit('SCREEN_CHANGE', {
@@ -557,7 +639,13 @@ class DialogueEngine:
                 return {'response': ["I see."], 'effects': []}
             
             # Handle normal dialogue choices
-            current_state = forced_state or self.get_current_dialogue_state(npc_id)
+            # For objects, use initial_state instead of narrative schema
+            if dialogue_tree.get('is_object', False):
+                # Objects use initial_state from their JSON
+                current_state = forced_state or dialogue_tree.get('initial_state', 'examine')
+            else:
+                # NPCs use narrative schema state mapping
+                current_state = forced_state or self.get_current_dialogue_state(npc_id)
             #print(f"🔧 DEBUG PROCESS: DE: Using current_state={current_state}")
             #print(f"DEBUG: DE: Current state = {current_state}")
 
@@ -920,7 +1008,41 @@ class DialogueEngine:
             ],
             'default_actions': []
         }
-    
+    def get_dialogue_metadata(self, dialogue_id: str) -> Dict[str, Any]:
+        """
+        Get metadata for a dialogue (is it an object? should we hide portrait? custom icon?)
+        
+        Args:
+            dialogue_id: Dialogue file identifier (e.g., 'swamp_church_altar')
+            
+        Returns:
+            Dict containing metadata:
+                - is_object (bool): True if examining an object, False if talking to NPC
+                - hide_portrait (bool): True to hide portrait/icon
+                - display_name (str): Name to display in UI
+                - object_icon (str|None): Custom icon filename, or None for default
+        """
+        # Return cached metadata if available
+        if dialogue_id in self.dialogue_metadata:
+            return self.dialogue_metadata[dialogue_id]
+        
+        # Not loaded yet - try loading the file
+        if self.load_dialogue_file(dialogue_id):
+            return self.dialogue_metadata.get(dialogue_id, self._get_default_metadata(dialogue_id))
+        
+        # Fallback to default NPC metadata
+        return self._get_default_metadata(dialogue_id)
+
+    def _get_default_metadata(self, dialogue_id: str) -> Dict[str, Any]:
+        """Default metadata for dialogues without explicit metadata"""
+        return {
+            'is_object': False,
+            'hide_portrait': False,
+            'display_name': dialogue_id.replace('_', ' ').title(),
+            'object_icon': None
+        }
+
+
     def register_quest_engine(self, quest_engine):
         """Register QuestEngine for event handling (Session 9 integration)"""
         self.quest_engine = quest_engine

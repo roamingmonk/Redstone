@@ -14,6 +14,7 @@ from utils.constants import (DIALOGUE_BG_COLOR, DIALOGUE_BORDER_COLOR, DIALOGUE_
                              WHITE, BLACK)
 from utils.graphics import draw_border, draw_button
 from utils.npc_display import draw_npc_portrait
+from utils.object_display import draw_object_icon
 from utils.party_display import draw_party_status_panel
 
 def draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, controller=None, location_id=None):
@@ -62,7 +63,6 @@ def draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, con
         dialogue_engine = None
         if hasattr(controller, 'event_manager'):
             dialogue_engine = controller.event_manager.get_service('dialogue_engine')
-
         if not dialogue_engine:
             print(f"DEBUG: GDH: No dialogue engine available")
             return draw_generic_fallback_screen(surface, npc_id, game_state, fonts)
@@ -70,9 +70,10 @@ def draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, con
         # Automatically determine dialogue file based on location + NPC ID
         dialogue_file_id = f'{location_id}_{npc_id}'
         
+        # Get metadata from DialogueEngine for object vs NPC rendering
+        metadata = dialogue_engine.get_dialogue_metadata(dialogue_file_id)
 
         current_state = dialogue_engine.get_current_dialogue_state(npc_id)
-        #print(f"🔍 DEBUG: GDH: Current dialogue state for {npc_id}: {current_state}")
         
         # Check for updated conversation data first (from choice processing)
         stored_conversation_attr = f'{npc_id}_conversation_data'
@@ -80,8 +81,13 @@ def draw_generic_dialogue_screen(surface, npc_id, game_state, fonts, images, con
         if not conversation_data:
             # No stored data, get fresh conversation options from DialogueEngine
             conversation_data = dialogue_engine.get_conversation_options(dialogue_file_id, npc_id)
-        #if conversation_data:
-            #print(f"RENDER DEBUG: GDH: Got intro: {conversation_data.get('introduction', ['NO INTRO'])[0]}")
+        
+        # Inject metadata into conversation_data for rendering
+        if conversation_data:
+            conversation_data['is_object'] = metadata.get('is_object', False)
+            conversation_data['hide_portrait'] = metadata.get('hide_portrait', False)
+            conversation_data['object_icon'] = metadata.get('object_icon', None)
+            conversation_data['display_name'] = metadata.get('display_name', conversation_data.get('npc_name', npc_id.title()))
         
     except Exception as e:
         print(f"ERROR in draw_generic_dialogue_screen: {e}")
@@ -105,20 +111,35 @@ def render_dialogue_screen_directly(surface, npc_id, conversation_data, game_sta
     
     # Clear screen
     surface.fill(BLACK)
+
+    # Check if this is an object examination or NPC dialogue
+    is_object = conversation_data.get('is_object', False)
+    object_icon = conversation_data.get('object_icon', None)
     
-    # Draw NPC portrait using existing system
-    draw_npc_portrait(surface, npc_id)
+    if is_object:
+        # Draw object examination icon (magnifying glass or custom icon)
+        draw_object_icon(surface, object_icon if object_icon else npc_id)
+    else:
+        # Draw NPC portrait (existing behavior)
+        draw_npc_portrait(surface, npc_id)
     
     # Draw standardized dialogue area
     dialogue_area = pygame.Rect(175, 100, 700, 400)
     pygame.draw.rect(surface, DIALOGUE_BG_COLOR, dialogue_area)
     pygame.draw.rect(surface, DIALOGUE_BORDER_COLOR, dialogue_area, 2)
     
-    # Title
+    # Title formatting - "Examining the..." for objects
     title_font = fonts.get('fantasy_large', fonts['normal'])
-    title_text = title_font.render(conversation_data['npc_name'].upper(), True, DIALOGUE_TITLE_COLOR)
-    title_rect = title_text.get_rect(center=(dialogue_area.centerx, 120))
-    surface.blit(title_text, title_rect)
+    display_name = conversation_data.get('display_name', conversation_data.get('npc_name', 'Unknown'))
+    
+    if is_object:
+        title_text = f"EXAMINING THE {display_name.upper()}"
+    else:
+        title_text = display_name.upper()
+    
+    title_surface = title_font.render(title_text, True, DIALOGUE_TITLE_COLOR)
+    title_rect = title_surface.get_rect(center=(dialogue_area.centerx, 120))
+    surface.blit(title_surface, title_rect)
     
     # Check if we're in response mode
     response_attr = f'showing_{npc_id}_response'
@@ -206,20 +227,41 @@ def draw_generic_response_screen(surface, npc_id, game_state, fonts, location_id
     # Clear screen
     surface.fill(BLACK)
     
-    # Draw NPC portrait
-    draw_npc_portrait(surface, npc_id)
+    # Check if this is an object examination from conversation data
+    conversation_attr = f'{npc_id}_conversation_data'
+    conversation_data = getattr(game_state, conversation_attr, None)
+    
+    # Handle None conversation_data (can happen during state transitions)
+    if conversation_data is None:
+        conversation_data = {}
+    
+    is_object = conversation_data.get('is_object', False)
+    object_icon = conversation_data.get('object_icon', None)
+    
+    if is_object:
+        # Draw object examination icon
+        draw_object_icon(surface, object_icon if object_icon else npc_id)
+    else:
+        # Draw NPC portrait
+        draw_npc_portrait(surface, npc_id)
     
     # Draw dialogue area
     dialogue_area = pygame.Rect(175, 100, 700, 400)
     pygame.draw.rect(surface, DIALOGUE_BG_COLOR, dialogue_area)
     pygame.draw.rect(surface, DIALOGUE_BORDER_COLOR, dialogue_area, 2)
     
-    # Title
+    # Title formatting for response screen
     title_font = fonts.get('fantasy_large', fonts['normal'])
-    npc_display_name = npc_id.replace('_', ' ').title()
-    title_text = title_font.render(npc_display_name.upper(), True, DIALOGUE_TITLE_COLOR)
-    title_rect = title_text.get_rect(center=(dialogue_area.centerx, 120))
-    surface.blit(title_text, title_rect)
+    display_name = conversation_data.get('display_name', npc_id.replace('_', ' ').title())
+    
+    if is_object:
+        title_text = f"EXAMINING THE {display_name.upper()}"
+    else:
+        title_text = display_name.upper()
+    
+    title_surface = title_font.render(title_text, True, DIALOGUE_TITLE_COLOR)
+    title_rect = title_surface.get_rect(center=(dialogue_area.centerx, 120))
+    surface.blit(title_surface, title_rect)
     
     # Response text
     response_font = fonts.get('fantasy_small', fonts['normal'])
@@ -247,7 +289,8 @@ def draw_generic_fallback_screen(surface, npc_id, game_state, fonts):
     
     surface.fill(BLACK)
     
-    draw_npc_portrait(surface, npc_id, is_object=False, hide_portrait=False)
+    # Draw NPC portrait 
+    draw_npc_portrait(surface, npc_id)
     
     # Get NPC name from ID (capitalize and format)
     npc_name = npc_id.replace('_', ' ').title()

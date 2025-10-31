@@ -6,16 +6,17 @@
     "initial_state": "examine",
     "states": {
       "examine": {
-        "dialogue": [
+        "introduction": [
           "The symbols carved into the church walls are unlike anything you've seen before.",
           "They appear to be a mixture of old religious iconography twisted with something darker, more primal.",
           "You recognize a few markings that match descriptions from the Mayor's notes - these are definitely connected to the cult activities.",
           "Whatever happened here, it wasn't the work of common bandits."
         ],
-        "choices": [
+        "options": [
           {
+            "id": "continue",
             "text": "[Continue]",
-            "next_state": "end",
+            "next_state": "exit",
             "effects": [
               {
                 "type": "set_flag",

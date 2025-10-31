@@ -1438,14 +1438,20 @@ class ScreenManager:
         npc_id = event_data.get('npc_id')
         return_to = event_data.get('return_to', 'location')
         
-        # Get the stored location context for this dialogue session
+         # Get the stored location context for this dialogue session
         if hasattr(self, '_current_game_state'):
-            location_id = getattr(self._current_game_state, f'{npc_id}_current_location', None)
+            # First try to use the stored return screen (includes area suffix)
+            return_screen_attr = f'{npc_id}_return_screen'
+            target_screen = getattr(self._current_game_state, return_screen_attr, None)
             
-            if location_id:
-                # Return to the originating location (no _main suffix needed)
-                target_screen = location_id  # Clean, consistent naming
-                source_screen = f'{location_id}_{npc_id}'
+            if not target_screen:
+                # Fallback: use location_id (for backward compatibility with single-area locations)
+                location_id = getattr(self._current_game_state, f'{npc_id}_current_location', None)
+                target_screen = location_id
+            
+            if target_screen:
+                print(f"🔙 Returning to: {target_screen}")
+                source_screen = f'{npc_id}_dialogue'
                 
                 # Use the same event structure as other screen changes
                 self.event_manager.emit("SCREEN_CHANGE", {
@@ -1453,7 +1459,7 @@ class ScreenManager:
                     'source_screen': source_screen
                 })
             else:
-                print(f"Warning: No stored location for {npc_id}")
+                print(f"⚠️ Warning: No stored location or return screen for {npc_id}")
         
         return True
 
