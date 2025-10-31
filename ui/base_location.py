@@ -48,7 +48,7 @@ class BaseLocation(ABC):
     def __init__(self, location_data: Dict[str, Any]):
         """
         Initialize a location from JSON configuration data
-        
+
         Args:
             location_data: Dictionary loaded from location JSON file
         """
@@ -56,11 +56,14 @@ class BaseLocation(ABC):
         self.name = location_data.get('name', 'Unknown Location')
         self.areas = location_data.get('areas', {})
         self.current_area = None
-        
+
+        # Store full location data for loot tables and other features
+        self._location_data = location_data
+
         # Validate required data
         if not self.areas:
             raise ValueError(f"Location {self.location_id} has no areas defined")
-        
+
         # Set default area to first area if not specified
         if self.areas:
             self.current_area = list(self.areas.keys())[0]
@@ -439,15 +442,119 @@ class ActionHubLocation(BaseLocation):
             'location_type': self.location_type
         }
     
-    def handle_action(self, action_data: Dict[str, Any], game_state, 
+    def _handle_loot_check(self, action_data: Dict[str, Any], game_state,
+                          event_manager) -> Optional[str]:
+        """
+        Handle loot_check action type - search containers for items
+
+        Args:
+            action_data: Action configuration from location JSON
+            game_state: Current game state
+            event_manager: Event manager for notifications
+
+        Returns:
+            Result string or None
+        """
+        import random
+
+        # Get loot check parameters
+        one_time_flag = action_data.get('one_time_flag')
+        loot_table_id = action_data.get('loot_table')
+
+        # Check if already searched
+        if one_time_flag:
+            if getattr(game_state, one_time_flag, False):
+                print(f"⚠️ Already searched this location")
+                if event_manager:
+                    event_manager.emit("SHOW_FLOATING_TEXT", {
+                        'text': "Already searched here",
+                        'color': (180, 180, 180),
+                        'duration': 2000
+                    })
+                return "loot_check_already_searched"
+
+        # Get loot tables from location data
+        loot_tables = self._location_data.get('loot_tables', {})
+        loot_table = loot_tables.get(loot_table_id)
+
+        if not loot_table:
+            print(f"❌ Loot table not found: {loot_table_id}")
+            return None
+
+        # Roll for items
+        items_found = []
+        items = loot_table.get('items', [])
+
+        for item_entry in items:
+            item_id = item_entry.get('item_id')
+            quantity = item_entry.get('quantity', 1)
+            chance = item_entry.get('chance', 1.0)
+
+            # Roll against chance
+            if random.random() <= chance:
+                items_found.append({
+                    'item_id': item_id,
+                    'quantity': quantity
+                })
+
+        # Add items to inventory using InventoryEngine
+        inventory_engine = None
+
+        # Access inventory engine through game_state
+        if hasattr(game_state, 'inventory_engine'):
+            inventory_engine = game_state.inventory_engine
+        # Or through controller (backup path)
+        elif hasattr(game_state, 'controller'):
+            controller = game_state.controller
+            if hasattr(controller, 'inventory_engine'):
+                inventory_engine = controller.inventory_engine
+
+        if inventory_engine:
+            if items_found:
+                print(f"🔍 Found {len(items_found)} item(s)!")
+                for item_data in items_found:
+                    success = inventory_engine.add_item(
+                        item_data['item_id'],
+                        item_data['quantity']
+                    )
+                    if success:
+                        print(f"  ✅ {item_data['quantity']}x {item_data['item_id']}")
+
+                # Show notification
+                if event_manager:
+                    items_text = f"Found {len(items_found)} item(s)!"
+                    event_manager.emit("SHOW_FLOATING_TEXT", {
+                        'text': items_text,
+                        'color': (100, 255, 100),  # Green
+                        'duration': 3000
+                    })
+            else:
+                print(f"🔍 Nothing useful found")
+                if event_manager:
+                    event_manager.emit("SHOW_FLOATING_TEXT", {
+                        'text': "Nothing useful found",
+                        'color': (180, 180, 180),
+                        'duration': 2000
+                    })
+        else:
+            print(f"⚠️ No inventory engine available to add items")
+
+        # Set one-time flag to prevent re-searching
+        if one_time_flag:
+            setattr(game_state, one_time_flag, True)
+            print(f"🚩 Set flag: {one_time_flag}")
+
+        return "loot_check_success"
+
+    def handle_action(self, action_data: Dict[str, Any], game_state,
                  event_manager) -> Optional[str]:
         """Process action triggered by user interaction"""
-        
+
         action_type = action_data.get('type')
         action_name = action_data.get('action_name')  # For special actions
-        
+
         print(f"🔧 BaseLocation handling action: {action_type or action_name}")
-        
+
         if action_type == 'navigate':
             target = action_data.get('target')
             if target:
@@ -456,7 +563,7 @@ class ActionHubLocation(BaseLocation):
                     "source_screen": f"{self.location_id}_{self.current_area}"
                 })
                 return "navigate_success"
-        
+
         elif action_type == 'dialogue':
             npc_id = action_data.get('npc_id')
             if npc_id:
@@ -465,21 +572,21 @@ class ActionHubLocation(BaseLocation):
                     "source_screen": f"{self.location_id}_{self.current_area}"
                 })
                 return "dialogue_success"
-        
+
         elif action_type == 'shopping':
             merchant_id = action_data.get('merchant_id', action_data.get('npc_id'))
             if merchant_id:
                 event_manager.emit("SCREEN_CHANGE", {
-                    "target_screen": f"{merchant_id}_shop", 
+                    "target_screen": f"{merchant_id}_shop",
                     "source_screen": f"{self.location_id}_{self.current_area}"
                 })
                 return "shopping_success"
-            
+
         elif action_type == 'combat':
             encounter_id = action_data.get('combat_encounter')
             combat_context = action_data.get('combat_context')
             target = action_data.get('target', 'combat')
-            
+
             if encounter_id:
                 # Save current screen before transitioning to combat
                 game_state.previous_screen = game_state.screen  # ✅ USE ACTUAL CURRENT SCREEN
@@ -488,7 +595,7 @@ class ActionHubLocation(BaseLocation):
                 if combat_context:
                     game_state.combat_context = combat_context
                 print(f"🎯 Starting combat encounter: {encounter_id}")
-                
+
                 # Navigate to combat screen
                 event_manager.emit("SCREEN_CHANGE", {
                     "target_screen": target,
@@ -498,20 +605,23 @@ class ActionHubLocation(BaseLocation):
             else:
                 print("❌ Combat action missing encounter_id")
                 return None
-        
+
+        elif action_type == 'loot_check':
+            return self._handle_loot_check(action_data, game_state, event_manager)
+
         # Handle special actions (like 'back' buttons)
         elif action_name:
             if action_name == 'back':
                 # Navigate back to parent location
                 area_data = self.get_current_area_data()
                 parent = area_data.get('parent', 'broken_blade')
-                
+
                 event_manager.emit("SCREEN_CHANGE", {
                     "target_screen": parent,
                     "source_screen": f"{self.location_id}_{self.current_area}"
                 })
                 return "back_success"
-        
+
         print(f"⚠️ Unhandled action: {action_type or action_name}")
         return None
 

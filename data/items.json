@@ -169,6 +169,45 @@
       "quest_item": true
     },
     {
+      "id": "silver_coins",
+      "name": "Silver Coins",
+      "description": "A small collection of old silver coins, tarnished with age but still valuable.",
+      "base_cost": 5,
+      "category": "items",
+      "icon_file": "silver_coins.png",
+      "consumable": false,
+      "weight": 0.1,
+      "rarity": "common",
+      "stackable": true,
+      "max_stack": 99
+    },
+    {
+      "id": "strange_relic",
+      "name": "Strange Relic",
+      "description": "An ancient religious artifact defaced with dark symbols. It radiates an unsettling aura.",
+      "base_cost": 0,
+      "category": "quest_items",
+      "icon_file": "strange_relic.png",
+      "consumable": false,
+      "weight": 1.0,
+      "rarity": "rare",
+      "stackable": false,
+      "quest_item": true
+    },
+    {
+      "id": "cult_documents",
+      "name": "Cult Documents",
+      "description": "Disturbing papers covered in ritual diagrams and cryptic notes about dark ceremonies.",
+      "base_cost": 0,
+      "category": "quest_items",
+      "icon_file": "cult_documents.png",
+      "consumable": false,
+      "weight": 0.5,
+      "rarity": "uncommon",
+      "stackable": false,
+      "quest_item": true
+    },
+    {
       "id": "marcus_masterwork_elixir",
       "name": "Marcus's Masterwork Elixir",
       "description": "A deep blue elixir of extraordinary potency, representing the pinnacle of alchemical achievement.",
