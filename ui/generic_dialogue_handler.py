@@ -11,7 +11,7 @@ This replaces ALL NPC-specific dialogue functions with a single universal system
 import pygame
 from utils.constants import (DIALOGUE_BG_COLOR, DIALOGUE_BORDER_COLOR, DIALOGUE_OPTION_COLOR,
                              DIALOGUE_TITLE_COLOR, DIALOGUE_TEXT_COLOR,
-                             WHITE, BLACK)
+                             WHITE, BLACK, DIALOGUE_AREA_HEIGHT, wrap_text)
 from utils.graphics import draw_border, draw_button
 from utils.npc_display import draw_npc_portrait
 from utils.object_display import draw_object_icon
@@ -124,7 +124,7 @@ def render_dialogue_screen_directly(surface, npc_id, conversation_data, game_sta
         draw_npc_portrait(surface, npc_id)
     
     # Draw standardized dialogue area
-    dialogue_area = pygame.Rect(175, 100, 700, 400)
+    dialogue_area = pygame.Rect(175, 100, 700, DIALOGUE_AREA_HEIGHT)
     pygame.draw.rect(surface, DIALOGUE_BG_COLOR, dialogue_area)
     pygame.draw.rect(surface, DIALOGUE_BORDER_COLOR, dialogue_area, 2)
     
@@ -149,18 +149,20 @@ def render_dialogue_screen_directly(surface, npc_id, conversation_data, game_sta
         # Show response instead of choices
         response_attr = f'{npc_id}_dialogue_response'
         response_lines = getattr(game_state, response_attr, ["Thank you for listening."])
-        
-        # Render response text
+
+        # Render response text with proper wrapping
         response_font = fonts.get('fantasy_small', fonts['normal'])
         y_pos = 160
         x_pos = 190
-        
+        max_text_width = 680  # dialogue_area width (700) - padding
+
         for line in response_lines:
             if line.strip():
-                # Simple text rendering - we'll improve this later
-                text_surface = response_font.render(line, True, DIALOGUE_TEXT_COLOR)
-                surface.blit(text_surface, (x_pos, y_pos))
-                y_pos += 25
+                # Use wrap_text for proper text wrapping
+                wrapped_surfaces = wrap_text(line, response_font, max_text_width, DIALOGUE_TEXT_COLOR)
+                for wrapped_surface in wrapped_surfaces:
+                    surface.blit(wrapped_surface, (x_pos, y_pos))
+                    y_pos += 25
         
         # Draw party status panel
         draw_party_status_panel(surface, game_state, fonts)
@@ -175,18 +177,25 @@ def render_dialogue_screen_directly(surface, npc_id, conversation_data, game_sta
         intro_data = conversation_data.get('introduction', "Hello there!")
         options = conversation_data.get('options', [])
 
-        # Render introduction (handle array or string)
+        # Render introduction with proper wrapping (handle array or string)
         intro_font = fonts.get('fantasy_small', fonts['normal'])
         y_pos = 160
+        x_pos = 190
+        max_text_width = 680  # dialogue_area width (700) - padding
 
         if isinstance(intro_data, list):
             for line in intro_data:
-                intro_surface = intro_font.render(str(line), True, DIALOGUE_TEXT_COLOR)
-                surface.blit(intro_surface, (190, y_pos))
-                y_pos += 25
+                # Use wrap_text for proper text wrapping
+                wrapped_surfaces = wrap_text(str(line), intro_font, max_text_width, DIALOGUE_TEXT_COLOR)
+                for wrapped_surface in wrapped_surfaces:
+                    surface.blit(wrapped_surface, (x_pos, y_pos))
+                    y_pos += 25
         else:
-            intro_surface = intro_font.render(str(intro_data), True, DIALOGUE_TEXT_COLOR)
-            surface.blit(intro_surface, (190, y_pos))
+            # Use wrap_text for proper text wrapping
+            wrapped_surfaces = wrap_text(str(intro_data), intro_font, max_text_width, DIALOGUE_TEXT_COLOR)
+            for wrapped_surface in wrapped_surfaces:
+                surface.blit(wrapped_surface, (x_pos, y_pos))
+                y_pos += 25
         
         # Render options
         choice_font = fonts.get('fantasy_small', fonts['normal'])
@@ -246,7 +255,7 @@ def draw_generic_response_screen(surface, npc_id, game_state, fonts, location_id
         draw_npc_portrait(surface, npc_id)
     
     # Draw dialogue area
-    dialogue_area = pygame.Rect(175, 100, 700, 400)
+    dialogue_area = pygame.Rect(175, 100, 700, DIALOGUE_AREA_HEIGHT)
     pygame.draw.rect(surface, DIALOGUE_BG_COLOR, dialogue_area)
     pygame.draw.rect(surface, DIALOGUE_BORDER_COLOR, dialogue_area, 2)
     
@@ -263,16 +272,19 @@ def draw_generic_response_screen(surface, npc_id, game_state, fonts, location_id
     title_rect = title_surface.get_rect(center=(dialogue_area.centerx, 120))
     surface.blit(title_surface, title_rect)
     
-    # Response text
+    # Response text with proper wrapping
     response_font = fonts.get('fantasy_small', fonts['normal'])
     y_pos = 160
     x_pos = 190
-    
+    max_text_width = 680  # dialogue_area width (700) - padding
+
     for line in response_lines:
         if line.strip():
-            text_surface = response_font.render(line, True, DIALOGUE_TEXT_COLOR)
-            surface.blit(text_surface, (x_pos, y_pos))
-            y_pos += 25
+            # Use wrap_text for proper text wrapping
+            wrapped_surfaces = wrap_text(line, response_font, max_text_width, DIALOGUE_TEXT_COLOR)
+            for wrapped_surface in wrapped_surfaces:
+                surface.blit(wrapped_surface, (x_pos, y_pos))
+                y_pos += 25
     
     # Draw party status panel
     draw_party_status_panel(surface, game_state, fonts)
