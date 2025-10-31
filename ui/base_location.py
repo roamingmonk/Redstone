@@ -65,6 +65,29 @@ class BaseLocation(ABC):
         if self.areas:
             self.current_area = list(self.areas.keys())[0]
 
+    def get_screen_name(self, area_id: str = None) -> str:
+        """
+        Get the correct screen name for an area following ScreenManager naming convention
+        
+        Args:
+            area_id: Area identifier (uses current_area if None)
+            
+        Returns:
+            Screen name without "_main" suffix for main areas
+            
+        Example:
+            location_id="broken_blade", area="main" → "broken_blade"
+            location_id="broken_blade", area="basement_cleared" → "broken_blade_basement_cleared"
+        """
+        area = area_id if area_id is not None else self.current_area
+        
+        # CRITICAL: Match ScreenManager naming convention (screen_manager.py:1220-1224)
+        # Main areas use location_id only, no suffix
+        if area == "main":
+            return self.location_id
+        else:
+            return f"{self.location_id}_{area}"
+    
     def register_with_input_handler(self, screen_manager, screen_name):
         """Register location buttons with InputHandler using LOCATION_ACTION events"""
         
@@ -250,7 +273,7 @@ class ActionHubLocation(BaseLocation):
         # Register portrait clicks with InputHandler
         if controller and hasattr(controller, 'input_handler'):
             input_handler = controller.input_handler
-            current_screen = getattr(game_state, 'screen', f"{self.location_id}_{self.current_area}")
+            current_screen = getattr(game_state, 'screen', self.get_screen_name())
             
             # Register player portrait click (opens Player tab)
             if 'player' in portrait_rects:
@@ -453,7 +476,7 @@ class ActionHubLocation(BaseLocation):
             if target:
                 event_manager.emit("SCREEN_CHANGE", {
                     "target_screen": target,
-                    "source_screen": f"{self.location_id}_{self.current_area}"
+                    "source_screen": self.get_screen_name()
                 })
                 return "navigate_success"
         
@@ -461,7 +484,7 @@ class ActionHubLocation(BaseLocation):
             npc_id = action_data.get('npc_id')
             if npc_id:
                 # Store the current screen for return navigation
-                current_screen = f"{self.location_id}_{self.current_area}"
+                current_screen = self.get_screen_name()
                 return_screen_attr = f'{npc_id}_return_screen'
                 setattr(game_state, return_screen_attr, current_screen)
                 
@@ -476,7 +499,7 @@ class ActionHubLocation(BaseLocation):
             if merchant_id:
                 event_manager.emit("SCREEN_CHANGE", {
                     "target_screen": f"{merchant_id}_shop", 
-                    "source_screen": f"{self.location_id}_{self.current_area}"
+                    "source_screen": self.get_screen_name()
                 })
                 return "shopping_success"
             
@@ -497,7 +520,7 @@ class ActionHubLocation(BaseLocation):
                 # Navigate to combat screen
                 event_manager.emit("SCREEN_CHANGE", {
                     "target_screen": target,
-                    "source_screen": f"{self.location_id}_{self.current_area}"
+                    "source_screen": self.get_screen_name()
                 })
                 return "combat_success"
             else:
@@ -513,7 +536,7 @@ class ActionHubLocation(BaseLocation):
                 
                 event_manager.emit("SCREEN_CHANGE", {
                     "target_screen": parent,
-                    "source_screen": f"{self.location_id}_{self.current_area}"
+                    "source_screen": self.get_screen_name()
                 })
                 return "back_success"
         
@@ -546,7 +569,7 @@ class NPCSelectionLocation(BaseLocation):
         # Register portrait clicks with InputHandler
         if controller and hasattr(controller, 'input_handler'):
             input_handler = controller.input_handler
-            current_screen = getattr(game_state, 'screen', f"{self.location_id}_{self.current_area}")
+            current_screen = getattr(game_state, 'screen', self.get_screen_name())
             
             # Register player portrait click (opens Player tab)
             if 'player' in portrait_rects:
@@ -687,7 +710,7 @@ class NPCSelectionLocation(BaseLocation):
             if target:
                 event_manager.emit("SCREEN_CHANGE", {
                     "target_screen": target,
-                    "source_screen": f"{self.location_id}_{self.current_area}"
+                    "source_screen": self.get_screen_name()
                 })
                 return "navigate_success"
         
@@ -696,7 +719,7 @@ class NPCSelectionLocation(BaseLocation):
             if npc_id:
                 event_manager.emit("SCREEN_CHANGE", {
                     "target_screen": f"{npc_id}_dialogue",
-                    "source_screen": f"{self.location_id}_{self.current_area}"
+                    "source_screen": self.get_screen_name()
                 })
                 return "dialogue_success"
         
@@ -709,7 +732,7 @@ class NPCSelectionLocation(BaseLocation):
                 
                 event_manager.emit("SCREEN_CHANGE", {
                     "target_screen": parent,
-                    "source_screen": f"{self.location_id}_{self.current_area}"
+                    "source_screen": self.get_screen_name()
                 })
                 return "back_success"
             
@@ -730,7 +753,7 @@ class NPCSelectionLocation(BaseLocation):
                 if target_screen:
                     event_manager.emit("SCREEN_CHANGE", {
                         "target_screen": target_screen,
-                        "source_screen": f"{self.location_id}_{self.current_area}"
+                        "source_screen": self.get_screen_name()
                     })
                     return "npc_selected"
                 else:
