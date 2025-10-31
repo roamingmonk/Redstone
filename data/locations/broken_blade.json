@@ -43,14 +43,7 @@
                   "completed_basement_combat": false
                     }
                   },
-                  "combat_encounter": "tavern_basement_rats",
-                  "combat_context": {
-                      "location_name": "Tavern Basement",
-                      "victory_description": "You clear the basement of the rat infestation.",
-                      "victory_quest_flags": {
-                          "completed_basement_combat": true
-                      }
-                  }
+                  "combat_encounter": "tavern_basement_rats"
             },
             "basement_visit": {
               "type": "navigate",
