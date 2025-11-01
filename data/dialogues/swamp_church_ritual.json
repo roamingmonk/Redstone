@@ -5,7 +5,7 @@
     "hide_portrait": true,
     "initial_state": "investigate",
     "states": {
-      "examine": {
+      "investigate": {
         "introduction": [
           "The crypt has been converted into a ritual chamber. Symbols cover every surface, and the air reeks of sulfur and decay.",
           "You find evidence of multiple ceremonies - burnt offerings, ritual implements, and disturbing drawings depicting some kind of summoning.",
@@ -14,7 +14,7 @@
         ],
         "options": [
           {
-            "id": "continue",
+            "id": "prepare",
             "text": "[Prepare for confrontation]",
             "next_state": "exit",
             "effects": [

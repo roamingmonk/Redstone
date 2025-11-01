@@ -1,0 +1,91 @@
+{
+  "enemy_id": "cult_priest_swamp",
+  "name": "Cult Priest",
+  "description": "A cunning cult priest who leads the ritual in the swamp church. Dark energy swirls around them, and they won't hesitate to flee if things turn against them.",
+  "stats": {
+    "hp": 28,
+    "max_hp": 28,
+    "ac": 14,
+    "strength": 10,
+    "dexterity": 14,
+    "constitution": 14,
+    "intelligence": 14,
+    "wisdom": 16,
+    "charisma": 12
+  },
+  "saving_throw_proficiencies": ["intelligence", "wisdom"],
+  "spell_slots": 4,
+  "resistances": {
+    "necrotic": 0.5
+  },
+  "attacks": [
+    {
+      "name": "Staff Strike",
+      "damage_dice": "1d6+1",
+      "attack_bonus": 3,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "Strikes with a twisted staff carved with profane symbols"
+    },
+    {
+      "name": "Dark Bolt",
+      "damage_dice": "2d6",
+      "attack_bonus": 5,
+      "attack_type": "spell",
+      "spell_id": "darkbolt",
+      "range": 6,
+      "description": "A powerful bolt of shadow energy",
+      "spell_cost": 0,
+      "damage_type": "necrotic"
+    },
+    {
+      "name": "Shadow Shield",
+      "attack_type": "spell",
+      "spell_id": "shadow_shield",
+      "spell_cost": 1,
+      "description": "Wraps themselves in protective shadows (+2 AC for 3 rounds)",
+      "effect_type": "buff",
+      "effect_duration": 3,
+      "effect_ac_bonus": 2
+    }
+  ],
+  "movement": {
+    "speed": 3,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Shadow Escape",
+      "description": "When reduced below 25% HP, vanishes in a swirl of shadow and flees the battle",
+      "effect_type": "escape",
+      "trigger": "hp_threshold",
+      "hp_threshold": 0.25,
+      "escape_message": "The cult priest snarls a curse and vanishes in a swirl of shadow!"
+    },
+    {
+      "name": "Tactical Mind",
+      "description": "Uses Shadow Shield defensively and maintains distance",
+      "effect_type": "ai_modifier",
+      "trigger": "passive"
+    }
+  ],
+  "loot": {
+    "xp_value": 100,
+    "gold_range": [15, 40],
+    "items": [],
+    "item_drops": [
+      {"item_id": "cult_priest_robes", "drop_chance": 0.8, "quantity_range": [1, 1]},
+      {"item_id": "twisted_staff", "drop_chance": 0.6, "quantity_range": [1, 1]},
+      {"item_id": "cursed_talisman", "drop_chance": 0.5, "quantity_range": [1, 1]}
+    ]
+  },
+  "behavior": {
+    "aggression": "high",
+    "intelligence": "high",
+    "tactics": "spell_preference",
+    "acceptable_friendly_fire": 10,
+    "retreat_threshold": 0.25,
+    "retreat_type": "escape",
+    "notes": "Uses Shadow Shield early if taking damage. Prefers Dark Bolt at range 4-6. Will escape via Shadow Escape when HP drops below 25%."
+  }
+}

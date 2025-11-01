@@ -1,0 +1,69 @@
+{
+  "encounter_id": "swamp_church_cultists",
+  "name": "Crypt Ritual Ambush",
+  "description": "Cultists defend their unholy ritual chamber deep beneath the swamp church!",
+  "battlefield_id": "crypt_chamber",
+  "difficulty": "medium",
+  "enemies": [
+    {
+      "enemy_id": "cultist",
+      "position": [3, 2],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "cultist",
+      "position": [3, 5],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "cult_priest_swamp",
+      "position": [5, 3],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 200,
+    "gold": 75,
+    "items": ["healing_potion"],
+    "story_progress": {
+      "quest_flags": {
+        "swamp_church_complete": {
+          "value": true,
+          "display_message": "The cultists fall, but their leader escapes through a hidden passage! You find documents confirming the kidnappings."
+        },
+        "cult_leader_encountered": {
+          "value": true,
+          "display_message": ""
+        },
+        "found_cult_documents": {
+          "value": true,
+          "display_message": ""
+        }
+      }
+    }
+  },
+  "special_rules": [
+    {
+      "rule_type": "enemy_escape",
+      "description": "Cult Priest may escape when HP drops below 25%",
+      "applies_to": ["cult_priest_swamp"]
+    }
+  ],
+  "escape_allowed": true,
+  "turn_limit": null,
+  "ambient_description": "Candles flicker around a ritual circle drawn in blood and ash. The cultists turn to face you, weapons drawn.",
+  "victory_description": "The cultists collapse, their dark ritual interrupted. The cult priest vanishes in a swirl of shadows, escaping through a hidden passage. You find incriminating documents scattered around the ritual circle.",
+  "defeat_description": "You retreat from the crypt, wounded and overwhelmed. The cultists' laughter echoes behind you as you flee."
+}
