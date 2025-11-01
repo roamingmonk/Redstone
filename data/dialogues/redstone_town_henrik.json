@@ -456,6 +456,11 @@
               "type": "set_flag",
               "flag": "henrik_mentioned_old_shaft",
               "value": true
+            },
+            {
+              "type": "set_flag",
+              "flag": "discovered_old_mine_shaft",
+              "value": true
             }
           ],
           "next_state": "shaft_location"
@@ -508,6 +513,11 @@
               "type": "set_flag",
               "flag": "henrik_gave_shaft_quest",
               "value": true
+            },
+            {
+              "type": "set_flag",
+              "flag": "discovered_old_mine_shaft",
+              "value": true
             }
           ],
           "next_state": "quest_accepted"
@@ -542,6 +552,11 @@
             {
               "type": "set_flag",
               "flag": "henrik_gave_shaft_quest",
+              "value": true
+            },
+            {
+              "type": "set_flag",
+              "flag": "discovered_old_mine_shaft",
               "value": true
             }
           ],

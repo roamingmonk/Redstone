@@ -8,6 +8,14 @@ Tiles are 32x32 pixels, total map size 512x512, centered on screen
 """
 
 import pygame
+from utils.constants import (
+                           #Colors
+                           FIRE_BRICK_RED, MOUNTAIN_GRAY, WHITE, DARK_GRAY, GRAY, BLACK, SOFT_YELLOW, BROWN,
+                           CYAN, WARNING_RED, TITLE_GREEN, YELLOW, PURPLE, PURPLE_BLUE, STEEL_BLUE,
+                           #Buttons
+                           BUTTON_SIZES, SCREEN_WIDTH
+)
+
 
 # Terrain type constants
 TERRAIN_HILLS = 'H'
@@ -22,9 +30,9 @@ TERRAIN_TOWN = 'T'
 TERRAIN_COLORS = {
     'H': (139, 115, 85),    # Hills - brown/tan
     'F': (34, 139, 34),     # Forest - dark green
-    'M': (105, 105, 105),   # Mountains - dark gray
+    'M': MOUNTAIN_GRAY,     # Mountains - dark gray
     '-': (210, 180, 140),   # Plains - tan/beige
-    'R': (70, 130, 180),    # River - steel blue
+    'R': STEEL_BLUE,        # River - steel blue
     ':': (85, 107, 47),     # Swamp - dark olive green
     'T': (139, 69, 19)      # Town - saddle brown
 }
@@ -75,7 +83,7 @@ REDSTONE_REGION_LOCATIONS = {
         'grid_pos': (7, 12),  # Southwest, in the swamp
         'discovery_flag': 'learned_about_swamp_church',
         'icon': '⛪',
-        'icon_color': (138, 43, 226),  # Purple
+        'icon_color': PURPLE,
         'target': 'swamp_church_exterior',
         'description': 'Fog-shrouded church deep in the marshlands.'
     },
@@ -90,10 +98,10 @@ REDSTONE_REGION_LOCATIONS = {
     },
     'red_hollow_mine': {
         'name': 'Red Hollow Mine',
-        'grid_pos': (14, 12),  # East, in the mountains
+        'grid_pos': (11, 6),  # East, in the mountains
         'discovery_flag': 'discovered_old_mine_shaft',
         'icon': '⛏️',
-        'icon_color': (178, 34, 34),  # Firebrick red
+        'icon_color': FIRE_BRICK_RED,  # Firebrick red
         'target': 'red_hollow_mine_entrance',
         'description': 'Abandoned mine shaft, sealed by fearful workers.'
     }
