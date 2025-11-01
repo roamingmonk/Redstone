@@ -160,6 +160,33 @@ class SaveManager:
             # Add narrative flags to save data
             save_data['narrative_flags'] = narrative_flags
             
+            # *** Save exploration/world state flags (loot searches, object examinations, etc.) ***
+            exploration_flags = {}
+            exploration_flag_patterns = [
+                'searched_',      # loot search flags (searched_church_pews, searched_church_crypt, etc.)
+                'examined_',      # object examination flags
+                'investigated_',  # investigation flags
+                'explored_',      # location exploration flags
+                'swamp_church_',  # Act II swamp church flags
+                'learned_about_', # Discovery flags
+            ]
+
+            # Collect all flags matching exploration patterns
+            for attr_name in dir(self.game_state):
+                if not attr_name.startswith('_'):  # Skip private attributes
+                    for pattern in exploration_flag_patterns:
+                        if attr_name.startswith(pattern):
+                            flag_value = getattr(self.game_state, attr_name, False)
+                            if isinstance(flag_value, bool):  # Only save boolean flags
+                                exploration_flags[attr_name] = flag_value
+                            break  # Found a match, move to next attribute
+
+            print(f"💾 Saving {len(exploration_flags)} exploration flags")
+
+            # Add exploration flags to save data
+            save_data['exploration_flags'] = exploration_flags
+
+
             # *** Also save computed properties for verification ***
             save_data['computed_data'] = {
                 'recruited_count': len(getattr(self.game_state, 'party_members', [])),
@@ -339,6 +366,24 @@ class SaveManager:
             else:
                 print("⚠️ No narrative flags found in save data - may be old save format")
             
+            # *** Load exploration/world state flags ***
+            exploration_flags = save_data.get('exploration_flags', {})
+
+            if exploration_flags:
+                print(f"📂 Loading {len(exploration_flags)} exploration flags")
+                
+                for flag_name, flag_value in exploration_flags.items():
+                    if flag_name:  # Skip None/empty flags
+                        setattr(self.game_state, flag_name, bool(flag_value))
+                
+                # Debug: Show some key flags that were loaded
+                search_flags = [f for f in exploration_flags.keys() if f.startswith('searched_')]
+                if search_flags:
+                    print(f"   🔍 Loaded {len(search_flags)} search flags: {', '.join(search_flags[:3])}")
+            else:
+                print("⚠️ No exploration flags found in save data - may be old save format")
+
+
             # *** Restore computed data and sync party ***
             computed_data = save_data.get('computed_data', {})
             if computed_data:
