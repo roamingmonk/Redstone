@@ -141,6 +141,9 @@ UI_BACKGROUNDS_PATH = os.path.join(BACKGROUNDS_PATH, "ui")
 LOCATION_BACKGROUNDS_PATH = os.path.join(BACKGROUNDS_PATH, "locations")
 SHOP_BACKGROUNDS_PATH = os.path.join(BACKGROUNDS_PATH, "shops")
 
+#Location path
+LOCATION_DATA_PATH = os.path.join('data', 'locations')
+
 # Icon paths (organized by category)
 ICONS_PATH = os.path.join(IMAGES_PATH, "icons")
 ITEM_ICONS_PATH = os.path.join(ICONS_PATH, "items")

@@ -8,14 +8,19 @@ replacing hardcoded screen registrations with JSON configuration.
 """
 
 import pygame
+# Load location data to access loot_tables
+import json
 import os
+
+
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Tuple, Any
 from utils.constants import *
 from utils.graphics import draw_border, draw_button, draw_centered_text
 from utils.party_display import draw_party_status_panel, PARTY_PANEL_WIDTH
 from utils.constants import wrap_text
-from utils.constants import LOCATION_BACKGROUNDS_PATH, BUTTON_SIZES, NPC_BUTTON_HEIGHT, NPC_BUTTON_SPACING, NPC_BUTTONS_PER_ROW, NPC_BUTTON_WIDTH
+from utils.constants import (LOCATION_BACKGROUNDS_PATH, BUTTON_SIZES, NPC_BUTTON_HEIGHT, NPC_BUTTON_SPACING, 
+                             NPC_BUTTONS_PER_ROW, NPC_BUTTON_WIDTH,LOCATION_DATA_PATH)
 from utils.constants import calculate_button_layout, calculate_button_font
 
 def calculate_npc_button_positions(num_npcs, available_width=1024):
@@ -527,6 +532,9 @@ class ActionHubLocation(BaseLocation):
                 print("❌ Combat action missing encounter_id")
                 return None
         
+        elif action_type == 'loot_check':
+            return self._handle_loot_check(action_data, game_state, event_manager)
+
         # Handle special actions (like 'back' buttons)
         elif action_name:
             if action_name == 'back':
@@ -542,6 +550,130 @@ class ActionHubLocation(BaseLocation):
         
         print(f"⚠️ Unhandled action: {action_type or action_name}")
         return None
+    
+    def _handle_loot_check(self, action_data: Dict[str, Any], game_state,
+                      event_manager) -> Optional[str]:
+        """
+        Handle loot_check action type - search containers for items
+        Opens combat_loot overlay for visual item selection
+        
+        Args:
+            action_data: Action configuration from location JSON
+            game_state: Current game state
+            event_manager: Event manager for navigation
+            
+        Returns:
+            Result string or None
+        """
+        import random
+        
+        # Get loot check parameters
+        one_time_flag = action_data.get('one_time_flag')
+        loot_table_id = action_data.get('loot_table')
+        
+        # Check if already searched
+        if one_time_flag:
+            if getattr(game_state, one_time_flag, False):
+                print(f"⚠️ Already searched this location")
+                if event_manager:
+                    event_manager.emit("SHOW_FLOATING_TEXT", {
+                        'text': "Already searched here",
+                        'color': (180, 180, 180),
+                        'duration': 2000
+                    })
+                return "loot_check_already_searched"
+        
+        
+        location_file = os.path.join(LOCATION_DATA_PATH, f"{self.location_id}.json")
+        if not os.path.exists(location_file):
+            print(f"❌ Cannot find location file: {location_file}")
+            return None
+        
+        with open(location_file, 'r') as f:
+            location_full_data = json.load(f)
+            # Get the nested object (location files have wrapper)
+            location_data = location_full_data.get(self.location_id, location_full_data)
+        
+        # Get loot tables from location data
+        loot_tables = location_data.get('loot_tables', {})
+        loot_table = loot_tables.get(loot_table_id)
+        
+        if not loot_table:
+            print(f"❌ Loot table not found: {loot_table_id}")
+            return None
+        
+        # Roll for items
+        items_dict = {}  # item_id -> quantity
+        items = loot_table.get('items', [])
+        
+        for item_entry in items:
+            item_id = item_entry.get('item_id')
+            quantity = item_entry.get('quantity', 1)
+            chance = item_entry.get('chance', 1.0)
+            
+            # Roll against chance
+            if random.random() <= chance:
+                items_dict[item_id] = items_dict.get(item_id, 0) + quantity
+                print(f"🎲 Found: {item_id} x{quantity}")
+        
+        # Convert to loot overlay format with item names
+        items_list = []
+        item_manager = getattr(game_state, 'item_manager', None)
+        
+        for item_id, quantity in items_dict.items():
+            # Get display name from ItemManager
+            if item_manager and hasattr(item_manager, 'get_display_name'):
+                display_name = item_manager.get_display_name(item_id)
+            else:
+                display_name = item_id.replace('_', ' ').title()
+            
+            items_list.append({
+                'item_id': item_id,
+                'quantity': quantity,
+                'name': display_name
+            })
+        
+        if not items_list:
+            print(f"🔍 Nothing useful found")
+            if event_manager:
+                event_manager.emit("SHOW_FLOATING_TEXT", {
+                    'text': "Nothing useful found",
+                    'color': (180, 180, 180),
+                    'duration': 2000
+                })
+            # Still set the flag even if nothing found
+            if one_time_flag:
+                setattr(game_state, one_time_flag, True)
+            return "loot_check_nothing_found"
+        
+        # Prepare loot data for overlay (same format as combat loot)
+        loot_data = {
+            'total_gold': 0,  # No gold from searches
+            'items': items_list
+        }
+        
+        game_state.combat_loot_data = loot_data
+        
+        # Store current location for return after overlay closes
+        current_screen = f"{self.location_id}_{self.current_area}"
+        game_state.pre_combat_location = current_screen
+        
+        # Store the one_time_flag to set after items are taken
+        # (We set it when overlay closes, not now, in case player leaves items)
+        if one_time_flag:
+            game_state.search_loot_flag = one_time_flag
+        else:
+            game_state.search_loot_flag = None
+        
+        # Open loot overlay via overlay system
+        if not hasattr(game_state, 'overlay_state'):
+            from ui.screen_manager import OverlayState
+            game_state.overlay_state = OverlayState()
+        
+        game_state.overlay_state.open_overlay("combat_loot")
+        print(f"🔍 Search loot overlay opened: {len(items_list)} item types found")
+        
+        return "loot_check_success"
 
 
 class NPCSelectionLocation(BaseLocation):

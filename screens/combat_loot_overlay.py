@@ -231,6 +231,12 @@ class CombatLootOverlay(BaseTabbedOverlay):
         if hasattr(game_state, 'overlay_state'):
             game_state.overlay_state.close_overlay()
         
+        # Set search loot flag if this was a search (not combat)
+        if hasattr(game_state, 'search_loot_flag') and game_state.search_loot_flag:
+            setattr(game_state, game_state.search_loot_flag, True)
+            print(f"🚩 Set search flag: {game_state.search_loot_flag}")
+            game_state.search_loot_flag = None
+        
         game_state.combat_loot_data = None
         self.selected_items.clear()
         self.hovered_item = None
@@ -245,7 +251,7 @@ class CombatLootOverlay(BaseTabbedOverlay):
                 game_state.event_manager.emit("SCREEN_CHANGE", {'target': return_location})
         else:
             if hasattr(game_state, 'event_manager') and game_state.event_manager:
-                game_state.event_manager.emit("SCREEN_CHANGE", {'target': 'broken_blade_main'})
+                game_state.event_manager.emit("SCREEN_CHANGE", {'target': 'broken_blade'})
 
 
 # ========================================
