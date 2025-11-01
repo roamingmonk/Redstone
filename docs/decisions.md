@@ -2278,6 +2278,28 @@ Extended DialogueEngine to support object examinations via `is_object` metadata 
 - ADR-074: Narrative Schema System
 - Session 10A: Swamp Church investigation mechanics
 
+# ADR-139: Tile-Based Exploration Hub for Act II Regional Map
+# Status: Implemented
+# Date: 2025-11-01
+
+**Context**
+Act II exploration needed geographic context beyond a simple list menu.
+**Decision**
+Replace list-based exploration hub with interactive 16x16 tile-based regional map renderer showing terrain and clickable location icons.
+**Implementation**
+Created data/maps/redstone_region.py for terrain data and screens/exploration_hub.py for tile rendering with hover effects, using custom screen registration and event handling in screen_manager.py.
+**Consequences**
+Positive: Immersive visual experience with geographic context, reusable pattern for future maps, zero changes to existing location content.
+Negative: More complex than JSON-only approach, requires manual terrain grid design.
+**Files Created**
+data/maps/redstone_region.py
+screens/exploration_hub.py
+**Files Modified**
+ui/screen_manager.py
+core/game_controller.py
+
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

@@ -313,6 +313,9 @@ class GameController:
         if hasattr(self.screen_manager, 'register_location_action_handler'):
             self.screen_manager.register_location_action_handler(self.event_manager)
 
+        if hasattr(self.screen_manager, 'register_exploration_hub_action_handler'):
+            self.screen_manager.register_exploration_hub_action_handler(self.event_manager)
+
         # Set up ScreenManager screen registry
         self.screen_manager.register_all_screen_renders()
 

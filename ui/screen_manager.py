@@ -28,6 +28,8 @@ from ui.generic_dialogue_handler import draw_generic_dialogue_screen
 from ui.death_overlay import create_death_overlay
 from screens.intro_scenes import draw_intro_scene_1, draw_intro_scene_2, draw_intro_scene_3
 from screens.act_two_transition import (draw_act_two_start, register_act_two_buttons, get_act_two_manager)
+from screens.exploration_hub import draw_exploration_hub, register_exploration_hub_buttons
+from screens.exploration_hub import get_hub_manager
 
 
 from ui.screen_handlers import (handle_main_menu_clicks, handle_dice_bets_clicks,
@@ -156,6 +158,48 @@ class ScreenManager:
         # Register the handler using your EventManager's register method
         event_manager.register("LOCATION_ACTION", handle_location_action)
         print("🎯 Registered LOCATION_ACTION event handler")
+
+    def register_exploration_hub_action_handler(self, event_manager):
+        """Register EXPLORATION_HUB_ACTION event handler with EventManager"""
+        
+        def handle_exploration_hub_action(event_data):
+            """Process EXPLORATION_HUB_ACTION events from exploration hub"""
+            from screens.exploration_hub import get_hub_manager
+            
+            action = event_data.get('action')
+            
+            if not hasattr(self, '_current_game_controller'):
+                print("❌ GameController not available")
+                return
+            
+            game_controller = self._current_game_controller
+            game_state = game_controller.game_state
+            hub_manager = get_hub_manager()
+            
+            if action == 'return':
+                # Return to Redstone town
+                print("🗺️ Returning to Redstone town")
+                self.event_manager.emit("SCREEN_CHANGE", {"target_screen": "redstone_town"})
+                
+            elif action == 'navigate':
+                # Navigate to location
+                location_id = event_data.get('location_id')
+                if location_id and location_id in REDSTONE_REGION_LOCATIONS:
+                    location_data = REDSTONE_REGION_LOCATIONS[location_id]
+                    target = location_data['target']
+                    print(f"🗺️ Traveling to {location_data['name']} → {target}")
+                    self.event_manager.emit("SCREEN_CHANGE", {"target_screen": target})
+                else:
+                    print(f"❌ Unknown location: {location_id}")
+            else:
+                print(f"⚠️ Unknown exploration hub action: {action}")
+        
+        # Import here to avoid circular dependency
+        from data.maps.redstone_region import REDSTONE_REGION_LOCATIONS
+        
+        # Register the handler
+        event_manager.register("EXPLORATION_HUB_ACTION", handle_exploration_hub_action)
+        print("🗺️ Registered EXPLORATION_HUB_ACTION event handler")
 
     def _handle_full_screen_registration(self, event_data):
         """Handle dynamic full-screen clickable registration"""
@@ -702,6 +746,11 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for load screen registration")
 
+    def register_exploration_hub_clickables(self):
+        """Register clickable areas for exploration hub"""
+        register_exploration_hub_buttons(self)
+        print("🗺️ Exploration hub clickables registered")
+
     def register_stats_confirm_low_clickables(self):
         """Register low stats confirmation clickables"""
         if hasattr(self, 'input_handler') and self.input_handler:
@@ -1105,15 +1154,18 @@ class ScreenManager:
 
             self.register_render_function("act_two_start", draw_act_two_start,
                 enter_hook=lambda _: self.register_act_two_clickables())
-
-   
+            # Act II Exploration Hub - Tile-based Regional Map
+            self.register_render_function("exploration_hub", draw_exploration_hub,
+                enter_hook=lambda _: self.register_exploration_hub_clickables())
 
         # BaseLocation System
             # Broken Blade Tavern 
             self._auto_register_location("broken_blade")
             self._auto_register_location("patron_selection")
-            # Act II Exploration Hub
-            self._auto_register_location("exploration_hub")
+
+            # Act II Exploration Hub (custom tile-based map - NOT auto-registered)
+            # self._auto_register_location("exploration_hub")  # Disabled - using custom renderer
+
             # Act II Investigation Locations
             self._auto_register_location("swamp_church")
             # Redstown Town
@@ -1269,6 +1321,12 @@ class ScreenManager:
         game_state: Current game state
         Returns: True if render successful, False if failed
         """
+        # Handle exploration hub mouse hover (if on exploration hub screen)
+        if game_state.screen == 'exploration_hub':
+            hub_manager = get_hub_manager()
+            mouse_pos = pygame.mouse.get_pos()
+            hub_manager.handle_mouse_move(mouse_pos)
+        
         self._current_game_state = game_state
         
         if not self.current_screen:
