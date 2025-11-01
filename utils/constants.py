@@ -13,6 +13,7 @@ WHITE = (255, 255, 255)
 YELLOW = (255, 255, 0)
 ORANGE = (255, 165, 0)     
 PURPLE = (128, 0, 128)
+PURPLE_BLUE = (138, 43, 226)
 
 #Yellow
 WARM_GOLD = (255, 223, 0)
@@ -39,6 +40,7 @@ DARK_BLUE = (0, 0, 128)
 DARK_CYAN = (0, 128, 128)
 CORNFLOWER_BLUE = (100, 149, 237) 
 SKYBLUE_AQUA = (0, 200, 255)
+STEEL_BLUE = (70, 130, 180)
 
 #REDS
 MAGENTA = (255, 0, 255)
@@ -47,10 +49,12 @@ BRIGHT_RED = (255, 100, 100)
 DARK_RED = (128, 0, 0)
 RUST_RED = (160, 60, 50)
 DARK_COPPER = (184, 115, 51)
+FIRE_BRICK_RED = (178, 34, 34)
 
 # Gray scale refinement (fixing naming confusion)
 VERY_DARK_GRAY = (60, 60, 60)       #Disabled Text
 DARKEST_GRAY = (85, 85, 85)         # Button backgrounds (pressed state)
+MOUNTAIN_GRAY = (105, 105, 105)
 GRAY = (128, 128, 128)              # Medium gray for borders
 DARK_GRAY = (170, 170, 170)         # Button backgrounds (normal state)  
 LIGHTEST_GRAY = (200, 200, 200)     # Text input borders (inactive)

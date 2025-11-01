@@ -54,7 +54,7 @@ class ExplorationHubManager:
         
         # Return button
         button_font = fonts.get('fantasy_medium', fonts.get('normal', fonts['normal']))
-        return_button = draw_button(surface, 412, 680, 200, 50,
+        return_button = draw_button(surface, 412, 680, 250, 50,
                                    "RETURN TO TOWN", button_font)
         
         self.clickable_areas['return'] = return_button
