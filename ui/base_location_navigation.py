@@ -328,6 +328,36 @@ class NavigationRenderer:
         surface.blit(text_surface, (prompt_x, prompt_y + 30 + LAYOUT_DIALOG_HEIGHT // 2))
 
 
+    def check_searchable_object(self, player_x, player_y):
+        """
+        Check if player is standing at a searchable object tile
+        
+        Args:
+            player_x, player_y: Player's current position
+        
+        Returns:
+            dict or None: Searchable info if present, None otherwise
+        """
+        get_searchable = self.map_functions.get('get_searchable_info')
+        if get_searchable:
+            return get_searchable(player_x, player_y)
+        return None
+
+    def check_combat_trigger(self, player_x, player_y):
+        """
+        Check if player stepped on a combat trigger tile
+        
+        Args:
+            player_x, player_y: Player's current position
+        
+        Returns:
+            dict or None: Combat trigger info if present, None otherwise
+        """
+        get_combat = self.map_functions.get('get_combat_trigger')
+        if get_combat:
+            return get_combat(player_x, player_y)
+        return None
+
     def draw_debug_info(self, surface, fonts, player_x, player_y, building_info=None, required_direction=None):
         """Draw debug information for development"""
         

@@ -143,7 +143,6 @@
           "description": "Neutralizes poison and restores 1d4 hit points"
        }
     },
-    
     {
       "id": "bedroll",
       "name": "Bedroll",
@@ -255,6 +254,17 @@
       "rarity": "uncommon",
       "stackable": false,
       "quest_item": true
+    },
+    {
+      "id": "broken_holy_symbol",
+      "name": "Broken Holy Symbol",
+      "description": "A damaged religious symbol, split in half. It once belonged to a priest or paladin.",
+      "base_cost": 2,
+      "category": "items",
+      "icon_file": "broken_holy_symbol.png",
+      "consumable": false,
+      "weight": 0.2,
+      "rarity": "common"
     },
     {
       "id": "broken_compass",

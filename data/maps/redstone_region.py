@@ -84,7 +84,7 @@ REDSTONE_REGION_LOCATIONS = {
         'discovery_flag': 'learned_about_swamp_church',
         'icon': '⛪',
         'icon_color': PURPLE,
-        'target': 'swamp_church_exterior',
+        'target': 'swamp_church_exterior_nav',
         'description': 'Fog-shrouded church deep in the marshlands.'
     },
     'refugee_camp': {

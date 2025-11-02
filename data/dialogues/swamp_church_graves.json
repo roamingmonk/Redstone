@@ -1,0 +1,49 @@
+{
+  "swamp_church_graves": {
+    "npc_name": "Disturbed Graves",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "The graves have been recently disturbed - earth scattered, headstones toppled, fresh dirt everywhere.",
+          "Whatever dug here was searching for something... or someone.",
+          "You notice claw marks on some of the wooden coffin fragments. These graves were opened from below, not above.",
+          "A few tarnished silver coins and a broken holy symbol lie half-buried in the disturbed earth."
+        ],
+        "options": [
+          {
+            "id": "search",
+            "text": "[Search the disturbed earth]",
+            "next_state": "exit",
+            "effects": [
+              {
+                "type": "set_flag",
+                "flag": "trigger_loot_check",
+                "value": "swamp_grave_loot"
+              },
+              {
+                "type": "set_flag",
+                "flag": "searched_swamp_graves",
+                "value": true
+              }
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Leave the graves be]",
+            "next_state": "exit",
+            "effects": [
+              {
+                "type": "set_flag",
+                "flag": "searched_swamp_graves",
+                "value": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

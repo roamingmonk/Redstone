@@ -1,0 +1,36 @@
+{
+  "encounter_id": "swamp_ghost",
+  "name": "Swamp Ghost",
+  "description": "A spectral figure materializes from the mist, its ghostly form radiating malevolent energy!",
+  "battlefield_id": "swamp_exterior",
+  "difficulty": "medium",
+  "enemies": [
+    {
+      "enemy_id": "shadow_ghost",
+      "position": [4, 3],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 100,
+    "gold": 10,
+    "items": []
+  },
+  "escape_allowed": true,
+  "turn_limit": null,
+  "ambient_description": "The ghost glides toward you, its chilling touch reaching out through the fog.",
+  "victory_description": "The ghost dissipates with an unearthly wail, fading back into the mist.",
+  "defeat_description": "You flee from the spectral horror, its icy presence sapping your strength."
+}

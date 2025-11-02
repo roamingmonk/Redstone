@@ -30,6 +30,7 @@ from screens.intro_scenes import draw_intro_scene_1, draw_intro_scene_2, draw_in
 from screens.act_two_transition import (draw_act_two_start, register_act_two_buttons, get_act_two_manager)
 from screens.exploration_hub import draw_exploration_hub, register_exploration_hub_buttons
 from screens.exploration_hub import get_hub_manager
+from screens.swamp_church_exterior_nav import draw_swamp_church_exterior_nav
 
 
 from ui.screen_handlers import (handle_main_menu_clicks, handle_dice_bets_clicks,
@@ -1170,7 +1171,9 @@ class ScreenManager:
             self._auto_register_location("swamp_church")
             # Redstown Town
             self.register_render_function("redstone_town", render_town_navigation)
-
+            # Swamp church navigation
+            self.register_render_function("swamp_church_exterior_nav", draw_swamp_church_exterior_nav)
+            
             # Utility screens
             self.register_render_function("inventory", draw_inventory_screen,
                 enter_hook=lambda _: self.register_inventory_screen_clickables())

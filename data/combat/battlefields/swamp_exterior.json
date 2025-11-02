@@ -1,0 +1,38 @@
+{
+  "battlefield_id": "small_cellar",
+  "name": "Tavern Basement",
+  "tileset": "cellar",
+  "description": "A cramped stone cellar with wooden support beams and scattered barrels.",
+  "dimensions": {
+    "width": 12,
+    "height": 8
+  },
+  "tile_size": 48,
+  "terrain": {
+    "default": "stone_floor",
+    "walls": [
+      [0, 0, 11, 0],
+      [0, 7, 11, 7], 
+      [0, 0, 0, 7],
+      [11, 0, 11, 7]
+    ],
+    "obstacles": [
+      {"type": "barrel", "position": [2, 2], "blocks_movement": true, "blocks_sight": false},
+      {"type": "barrel", "position": [9, 5], "blocks_movement": true, "blocks_sight": false},
+      {"type": "support_beam", "position": [5, 3], "blocks_movement": true, "blocks_sight": true}
+    ]
+  },
+  "spawn_zones": {
+    "player_start": [
+      [1, 6], [2, 6], [3, 6]
+    ],
+    "enemy_spawns": [
+      [8, 2], [10, 4], [7, 6]
+    ],
+    "exit_point": [1, 6]  
+  },
+  "lighting": "dim",
+  "environmental_effects": [
+    {"type": "musty_air", "effect": "none"}
+  ]
+}
