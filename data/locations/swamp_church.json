@@ -5,26 +5,22 @@
     "type": "investigation_site",
     
     "loot_tables": {
-    "swamp_church_pews": {
+    "swamp_pew_loot": {
       "items": [
         {
           "item_id": "glowcap_mushrooms",
-          "quantity": 1,
+          "quantity": 2,
           "chance": 1.0
         },
         {
           "item_id": "silver_coins",
           "quantity": 5,
           "chance": 0.75
-        }
-      ]
-    },
-    "swamp_church_altar": {
-      "items": [
+        },
         {
-          "item_id": "strange_relic",
+          "item_id": "broken_holy_symbol",
           "quantity": 1,
-          "chance": 1.0
+          "chance": 0.5
         }
       ]
     },
@@ -124,7 +120,7 @@
           "exit_church": {
             "type": "navigate",
             "label": "Exit Church",
-            "target": "swamp_church_exterior"
+            "target": "swamp_church_exterior_nav"
           }
         }
       },
@@ -154,7 +150,7 @@
           "return_upstairs": {
             "type": "navigate",
             "label": "Return Upstairs",
-            "target": "swamp_church_interior"
+            "target": "swamp_church_interior_nav"
           }
         }
       }

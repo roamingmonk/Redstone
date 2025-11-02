@@ -1,0 +1,33 @@
+{
+  "swamp_church_pews": {
+    "npc_name": "Church Pews",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "The old wooden pews are warped and stained with moisture.",
+          "Years of abandonment have left them covered in moss and decay.",
+          "However, the spaces between the seats might still hide forgotten offerings or belongings."
+        ],
+        "options": [
+          {
+            "id": "search",
+            "text": "[Search the pews]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "trigger_loot_check", "value": "swamp_pew_loot"},
+              {"type": "set_flag", "flag": "searched_church_pews", "value": true}
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Leave them be]",
+            "next_state": "exit"
+          }
+        ]
+      }
+    }
+  }
+}

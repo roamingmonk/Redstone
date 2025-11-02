@@ -171,7 +171,7 @@ class SwampChurchExteriorNav:
         """Display temporary message to player"""
         self.showing_message = True
         self.message_text = text
-        self.message_timer = 2000  # 2 seconds
+        self.message_timer = 3000  # 3 seconds
     
     def _trigger_loot_check(self, loot_table_id, game_state, controller):
         """Trigger loot check and open combat loot overlay"""
