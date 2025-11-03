@@ -1,0 +1,65 @@
+{
+  "enemy_id": "bandit_common",
+  "name": "Bandit",
+  "description": "A desperate outlaw in patchwork armor, prowling the ruins for easy pickings. Armed with crude weapons and survival instincts.",
+  "stats": {
+    "hp": 22,
+    "max_hp": 22,
+    "ac": 13,
+    "strength": 13,
+    "dexterity": 14,
+    "constitution": 14,
+    "intelligence": 10,
+    "wisdom": 10,
+    "charisma": 8
+  },
+  "saving_throw_proficiencies": ["strength", "dexterity"],
+  "attacks": [
+    {
+      "name": "Rusty Sword",
+      "damage_dice": "1d8+1",
+      "attack_bonus": 4,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A crude slash with a weathered blade"
+    },
+    {
+      "name": "Throwing Axe",
+      "damage_dice": "1d6+1",
+      "attack_bonus": 4,
+      "attack_type": "ranged",
+      "range": 6,
+      "description": "A hastily thrown hand axe"
+    }
+  ],
+  "movement": {
+    "speed": 3,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Opportunist",
+      "description": "Gains advantage on attacks against wounded enemies (below 50% HP)",
+      "effect_type": "situational_advantage",
+      "trigger": "low_hp_target"
+    }
+  ],
+  "loot": {
+    "xp_value": 30,
+    "gold_range": [5, 15],
+    "items": ["leather_armor", "rusty_sword"],
+    "item_drops": [
+      {"item_id": "stolen_coin_purse", "drop_chance": 0.6, "quantity_range": [1, 1]},
+      {"item_id": "healing_potion", "drop_chance": 0.4, "quantity_range": [1, 1]},
+      {"item_id": "rusty_dagger", "drop_chance": 0.5, "quantity_range": [1, 1]},
+      {"item_id": "leather_armor", "drop_chance": 0.15, "quantity_range": [1, 1]}
+    ]
+  },
+  "behavior": {
+    "aggression": "high",
+    "intelligence": "medium",
+    "tactics": "aggressive",
+    "retreat_threshold": 5,
+    "notes": "Attacks wounded targets preferentially. Flees if HP drops below 5."
+  }
+}

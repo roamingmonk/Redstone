@@ -1,0 +1,36 @@
+{
+  "hill_ruins_unlockdoor": {
+    "npc_name": "Unlocked Door",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "unlock",
+    "states": {
+      "unlock": {
+        "introduction": [
+          "You pull out the seven-pointed star key you found at the refugee camp.",
+          "",
+          "It slides into the lock perfectly. As you turn it, you hear the deep grinding of ancient mechanisms coming to life. Gears turn, bolts slide, and with a heavy THUNK, the door unseals.",
+          "",
+          "Beyond lies darkness and the faint hum of arcane energy. The portal chamber below is active.",
+          "",
+          "This is it. Whatever the cult has been planning, it ends here."
+        ],
+        "options": [
+          {
+            "id": "enter_dungeon",
+            "text": "[Enter the dungeon] (NOT IMPLEMENTED - ACT III)",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "hill_ruins_dungeon_unlocked", "value": true}
+            ]
+          },
+          {
+            "id": "not_ready",
+            "text": "[Not ready yet - return upstairs]",
+            "next_state": "exit"
+          }
+        ]
+      }
+    }
+  }
+}

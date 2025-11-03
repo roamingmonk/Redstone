@@ -74,8 +74,8 @@ REDSTONE_REGION_LOCATIONS = {
         'grid_pos': (12, 1),  # East, in the mountains
         'discovery_flag': 'learned_about_ruins',
         'icon': '🏔️',
-        'icon_color': (169, 169, 169),  # Gray
-        'target': 'hill_ruins_entrance',
+        'icon_color': GRAY,  # Gray
+        'target': 'hill_ruins_entrance_nav',
         'description': 'Ancient watchtower overlooking the valley.'
     },
     'swamp_church': {

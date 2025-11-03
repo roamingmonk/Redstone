@@ -21,21 +21,21 @@
           "hill_ruins": {
             "type": "navigate",
             "label": "Ruins on the Hill",
-            "target": "hill_ruins.entrance",
+            "target": "hill_ruins_entrance",
             "description": "Ancient watchtower overlooking the valley, glowing with strange lights at night.",
             "requires_flag": "learned_about_ruins"
           },
           "refugee_camp": {
             "type": "navigate",
             "label": "Refugee Camp",
-            "target": "refugee_camp.main",
+            "target": "refugee_camp_main",
             "description": "Makeshift settlement outside town where displaced miners seek shelter.",
             "requires_flag": "learned_about_refugees"
           },
           "red_hollow_mine": {
             "type": "navigate",
             "label": "Red Hollow Mine",
-            "target": "red_hollow_mine.entrance",
+            "target": "red_hollow_mine_entrance",
             "description": "Abandoned mine shaft sealed by fearful workers, now home to unknown dangers.",
             "requires_flag": "discovered_old_mine_shaft"
           },

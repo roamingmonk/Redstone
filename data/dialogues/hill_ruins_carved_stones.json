@@ -1,0 +1,43 @@
+{
+  "hill_ruins_carved_stones": {
+    "npc_name": "Carved Stones",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "Two large standing stones, intricately carved with ancient symbols and pictographs.",
+          "",
+          "The carvings depict what appears to be a great battle - warriors standing against shadowy figures emerging from a portal.",
+          "",
+          "At the base of one stone, you notice the words '...sealed by the Seven... until the stars align...' The other stone shows a towering structure - perhaps this very ruin in its original glory.",
+          "",
+          "As you study the worn symbols more closely, understanding dawns. This place was once a watchtower - built to guard against something from beyond. The portal inside was meant to be a prison, not a gateway.",
+          "",
+          "But someone has been reactivating it. Whatever was sealed here was never meant to return."
+        ],
+        "options": [
+          {
+            "id": "understood",
+            "text": "[You understand the history now]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "hill_ruins_lore_discovered", "value": true},
+              {"type": "set_flag", "flag": "hill_ruins_carved_searched", "value": true},
+              {"type": "xp_award", "amount": 15, "reason": "Discovered ancient lore"}
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Step away from the stones]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "hill_ruins_carved_searched", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

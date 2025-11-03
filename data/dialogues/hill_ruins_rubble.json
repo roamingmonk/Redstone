@@ -1,0 +1,36 @@
+{
+  "hill_ruins_rubble": {
+    "npc_name": "Ancient Rubble",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "The rubble pile consists of weathered stone blocks, their surfaces carved with faded runes.",
+          "Wind and rain have worn them smooth over countless years, but you can still make out fragments of text.",
+          "Among the broken stones, you notice small items half-buried in the debris."
+        ],
+        "options": [
+          {
+            "id": "search",
+            "text": "[Search through the rubble]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "trigger_loot_check", "value": "hill_ruins_rubble_loot"},
+              {"type": "set_flag", "flag": "hill_ruins_rubble_searched", "value": true}
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Leave it undisturbed]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "hill_ruins_rubble_searched", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

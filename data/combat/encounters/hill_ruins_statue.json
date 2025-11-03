@@ -1,0 +1,36 @@
+{
+  "encounter_id": "hill_ruins_statue",
+  "name": "Ancient Guardian Awakens",
+  "description": "The stone guardian stirs to life, its eyes glowing with ancient magic!",
+  "battlefield_id": "hill_ruins_exterior",
+  "difficulty": "medium",
+  "enemies": [
+    {
+      "enemy_id": "animated_statue",
+      "position": [5, 3],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 50,
+    "gold": 0,
+    "items": []
+  },
+  "escape_allowed": true,
+  "turn_limit": null,
+  "ambient_description": "The animated statue's stone joints grind as it moves relentlessly toward you.",
+  "victory_description": "With a final shuddering crack, the statue crumbles into rubble. Ancient coins scatter from within its hollow core.",
+  "defeat_description": "You flee from the unstoppable guardian, its heavy footsteps echoing behind you."
+}

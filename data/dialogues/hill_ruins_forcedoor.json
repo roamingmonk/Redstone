@@ -1,0 +1,31 @@
+{
+  "hill_ruins_forcedoor": {
+    "npc_name": "Sealed Door",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "attempt",
+    "states": {
+      "attempt": {
+        "introduction": [
+          "You examine the door carefully, testing its strength with your shoulder.",
+          "",
+          "The construction is masterwork - forcing it would take days with proper siege equipment, or explosive magic that would likely collapse the entire stairwell.",
+          "",
+          "The lock is the only weak point, but it's far too complex to pick without the original key.",
+          "",
+          "You'll need to find the key... or perhaps there's another way in. Henrik mentioned the Red Hollow Mine tunnels go deep beneath the hills. Maybe they connect to these ruins?"
+        ],
+        "options": [
+          {
+            "id": "understood",
+            "text": "[Give up on forcing the door]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "attempted_force_dungeon_door", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

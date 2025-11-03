@@ -1,0 +1,33 @@
+{
+  "hill_ruins_lockeddoor": {
+    "npc_name": "Sealed Dungeon Door",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "The door is massive - reinforced iron banded with dark steel, covered in ancient dwarven runes.",
+          "",
+          "The lock mechanism is intricate but intact. You can see a keyhole shaped like a seven-pointed star, but no key. The door hasn't been opened in decades, perhaps centuries.",
+          "",
+          "Someone must have taken the key... or hidden it. Fresh scratches around the lock suggest others have tried to pick it recently, without success.",
+          "",
+          "This door was built to withstand armies. Whatever lies beyond was meant to stay sealed."
+        ],
+        "options": [
+          {
+            "id": "understood",
+            "text": "[Step back from the door]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "examined_dungeon_locked_door", "value": true},
+              {"type": "set_flag", "flag": "hill_ruins_locked_door_found", "value": true},
+              {"type": "xp_award", "amount": 25, "reason": "Discovered sealed dungeon entrance"}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

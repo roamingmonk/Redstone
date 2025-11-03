@@ -1,0 +1,34 @@
+{
+  "hill_ruins_mine": {
+    "npc_name": "Narrator",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "enter",
+    "states": {
+      "enter": {
+        "introduction": [
+          "You remember the secret passage you discovered in the Red Hollow Mine - the one Henrik warned about.",
+          "",
+          "The mine tunnels connect to natural caverns that run beneath these hills. If you go back through the mine, you could bypass this locked door entirely and enter the dungeon from below.",
+          "",
+          "It's dangerous - the tunnels are unstable and full of creatures - but it would avoid the need for a key."
+        ],
+        "options": [
+          {
+            "id": "use_passage",
+            "text": "[Use mine tunnel passage] (NOT IMPLEMENTED - ACT III)",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "using_mine_tunnel_entrance", "value": true}
+            ]
+          },
+          {
+            "id": "not_now",
+            "text": "[Maybe later - return upstairs]",
+            "next_state": "exit"
+          }
+        ]
+      }
+    }
+  }
+}

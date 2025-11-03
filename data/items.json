@@ -216,56 +216,7 @@
         "Tomorrow I transcend. The ritual is prepared. The Master has shown me what lies beyond. I will leave this journal for whoever finds it. Tell Cassia... No. She chose fear over greatness. My only regret is that she'll never understand what I've become. The portal calls. I answer."
       ]
     },
-      {
-      "id": "silver_coins",
-      "name": "Silver Coins",
-      "description": "A small collection of old silver coins, tarnished with age but still valuable.",
-      "base_cost": 5,
-      "category": "items",
-      "icon_file": "silver_coins.png",
-      "consumable": false,
-      "weight": 0.1,
-      "rarity": "common",
-      "stackable": true,
-      "max_stack": 99
-    },
-    {
-      "id": "strange_relic",
-      "name": "Strange Relic",
-      "description": "An ancient religious artifact defaced with dark symbols. It radiates an unsettling aura.",
-      "base_cost": 0,
-      "category": "quest_items",
-      "icon_file": "strange_relic.png",
-      "consumable": false,
-      "weight": 1.0,
-      "rarity": "rare",
-      "stackable": false,
-      "quest_item": true
-    },
-    {
-      "id": "cult_documents",
-      "name": "Cult Documents",
-      "description": "Disturbing papers covered in ritual diagrams and cryptic notes about dark ceremonies.",
-      "base_cost": 0,
-      "category": "quest_items",
-      "icon_file": "cult_documents.png",
-      "consumable": false,
-      "weight": 0.5,
-      "rarity": "uncommon",
-      "stackable": false,
-      "quest_item": true
-    },
-    {
-      "id": "broken_holy_symbol",
-      "name": "Broken Holy Symbol",
-      "description": "A damaged religious symbol, split in half. It once belonged to a priest or paladin.",
-      "base_cost": 2,
-      "category": "items",
-      "icon_file": "broken_holy_symbol.png",
-      "consumable": false,
-      "weight": 0.2,
-      "rarity": "common"
-    },
+      
     {
       "id": "broken_compass",
       "name": "Broken compass",
@@ -1210,6 +1161,83 @@
       "consumable": false,
       "weight": 2,
       "rarity": "common"
+    },
+    {
+      "id": "silver_coins",
+      "name": "Silver Coins",
+      "description": "A small collection of old silver coins, tarnished with age but still valuable.",
+      "base_cost": 5,
+      "category": "items",
+      "icon_file": "silver_coins.png",
+      "consumable": false,
+      "weight": 0.1,
+      "rarity": "common",
+      "stackable": true,
+      "max_stack": 99
+    },
+    {
+      "id": "strange_relic",
+      "name": "Strange Relic",
+      "description": "An ancient religious artifact defaced with dark symbols. It radiates an unsettling aura.",
+      "base_cost": 0,
+      "category": "quest_items",
+      "icon_file": "strange_relic.png",
+      "consumable": false,
+      "weight": 1.0,
+      "rarity": "rare",
+      "stackable": false,
+      "quest_item": true
+    },
+    {
+      "id": "ancient_coins",
+      "name": "Ancient Coins",
+      "description": "Weathered coins from a long-forgotten era, stamped with symbols of an ancient kingdom. Collectors might pay well for these.",
+      "base_cost": 15,
+      "category": "treasure",
+      "icon_file": "ancient_coins.png",
+      "consumable": false,
+      "weight": 0.1,
+      "rarity": "uncommon",
+      "stackable": true,
+      "max_stack": 50
+    },
+    {
+      "id": "stone_fragment",
+      "name": "Stone Fragment",
+      "description": "A chunk of enchanted stone from an animated guardian. Still faintly warm with residual magic.",
+      "base_cost": 8,
+      "category": "materials",
+      "icon_file": "stone_fragment.png",
+      "consumable": false,
+      "weight": 1,
+      "rarity": "uncommon",
+      "stackable": true,
+      "max_stack": 20
+    },
+    {
+      "id": "cult_documents",
+      "name": "Cult Documents",
+      "description": "Disturbing papers covered in ritual diagrams and cryptic notes about dark ceremonies.",
+      "base_cost": 0,
+      "category": "quest_items",
+      "icon_file": "cult_documents.png",
+      "consumable": false,
+      "weight": 0.5,
+      "rarity": "uncommon",
+      "stackable": false,
+      "quest_item": true
+    },
+    {
+      "id": "broken_holy_symbol",
+      "name": "Broken Holy Symbol",
+      "description": "A damaged religious symbol, split in half. It once belonged to a priest or paladin.",
+      "base_cost": 2,
+      "category": "items",
+      "icon_file": "broken_holy_symbol.png",
+      "consumable": false,
+      "weight": 0.2,
+      "rarity": "common"
     }
+
   ]
 }

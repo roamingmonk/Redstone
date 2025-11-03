@@ -1,0 +1,121 @@
+{
+  "hill_ruins": {
+    "location_id": "hill_ruins",
+    "name": "The Ruins on the Hill",
+    "type": "investigation_site",
+    
+    "loot_tables": {
+      "hill_ruins_rubble_loot": {
+        "items": [
+          {
+            "item_id": "ancient_coins",
+            "quantity": 5,
+            "chance": 1.0
+          },
+          {
+            "item_id": "silver_coins",
+            "quantity": 8,
+            "chance": 0.6
+          },
+          {
+            "item_id": "healing_potion",
+            "quantity": 1,
+            "chance": 0.4
+          }
+        ]
+      },
+      "hill_ruins_mechanism_loot": {
+        "items": [
+          {
+            "item_id": "ancient_coins",
+            "quantity": 8,
+            "chance": 1.0
+          },
+          {
+            "item_id": "silver_coins",
+            "quantity": 12,
+            "chance": 0.8
+          },
+          {
+            "item_id": "cult_documents",
+            "quantity": 1,
+            "chance": 0.6
+          }
+        ]
+      },
+      "hill_ruins_entrance_chamber_loot": {
+        "items": [
+          {
+            "item_id": "ancient_coins",
+            "quantity": 3,
+            "chance": 0.7
+          },
+          {
+            "item_id": "healing_potion",
+            "quantity": 1,
+            "chance": 0.5
+          }
+        ]
+      }
+    },
+    
+    "areas": {
+      "entrance": {
+        "note": "This area is handled by hill_ruins_entrance_nav.py navigation system"
+      },
+      "ground_level": {
+        "note": "This area is handled by hill_ruins_ground_level_nav.py navigation system"
+      },
+      "dungeon_entrance": {
+      "type": "action_hub",
+      "title": "SEALED DUNGEON ENTRANCE",
+      "description": "Ancient stone steps descend into darkness...",
+      "background": "dungeon_entrance",
+      "actions": {
+        "examine_door": {
+          "type": "dialogue",
+          "npc_id": "lockeddoor",  
+          "label": "Examine Door",
+          "description": "Study the ancient lock mechanism"
+        },
+        "search_entrance": {
+          "type": "loot_check",
+          "label": "Search Chamber",
+          "loot_table": "hill_ruins_entrance_chamber_loot",
+          "description": "Look for anything useful near the entrance",
+          "one_time_flag": "hill_ruins_entrance_chamber_searched"
+        },
+        "try_force_door": {
+          "type": "dialogue",
+          "npc_id": "forcedoor",  
+          "label": "Force Door",
+          "description": "Try to break through by force",
+          "requires_flag": "examined_dungeon_locked_door"
+        },
+        "unlock_door": {
+          "type": "dialogue",
+          "npc_id": "unlockdoor",  
+          "label": "Unlock with Key",
+          "description": "Use the dungeon key you found",
+          "requires_flag": "hill_ruins_dungeon_key_obtained",
+          "hidden_unless_requirements_met": true
+        },
+        "enter_via_mine": {
+          "type": "dialogue",
+          "npc_id": "mine",  
+          "label": "Enter via Mine",
+          "description": "Use the secret passage from Red Hollow Mine",
+          "requires_flag": "red_hollow_mine_secret_entrance_found",
+          "hidden_unless_requirements_met": true
+        },
+        "return_upstairs": {
+          "type": "navigate",
+          "target": "hill_ruins_ground_level_nav",
+          "label": "Return to Ground Level",
+          "description": "Go back upstairs"
+        }
+      }
+    }
+    }
+  }
+}

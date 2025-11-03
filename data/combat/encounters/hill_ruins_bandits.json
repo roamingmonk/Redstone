@@ -1,0 +1,41 @@
+{
+  "encounter_id": "hill_ruins_bandits",
+  "name": "Bandit Ambush",
+  "description": "A group of bandits has been using the ruins as a hideout! They rush to attack!",
+  "battlefield_id": "hill_ruins_exterior",
+  "difficulty": "easy",
+  "enemies": [
+    {
+      "enemy_id": "bandit_common",
+      "position": [6, 2],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "bandit_common",
+      "position": [7, 3],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 60,
+    "gold": 15,
+    "items": []
+  },
+  "escape_allowed": true,
+  "turn_limit": null,
+  "ambient_description": "The bandits circle you warily, weapons drawn and ready to strike.",
+  "victory_description": "The bandits fall, cursing their bad luck. You find some coins on their bodies.",
+  "defeat_description": "You retreat from the bandits, nursing your wounds as they jeer and laugh."
+}

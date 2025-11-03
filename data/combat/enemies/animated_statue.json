@@ -1,0 +1,61 @@
+{
+  "enemy_id": "animated_statue",
+  "name": "Animated Statue",
+  "description": "An ancient stone guardian brought to life by forgotten magic. Its movements are slow but unstoppable, stone limbs grinding as it defends the ruins.",
+  "stats": {
+    "hp": 35,
+    "max_hp": 35,
+    "ac": 16,
+    "strength": 16,
+    "dexterity": 6,
+    "constitution": 16,
+    "intelligence": 3,
+    "wisdom": 8,
+    "charisma": 1
+  },
+  "saving_throw_proficiencies": ["strength", "constitution"],
+  "attacks": [
+    {
+      "name": "Stone Fist",
+      "damage_dice": "2d6+3",
+      "attack_bonus": 5,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A crushing blow from a massive stone fist"
+    }
+  ],
+  "movement": {
+    "speed": 2,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Stone Resilience",
+      "description": "Resistant to slashing and piercing damage. Takes half damage from non-magical weapons.",
+      "effect_type": "damage_resistance",
+      "resistance_types": ["slashing", "piercing"]
+    },
+    {
+      "name": "Relentless",
+      "description": "Never flees from combat, fights to destruction",
+      "effect_type": "behavioral",
+      "trigger": "always"
+    }
+  ],
+  "loot": {
+    "xp_value": 50,
+    "gold_range": [0, 0],
+    "items": [],
+    "item_drops": [
+      {"item_id": "ancient_coins", "drop_chance": 0.7, "quantity_range": [3, 8]},
+      {"item_id": "stone_fragment", "drop_chance": 0.5, "quantity_range": [1, 2]}
+    ]
+  },
+  "behavior": {
+    "aggression": "medium",
+    "intelligence": "very_low",
+    "tactics": "direct",
+    "retreat_threshold": 0,
+    "notes": "Mindless construct. Attacks nearest target. Never retreats."
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "hill_ruins_mechanisms": {
+    "npc_name": "Ancient Mechanisms",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "Complex mechanical devices of dwarven design, covered in centuries of dust and corrosion.",
+          "",
+          "You recognize some of the components - gears, levers, pressure plates - all part of an elaborate locking system. These mechanisms once controlled something important, perhaps the dungeon entrance below.",
+          "",
+          "Most of the machinery is broken or seized with rust. However, you notice fresh tool marks on some pieces. Someone has been trying to repair them, to bypass the locks.",
+          "",
+          "A few silver gears lie scattered on the floor, recently pried loose. You pocket them - they might be valuable to a collector or engineer."
+        ],
+        "options": [
+          {
+            "id": "search",
+            "text": "[Search for useful components]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "trigger_loot_check", "value": "hill_ruins_mechanism_loot"},
+              {"type": "set_flag", "flag": "hill_ruins_mechanisms_searched", "value": true}
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Leave the mechanisms alone]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "hill_ruins_mechanisms_searched", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

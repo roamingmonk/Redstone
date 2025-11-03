@@ -1,0 +1,35 @@
+{
+  "hill_ruins_portal": {
+    "npc_name": "Portal Chamber",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "A massive crystalline structure dominates the chamber, humming with otherworldly energy.",
+          "",
+          "The portal frame is made of an unknown dark metal, covered in glowing runes that pulse with purple light. At its center, a swirling vortex of energy crackles and shifts.",
+          "",
+          "You can feel the power radiating from it - this is no mere decoration. The portal is active, though not fully open. Someone has been feeding it energy, preparing it for something.",
+          "",
+          "Around the base, you notice fresh footprints in the dust, ritual candles recently burned, and scattered cult documents. The Mayor's missing people... they were brought here. Their life force used to power this abomination.",
+          "",
+          "Whatever lies beyond this portal was meant to stay sealed. But the cult is trying to tear open the barrier between worlds."
+        ],
+        "options": [
+          {
+            "id": "understood",
+            "text": "[Step back from the portal]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "hill_ruins_portal_examined", "value": true},
+              {"type": "set_flag", "flag": "hill_ruins_portal_chamber_seen", "value": true},
+              {"type": "xp_award", "amount": 25, "reason": "Discovered the portal chamber"}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

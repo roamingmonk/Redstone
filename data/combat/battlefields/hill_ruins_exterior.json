@@ -1,0 +1,47 @@
+{
+  "battlefield_id": "hill_ruins_exterior",
+  "name": "Hill Ruins Entrance",
+  "tileset": "ruins_outdoor",
+  "description": "Windswept ruins atop a hill, with crumbled walls and ancient stones scattered across overgrown grass.",
+  "dimensions": {
+    "width": 10,
+    "height": 8
+  },
+  "tile_size": 48,
+  "terrain": {
+    "default": "grass",
+    "walls": [
+      [0, 0, 9, 0],
+      [0, 7, 9, 7],
+      [0, 0, 0, 7],
+      [9, 0, 9, 7]
+    ],
+    "obstacles": [
+      {"type": "rubble_pile", "position": [3, 2], "blocks_movement": true, "blocks_sight": false, "cover_value": 2},
+      {"type": "rubble_pile", "position": [6, 5], "blocks_movement": true, "blocks_sight": false, "cover_value": 2},
+      {"type": "crumbled_wall", "position": [5, 3], "blocks_movement": true, "blocks_sight": true, "cover_value": 2},
+      {"type": "standing_stone", "position": [2, 5], "blocks_movement": true, "blocks_sight": true, "cover_value": 2},
+      {"type": "ancient_pillar", "position": [7, 2], "blocks_movement": true, "blocks_sight": false, "cover_value": 1}
+    ],
+    "special_tiles": [
+      {"type": "overgrown_grass", "position": [4, 4], "effect": "none", "description": "Tall grass sways in the wind"},
+      {"type": "carved_runes", "position": [2, 2], "effect": "none", "description": "Ancient runes carved into stone"}
+    ]
+  },
+  "spawn_zones": {
+    "player_start": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "enemy_spawns": [
+      [6, 2], [7, 3], [8, 4]
+    ],
+    "exit_point": [0, 3]
+  },
+  "lighting": "daylight",
+  "environmental_effects": [
+    {"type": "strong_wind", "effect": "atmosphere", "description": "Wind howls through the broken stones"},
+    {"type": "clear_sky", "effect": "visibility_bonus"}
+  ],
+  "background_music": "combat_outdoor",
+  "ambient_sound": "wind_howling"
+}
