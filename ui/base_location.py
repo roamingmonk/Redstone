@@ -265,8 +265,6 @@ class ActionHubLocation(BaseLocation):
         #print(f"✅ All requirements satisfied")
         return True
 
-
-
     def render(self, surface: pygame.Surface, game_state, fonts: Dict, images: Dict, 
            controller=None) -> Dict[str, Any]:
 
