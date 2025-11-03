@@ -3,6 +3,14 @@ Swamp Church Interior Map Data
 20x20 tile grid for church interior with pews, altar, and crypt stairs
 """
 
+from utils.constants import (
+                           #Colors
+                           FIRE_BRICK_RED, WHITE, DARK_GRAY, GRAY, BLACK, SOFT_YELLOW, BROWN,
+                           CYAN, WARNING_RED, TITLE_GREEN, YELLOW, STEEL_BLUE, DARK_BLUE, BLUE,
+                           #Buttons
+                           BUTTON_SIZES, SCREEN_WIDTH
+)
+
 SWAMP_CHURCH_INT_WIDTH = 20
 SWAMP_CHURCH_INT_HEIGHT = 20
 SWAMP_CHURCH_INT_SPAWN_X = 10
@@ -10,39 +18,40 @@ SWAMP_CHURCH_INT_SPAWN_Y = 18  # Enter from bottom (from exterior)
 
 # Tile type definitions
 TILE_TYPES = {
-    '#': 'wall',          # Stone walls
+    '#': 'church_wall',   # Stone walls
     '.': 'floor',         # Walkable stone floor
     'p': 'pew',           # Church pews (searchable)
     'A': 'altar',         # Main altar (searchable)
     'D': 'door',          # Door to exterior
     'S': 'stairs',        # Stairs down to crypt
     'c': 'candle',        # Decorative candles
+    'W': 'window',        # Church Window
 }
 
-WALKABLE_TILES = {'floor', 'pew', 'altar', 'door', 'stairs'}
+WALKABLE_TILES = {'floor', 'pew', 'door', 'stairs'}
 
 # ASCII map layout - 20x20 grid
 SWAMP_CHURCH_INT_MAP = [
-    "####################",  # Row 0
-    "#..................#",  # Row 1
-    "#.pppp....pppp.....#",  # Row 2 - Pews
-    "#.pppp....pppp.....#",  # Row 3
-    "#..................#",  # Row 4
-    "#.pppp....pppp.....#",  # Row 5
-    "#.pppp....pppp.....#",  # Row 6
-    "#..................#",  # Row 7
-    "#.pppp....pppp.....#",  # Row 8
-    "#.pppp....pppp.....#",  # Row 9
-    "#..................#",  # Row 10
-    "#........AA........#",  # Row 11 - Altar
-    "#........AA........#",  # Row 12
+    "#########DD#########",  # Row 0
+    "#c................c#",  # Row 1 - Doors
+    "#..................#",  # Row 2 
+    "#...ppppp..ppppp...#",  # Row 3
+    "W...ppppp..ppppp...W",  # Row 4 - Pews
+    "#...ppppp..ppppp...#",  # Row 5
+    "#..................#",  # Row 6
+    "#...ppppp..ppppp...#",  # Row 7
+    "W...ppppp..ppppp...W",  # Row 8
+    "#..................#",  # Row 9
+    "#...ppppp..ppppp...#",  # Row 10
+    "W...ppppp..ppppp...W",  # Row 11 
+    "#..................#",  # Row 12
     "#..................#",  # Row 13
-    "#........SS........#",  # Row 14 - Stairs to crypt
-    "#........SS........#",  # Row 15
+    "#........AA........#",  # Row 14 - Altar
+    "#....c..AAAA..c....#",  # Row 15
     "#..................#",  # Row 16
-    "#..................#",  # Row 17
-    "#.........D........#",  # Row 18 - Door to exterior
-    "####################"   # Row 19
+    "#SS................#",  # Row 17
+    "#SS...............c#",  # Row 18 - Stairs to crypt
+    "########WWWW########"   # Row 19
 ]
 
 def get_tile_type(x, y):
@@ -61,21 +70,22 @@ def get_tile_color(x, y):
     """Get color for tile rendering"""
     tile_type = get_tile_type(x, y)
     TILE_COLORS = {
-        'wall': (80, 80, 80),          # Dark gray stone
+        'church_wall': (80, 80, 80),          # Dark gray stone
         'floor': (139, 115, 85),       # Brown stone floor
         'pew': (101, 67, 33),          # Dark brown pews (SEARCHABLE)
         'altar': (200, 200, 200),      # Light gray altar (SEARCHABLE)
         'door': (139, 69, 19),         # Brown door
         'stairs': (60, 60, 60),        # Dark gray stairs
         'candle': (255, 215, 0),       # Gold candles
+        'window': (STEEL_BLUE)         # Blue window
     }
-    return TILE_COLORS.get(tile_type, (128, 128, 128))
+    return TILE_COLORS.get(tile_type, (GRAY))
 
 # Area transitions
 AREA_TRANSITIONS = {
     'door_to_exterior': {
-        'entrance_tiles': [(10, 18)],
-        'building_pos': [(10, 18)],
+        'entrance_tiles': [(9, 0), (10,0)],
+        'building_pos': [(9, 0), (10, 0)],
         'info': {
             'name': 'Church Door',
             'interaction_type': 'navigation',
@@ -85,8 +95,8 @@ AREA_TRANSITIONS = {
         }
     },
     'stairs_to_crypt': {
-        'entrance_tiles': [(9, 14), (10, 14), (9, 15), (10, 15)],
-        'building_pos': [(9, 14), (10, 14)],
+        'entrance_tiles': [(1, 16), (2, 16), (3, 17), (3, 18)],
+        'building_pos': [(1, 17), (2, 17), (1,18), (2,18)],
         'info': {
             'name': 'Crypt Stairs',
             'interaction_type': 'navigation',
@@ -107,18 +117,10 @@ def get_transition_at_entrance(player_x, player_y):
 # Searchable objects
 SEARCHABLE_OBJECTS = {
     'church_pews': {
-        'search_tiles': [(2, 2), (3, 2), (4, 2), (5, 2),  # Left pews
-                        (2, 3), (3, 3), (4, 3), (5, 3),
-                        (2, 5), (3, 5), (4, 5), (5, 5),
-                        (2, 6), (3, 6), (4, 6), (5, 6),
-                        (2, 8), (3, 8), (4, 8), (5, 8),
-                        (2, 9), (3, 9), (4, 9), (5, 9),
-                        (10, 2), (11, 2), (12, 2), (13, 2),  # Right pews
-                        (10, 3), (11, 3), (12, 3), (13, 3),
-                        (10, 5), (11, 5), (12, 5), (13, 5),
-                        (10, 6), (11, 6), (12, 6), (13, 6),
-                        (10, 8), (11, 8), (12, 8), (13, 8),
-                        (10, 9), (11, 9), (12, 9), (13, 9)],
+        'search_tiles': [(4, 3), (5, 3), (6, 3), (7, 3), (8, 3),  # Left pews
+                        
+                        (11, 3), (12, 3), (13, 3), (14,3), (15, 3) # Right pews
+                        ],
         'object_pos': [],  # Pews themselves
         'info': {
             'name': 'Church Pews',
@@ -132,14 +134,14 @@ SEARCHABLE_OBJECTS = {
         }
     },
     'main_altar': {
-        'search_tiles': [(8, 11), (9, 11), (10, 11), (11, 11),
-                        (8, 12), (9, 12), (10, 12), (11, 12)],
-        'object_pos': [(9, 11), (10, 11), (9, 12), (10, 12)],
+        'search_tiles': [(8, 14), (9, 13), (10, 13), (11, 14),
+                        (7, 15), (12, 15), (8, 16), (9, 16), (10,16), (11,16)],
+        'object_pos': [(9, 14), (10, 14), (9, 15), (10, 15), (8,15), (11,15)],
         'info': {
             'name': 'Desecrated Altar',
             'interaction_type': 'searchable',
             'description': 'The main altar, stained and defiled.',
-            'examine_dialogue': 'swamp_church_altar',  # Already exists!
+            'examine_dialogue': 'swamp_church_altar',  
             'loot_table': None,
             'flag_set': 'examined_altar',
             'requirements': {},
