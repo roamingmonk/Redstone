@@ -30,6 +30,11 @@
             "next_state": "brigand_info"
           },
           {
+            "id": "offer_help",
+            "text": "We can help protect the camp tonight.",
+            "next_state": "accept_help"
+          },
+          {
             "id": "leave",
             "text": "Stay safe. We'll be back.",
             "next_state": "exit",
@@ -53,7 +58,7 @@
           {
             "id": "continue",
             "text": "Thank you. This information helps.",
-            "next_state": "return_visits",
+            "next_state": "post_family_info",
             "effects": [
               {"type": "set_flag", "flag": "learned_mayors_family_location", "value": true},
               {"type": "set_flag", "flag": "refugee_camp_details_known", "value": true},
@@ -61,6 +66,23 @@
               {"type": "set_flag", "flag": "refugee_leader_talked", "value": true},
               {"type": "xp_award", "amount": 20, "reason": "Learned mayor's family location"}
             ]
+          }
+        ]
+      },
+      "post_family_info": {
+        "introduction": [
+          "Marta looks at you with hope in her eyes. \"Will you help us? The brigands usually attack after midnight. You could rest here and help defend the camp.\""
+        ],
+        "options": [
+          {
+            "id": "offer_help",
+            "text": "Yes, we'll stay and help defend.",
+            "next_state": "accept_help"
+          },
+          {
+            "id": "decline",
+            "text": "I need to investigate elsewhere first.",
+            "next_state": "exit"
           }
         ]
       },
@@ -80,16 +102,81 @@
           }
         ]
       },
-      "return_visits": {
+      "accept_help": {
         "introduction": [
-          "Marta nods as you approach. \"Still here, still fighting. What can I tell you?\""
+          "Marta's eyes widen with relief. \"You... you'd do that? Stay and help us?\"",
+          "",
+          "She nods firmly. \"They usually attack after midnight. Rest by the fire until then. We'll wake you when trouble comes.\"",
+          "",
+          "\"Thank you, stranger. If we survive this, the refugees will be forever grateful.\""
         ],
         "options": [
           {
-            "id": "ask_about_raids",
-            "text": "Tell me about the brigand raids.",
-            "next_state": "brigand_info"
+            "id": "rest",
+            "text": "[Rest by the fire and wait for nightfall]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "agreed_to_defend_camp", "value": true},
+              {"type": "set_flag", "flag": "refugee_leader_talked", "value": true},
+              {"type": "set_flag", "flag": "ready_for_night_defense", "value": true}
+            ]
           },
+          {
+            "id": "not_yet",
+            "text": "Let me prepare first.",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "agreed_to_defend_camp", "value": true},
+              {"type": "set_flag", "flag": "refugee_leader_talked", "value": true}
+            ]
+          }
+        ]
+      },
+      "waiting_for_defense": {
+        "introduction": [
+          "Marta nods. \"We'll be here when you're ready. Just say the word and we'll rest until nightfall.\""
+        ],
+        "options": [
+          {
+            "id": "ready",
+            "text": "I'm ready. Let's rest and wait for them.",
+            "next_state": "exit",
+            "effects": [
+              {"type": "navigate", "target": "refugee_camp_nighttime_defense"}
+            ]
+          },
+          {
+            "id": "not_yet",
+            "text": "Not yet. I need more time.",
+            "next_state": "exit"
+          }
+        ]
+      },
+      "post_combat_thanks": {
+        "introduction": [
+          "Marta rushes over as dawn breaks, tears streaming down her face. \"You did it! You actually drove them off!\"",
+          "",
+          "She searches the bandit leader's body and holds up an ancient key, its surface covered in strange runes. \"Look at this! He was carrying this old key. Probably looted it from somewhere important.\"",
+          "",
+          "She presses it into your hand. \"You've earned this. You've given us hope. Thank you, stranger.\""
+        ],
+        "options": [
+          {
+            "id": "accept",
+            "text": "I'm glad we could help.",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "refugee_combat_rewarded", "value": true},
+              {"type": "xp_award", "amount": 50, "reason": "Defended the refugee camp"}
+            ]
+          }
+        ]
+      },
+      "return_visits": {
+        "introduction": [
+          "Marta smiles warmly as you approach. \"You saved us. We'll never forget what you did.\""
+        ],
+        "options": [
           {
             "id": "leave",
             "text": "Just checking in.",

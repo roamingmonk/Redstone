@@ -255,14 +255,14 @@ class ActionHubLocation(BaseLocation):
         if flags:
             for flag_name, required_value in flags.items():
                 current_value = getattr(game_state, flag_name, False)
-                #print(f"🔍 Evaluating flag '{flag_name}': current={current_value}, required={required_value}")
+                print(f"🔍 Evaluating flag '{flag_name}': current={current_value}, required={required_value}")
                 
                 if isinstance(required_value, bool):
                     if current_value != required_value:
-                        #print(f"❌ Flag requirement failed: {flag_name}")
+                        print(f"❌ Flag requirement failed: {flag_name}")
                         return False
         
-        #print(f"✅ All requirements satisfied")
+        print(f"✅ All requirements satisfied")
         return True
 
     def render(self, surface: pygame.Surface, game_state, fonts: Dict, images: Dict, 
@@ -475,6 +475,7 @@ class ActionHubLocation(BaseLocation):
         action_name = action_data.get('action_name')  # For special actions
         
         print(f"🔧 BaseLocation handling action: {action_type or action_name}")
+        print(f"🔍 DEBUG: Full action_data = {action_data}") 
         
         if action_type == 'navigate':
             target = action_data.get('target')

@@ -6,7 +6,7 @@ Refugee Camp Main Area Map Data
 from utils.constants import (
     # Colors
     FIRE_BRICK_RED, WHITE, DARK_GRAY, GRAY, BLACK, SOFT_YELLOW, BROWN,
-    CYAN, WARNING_RED, TITLE_GREEN, YELLOW,
+    CYAN, WARNING_RED, TITLE_GREEN, YELLOW, DARK_GREEN, PURPLE, PURPLE_BLUE,
     # Buttons
     BUTTON_SIZES, SCREEN_WIDTH
 )
@@ -18,7 +18,7 @@ REFUGEE_CAMP_SPAWN_Y = 18  # Enter from bottom (arriving from regional map)
 
 # Tile type definitions
 TILE_TYPES = {
-    '#': 'wall',          # Map boundary
+    '#': 'hedge_wall',    # Map boundary
     '.': 'ground',        # Walkable grass/dirt
     'g': 'grass',         # Grass (walkable)
     't': 'tent',          # Tent (not walkable)
@@ -31,30 +31,30 @@ TILE_TYPES = {
     'E': 'exit_path',     # Exit back to map
 }
 
-WALKABLE_TILES = {'ground', 'grass', 'path', 'leader', 'refugees', 'fire', 'supplies', 'exit_path'}
+WALKABLE_TILES = {'ground', 'grass', 'path', 'exit_path'}
 
 # ASCII map layout - 20x20 grid
 REFUGEE_CAMP_MAP = [
-    "####################",  # Row 0
-    "#TTggggggggggggTTTT#",  # Row 1 - Trees at edges
-    "#Tggttgg...gggttggg#",  # Row 2 - Tents
-    "#gggggggg.ggggggggg#",  # Row 3
-    "#ggttgg...........g#",  # Row 4 - Tents
-    "#ggttgg...........g#",  # Row 5
-    "#ggggg............g#",  # Row 6
-    "#ggggg.ssg........g#",  # Row 7 - Supplies (searchable)
-    "#ggggg.ssg...ttgg.g#",  # Row 8
-    "#gggg......ffL....g#",  # Row 9 - Fire & Leader
-    "#gggg......ffR....g#",  # Row 10 - Fire & Refugees
-    "#ggggg............g#",  # Row 11
-    "#gttgg............g#",  # Row 12 - Tents
-    "#gttgg............g#",  # Row 13
-    "#ggggg............g#",  # Row 14
-    "#gggg.ttgg....gggg#",  # Row 15 - More tents
-    "#gggg.ttgg....gggg#",  # Row 16
-    "#ggggggggg....gggg#",  # Row 17
-    "#ggggggggpppppgggg#",  # Row 18 - Path/spawn
-    "####################"   # Row 19
+    "TTTTTTTTTTTTTTTTTTTT",  # Row 0 - Trees
+    "TTTggggggggggggTTTTT",  # Row 1 - 
+    "TTggTggg...gggttggTT",  # Row 2 - 
+    "T#gg.ggTg.ggggggggTT",  # Row 3
+    "##gT......t......gTT",  # Row 4 - Tents
+    "#gggg.....t..t.t.gTT",  # Row 5 - Tents
+    "##ggg.g......t.t.ggT",  # Row 6 - Tents
+    "##gTgggss........ggT",  # Row 7 - Supplies (searchable)
+    "##gggggss..L...ggggT",  # Row 8 - Campfire
+    "##gggg.....f.....ggT",  # Row 9 - Leader
+    "##ggg......f.....gTT",  # Row 10  
+    "##gggg.tt..R...ttgTT",  # Row 11 - Tents, Refugees
+    "##ttgg...........gTT",  # Row 12 - Campfire
+    "##ttgg.tt......tggTT",  # Row 13 - Tents
+    "##gggg...g......ggTT",  # Row 14
+    "##ggg..ttgg....gggTT",  # Row 15 - More tents
+    "##ggg..ttgg....gggTT",  # Row 16 - Even more tents
+    "###ggggggg.....gggTT",  # Row 17
+    "####ggggggg...gggTTT",  # Row 18 - Spawn
+    "##########ppEpp#TTTT"   # Row 19 - Path / exit
 ]
 
 def get_tile_type(x, y):
@@ -73,7 +73,7 @@ def get_tile_color(x, y):
     """Get color for tile rendering"""
     tile_type = get_tile_type(x, y)
     TILE_COLORS = {
-        'wall': (60, 60, 60),              # Dark gray boundary
+        'hedge_wall': DARK_GREEN,        # Dark gray boundary
         'ground': (100, 130, 70),          # Green grass
         'grass': (85, 120, 60),            # Grass
         'tent': (210, 180, 140),           # Tan canvas
@@ -81,23 +81,26 @@ def get_tile_color(x, y):
         'supplies': (139, 90, 43),         # Brown crates (HIGHLIGHT)
         'path': (120, 100, 70),            # Brown dirt path
         'tree': (34, 80, 34),              # Dark green
-        'leader': (100, 140, 80),          # Slightly different grass (subtle)
-        'refugees': (95, 135, 75),         # Slightly different grass (subtle)
+        'leader': PURPLE,          # Slightly different grass (subtle)(100, 140, 80)
+        'refugees': PURPLE_BLUE,         # Slightly different grass (subtle)(95, 135, 75)
         'exit_path': (110, 90, 60),        # Path color
     }
     return TILE_COLORS.get(tile_type, (128, 128, 128))
 
-# Area transitions (navigation between areas/screens)
+# Area transitions (navigation between areas/screens) - (column, row)
 AREA_TRANSITIONS = {
     'return_to_region': {
-        'entrance_tiles': [(10, 18), (11, 18), (12, 18), (10, 17), (11, 17), (12, 17)],  # Bottom spawn area
+        'entrance_tiles': [(10, 19), (11, 19), (12, 19), (13, 19), (14, 19)],
         'building_pos': [(11, 18)],
         'info': {
             'name': 'Leave Camp',
             'interaction_type': 'navigation',
-            'target_screen': 'exploration_hub',  # Back to regional map
+            'target_screen': 'exploration_hub',
             'action': 'Return to Region Map',
-            'requirements': {}
+            'requirements': {
+                'flags_any_false': ['agreed_to_defend_camp']  # Can only leave if NOT agreed to defend
+            },
+            'blocked_message': 'You agreed to help defend the camp. Speak with Marta when you\'re ready to rest.'
         }
     }
 }
@@ -112,8 +115,8 @@ def get_transition_info(player_x, player_y):
 # Searchable objects (examine/loot)
 SEARCHABLE_OBJECTS = {
     'camp_leader': {
-        'search_tiles': [(11, 9), (12, 9)],  # Just around leader position
-        'object_pos': [(11, 9)],
+        'search_tiles': [(11, 7), (12, 8), (10,8)],  # Just around leader position
+        'object_pos': [(11, 8)],
         'info': {
             'name': 'Camp Leader',
             'interaction_type': 'searchable',
@@ -126,8 +129,8 @@ SEARCHABLE_OBJECTS = {
         }
     },
     'refugees': {
-        'search_tiles': [(11, 10), (12, 10)],  # Different tiles for refugees
-        'object_pos': [(12, 10)],
+        'search_tiles': [(10, 11), (12, 11), (11,12)],  # Different tiles for refugees
+        'object_pos': [(11, 11)],
         'info': {
             'name': 'Displaced Refugees',
             'interaction_type': 'searchable',
@@ -140,8 +143,8 @@ SEARCHABLE_OBJECTS = {
         }
     },
     'supply_crates': {
-        'search_tiles': [(7, 7), (8, 7), (7, 8), (8, 8)],
-        'object_pos': [(7, 7), (8, 7)],
+        'search_tiles': [(9, 7), (8, 6), (9, 8), (8, 9), (7,6), (7,9)],
+        'object_pos': [(7, 7), (8, 7), (8,7), (8,8)],
         'info': {
             'name': 'Supply Crates',
             'interaction_type': 'searchable',
@@ -154,8 +157,8 @@ SEARCHABLE_OBJECTS = {
         }
     },
     'central_campfire': {
-        'search_tiles': [(10, 9), (10, 10)],  # Different tiles, away from NPCs
-        'object_pos': [(10, 9), (10, 10)],
+        'search_tiles': [(10, 9), (10, 10), (12,9), (12, 10)],  # Different tiles, away from NPCs
+        'object_pos': [(11, 9), (11, 10)],
         'info': {
             'name': 'Central Campfire',
             'interaction_type': 'searchable',

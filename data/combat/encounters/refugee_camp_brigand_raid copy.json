@@ -9,8 +9,22 @@
       "enemy_id": "bandit_common",
       "position": [8, 2],
       "facing": "west"
+    },
+    {
+      "enemy_id": "bandit_common",
+      "position": [8, 5],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "bandit_common",
+      "position": [7, 3],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "bandit_leader",
+      "position": [9, 4],
+      "facing": "west"
     }
-  
   ],
   "player_party": {
     "starting_positions": [
@@ -24,27 +38,23 @@
   "defeat_conditions": {
     "defeat_type": "all_party_defeated"
   },
- "rewards": {
-  "xp": 250,
-  "gold": 100,
-  "items": ["healing_potion", "healing_potion"],
-  "story_progress": {
-    "quest_flags": {
-      "refugee_camp_defended": {
-        "value": true,
-        "display_message": "The brigands flee into the night! The refugees cheer your victory."
-      },
-      "hill_ruins_dungeon_key_obtained": {
-        "value": true,
-        "display_message": "Among the bandit leader's possessions, you find an ancient key marked with strange runes."
-      },
-      "refugee_camp_complete": {
-        "value": true,
-        "display_message": ""
-      },
-      "refugee_camp_leader_dialogue_state": {
-        "value": "post_combat_thanks",
-        "display_message": ""
+  "rewards": {
+    "xp": 250,
+    "gold": 100,
+    "items": ["healing_potion", "healing_potion"],
+    "story_progress": {
+      "quest_flags": {
+        "refugee_camp_defended": {
+          "value": true,
+          "display_message": "The brigands flee into the night! The refugees cheer your victory."
+        },
+        "hill_ruins_dungeon_key_obtained": {
+          "value": true,
+          "display_message": "Among the bandit leader's possessions, you find an ancient key marked with strange runes."
+        },
+        "refugee_camp_complete": {
+          "value": true,
+          "display_message": ""
         }
       },
       "victory_dialogue": "refugee_leader_combat_thanks",

@@ -98,13 +98,33 @@
       "nighttime_defense": {
         "type": "action_hub",
         "title": "REFUGEE CAMP - NIGHT ATTACK",
-        "description": "Shouts of alarm pierce the darkness! Brigands surge from the treeline...",
+        "description": {
+          "subtitle": "Defend the camp!",
+          "atmosphere": "Darkness falls over the camp. The refugees huddle in their tents as you and Marta keep watch by the dying fire. Suddenly, shouts pierce the night! Torches appear at the treeline. Brigands charge into the camp, weapons drawn! \"They're here!\" Marta screams. \"Defend the camp!\""
+        },
+        "background": "refugee_camp_night",
         "actions": {
           "defend_camp": {
             "type": "combat",
-            "label": "Defend the Camp!",
+            "label": "Fight the Brigands!",
             "combat_encounter": "refugee_camp_brigand_raid",
-            "description": "Fight off the brigand raiders"
+            "description": "Stand your ground and protect the refugees",
+            "requirements": {
+              "flags": {
+                "refugee_camp_defended": false
+              }
+            }
+          },
+          "talk_to_leader_after_victory": {
+            "type": "dialogue",
+            "label": "Speak with Camp Leader",
+            "npc_id": "refugee_camp_leader",
+            "description": "The camp leader rushes over to thank you",
+            "requirements": {
+              "flags": {
+                "refugee_camp_defended": true
+              }
+            }
           }
         }
       }

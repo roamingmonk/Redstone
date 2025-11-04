@@ -281,7 +281,9 @@
       "species": "human",
       "story_flags": {
         "learned_family_location": "learned_mayors_family_location",
-        "talked_to_leader": "talked_to_refugee_leader"
+        "talked_to_leader": "talked_to_refugee_leader",
+        "camp_defended": "refugee_camp_defended",
+        "agreed_to_defend": "agreed_to_defend_camp"
       }
     },
     "refugee_camp_refugees": {
@@ -802,12 +804,14 @@
       "ruins_deflection": "henrik_talked && (learned_about_ruins || garrick_gave_ruins_info)"
      },
      "refugee_camp_leader": {
-        "first_meeting": "!refugee_leader_talked",
-        "return_visits": "refugee_leader_talked"
+        "post_combat_thanks": "refugee_camp_defended && !refugee_combat_rewarded",
+        "return_visits": "refugee_combat_rewarded",
+        "waiting_for_defense": "agreed_to_defend_camp && !refugee_camp_defended",
+        "first_meeting": "!refugee_leader_talked"
       },
       "refugee_camp_refugees": {
-        "first_meeting": "!refugee_group_talked",
-        "return_visits": "refugee_group_talked"
+        "return_visits": "refugee_group_talked",
+        "first_meeting": "!refugee_group_talked"
       },
     "cassia": {
       "bernard_referral": "bernard_mentioned_cassia && !cassia_talked",

@@ -16,7 +16,7 @@
   "fireball": {
     "id": "fireball",
     "name": "Fireball",
-    "damage_dice": "3d6",
+    "damage_dice": "8d6",
     "damage_type": "damage",
     "elemental_type": "fire",
     "animation": "fire_area",

@@ -65,6 +65,17 @@ class RefugeeCampMainNav:
     def update(self, dt, keys, game_state, controller=None):
         """Update navigation state and handle interactions"""
         self.update_player_position(game_state)
+
+        # CHECK FOR AUTO-NAVIGATION TO NIGHT DEFENSE
+        if hasattr(game_state, 'ready_for_night_defense') and game_state.ready_for_night_defense:
+            game_state.ready_for_night_defense = False  # Clear flag
+            if controller:
+                print(f"🌙 Auto-navigating to night defense...")
+                controller.event_manager.emit("SCREEN_CHANGE", {
+                    'target_screen': 'refugee_camp_nighttime_defense',
+                    'source_screen': 'refugee_camp_main_nav'
+                })
+                return  # Don't process anything else this frame
         
         # Check if we need to trigger loot check after dialogue
         if hasattr(game_state, 'trigger_loot_check') and game_state.trigger_loot_check:
@@ -126,13 +137,44 @@ class RefugeeCampMainNav:
             transition_info = self.renderer.check_valid_entrance(player_x, player_y, 
                                                                 self.renderer.player_direction)
             if transition_info and transition_info[0]:
-                # Navigate to new area/screen
-                if controller:
-                    target = transition_info[0]['target_screen']
-                    controller.event_manager.emit("SCREEN_CHANGE", {
-                        'target_screen': target,
-                        'source_screen': 'refugee_camp_main_nav'
-                    })
+                transition_data = transition_info[0]
+                
+                # CHECK REQUIREMENTS BEFORE NAVIGATING
+                requirements = transition_data.get('requirements', {})
+                can_transition = True
+                blocked_message = transition_data.get('blocked_message', 'You cannot leave yet.')
+                
+                # Check if any flags must be false
+                flags_must_be_false = requirements.get('flags_any_false', [])
+                for flag_name in flags_must_be_false:
+                    if getattr(game_state, flag_name, False):
+                        # Flag is true, blocking transition
+                        can_transition = False
+                        break
+                
+                # Check if any flags must be true
+                flags_must_be_true = requirements.get('flags_any_true', [])
+                if flags_must_be_true:
+                    any_true = False
+                    for flag_name in flags_must_be_true:
+                        if getattr(game_state, flag_name, False):
+                            any_true = True
+                            break
+                    if not any_true:
+                        can_transition = False
+                
+                # Navigate or show blocked message
+                if can_transition:
+                    if controller:
+                        target = transition_data['target_screen']
+                        controller.event_manager.emit("SCREEN_CHANGE", {
+                            'target_screen': target,
+                            'source_screen': 'refugee_camp_main_nav'
+                        })
+                else:
+                    # Show blocked message
+                    self.show_temp_message(blocked_message)
+                
                 return
             
             # Priority 2: Searchable objects (examine, loot)
