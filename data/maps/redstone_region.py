@@ -93,7 +93,7 @@ REDSTONE_REGION_LOCATIONS = {
         'discovery_flag': 'learned_about_refugees',
         'icon': '⛺',
         'icon_color': (210, 105, 30),  # Chocolate brown
-        'target': 'refugee_camp_main',
+        'target': 'refugee_camp_main_nav',
         'description': 'Makeshift settlement of displaced miners.'
     },
     'red_hollow_mine': {
@@ -102,7 +102,7 @@ REDSTONE_REGION_LOCATIONS = {
         'discovery_flag': 'discovered_old_mine_shaft',
         'icon': '⛏️',
         'icon_color': FIRE_BRICK_RED,  # Firebrick red
-        'target': 'red_hollow_mine_entrance',
+        'target': 'red_hollow_mine',
         'description': 'Abandoned mine shaft, sealed by fearful workers.'
     }
 }

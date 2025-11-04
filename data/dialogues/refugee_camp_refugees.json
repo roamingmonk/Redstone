@@ -1,0 +1,96 @@
+{
+  "refugee_camp_refugees": {
+    "npc_name": "Displaced Refugees",
+    "is_object": false,
+    "hide_portrait": false,
+    "initial_state": "first_meeting",
+    "states": {
+      "first_meeting": {
+        "introduction": [
+          "You approach a small group of refugees huddled together. They look up with haunted, tired eyes.",
+          "",
+          "An old miner speaks: \"We worked the mines for thirty years. Never saw anything like this. The tremors, the creatures...\"",
+          "",
+          "A mother clutching two children adds: \"They took my husband. The robed ones. Said something about 'the awakening.' What does that even mean?\"",
+          "",
+          "A teenage boy interjects: \"I saw them dragging people toward the old ruins. Chanting in a language that hurt to hear.\""
+        ],
+        "options": [
+          {
+            "id": "ask_about_cult",
+            "text": "Tell me more about these robed figures.",
+            "next_state": "cult_info"
+          },
+          {
+            "id": "ask_about_mayor",
+            "text": "Did you see the mayor's family?",
+            "next_state": "mayor_family",
+            "requirements": {
+              "flags": {"quest_active": true}
+            }
+          },
+          {
+            "id": "comfort",
+            "text": "Stay strong. We'll stop them.",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "refugee_group_talked", "value": true}
+            ]
+          }
+        ]
+      },
+      "cult_info": {
+        "introduction": [
+          "The old miner leans closer. \"Dark robes, covered in symbols that seemed to writhe. They had unnatural strength.\"",
+          "",
+          "\"One of them spoke—said they served 'the Master' and that the 'old powers' were awakening beneath the ruins.\"",
+          "",
+          "\"They took anyone who looked healthy. For rituals, I'd wager. Gods know what they're doing to them.\""
+        ],
+        "options": [
+          {
+            "id": "continue",
+            "text": "Thank you for the information.",
+            "next_state": "return_visits",
+            "effects": [
+              {"type": "set_flag", "flag": "learned_cult_rituals_from_refugees", "value": true},
+              {"type": "set_flag", "flag": "refugee_group_talked", "value": true}
+            ]
+          }
+        ]
+      },
+      "mayor_family": {
+        "introduction": [
+          "The mother nods sadly. \"Elara and little Sophie. They were here. Sweet child, always sharing her food with the other young ones.\"",
+          "",
+          "\"Three nights ago, cultists came. Elara fought like a lioness, but they overpowered her. Dragged them both away screaming.\"",
+          "",
+          "\"I'm sorry. I wish we could have stopped them.\""
+        ],
+        "options": [
+          {
+            "id": "thank",
+            "text": "It's not your fault. Thank you.",
+            "next_state": "return_visits",
+            "effects": [
+              {"type": "set_flag", "flag": "confirmed_mayors_family_taken", "value": true},
+              {"type": "set_flag", "flag": "refugee_group_talked", "value": true}
+            ]
+          }
+        ]
+      },
+      "return_visits": {
+        "introduction": [
+          "The refugees acknowledge your presence with weary nods. They have nothing more to share."
+        ],
+        "options": [
+          {
+            "id": "leave",
+            "text": "Take care of yourselves.",
+            "next_state": "exit"
+          }
+        ]
+      }
+    }
+  }
+}

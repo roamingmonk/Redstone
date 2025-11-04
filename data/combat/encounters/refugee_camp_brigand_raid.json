@@ -1,0 +1,67 @@
+{
+  "encounter_id": "refugee_camp_brigand_raid",
+  "name": "Brigand Night Raid",
+  "description": "Desperate bandits attack the refugee camp under cover of darkness!",
+  "battlefield_id": "refugee_camp_night",
+  "difficulty": "medium",
+  "enemies": [
+    {
+      "enemy_id": "bandit_common",
+      "position": [8, 2],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "bandit_common",
+      "position": [8, 5],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "bandit_common",
+      "position": [7, 3],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "bandit_leader",
+      "position": [9, 4],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 250,
+    "gold": 100,
+    "items": ["healing_potion", "healing_potion"],
+    "story_progress": {
+      "quest_flags": {
+        "refugee_camp_defended": {
+          "value": true,
+          "display_message": "The brigands flee into the night! Among their possessions, you find an ancient key marked with strange runes."
+        },
+        "hill_ruins_dungeon_key_obtained": {
+          "value": true,
+          "display_message": ""
+        },
+        "refugee_camp_complete": {
+          "value": true,
+          "display_message": ""
+        }
+      }
+    }
+  },
+  "escape_allowed": true,
+  "turn_limit": null,
+  "ambient_description": "Firelight flickers across the camp as brigands charge from the darkness. Refugees scramble for cover as steel clashes.",
+  "victory_description": "The brigands retreat, leaving their leader's body behind. The refugees emerge from hiding, cheering your victory. Marta thanks you and hands you a strange key found on the bandit leader—an ancient artifact he must have stolen from the ruins.",
+  "defeat_description": "Overwhelmed, you fall back as the brigands loot the camp. The refugees scatter into the night."
+}

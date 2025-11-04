@@ -1,0 +1,102 @@
+{
+  "refugee_camp_leader": {
+    "npc_name": "Marta, Camp Leader",
+    "is_object": false,
+    "hide_portrait": false,
+    "initial_state": "first_meeting",
+    "states": {
+      "first_meeting": {
+        "introduction": [
+          "A sturdy woman in mud-stained clothing looks up as you approach. Despite obvious exhaustion, her eyes are sharp and vigilant.",
+          "",
+          "\"Travelers? Or are you here from the town?\" She wipes her hands on her apron. \"I'm Marta. I've been trying to keep these people together since... since everything went wrong.\"",
+          "",
+          "\"We were miners, merchants, farmers. Then the tremors started. The attacks. People vanishing in the night. We fled to this clearing, but even here we're not safe.\"",
+          "",
+          "She gestures to the huddled families. \"Brigands raid us every few nights. They know we're desperate. The mayor promised help weeks ago.\""
+        ],
+        "options": [
+          {
+            "id": "ask_mayors_family",
+            "text": "The mayor sent us. We're looking for his family.",
+            "next_state": "mayors_family_info",
+            "requirements": {
+              "flags": {"quest_active": true}
+            }
+          },
+          {
+            "id": "ask_about_raids",
+            "text": "Tell me about these brigand raids.",
+            "next_state": "brigand_info"
+          },
+          {
+            "id": "leave",
+            "text": "Stay safe. We'll be back.",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "refugee_leader_talked", "value": true}
+            ]
+          }
+        ]
+      },
+      "mayors_family_info": {
+        "introduction": [
+          "Marta's expression darkens. \"The mayor's wife and daughter? They were here... for a time.\"",
+          "",
+          "She takes a shaky breath. \"Three nights ago, cultists came. Not brigands—these were organized. Robed figures with dark symbols. They took several people, including Mayor Aldric's family.\"",
+          "",
+          "\"We couldn't stop them. They had magic, unnatural strength. Dragged them north, toward those cursed ruins on the hill.\"",
+          "",
+          "\"If you're planning to go after them... you'll need more than courage. Those cultists are dangerous.\""
+        ],
+        "options": [
+          {
+            "id": "continue",
+            "text": "Thank you. This information helps.",
+            "next_state": "return_visits",
+            "effects": [
+              {"type": "set_flag", "flag": "learned_mayors_family_location", "value": true},
+              {"type": "set_flag", "flag": "refugee_camp_details_known", "value": true},
+              {"type": "set_flag", "flag": "talked_to_refugee_leader", "value": true},
+              {"type": "set_flag", "flag": "refugee_leader_talked", "value": true},
+              {"type": "xp_award", "amount": 20, "reason": "Learned mayor's family location"}
+            ]
+          }
+        ]
+      },
+      "brigand_info": {
+        "introduction": [
+          "\"Desperate men who prey on the desperate,\" Marta spits. \"They attack at night, steal our food and supplies. Sometimes they take people—probably sell them to slavers.\"",
+          "",
+          "\"They have a leader, a scarred brute with a greatsword. I've seen him wearing... unusual things. Trinkets, old keys, strange jewelry. Probably looted from their raids.\"",
+          "",
+          "\"We've tried to fight back, but we're miners and farmers, not warriors.\""
+        ],
+        "options": [
+          {
+            "id": "continue",
+            "text": "I understand.",
+            "next_state": "first_meeting"
+          }
+        ]
+      },
+      "return_visits": {
+        "introduction": [
+          "Marta nods as you approach. \"Still here, still fighting. What can I tell you?\""
+        ],
+        "options": [
+          {
+            "id": "ask_about_raids",
+            "text": "Tell me about the brigand raids.",
+            "next_state": "brigand_info"
+          },
+          {
+            "id": "leave",
+            "text": "Just checking in.",
+            "next_state": "exit"
+          }
+        ]
+      }
+    }
+  }
+}

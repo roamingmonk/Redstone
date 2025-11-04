@@ -1,0 +1,31 @@
+{
+  "refugee_camp_campfire": {
+    "npc_name": "Central Campfire",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "The central campfire burns low, barely more than embers. Around it, families have arranged their meager possessions.",
+          "",
+          "You notice signs of struggle—broken tent stakes, trampled ground, bloodstains on the dirt. This camp has seen violence.",
+          "",
+          "A makeshift shrine sits near the fire—small tokens and prayers for the missing. Names are carved into wooden markers: 'Elara', 'Sophie', 'Thomas', 'Anna', and many others.",
+          "",
+          "The fire provides warmth, but it cannot dispel the fear that hangs over this place."
+        ],
+        "options": [
+          {
+            "id": "continue",
+            "text": "[Step back from the fire]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "examined_refugee_campfire", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "refugee_camp_supplies": {
+    "npc_name": "Supply Crates",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "The supply crates are organized with military precision—clearly Marta's work trying to maintain order.",
+          "",
+          "Inside you find dried rations, blankets, and basic tools. The refugees have left some supplies accessible for travelers who might help them.",
+          "",
+          "You notice a small note: 'Take what you need. Just please... help us.' - M"
+        ],
+        "options": [
+          {
+            "id": "search",
+            "text": "[Search the supplies]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "trigger_loot_check", "value": "refugee_supplies_loot"},
+              {"type": "set_flag", "flag": "searched_refugee_supplies", "value": true}
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Leave the supplies alone]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "searched_refugee_supplies", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

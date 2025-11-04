@@ -1,0 +1,113 @@
+{
+  "refugee_camp": {
+    "location_id": "refugee_camp",
+    "name": "The Refugee Camp",
+    "type": "investigation_site",
+    
+    "loot_tables": {
+      "refugee_supplies_loot": {
+        "items": [
+          {
+            "item_id": "healing_potion",
+            "quantity": 1,
+            "chance": 0.7
+          },
+          {
+            "item_id": "silver_coins",
+            "quantity": 10,
+            "chance": 0.5
+          },
+          {
+            "item_id": "bedroll",
+            "quantity": 1,
+            "chance": 1.0
+          }
+        ]
+      },
+      "brigand_loot": {
+        "items": [
+          {
+            "item_id": "hill_ruins_dungeon_key",
+            "quantity": 1,
+            "chance": 1.0
+          },
+          {
+            "item_id": "stolen_coin_purse",
+            "quantity": 1,
+            "chance": 1.0
+          },
+          {
+            "item_id": "healing_potion",
+            "quantity": 2,
+            "chance": 0.8
+          }
+        ]
+      }
+    },
+    
+        "areas": {
+      "main": {  
+        "type": "action_hub",
+        "title": "REFUGEE CAMP - MAIN CLEARING",
+        "description": "Makeshift tents cluster around smoldering cookfires...",
+        "actions": {
+          "talk_to_leader": {
+            "type": "dialogue",
+            "label": "Talk to Camp Leader",
+            "npc_id": "refugee_leader",
+            "return_to": "refugee_camp",
+            "description": "Speak with the woman organizing the refugees"
+          },
+          "talk_to_refugees": {
+            "type": "dialogue",
+            "label": "Talk to Refugees",
+            "npc_id": "refugees",
+            "return_to": "refugee_camp",
+            "description": "Speak with the displaced families"
+          },
+          "search_supplies": {
+            "type": "loot_check",
+            "label": "Search Supply Tent",
+            "loot_table": "refugee_supplies_loot",
+            "description": "Look through the communal supplies",
+            "one_time_flag": "searched_refugee_supplies"
+          },
+          "examine_campfire": {
+            "type": "dialogue",
+            "label": "Examine Campfire",
+            "npc_id": "campfire",
+            "return_to": "refugee_camp",
+            "description": "Investigate the central campfire area"
+          },
+          "offer_to_help": {
+            "type": "dialogue",
+            "label": "Offer to Stay and Help",
+            "npc_id": "refugee_leader_rest",
+            "return_to": "refugee_camp",
+            "description": "Volunteer to help protect the camp",
+            "requires_flag": "talked_to_refugee_leader",
+            "hidden_unless_requirements_met": true
+          },
+          "leave_camp": {
+            "type": "navigate",
+            "label": "Return to Region Map",
+            "target": "exploration_hub"
+          }
+        }
+      },
+      "nighttime_defense": {
+        "type": "action_hub",
+        "title": "REFUGEE CAMP - NIGHT ATTACK",
+        "description": "Shouts of alarm pierce the darkness! Brigands surge from the treeline...",
+        "actions": {
+          "defend_camp": {
+            "type": "combat",
+            "label": "Defend the Camp!",
+            "combat_encounter": "refugee_camp_brigand_raid",
+            "description": "Fight off the brigand raiders"
+          }
+        }
+      }
+    }
+  }
+}

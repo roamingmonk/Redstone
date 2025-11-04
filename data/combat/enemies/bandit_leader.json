@@ -1,0 +1,65 @@
+{
+  "enemy_id": "bandit_leader",
+  "name": "Brigand Leader",
+  "description": "A scarred veteran in stolen chainmail, wielding a massive greatsword. His belt jingles with looted trinkets and keys.",
+  "stats": {
+    "hp": 45,
+    "max_hp": 45,
+    "ac": 15,
+    "strength": 16,
+    "dexterity": 14,
+    "constitution": 16,
+    "intelligence": 10,
+    "wisdom": 12,
+    "charisma": 14
+  },
+  "saving_throw_proficiencies": ["strength", "constitution"],
+  "attacks": [
+    {
+      "name": "Greatsword Slash",
+      "damage_dice": "2d6+3",
+      "attack_bonus": 5,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A brutal overhead strike"
+    },
+    {
+      "name": "Intimidating Shout",
+      "damage_dice": "0",
+      "attack_bonus": 0,
+      "attack_type": "special",
+      "range": 3,
+      "description": "Bellows a warcry to demoralize enemies"
+    }
+  ],
+  "movement": {
+    "speed": 3,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Rally Troops",
+      "description": "Allies within 2 tiles gain +1 to hit",
+      "effect_type": "aura",
+      "trigger": "presence"
+    }
+  ],
+  "loot": {
+    "xp_value": 100,
+    "gold_range": [50, 100],
+    "items": ["chainmail", "greatsword"],
+    "item_drops": [
+      {"item_id": "hill_ruins_dungeon_key", "drop_chance": 1.0, "quantity_range": [1, 1]},
+      {"item_id": "stolen_coin_purse", "drop_chance": 1.0, "quantity_range": [1, 1]},
+      {"item_id": "healing_potion", "drop_chance": 0.7, "quantity_range": [1, 2]},
+      {"item_id": "chainmail", "drop_chance": 0.3, "quantity_range": [1, 1]}
+    ]
+  },
+  "behavior": {
+    "aggression": "very_high",
+    "intelligence": "medium",
+    "tactics": "aggressive_leader",
+    "retreat_threshold": 10,
+    "notes": "Focuses on player character. Fights to the death unless reduced below 10 HP."
+  }
+}
