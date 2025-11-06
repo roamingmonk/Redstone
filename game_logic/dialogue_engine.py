@@ -118,7 +118,9 @@ class DialogueEngine:
         context = {}
         for flag_name in narrative_schema.get_all_flags():
             context[flag_name] = getattr(self.game_state, flag_name, False)
-            
+        
+        print(f"🔑 Context flags for {npc_id}: refugee_camp_defended={context.get('refugee_camp_defended', 'MISSING')}, refugee_leader_talked={context.get('refugee_leader_talked', 'MISSING')}, refugee_combat_rewarded={context.get('refugee_combat_rewarded', 'MISSING')}")
+
         if hasattr(self.game_state, 'character'):
             for key, value in self.game_state.character.items():
                 # Add any boolean flags from character dict to context
@@ -139,12 +141,16 @@ class DialogueEngine:
             #print(f"DEBUG: Dialogue in progress for {npc_id}, overriding {talked_flag} to False")
         
         # Evaluate each state condition
-        #print("DE: STATE-EVAL ORDER:", list(npc_states.keys()))
+        print(f"🔍 DE: Evaluating {len(npc_states)} states for npc_id='{npc_id}'")
+        print("DE: STATE-EVAL ORDER:", list(npc_states.keys()))
         for state_name, condition in npc_states.items():
+            result = self._evaluate_condition(condition, context)
+            print(f"  📊 {state_name}: '{condition}' = {result}")
             if self._evaluate_condition(condition, context):
-                #print("DE: MATCH ->", state_name)
+                print(f"✅ DE: MATCH -> {state_name}")
                 return state_name
         
+        print("❌ DE: No match found, defaulting to first_meeting")
         return 'first_meeting'
 
     def _evaluate_condition(self, condition: str, context: dict) -> bool:

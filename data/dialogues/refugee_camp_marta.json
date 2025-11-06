@@ -1,5 +1,5 @@
 {
-  "refugee_camp_leader": {
+  "refugee_camp_marta": {
     "npc_name": "Marta, Camp Leader",
     "is_object": false,
     "hide_portrait": false,
@@ -142,7 +142,9 @@
             "text": "I'm ready. Let's rest and wait for them.",
             "next_state": "exit",
             "effects": [
-              {"type": "navigate", "target": "refugee_camp_nighttime_defense"}
+              {"type": "set_flag", "flag": "agreed_to_defend_camp", "value": true},
+              {"type": "set_flag", "flag": "refugee_leader_talked", "value": true},
+              {"type": "set_flag", "flag": "ready_for_night_defense", "value": true}
             ]
           },
           {
@@ -166,7 +168,9 @@
             "text": "I'm glad we could help.",
             "next_state": "exit",
             "effects": [
+              {"type": "add_item", "item_id": "hill_ruins_dungeon_key", "quantity": 1},
               {"type": "set_flag", "flag": "refugee_combat_rewarded", "value": true},
+              {"type": "set_flag", "flag": "hill_ruins_dungeon_key_obtained", "value": true},
               {"type": "xp_award", "amount": 50, "reason": "Defended the refugee camp"}
             ]
           }

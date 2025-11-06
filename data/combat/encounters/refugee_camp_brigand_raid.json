@@ -25,32 +25,24 @@
     "defeat_type": "all_party_defeated"
   },
  "rewards": {
-  "xp": 250,
-  "gold": 100,
-  "items": ["healing_potion", "healing_potion"],
-  "story_progress": {
-    "quest_flags": {
-      "refugee_camp_defended": {
-        "value": true,
-        "display_message": "The brigands flee into the night! The refugees cheer your victory."
-      },
-      "hill_ruins_dungeon_key_obtained": {
-        "value": true,
-        "display_message": "Among the bandit leader's possessions, you find an ancient key marked with strange runes."
-      },
-      "refugee_camp_complete": {
-        "value": true,
-        "display_message": ""
-      },
-      "refugee_camp_leader_dialogue_state": {
-        "value": "post_combat_thanks",
-        "display_message": ""
+    "xp": 250,
+    "gold": 100,
+    "items": ["healing_potion", "healing_potion"],
+    "story_progress": {
+      "quest_flags": {
+        "refugee_camp_defended": {
+          "value": true,
+          "display_message": "The brigands flee into the night! The refugees cheer your victory."
+        },
+        "refugee_camp_complete": {
+          "value": true,
+          "display_message": ""
         }
-      },
-      "victory_dialogue": "refugee_leader_combat_thanks",
-      "return_screen": "refugee_leader_combat_thanks"
+      }
     }
   },
+     
+
   "escape_allowed": false,
   "turn_limit": null,
   "ambient_description": "Firelight flickers across the camp as brigands charge from the darkness. Refugees scramble for cover as steel clashes.",

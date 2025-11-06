@@ -247,11 +247,23 @@ class CombatLootOverlay(BaseTabbedOverlay):
         if hasattr(game_state, 'pre_combat_location'):
             return_location = game_state.pre_combat_location
             game_state.pre_combat_location = None
-            if hasattr(game_state, 'event_manager') and game_state.event_manager:
-                game_state.event_manager.emit("SCREEN_CHANGE", {'target': return_location})
+            
+            # Use screen_manager's event manager, not game_state's
+            if self.screen_manager and hasattr(self.screen_manager, 'event_manager'):
+                self.screen_manager.event_manager.emit("SCREEN_CHANGE", {
+                    'target_screen': return_location,
+                    'source_screen': 'combat_loot'
+                })
+                print(f"🎯 Loot overlay navigating to: {return_location}")
+            else:
+                print("❌ No event manager available for navigation!")
         else:
-            if hasattr(game_state, 'event_manager') and game_state.event_manager:
-                game_state.event_manager.emit("SCREEN_CHANGE", {'target': 'broken_blade'})
+            # Fallback if no pre_combat_location set
+            if self.screen_manager and hasattr(self.screen_manager, 'event_manager'):
+                self.screen_manager.event_manager.emit("SCREEN_CHANGE", {
+                    'target_screen': 'broken_blade',
+                    'source_screen': 'combat_loot'
+                })
 
 
 # ========================================

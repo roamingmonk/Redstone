@@ -574,14 +574,14 @@ class DebugManager:
         print(f"recruited_count: {self.game_state.recruited_count}")
         print(f"can_recruit_more: {self.game_state.can_recruit_more}")
         
-        #Rat Quest status
-        print(f"\n🐀 Rat Quest:")
-        print(f"Basement Quest Offered: {getattr(self.game_state, 'garrick_offered_basement', False)}")
-        print(f"Basement Quest Accepted: {getattr(self.game_state, 'accepted_basement_quest', False)}")
-        print(f"Completed Rat Combat: {getattr(self.game_state, 'completed_basement_combat', False)}")
-        print(f"Victory Reported to Garrick: {getattr(self.game_state, 'reported_basement_victory', False)}")
-        print(f"Garrick Paid player: {getattr(self.game_state, 'garrick_paid', False)}")
-        print(f"Acknowledged Payment: {getattr(self.game_state, 'post_payment_acknowledged', False)}")
+        # #Rat Quest status
+        # print(f"\n🐀 Rat Quest:")
+        # print(f"Basement Quest Offered: {getattr(self.game_state, 'garrick_offered_basement', False)}")
+        # print(f"Basement Quest Accepted: {getattr(self.game_state, 'accepted_basement_quest', False)}")
+        # print(f"Completed Rat Combat: {getattr(self.game_state, 'completed_basement_combat', False)}")
+        # print(f"Victory Reported to Garrick: {getattr(self.game_state, 'reported_basement_victory', False)}")
+        # print(f"Garrick Paid player: {getattr(self.game_state, 'garrick_paid', False)}")
+        # print(f"Acknowledged Payment: {getattr(self.game_state, 'post_payment_acknowledged', False)}")
 
         print(f"\n ⛏️ KOBOLD MINE QUEST:")
         print(f"Quest Given (Meredith): {getattr(self.game_state, 'meredith_gave_ring_quest', False)}")
@@ -592,6 +592,13 @@ class DebugManager:
         print(f"Ring Returned: {getattr(self.game_state, 'returned_meredith_ring', False)}")
         print(f"Ore Samples Found: {getattr(self.game_state, 'retrieved_ore_samples', False)}")
         print(f"Reported to Henrik: {getattr(self.game_state, 'reported_shaft_to_henrik', False)}")
+
+         #Refugee Camp
+        print(f"\n Refugee Camp:")
+        print(f"Refugee Leader Talked: {getattr(self.game_state, 'refugee_leader_talked', False)}")
+        print(f"Agreed to Defend Camp: {getattr(self.game_state, 'agreed_to_defend_camp', False)}")
+        print(f"Refugee Camp Defended: {getattr(self.game_state, 'refugee_camp_defended', False)}")
+        print(f"Refugee Combat Rewarded: {getattr(self.game_state, 'refugee_combat_rewarded', False)}")
 
         # Quest manager status
         if hasattr(self.game_state, 'quest_manager'):

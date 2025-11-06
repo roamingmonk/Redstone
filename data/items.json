@@ -1228,6 +1228,23 @@
       "quest_item": true
     },
     {
+      "id": "hill_ruins_dungeon_key",
+      "name": "Ancient Runic Key",
+      "description": "An iron key covered in mysterious runes that seem to shimmer in the light. The brigand leader must have stolen it from the hill ruins. It feels cold to the touch and thrums with residual magic.",
+      "base_cost": 0,
+      "category": "quest_items",
+      "icon_file": "hill_ruins_dungeon_key.png",
+      "consumable": false,
+      "weight": 0.5,
+      "rarity": "rare",
+      "stackable": false,
+      "quest_item": true,
+      "special_effects": {
+        "unlocks_location": "hill_ruins_dungeon",
+        "description": "Opens the sealed dungeon beneath the hill ruins"
+      }
+    },
+    {
       "id": "broken_holy_symbol",
       "name": "Broken Holy Symbol",
       "description": "A damaged religious symbol, split in half. It once belonged to a priest or paladin.",

@@ -98,7 +98,7 @@ AREA_TRANSITIONS = {
             'target_screen': 'exploration_hub',
             'action': 'Return to Region Map',
             'requirements': {
-                'flags_any_false': ['agreed_to_defend_camp']  # Can only leave if NOT agreed to defend
+                #'flags_any_false': ['agreed_to_defend_camp']  # Can only leave if NOT agreed to defend
             },
             'blocked_message': 'You agreed to help defend the camp. Speak with Marta when you\'re ready to rest.'
         }
@@ -121,7 +121,7 @@ SEARCHABLE_OBJECTS = {
             'name': 'Camp Leader',
             'interaction_type': 'searchable',
             'description': 'Marta stands near the central campfire.',
-            'examine_dialogue': 'refugee_camp_leader',
+            'examine_dialogue': 'refugee_camp_marta',
             'loot_table': None,
             'flag_set': None,
             'requirements': {},

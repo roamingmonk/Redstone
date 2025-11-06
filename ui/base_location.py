@@ -473,7 +473,15 @@ class ActionHubLocation(BaseLocation):
         
         action_type = action_data.get('type')
         action_name = action_data.get('action_name')  # For special actions
+
+        # 🐛 ADD MORE DEBUG HERE (between lines 475-477)
+        print(f"🔧 ActionHubLocation.handle_action CALLED:")
+        print(f"   action_type: {action_type}")
+        print(f"   action_name: {action_name}")
+        print(f"   action_data keys: {list(action_data.keys())}")
         
+        
+            
         print(f"🔧 BaseLocation handling action: {action_type or action_name}")
         print(f"🔍 DEBUG: Full action_data = {action_data}") 
         
@@ -517,10 +525,20 @@ class ActionHubLocation(BaseLocation):
             if encounter_id:
                 # Save current screen before transitioning to combat
                 game_state.previous_screen = game_state.screen  # ✅ USE ACTUAL CURRENT SCREEN
+
+                # Special handling for refugee camp defense - return to main nav after victory
+                if encounter_id == 'refugee_camp_brigand_raid':
+                    game_state.pre_combat_location = 'refugee_camp_main_nav'
+                    print(f"🏕️ Refugee camp combat: Will return to main nav after victory")
+                else:
+                    # Default: return to current action hub screen
+                    game_state.pre_combat_location = self.get_screen_name()
+
                 # Store combat data in game state
                 game_state.current_combat_encounter = encounter_id
                 if combat_context:
                     game_state.combat_context = combat_context
+                    #game_state.pre_combat_location = self.get_screen_name() 
                 print(f"🎯 Starting combat encounter: {encounter_id}")
                 
                 # Navigate to combat screen

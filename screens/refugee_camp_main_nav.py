@@ -143,6 +143,24 @@ class RefugeeCampMainNav:
                 requirements = transition_data.get('requirements', {})
                 can_transition = True
                 blocked_message = transition_data.get('blocked_message', 'You cannot leave yet.')
+
+                # CUSTOM CHECK: Block leaving in two scenarios
+                if transition_data.get('target_screen') == 'exploration_hub':
+                    agreed = getattr(game_state, 'agreed_to_defend_camp', False)
+                    defended = getattr(game_state, 'refugee_camp_defended', False)
+                    rewarded = getattr(game_state, 'refugee_combat_rewarded', False)
+                    
+                    print(f"🚪 EXIT CHECK: agreed={agreed}, defended={defended}, rewarded={rewarded}")
+                    
+                    # Scenario 1: Agreed to defend but haven't fought yet
+                    if agreed and not defended:
+                        can_transition = False
+                        blocked_message = "You agreed to help defend the camp. Speak with Marta when you're ready to rest."
+                    
+                    # Scenario 2: Defended but haven't collected reward yet
+                    elif defended and not rewarded:
+                        can_transition = False
+                        blocked_message = "You should speak with Marta before leaving. She wanted to thank you for defending the camp."          
                 
                 # Check if any flags must be false
                 flags_must_be_false = requirements.get('flags_any_false', [])

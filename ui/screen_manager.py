@@ -125,6 +125,14 @@ class ScreenManager:
         def handle_location_action(event_data):
             """Process LOCATION_ACTION events from BaseLocation"""
             
+            # 🐛 ADD THIS DEBUG
+            print(f"📍 LOCATION_ACTION EVENT RECEIVED:")
+            print(f"   action (action_name): {event_data.get('action')}")
+            print(f"   location_id: {event_data.get('location_id')}")
+            print(f"   area_id: {event_data.get('area_id')}")
+            print(f"   action_data type: {event_data.get('action_data', {}).get('type')}")
+            print(f"   Full event_data: {event_data}")
+
             action = event_data.get('action')
             location_id = event_data.get('location_id') 
             area_id = event_data.get('area_id')
