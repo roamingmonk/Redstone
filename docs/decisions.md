@@ -2298,31 +2298,6 @@ screens/exploration_hub.py
 ui/screen_manager.py
 core/game_controller.py
 
-**Add for Nov 5 update**
-
-PROBLEM: After defeating brigands, game returned to NIGHT ATTACK screen
-in a loop instead of allowing player to collect reward from Marta.
-
-ROOT CAUSES:
-1. Combat initiated from action_hub didn't set pre_combat_location
-2. Loot overlay used wrong event format (target vs target_screen)
-3. Dialogue file naming caused npc_id mismatch (refugee_camp_leader vs marta)
-4. Missing refugee_combat_rewarded flag in narrative_schema context
-
-FIXES:
-- base_location.py: Added pre_combat_location for refugee_camp_brigand_raid
-- combat_loot_overlay.py: Fixed SCREEN_CHANGE event format and event manager
-- Renamed refugee_camp_leader.json → refugee_camp_marta.json for proper parsing
-- narrative_schema.json: Added 'marta' entries and registered refugee_combat_rewarded
-- refugee_camp_marta.json: Added dungeon key handoff with proper effects
-- refugee_camp_main_nav.py: Added dual-scenario exit blocking (pre/post combat)
-- refugee_camp_main_map.py: Updated dialogue reference, cleaned requirements
-
-FLOW NOW:
-1. Combat → Loot → Returns to refugee_camp_main_nav ✓
-2. Exit blocked until talking to Marta ✓  
-3. Talk to Marta → Receive Ancient Runic Key + 50 XP ✓
-4. Exit allowed after reward collected ✓
 
 
 
