@@ -13,10 +13,19 @@ from utils.constants import (
 
 MINE_PRE_WIDTH = 15
 MINE_PRE_HEIGHT = 15
-MINE_PRE_SPAWN_X = 7
-MINE_PRE_SPAWN_Y = 13  # Enter from bottom
-MINE_PRE_ENTRANCE_SPAWN_X = 7   # Default spawn
-MINE_PRE_ENTRANCE_SPAWN_Y = 13
+# Named spawn points for different entrances
+MINE_PRE_SPAWN_POINTS = {
+    'from_regional_map': (7, 13),    # Coming from world map
+    'from_level_1': (7, 7),          # Coming up from level 1
+    'from_shaft_level_3': (3, 2),    # Quick exit shaft from level 3
+    'default': (7, 13)
+}
+
+# Legacy support
+MINE_PRE_SPAWN_X = MINE_PRE_SPAWN_POINTS['default'][0]
+MINE_PRE_SPAWN_Y = MINE_PRE_SPAWN_POINTS['default'][1]
+MINE_PRE_ENTRANCE_SPAWN_X = MINE_PRE_SPAWN_X
+MINE_PRE_ENTRANCE_SPAWN_Y = MINE_PRE_SPAWN_Y
 
 # Tile type definitions
 TILE_TYPES = {

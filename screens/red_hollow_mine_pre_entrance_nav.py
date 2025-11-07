@@ -13,10 +13,9 @@ from utils.tile_graphics import get_tile_graphics_manager
 from data.maps.red_hollow_mine_pre_entrance_map import (
     MINE_PRE_WIDTH,
     MINE_PRE_HEIGHT,
-    MINE_PRE_ENTRANCE_SPAWN_X,     
-    MINE_PRE_ENTRANCE_SPAWN_Y,     
     MINE_PRE_SPAWN_X,
     MINE_PRE_SPAWN_Y,
+    MINE_PRE_SPAWN_POINTS,
     get_tile_type,
     is_walkable,
     get_tile_color,
@@ -24,6 +23,8 @@ from data.maps.red_hollow_mine_pre_entrance_map import (
     get_searchable_at_position,
     get_combat_trigger
 )
+
+from data.maps.red_hollow_mine_level_1_map import MINE_L1_SPAWN_POINTS 
 
 class RedHollowMinePreEntranceNav:
     """Navigation screen for mine pre-entrance area"""
@@ -51,18 +52,17 @@ class RedHollowMinePreEntranceNav:
 
     def update_player_position(self, game_state):
         """Initialize or restore player position"""
-        # Check for spawn override (from shaft on level 3)
-        if hasattr(game_state, 'mine_spawn_override_x'):
-            game_state.mine_pre_x = game_state.mine_spawn_override_x     
-            game_state.mine_pre_y = game_state.mine_spawn_override_y 
-            delattr(game_state, 'mine_spawn_override_x')
-            delattr(game_state, 'mine_spawn_override_y')
-            print("✅ Arrived via shaft from Level 3")
-        
+        # Check for spawn override (from transitions)
+        if hasattr(game_state, 'mine_pre_spawn_override_x'):
+            game_state.mine_pre_x = game_state.mine_pre_spawn_override_x     
+            game_state.mine_pre_y = game_state.mine_pre_spawn_override_y 
+            delattr(game_state, 'mine_pre_spawn_override_x')
+            delattr(game_state, 'mine_pre_spawn_override_y')
+            print(f"✅ Pre-entrance spawn override: ({game_state.mine_pre_x}, {game_state.mine_pre_y})")
         elif not hasattr(game_state, 'mine_pre_x'):
             game_state.mine_pre_x = MINE_PRE_SPAWN_X
             game_state.mine_pre_y = MINE_PRE_SPAWN_Y
-
+        
         self.renderer.update_camera(game_state.mine_pre_x, game_state.mine_pre_y)
 
     def update(self, dt, keys, game_state, controller=None):
@@ -114,6 +114,13 @@ class RedHollowMinePreEntranceNav:
 
                 if can_transition and controller:
                     target = transition_data['target_screen']
+                    
+                    # Set spawn position for destination level using named spawn points
+                    if target == 'red_hollow_mine_level_1_nav':
+                        spawn_point = MINE_L1_SPAWN_POINTS['from_pre_entrance']
+                        game_state.mine_l1_spawn_override_x = spawn_point[0]
+                        game_state.mine_l1_spawn_override_y = spawn_point[1]
+                    
                     controller.event_manager.emit("SCREEN_CHANGE", {
                         'target_screen': target,
                         'source_screen': 'red_hollow_mine_pre_entrance_nav'

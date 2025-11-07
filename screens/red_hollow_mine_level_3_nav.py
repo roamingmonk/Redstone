@@ -15,6 +15,7 @@ from data.maps.red_hollow_mine_level_3_map import (
     MINE_L3_HEIGHT,
     MINE_L3_SPAWN_X,
     MINE_L3_SPAWN_Y,
+    MINE_L3_SPAWN_POINTS,
     get_tile_type,
     is_walkable,
     get_tile_color,
@@ -22,6 +23,8 @@ from data.maps.red_hollow_mine_level_3_map import (
     get_searchable_at_position,
     get_combat_trigger
 )
+from data.maps.red_hollow_mine_pre_entrance_map import MINE_PRE_SPAWN_POINTS 
+from data.maps.red_hollow_mine_level_2_map import MINE_L2_SPAWN_POINTS
 
 class RedHollowMineLevel3Nav:
     """Navigation screen for mine level 3 deep chamber"""
@@ -49,7 +52,14 @@ class RedHollowMineLevel3Nav:
 
     def update_player_position(self, game_state):
         """Initialize or restore player position"""
-        if not hasattr(game_state, 'mine_l3_x'):
+        # Check for spawn override (from transitions)
+        if hasattr(game_state, 'mine_l3_spawn_override_x'):
+            game_state.mine_l3_x = game_state.mine_l3_spawn_override_x
+            game_state.mine_l3_y = game_state.mine_l3_spawn_override_y
+            delattr(game_state, 'mine_l3_spawn_override_x')
+            delattr(game_state, 'mine_l3_spawn_override_y')
+            print(f"✅ Level 3 spawn override: ({game_state.mine_l3_x}, {game_state.mine_l3_y})")
+        elif not hasattr(game_state, 'mine_l3_x'):
             game_state.mine_l3_x = MINE_L3_SPAWN_X
             game_state.mine_l3_y = MINE_L3_SPAWN_Y
 
@@ -114,11 +124,16 @@ class RedHollowMineLevel3Nav:
                 if can_transition and controller:
                     target = transition_data['target_screen']
                     
-                    # If using shaft to surface, set spawn near shaft exit
+                    # Set spawn position for destination level using named spawn points
                     if target == 'red_hollow_mine_pre_entrance_nav':
-                        game_state.mine_spawn_override_x = 3
-                        game_state.mine_spawn_override_y = 2
+                        spawn_point = MINE_PRE_SPAWN_POINTS['from_shaft_level_3']
+                        game_state.mine_pre_spawn_override_x = spawn_point[0]
+                        game_state.mine_pre_spawn_override_y = spawn_point[1]
                         print("🚁 Taking shaft to surface")
+                    elif target == 'red_hollow_mine_level_2_nav':
+                        spawn_point = MINE_L2_SPAWN_POINTS['from_level_3']
+                        game_state.mine_l2_spawn_override_x = spawn_point[0]
+                        game_state.mine_l2_spawn_override_y = spawn_point[1]
                     
                     controller.event_manager.emit("SCREEN_CHANGE", {
                         'target_screen': target,

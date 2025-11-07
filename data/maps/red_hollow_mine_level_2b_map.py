@@ -14,8 +14,15 @@ from utils.constants import (
 
 MINE_L2B_WIDTH = 12
 MINE_L2B_HEIGHT = 12
-MINE_L2B_SPAWN_X = 1
-MINE_L2B_SPAWN_Y = 6  # Enter from left side
+# Named spawn points for different entrances
+MINE_L2B_SPAWN_POINTS = {
+    'from_level_2': (1, 6),          # Coming from level 2 (left side entry)
+    'default': (1, 6)
+}
+
+# Legacy support
+MINE_L2B_SPAWN_X = MINE_L2B_SPAWN_POINTS['default'][0]
+MINE_L2B_SPAWN_Y = MINE_L2B_SPAWN_POINTS['default'][1] # Enter from left side
 
 # Tile type definitions
 TILE_TYPES = {
