@@ -85,6 +85,17 @@ class RedHollowMineLevel2BNav:
             combat_trigger = self.renderer.check_combat_trigger(new_x, new_y)
 
             if combat_trigger and combat_trigger.get('repeatable'):
+                # Check if flag_check prevents this encounter
+                flag_check = combat_trigger.get('flag_check')
+                if flag_check:
+                    # If flag is True, skip this encounter
+                    if getattr(game_state, flag_check, False):
+                        print(f"🚫 Skipping encounter - flag {flag_check} is True")
+                        game_state.mine_l2b_x = new_x
+                        game_state.mine_l2b_y = new_y
+                        self.renderer.update_camera(new_x, new_y)
+                        return
+                
                 chance = combat_trigger.get('chance', 1.0)
                 if random.random() < chance:
                     if controller:
