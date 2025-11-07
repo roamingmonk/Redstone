@@ -20,7 +20,9 @@
             "next_state": "exit",
             "effects": [
               {"type": "set_flag", "flag": "trigger_loot_check", "value": "mine_deep_ore_loot"},
-              {"type": "set_flag", "flag": "searched_deep_ore_chamber", "value": true}
+              {"type": "set_flag", "flag": "searched_deep_ore_chamber", "value": true},
+              {"type": "set_flag", "flag": "retrieved_ore_samples", "value": true}
+              
             ]
           },
           {
@@ -29,6 +31,7 @@
             "next_state": "exit",
             "effects": [
               {"type": "set_flag", "flag": "searched_deep_ore_chamber", "value": true}
+              
             ]
           }
         ]

@@ -52,6 +52,9 @@ class RedHollowMineLevel1Nav:
         if not hasattr(game_state, 'mine_l1_x'):
             game_state.mine_l1_x = MINE_L1_SPAWN_X
             game_state.mine_l1_y = MINE_L1_SPAWN_Y
+             # NEW: Set investigated flag on first entry
+            game_state.investigated_old_shaft = True
+            print("🔍 Investigated old mine shaft")
 
         self.renderer.update_camera(game_state.mine_l1_x, game_state.mine_l1_y)
 

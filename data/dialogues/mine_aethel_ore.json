@@ -22,7 +22,8 @@
             "next_state": "exit",
             "effects": [
               {"type": "set_flag", "flag": "trigger_loot_check", "value": "mine_ore_deposits_loot"},
-              {"type": "set_flag", "flag": "saw_aethel_ore", "value": true}
+              {"type": "set_flag", "flag": "saw_aethel_ore", "value": true},
+              {"type": "set_flag", "flag": "retrieved_ore_samples", "value": true}
             ]
           },
           {

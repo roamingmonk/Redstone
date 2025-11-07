@@ -86,13 +86,37 @@ class RedHollowMineLevel3Nav:
             transition_info = self.renderer.check_valid_entrance(player_x, player_y, 
                                                                 self.renderer.player_direction)
             if transition_info and transition_info[0]:
-                # Navigate to new area/screen
-                if controller:
-                    target = transition_info[0]['target_screen']
+                transition_data = transition_info[0]
+                
+                # Check if both critical discoveries are complete
+                examined_ritual = getattr(game_state, 'examined_ritual_chamber', False)
+                searched_ore = getattr(game_state, 'searched_deep_ore_chamber', False)
+                
+                can_transition = False
+                blocked_message = ""
+                
+                if examined_ritual and searched_ore:
+                    # Both complete - allow exit and mark mine as complete
+                    can_transition = True
+                    if not getattr(game_state, 'red_hollow_mine_complete', False):
+                        game_state.red_hollow_mine_complete = True
+                        print("✅ Red Hollow Mine fully explored!")
+                elif not examined_ritual and not searched_ore:
+                    # Neither searched - general message
+                    blocked_message = "You should investigate this chamber more thoroughly. The ritual site and ore deposits await."
+                elif not examined_ritual:
+                    # Missing ritual chamber
+                    blocked_message = "You should investigate the ancient ritual site before leaving. The symbols and implements hold important clues."
+                elif not searched_ore:
+                    # Missing ore deposits
+                    blocked_message = "You should collect samples from the massive ore deposits before leaving. They're crucial evidence."
+                
+                if can_transition and controller:
+                    target = transition_data['target_screen']
                     
                     # If using shaft to surface, set spawn near shaft exit
                     if target == 'red_hollow_mine_pre_entrance_nav':
-                        game_state.mine_spawn_override_x = 3  # Near shaft opening
+                        game_state.mine_spawn_override_x = 3
                         game_state.mine_spawn_override_y = 2
                         print("🚁 Taking shaft to surface")
                     
@@ -100,6 +124,8 @@ class RedHollowMineLevel3Nav:
                         'target_screen': target,
                         'source_screen': 'red_hollow_mine_level_3_nav'
                     })
+                elif not can_transition:
+                    self.show_temp_message(blocked_message)
                 return
 
             # Priority 2: Searchables

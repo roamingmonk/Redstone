@@ -90,7 +90,10 @@ AREA_TRANSITIONS = {
             'interaction_type': 'navigation',
             'target_screen': 'red_hollow_mine_level_2_nav',
             'action': 'Ascend to Level 2',
-            'requirements': {}
+            'requirements': {
+                           },
+           'blocked_message': 'You should investigate this chamber before leaving. '
+
         }
     },
     'shaft_to_surface': {
@@ -101,7 +104,8 @@ AREA_TRANSITIONS = {
             'interaction_type': 'navigation',
             'target_screen': 'red_hollow_mine_pre_entrance_nav',
             'action': 'Climb shaft to surface (Quick Exit)',
-            'requirements': {}
+            'requirements': {},
+            'blocked_message': 'You should investigate this chamber before leaving.'
         }
     }
    

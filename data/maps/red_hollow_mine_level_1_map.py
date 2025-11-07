@@ -178,7 +178,7 @@ COMBAT_TRIGGERS = {
         'trigger_type': 'step_on',
         'repeatable': True,
         'chance': 0.35,
-        'flag_check': None,
+        'flag_check': 'cleared_kobold_mine',
         'flag_set': None
     },
     (10, 7): {
@@ -186,7 +186,7 @@ COMBAT_TRIGGERS = {
         'trigger_type': 'step_on',
         'repeatable': True,
         'chance': 0.35,
-        'flag_check': None,
+        'flag_check': 'cleared_kobold_mine',
         'flag_set': None
     },
     (5, 12): {
@@ -194,7 +194,7 @@ COMBAT_TRIGGERS = {
         'trigger_type': 'step_on',
         'repeatable': True,
         'chance': 0.35,
-        'flag_check': None,
+        'flag_check': 'cleared_kobold_mine',
         'flag_set': None
     },
     (14, 12): {
@@ -202,7 +202,7 @@ COMBAT_TRIGGERS = {
         'trigger_type': 'step_on',
         'repeatable': True,
         'chance': 0.35,
-        'flag_check': None,
+        'flag_check': 'cleared_kobold_mine',
         'flag_set': None
     }
 }
