@@ -230,18 +230,31 @@ class CombatLootOverlay(BaseTabbedOverlay):
         """Close loot screen"""
         if hasattr(game_state, 'overlay_state'):
             game_state.overlay_state.close_overlay()
-        
+
         # Set search loot flag if this was a search (not combat)
         if hasattr(game_state, 'search_loot_flag') and game_state.search_loot_flag:
             setattr(game_state, game_state.search_loot_flag, True)
             print(f"🚩 Set search flag: {game_state.search_loot_flag}")
             game_state.search_loot_flag = None
-        
+
+        # CRITICAL: Clean up combat state so next combat starts fresh
+        if self.screen_manager and hasattr(self.screen_manager, '_current_game_controller'):
+            game_controller = self.screen_manager._current_game_controller
+            if game_controller and hasattr(game_controller, 'combat_engine'):
+                game_controller.combat_engine.cleanup_combat()
+                print("🧹 Combat state cleaned up after loot collection")
+
+        # Clear game state combat flags
+        if hasattr(game_state, 'current_combat_encounter'):
+            game_state.current_combat_encounter = None
+        if hasattr(game_state, 'combat_context'):
+            game_state.combat_context = None
+
         game_state.combat_loot_data = None
         self.selected_items.clear()
         self.hovered_item = None
         self.gold_collected = False
-        
+
         game_state.in_combat = False
         
         if hasattr(game_state, 'pre_combat_location'):
