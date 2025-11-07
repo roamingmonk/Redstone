@@ -91,9 +91,10 @@ AREA_TRANSITIONS = {
             'target_screen': 'red_hollow_mine_level_2_nav',
             'action': 'Ascend to Level 2',
             'requirements': {}
+        }
     },
     'shaft_to_surface': {
-        'entrance_tiles': [(2, 11), (3, 11), (2, 12), (3, 12), (2, 13), (3, 13)],
+        'entrance_tiles': [(2, 11), (3, 11), (4, 12), (4, 13)],
         'building_pos': [(2, 12), (3, 12), (2, 13), (3, 13)],
         'info': {
             'name': 'Shaft to Surface',
@@ -103,7 +104,7 @@ AREA_TRANSITIONS = {
             'requirements': {}
         }
     }
-   }
+   
 }
 
 def get_transition_info(player_x, player_y):

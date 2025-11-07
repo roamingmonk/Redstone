@@ -53,8 +53,8 @@ class RedHollowMinePreEntranceNav:
         """Initialize or restore player position"""
         # Check for spawn override (from shaft on level 3)
         if hasattr(game_state, 'mine_spawn_override_x'):
-            game_state.mine_pre_entrance_x = game_state.mine_spawn_override_x
-            game_state.mine_pre_entrance_y = game_state.mine_spawn_override_y
+            game_state.mine_pre_x = game_state.mine_spawn_override_x     
+            game_state.mine_pre_y = game_state.mine_spawn_override_y 
             delattr(game_state, 'mine_spawn_override_x')
             delattr(game_state, 'mine_spawn_override_y')
             print("✅ Arrived via shaft from Level 3")
