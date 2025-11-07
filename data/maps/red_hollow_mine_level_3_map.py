@@ -17,6 +17,7 @@ MINE_L3_HEIGHT = 15
 MINE_L3_SPAWN_X = 7
 MINE_L3_SPAWN_Y = 1  # Enter from top (descending from Level 2)
 
+
 # Tile type definitions
 TILE_TYPES = {
     '#': 'wall',          # Deep chamber walls
@@ -27,7 +28,7 @@ TILE_TYPES = {
     'U': 'stairs_up',     # Return to Level 2
     'c': 'crystal',       # Glowing crystal formations
     'p': 'pillar',        # Ancient stone pillars
-    'S': 'shaft_up'       # Quick shaft to surface
+    'S': 'shaft_up',       # Quick shaft to surface
 }
 
 WALKABLE_TILES = {'ground', 'ore_crystal', 'ritual_site', 'secret_tunnel', 'stairs_up'}
@@ -47,7 +48,7 @@ MINE_L3_MAP = [
     "#.............#",  # Row 10
     "#.............#",  # Row 11
     "##SS..TTT.....#",  # Row 12 - T = SECRET TUNNEL (behind ore deposits)
-    "#pSS..TTT....p#",  # Row 13 - S = Shaft o the surface
+    "#pSS..TTT....p#",  # Row 13 - S = Shaft to the surface
     "###############"   # Row 14
 ]
 
@@ -92,8 +93,8 @@ AREA_TRANSITIONS = {
             'requirements': {}
     },
     'shaft_to_surface': {
-        'entrance_tiles': [(4, 13), (4, 12), (2, 11), (3, 11)],
-        'building_pos': [(2, 13), (3, 13), (2, 12), (3, 12)],
+        'entrance_tiles': [(2, 11), (3, 11), (2, 12), (3, 12), (2, 13), (3, 13)],
+        'building_pos': [(2, 12), (3, 12), (2, 13), (3, 13)],
         'info': {
             'name': 'Shaft to Surface',
             'interaction_type': 'navigation',
@@ -102,7 +103,7 @@ AREA_TRANSITIONS = {
             'requirements': {}
         }
     }
-  }
+   }
 }
 
 def get_transition_info(player_x, player_y):

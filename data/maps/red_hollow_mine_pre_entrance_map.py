@@ -15,6 +15,8 @@ MINE_PRE_WIDTH = 15
 MINE_PRE_HEIGHT = 15
 MINE_PRE_SPAWN_X = 7
 MINE_PRE_SPAWN_Y = 13  # Enter from bottom
+MINE_PRE_ENTRANCE_SPAWN_X = 7   # Default spawn
+MINE_PRE_ENTRANCE_SPAWN_Y = 13
 
 # Tile type definitions
 TILE_TYPES = {

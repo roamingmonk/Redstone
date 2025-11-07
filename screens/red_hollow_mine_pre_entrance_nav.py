@@ -13,6 +13,8 @@ from utils.tile_graphics import get_tile_graphics_manager
 from data.maps.red_hollow_mine_pre_entrance_map import (
     MINE_PRE_WIDTH,
     MINE_PRE_HEIGHT,
+    MINE_PRE_ENTRANCE_SPAWN_X,     
+    MINE_PRE_ENTRANCE_SPAWN_Y,     
     MINE_PRE_SPAWN_X,
     MINE_PRE_SPAWN_Y,
     get_tile_type,
@@ -49,7 +51,15 @@ class RedHollowMinePreEntranceNav:
 
     def update_player_position(self, game_state):
         """Initialize or restore player position"""
-        if not hasattr(game_state, 'mine_pre_x'):
+        # Check for spawn override (from shaft on level 3)
+        if hasattr(game_state, 'mine_spawn_override_x'):
+            game_state.mine_pre_entrance_x = game_state.mine_spawn_override_x
+            game_state.mine_pre_entrance_y = game_state.mine_spawn_override_y
+            delattr(game_state, 'mine_spawn_override_x')
+            delattr(game_state, 'mine_spawn_override_y')
+            print("✅ Arrived via shaft from Level 3")
+        
+        elif not hasattr(game_state, 'mine_pre_x'):
             game_state.mine_pre_x = MINE_PRE_SPAWN_X
             game_state.mine_pre_y = MINE_PRE_SPAWN_Y
 

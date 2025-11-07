@@ -82,11 +82,20 @@ class RedHollowMineLevel3Nav:
             player_x = game_state.mine_l3_x
             player_y = game_state.mine_l3_y
 
-            # Priority 1: Transitions
-            transition_info = self.renderer.check_valid_entrance(player_x, player_y, self.renderer.player_direction)
+            # Priority 1: Area transitions (ladder, shaft)
+            transition_info = self.renderer.check_valid_entrance(player_x, player_y, 
+                                                                self.renderer.player_direction)
             if transition_info and transition_info[0]:
+                # Navigate to new area/screen
                 if controller:
                     target = transition_info[0]['target_screen']
+                    
+                    # If using shaft to surface, set spawn near shaft exit
+                    if target == 'red_hollow_mine_pre_entrance_nav':
+                        game_state.mine_spawn_override_x = 3  # Near shaft opening
+                        game_state.mine_spawn_override_y = 2
+                        print("🚁 Taking shaft to surface")
+                    
                     controller.event_manager.emit("SCREEN_CHANGE", {
                         'target_screen': target,
                         'source_screen': 'red_hollow_mine_level_3_nav'
