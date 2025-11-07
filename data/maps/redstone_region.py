@@ -102,7 +102,7 @@ REDSTONE_REGION_LOCATIONS = {
         'discovery_flag': 'discovered_old_mine_shaft',
         'icon': '⛏️',
         'icon_color': FIRE_BRICK_RED,  # Firebrick red
-        'target': 'red_hollow_mine',
+        'target': 'red_hollow_mine_pre_entrance_nav',
         'description': 'Abandoned mine shaft, sealed by fearful workers.'
     }
 }

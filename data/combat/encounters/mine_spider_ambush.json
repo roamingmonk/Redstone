@@ -1,0 +1,54 @@
+{
+  "encounter_id": "mine_spider_ambush",
+  "name": "Spider Ambush",
+  "description": "A massive spider drops from the webbed ceiling, its offspring chittering nearby!",
+  "battlefield_id": "mine_collapsed_area",
+  "difficulty": "medium_hard",
+  "enemies": [
+    {
+      "enemy_id": "giant_spider",
+      "position": [7, 3],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "baby_spider",
+      "position": [5, 2],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "baby_spider",
+      "position": [9, 2],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "baby_spider",
+      "position": [7, 1],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 150,
+    "gold": 25,
+    "items": ["spider_silk", "healing_potion"],
+    "story_progress": {
+      "quest_flags": {}
+    }
+  },
+  "escape_allowed": true,
+  "turn_limit": null,
+  "ambient_description": "Thick webs cover the walls and ceiling. A massive spider suddenly drops down, its fangs dripping venom. Three smaller spiders skitter from the shadows!",
+  "victory_description": "The giant spider collapses with a final shudder. Its offspring scatter into the darkness, leaving behind valuable spider silk and venom glands.",
+  "defeat_description": "Webbing entangles you as venomous fangs strike. You barely escape the spider's lair, poisoned and wounded."
+}

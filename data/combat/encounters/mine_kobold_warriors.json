@@ -1,0 +1,59 @@
+{
+  "encounter_id": "mine_kobold_warriors",
+  "name": "Kobold War Party",
+  "description": "Armored kobold warriors led by a mystic shaman block your path!",
+  "battlefield_id": "mine_tunnel",
+  "difficulty": "medium",
+  "enemies": [
+    {
+      "enemy_id": "kobold_warrior",
+      "position": [5, 2],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "kobold_warrior",
+      "position": [7, 2],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "kobold_warrior",
+      "position": [9, 2],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "kobold_shaman",
+      "position": [7, 0],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 195,
+    "gold": 35,
+    "items": ["healing_potion"],
+    "story_progress": {
+      "quest_flags": {
+        "cleared_kobold_mine": {
+          "value": true,
+          "display_message": "The kobolds have been driven from the mine shafts!"
+        }
+      }
+    }
+  },
+  "escape_allowed": true,
+  "turn_limit": null,
+  "ambient_description": "Kobold warriors bang their clubs against the walls, creating a deafening rhythm. Behind them, a shaman chants ominously, bone fetishes rattling.",
+  "victory_description": "The last kobold warrior falls. The shaman's chanting stops abruptly as the tribe's defenders are defeated. The mine tunnels fall silent.",
+  "defeat_description": "The kobold war party proves too strong. You fall back, their triumphant screeching echoing through the tunnels."
+}

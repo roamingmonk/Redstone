@@ -1,0 +1,38 @@
+{
+  "mine_deep_ore": {
+    "npc_name": "Aethel Ore Deposits",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "Massive crystalline formations of Aethel Ore dominate this chamber, pulsing with intense energy. The glow is almost blinding.",
+          "",
+          "This is the source—the heart of the ore deposit that caused all the tremors and instability. You can feel the raw power radiating from the crystals.",
+          "",
+          "You should collect samples for Mayor Aldwin and Henrik. They need to understand what they're dealing with."
+        ],
+        "options": [
+          {
+            "id": "collect",
+            "text": "[Carefully collect more ore samples]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "trigger_loot_check", "value": "mine_deep_ore_loot"},
+              {"type": "set_flag", "flag": "searched_deep_ore_chamber", "value": true}
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Don't disturb the deposits]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "searched_deep_ore_chamber", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

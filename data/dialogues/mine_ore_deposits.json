@@ -1,0 +1,36 @@
+{
+  "mine_ore_deposits": {
+    "npc_name": "Ore Deposits",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "More glowing ore veins embedded in the rock. The deeper you go, the more prevalent the Aethel Ore becomes.",
+          "",
+          "You can collect additional samples here."
+        ],
+        "options": [
+          {
+            "id": "collect",
+            "text": "[Collect more ore samples]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "trigger_loot_check", "value": "mine_ore_deposits_loot"},
+              {"type": "set_flag", "flag": "searched_level_1_ore", "value": true}
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Leave the ore alone]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "searched_level_1_ore", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "mine_collapse": {
+    "npc_name": "Collapsed Tunnel",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "A complete cave-in blocks the passage ahead. Tons of rock and debris have sealed this tunnel permanently.",
+          "",
+          "The structural damage is catastrophic—there's no way forward from here. This must have been one of the tremors Henrik mentioned.",
+          "",
+          "This is a dead end. You'll need to return the way you came."
+        ],
+        "options": [
+          {
+            "id": "understood",
+            "text": "[Turn back]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "examined_collapse", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

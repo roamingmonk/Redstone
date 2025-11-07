@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-10-24 12:35)
+﻿## Repository Structure (generated 2025-11-06 14:26)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -7,9 +7,6 @@ C:.
 |   input_handler.py
 |   main.py
 |   README.md
-|   test_combat_data_loading.py
-|   test_combat_effects.py
-|   test_handlers.py
 |   
 +---.vscode
 |       settings.json
@@ -38,19 +35,34 @@ C:.
 |       |           
 |       +---icons
 |       |   +---characters
+|       |   |   |   altar.png
+|       |   |   |   book.png
+|       |   |   |   chest.png
+|       |   |   |   default_portrait.aseprite
+|       |   |   |   default_portrait.png
+|       |   |   |   door.png
+|       |   |   |   object_examination.png
+|       |   |   |   ritual.png
+|       |   |   |   symbols.png
+|       |   |   |   
 |       |   |   +---npc_portraits
 |       |   |   |       bernard_portrait.jpg
+|       |   |   |       cassia_portrait.jpg
+|       |   |   |       default_portrait.jpg
 |       |   |   |       elara_portrait.jpg
 |       |   |   |       gareth_portrait.jpg
 |       |   |   |       garrick_portrait.jpg
 |       |   |   |       garrick_portrait.png
 |       |   |   |       henrik_portrait.jpg
 |       |   |   |       jenna_portrait.jpg
+|       |   |   |       leader_portrait.jpg
 |       |   |   |       lyra_portrait.jpg
+|       |   |   |       marta_portrait.jpg
 |       |   |   |       mayor_portrait.jpg
 |       |   |   |       mayor_portrait_happy.jpg
 |       |   |   |       meredith_portrait.jpg
 |       |   |   |       pete_portrait.jpg
+|       |   |   |       swamp_church_altar.aseprite
 |       |   |   |       thorman_portrait.jpg
 |       |   |   |       
 |       |   |   \---player_portraits
@@ -72,36 +84,50 @@ C:.
 |       |   |               player_male_06.jpg
 |       |   |               
 |       |   +---Items
+|       |   |       alchemist_fire.png
+|       |   |       antidote.png
 |       |   |       axe.PNG
 |       |   |       battleaxe.png
 |       |   |       bedroll.PNG
+|       |   |       bone_fragment.png
 |       |   |       broken_compass.jpg
 |       |   |       carved_bone_dice.jpg
 |       |   |       Carved_bone_dice.PNG
 |       |   |       chainmail.PNG
+|       |   |       crude_shortbow.png
 |       |   |       crystal_pendant.jpg
+|       |   |       cursed_talisman.png
+|       |   |       elixir_of_vigor.png
 |       |   |       empty_bottle.png
 |       |   |       empty_small_leather_pouch_that_jingles.png
 |       |   |       feathered_dream_catcher.png
 |       |   |       glass_vial_with_swirling_mist.png
+|       |   |       greater_healing_potion.png
 |       |   |       healing_potion.PNG
 |       |   |       hemp_rope.PNG
 |       |   |       henriks_lantern.PNG
 |       |   |       holy_symbol.png
+|       |   |       holy_water.png
 |       |   |       iron_ring_with_strange_symbols.jpg
 |       |   |       leather_armor.PNG
 |       |   |       leather_pouch_with_dried_herbs.png
 |       |   |       light_crossbow.png
 |       |   |       longsword.PNG
 |       |   |       mace.png
+|       |   |       marcus_masterwork_elixir.png
 |       |   |       plate_armor.PNG
 |       |   |       polished_obsidian_shard.jpg
+|       |   |       potion_of_clarity.png
 |       |   |       pressed_flower.jpg
 |       |   |       quarterstaff.png
 |       |   |       rapier.png
+|       |   |       rat_tail.png
+|       |   |       restoration_draught.png
+|       |   |       rusted_shortsword.png
 |       |   |       shield.PNG
 |       |   |       shield_plus_1.PNG
 |       |   |       shortbow.png
+|       |   |       shortsword.png
 |       |   |       small_brass_key.jpg
 |       |   |       small_bronze_mirror.jpg
 |       |   |       smooth_river_stone_with_runes.jpg
@@ -121,15 +147,29 @@ C:.
 |       |   \---ui
 |       +---sprites
 |       |   +---effects
+|       |   |       acid_diag.png
+|       |   |       acid_h_v.png
+|       |   |       acid_impact.png
+|       |   |       arrow_diag.png
+|       |   |       arrow_h_v.png
+|       |   |       bullet_diag.png
+|       |   |       bullet_h_v.png
 |       |   |       burning_hands_diag.png
 |       |   |       burning_hands_h_v.png
 |       |   |       fireball_burn.png
 |       |   |       firebolt_diag.png
 |       |   |       firebolt_h_v.png
+|       |   |       firebolt_impact.png
 |       |   |       force_diag.png
 |       |   |       force_h_v.png
+|       |   |       force_impact.png
+|       |   |       ice_diag.png
+|       |   |       ice_h_v.png
+|       |   |       ice_impact.png
 |       |   |       lightning_bolt_diag.png
 |       |   |       lightning_bolt_h_v.png
+|       |   |       necrotic_diag.png
+|       |   |       necrotic_h_v.png
 |       |   |       
 |       |   +---enemies
 |       |   +---fire
@@ -138,6 +178,7 @@ C:.
 |       |   |       
 |       |   +---items
 |       |   |       barrel.png
+|       |   |       pillar.png
 |       |   |       support_beam.png
 |       |   |       
 |       |   +---landscape
@@ -189,20 +230,36 @@ C:.
 |   |   __init__.py
 |   |   
 |   +---combat
-|   |   |   actions.json
-|   |   |   
 |   |   +---battlefields
+|   |   |       crypt_chamber.json
+|   |   |       hill_ruins_exterior.json
+|   |   |       redstone_town_alley - gaunlet.json
 |   |   |       redstone_town_alley.json
+|   |   |       refugee_camp_night.json
 |   |   |       small_cellar.json
+|   |   |       swamp_exterior.json
 |   |   |       
 |   |   +---encounters
 |   |   |       alley_fight.json
+|   |   |       alley_fight3.json
 |   |   |       alley_fight_2.json
+|   |   |       hill_ruins_bandits.json
+|   |   |       hill_ruins_statue.json
+|   |   |       refugee_camp_brigand_raid copy.json
+|   |   |       refugee_camp_brigand_raid.json
+|   |   |       swamp_church_cultists.json
+|   |   |       swamp_ghost.json
+|   |   |       swamp_skeleton.json
 |   |   |       tavern_basement_rats.json
 |   |   |       
 |   |   \---enemies
+|   |           animated_statue.json
+|   |           bandit_common.json
+|   |           bandit_leader.json
 |   |           blight_shadow.json
 |   |           cultist.json
+|   |           cult_leader.json
+|   |           cult_priest_swamp.json
 |   |           giant_rat.json
 |   |           goblin.json
 |   |           kobold.json
@@ -214,6 +271,15 @@ C:.
 |   +---dialogues
 |   |       broken_blade_garrick.json
 |   |       broken_blade_meredith.json
+|   |       hill_ruins_carved_stones.json
+|   |       hill_ruins_forcedoor.json
+|   |       hill_ruins_lockeddoor.json
+|   |       hill_ruins_marcus.json
+|   |       hill_ruins_mechanisms.json
+|   |       hill_ruins_mine.json
+|   |       hill_ruins_portal.json
+|   |       hill_ruins_rubble.json
+|   |       hill_ruins_unlockdoor.json
 |   |       patron_selection_elara.json
 |   |       patron_selection_gareth.json
 |   |       patron_selection_lyra.json
@@ -221,19 +287,41 @@ C:.
 |   |       patron_selection_pete.json
 |   |       patron_selection_thorman.json
 |   |       redstone_town_bernard.json
+|   |       redstone_town_cassia.json
 |   |       redstone_town_henrik.json
 |   |       redstone_town_jenna.json
+|   |       refugee_camp_campfire.json
+|   |       refugee_camp_leader_rest.json
+|   |       refugee_camp_marta.json
+|   |       refugee_camp_refugees.json
+|   |       refugee_camp_supplies.json
+|   |       swamp_church_altar.json
+|   |       swamp_church_graves.json
+|   |       swamp_church_pews.json
+|   |       swamp_church_ritual.json
+|   |       swamp_church_symbols.json
 |   |       
 |   +---locations
 |   |       broken_blade.json
+|   |       exploration_hub.json
+|   |       hill_ruins.json
 |   |       patron_selection.json
+|   |       refugee_camp.json
+|   |       swamp_church.json
 |   |       __init__.py
 |   |       
 |   +---maps
+|   |   |   hill_ruins_entrance_map.py
+|   |   |   hill_ruins_ground_level_map.py
+|   |   |   redstone_region.py
 |   |   |   redstone_town_map.py
+|   |   |   refugee_camp_main_map.py
+|   |   |   swamp_church_exterior_map.py
+|   |   |   swamp_church_interior_map.py
 |   |   |   
 |   |           
 |   +---narrative
+|   |       act_two.json
 |   |       death_quotes.json
 |   |       intro_sequence.json
 |   |       
@@ -261,10 +349,15 @@ C:.
 |   |       
 |           
 +---docs
+|       Act_II_Exploration_System_Implementation_Plan.md
 |       adding_npc_dialogue.md
 |       decisions.md
+|       Dialogue_issues_-_what_to_review_-Nov_5.md
+|       Hill_Ruins_Implementation_Plan.md
+|       Phase_11.5_Location_Navigation_Conversion_Plan_v2.md
 |       project_context copy.md
 |       project_context.md
+|       Refugee_Camp_and_Red_Hollow_Mine_Implementation_Plan.md
 |       Repository_Structure.md
 |       
 +---game_logic
@@ -292,23 +385,31 @@ C:.
 |       save_slot_1.json
 |       save_slot_2.json
 |       save_slot_3.json
+|       save_slot_4 copy.json
 |       save_slot_4.json
 |       save_slot_5.json
 |       
 +---screens
+|   |   act_two_transition.py
 |   |   character_creation.py
 |   |   character_overlay.py
 |   |   combat_loot_overlay.py
+|   |   exploration_hub.py
 |   |   gambling_dice.py
 |   |   help_overlay.py
+|   |   hill_ruins_entrance_nav.py
+|   |   hill_ruins_ground_level_nav.py
 |   |   intro_scenes.py
 |   |   inventory_overlay.py
 |   |   load_game.py
 |   |   quest_overlay.py
 |   |   redstone_town.py
 |   |   redstone_town_navigation.py.OLD
+|   |   refugee_camp_main_nav.py
 |   |   save_game.py
 |   |   statistics_overlay.py
+|   |   swamp_church_exterior_nav.py
+|   |   swamp_church_interior_nav.py
 |   |   title_menu.py
 |   |   __init__.py
 |   |   
@@ -344,6 +445,7 @@ C:.
 |   |   location_loader.py
 |   |   narrative_schema.py
 |   |   npc_display.py
+|   |   object_display.py
 |   |   overlay_utils.py
 |   |   party_display.py
 |   |   quest_system.py

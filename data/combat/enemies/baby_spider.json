@@ -1,0 +1,60 @@
+{
+  "enemy_id": "baby_spider",
+  "name": "Baby Spider",
+  "description": "A smaller spider, still dangerous with its venomous bite but less hardy than its giant parent.",
+  "stats": {
+    "hp": 8,
+    "max_hp": 8,
+    "ac": 13,
+    "strength": 9,
+    "dexterity": 15,
+    "constitution": 10,
+    "intelligence": 1,
+    "wisdom": 9,
+    "charisma": 3
+  },
+  "saving_throw_proficiencies": [],
+  "attacks": [
+    {
+      "name": "Bite",
+      "damage_dice": "1d4+1",
+      "attack_bonus": 4,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A quick venomous bite"
+    }
+  ],
+  "movement": {
+    "speed": 5,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Web Walker",
+      "description": "Can move freely through webbed areas",
+      "effect_type": "passive"
+    },
+    {
+      "name": "Weak Poison",
+      "description": "Bite may inflict minor poison (1d2 poison for 1 round, DC 10 to resist)",
+      "effect_type": "status_effect",
+      "trigger": "bite_hit",
+      "save_dc": 10
+    }
+  ],
+  "loot": {
+    "xp_value": 20,
+    "gold_range": [0, 3],
+    "item_drops": [
+      {"item_id": "spider_silk", "drop_chance": 0.6, "quantity_range": [1, 2]},
+      {"item_id": "venom_gland", "drop_chance": 0.3, "quantity_range": [1, 1]}
+    ]
+  },
+  "behavior": {
+    "aggression": "medium",
+    "intelligence": "very_low",
+    "tactics": "swarm",
+    "retreat_threshold": 2,
+    "notes": "Swarms with parent spider. Will flee if parent dies or if critically wounded."
+  }
+}

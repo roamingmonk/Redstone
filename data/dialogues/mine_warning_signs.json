@@ -1,0 +1,31 @@
+{
+  "mine_warning_signs": {
+    "npc_name": "Warning Signs",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "Weathered wooden signs are hammered into the ground near the sealed entrance. The paint has faded, but the warnings are still legible:",
+          "",
+          "\"DANGER - MINE SEALED BY ORDER OF HENRIK IRONHAND\"",
+          "\"UNSTABLE AETHEL ORE - DO NOT ENTER\"",
+          "\"TREMORS REPORTED - STRUCTURAL COLLAPSE IMMINENT\"",
+          "",
+          "The last sign is more personal: 'I sealed this place to save lives. Whatever you seek here isn't worth what you might unleash. - Henrik'"
+        ],
+        "options": [
+          {
+            "id": "understood",
+            "text": "[Note the warnings]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "examined_mine_warnings", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

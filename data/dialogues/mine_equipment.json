@@ -1,0 +1,38 @@
+{
+  "mine_equipment": {
+    "npc_name": "Abandoned Equipment",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "Old mining tools lie scattered near the entrance—picks, shovels, rope coils, and tarnished lanterns.",
+          "",
+          "Everything was abandoned in a hurry. Henrik's crew must have fled quickly when he gave the order to evacuate.",
+          "",
+          "Some of the equipment is still serviceable. You could take what might be useful."
+        ],
+        "options": [
+          {
+            "id": "search",
+            "text": "[Gather useful equipment]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "trigger_loot_check", "value": "mine_equipment_loot"},
+              {"type": "set_flag", "flag": "searched_mine_equipment", "value": true}
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Leave the equipment]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "searched_mine_equipment", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

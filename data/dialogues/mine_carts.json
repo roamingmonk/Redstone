@@ -1,0 +1,41 @@
+{
+  "mine_carts": {
+    "npc_name": "Mining Carts",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "Several old mining carts sit on rusty tracks, filled with coal, rock debris, and ore samples from the last day of operations.",
+          "",
+          "As you sift through the contents, something catches your eye beneath the coal dust...",
+          "",
+          "A silver ring! It must have been dropped during the hasty evacuation. The delicate craftsmanship suggests it belonged to someone from town.",
+          "",
+          "Wait—Meredith mentioned losing her grandmother's ring when she worked here briefly. This must be it!"
+        ],
+        "options": [
+          {
+            "id": "search",
+            "text": "[Take the ring and search the carts]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "trigger_loot_check", "value": "mine_carts_loot"},
+              {"type": "set_flag", "flag": "searched_mining_carts", "value": true},
+              {"type": "set_flag", "flag": "found_merediths_ring", "value": true}
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Leave the carts alone]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "searched_mining_carts", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

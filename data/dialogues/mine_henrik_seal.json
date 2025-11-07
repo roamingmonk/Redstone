@@ -1,0 +1,30 @@
+{
+  "mine_henrik_seal": {
+    "npc_name": "Henrik's Seal",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "Heavy wooden beams are bolted across the mine entrance, reinforced with iron chains and a massive padlock.",
+          "",
+          "The seal is solid workmanship—Henrik clearly meant it when he closed this place. But time and the elements have weakened the wood. The chains could be pried loose if you're determined...",
+          "",
+          "Carved into the main beam is a simple message: 'Forgive me. This is the only way.'"
+        ],
+        "options": [
+          {
+            "id": "enter",
+            "text": "[Force the seal open and enter]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "examined_henrik_seal", "value": true},
+              {"type": "set_flag", "flag": "mine_seal_broken", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

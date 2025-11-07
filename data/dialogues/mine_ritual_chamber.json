@@ -1,0 +1,33 @@
+{
+  "mine_ritual_chamber": {
+    "npc_name": "Ancient Ritual Site",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "This deep chamber was clearly used for more than mining. Strange symbols are carved into the walls, surrounding a circular pattern on the floor.",
+          "",
+          "Ritual implements—censers, carved totems, and blood-stained altars—suggest dark ceremonies were performed here long before Henrik's crew arrived.",
+          "",
+          "The symbols match those you've seen at the Hill Ruins and Swamp Church. The cult was using this mine for their rituals, drawn by the power of the Aethel Ore.",
+          "",
+          "This explains why Henrik sealed the mine—he must have discovered evidence of cult activity and wanted to prevent them from accessing the ore's power.",
+          "",
+          "As you examine the chamber, you notice something unusual behind the largest ore deposit..."
+        ],
+        "options": [
+          {
+            "id": "investigate",
+            "text": "[Continue investigating]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "examined_ritual_chamber", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

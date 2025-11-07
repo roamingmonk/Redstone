@@ -1,0 +1,69 @@
+{
+  "enemy_id": "kobold_warrior",
+  "name": "Kobold Warrior",
+  "description": "A more experienced kobold warrior in crude armor, wielding a spiked club. More aggressive than typical kobolds.",
+  "stats": {
+    "hp": 14,
+    "max_hp": 14,
+    "ac": 15,
+    "strength": 11,
+    "dexterity": 14,
+    "constitution": 12,
+    "intelligence": 9,
+    "wisdom": 9,
+    "charisma": 8
+  },
+  "saving_throw_proficiencies": [],
+  "attacks": [
+    {
+      "name": "Spiked Club",
+      "damage_dice": "1d6+1",
+      "attack_bonus": 3,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A vicious swing with a club studded with rusty nails"
+    },
+    {
+      "name": "Thrown Spear",
+      "damage_dice": "1d6",
+      "attack_bonus": 2,
+      "attack_type": "ranged",
+      "range": 6,
+      "description": "A crude spear thrown at short range"
+    }
+  ],
+  "movement": {
+    "speed": 5,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Pack Tactics",
+      "description": "Gains +1 to attack rolls when adjacent to an ally",
+      "effect_type": "combat_bonus",
+      "trigger": "adjacent_ally"
+    },
+    {
+      "name": "Aggressive",
+      "description": "Will not retreat easily, fights more tenaciously",
+      "effect_type": "passive"
+    }
+  ],
+  "loot": {
+    "xp_value": 50,
+    "gold_range": [3, 10],
+    "item_drops": [
+      {"item_id": "kobold_scale", "drop_chance": 0.8, "quantity_range": [2, 4]},
+      {"item_id": "silver_coins", "drop_chance": 0.6, "quantity_range": [3, 8]},
+      {"item_id": "crude_armor_scraps", "drop_chance": 0.4, "quantity_range": [1, 1]},
+      {"item_id": "healing_potion", "drop_chance": 0.2, "quantity_range": [1, 1]}
+    ]
+  },
+  "behavior": {
+    "aggression": "high",
+    "intelligence": "low",
+    "tactics": "melee_focused",
+    "retreat_threshold": 2,
+    "notes": "More aggressive than scouts, prefers melee combat. Only retreats when critically wounded."
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "mine_aethel_ore": {
+    "npc_name": "Glowing Ore Veins",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "Strange crystalline ore veins run through the rock walls, pulsing with an eerie cyan glow that illuminates the tunnel.",
+          "",
+          "The ore hums softly, vibrating with barely contained energy. You can feel the hair on your arms standing on end as you approach.",
+          "",
+          "This must be the Aethel Ore Henrik warned about—the substance that caused the tremors and instability. The samples Mayor Aldwin wants to examine.",
+          "",
+          "You could carefully collect some samples... if you're willing to risk it."
+        ],
+        "options": [
+          {
+            "id": "collect",
+            "text": "[Carefully collect ore samples]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "trigger_loot_check", "value": "mine_ore_deposits_loot"},
+              {"type": "set_flag", "flag": "saw_aethel_ore", "value": true}
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Don't disturb the ore]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "saw_aethel_ore", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

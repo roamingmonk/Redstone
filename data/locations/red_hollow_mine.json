@@ -1,0 +1,147 @@
+{
+  "red_hollow_mine": {
+    "location_id": "red_hollow_mine",
+    "name": "Red Hollow Mine - Old Shaft",
+    "type": "dungeon_combat",
+
+    "loot_tables": {
+      "mine_equipment_loot": {
+        "items": [
+          {
+            "item_id": "rope",
+            "quantity": 1,
+            "chance": 0.7
+          },
+          {
+            "item_id": "torch",
+            "quantity": 3,
+            "chance": 1.0
+          },
+          {
+            "item_id": "silver_coins",
+            "quantity": 5,
+            "chance": 0.5
+          }
+        ]
+      },
+      "mine_ore_deposits_loot": {
+        "items": [
+          {
+            "item_id": "aethel_ore_sample",
+            "quantity": 1,
+            "chance": 1.0,
+            "message": "You carefully collect a sample of the glowing ore."
+          }
+        ],
+        "sets_flag": "retrieved_ore_samples"
+      },
+      "mine_kobold_supplies_loot": {
+        "items": [
+          {
+            "item_id": "healing_potion",
+            "quantity": 1,
+            "chance": 0.5
+          },
+          {
+            "item_id": "silver_coins",
+            "quantity": 8,
+            "chance": 0.8
+          }
+        ]
+      },
+      "mine_carts_loot": {
+        "items": [
+          {
+            "item_id": "merediths_ring",
+            "quantity": 1,
+            "chance": 1.0,
+            "message": "Beneath coal dust, a silver ring glints!"
+          },
+          {
+            "item_id": "healing_potion",
+            "quantity": 1,
+            "chance": 0.6
+          },
+          {
+            "item_id": "silver_coins",
+            "quantity": 15,
+            "chance": 0.8
+          }
+        ],
+        "sets_flag": "found_merediths_ring"
+      },
+      "mine_rubble_loot": {
+        "items": [
+          {
+            "item_id": "silver_coins",
+            "quantity": 15,
+            "chance": 1.0
+          },
+          {
+            "item_id": "healing_potion",
+            "quantity": 2,
+            "chance": 0.8
+          },
+          {
+            "item_id": "rare_gem",
+            "quantity": 1,
+            "chance": 0.4
+          }
+        ]
+      },
+      "mine_deep_ore_loot": {
+        "items": [
+          {
+            "item_id": "aethel_ore_sample",
+            "quantity": 2,
+            "chance": 1.0,
+            "message": "You collect more samples of the strange, glowing ore."
+          }
+        ],
+        "sets_flag": "retrieved_ore_samples"
+      }
+    },
+
+    "areas": {
+      "deep_chamber": {
+        "type": "action_hub",
+        "title": "RED HOLLOW MINE - DEEP CHAMBER",
+        "description": {
+          "subtitle": "The deepest part of the sealed mine",
+          "atmosphere": "The tunnel opens into a vast chamber. Strange glowing ore veins pulse with an otherworldly light, casting dancing shadows on the walls. The air hums with energy. Ancient mining equipment lies abandoned, and beyond the ore deposits, you notice something unusual - a dark passage that seems to lead toward the hill ruins..."
+        },
+        "actions": {
+          "examine_ritual_chamber": {
+            "type": "dialogue",
+            "label": "Examine the Chamber",
+            "npc_id": "mine_ritual_chamber",
+            "return_to": "red_hollow_mine.deep_chamber",
+            "description": "Study the strange chamber and its glowing ore"
+          },
+          "search_deep_ore": {
+            "type": "loot_check",
+            "label": "Collect Ore Samples",
+            "loot_table": "mine_deep_ore_loot",
+            "description": "Carefully collect samples of the Aethel Ore",
+            "one_time_flag": "searched_deep_ore_deposits"
+          },
+          "discover_secret_tunnel": {
+            "type": "dialogue",
+            "label": "Investigate Hidden Passage",
+            "npc_id": "mine_secret_tunnel",
+            "return_to": "red_hollow_mine.deep_chamber",
+            "description": "Examine the dark passage behind the ore deposits",
+            "requires_flag": "examined_ritual_chamber",
+            "hidden_unless_requirements_met": true
+          },
+          "return_to_surface": {
+            "type": "navigate",
+            "label": "Return to Level 2",
+            "target": "red_hollow_mine_level_2_nav",
+            "description": "Head back up to the mine shafts"
+          }
+        }
+      }
+    }
+  }
+}

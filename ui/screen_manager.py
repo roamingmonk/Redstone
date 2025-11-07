@@ -36,6 +36,12 @@ from screens.hill_ruins_entrance_nav import draw_hill_ruins_entrance_nav
 from screens.hill_ruins_ground_level_nav import draw_hill_ruins_ground_level_nav
 from screens.refugee_camp_main_nav import draw_refugee_camp_main_nav 
 
+from screens.red_hollow_mine_pre_entrance_nav import draw_red_hollow_mine_pre_entrance_nav
+from screens.red_hollow_mine_level_1_nav import draw_red_hollow_mine_level_1_nav
+from screens.red_hollow_mine_level_2_nav import draw_red_hollow_mine_level_2_nav
+from screens.red_hollow_mine_level_2b_nav import draw_red_hollow_mine_level_2b_nav
+from screens.red_hollow_mine_level_3_nav import draw_red_hollow_mine_level_3_nav
+
 
 from ui.screen_handlers import (handle_main_menu_clicks, handle_dice_bets_clicks,
                                 handle_dice_rolling_clicks, handle_dice_results_clicks,
@@ -1194,6 +1200,12 @@ class ScreenManager:
             self.register_render_function("hill_ruins_ground_level_nav", draw_hill_ruins_ground_level_nav)
             # Refugee camp navigation
             self.register_render_function("refugee_camp_main_nav", draw_refugee_camp_main_nav)
+            # Red Hollow Mine navigation
+            self.register_render_function("red_hollow_mine_pre_entrance_nav", draw_red_hollow_mine_pre_entrance_nav)
+            self.register_render_function("red_hollow_mine_level_1_nav", draw_red_hollow_mine_level_1_nav)
+            self.register_render_function("red_hollow_mine_level_2_nav", draw_red_hollow_mine_level_2_nav)
+            self.register_render_function("red_hollow_mine_level_2b_nav", draw_red_hollow_mine_level_2b_nav)
+            self.register_render_function("red_hollow_mine_level_3_nav", draw_red_hollow_mine_level_3_nav)
             
 
             # Utility screens

@@ -1,0 +1,29 @@
+{
+  "mine_unstable_tunnels": {
+    "npc_name": "Unstable Area Warning",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "A crudely painted warning sign marks the entrance to a side passage:",
+          "",
+          "\"DANGER - UNSTABLE - CAVE-INS REPORTED\"",
+          "",
+          "The passage looks treacherous, with cracks visible in the ceiling and loose rubble underfoot. But you can see something glinting in the darkness beyond..."
+        ],
+        "options": [
+          {
+            "id": "noted",
+            "text": "[Note the warning]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "examined_unstable_warning", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

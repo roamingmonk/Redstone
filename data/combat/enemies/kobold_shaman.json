@@ -1,0 +1,78 @@
+{
+  "enemy_id": "kobold_shaman",
+  "name": "Kobold Shaman",
+  "description": "A kobold mystic wearing bone fetishes and wielding crude magic. Supports other kobolds with healing and minor hexes.",
+  "stats": {
+    "hp": 11,
+    "max_hp": 11,
+    "ac": 12,
+    "strength": 7,
+    "dexterity": 14,
+    "constitution": 10,
+    "intelligence": 12,
+    "wisdom": 14,
+    "charisma": 10
+  },
+  "saving_throw_proficiencies": ["wisdom"],
+  "attacks": [
+    {
+      "name": "Bone Staff",
+      "damage_dice": "1d4",
+      "attack_bonus": 1,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A weak strike with a gnarled bone staff"
+    },
+    {
+      "name": "Hex Bolt",
+      "damage_dice": "1d6",
+      "attack_bonus": 4,
+      "attack_type": "ranged",
+      "range": 8,
+      "description": "A crackling bolt of dark energy"
+    },
+    {
+      "name": "Minor Heal",
+      "damage_dice": "1d6+2",
+      "attack_bonus": 0,
+      "attack_type": "heal",
+      "range": 3,
+      "description": "Restores health to an ally kobold"
+    }
+  ],
+  "movement": {
+    "speed": 4,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Mystic Shield",
+      "description": "Can cast a weak shield on allies, granting +1 AC temporarily",
+      "effect_type": "buff",
+      "trigger": "support_action"
+    },
+    {
+      "name": "Tribal Healer",
+      "description": "Can heal allied kobolds once per combat",
+      "effect_type": "heal",
+      "uses_per_combat": 1
+    }
+  ],
+  "loot": {
+    "xp_value": 45,
+    "gold_range": [4, 12],
+    "item_drops": [
+      {"item_id": "kobold_fetish", "drop_chance": 0.9, "quantity_range": [1, 2]},
+      {"item_id": "silver_coins", "drop_chance": 0.7, "quantity_range": [4, 10]},
+      {"item_id": "minor_magic_scroll", "drop_chance": 0.3, "quantity_range": [1, 1]},
+      {"item_id": "healing_potion", "drop_chance": 0.3, "quantity_range": [1, 1]}
+    ]
+  },
+  "behavior": {
+    "aggression": "low",
+    "intelligence": "medium",
+    "tactics": "support_caster",
+    "retreat_threshold": 4,
+    "notes": "Stays back, heals allies, and casts hexes. Will retreat early if threatened in melee."
+  }
+}

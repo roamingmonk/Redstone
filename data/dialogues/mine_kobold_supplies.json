@@ -1,0 +1,36 @@
+{
+  "mine_kobold_supplies": {
+    "npc_name": "Kobold Nest",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "A crude nest constructed from rags, bones, and stolen mining equipment. The kobolds have made themselves at home here.",
+          "",
+          "Among the filth, you spot some usable items—pilfered coins, salvaged potions, and other treasures the kobolds have hoarded."
+        ],
+        "options": [
+          {
+            "id": "search",
+            "text": "[Search the kobold nest]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "trigger_loot_check", "value": "mine_kobold_supplies_loot"},
+              {"type": "set_flag", "flag": "searched_kobold_nest", "value": true}
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Don't touch the disgusting nest]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "searched_kobold_nest", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "mine_rubble": {
+    "npc_name": "Rubble Pile",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "Collapsed rock and debris fill this section of the passage. The cave-in must have happened recently—the dust hasn't settled yet.",
+          "",
+          "As you examine the rubble, you notice something glinting among the stones. Perhaps valuables were trapped when the ceiling collapsed?",
+          "",
+          "It would take some effort to dig through, and the ceiling still looks unstable..."
+        ],
+        "options": [
+          {
+            "id": "search",
+            "text": "[Risk searching the rubble]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "trigger_loot_check", "value": "mine_rubble_loot"},
+              {"type": "set_flag", "flag": "searched_mine_rubble", "value": true}
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Too dangerous—leave it]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "searched_mine_rubble", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

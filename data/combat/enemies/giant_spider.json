@@ -1,0 +1,75 @@
+{
+  "enemy_id": "giant_spider",
+  "name": "Giant Spider",
+  "description": "A massive spider with a hairy, segmented body and venomous fangs. Its web-covered lair suggests it has claimed this collapsed passage as its hunting ground.",
+  "stats": {
+    "hp": 22,
+    "max_hp": 22,
+    "ac": 14,
+    "strength": 14,
+    "dexterity": 16,
+    "constitution": 13,
+    "intelligence": 2,
+    "wisdom": 11,
+    "charisma": 4
+  },
+  "saving_throw_proficiencies": [],
+  "attacks": [
+    {
+      "name": "Venomous Bite",
+      "damage_dice": "1d8+2",
+      "attack_bonus": 5,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A poisonous bite that can cause ongoing damage"
+    },
+    {
+      "name": "Web Shot",
+      "damage_dice": "0",
+      "attack_bonus": 5,
+      "attack_type": "ranged",
+      "range": 6,
+      "description": "Spits webbing to immobilize a target (restrains, no immediate damage)"
+    }
+  ],
+  "movement": {
+    "speed": 6,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Web Walker",
+      "description": "Can move freely through webbed areas without penalty",
+      "effect_type": "passive"
+    },
+    {
+      "name": "Poison Fangs",
+      "description": "Bite attacks may inflict poison damage over time (1d4 poison for 2 rounds)",
+      "effect_type": "status_effect",
+      "trigger": "bite_hit",
+      "save_dc": 11
+    },
+    {
+      "name": "Spider Climb",
+      "description": "Can climb walls and ceilings",
+      "effect_type": "movement"
+    }
+  ],
+  "loot": {
+    "xp_value": 90,
+    "gold_range": [5, 15],
+    "item_drops": [
+      {"item_id": "spider_silk", "drop_chance": 0.9, "quantity_range": [2, 5]},
+      {"item_id": "venom_gland", "drop_chance": 0.7, "quantity_range": [1, 2]},
+      {"item_id": "spider_leg", "drop_chance": 0.6, "quantity_range": [1, 3]},
+      {"item_id": "healing_potion", "drop_chance": 0.4, "quantity_range": [1, 1]}
+    ]
+  },
+  "behavior": {
+    "aggression": "high",
+    "intelligence": "very_low",
+    "tactics": "ambush_predator",
+    "retreat_threshold": 5,
+    "notes": "Ambushes from webs. Uses web shot to immobilize targets, then closes for venomous bites. Will retreat to lair if badly wounded."
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "battlefield_id": "mine_tunnel",
+  "name": "Mine Tunnel",
+  "tileset": "underground_tunnel",
+  "description": "A narrow mine tunnel with rough stone walls, support pillars, and mining equipment scattered about.",
+  "dimensions": {
+    "width": 12,
+    "height": 8
+  },
+  "tile_size": 48,
+  "terrain": {
+    "default": "stone_floor",
+    "walls": [],
+    "obstacles": [
+      {"type": "pillar", "position": [3, 2], "blocks_movement": true, "blocks_sight": false, "cover_value": 3},
+      {"type": "pillar", "position": [3, 5], "blocks_movement": true, "blocks_sight": false, "cover_value": 3},
+      {"type": "mining_cart", "position": [5, 1], "blocks_movement": true, "blocks_sight": false, "cover_value": 2},
+      {"type": "mining_cart", "position": [5, 6], "blocks_movement": true, "blocks_sight": false, "cover_value": 2},
+      {"type": "rock_pile", "position": [8, 3], "blocks_movement": true, "blocks_sight": false, "cover_value": 2},
+      {"type": "rock_pile", "position": [8, 4], "blocks_movement": true, "blocks_sight": false, "cover_value": 2}
+    ],
+    "special_tiles": [
+      {"type": "glowing_ore", "position": [11, 1], "effect": "light_source"},
+      {"type": "glowing_ore", "position": [11, 6], "effect": "light_source"}
+    ]
+  },
+  "spawn_zones": {
+    "player_start": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "enemy_spawns": [
+      [9, 2], [9, 5], [10, 3], [10, 4]
+    ],
+    "exit_point": [0, 3]
+  },
+  "lighting": "dim",
+  "environmental_effects": [
+    {"type": "glowing_ore_veins", "effect": "atmosphere", "description": "Strange glowing ore pulses with otherworldly light"},
+    {"type": "dripping_water", "effect": "atmosphere", "description": "Water drips from the ceiling, echoing through the tunnels"}
+  ],
+  "background_music": "combat_tension",
+  "ambient_sound": "cave_ambiance"
+}
