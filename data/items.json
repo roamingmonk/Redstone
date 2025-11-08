@@ -865,6 +865,23 @@
       }
     },
     {
+      "id": "healing_scroll",
+      "name": "Healing Scroll",
+      "description": "A scroll inscribed with healing magic. Speak the words to mend wounds.",
+      "base_cost": 50,
+      "category": "consumables",
+      "icon_file": "healing_scroll.png",
+      "consumable": true,
+      "weight": 0.1,
+      "rarity": "uncommon",
+      "stackable": true,
+      "max_stack": 5,
+      "consumable_effects": {
+        "healing": "2d4+2",
+        "description": "Restores 2d4+2 hit points when used"
+      }
+    },
+    {
       "id": "pressed_flowers",
       "name": "Colorful pressed flowers",
       "description": "A sleeve of colorful pressed flowers from your childhood.",
@@ -1162,6 +1179,89 @@
       "weight": 2,
       "rarity": "common"
     },
+    {
+      "id": "spider_silk",
+      "name": "Spider Silk",
+      "description": "Fine, incredibly strong silk from a giant spider. Sought after by armorers and enchanters.",
+      "base_cost": 8,
+      "category": "items",
+      "icon_file": "spider_silk.png",
+      "consumable": false,
+      "weight": 0.1,
+      "rarity": "uncommon",
+      "stackable": true,
+      "max_stack": 20
+    },
+    {
+      "id": "venom_gland",
+      "name": "Venom Gland",
+      "description": "A potent poison sac from a spider. Alchemists can extract valuable toxins from it.",
+      "base_cost": 12,
+      "category": "items",
+      "icon_file": "venom_gland.png",
+      "consumable": false,
+      "weight": 0.2,
+      "rarity": "uncommon",
+      "stackable": true,
+      "max_stack": 10
+    },
+    {
+      "id": "spider_leg",
+      "name": "Spider Leg",
+      "description": "A chitinous spider leg. The barbed hairs and sharp tip make it useful for crafting.",
+      "base_cost": 5,
+      "category": "items",
+      "icon_file": "spider_leg.png",
+      "consumable": false,
+      "weight": 1,
+      "rarity": "common",
+      "stackable": true,
+      "max_stack": 15
+    },
+    {
+      "id": "twisted_staff",
+      "name": "Twisted Staff",
+      "description": "A gnarled wooden staff carved with dark runes. It hums with corrupted magic.",
+      "base_cost": 45,
+      "category": "weapons",
+      "icon_file": "twisted_staff.png",
+      "consumable": false,
+      "weight": 4,
+      "rarity": "rare",
+      "combat_stats": {
+        "damage_dice": "1d6+1",
+        "damage_type": "bludgeoning",
+        "attack_bonus": 1,
+        "range": "melee",
+        "weapon_properties": ["versatile", "magical"],
+        "abilities_used": ["strength", "intelligence"]
+      }
+    },
+    {
+      "id": "crude_armor_scraps",
+      "name": "Crude Armor Scraps",
+      "description": "Pieces of poorly-made leather and hide armor. A blacksmith could salvage the materials.",
+      "base_cost": 3,
+      "category": "items",
+      "icon_file": "armor_scraps.png",
+      "consumable": false,
+      "weight": 2,
+      "rarity": "common",
+      "stackable": true,
+      "max_stack": 10
+    },
+    {
+      "id": "kobold_spell_focus",
+      "name": "Kobold Spell Focus",
+      "description": "A crude bone talisman used by kobold shamans to channel their magic. Still radiates faint power.",
+      "base_cost": 20,
+      "category": "items",
+      "icon_file": "kobold_spell_focus.png",
+      "consumable": false,
+      "weight": 0.3,
+      "rarity": "uncommon"
+    },
+    
     {
       "id": "silver_coins",
       "name": "Silver Coins",

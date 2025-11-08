@@ -341,7 +341,11 @@ class RefugeeCampMainNav:
                           20, YELLOW, 880)
         
         # Draw dialog/interaction area at bottom
-        draw_border(surface, 5, LAYOUT_DIALOG_Y, 876, LAYOUT_DIALOG_HEIGHT)
+        #=== DIALOG ZONE (FULL SCREEN WIDTH) ===
+        dialog_y = LAYOUT_DIALOG_Y
+        dialog_height = LAYOUT_DIALOG_HEIGHT
+        dialog_margin = 0
+        draw_border(surface, dialog_margin, dialog_y, 1024 - (dialog_margin * 2), dialog_height) 
         
         # Draw interaction prompts
         transition = self.renderer.check_valid_entrance(player_x, player_y, 

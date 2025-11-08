@@ -241,25 +241,29 @@ class RedHollowMineLevel2BNav:
         title_text = "RED HOLLOW MINE - SPIDER LAIR"
         draw_centered_text(surface, title_text, fonts['fantasy_medium'], 20, RED, 880)
 
-        draw_border(surface, 5, LAYOUT_DIALOG_Y, 876, LAYOUT_DIALOG_HEIGHT)
+        #=== DIALOG ZONE (FULL SCREEN WIDTH) ===
+        dialog_y = LAYOUT_DIALOG_Y
+        dialog_height = LAYOUT_DIALOG_HEIGHT
+        dialog_margin = 0
+        draw_border(surface, dialog_margin, dialog_y, 1024 - (dialog_margin * 2), dialog_height) 
 
         transition = self.renderer.check_valid_entrance(player_x, player_y, self.renderer.player_direction)
         if transition and transition[0]:
             prompt = f"Press ENTER to {transition[0]['action']}"
-            draw_centered_text(surface, prompt, fonts['fantasy_small'], LAYOUT_DIALOG_Y + 15, YELLOW, 880)
+            draw_centered_text(surface, prompt, fonts['fantasy_small'], LAYOUT_DIALOG_Y + 15, YELLOW, 1024)
 
         searchable = self.renderer.check_searchable_object(player_x, player_y)
         if searchable:
             flag_set = searchable.get('flag_set')
             if flag_set and getattr(game_state, flag_set, False):
                 prompt = f"{searchable['name']} (already searched)"
-                draw_centered_text(surface, prompt, fonts['fantasy_small'], LAYOUT_DIALOG_Y + 15, WHITE, 880)
+                draw_centered_text(surface, prompt, fonts['fantasy_small'], LAYOUT_DIALOG_Y + 15, WHITE, 1024)
             else:
                 prompt = f"Press ENTER to examine {searchable['name']}"
-                draw_centered_text(surface, prompt, fonts['fantasy_small'], LAYOUT_DIALOG_Y + 15, YELLOW, 880)
+                draw_centered_text(surface, prompt, fonts['fantasy_small'], LAYOUT_DIALOG_Y + 15, YELLOW, 1024)
 
         if self.showing_message:
-            draw_centered_text(surface, self.message_text, fonts['fantasy_medium'], LAYOUT_DIALOG_Y + 50, WHITE, 880)
+            draw_centered_text(surface, self.message_text, fonts['fantasy_medium'], LAYOUT_DIALOG_Y + 50, WHITE, 1024)
 
 
 # ScreenManager registration function

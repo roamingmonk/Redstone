@@ -257,7 +257,12 @@ class SwampChurchInteriorNav:
                         20, YELLOW, 880)
         
         # Draw dialog/interaction area at bottom
-        draw_border(surface, 5, LAYOUT_DIALOG_Y, 876, LAYOUT_DIALOG_HEIGHT)
+        #=== DIALOG ZONE (FULL SCREEN WIDTH) ===
+        dialog_y = LAYOUT_DIALOG_Y
+        dialog_height = LAYOUT_DIALOG_HEIGHT
+        dialog_margin = 0
+        draw_border(surface, dialog_margin, dialog_y, 1024 - (dialog_margin * 2), dialog_height) 
+
         
         # Draw interaction prompts
         transition = self.renderer.check_valid_entrance(player_x, player_y, 
@@ -265,7 +270,7 @@ class SwampChurchInteriorNav:
         if transition and transition[0]:
             prompt = f"Press ENTER to {transition[0]['action']}"
             draw_centered_text(surface, prompt, fonts['fantasy_small'],
-                            LAYOUT_DIALOG_Y + 15, YELLOW, 880)
+                            LAYOUT_DIALOG_Y + 15, YELLOW, 1024)
         
         searchable = self.renderer.check_searchable_object(player_x, player_y)
         if searchable:
@@ -274,22 +279,22 @@ class SwampChurchInteriorNav:
             if flag_set and getattr(game_state, flag_set, False):
                 prompt = f"{searchable['name']} (already searched)"
                 draw_centered_text(surface, prompt, fonts['fantasy_small'],
-                                LAYOUT_DIALOG_Y + 15, WHITE, 880)
+                                LAYOUT_DIALOG_Y + 15, WHITE, 1024)
             else:
                 prompt = f"Press ENTER to examine {searchable['name']}"
                 draw_centered_text(surface, prompt, fonts['fantasy_small'],
-                                LAYOUT_DIALOG_Y + 15, YELLOW, 880)
+                                LAYOUT_DIALOG_Y + 15, YELLOW, 1024)
         
         # Show temp message if any
         if self.showing_message:
             draw_centered_text(surface, self.message_text, 
-                            fonts['fantasy_medium'], LAYOUT_DIALOG_Y + 50, WHITE, 880)
+                            fonts['fantasy_medium'], LAYOUT_DIALOG_Y + 50, WHITE, 1024)
         
         # Draw debug info (optional, can be toggled)
         if hasattr(game_state, 'show_debug') and game_state.show_debug:
             debug_text = f"Pos: ({player_x}, {player_y}) Facing: {self.renderer.player_direction}"
             draw_centered_text(surface, debug_text, fonts['fantasy_small'],
-                            40, WHITE, 880)
+                            40, WHITE, 1024)
 
 def draw_swamp_church_interior_nav(surface, game_state, fonts, images, controller=None):
     """ScreenManager integration function"""
