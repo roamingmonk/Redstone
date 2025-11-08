@@ -20,7 +20,7 @@
             "effects": [
               {
                 "type": "set_flag",
-                "flag": "searched_swamp_graves",
+                "flag": "examined_swamp_symbols",
                 "value": true
               }
             ]

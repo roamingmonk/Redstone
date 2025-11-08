@@ -87,8 +87,14 @@ class RedHollowMineLevel3Nav:
             game_state.mine_l3_y = new_y
             self.renderer.update_camera(new_x, new_y)
 
-        # Check for ENTER key interactions
-        if keys[pygame.K_RETURN] and not self.showing_message:
+        # Update transition cooldown
+        self.renderer.update_transition_cooldown(dt)
+
+        # Check for ENTER key interactions (debounced, with cooldown)
+        if (self.renderer.check_enter_just_pressed(keys) and 
+            not self.showing_message and 
+            self.renderer.can_interact()):
+            
             player_x = game_state.mine_l3_x
             player_y = game_state.mine_l3_y
 
@@ -135,6 +141,7 @@ class RedHollowMineLevel3Nav:
                         game_state.mine_l2_spawn_override_x = spawn_point[0]
                         game_state.mine_l2_spawn_override_y = spawn_point[1]
                     
+                    self.renderer.start_transition_cooldown()
                     controller.event_manager.emit("SCREEN_CHANGE", {
                         'target_screen': target,
                         'source_screen': 'red_hollow_mine_level_3_nav'

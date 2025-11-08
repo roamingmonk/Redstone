@@ -75,6 +75,11 @@ class NavigationRenderer:
         self.last_move_time = 0
         self.keys_pressed_last_frame = set()
         self.player_direction = 'down'
+
+        # Enter key debouncing
+        self.enter_pressed_last_frame = False
+        self.transition_cooldown = 0
+        self.transition_cooldown_duration = 300  # 300ms cooldown after transitions
         
         # Graphics manager
         self.graphics_manager = get_tile_graphics_manager()
@@ -175,6 +180,39 @@ class NavigationRenderer:
         if moved_or_turned:
             return new_x, new_y
         return player_x, player_y
+    
+    def check_enter_just_pressed(self, keys):
+        """
+        Check if ENTER was just pressed (not held from previous frame)
+        
+        Returns:
+            bool: True if ENTER just pressed, False if held or not pressed
+        """
+        enter_currently_pressed = keys[pygame.K_RETURN]
+        just_pressed = enter_currently_pressed and not self.enter_pressed_last_frame
+        
+        # Update state for next frame
+        self.enter_pressed_last_frame = enter_currently_pressed
+        
+        return just_pressed
+
+    def update_transition_cooldown(self, dt):
+        """
+        Update transition cooldown timer
+        
+        Args:
+            dt: Delta time in milliseconds
+        """
+        if self.transition_cooldown > 0:
+            self.transition_cooldown -= dt
+
+    def start_transition_cooldown(self):
+        """Start cooldown timer to prevent rapid re-triggering"""
+        self.transition_cooldown = self.transition_cooldown_duration
+
+    def can_interact(self):
+        """Check if player can interact (not in cooldown)"""
+        return self.transition_cooldown <= 0
     
     def draw_map(self, surface, fonts, player_x, player_y, main_surface=None):
         """Draw the map tiles"""

@@ -126,8 +126,13 @@ class RefugeeCampMainNav:
             game_state.refugee_camp_y = new_y
             self.renderer.update_camera(new_x, new_y)
         
-        # Check for ENTER key interactions (higher priority when standing still)
-        if keys[pygame.K_RETURN] and not self.showing_message:
+        # Update transition cooldown
+        self.renderer.update_transition_cooldown(dt)
+
+        # Check for ENTER key interactions (debounced, with cooldown)
+        if (self.renderer.check_enter_just_pressed(keys) and 
+            not self.showing_message and 
+            self.renderer.can_interact()):
             player_x = game_state.refugee_camp_x
             player_y = game_state.refugee_camp_y
             
@@ -185,6 +190,7 @@ class RefugeeCampMainNav:
                 if can_transition:
                     if controller:
                         target = transition_data['target_screen']
+                        self.renderer.start_transition_cooldown()
                         controller.event_manager.emit("SCREEN_CHANGE", {
                             'target_screen': target,
                             'source_screen': 'refugee_camp_main_nav'
@@ -353,7 +359,7 @@ class RefugeeCampMainNav:
         if transition and transition[0]:
             prompt = f"Press ENTER to {transition[0]['action']}"
             draw_centered_text(surface, prompt, fonts['fantasy_small'],
-                             LAYOUT_DIALOG_Y + 15, YELLOW, 880)
+                             LAYOUT_DIALOG_Y + 15, YELLOW, 1024)
         
         searchable = self.renderer.check_searchable_object(player_x, player_y)
         if searchable:
@@ -362,22 +368,22 @@ class RefugeeCampMainNav:
             if flag_set and getattr(game_state, flag_set, False):
                 prompt = f"{searchable['name']} (already searched)"
                 draw_centered_text(surface, prompt, fonts['fantasy_small'],
-                                 LAYOUT_DIALOG_Y + 15, WHITE, 880)
+                                 LAYOUT_DIALOG_Y + 15, WHITE, 1024)
             else:
                 prompt = f"Press ENTER to examine {searchable['name']}"
                 draw_centered_text(surface, prompt, fonts['fantasy_small'],
-                                 LAYOUT_DIALOG_Y + 15, YELLOW, 880)
+                                 LAYOUT_DIALOG_Y + 15, YELLOW, 1024)
         
         # Show temp message if any
         if self.showing_message:
             draw_centered_text(surface, self.message_text, 
-                             fonts['fantasy_medium'], LAYOUT_DIALOG_Y + 50, WHITE, 880)
+                             fonts['fantasy_medium'], LAYOUT_DIALOG_Y + 50, WHITE, 1024)
         
         # Draw debug info (optional, can be toggled)
         if hasattr(game_state, 'show_debug') and game_state.show_debug:
             debug_text = f"Pos: ({player_x}, {player_y}) Facing: {self.renderer.player_direction}"
             draw_centered_text(surface, debug_text, fonts['fantasy_small'],
-                             40, WHITE, 880)
+                             40, WHITE, 1024)
 
 
 # ScreenManager registration function
