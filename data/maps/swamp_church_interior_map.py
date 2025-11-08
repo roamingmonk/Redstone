@@ -14,7 +14,7 @@ from utils.constants import (
 SWAMP_CHURCH_INT_WIDTH = 20
 SWAMP_CHURCH_INT_HEIGHT = 20
 SWAMP_CHURCH_INT_SPAWN_X = 10
-SWAMP_CHURCH_INT_SPAWN_Y = 18  # Enter from bottom (from exterior)
+SWAMP_CHURCH_INT_SPAWN_Y = 1  # Enter from top
 
 # Tile type definitions
 TILE_TYPES = {

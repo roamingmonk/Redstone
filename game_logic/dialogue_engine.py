@@ -119,7 +119,7 @@ class DialogueEngine:
         for flag_name in narrative_schema.get_all_flags():
             context[flag_name] = getattr(self.game_state, flag_name, False)
         
-        print(f"🔑 Context flags for {npc_id}: refugee_camp_defended={context.get('refugee_camp_defended', 'MISSING')}, refugee_leader_talked={context.get('refugee_leader_talked', 'MISSING')}, refugee_combat_rewarded={context.get('refugee_combat_rewarded', 'MISSING')}")
+        #print(f"🔑 Context flags for {npc_id}: refugee_camp_defended={context.get('refugee_camp_defended', 'MISSING')}, refugee_leader_talked={context.get('refugee_leader_talked', 'MISSING')}, refugee_combat_rewarded={context.get('refugee_combat_rewarded', 'MISSING')}")
 
         if hasattr(self.game_state, 'character'):
             for key, value in self.game_state.character.items():
@@ -141,13 +141,13 @@ class DialogueEngine:
             #print(f"DEBUG: Dialogue in progress for {npc_id}, overriding {talked_flag} to False")
         
         # Evaluate each state condition
-        print(f"🔍 DE: Evaluating {len(npc_states)} states for npc_id='{npc_id}'")
-        print("DE: STATE-EVAL ORDER:", list(npc_states.keys()))
+        #print(f"🔍 DE: Evaluating {len(npc_states)} states for npc_id='{npc_id}'")
+        #print("DE: STATE-EVAL ORDER:", list(npc_states.keys()))
         for state_name, condition in npc_states.items():
             result = self._evaluate_condition(condition, context)
-            print(f"  📊 {state_name}: '{condition}' = {result}")
+            #print(f"  📊 {state_name}: '{condition}' = {result}")
             if self._evaluate_condition(condition, context):
-                print(f"✅ DE: MATCH -> {state_name}")
+                #print(f"✅ DE: MATCH -> {state_name}")
                 return state_name
         
         print("❌ DE: No match found, defaulting to first_meeting")
@@ -360,7 +360,7 @@ class DialogueEngine:
                 # NARRATIVE SCHEMA INTEGRATION - Set conversation flag AFTER state determination
                 conv_flag = narrative_schema.get_npc_conversation_flag(npc_id)
                 setattr(self.game_state, conv_flag, True)
-                print(f"✅ Set conversation flag: {conv_flag} = True")
+                #print(f"✅ Set conversation flag: {conv_flag} = True")
 
                 # Track NPC encounter for statistics
                 if npc_id not in self.game_state.npcs_encountered:
@@ -672,17 +672,20 @@ class DialogueEngine:
             
             #print(f"DEBUG: DE: Selected choice = {selected_choice}")
 
-            # Process the choice effects
-            #effects = []
-            #for effect in selected_choice.get('effects', []):
-            #    effect_result = self._apply_dialogue_effect(effect)
-            #    if effect_result:
-            #        effects.append(effect_result)
-
             # Process effects immediately when choice is selected
             effects_processed = []
             for effect in selected_choice.get('effects', []):
                 effect_result = self._apply_dialogue_effect(effect, npc_id)
+                
+                # If remove_item fails, stop processing remaining effects
+                if effect.get('type') == 'remove_item' and effect_result is None:
+                    print(f"❌ CRITICAL: remove_item failed, aborting remaining effects")
+                    return {
+                        'response': ["You don't have the required items."],
+                        'effects': effects_processed,
+                        'effect_failed': True
+                    }
+                
                 if effect_result:
                     effects_processed.append(effect_result)
 
@@ -980,18 +983,65 @@ class DialogueEngine:
         return None
 
     def _check_option_requirements(self, option: Dict[str, Any]) -> bool:
-            """Check if dialogue option requirements are met"""
-            requirements = option.get('requirements', {})
+        """Check if dialogue option requirements are met"""
+        requirements = option.get('requirements', {})
+        
+        # Check flag requirements
+        flag_requirements = requirements.get('flags', {})
+        for flag_name, required_value in flag_requirements.items():
+            current_value = getattr(self.game_state, flag_name, False)
+            if current_value != required_value:
+                return False
+        
+        # Check single flag requirement (e.g., "flag": "some_flag_name")
+        if 'flag' in requirements:
+            flag_name = requirements['flag']
+            if not getattr(self.game_state, flag_name, False):
+                return False
+        
+        # Check not_flag requirement (e.g., "not_flag": "some_flag_name")
+        if 'not_flag' in requirements:
+            flag_name = requirements['not_flag']
+            if getattr(self.game_state, flag_name, False):
+                return False
+        
+        # Check any_flag requirement (list of flags, at least one must be true)
+        if 'any_flag' in requirements:
+            flag_list = requirements['any_flag']
+            if not any(getattr(self.game_state, flag, False) for flag in flag_list):
+                return False
+        
+        # Check item requirement (e.g., "item": "glowcap_mushrooms")
+        if 'item' in requirements:
+            item_id = requirements['item']
             
-            # Check flag requirements
-            flag_requirements = requirements.get('flags', {})
-            for flag_name, required_value in flag_requirements.items():
-                current_value = getattr(self.game_state, flag_name, False)
-                if current_value != required_value:
+            # Get inventory engine reference
+            try:
+                from game_logic.inventory_engine import get_inventory_engine
+                inv_engine = get_inventory_engine()
+                
+                if not inv_engine:
+                    print(f"⚠️ WARNING: InventoryEngine not available for item requirement check")
                     return False
-            
-            # Add other requirement types here as needed
-            return True
+                
+                # Get item data to convert ID to name
+                item_data = self.item_manager.get_item_by_id(item_id)
+                if not item_data:
+                    print(f"⚠️ WARNING: Unknown item '{item_id}' in requirements")
+                    return False
+                
+                item_name = item_data.get('name', item_id)
+                quantity = requirements.get('quantity', 1)
+                
+                # Check if player has the required quantity
+                if not inv_engine.has_item(item_name, quantity):
+                    return False
+                    
+            except Exception as e:
+                print(f"❌ ERROR checking item requirement: {e}")
+                return False
+        
+        return True
 
     def _emit_quest_event(self, event: Dict[str, Any]):
         """Emit quest event for future QuestEngine to handle"""

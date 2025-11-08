@@ -873,7 +873,7 @@
       "icon_file": "healing_scroll.png",
       "consumable": true,
       "weight": 0.1,
-      "rarity": "uncommon",
+      "rarity": "rare",
       "stackable": true,
       "max_stack": 5,
       "consumable_effects": {

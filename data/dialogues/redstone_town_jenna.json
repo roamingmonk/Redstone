@@ -26,7 +26,7 @@
         },
         {
           "id": "rest_discount",
-          "text": "10 gold seems steep for such a small inn. Can we work something out?",
+          "text": "10 gold seems steep. Can we work something out?",
           "requirements": {
             "min_charisma": 14,
             "gold": 5

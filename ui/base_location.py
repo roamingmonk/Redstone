@@ -251,6 +251,7 @@ class ActionHubLocation(BaseLocation):
         if not requirements:
             return True
         
+        # Check OLD FORMAT: "requirements": {"flags": {"flag_name": true/false}}
         flags = requirements.get('flags', {})
         if flags:
             for flag_name, required_value in flags.items():
@@ -259,8 +260,10 @@ class ActionHubLocation(BaseLocation):
                 
                 if isinstance(required_value, bool):
                     if current_value != required_value:
-                        print(f"❌ Flag requirement failed: {flag_name}")
+                        print(f"❌ Flag requirement FAILED: {flag_name} (current={current_value}, required={required_value})")
                         return False
+                    else:
+                        print(f"✅ Flag requirement MET: {flag_name}")
         
         print(f"✅ All requirements satisfied")
         return True
@@ -389,48 +392,41 @@ class ActionHubLocation(BaseLocation):
         button_y = LAYOUT_BUTTON_Y
         actions = area_data.get('actions', {})
 
-        # Filter actions based on requirements
+        # Filter actions based on requirements (check BOTH formats here)
         available_actions = {}
         for action_name, action_data in actions.items():
+            # Check OLD FORMAT: "requirements": {"flags": {...}}
             requirements = action_data.get('requirements')
-            if self.evaluate_requirements(requirements, game_state):
-                available_actions[action_name] = action_data
-
+            if not self.evaluate_requirements(requirements, game_state):
+                print(f"❌ Action '{action_name}' FAILED OLD FORMAT requirements check")
+                continue
+            
+            # Check NEW FORMAT: "requires_flag": "flag_name"
+            requires_flag = action_data.get('requires_flag')
+            if requires_flag and game_state:
+                flag_value = getattr(game_state, requires_flag, False)
+                if not flag_value:
+                    print(f"❌ Action '{action_name}' FAILED NEW FORMAT requirement: {requires_flag}={flag_value}")
+                    continue
+                print(f"✅ Action '{action_name}' passed NEW FORMAT requirement: {requires_flag}={flag_value}")
+            
+            # Both formats passed
+            available_actions[action_name] = action_data
+            print(f"✅ Action '{action_name}' available")
 
         if available_actions:             
             # Calculate flexible button widths based on text content
-            button_height = BUTTON_SIZES['medium'][1]  # 50px standard height
+            button_height = BUTTON_SIZES['medium'][1]
             button_font = fonts.get('fantasy_small', fonts['normal'])
             button_spacing = 20
 
-            # Calculate individual button widths
+            # Calculate individual button widths - NO MORE DUPLICATE CHECKING
             button_configs = []
             total_text_width = 0
-            for action_name, action_data in available_actions.items():  # ✅ Use filtered dict
-                # NEW FORMAT: "requires_flag": "flag_name"
-                requires_flag = action_data.get('requires_flag')
-                if requires_flag and game_state:
-                    flag_value = getattr(game_state, requires_flag, False)
-                    if not flag_value:
-                        continue
-                
-                # OLD FORMAT: "requirements": {"flags": {"flag_name": true/false}}
-                requirements = action_data.get('requirements', {})
-                required_flags = requirements.get('flags', {})
-                if required_flags and game_state:
-                    # Check all required flags
-                    all_met = True
-                    for flag_name, expected_value in required_flags.items():
-                        actual_value = getattr(game_state, flag_name, False)
-                        if actual_value != expected_value:
-                            all_met = False
-                            break
-                    if not all_met:
-                        continue
-                
+            for action_name, action_data in available_actions.items():
                 label = action_data.get('label', action_name.replace('_', ' ').title())
                 text_width = button_font.size(label)[0]
-                button_width = max(text_width + 40, 80)  # 40px padding, 80px minimum
+                button_width = max(text_width + 40, 80)
                 button_configs.append({
                     'action_name': action_name,
                     'label': label,

@@ -9,6 +9,21 @@
       "enemy_id": "bandit_common",
       "position": [8, 2],
       "facing": "west"
+    },
+    {
+      "enemy_id": "bandit_common",
+      "position": [8, 5],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "bandit_common",
+      "position": [7, 3],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "bandit_leader",
+      "position": [9, 4],
+      "facing": "west"
     }
   
   ],

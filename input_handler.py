@@ -845,7 +845,7 @@ class InputHandler:
             if not is_dialogue_screen:
                 return False
 
-            print(f"DEBUG: Dialogue keyboard check - screen: {current_screen}, key: {pygame.key.name(key)}")
+            #print(f"DEBUG: Dialogue keyboard check - screen: {current_screen}, key: {pygame.key.name(key)}")
             if self.debug_input:
                 print(f"⌨️ Dialogue screen detected: {current_screen}")
 

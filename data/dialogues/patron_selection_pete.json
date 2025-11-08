@@ -58,9 +58,9 @@
 
     "comedy_sequence": {
       "introduction": [
-        "*Pete leaps onto a stool, strikes a heroic pose, wobbles", "and salutes with an empty hand.*",
+        "*Pete leaps onto a stool, strikes a heroic pose, wobbles and salutes with an empty hand.*",
         "\"Fear not! Pete Stumblefoot rides!\"",
-        "*He tries to draw a sword that does not exist, spins,", "and almost wins a fight with gravity.*",
+        "*He tries to draw a sword that does not exist, spins, and almost wins a fight with gravity.*",
         "..... Ahem. Maybe I am better as your tavern scout."
       ],
       "options": [
@@ -94,9 +94,8 @@
 
     "refugee_hint": {
       "introduction": [
-        "Refugee camp's south by the road. ", "Lots of nightmares, lots of whispers.",
-        "One fella swore he saw figures...", 
-        "in the night fog. Might be nothing. Might be trouble."
+        "Refugee camp's south by the road. Lots of nightmares, lots of whispers.",
+        "One fella swore he saw figures in the night fog. Might be nothing. Might be trouble."
       ],
       "options": [
         { "id": "hint_back", "text": "Noted.", "next_state": "post_comedy" },
@@ -125,9 +124,9 @@
 
     "tavern_banter": {
       "introduction": [
-        "Oh, vigilant as always! ", "Spotted three suspicious ale thieves today.",
-        "Turned out to be paying customers,", "but you can never be too careful.",
-        "This stool gives me an excellent view of...", "well, mostly beer mugs."
+        "Oh, vigilant as always! Spotted three suspicious ale thieves today.",
+        "Turned out to be paying customers, but you can never be too careful.",
+        "This stool gives me an excellent view of.. well, mostly beer mugs."
       ],
       "options": [
         { 

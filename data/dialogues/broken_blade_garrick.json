@@ -122,11 +122,9 @@
     
     "knows_about_ruins": {
       "introduction": [
-        "You heard about those ruins, eh?",
-        "Dangerous place. People go missing up there.",
+        "You heard about those ruins, eh? Dangerous place, people go missing up there.",
         "*He lowers his voice*",
-        "And with these tremors getting worse...",
-        "Something's stirring that should have stayed buried."],
+        "And with these tremors getting worse, something's stirring that should have stayed buried."],
       "options": [
         {
           "id": "ask_mayor_about_missing",
@@ -157,7 +155,10 @@
     },
     
     "gave_mayor_directions": {
-      "introduction": ["Talk to the Mayor about the disappearances.", "His office is across the square -", "Big building with the town banner.", "Tell him I sent you if you need an introduction."],
+      "introduction": ["Talk to the Mayor about the disappearances.", 
+                        "He may be here in the tavern getting a drink.  If not, check his office south of the square in town.", 
+                        "He is ian a building with the town banner.", 
+                        "Tell him I sent you if you need an introduction."],
       "options": [
         {
           "id": "thank_directions",
@@ -178,7 +179,7 @@
     },
 
     "post_mayor_no_basement": {
-      "introduction": ["Heard you spoke with the Mayor.", "About time someone looked into those disappearances."],
+      "introduction": ["Heard you spoke with the Mayor. About time someone looked into those disappearances."],
       "options": [
         {
           "id": "need_practice",
@@ -218,7 +219,9 @@
     },
     
     "post_mayor_basement_offered": {
-      "introduction": ["Got a rat problem in the basement if you want practice.", "Big rats. Clear them out for some coin?"],
+      "introduction": ["Hey Adventurer... I've got a nasty rat problem in the basement if you want some COMBAT practice.", 
+                      "These are pretty big rats, so be prepared. Clear them out and I will give you some coin.",
+                      "What do you say?"],
       "options": [
         {
           "id": "accept_basement",
@@ -241,7 +244,9 @@
     },
     
     "post_mayor_basement_accepted": {
-      "introduction": ["Thanks for helping! The basement is behind the bar.", "Watch yourself down there - they're meaner than normal rats.", "Come back when you're done and I'll settle up."],
+      "introduction": ["Thanks for helping! The basement is behind the bar.", 
+                      "Watch yourself down there - they're meaner than normal rats.", 
+                      "Come back when you're done and I'll settle up."],
       "options": [
         {
           "id": "head_down_now",
@@ -312,7 +317,8 @@
     },
     
     "ruins_details": {
-      "introduction": ["The ruins are old - older than the town.", "Strange carvings on the stones,","symbols nobody can read.", "The few who came back... ", "they won't talk about what they saw."],
+      "introduction": ["The ruins are old - older than the town. People found strange carvings on the stones, symbols nobody can read.", 
+                      "The few souls who came back, well... they won't talk about what they saw."],
       "options": [
         {
           "id": "ask_about_survivors",
@@ -333,7 +339,9 @@
     },
     
     "survivor_info": {
-      "introduction": ["Old Henrik made it back, but he's... different now.", "Sits in the corner most days,","staring at nothing.", "Won't say a word about what he saw up there."],
+      "introduction": ["Old Henrik made it back, but he's... different now.", 
+                    "Sits around most days, talking to his vegtebles or staring into nothing.", 
+                    "Won't say a word about what he saw up there.  Sad to see a man change like that."],
       "options": [
         {
           "id": "where_is_henrik",
@@ -355,12 +363,10 @@
     
     "henrik_location": {
       "introduction": [
-        "Henrik's usually in the town square these days.",
-        "Sells vegetables from a cart.",
-        "Used to be the best miner in Redstone.",
+        "Henrik is usually in the town square these days selling (and talking to) his vegetables from a market cart.",
+        "Used to be the best miner in Redstone, just sad.",
         "*He shakes his head*",
-        "But he won't talk about the ruins.",
-        "Something happened to him up there."],
+        "You can try to talk to him about the ruins, but something he just wont say.  Something happened to him up there."],
       "options": [
         {
           "id": "ill_try",
@@ -390,7 +396,8 @@
     },
 
     "other_survivors": {
-      "introduction": ["A few others made it back over the years.", "Most won't talk about it.", "Those that do... well,", "their stories don't match."],
+      "introduction": ["A few others made it back over the years. Most won't talk about it.", 
+                    "Those that do... well, their stories area just plain crazy and don't match up."],
       "options": [
         {
           "id": "conflicting_stories",
@@ -406,7 +413,8 @@
     },
 
     "conflicting_accounts": {
-      "introduction": ["Some say they saw lights in the darkness.", "Others swear the stones moved on their own.", "One fellow claimed he heard voices", "... calling his name."],
+      "introduction": ["Some say they saw lights in the darkness. Others swear the stones moved on their own.", 
+                      "One fellow claimed he heard voices... calling his name."],
       "options": [
         {
           "id": "voices_detail",
@@ -427,7 +435,9 @@
     },
 
     "voice_mystery": {
-      "introduction": ["Poor Aldric.", "Swore something was calling to him from deep below.", "Said it knew things about him no one else could know.", "Haven't seen him since he tried to go back."],
+      "introduction": ["Poor Aldric. Swore something was calling to him from deep below.", 
+                  "Said it knew things about him no one else could know.", 
+                  "Haven't seen him since he tried to go back."],
       "options": [
         {
           "id": "went_back",
@@ -443,7 +453,9 @@
     },
 
     "aldric_fate": {
-      "introduction": ["Three months ago. ", "Said he had to know what was calling him.", "We organized a search party after a week.", "Found his torch at the entrance.", "Nothing else."],
+      "introduction": ["Three months ago.  Said he had to know what was calling him.", 
+                  "We organized a search party after a week. Found his torch at the entrance.", 
+                  "Nothing else."],
       "options": [
         {
           "id": "recent_disappearance",
@@ -459,23 +471,29 @@
     },
 
     "ongoing_danger": {
-      "introduction": ["Aye. Mayor's been trying to organize something.", "But most folk are too scared.", "Can't say I blame them."],
+      "introduction": ["Aye. Mayor's been trying to organize something.", 
+                      "He has tried to get someone from the Crimson Reach council to listen and send some soliders, but they are too busy on the eastern border.  Damn war.",
+                      "Everyone here..., well most folk are too scared.", "Can't say I blame them, we are just miners not some set of crazy adventurers.",
+                      "Uh, no offense."],
       "options": [
         {
           "id": "mayor_plans",
-          "text": "What kind of organization?",
+          "text": "No offense taken. What is the Mayor trying to pull together?",
           "next_state": "mayor_efforts"
         },
         {
           "id": "understand_fear",
-          "text": "I understand their fear.",
+          "text": "No offense taken. Their fear is understandable.",
           "next_state": "exit"
         }
       ]
     },
 
     "mayor_efforts": {
-      "introduction": ["Talk to him yourself. ", "He's got ideas about hiring proper adventurers.", "Folk with experience dealing with", "... unusual problems.", "That's all I know."],
+      "introduction": ["Talk to him yourself. ", 
+                    "He's got some silly ideas about hiring some proper adventurers.", 
+                    "Folk with, you know, experience dealing with these sort of ... unusual problems.", 
+                    "That's all I know."],
       "options": [
         {
           "id": "thank_info",
@@ -486,7 +504,9 @@
     },
     
     "symbol_description": {
-      "introduction": ["Spirals and sharp angles, ", "carved deep into the stone.", "Some say they're just old tribal markings.", "Others think they're something... else."],
+      "introduction": ["Spirals and sharp angles, carved deep into the stone.", 
+                    "Some say they're just old tribal markings.", 
+                    "Others think they're something... else."],
       "options": [
         {
           "id": "what_else",
@@ -502,7 +522,9 @@
     },
     
     "symbol_theories": {
-      "introduction": ["Some of the older folk whisper about dark magic.", "Others say they're warnings,", "left by whoever built the place.", "All I know is they give me the shivers."],
+      "introduction": ["Some of the older folk whisper about dark magic.", "Others say they're warnings, left by whoever built the place from anceint times.", 
+                    "Some crazy people even thing the Cavia were created by this odd magic.  Now that is plain lunacy. All I know is this talk gives me the shivers."                
+                    ],
       "options": [
         {
           "id": "dark_magic",
@@ -523,7 +545,9 @@
     },
 
     "magic_opinion": {
-      "introduction": ["I've seen enough strange things in my years.", "Magic's real, whether folk want to believe it or not.", "The question is what kind of magic", "made those symbols."],
+      "introduction": ["I've seen enough strange things in my years.", 
+                    "I do thing magic's real, whether folk want to believe it or not.", 
+                    "The question is what kind of magic made those symbols."],
       "options": [
         {
           "id": "what_kind",
@@ -539,7 +563,9 @@
     },
 
     "dark_magic_theory": {
-      "introduction": ["The kind that hungers. ", "That calls to people.", "The kind that doesn't let go once it has hold of you.", "Stay away from those ruins,", "if you're smart."],
+      "introduction": ["The kind that hungers. That calls to people.", 
+                    "The kind that doesn't let go once it has hold of you.", 
+                    "Unless you are a special kind of stupid, stay away from those ruins."],
       "options": [
         {
           "id": "final_warning",
@@ -550,7 +576,8 @@
     },
 
     "warning_speculation": {
-      "introduction": ["Warnings to stay away, maybe.", "Or warnings about what's buried there.", "Either way, they didn't work - people keep going."],
+      "introduction": ["Warnings to stay away, maybe. Or warnings about what's buried there.", 
+                    "Either way, they didn't work - people's curiosity keeps driving them to go."],
       "options": [
         {
           "id": "what_buried",

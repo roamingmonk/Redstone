@@ -151,6 +151,11 @@
       ],
       "options": [
         {
+          "id": "ask_who",
+          "text": "Who was this person? If you don't mind me asking.",
+          "next_state": "marcus_introduction"
+        },
+        {
           "id": "sorry_to_hear",
           "text": "I'm sorry. That must have been difficult.",
           "next_state": "appreciates_sympathy"
@@ -428,6 +433,12 @@
           "text": "I need more supplies.",
           "effects": [{"type": "open_shop", "merchant_id": "cassia"}],
           "next_state": "post_shopping"
+        },
+        {
+          "id": "ask_if_ok",
+          "text": "Is everything alright? You seem stressed.",
+          "requirements": {"not_flag": "cassia_told_marcus_story"},
+          "next_state": "precision_matters"
         },
         {
           "id": "offer_recipe_quest",
