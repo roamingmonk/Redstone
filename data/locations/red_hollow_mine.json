@@ -31,6 +31,18 @@
             "quantity": 1,
             "chance": 1.0,
             "message": "You carefully collect a sample of the glowing ore."
+          },
+          {
+            "item_id": "iron_ore",
+            "quantity": 3,
+            "chance": 0.5
+            
+          },
+          {
+            "item_id": "coal_ore",
+            "quantity": 4,
+            "chance": 0.75
+            
           }
         ],
         "sets_flag": "retrieved_ore_samples"
@@ -60,12 +72,24 @@
           {
             "item_id": "healing_potion",
             "quantity": 1,
-            "chance": 0.6
+            "chance": 0.4
           },
           {
             "item_id": "silver_coins",
             "quantity": 15,
-            "chance": 0.8
+            "chance": 0.65
+          },
+          {
+            "item_id": "iron_ore",
+            "quantity": 3,
+            "chance": 0.65
+            
+          },
+          {
+            "item_id": "coal_ore",
+            "quantity": 4,
+            "chance": 0.75
+            
           }
         ],
         "sets_flag": "found_merediths_ring"
@@ -86,6 +110,12 @@
             "item_id": "rare_gem",
             "quantity": 1,
             "chance": 0.4
+          },
+          {
+            "item_id": "coal_ore",
+            "quantity": 4,
+            "chance": 0.75
+            
           }
         ]
       },
@@ -96,6 +126,18 @@
             "quantity": 2,
             "chance": 1.0,
             "message": "You collect more samples of the strange, glowing ore."
+          },
+          {
+            "item_id": "iron_ore",
+            "quantity": 3,
+            "chance": 0.65
+            
+          },
+          {
+            "item_id": "coal_ore",
+            "quantity": 4,
+            "chance": 0.75
+            
           }
         ],
         "sets_flag": "retrieved_ore_samples"
