@@ -49,7 +49,7 @@
     "gold_range": [50, 100],
     "items": ["chainmail", "greatsword"],
     "item_drops": [
-      {"item_id": "hill_ruins_dungeon_key", "drop_chance": 1.0, "quantity_range": [1, 1]},
+      
       {"item_id": "stolen_coin_purse", "drop_chance": 1.0, "quantity_range": [1, 1]},
       {"item_id": "healing_potion", "drop_chance": 0.7, "quantity_range": [1, 2]},
       {"item_id": "chainmail", "drop_chance": 0.3, "quantity_range": [1, 1]}

@@ -198,17 +198,23 @@
     "mayor": {
       "system_id": "mayor",
       "full_name": "Mayor Aldwin Goldenbottom",
-      "dialogue_file": "broken_blade_mayor",
+      "dialogue_file": "patron_selection_mayor",
+      "act_two_dialogue_file": "redstone_town_mayor",
       "conversation_flag": "mayor_talked",
       "location": "broken_blade",
+      "act_two_location": "redstone_town",
       "role": "authority",
-      "species": "human", 
+      "species": "human",
       "story_flags": {
         "gave_main_quest": "quest_active",
         "mentioned_family": "mayor_mentioned_family",
         "gave_swamp_location": "mayor_gave_swamp_info",
         "gave_ruins_location": "mayor_gave_ruins_info",
         "gave_refugee_location": "mayor_gave_refugee_info",
+        "acknowledged_swamp": "mayor_acknowledged_swamp_complete",
+        "acknowledged_ruins": "mayor_acknowledged_ruins_complete",
+        "acknowledged_refugee": "mayor_acknowledged_refugee_complete",
+        "acknowledged_mine": "mayor_acknowledged_mine_complete",
         "main_quest_completed": "main_quest_completed",
         "main_quest_reported": "reported_main_quest",
         "main_quest_paid": "mayor_paid_main_quest",
@@ -392,7 +398,7 @@
 
   "locations": {
     "swamp_church": {
-      "display_name": "Swamp Church",
+      "display_name": "The Church in the Swamp",
       "system_id": "swamp_church",
       "discovery_flag": "learned_about_swamp_church",
       "completion_flag": "swamp_church_complete", 

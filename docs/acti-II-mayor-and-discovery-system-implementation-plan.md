@@ -1,10 +1,22 @@
 # Act II Mayor & Discovery System Implementation Plan
 ## Terror in Redstone - Comprehensive Developer Guide
 
-**Document Version:** 1.0  
+**Document Version:** 1.1 (CORRECTED)  
 **Date:** November 9, 2025  
 **Status:** Ready for Implementation  
-**Estimated Time:** 5 sessions (8-10 hours total)
+**Estimated Time:** 5-6 sessions (5-7 hours total)
+
+**IMPORTANT:** This plan has been updated based on actual save file analysis. Most infrastructure already exists - we're connecting existing pieces, not building from scratch!
+
+**KEY FINDINGS FROM SAVE FILE ANALYSIS:**
+- ✅ Discovery system already working (`learned_about_*` flags)
+- ✅ Mayor acknowledgment flags already defined
+- ✅ NPC info flags (Meredith, Garrick, Pete) already functional
+- ✅ Completion flags partially exist (`swamp_church_complete`, `red_hollow_mine_complete`)
+- ⚠️ Need to add: `act_two_started` flag
+- ⚠️ Need to verify: `hill_ruins_complete`, `refugee_camp_complete`
+
+See companion document: `Flag_Analysis_and_Path_Forward.md`
 
 ---
 
@@ -59,36 +71,48 @@ This document outlines the complete implementation plan for transitioning the ga
 
 ## 🗂️ NARRATIVE FLAGS REFERENCE
 
+**NOTE:** These flags are based on actual save file analysis. The discovery pattern uses `learned_about_*` (confirmed working in save_slot_2.json).
+
 ### Discovery Flags (Unlock locations in exploration hub)
 ```
-swamp_church_discovered
-hill_ruins_discovered
-refugee_camp_discovered
-red_hollow_mine_discovered
+learned_about_swamp_church      # Swamp Church discovered
+learned_about_ruins             # Hill Ruins discovered
+learned_about_refugees          # Refugee Camp discovered
+discovered_old_mine_shaft       # Red Hollow Mine discovered (legacy naming)
 ```
 
 ### Completion Flags (Track location completion)
 ```
-swamp_church_complete
-hill_ruins_complete
-refugee_camp_complete
-red_hollow_mine_complete
+swamp_church_complete          # ✓ VERIFIED in save file
+hill_ruins_complete            # ⚠️ NEEDS VERIFICATION - not completed in test save
+refugee_camp_complete          # ⚠️ NEEDS VERIFICATION - not completed in test save
+red_hollow_mine_complete       # ✓ VERIFIED in save file
 ```
 
 ### Act Progression Flags
 ```
-quest_active              # Mayor quest accepted
-act_two_started           # Player left town for first time
-act_three_ready           # All required locations complete
+quest_active              # ✓ EXISTS - Mayor quest accepted
+act_two_started           # ⚠️ NEW - Player left town for first time (triggers mayor office move)
+act_three_ready           # NEW - All required locations complete
 ```
 
-### NPC Information Flags (Primary)
+### Mayor Acknowledgment Flags (✓ ALL EXIST IN SAVE - Ready to use!)
 ```
-meredith_gave_swamp_info
-garrick_gave_ruins_info
-pete_gave_refugee_info
-henrik_gave_mine_info
+mayor_acknowledged_swamp_complete
+mayor_acknowledged_ruins_complete
+mayor_acknowledged_refugee_complete
+mayor_acknowledged_mine_complete
 ```
+**NOTE:** These flags are already defined in the save file (all currently false). The dialogue to set them just needs to be implemented.
+
+### NPC Information Flags - Primary (✓ ALL WORKING)
+```
+meredith_gave_swamp_info     # ✓ VERIFIED - Meredith discovered swamp
+garrick_gave_ruins_info      # ✓ VERIFIED - Garrick discovered ruins
+pete_gave_refugee_info       # ✓ VERIFIED - Pete discovered refugee camp
+henrik_gave_shaft_quest      # ✓ VERIFIED - Henrik gave mine quest
+```
+**NOTE:** These are confirmed working in save_slot_2.json. Primary discovery system already implemented!
 
 ### NPC Information Flags (Backup)
 ```
@@ -97,15 +121,16 @@ cassia_gave_swamp_info
 jenna_gave_refugee_info
 ```
 
-### Mayor Dialogue Flags
+### Mayor Dialogue Flags (✓ VERIFIED in save)
 ```
-mayor_gave_swamp_info
-mayor_gave_ruins_info
-mayor_gave_refugee_info
-mayor_acknowledged_swamp_complete
-mayor_acknowledged_ruins_complete
-mayor_acknowledged_refugee_complete
-mayor_acknowledged_mine_complete
+mayor_gave_swamp_info        # ✓ EXISTS - Mayor mentioned swamp
+mayor_gave_ruins_info        # ✓ EXISTS - Mayor mentioned ruins
+mayor_gave_refugee_info      # ✓ EXISTS - Mayor mentioned refugees
+mayor_talked                 # ✓ EXISTS - Player talked to mayor
+mayor_mentioned_family       # ✓ EXISTS - Mayor mentioned family disappearance
+mayor_worried_tremors        # ✓ EXISTS - Mayor discussed tremors
+mayor_wants_ore_info         # ✓ EXISTS - Mayor wants ore samples info
+mayor_examined_ore_samples   # ✓ EXISTS - Mayor examined ore samples
 ```
 
 ---
@@ -140,42 +165,60 @@ screens/
 
 **File:** `data/narrative_schema.json`
 
-### Task 1.1: Add Discovery Flags
-Add to the locations section:
+### Task 1.1: Add Discovery Flags (VERIFY THESE EXIST)
+**NOTE:** Based on save file analysis, these flags already exist but we need to verify they're in the schema.
+
+Add to the locations section if missing:
 ```json
 "locations": {
   "swamp_church": {
     "system_id": "swamp_church",
     "name": "The Church in the Swamp",
-    "discovery_flag": "swamp_church_discovered",
+    "discovery_flag": "learned_about_swamp_church",
     "completion_flag": "swamp_church_complete",
     "description": "A fog-shrouded church deep in the marshlands where cult activity has been reported."
   },
   "hill_ruins": {
     "system_id": "hill_ruins",
     "name": "The Ruins on the Hill",
-    "discovery_flag": "hill_ruins_discovered",
+    "discovery_flag": "learned_about_ruins",
     "completion_flag": "hill_ruins_complete",
     "description": "Ancient watchtower overlooking the valley, glowing with strange lights at night."
   },
   "refugee_camp": {
     "system_id": "refugee_camp",
     "name": "The Refugee Camp",
-    "discovery_flag": "refugee_camp_discovered",
+    "discovery_flag": "learned_about_refugees",
     "completion_flag": "refugee_camp_complete",
     "description": "Makeshift settlement outside town where displaced miners seek shelter."
   },
   "red_hollow_mine": {
     "system_id": "red_hollow_mine",
     "name": "Red Hollow Mine",
-    "discovery_flag": "red_hollow_mine_discovered",
+    "discovery_flag": "discovered_old_mine_shaft",
     "completion_flag": "red_hollow_mine_complete",
     "description": "Abandoned mine shaft sealed by fearful workers, now home to unknown dangers."
   }
 }
 ```
 
-### Task 1.2: Update Mayor Schema
+### Task 1.2: Add act_two_started Flag (NEW - CRITICAL)
+**This flag doesn't exist yet and must be added!**
+
+Add to the appropriate section of narrative_schema.json:
+```json
+"act_progression": {
+  "act_two_started": {
+    "description": "Player has left town and begun Act II exploration",
+    "type": "boolean",
+    "default": false,
+    "set_by": "act_two_transition screen",
+    "triggers": "Mayor movement from tavern to office"
+  }
+}
+```
+
+### Task 1.3: Update Mayor Schema
 ```json
 "mayor": {
   "system_id": "mayor",
@@ -207,33 +250,56 @@ Add to the locations section:
 }
 ```
 
-### Task 1.3: Add NPC Info Flags to Other NPCs
-Add to Meredith, Garrick, Pete, Bernard, Cassia, Jenna schemas:
+### Task 1.4: Verify NPC Info Flags in Schema (Should already exist)
+**These flags are working in the game - just verify they're in schema:**
+
+For Meredith, Garrick, Pete schemas:
 ```json
 "meredith": {
   "story_flags": {
     // ... existing flags ...
-    "gave_swamp_location": "meredith_gave_swamp_info"
+    "gave_swamp_location": "meredith_gave_swamp_info"  // ✓ Should exist
+  }
+},
+"garrick": {
+  "story_flags": {
+    // ... existing flags ...
+    "gave_ruins_location": "garrick_gave_ruins_info"  // ✓ Should exist
+  }
+},
+"pete": {
+  "story_flags": {
+    // ... existing flags ...
+    "gave_refugee_location": "pete_gave_refugee_info"  // ✓ Should exist
   }
 }
 ```
 
 **Testing Criteria:**
-- [ ] All new flags initialize to false in GameState
-- [ ] Save/load preserves all discovery flags
-- [ ] No crashes when accessing narrative schema
+- [ ] All location discovery flags verified in narrative_schema.json
+- [ ] act_two_started flag added to schema
+- [ ] All mayor acknowledgment flags exist (they do - verified in save)
+- [ ] All NPC info flags referenced correctly
+- [ ] No crashes when accessing any flag
 
 ---
 
 ## 🔧 PHASE 2: MAYOR DIALOGUE UPDATES
 
-### Task 2.1: Update patron_selection_mayor.json (Act I Version)
+### Task 2.1: Review patron_selection_mayor.json (Minimal Changes)
 
 **File:** `data/dialogues/patron_selection_mayor.json`
 
-**Changes Required:**
+**Based on save file analysis, this dialogue probably already works correctly:**
+- ✓ Sets `quest_active` when player accepts quest
+- ✓ Sets `mayor_gave_swamp_info`, `mayor_gave_ruins_info`, `mayor_gave_refugee_info`
+- ✓ Does NOT set discovery flags directly (that's the NPCs' job)
 
-**A) Modify quest_given state:**
+**REVIEW NEEDED:**
+Check that the mayor ONLY sets `mayor_gave_*_info` flags and directs player to NPCs.
+The discovery flags (`learned_about_*`) should ONLY be set by NPC dialogues.
+
+**If mayor is currently setting discovery flags, REMOVE those effects:**
 ```json
 "quest_given": {
   "introduction": [
@@ -688,11 +754,13 @@ Add to Meredith, Garrick, Pete, Bernard, Cassia, Jenna schemas:
 
 ## 🔧 PHASE 3: PRIMARY NPC DISCOVERY DIALOGUES
 
-### Task 3.1: Update Meredith - Swamp Church Discovery
+### Task 3.1: Verify Meredith - Swamp Church Discovery (Should already work)
 
 **File:** `data/dialogues/broken_blade_meredith.json`
 
-**Modify the knows_about_swamp state:**
+**Based on save file, Meredith dialogue is already working!** Just verify it sets the correct flags:
+
+**Verify the knows_about_swamp state sets BOTH flags:**
 
 ```json
 "knows_about_swamp": {
@@ -707,7 +775,7 @@ Add to Meredith, Garrick, Pete, Bernard, Cassia, Jenna schemas:
       "text": "Can you mark it on my map?",
       "effects": [
         { "type": "set_flag", "flag": "meredith_gave_swamp_info", "value": true },
-        { "type": "set_flag", "flag": "swamp_church_discovered", "value": true }
+        { "type": "set_flag", "flag": "learned_about_swamp_church", "value": true }
       ],
       "next_state": "marked_swamp"
     },
@@ -743,11 +811,13 @@ Add to Meredith, Garrick, Pete, Bernard, Cassia, Jenna schemas:
 }
 ```
 
-### Task 3.2: Update Garrick - Hill Ruins Discovery
+### Task 3.2: Verify Garrick - Hill Ruins Discovery (Should already work)
 
 **File:** `data/dialogues/broken_blade_garrick.json`
 
-**Add ruins discovery path (find existing state or create new):**
+**Based on save file, Garrick dialogue is already working!** Just verify the ruins discovery path:
+
+**Verify ruins discovery sets BOTH flags:**
 
 ```json
 "knows_about_ruins": {
@@ -763,7 +833,7 @@ Add to Meredith, Garrick, Pete, Bernard, Cassia, Jenna schemas:
       "text": "Show me where it is.",
       "effects": [
         { "type": "set_flag", "flag": "garrick_gave_ruins_info", "value": true },
-        { "type": "set_flag", "flag": "hill_ruins_discovered", "value": true }
+        { "type": "set_flag", "flag": "learned_about_ruins", "value": true }
       ],
       "next_state": "marked_ruins"
     },
@@ -809,7 +879,7 @@ Add to Meredith, Garrick, Pete, Bernard, Cassia, Jenna schemas:
       "text": "I should check this out. Show me where.",
       "effects": [
         { "type": "set_flag", "flag": "garrick_gave_ruins_info", "value": true },
-        { "type": "set_flag", "flag": "hill_ruins_discovered", "value": true }
+        { "type": "set_flag", "flag": "learned_about_ruins", "value": true }
       ],
       "next_state": "marked_ruins"
     },
@@ -818,11 +888,13 @@ Add to Meredith, Garrick, Pete, Bernard, Cassia, Jenna schemas:
 }
 ```
 
-### Task 3.3: Update Pete - Refugee Camp Discovery
+### Task 3.3: Verify Pete - Refugee Camp Discovery (Should already work)
 
 **File:** `data/dialogues/broken_blade_pete.json`
 
-**Create refugee camp discovery path:**
+**Based on save file, Pete dialogue is already working!** Just verify refugee camp discovery:
+
+**Verify refugee discovery sets BOTH flags:**
 
 ```json
 "knows_about_refugees": {
@@ -839,7 +911,7 @@ Add to Meredith, Garrick, Pete, Bernard, Cassia, Jenna schemas:
       "text": "Can you tell me how to find them?",
       "effects": [
         { "type": "set_flag", "flag": "pete_gave_refugee_info", "value": true },
-        { "type": "set_flag", "flag": "refugee_camp_discovered", "value": true }
+        { "type": "set_flag", "flag": "learned_about_refugees", "value": true }
       ],
       "next_state": "marked_refugee"
     },
@@ -885,7 +957,7 @@ Add to Meredith, Garrick, Pete, Bernard, Cassia, Jenna schemas:
       "text": "I need to help them. Show me where.",
       "effects": [
         { "type": "set_flag", "flag": "pete_gave_refugee_info", "value": true },
-        { "type": "set_flag", "flag": "refugee_camp_discovered", "value": true }
+        { "type": "set_flag", "flag": "learned_about_refugees", "value": true }
       ],
       "next_state": "marked_refugee"
     },
@@ -895,11 +967,12 @@ Add to Meredith, Garrick, Pete, Bernard, Cassia, Jenna schemas:
 ```
 
 **Testing Criteria:**
-- [ ] Meredith discovers swamp church
-- [ ] Garrick discovers hill ruins
-- [ ] Pete discovers refugee camp
-- [ ] Each sets both `npc_gave_info` and `location_discovered` flags
-- [ ] South Gate becomes accessible after any discovery
+- [ ] Meredith sets `meredith_gave_swamp_info` and `learned_about_swamp_church`
+- [ ] Garrick sets `garrick_gave_ruins_info` and `learned_about_ruins`
+- [ ] Pete sets `pete_gave_refugee_info` and `learned_about_refugees`
+- [ ] Each discovery enables South Gate if `quest_active` is true
+- [ ] Flags persist through save/load (already verified in save_slot_2.json)
+- [ ] **NOTE:** These are likely already working - just need verification!
 
 ---
 
@@ -931,12 +1004,12 @@ Add to Meredith, Garrick, Pete, Bernard, Cassia, Jenna schemas:
       "text": "Can you point me there?",
       "requirements": {
         "flags": {
-          "hill_ruins_discovered": false
+          "learned_about_ruins": false
         }
       },
       "effects": [
         { "type": "set_flag", "flag": "bernard_gave_ruins_info", "value": true },
-        { "type": "set_flag", "flag": "hill_ruins_discovered", "value": true }
+        { "type": "set_flag", "flag": "learned_about_ruins", "value": true }
       ],
       "next_state": "marked_ruins"
     },
@@ -972,12 +1045,12 @@ Add to Meredith, Garrick, Pete, Bernard, Cassia, Jenna schemas:
       "text": "Can you show me where this church is?",
       "requirements": {
         "flags": {
-          "swamp_church_discovered": false
+          "learned_about_swamp_church": false
         }
       },
       "effects": [
         { "type": "set_flag", "flag": "cassia_gave_swamp_info", "value": true },
-        { "type": "set_flag", "flag": "swamp_church_discovered", "value": true }
+        { "type": "set_flag", "flag": "learned_about_swamp_church", "value": true }
       ],
       "next_state": "marked_swamp"
     },
@@ -1000,12 +1073,12 @@ Add to Meredith, Garrick, Pete, Bernard, Cassia, Jenna schemas:
       "text": "I'll investigate. Show me where.",
       "requirements": {
         "flags": {
-          "swamp_church_discovered": false
+          "learned_about_swamp_church": false
         }
       },
       "effects": [
         { "type": "set_flag", "flag": "cassia_gave_swamp_info", "value": true },
-        { "type": "set_flag", "flag": "swamp_church_discovered", "value": true }
+        { "type": "set_flag", "flag": "learned_about_swamp_church", "value": true }
       ],
       "next_state": "marked_swamp"
     },
@@ -1042,12 +1115,12 @@ Add to Meredith, Garrick, Pete, Bernard, Cassia, Jenna schemas:
       "text": "Where can I find this camp?",
       "requirements": {
         "flags": {
-          "refugee_camp_discovered": false
+          "learned_about_refugees": false
         }
       },
       "effects": [
         { "type": "set_flag", "flag": "jenna_gave_refugee_info", "value": true },
-        { "type": "set_flag", "flag": "refugee_camp_discovered", "value": true }
+        { "type": "set_flag", "flag": "learned_about_refugees", "value": true }
       ],
       "next_state": "marked_refugee"
     },
@@ -1132,10 +1205,10 @@ def start_npc_dialogue(self, npc_id):
         'requirements': {
             'flags': ['quest_active'],  # Must have accepted mayor's quest
             'any_of': [  # AND at least ONE location discovered
-                'swamp_church_discovered',
-                'hill_ruins_discovered', 
-                'refugee_camp_discovered',
-                'red_hollow_mine_discovered'
+                'learned_about_swamp_church',
+                'learned_about_ruins', 
+                'learned_about_refugees',
+                'discovered_old_mine_shaft'
             ],
             'failure_message': "The guards at the gate stop you.\n\n'Mayor's orders - no one leaves until we have solid leads. Talk to the folks at the Broken Blade if you need information.'"
         },
@@ -1355,35 +1428,48 @@ def on_continue_button():
 
 ## 📊 IMPLEMENTATION ORDER SUMMARY
 
-**SESSION 1: Foundation** (2-3 hours)
-1. Update narrative_schema.json with all new flags
-2. Update patron_selection_mayor.json (remove discoveries)
-3. Test Mayor Act I behavior
+**NOTE:** Based on save file analysis, most infrastructure exists. We're connecting pieces, not building from scratch!
 
-**SESSION 2: Mayor Office** (2-3 hours)
+**SESSION 1: Schema Review & Verification** (45 min)
+1. Review narrative_schema.json for all needed flags
+2. Add `act_two_started` flag definition
+3. Verify `hill_ruins_complete` exists
+4. Verify `refugee_camp_complete` exists
+5. Verify all NPC info flags are in schema
+
+**SESSION 2: Mayor Dialogue Review** (30 min)
+1. Review patron_selection_mayor.json
+2. Confirm mayor doesn't set discovery flags directly
+3. Test existing Act I flow works
+4. Make minimal adjustments if needed
+
+**SESSION 3: Create Office Mayor Dialogue** (2 hours)
 1. Create redstone_town_mayor.json with full state machine
-2. Implement mayor location routing logic
-3. Test Act II transition and mayor movement
+2. Use existing completion and acknowledgment flags
+3. Implement routing logic based on flags
+4. Test state transitions
 
-**SESSION 3: Primary Discovery** (2 hours)
-1. Update Meredith dialogue (swamp)
-2. Update Garrick dialogue (ruins)
-3. Update/Create Pete dialogue (refugee)
-4. Test all three discovery paths
+**SESSION 4: Act II Transition & Mayor Movement** (1.5 hours)
+1. Verify act_two_start screen sets `act_two_started`
+2. Add mayor location routing logic  
+3. Update South Gate with proper conditions
+4. Test Act I → Act II transition
 
-**SESSION 4: Backup Discovery** (2 hours)
-1. Add Bernard dialogue (ruins backup)
-2. Add Cassia dialogue (swamp backup)
-3. Add Jenna dialogue (refugee backup)
-4. Test backup discovery redundancy
+**SESSION 5: Verification & Testing** (1 hour)
+1. Verify Meredith/Garrick/Pete discovery dialogues work
+2. End-to-end testing
+3. Verify all flags persist in saves
+4. Test completion acknowledgments
+5. Bug fixes
 
-**SESSION 5: Gate & Polish** (1-2 hours)
-1. Update South Gate with requirements
-2. Verify act_two_started flag integration
-3. End-to-end testing
-4. Bug fixes and polish
+**SESSION 6: Backup NPCs** (Optional - 1-2 hours)
+1. Add Bernard ruins backup
+2. Add Cassia swamp backup
+3. Add Jenna refugee backup
 
-**TOTAL ESTIMATED TIME:** 9-12 hours
+**TOTAL ESTIMATED TIME:** 5-7 hours (Primary NPC discovery already working!)
+
+**REDUCED FROM:** 9-12 hours (original estimate before save file analysis)
 
 ---
 
