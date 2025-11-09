@@ -163,7 +163,7 @@ class BaseLocation(ABC):
                 
                 registered_count += 1
             
-            print(f"🎯 BaseLocation registered {registered_count} buttons for {screen_name}")
+            #print(f"🎯 BaseLocation registered {registered_count} buttons for {screen_name}")
             
         except Exception as e:
             print(f"❌ Error registering BaseLocation buttons for {screen_name}: {e}")
@@ -256,16 +256,16 @@ class ActionHubLocation(BaseLocation):
         if flags:
             for flag_name, required_value in flags.items():
                 current_value = getattr(game_state, flag_name, False)
-                print(f"🔍 Evaluating flag '{flag_name}': current={current_value}, required={required_value}")
+                #print(f"🔍 Evaluating flag '{flag_name}': current={current_value}, required={required_value}")
                 
                 if isinstance(required_value, bool):
                     if current_value != required_value:
-                        print(f"❌ Flag requirement FAILED: {flag_name} (current={current_value}, required={required_value})")
+                        #print(f"❌ Flag requirement FAILED: {flag_name} (current={current_value}, required={required_value})")
                         return False
-                    else:
-                        print(f"✅ Flag requirement MET: {flag_name}")
+                    #else:
+                        #print(f"✅ Flag requirement MET: {flag_name}")
         
-        print(f"✅ All requirements satisfied")
+        #print(f"✅ All requirements satisfied")
         return True
 
     def render(self, surface: pygame.Surface, game_state, fonts: Dict, images: Dict, 
@@ -406,13 +406,13 @@ class ActionHubLocation(BaseLocation):
             if requires_flag and game_state:
                 flag_value = getattr(game_state, requires_flag, False)
                 if not flag_value:
-                    print(f"❌ Action '{action_name}' FAILED NEW FORMAT requirement: {requires_flag}={flag_value}")
+                    #print(f"❌ Action '{action_name}' FAILED NEW FORMAT requirement: {requires_flag}={flag_value}")
                     continue
-                print(f"✅ Action '{action_name}' passed NEW FORMAT requirement: {requires_flag}={flag_value}")
+                #print(f"✅ Action '{action_name}' passed NEW FORMAT requirement: {requires_flag}={flag_value}")
             
             # Both formats passed
             available_actions[action_name] = action_data
-            print(f"✅ Action '{action_name}' available")
+            #print(f"✅ Action '{action_name}' available")
 
         if available_actions:             
             # Calculate flexible button widths based on text content
