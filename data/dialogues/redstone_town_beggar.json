@@ -1,0 +1,487 @@
+{
+  "id": "redstone_town_beggar",
+  "npc_name": "Poor Beggar",
+  "states": {
+    "first_meeting": {
+      "introduction": [
+        "*A disheveled man sits slumped against the alley wall*",
+        "*He mutters incoherently, rocking slightly*",
+        "Doom... all doom... the end comes...",
+        "*His clothes are ragged, face unwashed*",
+        "*He seems barely aware of your presence*"
+      ],
+      "options": [
+        {
+          "id": "ask_name",
+          "text": "What's your name, friend?",
+          "next_state": "name_revealed"
+        },
+        {
+          "id": "ask_whats_wrong",
+          "text": "What's troubling you?",
+          "next_state": "initial_dismissal"
+        },
+        {
+          "id": "leave_alone",
+          "text": "Leave him be.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "name_revealed": {
+      "introduction": [
+        "*He looks up, eyes struggling to focus*",
+        "C-Casper...",
+        "*He swallows hard*",
+        "Casper Stillgarden.",
+        "*He looks away in shame*",
+        "Was someone... once..."
+      ],
+      "options": [
+        {
+          "id": "what_happened",
+          "text": "What happened to you, Casper?",
+          "effects": [
+            {"type": "set_flag", "flag": "beggar_name_revealed", "value": true}
+          ],
+          "next_state": "tragic_hints"
+        },
+        {
+          "id": "can_i_help",
+          "text": "Can I help you?",
+          "effects": [
+            {"type": "set_flag", "flag": "beggar_name_revealed", "value": true}
+          ],
+          "next_state": "too_far_gone"
+        },
+        {
+          "id": "take_care",
+          "text": "Take care, Casper.",
+          "effects": [
+            {"type": "set_flag", "flag": "beggar_name_revealed", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "initial_dismissal": {
+      "introduction": [
+        "*He waves his hand weakly*",
+        "Go away... nothing... nothing matters...",
+        "*He returns to his muttering*"
+      ],
+      "options": [
+        {
+          "id": "try_again",
+          "text": "Tell me your name at least.",
+          "next_state": "name_revealed"
+        },
+        {
+          "id": "leave_now",
+          "text": "Alright, I'm going.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "tragic_hints": {
+      "introduction": [
+        "*His voice cracks*",
+        "I had... everything. A business. Respect.",
+        "*He looks at his shaking hands*",
+        "Lost it all. In one moment. One mistake.",
+        "*Tears form in his eyes*",
+        "Betrayed... betrayed her trust...",
+        "Can't face... can't ever face..."
+      ],
+      "options": [
+        {
+          "id": "face_what",
+          "text": "Face what? Who did you betray?",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_backstory_known", "value": true}
+          ],
+          "next_state": "backstory_surface"
+        },
+        {
+          "id": "im_sorry",
+          "text": "I'm sorry for your pain.",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_backstory_known", "value": true}
+          ],
+          "next_state": "return_visits"
+        }
+      ]
+    },
+
+    "too_far_gone": {
+      "introduction": [
+        "*He laughs bitterly*",
+        "Help? No one can help.",
+        "Too late. Too far gone.",
+        "*He turns away*",
+        "Just... leave me."
+      ],
+      "options": [
+        {
+          "id": "insist",
+          "text": "Tell me what happened.",
+          "next_state": "tragic_hints"
+        },
+        {
+          "id": "respect_wish",
+          "text": "If that's what you want.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "backstory_surface": {
+      "introduction": [
+        "*He buries his face in his hands*",
+        "Her name was... is... Meredith.",
+        "She trusted me. With something precious.",
+        "*His whole body trembles*",
+        "Her grandmother's ring. Silver, with a blue stone.",
+        "I was carrying it to the jeweler for repair and...",
+        "*He chokes on the words*",
+        "I lost it. Near the old mine. Just... lost it.",
+        "Everything fell apart after that."
+      ],
+      "options": [
+        {
+          "id": "what_happened_after",
+          "text": "What happened to your business?",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_ring_mentioned", "value": true}
+          ],
+          "next_state": "downward_spiral"
+        },
+        {
+          "id": "still_cares",
+          "text": "Maybe she'd forgive you.",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_ring_mentioned", "value": true}
+          ],
+          "next_state": "no_forgiveness"
+        }
+      ]
+    },
+
+    "downward_spiral": {
+      "introduction": [
+        "*He stares at nothing*",
+        "Couldn't face her. Couldn't face anyone.",
+        "Debts piled up. Couldn't focus. Couldn't work.",
+        "Lost the business. Lost my home.",
+        "*He gestures at his ragged clothes*",
+        "This is what's left."
+      ],
+      "options": [
+        {
+          "id": "sad_tale",
+          "text": "That's a hard road.",
+          "next_state": "return_visits"
+        },
+        {
+          "id": "not_too_late",
+          "text": "It's not too late to change.",
+          "next_state": "no_forgiveness"
+        }
+      ]
+    },
+
+    "no_forgiveness": {
+      "introduction": [
+        "*He shakes his head violently*",
+        "No. Never. She could never...",
+        "I don't deserve forgiveness.",
+        "I deserve this.",
+        "*He turns away*",
+        "Please... just go."
+      ],
+      "options": [
+        {
+          "id": "leave_him",
+          "text": "Alright. Take care of yourself.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "return_visits": {
+      "introduction": [
+        "*He rocks back and forth, muttering*",
+        "Doom... all doom...",
+        "*He barely acknowledges you*"
+      ],
+      "options": [
+        {
+          "id": "you_okay",
+          "text": "Are you alright, Casper?",
+          "requirements": {
+            "flags": {
+              "beggar_name_revealed": true
+            }
+          },
+          "next_state": "still_broken"
+        },
+        {
+          "id": "leave_be",
+          "text": "I'll leave you be.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "still_broken": {
+      "introduction": [
+        "*He looks up briefly*",
+        "You again... kind of you...",
+        "*He returns to muttering*",
+        "Nothing changes... nothing..."
+      ],
+      "options": [
+        {
+          "id": "maybe_someday",
+          "text": "Maybe things will get better.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "return_visits_with_ring": {
+      "introduction": [
+        "*He rocks back and forth, muttering*",
+        "The ring... lost the ring...",
+        "Can't face her... never face her...",
+        "*Something in his muttering seems more focused than before*"
+      ],
+      "options": [
+        {
+          "id": "specific_trouble",
+          "text": "You seem troubled by something specific...",
+          "requirements": {
+            "flags": {
+              "casper_ring_mentioned": true,
+              "found_merediths_ring": true
+            }
+          },
+          "next_state": "ring_awareness"
+        },
+        {
+          "id": "leave_be_ring",
+          "text": "I'll leave you be.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "ring_awareness": {
+      "introduction": [
+        "*He stops rocking, looks up sharply*",
+        "Specific? You... you know something?",
+        "*Desperate hope flashes in his eyes*",
+        "Did you... did you find...?",
+        "*His hands shake*",
+        "A silver ring? Blue stone? Near the mine?"
+      ],
+      "options": [
+        {
+          "id": "found_ring",
+          "text": "I found a silver ring with a blue stone.",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_aware_player_has_ring", "value": true}
+          ],
+          "next_state": "offer_ring_choice"
+        },
+        {
+          "id": "maybe_found",
+          "text": "I might have found something like that...",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_aware_player_has_ring", "value": true}
+          ],
+          "next_state": "offer_ring_choice"
+        },
+        {
+          "id": "nevermind",
+          "text": "Never mind, I was mistaken.",
+          "next_state": "return_visits"
+        }
+      ]
+    },
+
+    "offer_ring_choice": {
+      "introduction": [
+        "*He stands, trembling with emotion*",
+        "That's it. That's Meredith's ring.",
+        "*Tears stream down his face*",
+        "I should be the one to return it. But I can't...",
+        "*He looks at you desperately*",
+        "Could you... would you take it to her? Tell her I'm sorry?",
+        "*He pauses*",
+        "Or... or maybe... should I try to face her myself?"
+      ],
+      "options": [
+        {
+          "id": "you_should_return_it",
+          "text": "No. You should return it yourself. She deserves that from you.",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_offered_ring", "value": true}
+          ],
+          "next_state": "give_ring_to_casper"
+        },
+        {
+          "id": "ill_return_it",
+          "text": "I'll return it for you, Casper.",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_declined_redemption", "value": true}
+          ],
+          "next_state": "keep_ring_for_meredith"
+        },
+        {
+          "id": "need_to_think",
+          "text": "Let me think about this.",
+          "next_state": "return_visits_with_ring"
+        }
+      ]
+    },
+
+    "give_ring_to_casper": {
+      "introduction": [
+        "*His eyes widen in shock*",
+        "You... you think I could?",
+        "After everything? After all this time?",
+        "*He takes the ring with trembling hands*",
+        "*Stares at it, tears falling*",
+        "It's beautiful. I'd forgotten how beautiful...",
+        "*He looks at you with gratitude and fear*",
+        "I'll do it. I have to do it.",
+        "Thank you. You've given me... hope.",
+        "*He clutches the ring close*"
+      ],
+      "options": [
+        {
+          "id": "you_can_do_this",
+          "text": "You can do this, Casper. I believe in you.",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_given_ring", "value": true},
+            {"type": "remove_item", "item_id": "merediths_silver_ring", "quantity": 1}
+          ],
+          "next_state": "redemption_pending"
+        },
+        {
+          "id": "good_luck",
+          "text": "Good luck.",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_given_ring", "value": true},
+            {"type": "remove_item", "item": "merediths_silver_ring", "quantity": 1}
+          ],
+          "next_state": "redemption_pending"
+        }
+      ]
+    },
+
+    "keep_ring_for_meredith": {
+      "introduction": [
+        "*He nods slowly, shoulders sagging*",
+        "You're right. I don't deserve to face her.",
+        "I'm not... I'm not strong enough.",
+        "*He looks at the ground*",
+        "Tell her... tell her I'm sorry. That I always was.",
+        "*He slumps back against the wall*",
+        "And thank you. For finding it."
+      ],
+      "options": [
+        {
+          "id": "ill_tell_her",
+          "text": "I'll tell her.",
+          "next_state": "declined_but_available"
+        }
+      ]
+    },
+
+    "declined_but_available": {
+      "introduction": [
+        "*He sits slumped, staring at nothing*",
+        "*The weight of missed opportunity hangs heavy*"
+      ],
+      "options": [
+        {
+          "id": "changed_mind",
+          "text": "Casper... I changed my mind. You should return the ring.",
+          "requirements": {
+            "flags": {
+              "found_merediths_ring": true,
+              "casper_declined_redemption": true
+            }
+          },
+          "next_state": "second_chance_offer"
+        },
+        {
+          "id": "leave_him_be",
+          "text": "Take care.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "second_chance_offer": {
+      "introduction": [
+        "*He looks up, hope flickering in his eyes*",
+        "You... you still think I could?",
+        "*His hands tremble*",
+        "Maybe... maybe I can find the courage.",
+        "If you really believe in me..."
+      ],
+      "options": [
+        {
+          "id": "give_ring_second_chance",
+          "text": "I believe in you. Here's the ring. [Give ring]",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_given_ring", "value": true},
+            {"type": "set_flag", "flag": "casper_declined_redemption", "value": false},
+            {"type": "remove_item", "item_id": "merediths_silver_ring", "quantity": 1}
+          ],
+          "next_state": "redemption_pending"
+        },
+        {
+          "id": "nevermind_again",
+          "text": "Actually, never mind.",
+          "next_state": "declined_but_available"
+        }
+      ]
+    },
+
+    "redemption_pending": {
+      "introduction": [
+        "*He sits straighter, clutching the ring*",
+        "I need to prepare myself. Wash. Find clean clothes.",
+        "*His voice is stronger than you've ever heard*",
+        "I need to practice what to say.",
+        "*He looks at you with determination*",
+        "Soon. I'll face her soon.",
+        "Thank you for believing in me."
+      ],
+      "options": [
+        {
+          "id": "take_your_time",
+          "text": "Take your time. Do it right.",
+          "next_state": "exit"
+        },
+        {
+          "id": "youve_got_this",
+          "text": "You've got this, Casper.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "exit": {
+      "introduction": [],
+      "options": []
+    }
+  }
+}

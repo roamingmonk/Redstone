@@ -939,23 +939,13 @@ class DialogueEngine:
                     print(f"❌ ERROR: InventoryEngine not available for remove_item")
                     return None
                 
-                # Verify item exists before trying to remove
-                #from game_logic.item_manager import item_manager
-                # DEBUG: Check if item_manager is loaded
-                print(f"🔍 DEBUG: Checking for item '{item_id}'")
-                print(f"🔍 DEBUG: item_manager.items_data has {len(self.item_manager.items_data.get('merchant_items', []))} merchant items")
-                print(f"🔍 DEBUG: First 3 item IDs: {[item['id'] for item in self.item_manager.items_data.get('merchant_items', [])[:3]]}")
-                
+                # Get item data for display purposes
                 item_data = self.item_manager.get_item_by_id(item_id)
-                if not item_data:
-                    print(f"❌ ERROR: Cannot remove unknown item '{item_id}' - not found in items.json")
-                    return None
+                item_name = item_data.get('name', item_id) if item_data else item_id
                 
-                # Check if player has the item (convert ID to name for now)
-                item_name = item_data.get('name', item_id)
-                
-                # Remove the item
-                success = inv_engine.remove_item(item_name, quantity)
+                # CRITICAL: Pass item_id (not display name) to inventory_engine
+                # Inventory stores items by ID, not by display name
+                success = inv_engine.remove_item(item_id, quantity)
                 
                 if success:
                     print(f"✅ Dialogue took from player: {quantity}x {item_name} ({item_id})")
@@ -965,13 +955,13 @@ class DialogueEngine:
                         qty_text = f"{quantity}x " if quantity > 1 else ""
                         self.event_manager.emit("SHOW_FLOATING_TEXT", {
                             "text": f"Lost {qty_text}{item_name}",
-                            "color": (255, 100, 100),  # Light red for item loss
+                            "color": (255, 100, 100),
                             "duration": 2200
                         })
                     
                     return f"Lost {item_name}"
                 else:
-                    print(f"⚠️ WARNING: Could not remove '{item_name}' - player doesn't have enough")
+                    print(f"⚠️ WARNING: Could not remove '{item_name}' ({item_id}) - player doesn't have it")
                     return None
                     
             except Exception as e:
@@ -979,8 +969,6 @@ class DialogueEngine:
                 import traceback
                 traceback.print_exc()
                 return None
-        
-        return None
 
     def _check_option_requirements(self, option: Dict[str, Any]) -> bool:
         """Check if dialogue option requirements are met"""

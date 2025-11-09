@@ -1,0 +1,290 @@
+{
+  "id": "casperandmeredith",
+  "npc_name": "Casper & Meredith",
+  "states": {
+    "first_meeting": {
+      "introduction": [
+        "*Casper and Meredith stand together in front of the church*",
+        "*Casper looks cleaner, healthier, his eyes clear*",
+        "*Meredith holds his hand, both smiling*",
+        "*They turn as you approach*",
+        "You came!",
+        "*Casper's voice is steady, full of gratitude*"
+      ],
+      "options": [
+        {
+          "id": "how_are_you",
+          "text": "You both look well.",
+          "next_state": "doing_well"
+        },
+        {
+          "id": "whats_happening",
+          "text": "What's going on here?",
+          "next_state": "explaining_plans"
+        },
+        {
+          "id": "happy_for_you",
+          "text": "I'm happy to see you together.",
+          "next_state": "grateful_response"
+        }
+      ]
+    },
+
+    "doing_well": {
+      "introduction": [
+        "*Casper nods, squeezing Meredith's hand*",
+        "Better than I've been in years.",
+        "*Meredith smiles warmly*",
+        "We've been talking. Really talking.",
+        "About the past. About mistakes. About forgiveness.",
+        "*Casper looks at you*",
+        "You gave me the courage to face her.",
+        "That changed everything."
+      ],
+      "options": [
+        {
+          "id": "you_did_it",
+          "text": "You did the hard part yourself.",
+          "next_state": "casper_acknowledges"
+        },
+        {
+          "id": "whats_next",
+          "text": "What happens now?",
+          "next_state": "explaining_plans"
+        }
+      ]
+    },
+
+    "explaining_plans": {
+      "introduction": [
+        "*They exchange a glance, both blushing slightly*",
+        "*Meredith speaks first*",
+        "We're getting married.",
+        "*Casper adds quickly*",
+        "Not right away. I need to get back on my feet first.",
+        "Find work. Rebuild my life properly.",
+        "*Meredith squeezes his hand*",
+        "But we're doing it together this time.",
+        "*She looks at the church*",
+        "And when the time is right, right here."
+      ],
+      "options": [
+        {
+          "id": "congratulations",
+          "text": "Congratulations to you both!",
+          "next_state": "thanks_and_blessing"
+        },
+        {
+          "id": "wonderful_news",
+          "text": "That's wonderful news.",
+          "next_state": "thanks_and_blessing"
+        },
+        {
+          "id": "casper_recovery",
+          "text": "Casper, how's your recovery going?",
+          "next_state": "casper_recovery_details"
+        }
+      ]
+    },
+
+    "grateful_response": {
+      "introduction": [
+        "*Meredith's eyes glisten with tears*",
+        "We are too. So very happy.",
+        "*Casper nods, his voice thick with emotion*",
+        "I never thought I'd have a second chance.",
+        "Never thought I deserved one.",
+        "*He looks at you directly*",
+        "But you believed in me when I couldn't believe in myself.",
+        "You gave me back my life."
+      ],
+      "options": [
+        {
+          "id": "glad_to_help",
+          "text": "I'm glad I could help.",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_redemption_complete", "value": true}
+          ],
+          "next_state": "final_thanks"
+        },
+        {
+          "id": "you_both_deserved_it",
+          "text": "You both deserved happiness.",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_redemption_complete", "value": true}
+          ],
+          "next_state": "final_thanks"
+        }
+      ]
+    },
+
+    "casper_acknowledges": {
+      "introduction": [
+        "*Casper shakes his head*",
+        "Maybe. But without that push...",
+        "*Meredith touches his arm gently*",
+        "He's right though. The courage was yours, Casper.",
+        "You faced your shame. You made amends.",
+        "*She looks at you*",
+        "But we're both grateful you were there.",
+        "Sometimes people just need someone to believe in them."
+      ],
+      "options": [
+        {
+          "id": "whats_next_now",
+          "text": "So what's next for you both?",
+          "next_state": "explaining_plans"
+        },
+        {
+          "id": "you_deserve_happiness",
+          "text": "You both deserve this happiness.",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_redemption_complete", "value": true}
+          ],
+          "next_state": "final_thanks"
+        }
+      ]
+    },
+
+    "casper_recovery_details": {
+      "introduction": [
+        "*Casper stands a bit straighter*",
+        "I've been sober for weeks now. Clear headed.",
+        "Garrick at the tavern gave me some work cleaning up.",
+        "Small jobs around town. Honest work.",
+        "*Pride enters his voice*",
+        "I'm saving every copper. Building something real.",
+        "*Meredith adds*",
+        "And I've been teaching him some of my recipes.",
+        "Turns out he's quite good in the kitchen.",
+        "*They both laugh*"
+      ],
+      "options": [
+        {
+          "id": "thats_great",
+          "text": "That's great to hear, Casper.",
+          "next_state": "grateful_response"
+        },
+        {
+          "id": "keep_it_up",
+          "text": "Keep up the good work.",
+          "next_state": "grateful_response"
+        }
+      ]
+    },
+
+    "thanks_and_blessing": {
+      "introduction": [
+        "*They both beam with happiness*",
+        "*Casper extends his hand to you*",
+        "We'd be honored if you'd attend. When the time comes.",
+        "*Meredith nods enthusiastically*",
+        "You're part of this story. Our story.",
+        "You'll always have a place at our table."
+      ],
+      "options": [
+        {
+          "id": "id_be_honored",
+          "text": "I'd be honored to attend.",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_redemption_complete", "value": true},
+            {"type": "set_flag", "flag": "meredith_casper_romance", "value": true}
+          ],
+          "next_state": "final_thanks"
+        },
+        {
+          "id": "ill_be_there",
+          "text": "I'll be there.",
+          "effects": [
+            {"type": "set_flag", "flag": "casper_redemption_complete", "value": true},
+            {"type": "set_flag", "flag": "meredith_casper_romance", "value": true}
+          ],
+          "next_state": "final_thanks"
+        }
+      ]
+    },
+
+    "final_thanks": {
+      "introduction": [
+        "*They both look at you with deep gratitude*",
+        "*Casper speaks quietly*",
+        "Thank you. For everything.",
+        "You saved more than just me that day.",
+        "You saved us.",
+        "*Meredith adds softly*",
+        "May your journey be blessed.",
+        "And may you find the same hope you gave us."
+      ],
+      "options": [
+        {
+          "id": "farewell",
+          "text": "Take care of each other.",
+          "next_state": "return_visit"
+        }
+      ]
+    },
+
+    "return_visit": {
+      "introduction": [
+        "*They stand together, holding hands*",
+        "*Both smile as you approach*",
+        "Good to see you again, friend."
+      ],
+      "options": [
+        {
+          "id": "hows_planning",
+          "text": "How's the wedding planning going?",
+          "next_state": "planning_update"
+        },
+        {
+          "id": "just_saying_hello",
+          "text": "Just wanted to say hello.",
+          "next_state": "warm_greeting"
+        },
+        {
+          "id": "take_care",
+          "text": "Take care, you two.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "planning_update": {
+      "introduction": [
+        "*Meredith laughs*",
+        "Slowly but surely!",
+        "*Casper grins*",
+        "We're in no rush. Doing it right this time.",
+        "But we're getting there."
+      ],
+      "options": [
+        {
+          "id": "sounds_good",
+          "text": "Sounds perfect.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "warm_greeting": {
+      "introduction": [
+        "*Casper nods warmly*",
+        "Always good to see a friendly face.",
+        "*Meredith adds*",
+        "You're welcome anytime."
+      ],
+      "options": [
+        {
+          "id": "thanks",
+          "text": "Thanks. I'll see you around.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "exit": {
+      "introduction": [],
+      "options": []
+    }
+  }
+}

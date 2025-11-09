@@ -273,10 +273,24 @@ TOWN_NPCS = {
         'sprite_type': 'citizen',
         'default_position': (2, 2),  # Near alley
         'interaction_tiles': [(2, 3), (3, 2)],  
-        'display_name': 'Poor Beggar',
+        'display_name': 'Casper Stillgarden',
         'dialogue_id': 'beggar',
-        'conditions': None,
-        'general_response':"The mumbles something incoherent about the end of the world."
+        'conditions': {
+            'not_flag': 'casper_disappeared'  # Disappears in Act III if given ring
+        },
+        'general_response': "He mumbles something incoherent about the end of the world."
+     },
+    
+    'casper_and_meredith_epilogue': {
+        'sprite_type': 'citizen',  # Will eventually be 'couple' sprite
+        'default_position': (10, 8),  # In front of church
+        'interaction_tiles': [(10, 9), (9, 8), (11, 8), (10, 7)],
+        'display_name': 'Casper & Meredith',
+        'dialogue_id': 'casperandmeredith',
+        'conditions': {
+            'flag': 'casper_epilogue_active'  # Only appears if redemption path taken
+        },
+        'general_response': "They stand together, hands clasped, looking at the church with hope in their eyes."
     }
 }
 

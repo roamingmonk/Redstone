@@ -52,7 +52,7 @@
       "mine_carts_loot": {
         "items": [
           {
-            "item_id": "merediths_ring",
+            "item_id": "merediths_silver_ring",
             "quantity": 1,
             "chance": 1.0,
             "message": "Beneath coal dust, a silver ring glints!"

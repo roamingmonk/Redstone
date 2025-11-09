@@ -156,10 +156,15 @@
         {
           "id": "ring_quest",
           "text": "You seem troubled about something else.",
-          "requirements": {
+         "requirements": {
             "flags": {
               "meredith_talked": true,
-              "mayor_talked": true} },
+              "mayor_talked": true,
+              "meredith_gave_ring_quest": false,
+              "returned_meredith_ring": false,
+              "casper_given_ring": false
+            }
+          },
           "next_state": "ring_quest_offer"
         },    
         { "id": "bye_post", "text": "Thanks.", "next_state": "exit" }
@@ -300,6 +305,17 @@
           "next_state": "swamp_details"
         },
         {
+          "id": "mention_casper",
+          "text": "I met someone who knew about your ring...",
+          "requirements": {
+            "flags": {
+              "found_merediths_ring": true,
+              "casper_backstory_known": true
+            }
+          },
+          "next_state": "meredith_casper_mention"
+        },
+        {
           "id": "found_it",
           "text": "I found it! [Give ring]",
           "requirements": {
@@ -307,6 +323,10 @@
               "returned_meredith_ring": true
             }
           },
+          "effects": [
+            {"type": "set_flag", "flag": "returned_meredith_ring", "value": true},
+            {"type": "remove_item", "item_id": "merediths_silver_ring", "quantity": 1}
+          ],
           "next_state": "ring_returned_thanks"
         }
       ]
@@ -383,6 +403,193 @@
           "id": "find_henrik",
           "text": "I'll find him.",
           "next_state": "exit"
+        }
+      ]
+    },
+
+    "meredith_casper_mention": {
+      "introduction": [
+        "*Her face goes pale*",
+        "Casper? Casper Stillgarden?",
+        "*She grips the bar tightly*",
+        "I... I haven't thought about him in years.",
+        "*Her voice softens*",
+        "He was kind. Good. A merchant with a gentle heart.",
+        "But something broke in him when he lost the ring.",
+        "*She looks down*",
+        "I tried to tell him it didn't matter. That I forgave him.",
+        "But he couldn't forgive himself.",
+        "*A pause*",
+        "Where is he now?"
+      ],
+      "options": [
+        {
+          "id": "hes_a_beggar",
+          "text": "He's... fallen on hard times. Living on the streets.",
+          "next_state": "meredith_sad_realization"
+        },
+        {
+          "id": "he_wants_redemption",
+          "text": "He wants to return the ring himself. To make amends.",
+          "requirements": {
+            "flags": {
+              "casper_given_ring": true
+            }
+          },
+          "next_state": "meredith_hopes_for_casper"
+        }
+      ]
+    },
+
+    "meredith_sad_realization": {
+      "introduction": [
+        "*Tears form in her eyes*",
+        "Oh, Casper... no...",
+        "All this time, carrying that guilt.",
+        "*She wipes her eyes*",
+        "If you see him again, tell him...",
+        "Tell him I never blamed him. Not once.",
+        "Tell him it was just a ring. Just a thing.",
+        "*Her voice breaks*",
+        "He was worth more than any ring."
+      ],
+      "options": [
+        {
+          "id": "ill_tell_him",
+          "text": "I'll tell him, Meredith.",
+          "effects": [
+            {"type": "set_flag", "flag": "meredith_sent_message_to_casper", "value": true}
+          ],
+          "next_state": "ring_quest_active"
+        },
+        {
+          "id": "maybe_you_should",
+          "text": "Maybe you should tell him yourself.",
+          "next_state": "meredith_considers_reunion"
+        },
+        {
+          "id": "give_ring_now",
+          "text": "Here's your ring. [Give ring]",
+          "requirements": {
+            "flags": {
+              "found_merediths_ring": true,
+              "casper_declined_redemption": true
+            }
+          },
+          "effects": [
+            {"type": "set_flag", "flag": "returned_meredith_ring", "value": true},
+            {"type": "remove_item", "item_id": "merediths_silver_ring", "quantity": 1}
+          ],
+          "next_state": "ring_returned_thanks"
+        }
+      ]
+    },
+
+    "meredith_considers_reunion": {
+      "introduction": [
+        "*She looks uncertain*",
+        "I don't know if he'd want to see me.",
+        "After all this time... all that shame...",
+        "*She straightens up*",
+        "But if he ever comes here. If he ever finds the courage.",
+        "I'll be waiting."
+      ],
+      "options": [
+        {
+          "id": "thats_good",
+          "text": "That's good to hear.",
+          "next_state": "ring_quest_active"
+        },
+        {
+          "id": "give_ring_anyway",
+          "text": "Here's your ring, in the meantime. [Give ring]",
+          "requirements": {
+            "flags": {
+              "found_merediths_ring": true,
+              "casper_declined_redemption": true
+            }
+          },
+          "effects": [
+            {"type": "set_flag", "flag": "returned_meredith_ring", "value": true},
+            {"type": "remove_item", "item_id": "merediths_silver_ring", "quantity": 1}
+          ],
+          "next_state": "ring_returned_thanks"
+        }
+      ]
+    },
+
+    "meredith_hopes_for_casper": {
+      "introduction": [
+        "*Her eyes widen with hope*",
+        "He... he wants to face me?",
+        "After all this time?",
+        "*A tear rolls down her cheek*",
+        "That takes courage. Real courage.",
+        "*She smiles softly*",
+        "If he comes, I'll be here.",
+        "And I'll tell him what I should have told him years ago.",
+        "That he was never broken. Just hurting.",
+        "And that some things are more important than rings."
+      ],
+      "options": [
+        {
+          "id": "hell_come",
+          "text": "He'll come. He just needs time.",
+          "effects": [
+            {"type": "set_flag", "flag": "meredith_awaits_casper", "value": true}
+          ],
+          "next_state": "ring_quest_active"
+        }
+      ]
+    },
+
+    "meredith_after_casper_returned_ring": {
+      "introduction": [
+        "*She's glowing with quiet happiness*",
+        "*She touches the ring on her finger*",
+        "He came. Casper actually came.",
+        "*Her voice is full of emotion*",
+        "He was so nervous. Shaking. Could barely speak. But he looked me in the eye and apologized. Really, truly apologized.",
+        "*She smiles*",
+        "I told him the same thing I'm telling you:",
+        "Some mistakes we make teach us who we really are. And Casper... he's a good man who made one mistake.",
+        "*She looks at you warmly*",
+        "Thank you. For believing in him when he couldn't believe in himself."
+      ],
+      "options": [
+        {
+          "id": "happy_for_you",
+          "text": "I'm happy for you both.",
+          "effects": [
+            {"type": "set_flag", "flag": "meredith_casper_reconciliation", "value": true}
+          ],
+          "next_state": "post_mayor"
+        },
+        {
+          "id": "whats_next",
+          "text": "What happens now?",
+          "next_state": "meredith_future_with_casper"
+        }
+      ]
+    },
+
+    "meredith_future_with_casper": {
+      "introduction": [
+        "*She blushes slightly*",
+        "We're taking it slowly. He's working on himself. Getting back on his feet. I'm helping where I can.",
+        "*She looks hopeful*",
+        "Maybe someday... we'll see.",
+        "But for now, having him back in my life?",
+        "That's more than enough."
+      ],
+      "options": [
+        {
+          "id": "good_luck_both",
+          "text": "Good luck to you both.",
+          "effects": [
+            {"type": "set_flag", "flag": "meredith_casper_reconciliation", "value": true}
+          ],
+          "next_state": "post_mayor"
         }
       ]
     }

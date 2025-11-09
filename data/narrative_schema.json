@@ -87,7 +87,13 @@
     "find_glowcap_mushrooms": "Gather Glowcap Mushrooms from the swamp",
     "return_mushrooms_to_cassia": "Return the mushrooms to Cassia",
     "read_marcus_journals": "Study Marcus's journals for cult information",
-    "confront_marcus": "Face Marcus Nightshade at the Hill Ruins"
+    "confront_marcus": "Face Marcus Nightshade at the Hill Ruins",
+
+    "meet_beggar": "Encounter the beggar near the alley",
+    "learn_beggar_name": "Learn the beggar's name",
+    "learn_casper_backstory": "Discover Casper's tragic past",
+    "casper_redemption_choice": "Decide who should return the ring",
+    "casper_redemption_complete": "Witness Casper's redemption"
   },
 
   "npcs": {
@@ -108,6 +114,43 @@
         "ring_recovered": "returned_meredith_ring",
         "mentioned_old_mine": "meredith_mentioned_old_mine",
         "heard_about_tremors": "meredith_worried_tremors"
+      }
+    },
+    "beggar": {
+      "system_id": "beggar",
+      "full_name": "Casper Stillgarden",
+      "dialogue_file": "redstone_town_beggar",
+      "conversation_flag": "beggar_talked",
+      "location": "redstone_town",
+      "role": "beggar",
+      "species": "human",
+      "story_flags": {
+        "name_revealed": "beggar_name_revealed",
+        "backstory_known": "casper_backstory_known",
+        "ring_mentioned": "casper_ring_mentioned",
+        "aware_player_has_ring": "casper_aware_player_has_ring",
+        "offered_ring": "casper_offered_ring",
+        "given_ring": "casper_given_ring",
+        "declined_redemption": "casper_declined_redemption",
+        "disappeared": "casper_disappeared",
+        "returned_ring_to_meredith": "casper_returned_ring_to_meredith",
+        "redemption_complete": "casper_redemption_complete",
+        "recovery_visible": "casper_recovery_visible",
+        "epilogue_active": "casper_epilogue_active"
+      }
+    },
+    "casper_and_meredith_epilogue": {
+      "system_id": "casper_and_meredith_epilogue",
+      "full_name": "Casper & Meredith",
+      "dialogue_file": "redstone_town_casperandmeredith",
+      "conversation_flag": "epilogue_couple_talked",
+      "location": "redstone_town",
+      "role": "couple",
+      "species": "human",
+      "story_flags": {
+        "first_meeting": "epilogue_couple_talked",
+        "wedding_invited": "invited_to_casper_meredith_wedding",
+        "romance_acknowledged": "meredith_casper_romance"
       }
     },
     "garrick": {
@@ -629,6 +672,42 @@
         "event_type": "QUEST_COMPLETED",
         "xp_reward": "quest_multipliers.side_task"
       },
+      "casper_met": {
+        "dialogue_flag": "beggar_talked",
+        "quest_objective": "casper_redemption.meet_beggar",
+        "event_type": "QUEST_ACCEPTED",
+        "xp_reward": "discovery_base"
+      },
+      "casper_name_learned": {
+        "dialogue_flag": "beggar_name_revealed",
+        "quest_objective": "casper_redemption.learn_beggar_name",
+        "event_type": "DISCOVERY",
+        "xp_reward": "discovery_base"
+      },
+      "casper_backstory_learned": {
+        "dialogue_flag": "casper_backstory_known",
+        "quest_objective": "casper_redemption.learn_casper_backstory",
+        "event_type": "DISCOVERY",
+        "xp_reward": "discovery_base"
+      },
+      "casper_given_ring_choice": {
+        "dialogue_flag": "casper_given_ring",
+        "quest_objective": "casper_redemption.casper_redemption_choice",
+        "event_type": "QUEST_PROGRESS",
+        "xp_reward": "quest_multipliers.side_task"
+      },
+      "casper_redemption_complete": {
+        "dialogue_flag": "casper_redemption_complete",
+        "quest_objective": "casper_redemption.casper_redemption_complete",
+        "event_type": "QUEST_COMPLETED",
+        "xp_reward": 200
+      },
+      "meredith_ring_direct_return": {
+        "dialogue_flag": "returned_meredith_ring",
+        "quest_objective": "kobold_mine_investigation.recover_ring",
+        "event_type": "QUEST_COMPLETED",
+        "xp_reward": 100
+      },
 
     "quest_completion_triggers": {
       "party_building_complete": {
@@ -724,6 +803,17 @@
         "confront_marcus": ["confronted_marcus_ruins"],
         "report_to_cassia": ["cassia_story_complete"]
       }
+    },
+    "casper_redemption": {
+      "type": "secondary",
+      "activation_flag": "beggar_talked",
+      "objectives": {
+        "meet_beggar": ["beggar_talked"],
+        "learn_beggar_name": ["beggar_name_revealed"],
+        "learn_casper_backstory": ["casper_backstory_known"],
+        "casper_redemption_choice": ["casper_given_ring || casper_declined_redemption"],
+        "casper_redemption_complete": ["casper_redemption_complete"]
+      }
     }
   },
 
@@ -735,12 +825,23 @@
     
     "meredith": {
       "first_meeting": "!meredith_talked",
-      "ring_returned_thanks": "returned_meredith_ring",
-      "ring_quest_active": "meredith_gave_ring_quest && !returned_meredith_ring",
-      "ring_quest_offer": "meredith_talked && mayor_talked && !meredith_gave_ring_quest && !returned_meredith_ring",
+      "meredith_after_casper_returned_ring": "casper_returned_ring_to_meredith && meredith_talked",
+      "ring_returned_thanks": "returned_meredith_ring && !casper_returned_ring_to_meredith",
+      "ring_quest_active": "meredith_gave_ring_quest && !returned_meredith_ring && !casper_returned_ring_to_meredith",
+      "ring_quest_offer": "meredith_talked && mayor_talked && !meredith_gave_ring_quest && !returned_meredith_ring && !casper_returned_ring_to_meredith",
       "knows_about_swamp": "meredith_talked && !mayor_talked && learned_about_swamp_church",
       "post_mayor": "meredith_talked && mayor_talked",
       "return_visits": "meredith_talked && !mayor_talked"
+    },
+    "beggar": {
+      "first_meeting": "!beggar_talked",
+      "redemption_pending": "casper_given_ring && !casper_disappeared",
+      "return_visits_with_ring": "casper_ring_mentioned && found_merediths_ring && !casper_given_ring && !casper_declined_redemption",
+      "return_visits": "beggar_talked"
+    },
+    "casper_and_meredith_epilogue": {
+      "first_meeting": "!epilogue_couple_talked",
+      "return_visit": "epilogue_couple_talked"
     },
     "garrick": {
       "first_meeting": "!garrick_talked",

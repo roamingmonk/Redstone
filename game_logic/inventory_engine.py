@@ -119,12 +119,12 @@ class InventoryEngine:
             print(f"❌ Error adding item {item_id}: {e}")
             return False
     
-    def remove_item(self, item_name: str, quantity: int = 1) -> bool:
+    def remove_item(self, item_identifier: str, quantity: int = 1) -> bool:
         """
         Remove item(s) from player inventory
         
         Args:
-            item_name: Display name of item to remove
+            item_identifier: Item ID (preferred) or display name
             quantity: Number of items to remove
             
         Returns:
@@ -136,26 +136,53 @@ class InventoryEngine:
             
             inventory = self.game_state.inventory
             
+            # Try to get item data by ID
+            from game_logic.item_manager import item_manager
+            item_data = item_manager.get_item_by_id(item_identifier)
+            
+            # If we found the item, use its ID and name
+            if item_data:
+                item_id = item_data.get('id')
+                item_name = item_data.get('name')
+            else:
+                # Couldn't find item data - treat identifier as-is
+                # (for backward compatibility if items are stored differently)
+                item_id = item_identifier
+                item_name = item_identifier
+            
             # Find and remove items from all categories
             total_removed = 0
             for category_key in ['weapons', 'armor', 'consumables', 'items']:
                 if category_key in inventory:
                     items_in_category = inventory[category_key]
                     
-                    while total_removed < quantity and item_name in items_in_category:
-                        items_in_category.remove(item_name)
+                    # Try removing by ID first (current storage method)
+                    while total_removed < quantity and item_id in items_in_category:
+                        items_in_category.remove(item_id)
                         total_removed += 1
+                    
+                    # Also try by the original identifier (legacy compatibility)
+                    if item_identifier != item_id:
+                        while total_removed < quantity and item_identifier in items_in_category:
+                            items_in_category.remove(item_identifier)
+                            total_removed += 1
             
             if total_removed > 0:
                 qty_text = f"{total_removed}x " if total_removed > 1 else ""
-                print(f"✅ Removed {qty_text}{item_name} from inventory")
+                print(f"✅ Removed {qty_text}{item_name} ({item_id}) from inventory")
                 return total_removed == quantity
             else:
-                print(f"⚠️ Item not found in inventory: {item_name}")
+                print(f"⚠️ Item not found in inventory: {item_name} ({item_id})")
+                print(f"🔍 DEBUG: Searched in categories: {list(inventory.keys())}")
+                for cat in ['weapons', 'armor', 'consumables', 'items']:
+                    if cat in inventory:
+                        print(f"🔍 DEBUG: {cat} contains: {inventory[cat]}")
                 return False
                 
         except Exception as e:
-            print(f"❌ Error removing item {item_name}: {e}")
+            print(f"❌ Error removing item {item_identifier}: {e}")
+            import traceback
+            traceback.print_exc()
             return False
     
     def equip_item(self, item_id: str, category: str) -> bool:
