@@ -152,7 +152,8 @@ BUILDING_ENTRANCES = {
             'name': "Mayor's Office",
             'interaction_type': 'npc_dialogue',
             'npc_id': 'mayor',
-            'action': 'Talk to Mayor'
+            'action': 'Talk to Mayor',
+            'dialogue_location_override': 'redstone_town'
         }
     },
     'north_gate': {

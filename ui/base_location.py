@@ -740,7 +740,7 @@ class NPCSelectionLocation(BaseLocation):
                     )
 
         # Calculate display width (accounting for party panel)
-        image_width = 1024 - PARTY_PANEL_WIDTH - 10  # 10px spacin
+        image_width = 1024 - PARTY_PANEL_WIDTH - 10  # 10px spacing
 
         # === IMAGE ZONE ===
         image_y = LAYOUT_IMAGE_Y
@@ -754,7 +754,7 @@ class NPCSelectionLocation(BaseLocation):
         img_width = image_width - 2 * border_thickness 
         img_height = image_height - 2 * border_thickness
         
-        # Load background image using JSON filename + constants path ***
+        # Load background image
         bg_image_key = area_data.get('properties', {}).get('background_image')
         bg_loaded = False
 
@@ -781,7 +781,7 @@ class NPCSelectionLocation(BaseLocation):
         if not bg_loaded:
             draw_centered_text(surface, title, title_font, image_y + 240, YELLOW)
         
-        #=== DIALOG ZONE (FULL SCREEN WIDTH) ===
+        # === DIALOG ZONE (FULL SCREEN WIDTH) ===
         dialog_y = LAYOUT_DIALOG_Y
         dialog_height = LAYOUT_DIALOG_HEIGHT
         dialog_margin = 0
@@ -800,41 +800,73 @@ class NPCSelectionLocation(BaseLocation):
         prompt_font = fonts.get('fantasy_medium', fonts['normal'])
         draw_centered_text(surface, prompt, prompt_font, text_y, WHITE)
         
-        # === BUTTON ZONE ===
+        # === BUTTON ZONE - NPCs + Navigation in ONE ROW ===
         button_y = LAYOUT_BUTTON_Y
-        npcs = area_data.get('npcs', [])
+        all_npcs = area_data.get('npcs', [])
+        navigation = area_data.get('navigation', {})
+
+        # Filter NPCs based on location_based flag
+        npcs = []
+        for npc in all_npcs:
+            npc_id = npc.get('id')
+            location_based = npc.get('location_based', False)
+            
+            if location_based and npc_id and game_state:
+                from utils.narrative_schema import narrative_schema
+                npc_schema = narrative_schema.schema.get('npcs', {}).get(npc_id, {})
+                
+                act_one_location = npc_schema.get('location', 'broken_blade')
+                act_two_location = npc_schema.get('act_two_location', None)
+                parent_location = area_data.get('parent', 'broken_blade')
+                
+                if act_two_location:
+                    act_two_started = getattr(game_state, 'act_two_started', False)
+                    
+                    if act_two_started and parent_location == act_one_location:
+                        continue  # Hide NPC
+                    
+                    if not act_two_started and parent_location == act_two_location:
+                        continue  # Hide NPC
+            
+            npcs.append(npc)
+
+        # Store filtered list for handle_action
+        self._filtered_npcs = npcs
         button_rects = {}
 
-        # Calculate button positions including the back button as part of the row
+        # Calculate total buttons (NPCs + navigation)
         num_npcs = len(npcs)
-        total_buttons = num_npcs + 1  # NPCs + back button
+        num_nav_buttons = len(navigation)
+        total_buttons = num_npcs + num_nav_buttons
 
         if total_buttons > 0:
-            # Calculate positions for ALL buttons (NPCs + back button)
-            available_width = image_width - 40  # Account for dialog borders
-            button_positions = calculate_npc_button_positions(total_buttons, available_width)
+            # Calculate positions for all buttons
+            button_positions = calculate_npc_button_positions(total_buttons, 1024)
             
             # Draw NPC buttons
             for i, npc in enumerate(npcs):
                 if i < len(button_positions):
                     npc_name = npc.get('name', npc.get('id', 'Unknown'))
                     npc_id = npc.get('id')
+                    button_x = button_positions[i]
                     
-                    # Use calculated position + dialog margin
-                    button_x = button_positions[i] + 90
-                    
-                    # Draw button with consistent sizing
                     button_rect = draw_button(surface, button_x, button_y, 
                                             NPC_BUTTON_WIDTH, NPC_BUTTON_HEIGHT, 
                                             npc_name, fonts['normal'])
                     button_rects[npc_id] = button_rect
 
-            # Back button (positioned as the last button in the row)
-            if len(button_positions) > num_npcs:
-                back_x = button_positions[num_npcs] + 90  # Last position + dialog margin
-                back_rect = draw_button(surface, back_x, button_y, 
-                                    NPC_BUTTON_WIDTH, NPC_BUTTON_HEIGHT, "Back", fonts['normal'])
-                button_rects['back'] = back_rect
+            # Draw navigation buttons after NPCs
+            nav_index = num_npcs
+            for nav_id, nav_data in navigation.items():
+                if nav_index < len(button_positions):
+                    label = nav_data.get('label', nav_id.replace('_', ' ').title())
+                    button_x = button_positions[nav_index]
+                    
+                    nav_rect = draw_button(surface, button_x, button_y,
+                                         NPC_BUTTON_WIDTH, NPC_BUTTON_HEIGHT,
+                                         label, fonts['normal'])
+                    button_rects[f"nav_{nav_id}"] = nav_rect
+                    nav_index += 1
         
         return {
             'button_rects': button_rects,
@@ -872,7 +904,24 @@ class NPCSelectionLocation(BaseLocation):
         
         # Handle special actions (like 'back' button or direct NPC clicks)
         elif action_name:
-            if action_name == 'back':
+            # Check if this is a navigation button (prefixed with nav_)
+            if action_name.startswith('nav_'):
+                nav_id = action_name.replace('nav_', '')
+                area_data = self.get_current_area_data()
+                navigation = area_data.get('navigation', {})
+                nav_data = navigation.get(nav_id, {})
+                
+                if nav_data:
+                    target = nav_data.get('target')
+                    if target:
+                        event_manager.emit("SCREEN_CHANGE", {
+                            "target_screen": target,
+                            "source_screen": self.get_screen_name()
+                        })
+                        return "navigation_success"
+            
+            # Legacy back button support
+            elif action_name == 'back':
                 # Navigate back to parent location
                 area_data = self.get_current_area_data()
                 parent = area_data.get('parent', 'broken_blade')
@@ -884,9 +933,14 @@ class NPCSelectionLocation(BaseLocation):
                 return "back_success"
             
             else:
-                # Handle NPC selection by finding the dialogue_file from JSON
-                area_data = self.get_current_area_data()
-                npcs = area_data.get('npcs', [])
+                # Handle NPC selection by finding the dialogue_file from filtered list
+                # Use the filtered list from render() to match button positions
+                npcs = getattr(self, '_filtered_npcs', [])
+                
+                # If no filtered list exists, fall back to area data (shouldn't happen)
+                if not npcs:
+                    area_data = self.get_current_area_data()
+                    npcs = area_data.get('npcs', [])
                 
                 # Find the NPC by ID and get their dialogue_file
                 target_screen = None

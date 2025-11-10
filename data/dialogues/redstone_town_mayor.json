@@ -1,0 +1,312 @@
+{
+  "id": "redstone_town_mayor",
+  "npc_name": "Mayor Aldwin Goldenbottom",
+
+  "states": {
+    "no_progress": {
+      "introduction": [
+        "*The Mayor looks up from his desk, worry etched on his face.*",
+        "Any news? Every hour counts.",
+        "The tremors are getting worse.",
+        "Investigate the Swamp Church, the Hill Ruins, or the Refugee Camp.",
+        "Find my family. Find out what is happening to Redstone."
+      ],
+      "options": [
+        { 
+          "id": "where_again", 
+          "text": "Remind me where I should look.", 
+          "next_state": "location_reminders" 
+        },
+        {
+          "id": "ask_tremors",
+          "text": "The tremors are definitely getting worse.",
+          "next_state": "tremor_discussion"
+        },
+        { 
+          "id": "bye", 
+          "text": "I'm on it.", 
+          "next_state": "exit" 
+        }
+      ]
+    },
+
+    "location_reminders": {
+      "introduction": [
+        "Three locations demand investigation:",
+        "The Swamp Church - old chapel in the marsh, reports of lights.",
+        "The Hill Ruins - ancient stones where people vanish.",
+        "The Refugee Camp - displaced miners with strange dreams.",
+        "Start wherever you think best."
+      ],
+      "options": [
+        { "id": "back", "text": "Got it.", "next_state": "no_progress" }
+      ]
+    },
+
+    "tremor_discussion": {
+      "introduction": [
+        "*He slams his fist on the desk.*",
+        "Started weeks ago. Getting stronger every day.",
+        "Miners say it is the old shafts settling.",
+        "But the timing... right when people vanish?",
+        "I do not believe in coincidences.",
+        "Find what is taking our people.",
+        "Maybe that will stop the tremors too."
+      ],
+      "options": [
+        { 
+          "id": "back", 
+          "text": "I'll keep investigating.", 
+          "next_state": "no_progress" 
+        }
+      ]
+    },
+
+    "swamp_complete_first_time": {
+      "introduction": [
+        "*His face pales as you describe what you found.*",
+        "A cult? Operating right under our noses?",
+        "Kidnapping our people for... for rituals?",
+        "*He steadies himself against the desk.*",
+        "This is worse than I feared.",
+        "Thank you for uncovering this, but we are not done.",
+        "Keep investigating. There must be more."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "I'll keep searching.",
+          "effects": [
+            { "type": "set_flag", "flag": "mayor_acknowledged_swamp_complete", "value": true }
+          ],
+          "next_state": "progress_check"
+        }
+      ]
+    },
+
+    "ruins_complete_first_time": {
+      "introduction": [
+        "*He listens intently to your report.*",
+        "A portal? Some kind of... dimensional gateway?",
+        "And it is sealed? Locked?",
+        "*He runs his hand through his hair.*",
+        "Whatever is beyond that door took my family.",
+        "We need to find a way through.",
+        "Keep investigating the other locations.",
+        "Someone must know how to open it."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "I'll find a way.",
+          "effects": [
+            { "type": "set_flag", "flag": "mayor_acknowledged_ruins_complete", "value": true }
+          ],
+          "next_state": "progress_check"
+        }
+      ]
+    },
+
+    "refugee_complete_first_time": {
+      "introduction": [
+        "*He takes the key from you, examining it closely.*",
+        "This... this is it. The key to the ruins.",
+        "Those poor people were guarding it all along.",
+        "*He looks up with grim determination.*",
+        "Now we can reach the source of this corruption.",
+        "But we must be certain we are ready.",
+        "Make sure you have investigated everything.",
+        "When you are ready, we end this."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "I'll make sure I'm prepared.",
+          "effects": [
+            { "type": "set_flag", "flag": "mayor_acknowledged_refugee_complete", "value": true }
+          ],
+          "next_state": "progress_check"
+        }
+      ]
+    },
+
+    "mine_complete_first_time": {
+      "introduction": [
+        "*He examines the ore samples you recovered.*",
+        "This is what Henrik sealed away all those years ago.",
+        "Strange energy... unnatural glow...",
+        "*He sets them down carefully.*",
+        "This ore must be connected to the portal somehow.",
+        "Dimensional properties, perhaps.",
+        "Thank you for investigating the mine.",
+        "Every piece of information helps."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "Glad I could help.",
+          "effects": [
+            { "type": "set_flag", "flag": "mayor_acknowledged_mine_complete", "value": true }
+          ],
+          "next_state": "progress_check"
+        }
+      ]
+    },
+
+    "progress_check": {
+      "introduction": [
+        "Keep investigating.",
+        "The more we know, the better our chances."
+      ],
+      "options": [
+        { 
+          "id": "where_next", 
+          "text": "What should I focus on?", 
+          "next_state": "location_status" 
+        },
+        { 
+          "id": "bye", 
+          "text": "I'm on it.", 
+          "next_state": "exit" 
+        }
+      ]
+    },
+
+    "location_status": {
+      "introduction": [
+        "Let me think about what we know...",
+        "*He reviews his notes.*"
+      ],
+      "options": [
+        {
+          "id": "check_swamp",
+          "text": "What about the Swamp Church?",
+          "requirements": {
+            "flags": {
+              "swamp_church_complete": false
+            }
+          },
+          "next_state": "swamp_still_needed"
+        },
+        {
+          "id": "check_ruins",
+          "text": "And the Hill Ruins?",
+          "requirements": {
+            "flags": {
+              "hill_ruins_complete": false
+            }
+          },
+          "next_state": "ruins_still_needed"
+        },
+        {
+          "id": "check_refugee",
+          "text": "The Refugee Camp?",
+          "requirements": {
+            "flags": {
+              "refugee_camp_complete": false
+            }
+          },
+          "next_state": "refugee_still_needed"
+        },
+        {
+          "id": "back", 
+          "text": "Never mind, I'll figure it out.", 
+          "next_state": "progress_check" 
+        }
+      ]
+    },
+
+    "swamp_still_needed": {
+      "introduction": [
+        "The Swamp Church is still a mystery.",
+        "If there is cult activity there, we need to know."
+      ],
+      "options": [
+        { "id": "back", "text": "I'll check it out.", "next_state": "progress_check" }
+      ]
+    },
+
+    "ruins_still_needed": {
+      "introduction": [
+        "The Hill Ruins are the key to this whole thing.",
+        "That is where the disappearances center.",
+        "Whatever is there, we need to face it."
+      ],
+      "options": [
+        { "id": "back", "text": "I'll investigate.", "next_state": "progress_check" }
+      ]
+    },
+
+    "refugee_still_needed": {
+      "introduction": [
+        "The Refugee Camp might have survivors.",
+        "People who escaped whatever is happening.",
+        "They might know something crucial."
+      ],
+      "options": [
+        { "id": "back", "text": "I'll go talk to them.", "next_state": "progress_check" }
+      ]
+    },
+
+    "multiple_progress": {
+      "introduction": [
+        "*He looks more hopeful than before.*",
+        "You are making real progress.",
+        "The picture is becoming clearer.",
+        "But we still need to know everything before we act."
+      ],
+      "options": [
+        { 
+          "id": "status", 
+          "text": "What still needs investigating?", 
+          "next_state": "location_status" 
+        },
+        { 
+          "id": "bye", 
+          "text": "I'll keep working on it.", 
+          "next_state": "exit" 
+        }
+      ]
+    },
+
+    "ready_for_act_three": {
+      "introduction": [
+        "*He stands, resolve hardening in his eyes.*",
+        "You have done it. We know what we face.",
+        "A cult. A portal. My family taken beyond.",
+        "*He grips your shoulder.*",
+        "Now we end this.",
+        "When you are ready, take the key to the ruins.",
+        "I will gather what forces we have left.",
+        "Bring my family home."
+      ],
+      "options": [
+        {
+          "id": "ready",
+          "text": "I'm ready to finish this.",
+          "effects": [
+            { "type": "set_flag", "flag": "act_three_ready", "value": true }
+          ],
+          "next_state": "final_blessing"
+        },
+        {
+          "id": "prepare",
+          "text": "Let me prepare first.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "final_blessing": {
+      "introduction": [
+        "*He nods solemnly.*",
+        "Go with my blessing.",
+        "May the gods watch over you.",
+        "Save Redstone."
+      ],
+      "options": [
+        { "id": "depart", "text": "I will.", "next_state": "exit" }
+      ]
+    }
+  }
+}

@@ -47,14 +47,14 @@
       "introduction": [
         "Three hotspots keep coming up: the Refugee Camp,",
         "the Hill Ruins, and the old Swamp Church.",
-        "Talk to the tavern folk if you need more background.", 
-        "I'll authorize supplies where I can."
+        "Talk to the tavern folk - they know the area better than I do.", 
+        "Meredith, Garrick, and Pete might have useful information."
       ],
       "options": [
-        { "id": "lead_swamp", "text": "Tell me about the Swamp Church.", "next_state": "brief_swamp" },
-        { "id": "lead_ruins", "text": "Tell me about the Hill Ruins.",  "next_state": "brief_ruins" },
+        { "id": "lead_swamp", "text": "What do you know about the Swamp Church?", "next_state": "brief_swamp" },
+        { "id": "lead_ruins", "text": "What about the Hill Ruins?",  "next_state": "brief_ruins" },
         { "id": "lead_refugees", "text": "Tell me about the Refugee Camp.", "next_state": "brief_refugees" },
-        { "id": "done", "text": "That's enough for now.", "next_state": "exit" }
+        { "id": "done", "text": "I'll start investigating.", "next_state": "exit" }
       ]
     },
 
@@ -62,15 +62,15 @@
       "introduction": [
         "There is an old chapel out in the marsh.",
         "Reports of lights and chanting at night.",
-        "Be careful. The ground can swallow fools."
+        "Meredith serves travelers - she hears all the rumors.",
+        "Ask her about it."
       ],
       "options": [
         {
-          "id": "mark_swamp",
-          "text": "Mark it on my map.",
+          "id": "noted",
+          "text": "I'll ask around.",
           "effects": [
-            { "type": "set_flag", "flag": "mayor_gave_swamp_info", "value": true },
-            { "type": "set_flag", "flag": "learned_about_swamp_church", "value": true }
+            { "type": "set_flag", "flag": "mayor_gave_swamp_info", "value": true }
           ],
           "next_state": "quest_given"
         }
@@ -81,15 +81,15 @@
       "introduction": [
         "Old and crumbling stones up on the nearby hill.",
         "Hunters say people vanish near the old arch.",
-        "If there's a pattern, it may start there."
+        "Garrick knows that area - miners used to explore up there.",
+        "Talk to him."
       ],
       "options": [
         {
-          "id": "mark_ruins",
-          "text": "Mark it on my map.",
+          "id": "noted",
+          "text": "Got it.",
           "effects": [
-            { "type": "set_flag", "flag": "mayor_gave_ruins_info", "value": true },
-            { "type": "set_flag", "flag": "learned_about_ruins", "value": true }
+            { "type": "set_flag", "flag": "mayor_gave_ruins_info", "value": true }
           ],
           "next_state": "quest_given"
         }
@@ -100,16 +100,15 @@
       "introduction": [
         "There is a camp by the south road.", 
         "Full of frightened people having strange dreams.", 
-        "There are missing campers, as well.",
-        "Someone there knows more than they say."
+        "Missing campers too.",
+        "Pete hangs around the tavern - he might know how to find them."
       ],
       "options": [
         {
-          "id": "mark_refugees",
-          "text": "Mark it on my map.",
+          "id": "noted",
+          "text": "I'll find Pete.",
           "effects": [
-            { "type": "set_flag", "flag": "mayor_gave_refugee_info", "value": true },
-            { "type": "set_flag", "flag": "learned_about_refugees", "value": true }
+            { "type": "set_flag", "flag": "mayor_gave_refugee_info", "value": true }
           ],
           "next_state": "quest_given"
         }
@@ -199,7 +198,7 @@
 
     "post_completion_idle": {
       "introduction": [
-        "We will rebuild. Bigge and Better!",
+        "We will rebuild. Bigger and Better!",
         "If anything else threatens Redstone",
         "you'll hear from me."
       ],

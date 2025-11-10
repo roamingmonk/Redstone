@@ -867,13 +867,23 @@
       "post_comedy": "pete_comedy_complete && !pete_gave_refugee_info",
       "pre_recruitment_comedy": "pete_talked && !pete_attempted_recruitment"
     },
-    "mayor": {
-      "first_meeting": "!mayor_talked",
-      "post_completion_reward": "quest_active && main_quest_completed && !reported_main_quest",
-      "ore_sample_discussion": "reported_main_quest && retrieved_ore_samples && !mayor_examined_ore_samples",
-      "post_completion_idle":   "quest_active && main_quest_completed && reported_main_quest",
-      "quest_given":       "quest_active && !main_quest_completed && !(learned_about_swamp_church || learned_about_ruins || learned_about_refugees)",
-      "progress_updates":  "mayor_talked && quest_active && (learned_about_swamp_church || learned_about_ruins || learned_about_refugees) && !main_quest_completed"
+   "mayor": {
+      "_comment_act2": "=== ACT II OFFICE STATES (redstone_town_mayor.json) - Most specific first ===",
+      "ready_for_act_three": "act_two_started && swamp_church_complete && hill_ruins_complete && refugee_camp_complete",
+      "swamp_complete_first_time": "act_two_started && swamp_church_complete && !mayor_acknowledged_swamp_complete",
+      "ruins_complete_first_time": "act_two_started && hill_ruins_complete && !mayor_acknowledged_ruins_complete",
+      "refugee_complete_first_time": "act_two_started && refugee_camp_complete && !mayor_acknowledged_refugee_complete",
+      "mine_complete_first_time": "act_two_started && red_hollow_mine_complete && !mayor_acknowledged_mine_complete",
+      "multiple_progress": "act_two_started && (mayor_acknowledged_swamp_complete || mayor_acknowledged_ruins_complete || mayor_acknowledged_refugee_complete || mayor_acknowledged_mine_complete)",
+      "no_progress": "act_two_started && mayor_talked",
+      
+      "_comment_act1": "=== ACT I TAVERN STATES (patron_selection_mayor.json) ===",
+      "first_meeting": "!mayor_talked && !act_two_started",
+      "post_completion_reward": "!act_two_started && quest_active && main_quest_completed && !reported_main_quest",
+      "ore_sample_discussion": "!act_two_started && reported_main_quest && retrieved_ore_samples && !mayor_examined_ore_samples",
+      "post_completion_idle": "!act_two_started && quest_active && main_quest_completed && reported_main_quest",
+      "quest_given": "!act_two_started && quest_active && !main_quest_completed && !(learned_about_swamp_church || learned_about_ruins || learned_about_refugees)",
+      "progress_updates": "!act_two_started && mayor_talked && quest_active && (learned_about_swamp_church || learned_about_ruins || learned_about_refugees) && !main_quest_completed"
     },
     "gareth": {
       "first_meeting_post_mayor": "!gareth_talked && mayor_talked",
