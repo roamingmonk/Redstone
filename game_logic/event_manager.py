@@ -183,7 +183,7 @@ class EventManager:
         """Enable or disable debug logging for events"""
         self.debug_logging = enabled
         status = "enabled" if enabled else "disabled"
-        print(f"📊 EM Event debug logging {status}")
+        #print(f"📊 EM Event debug logging {status}")
 
 
 # ==========================================

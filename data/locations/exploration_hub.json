@@ -37,7 +37,7 @@
             "label": "Red Hollow Mine",
             "target": "red_hollow_mine_entrance",
             "description": "Abandoned mine shaft sealed by fearful workers, now home to unknown dangers.",
-            "requires_flag": "discovered_old_mine_shaft"
+            "requires_flag": "learned_about_mine"
           },
           "return_to_town": {
             "type": "navigate",

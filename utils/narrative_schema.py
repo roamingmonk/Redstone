@@ -164,7 +164,27 @@ class NarrativeSchema:
         
         # Location discovery flags
         for location_data in self.schema.get("locations", {}).values():
-            flags.append(location_data.get("discovery_flag"))
+            discovery_flag = location_data.get("discovery_flag")
+            if discovery_flag:
+                flags.append(discovery_flag)
+            completion_flag = location_data.get("completion_flag")
+            if completion_flag:
+                flags.append(completion_flag)
+        
+        # Act progression flags
+        for act_data in self.schema.get("act_progression", {}).values():
+            start_flag = act_data.get("start_flag")
+            if start_flag:
+                flags.append(start_flag)
+            completion_flag = act_data.get("completion_flag")
+            if completion_flag:
+                flags.append(completion_flag)
+        
+        # Quest trigger flags
+        for trigger_data in self.schema.get("quest_triggers", {}).values():
+            dialogue_flag = trigger_data.get("dialogue_flag")
+            if dialogue_flag:
+                flags.append(dialogue_flag)
         
         return flags
 

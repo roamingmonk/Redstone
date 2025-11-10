@@ -39,6 +39,11 @@
           "next_state": "no_room"
         },
         {
+          "id": "ask_about_town",
+          "text": "Tell me about Redstone. What's happening here?",
+          "next_state": "town_situation"
+        },
+        {
           "id": "just_looking",
           "text": "Just looking around, thanks.",
           "effects": [
@@ -155,6 +160,16 @@
           "next_state": "discount_return"
         },
         {
+          "id": "ask_about_refugees",
+          "text": "I've heard there's a refugee camp nearby?",
+          "requirements": {
+            "flags": {
+              "learned_about_refugees": false
+            }
+          },
+          "next_state": "refugee_conversation"
+        },
+        {
           "id": "not_now",
           "text": "Not right now, thanks.",
           "next_state": "exit"
@@ -185,6 +200,100 @@
           "id": "not_tonight",
           "text": "Not tonight, but thanks.",
           "next_state": "exit"
+        }
+      ]
+    },
+    "refugee_conversation": {
+      "introduction": [
+        "*She pauses her cleaning and sits down heavily.*",
+        "Oh, the poor souls at the camp.",
+        "Miners mostly. Fled when the shafts got sealed.",
+        "*She sighs.*",
+        "They're camped south of town, off the main road.",
+        "I try to send them blankets and food when I can.",
+        "But they need more than that. They need... help."
+      ],
+      "options": [
+        {
+          "id": "what_help",
+          "text": "What kind of help?",
+          "next_state": "refugee_problems"
+        },
+        {
+          "id": "mark_map",
+          "text": "Where can I find this camp?",
+          "effects": [
+            { "type": "set_flag", "flag": "jenna_gave_refugee_info", "value": true },
+            { "type": "set_flag", "flag": "learned_about_refugees", "value": true },
+            { "type": "award_xp", "amount": 25 }
+          ],
+          "next_state": "marked_refugee"
+        },
+        { "id": "bye", "text": "I see.", "next_state": "exit" }
+      ]
+    },
+
+    "refugee_problems": {
+      "introduction": [
+        "*Her voice drops.*",
+        "Nightmares. All of them having the same nightmares.",
+        "Dark figures. Chanting. Being pulled down into the earth.",
+        "*She wraps her arms around herself.*",
+        "And people keep disappearing from the camp.",
+        "In the middle of the night. Just... gone.",
+        "They're terrified. And I don't blame them one bit."
+      ],
+      "options": [
+        {
+          "id": "ill_help",
+          "text": "I'll check on them. Where are they?",
+          "effects": [
+            { "type": "set_flag", "flag": "jenna_gave_refugee_info", "value": true },
+            { "type": "set_flag", "flag": "learned_about_refugees", "value": true },
+            { "type": "award_xp", "amount": 25 }
+          ],
+          "next_state": "marked_refugee"
+        },
+        { "id": "troubling", "text": "That's very troubling.", "next_state": "exit" }
+      ]
+    },
+
+    "marked_refugee": {
+      "introduction": [
+        "South road, about a mile out.",
+        "Look for cooking fires off to the west.",
+        "*She manages a small smile.*",
+        "Tell them Jenna sent you. They know I'm trying to help.",
+        "Maybe they'll trust you if you mention my name."
+      ],
+      "options": [
+        { "id": "thanks", "text": "Thank you, Jenna.", "next_state": "exit" }
+      ]
+    },
+     "town_situation": {
+      "introduction": [
+        "*She sets down her rag and looks at you.*",
+        "Redstone? It's... tense.",
+        "Tremors. Disappearances. Refugees flooding in.",
+        "Mayor's trying to keep order, but people are scared.",
+        "*She shakes her head.*",
+        "Used to be a quiet mining town. Now? I don't know what we are."
+      ],
+      "options": [
+        {
+          "id": "refugees_mention",
+          "text": "Tell me more about these refugees.",
+          "requirements": {
+            "flags": {
+              "learned_about_refugees": false
+            }
+          },
+          "next_state": "refugee_conversation"
+        },
+        {
+          "id": "understood",
+          "text": "I understand. Thanks for telling me.",
+          "next_state": "first_meeting"
         }
       ]
     },

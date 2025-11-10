@@ -20,6 +20,11 @@
           "next_state": "post_shopping"
         },
         {
+          "id": "ask_rumors",
+          "text": "Heard any interesting rumors lately?",
+          "next_state": "business_talk"
+        },
+        {
           "id": "just_looking",
           "text": "Just looking around town.",
           "effects": [{"type": "set_flag", "flag": "bernard_talked", "value": true}],
@@ -83,6 +88,16 @@
           "next_state": "post_shopping"
         },
         {
+          "id": "ask_about_ruins",
+          "text": "Know anything about the ruins on the hill?",
+          "requirements": {
+            "flags": {
+              "learned_about_ruins": false
+            }
+          },
+          "next_state": "ruins_conversation"
+        },
+        {
           "id": "farewell",
           "text": "Interesting. I'll be going now.",
           "next_state": "exit"
@@ -99,13 +114,20 @@
         {
           "id": "investigate",
           "text": "Maybe I could help investigate.",
-          "effects": [{"type": "set_flag", "flag": "bernard_shared_rumors", "value": true}],
+          "effects": [{"type": "set_flag", "flag": "bernard_shared_rumors", "value": true},
+                      { "type": "set_flag", "flag": "bernard_gave_refugee_info", "value": true },
+                      { "type": "set_flag", "flag": "learned_about_refugees", "value": true },
+                      { "type": "award_xp", "amount": 25 }],
           "next_state": "helpful_customer"
         },
         {
           "id": "shop_after_info",
           "text": "I see. Now about those goods...",
-          "effects": [{"type": "open_shop", "merchant_id": "bernard"}],
+          "effects": [{"type": "open_shop", "merchant_id": "bernard"},
+                      { "type": "set_flag", "flag": "bernard_gave_refugee_info", "value": true },
+                      { "type": "set_flag", "flag": "learned_about_refugees", "value": true },
+                      { "type": "award_xp", "amount": 25 }],
+                      
           "next_state": "exit"
         }
       ]
@@ -149,6 +171,16 @@
           "id": "about_potions_again",
           "text": "Where was that potion shop you mentioned?",
           "next_state": "potion_redirect_brief"
+        },
+        {
+          "id": "ask_about_ruins",
+          "text": "Know anything about the ruins on the hill?",
+          "requirements": {
+            "flags": {
+              "learned_about_ruins": false
+            }
+          },
+          "next_state": "ruins_conversation"
         },
         {
           "id": "just_visiting",
@@ -200,6 +232,73 @@
       }
     ]
   },
+  "ruins_conversation": {
+      "introduction": [
+        "The Hill Ruins? Aye, I know of them.",
+        "Sell supplies to hunters who work that area.",
+        "Well... used to, anyway.",
+        "*He frowns.*",
+        "They stopped going up there a few weeks back.",
+        "Said it felt... wrong."
+      ],
+      "options": [
+        {
+          "id": "tell_me_more",
+          "text": "Wrong how?",
+          "next_state": "ruins_wrong"
+        },
+        {
+          "id": "mark_map",
+          "text": "Can you point me there?",
+          "effects": [
+            { "type": "set_flag", "flag": "bernard_gave_ruins_info", "value": true },
+            { "type": "set_flag", "flag": "learned_about_ruins", "value": true },
+            { "type": "award_xp", "amount": 25 }
+          ],
+          "next_state": "marked_ruins"
+        },
+        { "id": "bye", "text": "Interesting.", "next_state": "exit" }
+      ]
+    },
+
+    "ruins_wrong": {
+      "introduction": [
+        "*He leans on the counter.*",
+        "They wouldn't say exactly. Just... wrong.",
+        "Felt watched. Heard things in the stones.",
+        "*He shakes his head.*",
+        "One fellow swore he saw lights moving between the pillars.",
+        "Purple lights. Green lights. Depends who you ask.",
+        "*He straightens up.*",
+        "Whatever's up there, it's scaring off experienced hunters."
+      ],
+      "options": [
+        {
+          "id": "investigate",
+          "text": "I should check this out. Show me where.",
+          "effects": [
+            { "type": "set_flag", "flag": "bernard_gave_ruins_info", "value": true },
+            { "type": "set_flag", "flag": "learned_about_ruins", "value": true },
+            { "type": "award_xp", "amount": 25 }
+          ],
+          "next_state": "marked_ruins"
+        },
+        { "id": "too_risky", "text": "Sounds too dangerous.", "next_state": "exit" }
+      ]
+    },
+
+    "marked_ruins": {
+      "introduction": [
+        "Take the north road out of town.",
+        "You'll see the hill to the east after about a mile.",
+        "Path is overgrown but still there.",
+        "*He looks at you seriously.*",
+        "Watch yourself up there. And come back for supplies after - assuming you come back at all."
+      ],
+      "options": [
+        { "id": "thanks", "text": "Thanks for the information.", "next_state": "exit" }
+      ]
+    },
 
   "cassia_reputation": {
     "introduction": [

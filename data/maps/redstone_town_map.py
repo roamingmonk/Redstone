@@ -153,7 +153,11 @@ BUILDING_ENTRANCES = {
             'interaction_type': 'npc_dialogue',
             'npc_id': 'mayor',
             'action': 'Talk to Mayor',
-            'dialogue_location_override': 'redstone_town'
+            'dialogue_location_override': 'redstone_town',
+            'requirements': {
+                'flags': ['act_two_started'],
+                'message': "The office is empty. The Mayor must be at the Broken Blade Tavern."
+            }
         }
     },
     'north_gate': {
@@ -161,25 +165,31 @@ BUILDING_ENTRANCES = {
         'entrance_tiles': [(8, 2)],  # Tile just south of north gate
         'info': {
             'name': "North Town Gate",
-            'interaction_type': 'screen_transition',
-            'screen': 'act_two_start',
-            'action': 'Begin Investigation'
+            'interaction_type': 'conditional_transition',  # Changed from screen_transition
+            'flag_check': 'act_two_started',
+            'if_true_screen': 'exploration_hub',           # Already seen intro
+            'if_false_screen': 'act_two_start',            # First time, show intro
+            'action': 'Begin Investigation',
+            'requirements': {                               #Add requirements check
+                'flags': ['mayor_talked', 'quest_active'],
+                'message': "You should speak with the Mayor before venturing beyond the walls."
+                }
         }    
     },
     'south_gate': {
-    'building_pos': (7, 12),
-    'entrance_tiles': [(7, 11)],  # Tile just north of south gate
-    'info': {
-        'name': "South Town Gate",
-        'interaction_type': 'conditional_transition',  # Changed from screen_transition
-        'flag_check': 'act_two_started',
-        'if_true_screen': 'exploration_hub',           # Already seen intro
-        'if_false_screen': 'act_two_start',            # First time, show intro
-        'action': 'Begin Investigation',
-        # 'requirements': {                               #Add requirements check
-        #     'flags': ['mayor_talked', 'quest_active'],
-        #     'message': "You should speak with the Mayor before venturing beyond the walls."
-        #     }
+        'building_pos': (7, 12),
+        'entrance_tiles': [(7, 11)],  # Tile just north of south gate
+        'info': {
+            'name': "South Town Gate",
+            'interaction_type': 'conditional_transition',  # Changed from screen_transition
+            'flag_check': 'act_two_started',
+            'if_true_screen': 'exploration_hub',           # Already seen intro
+            'if_false_screen': 'act_two_start',            # First time, show intro
+            'action': 'Begin Investigation',
+            'requirements': {                               #Add requirements check
+                'flags': ['mayor_talked', 'quest_active'],
+                'message': "You should speak with the Mayor before venturing beyond the walls."
+                }
         }
     },
         'alley': {

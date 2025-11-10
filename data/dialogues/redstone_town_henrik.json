@@ -459,11 +459,11 @@
             },
             {
               "type": "set_flag",
-              "flag": "discovered_old_mine_shaft",
+              "flag": "learned_about_mine",
               "value": true
             }
           ],
-          "next_state": "shaft_location"
+          "next_state": "mine_location"
         },
         {
           "id": "not_my_problem",
@@ -473,7 +473,7 @@
       ]
     },
 
-    "shaft_location": {
+    "mine_location": {
       "introduction": [
         "Red Hollow Mine. Eastern edge of town.",
         "The entrance I sealed is past the main workings.",
@@ -516,7 +516,7 @@
             },
             {
               "type": "set_flag",
-              "flag": "discovered_old_mine_shaft",
+              "flag": "learned_about_mine",
               "value": true
             }
           ],
@@ -556,7 +556,7 @@
             },
             {
               "type": "set_flag",
-              "flag": "discovered_old_mine_shaft",
+              "flag": "learned_about_mine",
               "value": true
             }
           ],

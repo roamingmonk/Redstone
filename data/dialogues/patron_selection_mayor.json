@@ -240,6 +240,20 @@
           "next_state": "post_completion_idle"
         }
       ]
+    },
+    "office_closed": {
+      "introduction": [
+        "*The office is empty.*",
+        "The Mayor must be at the Broken Blade Tavern.",
+        "You should speak with him there."
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "Leave the office.",
+          "next_state": "exit"
+        }
+      ]
     }
   }
 }

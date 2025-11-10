@@ -99,9 +99,12 @@ class BaseLocation(ABC):
         if not (screen_manager and hasattr(screen_manager, 'input_handler')):
             print(f"⚠️ Cannot register {screen_name}: InputHandler not available")
             return
-            
+        
         input_handler = screen_manager.input_handler
         
+        # Clear old registrations before adding new ones (handles filtered buttons like mayor)
+        input_handler.clear_clickables(screen_name)
+
         # Get current button rects by rendering to temp surface  
         temp_surface = pygame.Surface((1024, 768))
         
@@ -398,7 +401,7 @@ class ActionHubLocation(BaseLocation):
             # Check OLD FORMAT: "requirements": {"flags": {...}}
             requirements = action_data.get('requirements')
             if not self.evaluate_requirements(requirements, game_state):
-                print(f"❌ Action '{action_name}' FAILED OLD FORMAT requirements check")
+                #print(f"❌ Action '{action_name}' FAILED OLD FORMAT requirements check")
                 continue
             
             # Check NEW FORMAT: "requires_flag": "flag_name"

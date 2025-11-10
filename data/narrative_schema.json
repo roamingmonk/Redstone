@@ -285,6 +285,8 @@
       "species": "human",
       "story_flags": {
         "first_shop_visit": "bernard_first_visit",
+        "gave_ruins_location": "bernard_gave_ruins_info",
+        "gave_refugee_location": "bernard_gave_refugee_info",
         "heard_rumors": "bernard_shared_rumors",
         "gave_supplies_discount": "bernard_gave_discount"
       }
@@ -298,7 +300,8 @@
       "species": "human",
       "role": "innkeeper",
       "story_flags": {
-        "gave_discount": "jenna_gave_discount"
+        "gave_discount": "jenna_gave_discount",
+        "gave_refugee_location": "jenna_gave_refugee_info"
       }
     },
     "henrik": {
@@ -319,7 +322,7 @@
         "ore_samples_retrieved": "retrieved_ore_samples",
         "henrik_quest_reported": "reported_shaft_to_henrik",
         "cavia_sensitivity_noticed": "henrik_noticed_cavia_sensitivity",
-        "mine_discovered": "discovered_old_mine_shaft",
+        "mine_discovered": "learned_about_mine",
         "mine_seal_examined": "examined_henrik_seal",
         "mine_seal_broken": "mine_seal_broken",
         "mine_warnings_seen": "examined_mine_warnings",
@@ -375,6 +378,7 @@
       "role": "merchant_alchemist",
       "species": "human",
       "story_flags": {
+        "gave_swamp_location": "cassia_gave_swamp_info",
         "shop_discovered": "learned_about_violet_mortar",
         "bernard_referral": "bernard_mentioned_cassia",
         "garrick_referral": "garrick_mentioned_cassia",
@@ -451,7 +455,7 @@
     "red_hollow_mine": {
       "display_name": "Red Hollow Mine - Old Shaft",
       "system_id": "red_hollow_mine",
-      "discovery_flag": "discovered_old_mine_shaft",
+      "discovery_flag": "learned_about_mine",
       "completion_flag": "red_hollow_mine_complete", 
       "quest_id": "kobold_mine_investigation",
       "source_npc": "henrik",
@@ -493,21 +497,21 @@
   },
 
   "quest_triggers": {
-    "meredith_swamp_discovery": {
-      "dialogue_flag": "meredith_gave_swamp_info",
-      "quest_objective": "main_story.learn_swamp_church",
+    "swamp_church_discovered": {
+      "dialogue_flag": "learned_about_swamp_church",
+      "quest_objective": "main_story.explore_swamp_church",
       "event_type": "INFORMATION_DISCOVERED",
       "xp_reward": "discovery_base"
     },
-    "garrick_ruins_discovery": {
-      "dialogue_flag": "garrick_gave_ruins_info",
-      "quest_objective": "main_story.learn_hill_ruins",
+    "hill_ruins_discovered": {
+      "dialogue_flag": "learned_about_ruins",
+      "quest_objective": "main_story.explore_hill_ruins",
       "event_type": "INFORMATION_DISCOVERED",
       "xp_reward": "discovery_base"
     },
-    "pete_refugee_discovery": {
-      "dialogue_flag": "pete_gave_refugee_info",
-      "quest_objective": "main_story.learn_refugee_camp",
+    "refugee_camp_discovered": {
+      "dialogue_flag": "learned_about_refugees",
+      "quest_objective": "main_story.explore_refugee_camp",
       "event_type": "INFORMATION_DISCOVERED",
       "xp_reward": "discovery_base"
     },
@@ -883,7 +887,10 @@
       "ore_sample_discussion": "!act_two_started && reported_main_quest && retrieved_ore_samples && !mayor_examined_ore_samples",
       "post_completion_idle": "!act_two_started && quest_active && main_quest_completed && reported_main_quest",
       "quest_given": "!act_two_started && quest_active && !main_quest_completed && !(learned_about_swamp_church || learned_about_ruins || learned_about_refugees)",
-      "progress_updates": "!act_two_started && mayor_talked && quest_active && (learned_about_swamp_church || learned_about_ruins || learned_about_refugees) && !main_quest_completed"
+      "progress_updates": "!act_two_started && mayor_talked && quest_active && (learned_about_swamp_church || learned_about_ruins || learned_about_refugees) && !main_quest_completed",
+
+      "_comment_fallback": "=== FALLBACK - Office closed before Act II ===",
+      "office_closed": "!act_two_started"
     },
     "gareth": {
       "first_meeting_post_mayor": "!gareth_talked && mayor_talked",

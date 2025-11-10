@@ -63,6 +63,16 @@
           "next_state": "precision_matters"
         },
         {
+          "id": "ask_about_swamp",
+          "text": "Have you heard about strange activity in the marshlands?",
+          "requirements": {
+            "flags": {
+              "learned_about_swamp_church": false
+            }
+          },
+          "next_state": "swamp_conversation"
+        },
+        {
           "id": "maybe_later",
           "text": "I'll come back later.",
           "effects": [{"type": "set_flag", "flag": "cassia_talked", "value": true}],
@@ -91,6 +101,16 @@
             {"type": "open_shop", "merchant_id": "cassia"}
           ],
           "next_state": "post_shopping"
+        },
+        {
+          "id": "ask_about_swamp",
+          "text": "Have you heard about strange activity in the marshlands?",
+          "requirements": {
+            "flags": {
+              "learned_about_swamp_church": false
+            }
+          },
+          "next_state": "swamp_conversation"
         },
         {
           "id": "ask_meaning",
@@ -450,6 +470,16 @@
           "next_state": "recipe_quest_offer"
         },
         {
+          "id": "ask_about_swamp",
+          "text": "Have you heard about strange activity in the marshlands?",
+          "requirements": {
+            "flags": {
+              "learned_about_swamp_church": false
+            }
+          },
+          "next_state": "swamp_conversation"
+        },
+        {
           "id": "just_checking_in",
           "text": "Just wanted to check on you.",
           "requirements": {"flag": "cassia_told_marcus_story"},
@@ -478,6 +508,7 @@
           "text": "I'm glad.",
           "next_state": "returning_customer"
         },
+        
         {
           "id": "can_i_help",
           "text": "Is there anything I can do to help?",
@@ -1132,6 +1163,94 @@
           "text": "Just wanted to check on you.",
           "next_state": "appreciate_final_visit"
         }
+      ]
+    },
+    "swamp_conversation": {
+      "introduction": [
+        "The marsh? I gather herbs there sometimes.",
+        "Or... I used to.",
+        "*Her expression darkens.*",
+        "There is an old church deep in the swamp.",
+        "Lately, I hear chanting when I'm near it.",
+        "And the herbs around it... they're dying."
+      ],
+      "options": [
+        {
+          "id": "chanting",
+          "text": "What kind of chanting?",
+          "next_state": "chanting_details"
+        },
+        {
+          "id": "mark_map",
+          "text": "Can you show me where this church is?",
+          "effects": [
+            { "type": "set_flag", "flag": "cassia_gave_swamp_info", "value": true },
+            { "type": "set_flag", "flag": "learned_about_swamp_church", "value": true },
+            { "type": "award_xp", "amount": 25 }
+          ],
+          "next_state": "marked_swamp"
+        },
+        { "id": "bye", "text": "That sounds dangerous.", "next_state": "exit" }
+      ]
+    },
+
+    "chanting_details": {
+      "introduction": [
+        "*She wraps her arms around herself.*",
+        "Voices. Multiple voices. In a language I don't know.",
+        "It reminds me of... of when Marcus changed.",
+        "Before he left.",
+        "*She looks away.*",
+        "Dangerous people. That's what he got involved with."
+      ],
+      "options": [
+        {
+          "id": "help",
+          "text": "I'll investigate. Show me where.",
+          "effects": [
+            { "type": "set_flag", "flag": "cassia_gave_swamp_info", "value": true },
+            { "type": "set_flag", "flag": "learned_about_swamp_church", "value": true },
+            { "type": "award_xp", "amount": 25 }
+          ],
+          "next_state": "marked_swamp"
+        },
+        { "id": "sorry", "text": "I'm sorry about Marcus.", "next_state": "marcus_sympathy" }
+      ]
+    },
+
+    "marked_swamp": {
+      "introduction": [
+        "*She sketches directions on a scrap of parchment.*",
+        "South road, then west into the marsh.",
+        "Follow the old stone markers.",
+        "*Her voice is quiet.*",
+        "Be careful. More than wildlife lurks there now."
+      ],
+      "options": [
+        { "id": "thanks", "text": "Thank you for the warning.", "next_state": "exit" }
+      ]
+    },
+
+    "marcus_sympathy": {
+      "introduction": [
+        "*She nods slowly.*",
+        "Thank you. It was a long time ago.",
+        "*She takes a breath.*",
+        "But if someone is going to stop whatever's happening in that swamp...",
+        "I can at least help them find it."
+      ],
+      "options": [
+        {
+          "id": "show_location",
+          "text": "Will you show me where it is?",
+          "effects": [
+           { "type": "set_flag", "flag": "cassia_gave_swamp_info", "value": true },
+            { "type": "set_flag", "flag": "learned_about_swamp_church", "value": true },
+            { "type": "award_xp", "amount": 25 }
+          ],
+          "next_state": "marked_swamp"
+        },
+        { "id": "understand", "text": "I understand. Thank you.", "next_state": "exit" }
       ]
     },
 

@@ -143,6 +143,14 @@ class DialogueEngine:
         # Evaluate each state condition
         #print(f"🔍 DE: Evaluating {len(npc_states)} states for npc_id='{npc_id}'")
         #print("DE: STATE-EVAL ORDER:", list(npc_states.keys()))
+
+        # Show key flag values for mayor
+        #if npc_id == 'mayor':
+            #print(f"  🔑 KEY FLAGS: act_two_started={context.get('act_two_started')}, mayor_talked={context.get('mayor_talked')}")
+            #print(f"  🔑 COMPLETIONS: swamp={context.get('swamp_church_complete')}, ruins={context.get('hill_ruins_complete')}, refugee={context.get('refugee_camp_complete')}")
+            #print(f"  🔑 ACKNOWLEDGED: swamp={context.get('mayor_acknowledged_swamp_complete')}, ruins={context.get('mayor_acknowledged_ruins_complete')}, refugee={context.get('mayor_acknowledged_refugee_complete')}")
+
+
         for state_name, condition in npc_states.items():
             result = self._evaluate_condition(condition, context)
             #print(f"  📊 {state_name}: '{condition}' = {result}")

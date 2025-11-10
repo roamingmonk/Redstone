@@ -98,10 +98,11 @@ class ActTwoTransitionManager:
         """Handle continuing from Act II transition to exploration hub"""
         print("🎬 Transitioning to exploration hub...")
         
-        # Set flag so we only show Act II intro once
+        # Set flags for act progression
         if self.game_state:
+            self.game_state.act_one_complete = True
             self.game_state.act_two_started = True
-            print("✅ Act II started flag set to True")
+            print("✅ Act I complete, Act II started")
         
         scenes = self.act_two_data.get("scenes", [])
         if scenes:

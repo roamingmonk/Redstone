@@ -68,7 +68,7 @@
           "back": {
             "type": "navigate",
             "target": "broken_blade",
-            "label": "Return to Tavern"
+            "label": "Back"
           }
         },
         "properties": {

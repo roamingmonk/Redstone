@@ -144,6 +144,30 @@ class RedstoneTownNavigation:
                 
                 if interaction_type == 'npc_dialogue':
                     print(f"DEBUG: RT: NPC Dialogue")
+                    
+                    # STEP 1: Check requirements before allowing interaction
+                    requirements = self.current_building.get('requirements')
+                    if requirements:
+                        required_flags = requirements.get('flags', [])
+                        requirements_met = True
+
+                        # Check if ALL required flags are True
+                        for flag_name in required_flags:
+                            flag_value = getattr(game_state, flag_name, False)
+                            print(f"DEBUG: RT: Checking NPC requirement '{flag_name}' = {flag_value}")
+                            if not flag_value:
+                                requirements_met = False
+                                break
+
+                        # If requirements not met, block interaction and show message
+                        if not requirements_met:
+                            self.showing_temp_message = True
+                            self.temp_message_timer = pygame.time.get_ticks()
+                            self.temp_message_text = requirements.get('message', "They are not available right now.")
+                            print(f"DEBUG: RT: NPC requirements not met - blocking interaction")
+                            return  # Exit early, don't load dialogue
+
+                    # STEP 2: Proceed with NPC dialogue
                     npc_id = self.current_building.get('npc_id')
                     
                     if npc_id and controller:
@@ -170,21 +194,45 @@ class RedstoneTownNavigation:
                                 self.temp_message_text = "They seem too busy to talk right now."
                 elif interaction_type == 'conditional_transition':
                     print(f"DEBUG: RT: Conditional Transition")
-                    
-                    # Get the flag to check and the target screens
+
+                    # STEP 1: Check requirements before allowing transition
+                    requirements = self.current_building.get('requirements')
+                    if requirements:
+                        required_flags = requirements.get('flags', [])
+                        requirements_met = True
+
+                        # Check if ALL required flags are True
+                        for flag_name in required_flags:
+                            flag_value = getattr(game_state, flag_name, False)
+                            print(f"DEBUG: RT: Checking requirement '{flag_name}' = {flag_value}")
+                            if not flag_value:
+                                requirements_met = False
+                                break
+
+                        # If requirements not met, block transition and show message
+                        if not requirements_met:
+                            self.showing_temp_message = True
+                            self.temp_message_timer = pygame.time.get_ticks()
+                            self.temp_message_text = requirements.get('message', "You cannot proceed yet.")
+                            print(f"DEBUG: RT: Requirements not met - blocking transition")
+                            return  # Exit early, don't proceed with transition
+                        else:
+                            print(f"DEBUG: RT: Requirements met - proceeding with transition")
+
+                    # STEP 2: Get the flag to check and the target screens
                     flag_check = self.current_building.get('flag_check')
                     if_true_screen = self.current_building.get('if_true_screen')
                     if_false_screen = self.current_building.get('if_false_screen')
-                    
+
                     if flag_check and if_true_screen and if_false_screen and controller:
                         # Check if flag is set on game_state
                         flag_value = getattr(game_state, flag_check, False)
-                        
+
                         # Route based on flag value
                         target_screen = if_true_screen if flag_value else if_false_screen
-                        
+
                         print(f"DEBUG: RT: Flag '{flag_check}' = {flag_value}, routing to '{target_screen}'")
-                        
+
                         # CHECK: Is the target screen implemented?
                         if hasattr(controller, 'screen_manager') and target_screen in controller.screen_manager.render_functions:
                             controller.event_manager.emit("SCREEN_CHANGE", {
