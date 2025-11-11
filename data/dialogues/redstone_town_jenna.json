@@ -197,6 +197,16 @@
           "next_state": "after_rest_discount"
         },
         {
+          "id": "ask_about_refugees",
+          "text": "I've heard there's a refugee camp nearby?",
+          "requirements": {
+            "flags": {
+              "learned_about_refugees": false
+            }
+          },
+          "next_state": "refugee_conversation"
+        },
+        {
           "id": "not_tonight",
           "text": "Not tonight, but thanks.",
           "next_state": "exit"

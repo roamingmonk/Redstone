@@ -22,7 +22,8 @@
             "next_state": "exit",
             "effects": [
               {"type": "set_flag", "flag": "trigger_loot_check", "value": "hill_ruins_mechanism_loot"},
-              {"type": "set_flag", "flag": "hill_ruins_mechanisms_searched", "value": true}
+              {"type": "set_flag", "flag": "hill_ruins_mechanisms_searched", "value": true},
+              {"type": "check_location_completion", "location_id": "hill_ruins"}
             ]
           },
           {

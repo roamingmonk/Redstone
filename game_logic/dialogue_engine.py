@@ -870,6 +870,34 @@ class DialogueEngine:
                 return f"Time advanced {hours} hours"
             return None
         
+        # 7.5) check_location_completion  --------------------------------------------
+        elif effect_type == 'check_location_completion':
+            location_id = effect.get('location_id')
+            
+            if not location_id:
+                print(f"WARNING: check_location_completion effect missing location_id: {effect}")
+                return None
+            
+            try:
+                # Use narrative schema to check if location completion requirements met
+                from utils.narrative_schema import narrative_schema
+                was_completed = narrative_schema.check_location_completion(location_id, self.game_state)
+                
+                if was_completed:
+                    # Get display name for nice logging
+                    location_data = narrative_schema.schema.get("locations", {}).get(location_id, {})
+                    display_name = location_data.get('display_name', location_id)
+                    return f"Completed exploration: {display_name}"
+                else:
+                    # Not yet complete - that's fine, just return None silently
+                    return None
+                    
+            except Exception as e:
+                print(f"ERROR: check_location_completion failed for {location_id}: {e}")
+                import traceback
+                traceback.print_exc()
+                return None
+        
         # 8) add_item  -------------------------------------------------------------
         elif effect_type == 'add_item':
             item_id = effect.get('item_id')

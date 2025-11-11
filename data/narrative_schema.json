@@ -405,28 +405,56 @@
       "display_name": "The Church in the Swamp",
       "system_id": "swamp_church",
       "discovery_flag": "learned_about_swamp_church",
-      "completion_flag": "swamp_church_complete", 
+      "completion_flag": "swamp_church_complete",
+      "explored_flag": "explored_swamp_church",
       "quest_id": "explore_swamp_church",
       "source_npc": "meredith",
       "location_type": "investigation_site"
+      
     },
     "hill_ruins": {
       "display_name": "Hill Ruins", 
       "system_id": "hill_ruins",
       "discovery_flag": "learned_about_ruins",
-      "completion_flag": "hill_ruins_complete", 
+      "completion_flag": "hill_ruins_complete",
+      "explored_flag": "explored_hill_ruins",
       "quest_id": "investigate_hill_ruins",
       "source_npc": "garrick",
-      "location_type": "investigation_site"
+      "location_type": "investigation_site",
+      "completion_requirements": [
+        "hill_ruins_carved_searched",
+        "hill_ruins_portal_examined",
+        "hill_ruins_mechanisms_searched",
+        "hill_ruins_locked_door_found"
+      ]
     },
     "refugee_camp": {
       "display_name": "Refugee Camp",
       "system_id": "refugee_camp", 
       "discovery_flag": "learned_about_refugees",
-      "completion_flag": "refugee_camp_complete", 
+      "completion_flag": "refugee_camp_complete",
+      "explored_flag": "explored_refugee_camp",
       "quest_id": "find_refugee_camp",
       "source_npc": "mayor",
-      "location_type": "investigation_site"
+      "location_type": "investigation_site",
+      "completion_requirements": [
+        "refugee_camp_main_explored",
+        "refugee_camp_brigands_defeated"
+      ]
+    },
+    "red_hollow_mine": {
+      "display_name": "Red Hollow Mine - Old Shaft",
+      "system_id": "red_hollow_mine",
+      "discovery_flag": "learned_about_mine",
+      "completion_flag": "red_hollow_mine_complete",
+      "explored_flag": "explored_red_hollow_mine",
+      "quest_id": "kobold_mine_investigation",
+      "source_npc": "henrik",
+      "location_type": "dungeon_combat",
+      "completion_requirements": [
+        "red_hollow_ore_found",
+        "returned_ore_to_henrik"
+      ]
     },
     "redstone_town": {
       "display_name": "Town Square",
@@ -451,15 +479,6 @@
       "quest_id": null,
       "source_npc": "mayor",
       "location_type": "authority"
-    },
-    "red_hollow_mine": {
-      "display_name": "Red Hollow Mine - Old Shaft",
-      "system_id": "red_hollow_mine",
-      "discovery_flag": "learned_about_mine",
-      "completion_flag": "red_hollow_mine_complete", 
-      "quest_id": "kobold_mine_investigation",
-      "source_npc": "henrik",
-      "location_type": "dungeon_combat"
     }
   },
 
@@ -513,24 +532,6 @@
       "dialogue_flag": "learned_about_refugees",
       "quest_objective": "main_story.explore_refugee_camp",
       "event_type": "INFORMATION_DISCOVERED",
-      "xp_reward": "discovery_base"
-    },
-    "mayor_swamp_details": {
-      "dialogue_flag": "mayor_gave_swamp_info",
-      "quest_objective": "main_story.swamp_detailed_intel",
-      "event_type": "DETAILED_INFORMATION",
-      "xp_reward": "discovery_base"
-    },
-    "mayor_ruins_details": {
-      "dialogue_flag": "mayor_gave_ruins_info",
-      "quest_objective": "main_story.ruins_detailed_intel",
-      "event_type": "DETAILED_INFORMATION",
-      "xp_reward": "discovery_base"
-    },
-    "mayor_refugee_details": {
-      "dialogue_flag": "mayor_gave_refugee_info",
-      "quest_objective": "main_story.refugee_detailed_intel",
-      "event_type": "DETAILED_INFORMATION",
       "xp_reward": "discovery_base"
     },
     "mayor_main_quest": {
@@ -746,7 +747,9 @@
         "learn_refugee_camp": ["pete_gave_refugee_info"],
         
         "explore_swamp_church": ["learned_about_swamp_church", "explored_swamp_church"],
-        "explore_hill_ruins": ["learned_about_ruins", "explored_hill_ruins"],
+        "explore_hill_ruins": [
+        "learned_about_ruins && hill_ruins_carved_searched && hill_ruins_portal_examined && hill_ruins_mechanisms_searched && hill_ruins_locked_door_found"
+      ],
         "explore_refugee_camp": ["learned_about_refugees", "gathered_refugee_info"]
       }
     },

@@ -142,7 +142,8 @@
           "id": "ask_more_details",
           "text": "Tell me more about what happened.",
           "effects" : [
-          { "type": "set_flag", "flag": "hill_ruins_details_known", "value": true }
+          { "type": "set_flag", "flag": "hill_ruins_details_known", "value": true },
+          { "type": "set_flag", "flag": "learned_about_ruins", "value": true }
           ],
           "next_state": "ruins_details"
         },
@@ -744,6 +745,10 @@
         {
           "id": "ruins_investigation",
           "text": "Someone should investigate the ruins.",
+          "effects": [
+            { "type": "set_flag", "flag": "learned_about_ruins", "value": true }
+            
+          ],
           "next_state": "investigation_agreement"
         },
         {

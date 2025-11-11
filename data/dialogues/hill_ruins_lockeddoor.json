@@ -23,6 +23,7 @@
             "effects": [
               {"type": "set_flag", "flag": "examined_dungeon_locked_door", "value": true},
               {"type": "set_flag", "flag": "hill_ruins_locked_door_found", "value": true},
+              {"type": "check_location_completion", "location_id": "hill_ruins"},
               {"type": "xp_award", "amount": 25, "reason": "Discovered sealed dungeon entrance"}
             ]
           }

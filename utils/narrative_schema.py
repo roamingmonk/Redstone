@@ -70,6 +70,50 @@ class NarrativeSchema:
         location_data = self.schema.get("locations", {}).get(location_id, {})
         return location_data.get("display_name", location_id.replace("_", " ").title())
     
+    def check_location_completion(self, location_id: str, game_state) -> bool:
+        """
+        Check if a location's completion requirements are met.
+        If all requirements are satisfied, sets completion and explored flags.
+        Returns True if location was just completed, False otherwise.
+        """
+        location_data = self.schema.get("locations", {}).get(location_id, {})
+        
+        if not location_data:
+            print(f"⚠️ WARNING: Unknown location_id '{location_id}' in check_location_completion")
+            return False
+        
+        # Get completion requirements from schema
+        requirements = location_data.get("completion_requirements", [])
+        if not requirements:
+            # No requirements defined - can't complete
+            return False
+        
+        # Check if ALL requirements are met
+        all_met = all(getattr(game_state, flag, False) for flag in requirements)
+        
+        if all_met:
+            # Get flag names from schema
+            completion_flag = location_data.get("completion_flag")
+            explored_flag = location_data.get("explored_flag")
+            
+            # Check if already complete (prevent duplicate logging)
+            already_complete = getattr(game_state, completion_flag, False) if completion_flag else False
+            
+            if not already_complete:
+                # Set both flags to True
+                if completion_flag:
+                    setattr(game_state, completion_flag, True)
+                    print(f"✅ Set {completion_flag} = True")
+                if explored_flag:
+                    setattr(game_state, explored_flag, True)
+                    print(f"✅ Set {explored_flag} = True")
+                
+                # Log completion with display name
+                display_name = location_data.get('display_name', location_id)
+                print(f"🎉 Location exploration complete: {display_name}")
+                return True
+        
+        return False
     
     # Quest System Integration
     def get_quest_trigger_for_flag(self, flag_name: str) -> Optional[Dict[str, Any]]:
@@ -103,6 +147,8 @@ class NarrativeSchema:
         
         return "first_meeting"  # Default fallback
     
+    
+
     def _evaluate_condition(self, condition: str, game_state) -> bool:
         """Evaluate boolean condition string against game state"""
         # Simple condition evaluator - can be enhanced for complex logic
