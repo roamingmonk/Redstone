@@ -547,9 +547,11 @@ class DebugManager:
         print(f"meredith_talked: {getattr(self.game_state, 'meredith_talked', False)}")
         print(f"garrick_talked: {getattr(self.game_state, 'garrick_talked', False)}")
         print(f"quest_active: {getattr(self.game_state, 'quest_active', False)}")
+
         print(f"learned_about_swamp_church: {getattr(self.game_state, 'learned_about_swamp_church', False)}")
         print(f"learned_about_ruins: {getattr(self.game_state, 'learned_about_ruins', False)}")
         print(f"learned_about_refugees: {getattr(self.game_state, 'learned_about_refugees', False)}")
+        
         print(f"refugee_camp_details_known: {getattr(self.game_state, 'refugee_camp_details_known', False)}")
         print(f"refugee_detailed_intel: {getattr(self.game_state, 'refugee_detailed_intel', False)}")
         print(f"hill_ruins_details_known: {getattr(self.game_state, 'hill_ruins_details_known', False)}")
@@ -583,15 +585,15 @@ class DebugManager:
         # print(f"Garrick Paid player: {getattr(self.game_state, 'garrick_paid', False)}")
         # print(f"Acknowledged Payment: {getattr(self.game_state, 'post_payment_acknowledged', False)}")
 
-        print(f"\n ⛏️ KOBOLD MINE QUEST:")
-        print(f"Quest Given (Meredith): {getattr(self.game_state, 'meredith_gave_ring_quest', False)}")
-        print(f"Quest Given (Henrik): {getattr(self.game_state, 'henrik_gave_shaft_quest', False)}")
-        print(f"Meredith Mentioned Mine: {getattr(self.game_state, 'meredith_mentioned_old_mine', False)}")
-        print(f"Henrik Mentioned Shaft: {getattr(self.game_state, 'henrik_mentioned_old_shaft', False)}")
-        print(f"Cleared Kobolds: {getattr(self.game_state, 'cleared_kobold_mine', False)}")
-        print(f"Ring Returned: {getattr(self.game_state, 'returned_meredith_ring', False)}")
-        print(f"Ore Samples Found: {getattr(self.game_state, 'retrieved_ore_samples', False)}")
-        print(f"Reported to Henrik: {getattr(self.game_state, 'reported_shaft_to_henrik', False)}")
+        # print(f"\n ⛏️ KOBOLD MINE QUEST:")
+        # print(f"Quest Given (Meredith): {getattr(self.game_state, 'meredith_gave_ring_quest', False)}")
+        # print(f"Quest Given (Henrik): {getattr(self.game_state, 'henrik_gave_shaft_quest', False)}")
+        # print(f"Meredith Mentioned Mine: {getattr(self.game_state, 'meredith_mentioned_old_mine', False)}")
+        # print(f"Henrik Mentioned Shaft: {getattr(self.game_state, 'henrik_mentioned_old_shaft', False)}")
+        # print(f"Cleared Kobolds: {getattr(self.game_state, 'cleared_kobold_mine', False)}")
+        # print(f"Ring Returned: {getattr(self.game_state, 'returned_meredith_ring', False)}")
+        # print(f"Ore Samples Found: {getattr(self.game_state, 'retrieved_ore_samples', False)}")
+        # print(f"Reported to Henrik: {getattr(self.game_state, 'reported_shaft_to_henrik', False)}")
 
          #Refugee Camp
         print(f"\n Refugee Camp:")
@@ -599,6 +601,68 @@ class DebugManager:
         print(f"Agreed to Defend Camp: {getattr(self.game_state, 'agreed_to_defend_camp', False)}")
         print(f"Refugee Camp Defended: {getattr(self.game_state, 'refugee_camp_defended', False)}")
         print(f"Refugee Combat Rewarded: {getattr(self.game_state, 'refugee_combat_rewarded', False)}")
+
+    #explore and completion flags
+        print(f"\n Main Story explore and completion flags:")
+        print(f"explore refugee camp: {getattr(self.game_state, 'explore_refugee_camp', False)}")
+        print(f"explore hill ruins: {getattr(self.game_state, 'explore_hill_ruins', False)}")
+        print(f"explore swamp church: {getattr(self.game_state, 'explore_swamp_church', False)}")
+        print(f"Refugee Combat Rewarded: {getattr(self.game_state, 'refugee_combat_rewarded', False)}")
+        print(f"\n ========================================")
+        print(f"red_hollow_mine_complete: {getattr(self.game_state, 'red_hollow_mine_complete', False)}")
+        print(f"swamp_church_complete: {getattr(self.game_state, 'swamp_church_complete', False)}")
+        print(f"refugee_camp_complete: {getattr(self.game_state, 'refugee_camp_complete', False)}")
+        print(f"hill_ruins_complete: {getattr(self.game_state, 'hill_ruins_complete', False)}")
+        print(f"\n =========================================")
+        print(f"\n ====Hill Ruin completion requirements====")
+        print(f"hill_ruins_carved_searched: {getattr(self.game_state, 'hill_ruins_carved_searched', False)}")
+        print(f"hill_ruins_portal_examined: {getattr(self.game_state, 'hill_ruins_portal_examined', False)}")
+        print(f"hill_ruins_mechanisms_searched: {getattr(self.game_state, 'hill_ruins_mechanisms_searched', False)}")
+        print(f"hill_ruins_locked_door_found: {getattr(self.game_state, 'hill_ruins_locked_door_found', False)}")
+        print(f"\n =========================================")
+        print(f"\n ====Refugee Camp completion requirements====")
+        print(f"refugee_camp_main_explored: {getattr(self.game_state, 'refugee_camp_main_explored', False)}")
+        print(f"refugee_camp_brigands_defeated: {getattr(self.game_state, 'refugee_camp_brigands_defeated', False)}")
+
+        print(f"\n =========================================")
+        print(f"\n ====Swamp Church Story flags====")
+        print(f"found_cult_documents: {getattr(self.game_state, 'found_cult_documents', False)}")
+        print(f"read_cult_documents: {getattr(self.game_state, 'read_cult_documents', False)}")
+        print(f"learned_sacrifice_plan: {getattr(self.game_state, 'learned_sacrifice_plan', False)}")
+
+        print(f"\n =========================================")
+        print(f"\n ====Red Hollow Mine Completion Requirements====")
+        print(f"red_hollow_ore_found: {getattr(self.game_state, 'red_hollow_ore_found', False)}")
+        print(f"returned_ore_to_henrik: {getattr(self.game_state, 'returned_ore_to_henrik', False)}")
+        
+        print(f"\n =========================================")
+        print(f"\n ====Mayor Acknowledge====")
+        print(f"mayor_acknowledged_swamp_complete: {getattr(self.game_state, 'mayor_acknowledged_swamp_complete', False)}")
+        print(f": {getattr(self.game_state, '', False)}")
+        print(f": {getattr(self.game_state, '', False)}")
+
+
+        print(f"\n ====MAIN QUEST ====")
+        print(f"main_quest_completed: {getattr(self.game_state, 'main_quest_completed', False)}")
+        print(f"mayor_acknowledged_ruins_complete: {getattr(self.game_state, 'mayor_acknowledged_ruins_complete', ' ')}")
+        print(f"mayor_acknowledged_swamp_complete: {getattr(self.game_state, 'mayor_acknowledged_swamp_complete', ' ')}")
+        print(f"mayor_acknowledged_refugee_complete: {getattr(self.game_state, 'mayor_acknowledged_refugee_complete', ' ')}")
+        print(f"mayor_acknowledged_mine_complete: {getattr(self.game_state, 'mayor_acknowledged_mine_complete', ' ')}")
+        
+    
+    
+    #  mayor_acknowledged_swamp_complete": false,
+    # "mayor_acknowledged_ruins_complete": false,
+    # "mayor_acknowledged_refugee_complete": false,
+    # "mayor_acknowledged_mine_complete": false,
+    # "main_quest_completed": false,
+    # reported_main_quest": false,
+    # "mayor_paid_main_quest": false,
+    # "mayor_worried_tremors": false,
+    # "mayor_wants_ore_info": false,
+    # "mayor_examined_ore_samples": false,
+
+
 
         # Quest manager status
         if hasattr(self.game_state, 'quest_manager'):

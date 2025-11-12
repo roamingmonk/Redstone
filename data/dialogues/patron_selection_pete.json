@@ -81,6 +81,10 @@
         {
           "id": "pete_hint_again",
           "text": "Any harmless gossip I can use?",
+          "effects": [
+            { "type": "set_flag", "flag": "pete_gave_refugee_info", "value": true },
+            { "type": "set_flag", "flag": "pete_mentioned_refugees", "value": true },
+            { "type": "set_flag", "flag": "learned_about_refugees", "value": true }],
           "next_state": "refugee_hint"
         },
         {

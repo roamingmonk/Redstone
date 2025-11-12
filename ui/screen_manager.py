@@ -28,6 +28,8 @@ from ui.generic_dialogue_handler import draw_generic_dialogue_screen
 from ui.death_overlay import create_death_overlay
 from screens.intro_scenes import draw_intro_scene_1, draw_intro_scene_2, draw_intro_scene_3
 from screens.act_two_transition import (draw_act_two_start, register_act_two_buttons, get_act_two_manager)
+from screens.act_three_transition import (draw_act_three_start, register_act_three_buttons, get_act_three_manager)
+
 from screens.exploration_hub import draw_exploration_hub, register_exploration_hub_buttons, get_hub_manager
 #from screens.exploration_hub import get_hub_manager
 from screens.swamp_church_exterior_nav import draw_swamp_church_exterior_nav
@@ -46,6 +48,8 @@ from screens.red_hollow_mine_level_3_nav import draw_red_hollow_mine_level_3_nav
 from ui.screen_handlers import (handle_main_menu_clicks, handle_dice_bets_clicks,
                                 handle_dice_rolling_clicks, handle_dice_results_clicks,
                                 handle_dice_rules_clicks)
+
+
 
 class ScreenManager:
     """
@@ -93,6 +97,9 @@ class ScreenManager:
 
         # Initialize Act II transition manager 
         self.act_two_manager = None  
+
+        # Initialize Act III transition manager 
+        self.act_three_manager = None  
 
         # Navigation route map for simple transitions
         self.navigation_routes = {
@@ -698,6 +705,33 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for Act II registration")
 
+    def register_act_three_clickables(self):
+        """
+        Register clickable buttons for ACT THREE transition screen
+        Follows act_two pattern for consistency
+        """
+        if hasattr(self, 'input_handler') and self.input_handler:
+            # Get button coordinates by rendering the scene to temp surface
+            temp_surface = pygame.Surface((1024, 768))
+            
+            # Call the draw function to get button rects
+            scene_result = draw_act_three_start(temp_surface, None, self.fonts, self.images)
+            
+            if scene_result and "continue_button" in scene_result:
+                # Register CONTINUE button with semantic action
+                self.input_handler.register_clickable(
+                    "act_three_start",
+                    scene_result["continue_button"],
+                    "ACT_THREE_CONTINUE",
+                    {}
+                )
+                
+                print(f"🎬 Act III clickables registered")
+            else:
+                print(f"⚠️ Could not register Act III clickables")
+        else:
+            print("⚠️ No InputHandler available for Act III registration")
+
     def register_load_screen_clickables(self):
         """Register load screen clickables when load overlay opens"""
         if hasattr(self, 'input_handler') and self.input_handler:
@@ -1173,6 +1207,9 @@ class ScreenManager:
 
             self.register_render_function("act_two_start", draw_act_two_start,
                 enter_hook=lambda _: self.register_act_two_clickables())
+            self.register_render_function("act_three_start", draw_act_three_start,
+                enter_hook=lambda _: self.register_act_three_clickables())  
+            
             # Act II Exploration Hub - Tile-based Regional Map
             self.register_render_function("exploration_hub", draw_exploration_hub,
                 enter_hook=lambda _: self.register_exploration_hub_clickables())
@@ -1533,7 +1570,14 @@ class ScreenManager:
         npc_id = event_data.get('npc_id')
         return_to = event_data.get('return_to', 'location')
         
-         # Get the stored location context for this dialogue session
+        # Check if dialogue used navigate effect - if so, skip auto-return
+        if hasattr(self, '_current_game_state'):
+            if getattr(self._current_game_state, 'skip_dialogue_return', False):
+                print(f"⏭️ Skipping auto-return (navigate effect used)")
+                self._current_game_state.skip_dialogue_return = False  # Clear flag
+                return True
+        
+        # Get the stored location context for this dialogue session
         if hasattr(self, '_current_game_state'):
             # First try to use the stored return screen (includes area suffix)
             return_screen_attr = f'{npc_id}_return_screen'

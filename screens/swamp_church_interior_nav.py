@@ -83,17 +83,39 @@ class SwampChurchInteriorNav:
             player_x = game_state.swamp_church_int_x
             player_y = game_state.swamp_church_int_y
             
-            # Priority 1: Area transitions (doors, stairs)
+            # Priority 1: Area transitions (doors, exits)
             transition_info = self.renderer.check_valid_entrance(player_x, player_y, 
                                                                 self.renderer.player_direction)
             if transition_info and transition_info[0]:
-                if controller:
-                    target = transition_info[0]['target_screen']
-                    self.renderer.start_transition_cooldown() 
-                    controller.event_manager.emit("SCREEN_CHANGE", {
-                        'target_screen': target,
-                        'source_screen': 'swamp_church_interior_nav'
-                    })
+                transition_data = transition_info[0]
+                
+                # CHECK IF PLAYER NEEDS TO READ CULT DOCUMENTS BEFORE LEAVING
+                can_transition = True
+                blocked_message = "You cannot leave yet."
+                
+                # If exiting to exterior and documents are available but not read
+                if transition_data.get('target_screen') == 'swamp_church_exterior_nav':
+                    found_docs = getattr(game_state, 'found_cult_documents', False)
+                    read_docs = getattr(game_state, 'read_cult_documents', False)
+                    
+                    if found_docs and not read_docs:
+                        # Documents are available (after combat) but player hasn't read them
+                        can_transition = False
+                        blocked_message = "You should examine the cult documents before leaving. They may contain crucial information."
+                
+                # Navigate or show blocked message
+                if can_transition:
+                    if controller:
+                        target = transition_data['target_screen']
+                        self.renderer.start_transition_cooldown()
+                        controller.event_manager.emit("SCREEN_CHANGE", {
+                            'target_screen': target,
+                            'source_screen': 'swamp_church_interior_nav'
+                        })
+                else:
+                    # Show blocked message
+                    self.show_temp_message(blocked_message)
+                
                 return
             
             # Priority 2: Searchable objects
@@ -103,17 +125,32 @@ class SwampChurchInteriorNav:
                 if flag_set and getattr(game_state, flag_set, False):
                     self.show_temp_message("You've already searched here.")
                 else:
-                    examine_dialogue = searchable_info.get('examine_dialogue')
-                    if examine_dialogue and controller:
-                        npc_id = examine_dialogue.split('_')[-1]
-                        return_screen_attr = f'{npc_id}_return_screen'
-                        setattr(game_state, return_screen_attr, 'swamp_church_interior_nav')
-                        game_state.pending_search_flag = flag_set
-                        
-                        controller.event_manager.emit("SCREEN_CHANGE", {
-                            "target_screen": examine_dialogue,
-                            "source_screen": 'swamp_church_interior_nav'
-                        })
+                    # ===== CHECK REQUIREMENTS BEFORE INTERACTION =====
+                    requirements = searchable_info.get('requirements', {})
+                    can_interact = True
+                    
+                    # Check if all required flags are met
+                    for flag_name, required_value in requirements.items():
+                        current_value = getattr(game_state, flag_name, False)
+                        if current_value != required_value:
+                            # Requirement not met - silently skip
+                            can_interact = False
+                            break
+                    
+                    # Only proceed if requirements are met (or no requirements)
+                    if can_interact:
+                        examine_dialogue = searchable_info.get('examine_dialogue')
+                        if examine_dialogue and controller:
+                            npc_id = examine_dialogue.split('_')[-1]
+                            return_screen_attr = f'{npc_id}_return_screen'
+                            setattr(game_state, return_screen_attr, 'swamp_church_interior_nav')
+                            game_state.pending_search_flag = flag_set
+                            
+                            controller.event_manager.emit("SCREEN_CHANGE", {
+                                "target_screen": examine_dialogue,
+                                "source_screen": 'swamp_church_interior_nav'
+                            })
+                    # ===== END REQUIREMENTS CHECK =====
                 return
         
         # Update temp message timer
@@ -281,16 +318,27 @@ class SwampChurchInteriorNav:
         
         searchable = self.renderer.check_searchable_object(player_x, player_y)
         if searchable:
-            # Check if already searched
-            flag_set = searchable.get('flag_set')
-            if flag_set and getattr(game_state, flag_set, False):
-                prompt = f"{searchable['name']} (already searched)"
-                draw_centered_text(surface, prompt, fonts['fantasy_small'],
-                                LAYOUT_DIALOG_Y + 15, WHITE, 1024)
-            else:
-                prompt = f"Press ENTER to examine {searchable['name']}"
-                draw_centered_text(surface, prompt, fonts['fantasy_small'],
-                                LAYOUT_DIALOG_Y + 15, YELLOW, 1024)
+            # Check requirements first
+            requirements = searchable.get('requirements', {})
+            requirements_met = True
+            
+            for flag_name, required_value in requirements.items():
+                current_value = getattr(game_state, flag_name, False)
+                if current_value != required_value:
+                    requirements_met = False
+                    break
+            
+            # Only show prompt if requirements are met
+            if requirements_met:
+                flag_set = searchable.get('flag_set')
+                if flag_set and getattr(game_state, flag_set, False):
+                    prompt = f"{searchable['name']} (already searched)"
+                    draw_centered_text(surface, prompt, fonts['fantasy_small'],
+                                     LAYOUT_DIALOG_Y + 15, WHITE, 1024)
+                else:
+                    prompt = f"Press ENTER to examine {searchable['name']}"
+                    draw_centered_text(surface, prompt, fonts['fantasy_small'],
+                                     LAYOUT_DIALOG_Y + 15, YELLOW, 1024)
         
         # Show temp message if any
         if self.showing_message:

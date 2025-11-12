@@ -870,7 +870,26 @@ class DialogueEngine:
                 return f"Time advanced {hours} hours"
             return None
         
-        # 7.5) check_location_completion  --------------------------------------------
+        # 8) navigate  -----------------------------------------------------------
+        elif effect_type == 'navigate':
+            target = effect.get('target')
+            
+            if not target:
+                print(f"WARNING: navigate effect missing target: {effect}")
+                return None
+            
+            if self.event_manager:
+                print(f"🚪 Dialogue triggering navigation to: {target}")
+                # Set flag to prevent auto-return to previous screen
+                self.game_state.skip_dialogue_return = True
+                self.event_manager.emit('SCREEN_CHANGE', {
+                    'target_screen': target,
+                    'source_screen': 'dialogue'
+                })
+                return f"Navigating to {target}"
+            return None
+        
+        # 9) check_location_completion  --------------------------------------------
         elif effect_type == 'check_location_completion':
             location_id = effect.get('location_id')
             
@@ -898,7 +917,7 @@ class DialogueEngine:
                 traceback.print_exc()
                 return None
         
-        # 8) add_item  -------------------------------------------------------------
+        # 10) add_item  -------------------------------------------------------------
         elif effect_type == 'add_item':
             item_id = effect.get('item_id')
             quantity = effect.get('quantity', 1)
@@ -957,7 +976,7 @@ class DialogueEngine:
                 traceback.print_exc()
                 return None
 
-        # 9) remove_item  ----------------------------------------------------------
+        # 11) remove_item  ----------------------------------------------------------
         elif effect_type == 'remove_item':
             item_id = effect.get('item_id')
             quantity = effect.get('quantity', 1)

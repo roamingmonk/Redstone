@@ -3,6 +3,23 @@
   "npc_name": "Mayor Aldwin Goldenbottom",
 
   "states": {
+    "acknowledgment_router": {
+      "introduction": [],
+      "options": [],
+      "routing_logic": {
+        "description": "Internal routing state - checks what needs acknowledging",
+        "rules": [
+          "IF swamp_complete AND NOT mayor_acknowledged_swamp_complete -> swamp_complete_first_time",
+          "IF ruins_complete AND NOT mayor_acknowledged_ruins_complete -> ruins_complete_first_time",
+          "IF refugee_complete AND NOT mayor_acknowledged_refugee_complete -> refugee_complete_first_time",
+          "IF mine_complete AND NOT mayor_acknowledged_mine_complete -> mine_complete_first_time",
+          "IF all_acknowledged AND all_3_main_complete -> ready_for_act_three",
+          "IF all_acknowledged AND NOT all_complete -> multiple_progress",
+          "ELSE -> no_progress"
+        ]
+      }
+    },
+    
     "no_progress": {
       "introduction": [
         "*The Mayor looks up from his desk, worry etched on his face.*",
@@ -63,95 +80,208 @@
     },
 
     "swamp_complete_first_time": {
-      "introduction": [
-        "*His face pales as you describe what you found.*",
-        "A cult? Operating right under our noses?",
-        "Kidnapping our people for... for rituals?",
-        "*He steadies himself against the desk.*",
-        "This is worse than I feared.",
-        "Thank you for uncovering this, but we are not done.",
-        "Keep investigating. There must be more."
-      ],
-      "options": [
-        {
-          "id": "continue",
-          "text": "I'll keep searching.",
-          "effects": [
-            { "type": "set_flag", "flag": "mayor_acknowledged_swamp_complete", "value": true }
-          ],
-          "next_state": "progress_check"
+  "introduction": [
+    "*His face pales as you describe what you found.*",
+    "A cult? Operating right under our noses?",
+    "Kidnapping our people for... for rituals?",
+    "*He steadies himself against the desk.*",
+    "This is worse than I feared.",
+    "Thank you for uncovering this."
+  ],
+  "options": [
+    {
+      "id": "to_ruins",
+      "text": "[Continue]",
+      "requirements": {
+        "flags": {
+          "hill_ruins_complete": true,
+          "mayor_acknowledged_ruins_complete": false
         }
-      ]
+      },
+      "effects": [
+        { "type": "set_flag", "flag": "mayor_acknowledged_swamp_complete", "value": true }
+      ],
+      "next_state": "ruins_complete_first_time"
     },
-
+    {
+      "id": "default_not_ruins",
+      "text": "[Continue]",
+      "requirements": {
+        "flags": {
+          "hill_ruins_complete": false
+        }
+      },
+      "effects": [
+        { "type": "set_flag", "flag": "mayor_acknowledged_swamp_complete", "value": true }
+      ],
+      "next_state": "progress_check"
+    },
+    {
+      "id": "default_ruins_already_done",
+      "text": "[Continue]",
+      "requirements": {
+        "flags": {
+          "mayor_acknowledged_ruins_complete": true
+        }
+      },
+      "effects": [
+        { "type": "set_flag", "flag": "mayor_acknowledged_swamp_complete", "value": true }
+      ],
+      "next_state": "progress_check"
+    }
+  ]
+},
     "ruins_complete_first_time": {
-      "introduction": [
-        "*He listens intently to your report.*",
-        "A portal? Some kind of... dimensional gateway?",
-        "And it is sealed? Locked?",
-        "*He runs his hand through his hair.*",
-        "Whatever is beyond that door took my family.",
-        "We need to find a way through.",
-        "Keep investigating the other locations.",
-        "Someone must know how to open it."
-      ],
-      "options": [
-        {
-          "id": "continue",
-          "text": "I'll find a way.",
-          "effects": [
-            { "type": "set_flag", "flag": "mayor_acknowledged_ruins_complete", "value": true }
-          ],
-          "next_state": "progress_check"
+  "introduction": [
+    "*He listens intently to your report.*",
+    "A portal? Some kind of... dimensional gateway?",
+    "And it is sealed? Locked?",
+    "*He runs his hand through his hair.*",
+    "Whatever is beyond that door took my family.",
+    "We need to find a way through."
+  ],
+  "options": [
+    {
+      "id": "to_refugee",
+      "text": "[Continue]",
+      "requirements": {
+        "flags": {
+          "refugee_camp_complete": true,
+          "mayor_acknowledged_refugee_complete": false
         }
-      ]
+      },
+      "effects": [
+        { "type": "set_flag", "flag": "mayor_acknowledged_ruins_complete", "value": true }
+      ],
+      "next_state": "refugee_complete_first_time"
     },
+    {
+      "id": "default_not_refugee",
+      "text": "[Continue]",
+      "requirements": {
+        "flags": {
+          "refugee_camp_complete": false
+        }
+      },
+      "effects": [
+        { "type": "set_flag", "flag": "mayor_acknowledged_ruins_complete", "value": true }
+      ],
+      "next_state": "progress_check"
+    },
+    {
+      "id": "default_refugee_already_done",
+      "text": "[Continue]",
+      "requirements": {
+        "flags": {
+          "mayor_acknowledged_refugee_complete": true
+        }
+      },
+      "effects": [
+        { "type": "set_flag", "flag": "mayor_acknowledged_ruins_complete", "value": true }
+      ],
+      "next_state": "progress_check"
+    }
+  ]
+},
 
-    "refugee_complete_first_time": {
-      "introduction": [
-        "*He takes the key from you, examining it closely.*",
-        "This... this is it. The key to the ruins.",
-        "Those poor people were guarding it all along.",
-        "*He looks up with grim determination.*",
-        "Now we can reach the source of this corruption.",
-        "But we must be certain we are ready.",
-        "Make sure you have investigated everything.",
-        "When you are ready, we end this."
-      ],
-      "options": [
-        {
-          "id": "continue",
-          "text": "I'll make sure I'm prepared.",
-          "effects": [
-            { "type": "set_flag", "flag": "mayor_acknowledged_refugee_complete", "value": true }
-          ],
-          "next_state": "progress_check"
+   "refugee_complete_first_time": {
+  "introduction": [
+    "*He takes the key from you, examining it closely.*",
+    "This... this is it. The key to the ruins.",
+    "Those poor people were guarding it all along.",
+    "*He looks up with grim determination.*",
+    "Now we can reach the source of this corruption."
+  ],
+  "options": [
+    {
+      "id": "to_mine",
+      "text": "[Continue]",
+      "requirements": {
+        "flags": {
+          "red_hollow_mine_complete": true,
+          "mayor_acknowledged_mine_complete": false
         }
-      ]
+      },
+      "effects": [
+        { "type": "set_flag", "flag": "mayor_acknowledged_refugee_complete", "value": true }
+      ],
+      "next_state": "mine_complete_first_time"
     },
+    {
+      "id": "to_ready",
+      "text": "[Continue]",
+      "requirements": {
+        "flags": {
+          "swamp_church_complete": true,
+          "hill_ruins_complete": true,
+          "mayor_acknowledged_swamp_complete": true,
+          "mayor_acknowledged_ruins_complete": true,
+          "red_hollow_mine_complete": false
+        }
+      },
+      "effects": [
+        { "type": "set_flag", "flag": "mayor_acknowledged_refugee_complete", "value": true }
+      ],
+      "next_state": "ready_for_act_three"
+    },
+    {
+      "id": "default_mine_already_done",
+      "text": "[Continue]",
+      "requirements": {
+        "flags": {
+          "mayor_acknowledged_mine_complete": true
+        }
+      },
+      "effects": [
+        { "type": "set_flag", "flag": "mayor_acknowledged_refugee_complete", "value": true }
+      ],
+      "next_state": "progress_check"
+    }
+  ]
+},
 
-    "mine_complete_first_time": {
-      "introduction": [
-        "*He examines the ore samples you recovered.*",
-        "This is what Henrik sealed away all those years ago.",
-        "Strange energy... unnatural glow...",
-        "*He sets them down carefully.*",
-        "This ore must be connected to the portal somehow.",
-        "Dimensional properties, perhaps.",
-        "Thank you for investigating the mine.",
-        "Every piece of information helps."
-      ],
-      "options": [
-        {
-          "id": "continue",
-          "text": "Glad I could help.",
-          "effects": [
-            { "type": "set_flag", "flag": "mayor_acknowledged_mine_complete", "value": true }
-          ],
-          "next_state": "progress_check"
+   "mine_complete_first_time": {
+  "introduction": [
+    "*He examines the ore samples you recovered.*",
+    "This is what Henrik sealed away all those years ago.",
+    "Strange energy... unnatural glow...",
+    "*He sets them down carefully.*",
+    "This ore must be connected to the portal somehow."
+  ],
+  "options": [
+    {
+      "id": "to_ready",
+      "text": "[Continue]",
+      "requirements": {
+        "flags": {
+          "swamp_church_complete": true,
+          "hill_ruins_complete": true,
+          "refugee_camp_complete": true,
+          "mayor_acknowledged_swamp_complete": true,
+          "mayor_acknowledged_ruins_complete": true,
+          "mayor_acknowledged_refugee_complete": true
         }
-      ]
+      },
+      "effects": [
+        { "type": "set_flag", "flag": "mayor_acknowledged_mine_complete", "value": true }
+      ],
+      "next_state": "ready_for_act_three"
     },
+    {
+      "id": "default",
+      "text": "[Continue]",
+      "requirements": {
+        "flags": {
+          "swamp_church_complete": false
+        }
+      },
+      "effects": [
+        { "type": "set_flag", "flag": "mayor_acknowledged_mine_complete", "value": true }
+      ],
+      "next_state": "progress_check"
+    }
+  ]
+},
 
     "progress_check": {
       "introduction": [
@@ -282,12 +412,14 @@
       ],
       "options": [
         {
-          "id": "ready",
+           "id": "ready",
           "text": "I'm ready to finish this.",
           "effects": [
-            { "type": "set_flag", "flag": "act_three_ready", "value": true }
+            { "type": "set_flag", "flag": "act_three_ready", "value": true },
+            { "type": "set_flag", "flag": "act_three_started", "value": true },
+            { "type": "navigate", "target": "act_three_start" }
           ],
-          "next_state": "final_blessing"
+          "next_state": "exit"
         },
         {
           "id": "prepare",

@@ -1,8 +1,8 @@
-﻿## Repository Structure (generated 2025-11-06 14:26)
+﻿## Repository Structure (generated 2025-11-11 08:51)
 ```text
-Folder PATH listing for volume OS
-Volume serial number is 86A5-907E
-C:.
+Folder PATH listing
+Volume serial number is 36E2-184C
+E:.
 |   game_state.py
 |   input_handler.py
 |   main.py
@@ -84,62 +84,96 @@ C:.
 |       |   |               player_male_06.jpg
 |       |   |               
 |       |   +---Items
+|       |   |       aethel_ore_sample.png
 |       |   |       alchemist_fire.png
+|       |   |       ancient_coins.png
 |       |   |       antidote.png
 |       |   |       axe.PNG
 |       |   |       battleaxe.png
 |       |   |       bedroll.PNG
 |       |   |       bone_fragment.png
+|       |   |       bracers_armor.png
 |       |   |       broken_compass.jpg
+|       |   |       broken_compass.png
+|       |   |       broken_holy_symbol.png
 |       |   |       carved_bone_dice.jpg
 |       |   |       Carved_bone_dice.PNG
 |       |   |       chainmail.PNG
+|       |   |       cheap_cloak.png
+|       |   |       coal_ore.png
+|       |   |       crude_armor_scraps.png
 |       |   |       crude_shortbow.png
 |       |   |       crystal_pendant.jpg
+|       |   |       cult_documents.png
+|       |   |       cult_robes.png
 |       |   |       cursed_talisman.png
+|       |   |       diseased_fang.png
 |       |   |       elixir_of_vigor.png
 |       |   |       empty_bottle.png
 |       |   |       empty_small_leather_pouch_that_jingles.png
 |       |   |       feathered_dream_catcher.png
 |       |   |       glass_vial_with_swirling_mist.png
+|       |   |       glowcap_mushrooms.png
 |       |   |       greater_healing_potion.png
 |       |   |       healing_potion.PNG
+|       |   |       healing_scroll.png
 |       |   |       hemp_rope.PNG
 |       |   |       henriks_lantern.PNG
+|       |   |       hill_ruins_dungeon_key.png
 |       |   |       holy_symbol.png
 |       |   |       holy_water.png
+|       |   |       iron_ore.png
 |       |   |       iron_ring_with_strange_symbols.jpg
 |       |   |       leather_armor.PNG
 |       |   |       leather_pouch_with_dried_herbs.png
 |       |   |       light_crossbow.png
+|       |   |       lockpicks.png
 |       |   |       longsword.PNG
 |       |   |       mace.png
 |       |   |       marcus_masterwork_elixir.png
+|       |   |       merediths_silver_ring.png
 |       |   |       plate_armor.PNG
 |       |   |       polished_obsidian_shard.jpg
 |       |   |       potion_of_clarity.png
 |       |   |       pressed_flower.jpg
+|       |   |       pressed_flowers.png
 |       |   |       quarterstaff.png
 |       |   |       rapier.png
+|       |   |       rare_gem.png
+|       |   |       rat_pelt.png
 |       |   |       rat_tail.png
 |       |   |       restoration_draught.png
+|       |   |       ritual_dagger.png
 |       |   |       rusted_shortsword.png
+|       |   |       shadow_essence.png
 |       |   |       shield.PNG
 |       |   |       shield_plus_1.PNG
 |       |   |       shortbow.png
 |       |   |       shortsword.png
+|       |   |       silver_coins.png
 |       |   |       small_brass_key.jpg
 |       |   |       small_bronze_mirror.jpg
-|       |   |       smooth_river_stone_with_runes.jpg
+|       |   |       small_bronze_mirror.png
+|       |   |       smooth_river_stone_with_runes.png
+|       |   |       spectral_fragment.png
+|       |   |       spider_leg.png
+|       |   |       spider_silk.png
 |       |   |       splint_armor.png
 |       |   |       star_map_fragment.jpg
+|       |   |       stolen_coin_purse.png
+|       |   |       stone_fragment.png
+|       |   |       strange_relic.png
 |       |   |       strong_ale.png
 |       |   |       tarnished_silver_locket.jpg
+|       |   |       tarnished_silver_locket.png
 |       |   |       thieves_tools.png
 |       |   |       tinderbox.png
 |       |   |       torch.PNG
 |       |   |       trail_rations.PNG
 |       |   |       twisted_driftwood_wand.jpg
+|       |   |       twisted_driftwood_wand.png
+|       |   |       twisted_staff.png
+|       |   |       venom_gland.png
 |       |   |       wooden_dice.jpg
 |       |   |       wooden_dice.png
 |       |   |       wooden_doll_with_button_eyes.jpg
@@ -233,6 +267,8 @@ C:.
 |   |   +---battlefields
 |   |   |       crypt_chamber.json
 |   |   |       hill_ruins_exterior.json
+|   |   |       mine_collapsed_area.json
+|   |   |       mine_tunnel.json
 |   |   |       redstone_town_alley - gaunlet.json
 |   |   |       redstone_town_alley.json
 |   |   |       refugee_camp_night.json
@@ -245,6 +281,9 @@ C:.
 |   |   |       alley_fight_2.json
 |   |   |       hill_ruins_bandits.json
 |   |   |       hill_ruins_statue.json
+|   |   |       mine_kobold_scouts.json
+|   |   |       mine_kobold_warriors.json
+|   |   |       mine_spider_ambush.json
 |   |   |       refugee_camp_brigand_raid copy.json
 |   |   |       refugee_camp_brigand_raid.json
 |   |   |       swamp_church_cultists.json
@@ -254,6 +293,7 @@ C:.
 |   |   |       
 |   |   \---enemies
 |   |           animated_statue.json
+|   |           baby_spider.json
 |   |           bandit_common.json
 |   |           bandit_leader.json
 |   |           blight_shadow.json
@@ -261,8 +301,12 @@ C:.
 |   |           cult_leader.json
 |   |           cult_priest_swamp.json
 |   |           giant_rat.json
+|   |           giant_spider.json
 |   |           goblin.json
 |   |           kobold.json
+|   |           kobold_scout.json
+|   |           kobold_shaman.json
+|   |           kobold_warrior.json
 |   |           ogre_archer.json
 |   |           shadow_ghost.json
 |   |           skeleton.json
@@ -280,16 +324,32 @@ C:.
 |   |       hill_ruins_portal.json
 |   |       hill_ruins_rubble.json
 |   |       hill_ruins_unlockdoor.json
+|   |       mine_aethel_ore.json
+|   |       mine_carts.json
+|   |       mine_collapse.json
+|   |       mine_deep_ore.json
+|   |       mine_equipment.json
+|   |       mine_henrik_seal.json
+|   |       mine_kobold_supplies.json
+|   |       mine_ore_deposits.json
+|   |       mine_ritual_chamber.json
+|   |       mine_rubble.json
+|   |       mine_secret_tunnel.json
+|   |       mine_unstable_tunnels.json
+|   |       mine_warning_signs.json
 |   |       patron_selection_elara.json
 |   |       patron_selection_gareth.json
 |   |       patron_selection_lyra.json
 |   |       patron_selection_mayor.json
 |   |       patron_selection_pete.json
 |   |       patron_selection_thorman.json
+|   |       redstone_town_beggar.json
 |   |       redstone_town_bernard.json
+|   |       redstone_town_casperandmeredith.json
 |   |       redstone_town_cassia.json
 |   |       redstone_town_henrik.json
 |   |       redstone_town_jenna.json
+|   |       redstone_town_mayor.json
 |   |       refugee_camp_campfire.json
 |   |       refugee_camp_leader_rest.json
 |   |       refugee_camp_marta.json
@@ -306,6 +366,7 @@ C:.
 |   |       exploration_hub.json
 |   |       hill_ruins.json
 |   |       patron_selection.json
+|   |       red_hollow_mine.json
 |   |       refugee_camp.json
 |   |       swamp_church.json
 |   |       __init__.py
@@ -315,6 +376,11 @@ C:.
 |   |   |   hill_ruins_ground_level_map.py
 |   |   |   redstone_region.py
 |   |   |   redstone_town_map.py
+|   |   |   red_hollow_mine_level_1_map.py
+|   |   |   red_hollow_mine_level_2b_map.py
+|   |   |   red_hollow_mine_level_2_map.py
+|   |   |   red_hollow_mine_level_3_map.py
+|   |   |   red_hollow_mine_pre_entrance_map.py
 |   |   |   refugee_camp_main_map.py
 |   |   |   swamp_church_exterior_map.py
 |   |   |   swamp_church_interior_map.py
@@ -349,10 +415,12 @@ C:.
 |   |       
 |           
 +---docs
+|       acti-II-mayor-and-discovery-system-implementation-plan.md
 |       Act_II_Exploration_System_Implementation_Plan.md
 |       adding_npc_dialogue.md
 |       decisions.md
 |       Dialogue_issues_-_what_to_review_-Nov_5.md
+|       Flag-analysis-and-path-forward.md
 |       Hill_Ruins_Implementation_Plan.md
 |       Phase_11.5_Location_Navigation_Conversion_Plan_v2.md
 |       project_context copy.md
@@ -404,7 +472,11 @@ C:.
 |   |   load_game.py
 |   |   quest_overlay.py
 |   |   redstone_town.py
-|   |   redstone_town_navigation.py.OLD
+|   |   red_hollow_mine_level_1_nav.py
+|   |   red_hollow_mine_level_2b_nav.py
+|   |   red_hollow_mine_level_2_nav.py
+|   |   red_hollow_mine_level_3_nav.py
+|   |   red_hollow_mine_pre_entrance_nav.py
 |   |   refugee_camp_main_nav.py
 |   |   save_game.py
 |   |   statistics_overlay.py

@@ -28,6 +28,7 @@ from ui.notifications import FloatingTextManager
 from input_handler import InputHandler
 from screens.intro_scenes import IntroSequenceManager
 from screens.act_two_transition import get_act_two_manager
+from screens.act_three_transition import get_act_three_manager
 
 
 class InitializationPhase(Enum):
@@ -277,6 +278,15 @@ class GameController:
             self.game_state
         )
         self._mark_system_created("act_two_manager")
+
+        # Step 9: Act III Transition Manager (requires: EventManager, GameState)
+        self._validate_dependency("event_manager", self.event_manager)
+
+        self.act_three_manager = get_act_three_manager(
+            self.event_manager,
+            self.game_state
+        )
+        self._mark_system_created("act_three_manager")
         
          # Initial quest sync + detection (safe if nothing changed)
         update_quest_system(self.game_state)

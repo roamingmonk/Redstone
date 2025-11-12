@@ -1,0 +1,33 @@
+{
+  "act_three_transition": {
+    "title": "ACT THREE: THE FINAL ASSAULT",
+    "scenes": [
+      {
+        "id": "act_three_start",
+        "title": "The Final Hour",
+        "content": [
+          "The investigation is complete. The pieces fall into place with terrible clarity.",
+          "",
+          "A cult. A portal. Human sacrifices to tear open the barrier between worlds.",
+          "",
+          "The Mayor's family—and countless others—dragged beyond, their life force fueling an abomination that should never have been awakened.",
+          "",
+          "Deep beneath the Hill Ruins, in chambers sealed for centuries, the ritual nears completion. The tremors grow stronger with each passing hour.",
+          "",
+          "This ends now. One way or another.",
+          "",
+          "Gather your strength. Check your gear. Say your farewells.",
+          "",
+          "When you leave Redstone's walls this time, there may be no coming back."
+        ],
+        "next_scene": "redstone_town",
+        "background_style": "ominous_sky"
+      }
+    ],
+    "ui_config": {
+      "continue_button_text": "FINAL PREPARATIONS",
+      "title_color": "RED",
+      "text_color": "WHITE"
+    }
+  }
+}

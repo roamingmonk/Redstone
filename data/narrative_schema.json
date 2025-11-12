@@ -39,7 +39,7 @@
    },
     "kobold_mine_investigation": {
       "title": "The Sealed Shaft",
-      "description": "Investigate the old mining shaft where strange noises have been heard",
+      "description": "Investigate the old mining shaft at the Red Hollow Mine, where strange noises have been heard",
       "type": "secondary"
     },
     "marcus_last_recipe": {
@@ -409,7 +409,13 @@
       "explored_flag": "explored_swamp_church",
       "quest_id": "explore_swamp_church",
       "source_npc": "meredith",
-      "location_type": "investigation_site"
+      "location_type": "investigation_site",
+      "story_flags": {
+        "found_cult_documents": "found_cult_documents",
+        "read_cult_documents": "read_cult_documents",
+        "learned_sacrifice_plan": "learned_sacrifice_plan"
+      }
+      
       
     },
     "hill_ruins": {
@@ -738,10 +744,12 @@
     "main_story": {
       "type": "primary",
       "objectives": {
+        "_comment_quest ACT I": "=== ACT I SETUP ",
         "talk_to_npcs": ["meredith_talked", "garrick_talked"],
         "meet_mayor": ["mayor_talked"],
         "recruit_party": ["recruited_count >= 1"],
         
+        "_comment_quest ACT II: A": "=== ACT II INVESTIGATION ",
         "learn_swamp_church": ["meredith_gave_swamp_info"],
         "learn_hill_ruins": ["garrick_gave_ruins_info"], 
         "learn_refugee_camp": ["pete_gave_refugee_info"],
@@ -750,7 +758,35 @@
         "explore_hill_ruins": [
         "learned_about_ruins && hill_ruins_carved_searched && hill_ruins_portal_examined && hill_ruins_mechanisms_searched && hill_ruins_locked_door_found"
       ],
-        "explore_refugee_camp": ["learned_about_refugees", "gathered_refugee_info"]
+        "explore_refugee_camp": ["learned_about_refugees", "gathered_refugee_info"],
+
+        "_comment_quest ACT II: B": "=== ACT II UNDERSTAND CULT PLANS",
+        "understand_portal": ["hill_ruins_portal_examined", "read_cult_documents"],
+        "find_mayors_family_fate": ["learned_mayors_family_location"],
+        "learn_sacrifice_plan": ["learned_sacrifice_plan"],
+        "discover_aethel_ore_connection": ["found_cult_documents", "henrik_told_ore_story"],
+
+
+        "_comment_quest ACT II: C": "=== ACT II REPORT PLANS",
+        "report_to_mayor": ["mayor_acknowledged_swamp_complete", "mayor_acknowledged_ruins_complete", "mayor_acknowledged_refugee_complete"],
+        "obtain_dungeon_access": ["hill_ruins_dungeon_key_obtained || red_hollow_mine_secret_entrance_found"],
+
+
+        "_comment_quest ACT III: ": "=== ACT III Final ASSAULT",
+        "enter_dungeon": ["hill_ruins_dungeon_entered"],
+        "reach_portal_chamber": ["portal_chamber_reached"],
+        "confront_cult_leader": ["cult_leader_confronted"],
+        "stop_ritual": ["portal_ritual_stopped"],
+        "defeat_final_boss": ["final_boss_defeated"],
+
+
+        "_comment_quest EPILOGUE: ": "=== RESOLUTION",
+        "rescue_survivors": ["mayors_family_rescued"],
+        "seal_portal": ["portal_permanently_sealed"],
+        "return_to_town": ["returned_to_redstone_victorious"]
+
+
+
       }
     },
     "party_building": {
@@ -876,11 +912,12 @@
     },
    "mayor": {
       "_comment_act2": "=== ACT II OFFICE STATES (redstone_town_mayor.json) - Most specific first ===",
-      "ready_for_act_three": "act_two_started && swamp_church_complete && hill_ruins_complete && refugee_camp_complete",
+      
       "swamp_complete_first_time": "act_two_started && swamp_church_complete && !mayor_acknowledged_swamp_complete",
       "ruins_complete_first_time": "act_two_started && hill_ruins_complete && !mayor_acknowledged_ruins_complete",
       "refugee_complete_first_time": "act_two_started && refugee_camp_complete && !mayor_acknowledged_refugee_complete",
       "mine_complete_first_time": "act_two_started && red_hollow_mine_complete && !mayor_acknowledged_mine_complete",
+      "ready_for_act_three": "act_two_started && swamp_church_complete && hill_ruins_complete && refugee_camp_complete && mayor_acknowledged_swamp_complete && mayor_acknowledged_ruins_complete && mayor_acknowledged_refugee_complete",
       "multiple_progress": "act_two_started && (mayor_acknowledged_swamp_complete || mayor_acknowledged_ruins_complete || mayor_acknowledged_refugee_complete || mayor_acknowledged_mine_complete)",
       "no_progress": "act_two_started && mayor_talked",
       

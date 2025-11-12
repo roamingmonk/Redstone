@@ -99,7 +99,7 @@ REDSTONE_REGION_LOCATIONS = {
     'red_hollow_mine': {
         'name': 'Red Hollow Mine',
         'grid_pos': (11, 6),  # East, in the mountains
-        'discovery_flag': 'discovered_old_mine_shaft',
+        'discovery_flag': 'learned_about_mine',
         'icon': '⛏️',
         'icon_color': FIRE_BRICK_RED,  # Firebrick red
         'target': 'red_hollow_mine_pre_entrance_nav',

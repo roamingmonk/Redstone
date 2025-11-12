@@ -640,11 +640,35 @@
         {
           "id": "understood",
           "text": "I'll be careful. Thank you.",
+           "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_mentioned_old_shaft",
+              "value": true
+            },
+            {
+              "type": "set_flag",
+              "flag": "learned_about_mine",
+              "value": true
+            }
+          ],
           "next_state": "exit"
         },
         {
           "id": "ore_question",
           "text": "What if I find ore samples?",
+           "effects": [
+            {
+              "type": "set_flag",
+              "flag": "henrik_mentioned_old_shaft",
+              "value": true
+            },
+            {
+              "type": "set_flag",
+              "flag": "learned_about_mine",
+              "value": true
+            }
+          ],
           "next_state": "ore_samples_advice"
         }
       ]

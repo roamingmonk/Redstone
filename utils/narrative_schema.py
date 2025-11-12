@@ -216,6 +216,11 @@ class NarrativeSchema:
             completion_flag = location_data.get("completion_flag")
             if completion_flag:
                 flags.append(completion_flag)
+            explored_flag = location_data.get("explored_flag")
+            if explored_flag:
+                flags.append(explored_flag)
+            # Add location story flags (like NPC story flags)
+            flags.extend(location_data.get("story_flags", {}).values())
         
         # Act progression flags
         for act_data in self.schema.get("act_progression", {}).values():

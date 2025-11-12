@@ -1,0 +1,38 @@
+{
+  "swamp_church_cultdocuments": {
+    "npc_name": "Cult Documents",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "Scattered papers lie across the desecrated altar, covered in dried blood and dark symbols.",
+          "",
+          "You carefully gather the documents and begin to read:",
+          "",
+          "'The Aethel Ore failed. Dimensional stability requires organic anchors. Human sacrifices are now required.'",
+          "",
+          "'The Mayor's bloodline is old and strong. His family will serve as perfect catalysts for the portal awakening.'",
+          "",
+          "'Once the barrier weakens, HE can return. The sleeper will wake. The old pact will be fulfilled.'",
+          "",
+          "You take the documents with you as evidence. The Mayor needs to see this."
+        ],
+        "options": [
+          {
+            "id": "understood",
+            "text": "[Take the documents]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "read_cult_documents", "value": true},
+              {"type": "set_flag", "flag": "learned_sacrifice_plan", "value": true},
+              {"type": "add_item", "item_id": "cult_documents", "quantity": 1, "category": "items"},
+              {"type": "xp_award", "amount": 50, "reason": "Discovered cult plans"}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

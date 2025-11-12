@@ -147,9 +147,25 @@ SEARCHABLE_OBJECTS = {
             'requirements': {},
             'one_time': True
         }
+   },
+    'cult_documents': {
+        'search_tiles': [(3, 16), (4, 16), (5, 16),  # Right next to stairs
+                        (3, 17), (4, 17), (5, 17),
+                        (3, 18), (4, 18), (5, 18),
+                        (3, 19), (4, 19), (5, 19)],  # Scattered area
+        'object_pos': [(4, 17), (4, 18)],  # Visual sprite (papers on ground)
+        'info': {
+            'name': 'Cult Documents',
+            'interaction_type': 'searchable',
+            'description': 'Blood-stained papers scattered on the floor, as if dropped in haste.',
+            'examine_dialogue': 'swamp_church_cultdocuments',
+            'loot_table': None,
+            'flag_set': 'read_cult_documents',
+            'requirements': {'found_cult_documents': True},  # Only after combat victory
+            'one_time': True
+        }
     }
 }
-
 def get_searchable_at_position(player_x, player_y):
     """Check if player is standing at a searchable object"""
     for search_id, search_data in SEARCHABLE_OBJECTS.items():

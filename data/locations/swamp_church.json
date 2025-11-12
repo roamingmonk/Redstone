@@ -31,11 +31,7 @@
           "quantity": 2,
           "chance": 1.0
         },
-        {
-          "item_id": "cult_documents",
-          "quantity": 1,
-          "chance": 1.0
-        },
+        
         {
           "item_id": "healing_potion",
           "quantity": 1,
@@ -110,6 +106,14 @@
             "npc_id": "altar",
             "return_to": "swamp_church_interior",
             "description": "Investigate teh desecrated alter."
+          },
+          "read_cult_documents": {
+            "type": "dialogue",
+            "label": "Read Cult Documents",
+            "npc_id": "cultdocuments",
+            "return_to": "swamp_church_interior",
+            "description": "Examine the blood-stained papers on the altar.",
+            "requires_flag": "found_cult_documents"
           },
           "enter_crypt": {
             "type": "navigate",
