@@ -1,8 +1,8 @@
-﻿## Repository Structure (generated 2025-11-11 08:51)
+﻿## Repository Structure (generated 2025-11-13 09:43)
 ```text
-Folder PATH listing
-Volume serial number is 36E2-184C
-E:.
+Folder PATH listing for volume OS
+Volume serial number is 86A5-907E
+C:.
 |   game_state.py
 |   input_handler.py
 |   main.py
@@ -356,6 +356,7 @@ E:.
 |   |       refugee_camp_refugees.json
 |   |       refugee_camp_supplies.json
 |   |       swamp_church_altar.json
+|   |       swamp_church_cultdocuments.json
 |   |       swamp_church_graves.json
 |   |       swamp_church_pews.json
 |   |       swamp_church_ritual.json
@@ -387,6 +388,7 @@ E:.
 |   |   |   
 |   |           
 |   +---narrative
+|   |       act_three.json
 |   |       act_two.json
 |   |       death_quotes.json
 |   |       intro_sequence.json
@@ -427,6 +429,7 @@ E:.
 |       project_context.md
 |       Refugee_Camp_and_Red_Hollow_Mine_Implementation_Plan.md
 |       Repository_Structure.md
+|       Terror in Redstone - Act III Master Implementation Plan.md
 |       
 +---game_logic
 |   |   character_engine.py
@@ -458,6 +461,7 @@ E:.
 |       save_slot_5.json
 |       
 +---screens
+|   |   act_three_transition.py
 |   |   act_two_transition.py
 |   |   character_creation.py
 |   |   character_overlay.py
