@@ -135,6 +135,7 @@ SEARCHABLE_OBJECTS = {
             'name': 'Ancient Chest',
             'interaction_type': 'searchable',
             'description': 'A locked chest from ancient times',
+            'examine_dialogue': 'dungeon_level_1_chest',
             'loot_table': 'dungeon_level_1_chest_loot',
             'flag_set': 'dungeon_l1_chest_opened',
             'requirements': {},

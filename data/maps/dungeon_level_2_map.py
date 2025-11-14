@@ -149,12 +149,13 @@ def get_transition_at_entrance(player_x, player_y):
 # Searchable objects
 SEARCHABLE_OBJECTS = {
     'treasure_chest': {
-        'search_tiles': [(7, 7), (6, 7), (8, 7)],  # Around chest
+        'search_tiles': [(7, 7), (6, 7), (8, 7)],
         'object_pos': [(7, 7)],
         'info': {
             'name': 'Ancient Treasure Chest',
-            'interaction_type': 'loot',
+            'interaction_type': 'searchable',
             'description': 'A reinforced chest half-buried in rubble.',
+            'examine_dialogue': 'dungeon_level_2_chest',
             'loot_table': 'dungeon_level_2_chest_loot',
             'flag_set': 'dungeon_level_2_chest_looted',
             'requirements': {},

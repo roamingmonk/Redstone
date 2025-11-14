@@ -1,0 +1,40 @@
+{
+  "dungeon_level_2_chest": {
+    "npc_name": "Reinforced Ancient Chest",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "A sturdy chest reinforced with iron bands sits half-buried in rubble. The metal shows signs of age but remains solid - built to withstand the test of time.",
+          "",
+          "This chest bears the mark of the old kingdom's quartermaster corps - a crossed sword and quill. Below it, a date: '1247, Third Age.' Over two centuries old.",
+          "",
+          "A small plaque reads: 'Emergency provisions - authorized personnel only.' Well, you're about as authorized as anyone is going to get these days.",
+          "",
+          "You work the ancient lock open. Inside, you find military-grade supplies remarkably well-preserved. The old quartermaster corps knew their business."
+        ],
+        "options": [
+          {
+            "id": "take_contents",
+            "text": "[Take the contents]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "trigger_loot_check", "value": "dungeon_level_2_chest_loot"},
+              {"type": "set_flag", "flag": "dungeon_level_2_chest_looted", "value": true}
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Leave the chest alone]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "dungeon_level_2_chest_looted", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "dungeon_level_1_chest": {
+    "npc_name": "Ancient Sealed Chest",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "A weathered chest sits in the shadows, covered in decades of dust. Unlike the cult's belongings elsewhere, this chest predates their arrival by centuries.",
+          "",
+          "The chest bears an ancient seal - three interlocking circles representing old magical wards. Despite the rust and age, the lock yields to your skilled hands.",
+          "",
+          "A faint inscription in Old Common reads: 'For those who walk in darkness seeking light, may these tools serve you well.'",
+          "",
+          "The magical seal dissipates with a soft shimmer as you open the chest. Inside, you find supplies preserved by ancient magic - clearly left for future defenders of the realm."
+        ],
+        "options": [
+          {
+            "id": "take_contents",
+            "text": "[Take the contents]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "trigger_loot_check", "value": "dungeon_level_1_chest_loot"},
+              {"type": "set_flag", "flag": "dungeon_l1_chest_opened", "value": true}
+            ]
+          },
+          {
+            "id": "leave",
+            "text": "[Leave the chest alone]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "dungeon_l1_chest_opened", "value": true}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
