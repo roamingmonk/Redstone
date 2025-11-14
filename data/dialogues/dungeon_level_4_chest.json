@@ -1,0 +1,121 @@
+{
+  "dialogue_id": "dungeon_level_4_chest",
+  "title": "Hidden Supply Chest",
+  "states": {
+    "unopened": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "A reinforced chest is tucked into a dark corner of the sanctum, covered in dust. Unlike the cult's belongings, this chest appears to be from before their occupation.",
+        "",
+        "The chest bears faded markings - a symbol you recognize from old Redstone heraldry. This was hidden here by someone who fought darkness before."
+      ],
+      "options": [
+        {
+          "id": "open_chest",
+          "text": "[Open the chest]",
+          "next_state": "opened",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "dungeon_l4_chest_opened",
+              "value": true
+            },
+            {
+              "type": "loot_table",
+              "loot_table_id": "dungeon_level_4_chest_loot"
+            }
+          ]
+        },
+        {
+          "id": "examine_markings",
+          "text": "[Examine the heraldry markings]",
+          "next_state": "markings_examination"
+        },
+        {
+          "id": "leave",
+          "text": "[Leave the chest]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "markings_examination": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "You dust off the chest's surface to examine the heraldry more closely. The symbol is ancient - predating even Marcus's family line.",
+        "",
+        "It shows a sword piercing a void-black circle, with protective runes around the border. This is the mark of the Void Wardens - an order that once defended the realm against extra-planar threats.",
+        "",
+        "A small inscription reads: 'Should darkness return, may these arms serve the light once more.'",
+        "",
+        "The Void Wardens are long gone, but their legacy remains. This chest was left for whoever would stand against the void."
+      ],
+      "options": [
+        {
+          "id": "open_chest",
+          "text": "[Open the chest]",
+          "next_state": "opened",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "dungeon_l4_chest_opened",
+              "value": true
+            },
+            {
+              "type": "loot_table",
+              "loot_table_id": "dungeon_level_4_chest_loot"
+            }
+          ]
+        },
+        {
+          "id": "leave",
+          "text": "[Leave the chest]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "opened": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "The chest opens with a soft click. Inside, you find supplies clearly meant for fighting void-touched enemies - holy water, blessed weapons, protective charms.",
+        "",
+        "The Void Wardens may be gone, but their preparations will help you face what lies ahead."
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "[Close the chest]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "already_opened": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "The Void Warden chest stands empty. You've already claimed its contents."
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "[Step away]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "exit": {
+      "npc_name": "",
+      "introduction": [],
+      "options": []
+    }
+  },
+  "state_transition_logic": {
+    "entry_state": {
+      "default": "unopened",
+      "conditions": [
+        {
+          "flag": "dungeon_l4_chest_opened",
+          "state": "already_opened"
+        }
+      ]
+    }
+  }
+}

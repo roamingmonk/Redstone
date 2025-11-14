@@ -1,0 +1,191 @@
+{
+  "dialogue_id": "dungeon_level_5_final_boss_intro",
+  "title": "The Archon Emerges",
+  "states": {
+    "archon_arrival": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "The void portal shudders and expands. Reality screams. Something massive is forcing its way through the tear between worlds.",
+        "",
+        "What emerges defies description. Your mind struggles to process what you're seeing:",
+        "",
+        "A towering form of living darkness, shifting between nightmarish shapes. Tentacles. Wings. Claws. Mouths filled with teeth that shouldn't exist. Hundreds of eyes opening and closing across its surface like dying stars.",
+        "",
+        "This is the Archon of the Void - herald and champion of the Void Prince. A being of pure entropy given form.",
+        "",
+        "Its presence warps reality itself. The stone beneath your feet cracks. The air turns thick and cold. Your torches flicker and die, yet somehow you can still see - the Archon radiates its own terrible light."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Steel yourself]",
+          "next_state": "archon_speaks"
+        }
+      ]
+    },
+    "archon_speaks": {
+      "npc_name": "The Archon",
+      "introduction": [
+        "The Archon's voice doesn't speak through sound. It resonates directly in your mind, in the bones of the world itself:",
+        "",
+        "'MORTALS.'",
+        "",
+        "The single word carries the weight of eons. You feel your knees weaken.",
+        "",
+        "'YOU HAVE DISRUPTED THE SUMMONING. THE VESSEL IS LOST.'",
+        "",
+        "The Archon's many eyes focus on you with terrible intensity.",
+        "",
+        "'IT MATTERS NOT. I AM HERE. THE DOOR IS OPEN. YOUR WORLD HAS BEEN TASTED. THE VOID PRINCE WILL FEAST UPON IT IN TIME.'",
+        "",
+        "'BUT YOU... YOU WILL NOT LIVE TO SEE IT.'"
+      ],
+      "options": [
+        {
+          "id": "defiance",
+          "text": "'We stopped Marcus. We'll stop you too!'",
+          "next_state": "defiant_response"
+        },
+        {
+          "id": "despair",
+          "text": "'This... this is hopeless. We can't fight that...'",
+          "next_state": "despair_response"
+        },
+        {
+          "id": "if_marcus_redeemed",
+          "text": "'Marcus weakened the portal. You're not at full strength!'",
+          "requirements": {
+            "flag": "marcus_redeemed"
+          },
+          "next_state": "weakened_response"
+        }
+      ]
+    },
+    "defiant_response": {
+      "npc_name": "The Archon",
+      "introduction": [
+        "'DEFIANCE. HOW... QUAINT.'",
+        "",
+        "The Archon's form ripples with what might be amusement.",
+        "",
+        "'THE NIGHTSHADE WAS ARROGANT. HE BELIEVED HE COULD CONTROL THE INFINITE. HIS PUNISHMENT WAS FITTING.'",
+        "",
+        "'BUT YOU... YOU ARE MERELY INSECTS. ANNOYING. PERSISTENT. ULTIMATELY INSIGNIFICANT.'",
+        "",
+        "'I WILL ENJOY EXTINGUISHING YOUR LIGHT.'"
+      ],
+      "options": [
+        {
+          "id": "fight",
+          "text": "'Then come and try, monster!'",
+          "next_state": "combat_begins"
+        }
+      ]
+    },
+    "despair_response": {
+      "npc_name": "The Archon",
+      "introduction": [
+        "'YES. DESPAIR. IT IS THE APPROPRIATE RESPONSE.'",
+        "",
+        "'YOU CANNOT WIN. YOU CAN ONLY DELAY THE INEVITABLE. THE VOID IS ETERNAL. YOUR LIGHT IS TEMPORARY.'",
+        "",
+        "'EMBRACE THE DARKNESS. IT WILL BE EASIER THAT WAY.'"
+      ],
+      "options": [
+        {
+          "id": "rally",
+          "text": "[Gather your courage] 'No. We fight. Even if it's hopeless, we FIGHT!'",
+          "next_state": "rallied_response"
+        }
+      ]
+    },
+    "rallied_response": {
+      "npc_name": "The Archon",
+      "introduction": [
+        "'AH. THE MORTAL SPIRIT. FUTILE. ADMIRABLE. DOOMED.'",
+        "",
+        "'VERY WELL. SHOW ME THIS COURAGE. LET ME WATCH IT DIE.'"
+      ],
+      "options": [
+        {
+          "id": "fight",
+          "text": "[Prepare for battle]",
+          "next_state": "combat_begins"
+        }
+      ]
+    },
+    "weakened_response": {
+      "npc_name": "The Archon",
+      "introduction": [
+        "The Archon's form flickers, unstable. For a moment, you see rage in its multitude of eyes.",
+        "",
+        "'THE TRAITOR NIGHTSHADE. HE DARED TO UNDO HIS OWN WORK. TO DENY HIS DESTINY.'",
+        "",
+        "'YES. THE PORTAL IS... INCOMPLETE. MY MANIFESTATION IS DIMINISHED.'",
+        "",
+        "The Archon's voice drops to a malevolent whisper:",
+        "",
+        "'BUT EVEN WEAKENED, I AM MORE THAN SUFFICIENT TO DESTROY YOU. AND WHEN I CONSUME YOUR SOULS, I WILL HAVE THE STRENGTH TO REOPEN THE PORTAL FULLY.'",
+        "",
+        "'NIGHTSHADE'S SACRIFICE BOUGHT YOU NOTHING BUT A SLOWER DEATH.'"
+      ],
+      "options": [
+        {
+          "id": "fight",
+          "text": "'Marcus gave us a chance. We'll make it count!'",
+          "next_state": "combat_begins",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "acknowledged_marcus_sacrifice",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "combat_begins": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "The Archon of the Void spreads its impossible form wide, reality warping around it. Void energy crackles through the chamber.",
+        "",
+        "Behind it, the portal pulses with malevolent light. You can feel the Void Prince's attention on you - a vast, incomprehensible intelligence watching from beyond the veil.",
+        "",
+        "This is it. The final battle. Everything you've fought for comes down to this moment.",
+        "",
+        "If you fail, the portal remains open. The void will spread. Redstone will fall. The world will fall.",
+        "",
+        "But if you succeed... if you can defeat this herald of the void and seal the portal...",
+        "",
+        "The world has a chance.",
+        "",
+        "You raise your weapons. Your companions stand beside you, ready.",
+        "",
+        "The Archon attacks."
+      ],
+      "options": [
+        {
+          "id": "fight",
+          "text": "[FIGHT FOR YOUR WORLD]",
+          "next_state": "exit",
+          "effects": [
+            {
+              "type": "start_combat",
+              "encounter_id": "dungeon_l5_final_boss"
+            }
+          ]
+        }
+      ]
+    },
+    "exit": {
+      "npc_name": "",
+      "introduction": [],
+      "options": []
+    }
+  },
+  "state_transition_logic": {
+    "entry_state": {
+      "default": "archon_arrival"
+    }
+  }
+}

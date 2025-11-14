@@ -1,0 +1,121 @@
+{
+  "dialogue_id": "dungeon_level_3_chest",
+  "title": "Ancient Chest",
+  "states": {
+    "unopened": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "An iron-bound chest sits against the chamber wall, its lock rusted but still intact. Unlike the cult's crude additions to this level, this chest appears to be original to the ancient ruins.",
+        "",
+        "The chest bears the royal seal of old Redstone - three stars above a mountain. Whatever is inside has been here for centuries, long before the cult arrived."
+      ],
+      "options": [
+        {
+          "id": "open_chest",
+          "text": "[Open the chest]",
+          "next_state": "opened",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "dungeon_l3_chest_opened",
+              "value": true
+            },
+            {
+              "type": "loot_table",
+              "loot_table_id": "dungeon_level_3_chest_loot"
+            }
+          ]
+        },
+        {
+          "id": "examine_seal",
+          "text": "[Examine the royal seal more closely]",
+          "next_state": "seal_examination"
+        },
+        {
+          "id": "leave",
+          "text": "[Leave the chest alone]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "seal_examination": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "You trace your fingers over the carved seal. The three stars represent the royal family's three virtues: Wisdom, Courage, and Compassion.",
+        "",
+        "Beneath the seal, you notice a faint inscription in Old Common:",
+        "",
+        "'For those who walk the darkness to preserve the light, may these arms serve you well.'",
+        "",
+        "This chest was left here intentionally - a cache for defenders of the realm who might one day need to venture into these depths."
+      ],
+      "options": [
+        {
+          "id": "open_chest",
+          "text": "[Open the chest]",
+          "next_state": "opened",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "dungeon_l3_chest_opened",
+              "value": true
+            },
+            {
+              "type": "loot_table",
+              "loot_table_id": "dungeon_level_3_chest_loot"
+            }
+          ]
+        },
+        {
+          "id": "leave",
+          "text": "[Leave the chest alone]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "opened": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "The chest's lock clicks open easily, despite its age. Inside, you find supplies clearly meant for defenders of the realm.",
+        "",
+        "The ancient nobles who built these halls knew that darkness might one day return. They prepared for those who would stand against it."
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "[Close the chest]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "already_opened": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "The chest stands open and empty. You've already claimed its contents."
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "[Step away]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "exit": {
+      "npc_name": "",
+      "introduction": [],
+      "options": []
+    }
+  },
+  "state_transition_logic": {
+    "entry_state": {
+      "default": "unopened",
+      "conditions": [
+        {
+          "flag": "dungeon_l3_chest_opened",
+          "state": "already_opened"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "encounter_id": "dungeon_l1_skeleton_patrol",
+  "name": "Skeleton Patrol",
+  "description": "Ancient undead guards patrol the ruins, their bones rattling with each step!",
+  "battlefield_id": "dungeon_chamber",
+  "difficulty": "medium",
+  "enemies": [
+    {
+      "enemy_id": "skeleton",
+      "position": [4, 3],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "skeleton",
+      "position": [5, 3],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "skeleton",
+      "position": [4, 5],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 150,
+    "gold": 25,
+    "items": [],
+    "story_progress": {
+      "quest_flags": {
+        "dungeon_l1_encounter_1_complete": {
+          "value": true,
+          "display_message": "The skeletal guards collapse into piles of bones. The passage ahead is clear."
+        }
+      }
+    }
+  },
+
+  "escape_allowed": false,
+  "turn_limit": null,
+  "ambient_description": "Ancient skeletal warriors stand guard in the dusty chamber. Their hollow eye sockets glow with pale blue light as they detect your presence.",
+  "victory_description": "The skeletons collapse into heaps of bone and rust. The ancient guardians have been put to rest once more.",
+  "defeat_description": "You retreat from the chamber, the skeletal warriors' hollow laughter echoing behind you."
+}

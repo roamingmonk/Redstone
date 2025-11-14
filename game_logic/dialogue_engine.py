@@ -329,13 +329,13 @@ class DialogueEngine:
 
     def _handle_dialogue_choice(self, event_data):
         """Handle DIALOGUE_CHOICE events"""
-        #print(f"🎭 DEBUG: DialogueEngine received DIALOGUE_CHOICE event: {event_data}")
+        print(f"🎭 DEBUG: DialogueEngine received DIALOGUE_CHOICE event: {event_data}")
         
         npc_id = event_data.get('npc_id')
         choice_index = event_data.get('choice_index')
         
         if npc_id and choice_index is not None:
-            #print(f"🎭 DEBUG: Processing choice {choice_index} for {npc_id}")
+            print(f"🎭 DEBUG: Processing choice {choice_index} for {npc_id}")
             
 
             # Get stored location - REQUIRED, no hardcoding
@@ -344,7 +344,7 @@ class DialogueEngine:
                 raise ValueError(f"No location set for {npc_id} dialogue session - location must be set before dialogue begins")
             
             dialogue_file_id = f'{location_id}_{npc_id}'
-            #print(f"🎭 DEBUG: Looking for dialogue file: {dialogue_file_id}")
+            print(f"🎭 DEBUG: Looking for dialogue file: {dialogue_file_id}")
             
             # Get choice_id from conversation data
             conversation_data = self.get_conversation_options(dialogue_file_id, npc_id)
@@ -352,7 +352,7 @@ class DialogueEngine:
 
             if choice_index < len(options):
                 choice_id = options[choice_index]['id']
-                #print(f"🎭 DEBUG: Selected option ID: {choice_id}")
+                print(f"🎭 DEBUG: Selected option ID: {choice_id}")
                 
                 # Get metadata first to determine state handling
                 metadata = self.get_dialogue_metadata(dialogue_file_id)
@@ -368,7 +368,7 @@ class DialogueEngine:
                 # NARRATIVE SCHEMA INTEGRATION - Set conversation flag AFTER state determination
                 conv_flag = narrative_schema.get_npc_conversation_flag(npc_id)
                 setattr(self.game_state, conv_flag, True)
-                #print(f"✅ Set conversation flag: {conv_flag} = True")
+                print(f"✅ Set conversation flag: {conv_flag} = True")
 
                 # Track NPC encounter for statistics
                 if npc_id not in self.game_state.npcs_encountered:
@@ -1024,6 +1024,68 @@ class DialogueEngine:
                 import traceback
                 traceback.print_exc()
                 return None
+
+        # 12) heal_party  ----------------------------------------------------------
+        elif effect_type == 'heal_party':
+            amount = effect.get('amount', 'full')  # Can be 'full', 'half', or a number
+            
+            try:
+                healed_count = 0
+                party_members = []
+                
+                # Get all party members
+                if hasattr(self.game_state, 'character') and self.game_state.character:
+                    party_members.append(('Player', self.game_state.character))
+                
+                # Add recruited companions
+                companion_flags = ['gareth_recruited', 'elara_recruited', 'thorman_recruited']
+                for flag in companion_flags:
+                    if getattr(self.game_state, flag, False):
+                        companion_name = flag.split('_')[0].capitalize()
+                        companion_data = getattr(self.game_state, f'{companion_name.lower()}_character', None)
+                        if companion_data:
+                            party_members.append((companion_name, companion_data))
+                
+                # Heal each party member
+                for name, char_data in party_members:
+                    if 'hp' in char_data and 'max_hp' in char_data:
+                        current_hp = char_data['hp']
+                        max_hp = char_data['max_hp']
+                        
+                        if amount == 'full':
+                            char_data['hp'] = max_hp
+                            healed_count += 1
+                        elif amount == 'half':
+                            char_data['hp'] = min(max_hp, current_hp + (max_hp // 2))
+                            healed_count += 1
+                        elif isinstance(amount, (int, float)):
+                            char_data['hp'] = min(max_hp, current_hp + amount)
+                            healed_count += 1
+                        
+                        print(f"❤️ Healed {name}: {current_hp}/{max_hp} → {char_data['hp']}/{max_hp}")
+                
+                if healed_count > 0:
+                    # Show visual notification
+                    if self.event_manager:
+                        self.event_manager.emit("SHOW_FLOATING_TEXT", {
+                            "text": f"Party Healed!",
+                            "color": (100, 255, 100),  # Green for healing
+                            "duration": 2200
+                        })
+                    
+                    print(f"✅ Healed {healed_count} party member(s)")
+                    return f"Party healed ({healed_count} members)"
+                else:
+                    print(f"⚠️ No party members found to heal")
+                    return None
+                    
+            except Exception as e:
+                print(f"❌ EXCEPTION in heal_party effect: {e}")
+                import traceback
+                traceback.print_exc()
+                return None   
+
+        
 
     def _check_option_requirements(self, option: Dict[str, Any]) -> bool:
         """Check if dialogue option requirements are met"""

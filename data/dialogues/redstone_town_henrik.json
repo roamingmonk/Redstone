@@ -865,6 +865,204 @@
           "next_state": "exit"
         }
       ]
+    },
+    "act_three_mine_tunnel_assistance": {
+      "introduction": [
+        "*Henrik looks up as you approach*",
+        "You're going down there, aren't you?",
+        "Into those ruins. Through the mine tunnel you found.",
+        "*His hands shake slightly*",
+        "I sealed that chamber years ago. Tried to keep it buried.",
+        "But if you're going... you'll need to know what you're facing."
+      ],
+      "options": [
+        {
+          "id": "ask_advice",
+          "text": "What should I know about the tunnel?",
+          "next_state": "tunnel_warnings"
+        },
+        {
+          "id": "ask_lantern",
+          "text": "Do you have anything that could help?",
+          "next_state": "lantern_offer"
+        },
+        {
+          "id": "not_ready",
+          "text": "I'm not going yet. Just checking in.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "tunnel_warnings": {
+      "introduction": [
+        "The tunnel goes deep. Past where any map shows.",
+        "You'll hit cave-ins. Support beams rotted through years ago.",
+        "*He counts on his fingers*",
+        "Watch for gas pockets - they'll make you dizzy, confused.",
+        "And the ore... if you see that blue glow...",
+        "*He trails off*",
+        "Just don't touch it with bare hands. It gets in your head."
+      ],
+      "options": [
+        {
+          "id": "ask_destination",
+          "text": "Where does the tunnel lead?",
+          "next_state": "tunnel_destination"
+        },
+        {
+          "id": "ask_help",
+          "text": "Is there anything you can give me to help?",
+          "next_state": "lantern_offer"
+        },
+        {
+          "id": "understood",
+          "text": "I'll be careful. Thank you.",
+          "effects": [
+            {"type": "set_flag", "flag": "henrik_gave_act_three_warnings", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "tunnel_destination": {
+      "introduction": [
+        "*Henrik looks uncomfortable*",
+        "The old tunnels... they connect to something older.",
+        "Natural caverns. And below those...",
+        "*He swallows hard*",
+        "Whatever those ruins were built on top of.",
+        "When we found the chamber, it wasn't just ore.",
+        "There were carvings. Symbols. Things that shouldn't exist.",
+        "*He meets your eyes*",
+        "The mine tunnel will take you past the outer defenses.",
+        "Straight into... whatever's down there."
+      ],
+      "options": [
+        {
+          "id": "grateful",
+          "text": "That's exactly what I need to know.",
+          "next_state": "lantern_offer"
+        },
+        {
+          "id": "second_thoughts",
+          "text": "Maybe I should use the front entrance instead.",
+          "next_state": "front_door_advice"
+        }
+      ]
+    },
+
+    "front_door_advice": {
+      "introduction": [
+        "*Henrik nods slowly*",
+        "Might be safer that way. More time to prepare.",
+        "You'll face everything the ruins throw at you.",
+        "But at least you'll see it coming.",
+        "*A grim smile*",
+        "Either way, you're braver than I ever was."
+      ],
+      "options": [
+        {
+          "id": "any_help",
+          "text": "Can you help me prepare?",
+          "next_state": "lantern_offer"
+        },
+        {
+          "id": "appreciate_honesty",
+          "text": "I appreciate your honesty, Henrik.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "lantern_offer": {
+      "introduction": [
+        "*Henrik reaches into his cart and pulls out a reinforced lantern*",
+        "This was my foreman's. Better than the one I gave you before.",
+        "*He hands it over - it's heavier, with thicker glass*",
+        "Burns brighter. Lasts longer.",
+        "And the light... it keeps some things at bay.",
+        "*He taps the metal frame*",
+        "Saved my life more than once down there.",
+        "Maybe it'll do the same for you."
+      ],
+      "options": [
+        {
+          "id": "accept_lantern",
+          "text": "Thank you, Henrik. I'll put it to good use.",
+          "effects": [
+            {"type": "add_item", "item_id": "reinforced_miners_lantern"},
+            {"type": "set_flag", "flag": "henrik_gave_reinforced_lantern", "value": true},
+            {"type": "set_flag", "flag": "henrik_helped_act_three", "value": true}
+          ],
+          "next_state": "final_blessing"
+        }
+      ]
+    },
+
+    "final_blessing": {
+      "introduction": [
+        "*Henrik extends his weathered hand*",
+        "Come back safe. That's all I ask.",
+        "*His grip is surprisingly strong*",
+        "And if you can... end whatever's down there.",
+        "So no one else has to go through what I did.",
+        "*He releases your hand*",
+        "Good luck. You'll need it."
+      ],
+      "options": [
+        {
+          "id": "farewell",
+          "text": "I'll do my best. See you when I return.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "post_act_three_victory": {
+      "introduction": [
+        "*Henrik looks up as you approach*",
+        "You're back. And you're alive.",
+        "*He searches your face*",
+        "Is it... is it over? Really over?"
+      ],
+      "options": [
+        {
+          "id": "its_over",
+          "text": "It's over. The cult is finished.",
+          "next_state": "relief"
+        },
+        {
+          "id": "portal_sealed",
+          "text": "The portal is sealed. The ore chamber is destroyed.",
+          "next_state": "relief"
+        }
+      ]
+    },
+
+    "relief": {
+      "introduction": [
+        "*Henrik sits down heavily on his cart*",
+        "Gods. I never thought...",
+        "*He wipes his eyes*",
+        "All these years. That weight on my shoulders.",
+        "Knowing what I left down there. What could happen.",
+        "*He looks up at you*",
+        "You did what I couldn't. What I was too afraid to do.",
+        "Thank you. From the bottom of my heart."
+      ],
+      "options": [
+        {
+          "id": "honor",
+          "text": "It was an honor to help.",
+          "effects": [
+            {"type": "set_flag", "flag": "henrik_act_three_complete", "value": true},
+            {"type": "award_xp", "amount": 100}
+          ],
+          "next_state": "exit"
+        }
+      ]
     }
   }
 }

@@ -1,0 +1,61 @@
+{
+  "encounter_id": "dungeon_l1_animated_armor",
+  "name": "Animated Guardians",
+  "description": "Suits of ancient armor spring to life, defending the ruins with mindless determination!",
+  "battlefield_id": "dungeon_chamber",
+  "difficulty": "medium",
+  "enemies": [
+    {
+      "enemy_id": "animated_statue",
+      "position": [4, 3],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "animated_statue",
+      "position": [5, 5],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "skeleton",
+      "position": [6, 4],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 200,
+    "gold": 40,
+    "items": ["healing_potion"],
+    "story_progress": {
+      "quest_flags": {
+        "dungeon_l1_encounter_2_complete": {
+          "value": true,
+          "display_message": "The animated armor crashes to the ground, their magic dissipating. You continue deeper into the ruins."
+        }
+      }
+    }
+  },
+  "special_rules": [
+    {
+      "rule_type": "high_armor_enemies",
+      "description": "Animated armor has high AC, use magic or crushing attacks",
+      "applies_to": ["animated_statue"]
+    }
+  ],
+  "escape_allowed": false,
+  "turn_limit": null,
+  "ambient_description": "Suits of armor line the walls. As you approach, they creak to life, ancient enchantments still holding them in service to defend this place.",
+  "victory_description": "The magical constructs collapse, their animating force spent. Only empty metal husks remain.",
+  "defeat_description": "You flee from the relentless guardians. Their heavy footsteps stop at the chamber's threshold."
+}

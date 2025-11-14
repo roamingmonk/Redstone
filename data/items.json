@@ -20,6 +20,91 @@
       }
     },
     {
+    "id":"enchanted_shortsword", 
+    "name": "Enchanted Shortsword +1",
+    "description": "A finely crafted shortsword with faint magical runes. Deals extra damage.",
+    "base_cost": 150,
+    "category": "weapons",
+    "icon_file": "enchanted_shortsword.png",
+    "consumable": false,
+    "weight": 2,
+    "rarity": "rare",
+    "combat_stats": {
+        "damage_dice": "1d6+2",
+        "damage_type": "slashing",
+        "attack_bonus": 1,
+        "range": "melee",
+        "weapon_properties": ["versatile"],
+        "abilities_used": ["strength"]
+      }
+  },
+  {
+      "id": "scroll_of_protection",
+      "name": "Scroll of Protection",
+      "description": "A magical scroll inscribed with protective wards. When read aloud, it grants temporary defensive bonuses.",
+      "base_cost": 75,
+      "category": "consumables",
+      "icon_file": "scroll_of_protection.png",
+      "consumable": true,
+      "weight": 0,
+      "rarity": "uncommon",
+      "stackable": true,
+      "max_stack": 3,
+      "consumable_effects": {
+        "ac_bonus": 2,
+        "duration": "3",
+        "description": "Grants +2 AC to all party members for 3 turns"
+      }
+    },
+    {
+      "id": "reinforced_miners_lantern",
+      "name": "Reinforced Miner's Lantern",
+      "description": "Henrik's foreman's lantern with heavy brass construction and thick glass panes. Provides superior illumination and wards off certain creatures with its steady light.",
+      "base_cost": 50,
+      "category": "items",
+      "subcategory": "tool",
+      "icon_file": "reinforced_miners_lantern.png",
+      "consumable": false,
+      "weight": 3,
+      "rarity": "uncommon",
+      "special_effects": {
+        "perception_bonus": 2,
+        "description": "Grants +2 Perception in dark areas, minor bonus vs undead enemies"
+      }
+    },
+    {
+      "id": "cassia_locket",
+      "name": "Cassia's Wedding Locket",
+      "description": "A delicate silver locket containing a faded portrait of a younger Marcus and Cassia. The inscription reads: 'Knowledge serves life.' Cassia's most precious keepsake.",
+      "base_cost": 0,
+      "category": "items",
+      "icon_file": "cassia_locket.png",
+      "consumable": false,
+      "weight": 0,
+      "rarity": "special",
+      "stackable": false,
+      "quest_item": true
+    },
+    {
+      "id": "cassia_masterwork_combat_elixir",
+      "name": "Cassia's Masterwork Combat Elixir",
+      "description": "A deep crimson elixir representing Cassia's finest work. Grants significant combat prowess to the drinker.",
+      "base_cost": 200,
+      "category": "consumables",
+      "icon_file": "cassia_masterwork_combat_elixir.png",
+      "consumable": true,
+      "weight": 0.5,
+      "rarity": "rare",
+      "stackable": true,
+      "max_stack": 1,
+      "consumable_effects": {
+        "damage_bonus": "3",
+        "attack_bonus": 3,
+        "duration": "5",
+        "description": "Grants +3 to attack rolls and +3 to damage for 5 turns"
+      }
+    },
+    {
       "id": "greater_healing_potion",
       "name": "Greater Healing Potion",
       "description": "A potent blue elixir that mends even grievous wounds.",
@@ -34,6 +119,22 @@
       "consumable_effects": {
         "healing": "4d4+8",
         "description": "Restores 4d4+8 hit points when consumed"
+      }
+    },
+    {
+      "id": "ancient_royal_badge",
+      "name": "Ancient Royal Badge",
+      "description": "A tarnished bronze badge bearing the seal of a forgotten kingdom. The guards who wore these died defending against something terrible.",
+      "base_cost": 50,
+      "category": "items",
+      "subcategory": "trinket",
+      "icon_file": "ancient_royal_badge.png",
+      "consumable": false,
+      "weight": 0.2,
+      "rarity": "rare",
+      "special_effects": {
+        "lore_value": true,
+        "description": "A historical artifact from the ancient civilization that built these ruins"
       }
     },
     {
@@ -432,6 +533,7 @@
       "stackable": false,
       "special_effects": {
         "morale_bonus": 1,
+        "perception_bonus": 2,
         "description": "The lanterns light instills confidence in the party"
       }
     },
@@ -1424,7 +1526,80 @@
       "rarity": "common",
       "stackable": true,
       "max_stack": 30
-    }
+    },
+    {
+      "id": "marcus_pendant",
+      "name": "Marcus's Royal Pendant",
+      "description": "A silver pendant bearing the moon and star symbol of Redstone's old royal family. Marcus wore this - its presence in the ritual circle raises troubling questions.",
+      "base_cost": 0,
+      "category": "items",
+      "icon_file": "marcus_pendant.png",
+      "rarity": "special",
+      "weight": 1,
+      "special_effects": {
+        "lore_value": true,
+        "description": "Critical evidence of Marcus's involvement in the cult's rituals"
+      }
+    },
+    {
+      "id": "marcus_letter_to_aldric",
+      "name": "Marcus's Unsent Letter",
+      "description": "An unsent letter from Marcus to 'Brother Aldric' revealing a larger conspiracy beyond Redstone.",
+      "base_cost": 0,
+      "category": "items",
+      "icon_file": "marcus_letter_to_aldric.png",
+      "rarity": "special",
+      "weight": 1,
+      "special_effects": {
+        "lore_value": true,
+        "description": "Evidence of a cult network spanning multiple kingdoms"
+        } 
+      },
+      {
+        "id": "prisoner_final_note",
+        "name": "Prisoner's Final Note",
+        "description": "A hastily scrawled note from a villager who resisted the void corruption until death.",
+        "base_cost": 0,
+        "category": "items",
+        "icon_file": "prisoner_final_note.png",
+        "rarity": "special",
+        "weight": 1,
+        "special_effects": {
+          "lore_value": true,
+          "description": "Tragic evidence of the cult's transformation experiments"
+        }
+      },
+      {
+        "id": "blessed_weapon_oil",
+        "name": "Blessed Weapon Oil",
+        "description": "Sacred oil that can be applied to weapons. Grants bonus damage against undead and void-touched enemies.",
+        "base_cost": 150,
+        "category": "consumable",
+        "rarity": "rare",
+        "weight": 1,
+        "stackable": true,
+        "max_stack": 20,
+        "consumable_effects": {
+          "damage_bonus_vs_undead": 3,
+          "damage_bonus_vs_void": 3,
+          "duration": "3",
+          "description": "Apply to weapon for +3 damage vs undead/void enemies for 3 combats"
+        }
+      },
+      {
+        "id": "void_ward_charm",
+        "name": "Void Ward Charm",
+        "description": "An ancient charm inscribed with protective runes. Provides resistance to void corruption and psychic attacks.",
+        "base_cost": 200,
+        "category": "items",
+        "rarity": "rare",
+        "weight": 1,
+        "special_effects": {
+          "void_resistance": 2,
+          "psychic_resistance": 2,
+          "description": "Grants +2 to saves vs void corruption and psychic damage"
+        }
+  }
 
   ]
 }

@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-11-13 09:43)
+﻿## Repository Structure (generated 2025-11-14 14:17)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -266,9 +266,13 @@ C:.
 |   +---combat
 |   |   +---battlefields
 |   |   |       crypt_chamber.json
+|   |   |       cult_sanctum.json
+|   |   |       dungeon_chamber.json
+|   |   |       dungeon_corridor.json
 |   |   |       hill_ruins_exterior.json
 |   |   |       mine_collapsed_area.json
 |   |   |       mine_tunnel.json
+|   |   |       portal_chamber.json
 |   |   |       redstone_town_alley - gaunlet.json
 |   |   |       redstone_town_alley.json
 |   |   |       refugee_camp_night.json
@@ -279,6 +283,19 @@ C:.
 |   |   |       alley_fight.json
 |   |   |       alley_fight3.json
 |   |   |       alley_fight_2.json
+|   |   |       dungeon_l1_animated_armor.json
+|   |   |       dungeon_l1_shadow_wraith.json
+|   |   |       dungeon_l1_skeleton_patrol.json
+|   |   |       dungeon_l2_animated_patrol.json
+|   |   |       dungeon_l2_skeleton_archers.json
+|   |   |       dungeon_l2_trap_ambush.json
+|   |   |       dungeon_l3_cult_guards.json
+|   |   |       dungeon_l3_mixed_forces.json
+|   |   |       dungeon_l4_cult_patrol.json
+|   |   |       dungeon_l4_elite_guards.json
+|   |   |       dungeon_l4_possessed_villagers.json
+|   |   |       dungeon_l5_final_boss.json
+|   |   |       dungeon_l5_marcus_confrontation.json
 |   |   |       hill_ruins_bandits.json
 |   |   |       hill_ruins_statue.json
 |   |   |       mine_kobold_scouts.json
@@ -298,6 +315,7 @@ C:.
 |   |           bandit_leader.json
 |   |           blight_shadow.json
 |   |           cultist.json
+|   |           cult_fanatic.json
 |   |           cult_leader.json
 |   |           cult_priest_swamp.json
 |   |           giant_rat.json
@@ -315,6 +333,21 @@ C:.
 |   +---dialogues
 |   |       broken_blade_garrick.json
 |   |       broken_blade_meredith.json
+|   |       dungeon_level_1_altar.json
+|   |       dungeon_level_2_bones.json
+|   |       dungeon_level_3_altar.json
+|   |       dungeon_level_3_brazier.json
+|   |       dungeon_level_3_chest.json
+|   |       dungeon_level_3_ritual.json
+|   |       dungeon_level_4_chest.json
+|   |       dungeon_level_4_marcus_study.json
+|   |       dungeon_level_4_planning.json
+|   |       dungeon_level_4_shrine.json
+|   |       dungeon_level_4_villager_cells.json
+|   |       dungeon_level_5_final_boss_intro.json
+|   |       dungeon_level_5_marcus_pre_combat.json
+|   |       dungeon_level_5_portal.json
+|   |       dungeon_level_5_ritual_circle.json
 |   |       hill_ruins_carved_stones.json
 |   |       hill_ruins_forcedoor.json
 |   |       hill_ruins_lockeddoor.json
@@ -373,6 +406,11 @@ C:.
 |   |       __init__.py
 |   |       
 |   +---maps
+|   |   |   dungeon_level_1_map.py
+|   |   |   dungeon_level_2_map.py
+|   |   |   dungeon_level_3_map.py
+|   |   |   dungeon_level_4_map.py
+|   |   |   dungeon_level_5_map.py
 |   |   |   hill_ruins_entrance_map.py
 |   |   |   hill_ruins_ground_level_map.py
 |   |   |   redstone_region.py
@@ -466,6 +504,11 @@ C:.
 |   |   character_creation.py
 |   |   character_overlay.py
 |   |   combat_loot_overlay.py
+|   |   dungeon_level_1_nav.py
+|   |   dungeon_level_2_nav.py
+|   |   dungeon_level_3_nav.py
+|   |   dungeon_level_4_nav.py
+|   |   dungeon_level_5_nav.py
 |   |   exploration_hub.py
 |   |   gambling_dice.py
 |   |   help_overlay.py

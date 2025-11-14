@@ -56,8 +56,138 @@
             "chance": 0.5
           }
         ]
+      },
+      "dungeon_level_1_chest_loot": {
+        "items": [
+          {
+            "item_id": "healing_potion",
+            "quantity": 2,
+            "chance": 1.0
+          },
+          {
+            "item_id": "ancient_coins",
+            "quantity": 15,
+            "chance": 1.0
+          },
+          {
+            "item_id": "silver_coins",
+            "quantity": 25,
+            "chance": 0.8
+          },
+          {
+            "item_id": "enchanted_shortsword",
+            "quantity": 1,
+            "chance": 0.6
+          },
+          {
+            "item_id": "scroll_of_protection",
+            "quantity": 1,
+            "chance": 0.4
+          }
+        ]
       }
     },
+    "dungeon_level_2_chest_loot": {
+        "items": [
+          {
+            "item_id": "greater_healing_potion",
+            "quantity": 2,
+            "chance": 1.0
+          },
+          {
+            "item_id": "ancient_coins",
+            "quantity": 25,
+            "chance": 1.0
+          },
+          {
+            "item_id": "silver_coins",
+            "quantity": 40,
+            "chance": 0.9
+          },
+          {
+            "item_id": "enchanted_shortsword",
+            "quantity": 1,
+            "chance": 0.5
+          },
+          {
+            "item_id": "scroll_of_protection",
+            "quantity": 2,
+            "chance": 0.6
+          },
+          {
+            "item_id": "holy_water",
+            "quantity": 1,
+            "chance": 0.4
+          }
+        ]
+      },
+      "dungeon_level_3_chest_loot": {
+        "items": [
+          {
+            "item_id": "greater_healing_potion",
+            "quantity": 3,
+            "chance": 1.0
+          },
+          {
+            "item_id": "scroll_of_protection",
+            "quantity": 2,
+            "chance": 1.0
+          },
+          {
+            "item_id": "ancient_coins",
+            "quantity": 40,
+            "chance": 1.0
+          },
+          {
+            "item_id": "holy_water",
+            "quantity": 2,
+            "chance": 0.7
+          },
+          {
+            "item_id": "elixir_of_fortitude",
+            "quantity": 1,
+            "chance": 0.5
+          }
+        ],
+        "gold_range": {
+          "min": 50,
+          "max": 80
+        }
+      },
+      "dungeon_level_4_chest_loot": {
+        "items": [
+          {
+            "item_id": "holy_water",
+            "quantity": 3,
+            "chance": 1.0
+          },
+          {
+            "item_id": "greater_healing_potion",
+            "quantity": 3,
+            "chance": 1.0
+          },
+          {
+            "item_id": "scroll_of_protection",
+            "quantity": 2,
+            "chance": 1.0
+          },
+          {
+            "item_id": "blessed_weapon_oil",
+            "quantity": 1,
+            "chance": 0.8
+          },
+          {
+            "item_id": "void_ward_charm",
+            "quantity": 1,
+            "chance": 0.6
+          }
+        ],
+        "gold_range": {
+          "min": 75,
+          "max": 125
+        }
+      },
+
     
     "areas": {
       "entrance": {
@@ -92,22 +222,7 @@
           "description": "Try to break through by force",
           "requires_flag": "examined_dungeon_locked_door"
         },
-        "unlock_door": {
-          "type": "dialogue",
-          "npc_id": "unlockdoor",  
-          "label": "Unlock with Key",
-          "description": "Use the dungeon key you found",
-          "requires_flag": "hill_ruins_dungeon_key_obtained",
-          "hidden_unless_requirements_met": true
-        },
-        "enter_via_mine": {
-          "type": "dialogue",
-          "npc_id": "mine",  
-          "label": "Enter via Mine",
-          "description": "Use the secret passage from Red Hollow Mine",
-          "requires_flag": "red_hollow_mine_secret_entrance_found",
-          "hidden_unless_requirements_met": true
-        },
+ 
         "return_upstairs": {
           "type": "navigate",
           "target": "hill_ruins_ground_level_nav",

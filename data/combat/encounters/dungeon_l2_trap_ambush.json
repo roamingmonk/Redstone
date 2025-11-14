@@ -1,0 +1,70 @@
+{
+  "encounter_id": "dungeon_l2_trap_ambush",
+  "name": "Trapped Chamber Ambush",
+  "description": "You triggered a trap! Shadow wraiths materialize to finish off weakened intruders!",
+  "battlefield_id": "dungeon_chamber",
+  "difficulty": "hard",
+  "enemies": [
+    {
+      "enemy_id": "shadow_ghost",
+      "position": [4, 2],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "shadow_ghost",
+      "position": [5, 5],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "skeleton",
+      "position": [6, 3],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 350,
+    "gold": 75,
+    "items": ["scroll_of_protection"],
+    "story_progress": {
+      "quest_flags": {
+        "dungeon_l2_encounter_3_complete": {
+          "value": true,
+          "display_message": "The ambush fails. The wraiths dissipate with agonized wails. Level 2 is clear!"
+        },
+        "dungeon_level_2_complete": {
+          "value": true,
+          "display_message": "Level 2 cleared! The stairs to Level 3 are now accessible."
+        }
+      }
+    }
+  },
+  "special_rules": [
+    {
+      "rule_type": "trap_encounter",
+      "description": "Party already took trap damage before combat started",
+      "applies_to": ["all"]
+    },
+    {
+      "rule_type": "spectral_enemies",
+      "description": "Wraiths have resistance to physical damage",
+      "applies_to": ["shadow_ghost"]
+    }
+  ],
+  "escape_allowed": false,
+  "turn_limit": null,
+  "ambient_description": "The trap springs! Blades slash from the walls as shadowy forms materialize around you. The wraiths laugh with hollow voices as they move to attack.",
+  "victory_description": "The wraiths dissolve into darkness. The trap mechanism falls silent. You've survived the ambush and cleared Level 2.",
+  "defeat_description": "You retreat, badly wounded from both trap and wraiths. The trap resets with an ominous click."
+}

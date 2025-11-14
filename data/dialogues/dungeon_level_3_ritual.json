@@ -1,0 +1,107 @@
+{
+  "dialogue_id": "dungeon_level_3_ritual",
+  "title": "Blood Ritual Circle",
+  "states": {
+    "examine": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "A massive ritual circle is carved into the stone floor, its grooves filled with dried blood that seems to shimmer with unnatural life. Candles surround the circle, their flames burning a sickly green.",
+        "",
+        "At the circle's center, you see footprints - someone stood here recently. The air above the circle ripples like heat waves, and you can feel reality itself thinning in this spot.",
+        "",
+        "Around the circle's edge, written in what appears to be fresh blood, are names. Dozens of names. You recognize some - missing villagers from Redstone and the surrounding towns.",
+        "",
+        "This is where they performed the sacrifices. This is where they opened the door."
+      ],
+      "options": [
+        {
+          "id": "examine_names",
+          "text": "[Study the names more closely]",
+          "next_state": "names_detail"
+        },
+        {
+          "id": "examine_center",
+          "text": "[Examine the circle's center]",
+          "next_state": "center_detail"
+        },
+        {
+          "id": "leave",
+          "text": "[Step back from the circle]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "names_detail": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "You kneel at the circle's edge, reading the names:",
+        "",
+        "Thomas Greenfield - the baker's son who disappeared last spring.",
+        "Sarah Ironforge - a merchant who never returned from the Hill Ruins.",
+        "Others you don't recognize - victims from distant towns, perhaps.",
+        "",
+        "At the bottom, written in fresher blood: 'The bloodline shall complete what blood began. Marcus Nightshade - willing sacrifice or final victim?'",
+        "",
+        "A chill runs down your spine. They're planning to use Marcus in the final ritual."
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "[Step back]",
+          "next_state": "exit",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "dungeon_l3_ritual_names_read",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "center_detail": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "You carefully approach the circle's center, feeling the air grow thick and oppressive. The footprints here are fresh - within the last day or two.",
+        "",
+        "Looking down, you see something glinting among the dried blood. It's a pendant - a silver moon and star, the symbol of the old royal family of Redstone.",
+        "",
+        "Marcus wore this pendant. Cassia mentioned it once. If it's here, then Marcus stood in this circle recently. Was he performing the ritual... or was he the intended sacrifice?"
+      ],
+      "options": [
+        {
+          "id": "take_pendant",
+          "text": "[Take the pendant]",
+          "next_state": "exit",
+          "effects": [
+            {
+              "type": "add_item",
+              "item_id": "marcus_pendant",
+              "quantity": 1
+            },
+            {
+              "type": "set_flag",
+              "flag": "found_marcus_pendant",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "leave_it",
+          "text": "[Leave the pendant]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "exit": {
+      "npc_name": "",
+      "introduction": [],
+      "options": []
+    }
+  },
+  "state_transition_logic": {
+    "entry_state": {
+      "default": "examine"
+    }
+  }
+}

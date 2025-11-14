@@ -1,0 +1,144 @@
+{
+  "dialogue_id": "dungeon_level_3_brazier",
+  "title": "Void-Flame Brazier",
+  "states": {
+    "first_examination": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "A bronze brazier stands before you, burning with eerie green flames that cast no warmth. The fire seems to consume shadow itself rather than wood or oil.",
+        "",
+        "Strange shapes move within the flames - faces, perhaps, or writhing forms from beyond the veil. You hear faint whispers emanating from the fire, speaking in a language that predates humanity.",
+        "",
+        "Near the brazier's base, you notice an inscription in Common: 'The Void-Flame burns eternal, fed by despair and blood. It lights the path for HIS arrival.'"
+      ],
+      "options": [
+        {
+          "id": "listen_whispers",
+          "text": "[Listen to the whispers]",
+          "next_state": "whisper_detail"
+        },
+        {
+          "id": "examine_flames",
+          "text": "[Study the flames more closely]",
+          "next_state": "flame_detail"
+        },
+        {
+          "id": "extinguish",
+          "text": "[Attempt to extinguish the flames]",
+          "next_state": "extinguish_attempt"
+        },
+        {
+          "id": "leave",
+          "text": "[Step away from the brazier]",
+          "next_state": "exit"
+        }
+      ]
+    },
+   "whisper_detail": {
+        "npc_name": "Narrator",
+        "introduction": [
+            "You lean closer to the flames, straining to understand the whispers. The alien words scrape against your mind like claws on stone.",
+            "",
+            "For a moment, you catch fragments of meaning:",
+            "",
+            "'...the door opens... blood of ancients... Marcus brings the key... the Void Prince rises...'",
+            "",
+            "Your head pounds with sudden pain. The whispers grow louder, more insistent, trying to burrow into your thoughts. You stumble back, breaking the connection.",
+            "",
+            "The alien words continue to echo in your mind. You feel weakened, distracted - this will affect you in your next battle."
+        ],
+        "options": [
+            {
+            "id": "leave",
+            "text": "[Step back, shaken]",
+            "next_state": "exit",
+            "effects": [
+                {
+                "type": "set_flag",
+                "flag": "heard_void_whispers",
+                "value": true
+                },
+                {
+                "type": "set_flag",
+                "flag": "void_whisper_debuff",
+                "value": true
+                }
+            ]
+            }
+        ]
+        },
+    "flame_detail": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "Peering into the green flames, you see visions flickering within:",
+        "",
+        "A dark figure standing at an altar, arms raised in summoning.",
+        "Marcus Nightshade, his eyes black as void, chanting in the alien tongue.",
+        "A rift tearing open in reality, and something vast and terrible beginning to emerge.",
+        "Redstone in flames. The countryside consumed by spreading darkness.",
+        "",
+        "The vision ends abruptly. You realize these aren't memories - they're prophecies. This is what WILL happen if the ritual succeeds."
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "[Step back from the visions]",
+          "next_state": "exit",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "saw_ritual_prophecy",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "extinguish_attempt": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "You grab a cloak and attempt to smother the flames. The moment the fabric touches the green fire, it disintegrates into ash.",
+        "",
+        "You try kicking the brazier over, but it doesn't budge - it's somehow fixed in place, as if anchored to reality itself.",
+        "",
+        "The flames flare brighter, almost mockingly. These fires cannot be extinguished by conventional means. They burn with power from beyond this world."
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "[Give up and step back]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "returning_visit": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "The void-flame brazier continues to burn with its eerie green light. You've already learned what you can from this cursed fire."
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "[Step away]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "exit": {
+      "npc_name": "",
+      "introduction": [],
+      "options": []
+    }
+  },
+  "state_transition_logic": {
+    "entry_state": {
+      "default": "first_examination",
+      "conditions": [
+        {
+          "flag": "dungeon_l3_brazier_examined",
+          "state": "returning_visit"
+        }
+      ]
+    }
+  }
+}

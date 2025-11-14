@@ -480,6 +480,15 @@
           "next_state": "swamp_conversation"
         },
         {
+          "id": "act_three_warning",
+          "text": "I'm heading to the Hill Ruins soon.",
+          "requirements": {
+            "flag": "act_three_started",
+            "not_flag": "cassia_discussed_marcus"
+          },
+          "next_state": "act_three_marcus_warning"
+        },
+        {
           "id": "just_checking_in",
           "text": "Just wanted to check on you.",
           "requirements": {"flag": "cassia_told_marcus_story"},
@@ -939,6 +948,193 @@
           "text": "I need supplies for what's ahead.",
           "effects": [{"type": "open_shop", "merchant_id": "cassia"}],
           "next_state": "post_shopping"
+        }
+      ]
+    },
+    "act_three_marcus_warning": {
+      "introduction": [
+        "*Cassia looks up as you enter, her expression troubled*",
+        "You're going there, aren't you? To the Hill Ruins.",
+        "*She sets down her mortar carefully*",
+        "I've heard the rumors. The cult. The portal.",
+        "*Her voice drops to a whisper*",
+        "And Marcus... he's there, isn't he?",
+        "*She looks at you with desperate eyes*",
+        "I know he is. I can feel it. After all these years...",
+        "You're going to face him."
+      ],
+      "options": [
+        {
+          "id": "offer_journals_first",
+          "text": "Do you have anything that could help me understand the cult?",
+          "requirements": {"not_flag": "cassia_gave_journals"},
+          "next_state": "act_three_journal_offer"
+        },
+        {
+          "id": "try_to_save",
+          "text": "I'll try to reach him. Try to bring him back.",
+          "requirements": {"flag": "cassia_gave_journals"},
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_wants_marcus_saved", "value": true},
+            {"type": "set_flag", "flag": "cassia_discussed_marcus", "value": true},
+            {"type": "add_buff", "buff_id": "cassia_blessing_persuasion", "duration": -1}
+          ],
+          "next_state": "save_marcus_path"
+        },
+        {
+          "id": "do_what_must",
+          "text": "If he's with the cult... I'll do what I must.",
+          "requirements": {"flag": "cassia_gave_journals"},
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_wants_marcus_saved", "value": false},
+            {"type": "set_flag", "flag": "cassia_discussed_marcus", "value": true},
+            {"type": "add_buff", "buff_id": "cassia_blessing_combat", "duration": -1}
+          ],
+          "next_state": "defeat_marcus_path"
+        },
+        {
+          "id": "need_time",
+          "text": "I need time to think about this.",
+          "next_state": "postpone_decision"
+        }
+      ]
+    },
+
+    "act_three_journal_offer": {
+      "introduction": [
+        "*She moves to her locked drawer*",
+        "I've been holding onto these. Marcus's journals.",
+        "*She pulls out several worn volumes*",
+        "Everything he wrote. His research. His... descent.",
+        "*She sets them on the counter*",
+        "These might help you understand what you're facing.",
+        "Help you understand what he became.",
+        "*Her voice breaks*",
+        "And maybe... maybe you'll find him out there.",
+        "Whatever's left of him."
+      ],
+      "options": [
+        {
+          "id": "accept_journals",
+          "text": "I'll take them. Thank you.",
+          "effects": [
+            {"type": "add_item", "item_id": "marcus_journals"},
+            {"type": "set_flag", "flag": "cassia_gave_journals", "value": true}
+          ],
+          "next_state": "after_journals_decision"
+        }
+      ]
+    },
+
+    "after_journals_decision": {
+      "introduction": [
+        "*She takes a breath*",
+        "Now... what will you do when you find him?",
+        "Will you try to save him? Or...",
+        "*She can't finish the sentence*"
+      ],
+      "options": [
+        {
+          "id": "try_to_save",
+          "text": "I'll try to reach him. Try to bring him back.",
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_wants_marcus_saved", "value": true},
+            {"type": "set_flag", "flag": "cassia_discussed_marcus", "value": true},
+            {"type": "set_flag", "flag": "cassia_final_words_for_marcus", "value": true}
+          ],
+          "next_state": "save_marcus_path"
+        },
+        {
+          "id": "do_what_must",
+          "text": "If he's with the cult... I'll do what I must.",
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_wants_marcus_saved", "value": false},
+            {"type": "set_flag", "flag": "cassia_discussed_marcus", "value": true}
+          ],
+          "next_state": "defeat_marcus_path"
+        }
+      ]
+    },
+
+    "save_marcus_path": {
+      "introduction": [
+        "*Tears stream down her face*",
+        "Thank you. Thank you for even trying.",
+        "*She takes both your hands*",
+        "He wasn't always like this. He was kind. Brilliant. He wanted to help people.",
+        "*She reaches into her apron and pulls out a small locket*",
+        "Take this. It was his. Our wedding gift.",
+        "If there's any part of him left... maybe he'll remember.",
+        "*She presses it into your palm*",
+        "And if you can reach him... tell him I never stopped loving who he was."
+      ],
+      "options": [
+        {
+          "id": "i_promise",
+          "text": "I promise. I'll remember.",
+          "effects": [
+            {"type": "add_item", "item_id": "cassia_locket"},
+            {"type": "set_flag", "flag": "cassia_gave_locket", "value": true}
+          ],
+          "next_state": "final_blessing"
+        }
+      ]
+    },
+
+    "defeat_marcus_path": {
+      "introduction": [
+        "*She closes her eyes, a single tear falling*",
+        "I understand. I... I knew this day might come.",
+        "*She takes a shaky breath*",
+        "The Marcus I knew would never hurt innocent people.",
+        "If he's become something terrible... if there's no saving him...",
+        "*She looks at you with hollow determination*",
+        "End it quickly. Don't let him suffer.",
+        "*She pulls a vial from her shelf*",
+        "This is my strongest potion. Take it. You'll need every advantage."
+      ],
+      "options": [
+        {
+          "id": "accept_potion",
+          "text": "I'll make it quick. I promise.",
+          "effects": [
+            {"type": "add_item", "item_id": "cassia_masterwork_combat_elixir"}
+          ],
+          "next_state": "final_blessing"
+        }
+      ]
+    },
+
+    "postpone_decision": {
+      "introduction": [
+        "*She nods slowly*",
+        "I understand. It's... it's a lot to ask.",
+        "*She wrings her hands*",
+        "But please, before you go... come back and tell me.",
+        "I need to know what you've decided."
+      ],
+      "options": [
+        {
+          "id": "will_return",
+          "text": "I'll come back before I leave.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "final_blessing": {
+      "introduction": [
+        "*She straightens, wiping her eyes*",
+        "Go. Do what needs to be done.",
+        "And come back to me. Please.",
+        "*She manages a fragile smile*",
+        "The world needs good people. Now more than ever."
+      ],
+      "options": [
+        {
+          "id": "farewell",
+          "text": "I'll return. I promise.",
+          "next_state": "exit"
         }
       ]
     },

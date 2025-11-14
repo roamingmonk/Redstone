@@ -1,0 +1,81 @@
+{
+  "encounter_id": "dungeon_l4_elite_guards",
+  "name": "Elite Cult Guards",
+  "description": "The cult's elite guards - Marcus's personal protectors - bar your path!",
+  "battlefield_id": "sanctum_antechamber",
+  "difficulty": "hard",
+  "enemies": [
+    {
+      "enemy_id": "cult_fanatic",
+      "position": [4, 2],
+      "facing": "west",
+      "name_override": "Elite Guard Captain"
+    },
+    {
+      "enemy_id": "cult_fanatic",
+      "position": [4, 5],
+      "facing": "west",
+      "name_override": "Elite Guard"
+    },
+    {
+      "enemy_id": "cultist",
+      "position": [5, 3],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "cultist",
+      "position": [5, 4],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "shadow_ghost",
+      "position": [6, 3],
+      "facing": "west",
+      "description_override": "A bound shadow servant"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 500,
+    "gold": 100,
+    "items": ["elixir_of_fortitude", "greater_healing_potion"],
+    "story_progress": {
+      "quest_flags": {
+        "dungeon_l4_encounter_3_complete": {
+          "value": true,
+          "display_message": ""
+        },
+        "dungeon_level_4_complete": {
+          "value": true,
+          "display_message": "The elite guards fall. As the captain dies, he gasps, 'You're too late... Marcus has already begun... the Portal Chamber... the Void Prince comes...' The magical seal blocking the stairs down dissipates. The path to Level 5 - and Marcus - is open."
+        }
+      }
+    }
+  },
+  "special_rules": [
+    {
+      "rule_type": "elite_formation",
+      "description": "Elite guards have enhanced tactics and protect their allies"
+    },
+    {
+      "rule_type": "bound_servant",
+      "description": "Shadow servant is magically bound to the captain - killing captain may weaken it"
+    }
+  ],
+  "escape_allowed": false,
+  "turn_limit": null,
+  "ambient_description": "You approach the stairs leading deeper into the sanctum, but the way is blocked by a shimmering magical barrier. Standing before it are five figures - the cult's elite guards, clad in dark ceremonial armor bearing the mark of the Void Prince. Their captain steps forward: 'By order of Marcus Nightshade, none shall pass. The ritual must not be interrupted.'",
+  "victory_description": "The elite guards fight to the last, but eventually fall. As the captain's life fades, he looks at you with eyes that show a flicker of the man he once was. 'Forgive me,' he whispers. 'The void... it promises so much... shows you such wonders... but takes... everything...' He dies, and the magical barrier sealing the stairs collapses. The way to the Portal Chamber - and your final confrontation with Marcus - is open.",
+  "defeat_description": "The elite guards are too powerful. Their coordinated assault and bound shadow servant overwhelm your party. You're forced to retreat back toward the entrance, hearing the captain's mocking voice: 'Marcus was right about you - persistent, but ultimately inadequate. The Void Prince will rise, and there's nothing you can do to stop it.'"
+}

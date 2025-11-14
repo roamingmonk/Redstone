@@ -1,0 +1,58 @@
+{
+  "dungeon_level_1_altar": {
+    "npc_name": "Ancient Shrine",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "first_visit",
+    "states": {
+      "first_visit": {
+        "introduction": [
+          "*An ancient shrine radiates a warm, peaceful energy*",
+          "",
+          "The altar is carved from white marble, untouched by time or decay. Soft golden light emanates from runes etched into its surface.",
+          "",
+          "*You feel a comforting presence, as if the shrine recognizes you as an ally against the darkness*",
+          "",
+          "The healing magic still functions after all these centuries."
+        ],
+        "options": [
+          {
+            "id": "use_shrine",
+            "text": "[Rest at the shrine - Fully heal party]",
+            "requirements": {
+              "not_flag": "dungeon_level_1_altar_used"
+            },
+            "effects": [
+              {"type": "rest_party"},
+              {"type": "set_flag", "flag": "dungeon_level_1_altar_used", "value": true}
+              
+            ],
+            "next_state": "exit"
+          },
+          {
+            "id": "leave",
+            "text": "[Leave the shrine]",
+            "next_state": "exit"
+          }
+        ]
+      },
+      "used": {
+        "introduction": [
+          "*The shrine's light has dimmed*",
+          "",
+          "You've already drawn upon the shrine's healing power. The ancient magic needs time to replenish.",
+          "",
+          "The runes still glow softly, but the healing energy is spent."
+        ],
+        "options": [
+          {
+            "id": "continue",
+            "text": "[Leave the shrine]",
+            "next_state": "exit"
+          }
+        ]
+      
+      }
+    }
+  }
+}

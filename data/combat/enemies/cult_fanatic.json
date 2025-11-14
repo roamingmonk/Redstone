@@ -1,0 +1,69 @@
+{
+  "enemy_id": "cultist",
+  "name": "Cultist",
+  "description": "A robed fanatic with hollow eyes and symbols of dark powers. Their devotion makes them fearless and dangerous.",
+  "stats": {
+    "hp": 41,
+    "max_hp": 41,
+    "ac": 15,
+    "strength": 10,
+    "dexterity": 12,
+    "constitution": 11,
+    "intelligence": 12,
+    "wisdom": 13,
+    "charisma": 10
+  },
+  "saving_throw_proficiencies": ["intelligence", "wisdom"],
+  "spell_slots": 2,
+  "attacks": [
+    {
+      "name": "Ritual Dagger",
+      "damage_dice": "1d4+1",
+      "attack_bonus": 2,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A ceremonial blade stained with old blood"
+    },
+    {
+      "name": "Dark Bolt",
+      "damage_dice": "1d8",
+      "attack_bonus": 3,
+      "attack_type": "spell",
+      "spell_id": "darkbolt",
+      "range": 6,
+      "description": "A bolt of shadowy energy that chills the soul",
+      "spell_cost": 0,
+      "damage_type": "necrotic"
+    }
+  ],
+  "movement": {
+    "speed": 3,
+    "movement_type": "ground"
+  },
+  "special_abilities": [
+    {
+      "name": "Fanatic",
+      "description": "Never flees from combat, fights to the death",
+      "effect_type": "morale",
+      "trigger": "always"
+    }
+  ],
+  "loot": {
+    "xp_value": 50,
+    "gold_range": [2, 8],
+    "items": [],
+    "item_drops": [
+    {"item_id": "cult_robes", "drop_chance": 0.6, "quantity_range": [1, 1]},
+    {"item_id": "ritual_dagger", "drop_chance": 0.4, "quantity_range": [1, 1]},
+    {"item_id": "cursed_talisman", "drop_chance": 0.3, "quantity_range": [1, 1]}
+  ]
+  },
+  "behavior": {
+    "aggression": "high",
+    "intelligence": "medium",
+    "tactics": "spell_preference",
+    "acceptable_friendly_fire": 10,
+    "retreat_threshold": -1,
+    "notes": "Prefers Dark Bolt at range, never retreats"
+  }
+}

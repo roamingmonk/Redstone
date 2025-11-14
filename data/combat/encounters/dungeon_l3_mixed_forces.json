@@ -1,0 +1,65 @@
+{
+  "encounter_id": "dungeon_l3_mixed_forces",
+  "name": "Undead-Cultist Patrol",
+  "description": "Cultists command skeletal warriors in a coordinated defense!",
+  "battlefield_id": "dungeon_corridor",
+  "difficulty": "medium",
+  "enemies": [
+    {
+      "enemy_id": "skeleton",
+      "position": [4, 3],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "skeleton",
+      "position": [5, 4],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "cultist",
+      "position": [5, 2],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "cultist",
+      "position": [5, 5],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 275,
+    "gold": 45,
+    "items": ["healing_potion"],
+    "story_progress": {
+      "quest_flags": {
+        "dungeon_l3_encounter_1_complete": {
+          "value": true,
+          "display_message": ""
+        }
+      }
+    }
+  },
+  "special_rules": [
+    {
+      "rule_type": "coordinated_enemies",
+      "description": "Cultists command skeletons - cultists may buff undead allies"
+    }
+  ],
+  "escape_allowed": false,
+  "turn_limit": null,
+  "ambient_description": "The corridor ahead shows signs of recent habitation. Torches burn with steady flames, and skeletal guardians stand at attention alongside hooded cultists. This is no longer ancient ruins - the cult has made this their domain.",
+  "victory_description": "The skeletal warriors collapse into bone fragments as the cultists fall. You notice the cultists wore keys and insignias - they were clearly stationed here to guard something important deeper below.",
+  "defeat_description": "Overwhelmed by the coordinated assault, you retreat back toward the stairs. The cultists don't pursue - they're focused on defending their position."
+}

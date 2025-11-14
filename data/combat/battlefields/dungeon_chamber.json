@@ -1,0 +1,42 @@
+{
+  "battlefield_id": "dungeon_chamber",
+  "name": "Forgotten Chamber",
+  "tileset": "dungeon",
+  "description": "A large stone chamber with ancient pillars and fragments of forgotten purpose.",
+  "dimensions": {
+    "width": 14,
+    "height": 12
+  },
+  "tile_size": 48,
+  "terrain": {
+    "default": "dungeon_floor",
+    "walls": [
+      [0, 0, 13, 0],
+      [0, 11, 13, 11],
+      [0, 0, 0, 11],
+      [13, 0, 13, 11]
+    ],
+    "obstacles": [
+      {"type": "pillar", "position": [4, 3], "blocks_movement": true, "blocks_sight": true},
+      {"type": "pillar", "position": [11, 3], "blocks_movement": true, "blocks_sight": true},
+      {"type": "pillar", "position": [4, 8], "blocks_movement": true, "blocks_sight": true},
+      {"type": "pillar", "position": [11, 8], "blocks_movement": true, "blocks_sight": true},
+      {"type": "debris", "position": [7, 5], "blocks_movement": true, "blocks_sight": false},
+      {"type": "rubble", "position": [2, 2], "blocks_movement": true, "blocks_sight": false},
+      {"type": "rubble", "position": [13, 9], "blocks_movement": true, "blocks_sight": false}
+    ]
+  },
+  "spawn_zones": {
+    "player_start": [
+      [1, 5], [1, 6], [2, 5], [2, 6]
+    ],
+    "enemy_spawns": [
+      [10, 3], [12, 6], [10, 9], [14, 5]
+    ],
+    "exit_point": [1, 5]
+  },
+  "lighting": "dark",
+  "environmental_effects": [
+    {"type": "ancient_magic", "effect": "arcane_residue"}
+  ]
+}

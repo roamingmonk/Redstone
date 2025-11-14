@@ -1,0 +1,177 @@
+{
+  "dialogue_id": "dungeon_level_4_marcus_study",
+  "title": "Marcus's Study",
+  "states": {
+    "first_visit": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "A heavy oak desk sits in the corner, covered in arcane tomes, scrolls, and alchemical equipment. This is Marcus Nightshade's personal study.",
+        "",
+        "The books are ancient - some bear the Nightshade family crest. Others are bound in materials you don't want to identify. The air here feels heavy with residual magic.",
+        "",
+        "On the desk, you see an open journal, a half-finished letter, and a locked drawer."
+      ],
+      "options": [
+        {
+          "id": "read_journal",
+          "text": "[Read Marcus's journal]",
+          "next_state": "journal_reading"
+        },
+        {
+          "id": "read_letter",
+          "text": "[Read the letter]",
+          "next_state": "letter_reading"
+        },
+        {
+          "id": "examine_books",
+          "text": "[Examine the arcane books]",
+          "next_state": "books_examination"
+        },
+        {
+          "id": "leave",
+          "text": "[Leave the study]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "journal_reading": {
+      "npc_name": "Marcus's Journal",
+      "introduction": [
+        "You open the journal to a recent entry:",
+        "",
+        "'I can feel IT in my mind now. The Archon speaks to me in dreams, shows me visions of what could be. Power beyond imagination. The ability to reshape reality itself.'",
+        "",
+        "'But the price... Cassia wouldn't understand. She clings to the old ways, to compassion and mercy. She doesn't see that those virtues are chains, holding us back from our true potential.'",
+        "",
+        "'I've made my choice. The ritual will proceed. If she tries to stop me... I'll do what must be done. The Void Prince demands it.'"
+      ],
+      "options": [
+        {
+          "id": "read_letter",
+          "text": "[Read the letter on the desk]",
+          "next_state": "letter_reading"
+        },
+        {
+          "id": "examine_books",
+          "text": "[Examine the arcane books]",
+          "next_state": "books_examination"
+        },
+        {
+          "id": "leave",
+          "text": "[Close the journal]",
+          "next_state": "exit",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "read_marcus_journal",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "letter_reading": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "The letter is addressed to someone named 'Brother Aldric' in a distant city:",
+        "",
+        "'Brother Aldric,",
+        "",
+        "The final phase begins tonight. The sacrifices are complete, the barrier weakened. My family's bloodline - the key the Archon needed - will open the portal.",
+        "",
+        "Once the Void Prince manifests, our organization will control power beyond mortal comprehension. The kingdoms will fall. A new age begins.",
+        "",
+        "I regret only one thing: Cassia. She was the light to my darkness, and I loved her for it. But love is weakness. The Archon has shown me this truth.",
+        "",
+        "If she comes for me, I will not hesitate. The work is too important.",
+        "",
+        "In service to the Void,",
+        "Marcus Nightshade'",
+        "",
+        "The letter is unsigned and unmailed. He hasn't sent it yet."
+      ],
+      "options": [
+        {
+          "id": "take_letter",
+          "text": "[Take the letter as evidence]",
+          "next_state": "letter_taken",
+          "effects": [
+            {
+              "type": "add_item",
+              "item_id": "marcus_letter_to_aldric",
+              "quantity": 1
+            },
+            {
+              "type": "set_flag",
+              "flag": "took_marcus_letter",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "leave_letter",
+          "text": "[Leave the letter]",
+          "next_state": "first_visit"
+        }
+      ]
+    },
+    "letter_taken": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "You carefully fold the letter and place it in your pack. This could be valuable evidence - proof of a larger conspiracy beyond Redstone."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue examining the study]",
+          "next_state": "first_visit"
+        }
+      ]
+    },
+    "books_examination": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "The books on Marcus's desk are deeply disturbing:",
+        "",
+        "'Rituals of Binding and Summoning' - A tome describing how to open portals between planes.",
+        "'The Void Codex' - Pages filled with alien geometries that hurt to look at.",
+        "'Nightshade Family Grimoire' - Marcus's own family spellbook, now corrupted with void magic.",
+        "",
+        "One passage is bookmarked:",
+        "",
+        "'The Old Blood carries the key. Those descended from the First Kings can pierce the veil. Their sacrifice opens the door, or their willing service binds the power. The Void Prince seeks such a vessel.'",
+        "",
+        "Marcus isn't just a cultist - he's a necessary component of the ritual itself."
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "[Step away from the forbidden knowledge]",
+          "next_state": "exit",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "examined_marcus_books",
+              "value": true
+            },
+            {
+              "type": "set_flag",
+              "flag": "knows_marcus_is_vessel",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "exit": {
+      "npc_name": "",
+      "introduction": [],
+      "options": []
+    }
+  },
+  "state_transition_logic": {
+    "entry_state": {
+      "default": "first_visit"
+    }
+  }
+}

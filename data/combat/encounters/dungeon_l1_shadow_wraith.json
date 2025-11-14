@@ -1,0 +1,60 @@
+{
+  "encounter_id": "dungeon_l1_shadow_wraith",
+  "name": "Shadow Wraith Ambush",
+  "description": "Dark spirits materialize from the shadows, their touch freezing and their wails terrifying!",
+  "battlefield_id": "dungeon_chamber",
+  "difficulty": "hard",
+  "enemies": [
+    {
+      "enemy_id": "shadow_ghost",
+      "position": [5, 3],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "shadow_ghost",
+      "position": [5, 5],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 250,
+    "gold": 50,
+    "items": [],
+    "story_progress": {
+      "quest_flags": {
+        "dungeon_l1_encounter_3_complete": {
+          "value": true,
+          "display_message": "The wraiths dissipate with agonized screams. The way forward to the deeper levels is open."
+        },
+        "dungeon_level_1_complete": {
+          "value": true,
+          "display_message": "Level 1 cleared! The stairs to Level 2 are now accessible."
+        }
+      }
+    }
+  },
+  "special_rules": [
+    {
+      "rule_type": "spectral_enemies",
+      "description": "Wraiths have resistance to physical damage, vulnerable to radiant/holy",
+      "applies_to": ["shadow_ghost"]
+    }
+  ],
+  "escape_allowed": false,
+  "turn_limit": null,
+  "ambient_description": "The air grows cold. Shadows writhe unnaturally along the walls. Suddenly, spectral forms emerge with chilling wails!",
+  "victory_description": "The wraiths dissolve into wisps of shadow, their tortured souls finally released. The oppressive cold lifts from the chamber.",
+  "defeat_description": "You retreat, the wraiths' mournful cries following you. The temperature returns to normal as you leave their domain."
+}

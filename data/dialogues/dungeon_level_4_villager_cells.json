@@ -1,0 +1,153 @@
+{
+  "dialogue_id": "dungeon_level_4_villager_cells",
+  "title": "Prison Cells",
+  "states": {
+    "first_visit": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "A row of iron cages lines the wall, their doors hanging open. Inside, you see the aftermath of the cult's experiments.",
+        "",
+        "Empty shackles. Dried blood on the stone floors. Scratches on the walls where prisoners clawed in desperation.",
+        "",
+        "One cell contains a body - a villager who died before the cult could complete their transformation. Their face is frozen in an expression of terror."
+      ],
+      "options": [
+        {
+          "id": "examine_body",
+          "text": "[Examine the body]",
+          "next_state": "body_examination"
+        },
+        {
+          "id": "read_scratches",
+          "text": "[Read the wall scratches]",
+          "next_state": "wall_messages"
+        },
+        {
+          "id": "search_cells",
+          "text": "[Search the cells for survivors]",
+          "next_state": "search_for_survivors"
+        },
+        {
+          "id": "leave",
+          "text": "[Leave this awful place]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "body_examination": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "You approach the body carefully. It's a young man, perhaps twenty years old. You recognize him from wanted posters in Redstone - one of the missing persons.",
+        "",
+        "His skin has an unnatural gray pallor, and dark veins spiderweb across his exposed arms. The void corruption started but didn't complete - he died during the transformation.",
+        "",
+        "In his clenched fist, you find a scrap of paper with hastily scribbled words:",
+        "",
+        "'They put something in our water. Made us see things. Hear voices. Some of us resisted. Those who gave in... changed. Became empty. If you find this, tell my family I tried to fight it. Tell them I'm sorry.'"
+      ],
+      "options": [
+        {
+          "id": "take_note",
+          "text": "[Take the note]",
+          "next_state": "note_taken",
+          "effects": [
+            {
+              "type": "add_item",
+              "item_id": "prisoner_final_note",
+              "quantity": 1
+            },
+            {
+              "type": "set_flag",
+              "flag": "found_prisoner_note",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "leave_note",
+          "text": "[Leave the note with him]",
+          "next_state": "first_visit"
+        }
+      ]
+    },
+    "note_taken": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "You gently close the young man's eyes and take the note. His family deserves to know the truth."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue examining the cells]",
+          "next_state": "first_visit"
+        }
+      ]
+    },
+    "wall_messages": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "The scratches on the walls form desperate messages:",
+        "",
+        "'Day 5 - The voices are getting louder'",
+        "'Day 8 - Can't remember my daughter's face anymore'",
+        "'Day 12 - They took Marcus today. He came back... different. Wrong.'",
+        "'Day 15 - I can feel it in my head. It promises peace. Part of me wants to give in.'",
+        "'Day 17 - Sarah gave in. Her eyes went black. She smiled at me. That smile was the worst part.'",
+        "",
+        "The final message, scratched so deep it drew blood:",
+        "",
+        "'DON'T LET THEM OPEN THE DOOR'"
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "[Step back from the wall]",
+          "next_state": "exit",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "read_prisoner_messages",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "search_for_survivors": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "You search each cell methodically, hoping against hope to find someone still alive, someone you can save.",
+        "",
+        "But there's no one. The cells are empty except for the one body. The rest became the possessed villagers you fought earlier - or worse, willing converts to the cult.",
+        "",
+        "You find abandoned belongings: a child's doll, a wedding ring, a letter never sent. Each one a life destroyed by Marcus's ambition.",
+        "",
+        "The weight of it settles on your shoulders. You're too late to save these people. But you can still stop this from happening to anyone else."
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "[Leave the cells, determined]",
+          "next_state": "exit",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "searched_prison_cells",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "exit": {
+      "npc_name": "",
+      "introduction": [],
+      "options": []
+    }
+  },
+  "state_transition_logic": {
+    "entry_state": {
+      "default": "first_visit"
+    }
+  }
+}

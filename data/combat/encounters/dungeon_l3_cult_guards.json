@@ -1,0 +1,69 @@
+{
+  "encounter_id": "dungeon_l3_cult_guards",
+  "name": "Cult Guard Post",
+  "description": "Elite cultist guards block the passage to the deeper sanctum!",
+  "battlefield_id": "dungeon_chamber",
+  "difficulty": "medium-hard",
+  "enemies": [
+    {
+      "enemy_id": "cultist",
+      "position": [4, 2],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "cultist",
+      "position": [4, 5],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "cult_fanatic",
+      "position": [5, 3],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "cult_fanatic",
+      "position": [5, 4],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 350,
+    "gold": 65,
+    "items": ["greater_healing_potion", "holy_water"],
+    "story_progress": {
+      "quest_flags": {
+        "dungeon_l3_encounter_2_complete": {
+          "value": true,
+          "display_message": ""
+        },
+        "dungeon_level_3_complete": {
+          "value": true,
+          "display_message": "The cult guards fall. Beyond their post, stairs descend deeper into the sanctum. You can feel dark energy pulsing from below - you're getting close to the heart of their operation."
+        }
+      }
+    }
+  },
+  "special_rules": [
+    {
+      "rule_type": "fanatic_resistance",
+      "description": "Cult fanatics have bonus resistance to fear/charm effects"
+    }
+  ],
+  "escape_allowed": false,
+  "turn_limit": null,
+  "ambient_description": "The chamber ahead serves as a guard post. Cult fanatics in ceremonial armor stand watch alongside regular cultists. Braziers burn with green flames, and ritual circles are carved into the floor. They've been waiting for intruders.",
+  "victory_description": "The last cult fanatic falls with a curse on his lips. You search their bodies and find orders - 'Defend the sanctum. The Archon must not be disturbed during the final ritual.' The stairs beyond lead deeper, toward whatever horror they've been preparing.",
+  "defeat_description": "The cult guards prove too strong. Wounded and desperate, you fall back to regroup. Their fanatical laughter echoes through the chamber as you retreat."
+}

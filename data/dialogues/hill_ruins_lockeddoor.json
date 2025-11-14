@@ -9,26 +9,42 @@
         "introduction": [
           "The door is massive - reinforced iron banded with dark steel, covered in ancient dwarven runes.",
           "",
-          "The lock mechanism is intricate but intact. You can see a keyhole shaped like a seven-pointed star, but no key. The door hasn't been opened in decades, perhaps centuries.",
+          "The lock mechanism is intricate but intact. You can see a keyhole that matches the Ancient Runic Key.",
           "",
-          "Someone must have taken the key... or hidden it. Fresh scratches around the lock suggest others have tried to pick it recently, without success.",
+          "Fresh scratches around the lock suggest others have tried to pick it recently, without success.",
           "",
           "This door was built to withstand armies. Whatever lies beyond was meant to stay sealed."
         ],
         "options": [
           {
-            "id": "understood",
+            "id": "unlock_door",
+            "text": "[Use the Ancient Runic Key to unlock and enter the dungeon]",
+            "requirements": {
+              "flags": {
+                "hill_ruins_dungeon_key_obtained": true
+              }
+            },
+            "effects": [
+              {"type": "set_flag", "flag": "hill_ruins_dungeon_unlocked", "value": true},
+              {"type": "set_flag", "flag": "act_three_started", "value": true},
+              {"type": "set_flag", "flag": "act_three_entrance_choice", "value": "front_door"},
+              {"type": "navigate", "target": "dungeon_level_1_nav"}
+            ],
+            "next_state": "exit"
+          },
+          {
+            "id": "step_back",
             "text": "[Step back from the door]",
             "next_state": "exit",
             "effects": [
               {"type": "set_flag", "flag": "examined_dungeon_locked_door", "value": true},
               {"type": "set_flag", "flag": "hill_ruins_locked_door_found", "value": true},
-              {"type": "check_location_completion", "location_id": "hill_ruins"},
-              {"type": "xp_award", "amount": 25, "reason": "Discovered sealed dungeon entrance"}
+              {"type": "check_location_completion", "location_id": "hill_ruins"}
             ]
           }
         ]
-      }
+      },
+      "exit": {}
     }
   }
 }

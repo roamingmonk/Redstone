@@ -1,0 +1,72 @@
+{
+  "dungeon_level_2_bones": {
+    "npc_name": "Ancient Bones",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "*Skeletal remains are scattered across the chamber floor*",
+          "",
+          "These bones are ancient - centuries old at least. The armor and weapons beside them suggest they were guards or soldiers.",
+          "",
+          "*You notice something odd about the positions of the bodies*",
+          "",
+          "They all fell facing inward, toward the center of the room. Not defending against intruders... defending against something trying to get OUT.",
+          "",
+          "*A chill runs down your spine. Whatever was sealed here broke free long ago.*"
+        ],
+        "options": [
+          {
+            "id": "search_bones",
+            "text": "[Search the remains for anything useful]",
+            "effects": [
+              {"type": "set_flag", "flag": "dungeon_level_2_bones_examined", "value": true},
+              {"type": "award_xp", "amount": 25}
+            ],
+            "next_state": "searched"
+          },
+          {
+            "id": "leave_them",
+            "text": "[Leave the dead in peace]",
+            "effects": [
+              {"type": "set_flag", "flag": "dungeon_level_2_bones_examined", "value": true}
+            ],
+            "next_state": "exit"
+          }
+        ]
+      },
+      "searched": {
+        "introduction": [
+          "*You carefully examine the remains*",
+          "",
+          "Among the bones, you find a tarnished badge bearing an unfamiliar royal seal. These guards died protecting their kingdom from something terrible.",
+          "",
+          "You also notice deep claw marks on the stone floor, leading toward the lower levels.",
+          "",
+          "*Whatever they tried to contain is down there. Waiting.*"
+        ],
+        "options": [
+          {
+            "id": "take_badge",
+            "text": "[Take the royal badge as evidence]",
+            "effects": [
+              {"type": "add_item", "item_id": "ancient_royal_badge"}
+            ],
+            "next_state": "exit"
+          },
+          {
+            "id": "leave_it",
+            "text": "[Leave the badge with its owner]",
+            "next_state": "exit"
+          }
+        ]
+      },
+      "exit": {
+        "introduction": [],
+        "options": []
+      }
+    }
+  }
+}

@@ -16,14 +16,16 @@
           "This is it. Whatever the cult has been planning, it ends here."
         ],
         "options": [
-          {
-            "id": "enter_dungeon",
-            "text": "[Enter the dungeon] (NOT IMPLEMENTED - ACT III)",
-            "next_state": "exit",
-            "effects": [
-              {"type": "set_flag", "flag": "hill_ruins_dungeon_unlocked", "value": true}
-            ]
-          },
+        {
+          "id": "enter_dungeon",
+          "text": "[Enter the dungeon - Front Door Route]",
+          "next_state": "exit",
+          "effects": [
+            {"type": "set_flag", "flag": "hill_ruins_dungeon_unlocked", "value": true},
+            {"type": "set_flag", "flag": "act_three_entrance_choice", "value": "front_door"},
+            {"type": "screen_change", "target": "dungeon_level_1_nav"}
+          ]
+        },
           {
             "id": "not_ready",
             "text": "[Not ready yet - return upstairs]",

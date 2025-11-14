@@ -1,0 +1,65 @@
+{
+  "encounter_id": "dungeon_l4_cult_patrol",
+  "name": "Cult Patrol",
+  "description": "A patrol of cult fanatics guards the sanctum!",
+  "battlefield_id": "cult_sanctum",
+  "difficulty": "medium-hard",
+  "enemies": [
+    {
+      "enemy_id": "cult_fanatic",
+      "position": [4, 3],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "cultist",
+      "position": [5, 2],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "cultist",
+      "position": [5, 4],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "cult_fanatic",
+      "position": [6, 3],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 400,
+    "gold": 75,
+    "items": ["greater_healing_potion", "holy_water"],
+    "story_progress": {
+      "quest_flags": {
+        "dungeon_l4_encounter_1_complete": {
+          "value": true,
+          "display_message": ""
+        }
+      }
+    }
+  },
+  "special_rules": [
+    {
+      "rule_type": "coordinated_defense",
+      "description": "Cultists fight in coordinated formations, protecting each other"
+    }
+  ],
+  "escape_allowed": false,
+  "turn_limit": null,
+  "ambient_description": "You enter a well-lit chamber. Unlike the ancient ruins above, this area shows clear signs of habitation - bedrolls, supplies, weapon racks. A patrol of cultists notices your intrusion and moves to intercept, their formations disciplined and deadly.",
+  "victory_description": "The cult patrol falls. Searching their bodies, you find orders signed by 'M.N.' - Marcus Nightshade. The orders are clear: 'Defend the sanctum at all costs. The final ritual approaches. No one must reach the Portal Chamber.'",
+  "defeat_description": "The cultists overwhelm you with their coordinated tactics. You retreat back toward the stairs, hearing their leader shout, 'Inform Marcus - intruders have reached the sanctum!'"
+}

@@ -1,0 +1,119 @@
+{
+  "dialogue_id": "dungeon_level_3_altar",
+  "title": "Defiled Altar",
+  "states": {
+    "first_visit": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "A stone altar stands in the center of this chamber, its surface stained with dark, dried blood. The carvings that once adorned it have been chiseled away and replaced with crude symbols of void and shadow.",
+        "",
+        "Fresh candles burn at each corner, their flames casting dancing shadows across ritual daggers and bone fragments scattered around the altar's base. This is a place of active worship - and sacrifice.",
+        "",
+        "You notice a journal lying open on the altar, its pages filled with cramped handwriting."
+      ],
+      "options": [
+        {
+          "id": "read_journal",
+          "text": "[Read the journal]",
+          "next_state": "journal_entry"
+        },
+        {
+          "id": "examine_symbols",
+          "text": "[Examine the void symbols]",
+          "next_state": "symbol_examination"
+        },
+        {
+          "id": "leave",
+          "text": "[Step away from the altar]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "journal_entry": {
+      "npc_name": "Cultist Journal",
+      "introduction": [
+        "The journal is written in a shaky hand:",
+        "",
+        "'Day 47: The Archon's power grows. The sacrifices have weakened the barrier. Soon, HE will walk among us.'",
+        "",
+        "'Day 51: Marcus Nightshade arrived today. The Archon says he is the key - the bloodline necessary for the final ritual. His knowledge of the old magic makes him invaluable.'",
+        "",
+        "'Day 53: Marcus grows more powerful. More... distant. Sometimes I wonder if he controls the Archon, or if the Archon controls him. Both possibilities terrify me.'",
+        "",
+        "The remaining pages are illegible, covered in frantic scrawling and what appears to be dried blood."
+      ],
+      "options": [
+        {
+          "id": "examine_symbols",
+          "text": "[Examine the void symbols]",
+          "next_state": "symbol_examination"
+        },
+        {
+          "id": "leave",
+          "text": "[Step away from the altar]",
+          "next_state": "exit",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "dungeon_l3_altar_journal_read",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "symbol_examination": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "The void symbols carved into the altar pulse with a faint, sickly purple light. You recognize some from ancient texts - symbols of binding, of summoning, of tearing holes between worlds.",
+        "",
+        "One symbol in particular draws your eye: a spiral within a broken circle. It's the mark of the Void Prince, a being of pure entropy from beyond the stars. If the cult is trying to summon THAT...",
+        "",
+        "You step back from the altar, your skin crawling. Whatever they're planning, it goes far beyond simple power or revenge. This is apocalyptic madness."
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "[Step away]",
+          "next_state": "exit",
+          "effects": [
+            {
+              "type": "set_flag",
+              "flag": "dungeon_l3_void_symbols_examined",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    "returning_visit": {
+      "npc_name": "Narrator",
+      "introduction": [
+        "The defiled altar continues to radiate malevolent energy. You've learned all you can from this place."
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "[Step away]",
+          "next_state": "exit"
+        }
+      ]
+    },
+    "exit": {
+      "npc_name": "",
+      "introduction": [],
+      "options": []
+    }
+  },
+  "state_transition_logic": {
+    "entry_state": {
+      "default": "first_visit",
+      "conditions": [
+        {
+          "flag": "dungeon_l3_altar_journal_read",
+          "state": "returning_visit"
+        }
+      ]
+    }
+  }
+}

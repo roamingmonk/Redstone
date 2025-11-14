@@ -337,7 +337,11 @@
         "ritual_chamber_examined": "examined_ritual_chamber",
         "deep_ore_searched": "searched_deep_ore_chamber",
         "secret_tunnel_found": "red_hollow_mine_secret_entrance_found",
-        "mine_complete": "red_hollow_mine_complete"
+        "mine_complete": "red_hollow_mine_complete",
+        "act_three_warnings_given": "henrik_gave_act_three_warnings",
+        "reinforced_lantern_given": "henrik_gave_reinforced_lantern",
+        "helped_act_three": "henrik_helped_act_three",
+        "act_three_resolved": "henrik_act_three_complete"
       }
     },
     "marta": {
@@ -395,7 +399,11 @@
         "marcus_confronted": "confronted_marcus_ruins",
         "marcus_fled": "marcus_fled_battle",
         "marcus_died": "marcus_died_in_battle",
-        "story_complete": "cassia_story_complete"
+        "story_complete": "cassia_story_complete",
+        "act_three_discussed": "cassia_discussed_marcus",
+        "wants_marcus_saved": "cassia_wants_marcus_saved",
+        "gave_locket": "cassia_gave_locket",
+        "marcus_redeemed": "marcus_redeemed"
       }
     }
   },
@@ -432,7 +440,11 @@
         "hill_ruins_portal_examined",
         "hill_ruins_mechanisms_searched",
         "hill_ruins_locked_door_found"
-      ]
+      ],
+      "story_flags": {
+        "hill_ruins_dungeon_key_obtained": "hill_ruins_dungeon_key_obtained",
+        "hill_ruins_dungeon_unlocked": "hill_ruins_dungeon_unlocked"
+      }
     },
     "refugee_camp": {
       "display_name": "Refugee Camp",
@@ -975,6 +987,8 @@
       "returning_customer": "jenna_talked && !jenna_gave_discount"
     },
     "henrik": {
+      "act_three_mine_tunnel_assistance": "act_three_started && red_hollow_mine_secret_entrance_found && !henrik_helped_act_three",
+      "post_act_three_victory": "act_three_complete && henrik_helped_act_three && !henrik_act_three_complete",
       "cavia_first_meeting": "!henrik_talked && is_cavia",
       "first_meeting": "!henrik_talked",
       "ore_discussion": "henrik_talked && !henrik_told_ore_story",
@@ -1003,6 +1017,7 @@
         "return_visits": "refugee_group_talked"
       },
     "cassia": {
+      "act_three_marcus_warning": "act_three_started && !cassia_discussed_marcus && cassia_told_marcus_story",
       "bernard_referral": "bernard_mentioned_cassia && !cassia_talked",
       "garrick_referral": "garrick_mentioned_cassia && !cassia_talked",
       "first_meeting": "!cassia_talked",
@@ -1035,8 +1050,21 @@
       "name": "The Final Confrontation",
       "start_flag": "act_three_started",
       "completion_flag": "main_quest_completed",
-      "key_milestones": ["entered_final_dungeon", "defeated_cult_leader", "rescued_mayors_family"]
+      "key_milestones": ["entered_final_dungeon", "defeated_cult_leader", "rescued_mayors_family"],
+      "dungeon_flags": {
+        
+        "entrance_choice": "act_three_entrance_choice",
+        "dungeon_unlocked": "hill_ruins_dungeon_unlocked",
+        "cassia_blessing_obtained": "cassia_discussed_marcus",
+        "marcus_outcome": ["marcus_redeemed", "marcus_fled_battle", "marcus_died_in_battle"],
+        "void_whisper_debuff": {
+            "description": "Player listened to void whispers and is mentally weakened. Should apply -1 to attack rolls or -2 to concentration checks in next combat. Cleared after one combat encounter.",
+            "type": "combat_debuff",
+            "default": false
+          }
+      }
     }
   }
+
 }
 

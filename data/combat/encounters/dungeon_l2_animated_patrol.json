@@ -1,0 +1,61 @@
+{
+  "encounter_id": "dungeon_l2_animated_patrol",
+  "name": "Animated Sentinel Patrol",
+  "description": "Ancient magical guardians patrol the lower ruins, their enchantments still functioning after centuries!",
+  "battlefield_id": "dungeon_chamber",
+  "difficulty": "hard",
+  "enemies": [
+    {
+      "enemy_id": "animated_statue",
+      "position": [4, 3],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "animated_statue",
+      "position": [5, 5],
+      "facing": "west"
+    },
+    {
+      "enemy_id": "animated_statue",
+      "position": [6, 4],
+      "facing": "west"
+    }
+  ],
+  "player_party": {
+    "starting_positions": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "facing": "east"
+  },
+  "victory_conditions": {
+    "victory_type": "defeat_all_enemies"
+  },
+  "defeat_conditions": {
+    "defeat_type": "all_party_defeated"
+  },
+  "rewards": {
+    "xp": 300,
+    "gold": 60,
+    "items": ["greater_healing_potion"],
+    "story_progress": {
+      "quest_flags": {
+        "dungeon_l2_encounter_2_complete": {
+          "value": true,
+          "display_message": "The animated sentinels crash to the ground, their magic finally spent. You continue deeper."
+        }
+      }
+    }
+  },
+  "special_rules": [
+    {
+      "rule_type": "high_armor_constructs",
+      "description": "Animated armor has very high AC (16+), use magic or critical hits",
+      "applies_to": ["animated_statue"]
+    }
+  ],
+  "escape_allowed": false,
+  "turn_limit": null,
+  "ambient_description": "Three suits of enchanted armor patrol in perfect synchronization. As you enter, they turn as one to face you, weapons ready.",
+  "victory_description": "The magical constructs collapse with a final groan of metal. Their patrol route ends here.",
+  "defeat_description": "You flee before the relentless guardians. They resume their eternal patrol without a sound."
+}
