@@ -1,0 +1,38 @@
+{
+  "battlefield_id": "dungeon_corridor",
+  "name": "Ancient Dungeon Corridor",
+  "tileset": "dungeon",
+  "description": "A narrow stone corridor with crumbling walls and patches of unnatural darkness.",
+  "dimensions": {
+    "width": 14,
+    "height": 8
+  },
+  "tile_size": 48,
+  "terrain": {
+    "default": "dungeon_floor",
+    "walls": [
+      [0, 0, 13, 0],
+      [0, 7, 13, 7],
+      [0, 0, 0, 7],
+      [13, 0, 13, 7]
+    ],
+    "obstacles": [
+      {"type": "rubble", "position": [3, 2], "blocks_movement": true, "blocks_sight": false},
+      {"type": "pillar", "position": [7, 3], "blocks_movement": true, "blocks_sight": true},
+      {"type": "rubble", "position": [10, 5], "blocks_movement": true, "blocks_sight": false}
+    ]
+  },
+  "spawn_zones": {
+    "player_start": [
+      [1, 3], [1, 4], [2, 3], [2, 4]
+    ],
+    "enemy_spawns": [
+      [9, 2], [11, 4], [10, 6]
+    ],
+    "exit_point": [1, 3]
+  },
+  "lighting": "dark",
+  "environmental_effects": [
+    {"type": "oppressive_darkness", "effect": "minor_accuracy_penalty"}
+  ]
+}

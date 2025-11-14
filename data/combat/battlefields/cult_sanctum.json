@@ -1,0 +1,41 @@
+{
+  "battlefield_id": "cult_sanctum",
+  "name": "Cult Sanctum",
+  "tileset": "dungeon",
+  "description": "A ritual chamber stained with dark magic. Void energy pulses from arcane circles.",
+  "dimensions": {
+    "width": 18,
+    "height": 14
+  },
+  "tile_size": 48,
+  "terrain": {
+    "default": "ritual_floor",
+    "walls": [
+      [0, 0, 17, 0],
+      [0, 13, 17, 13],
+      [0, 0, 0, 13],
+      [17, 0, 17, 13]
+    ],
+    "obstacles": [
+      {"type": "altar", "position": [9, 2], "blocks_movement": true, "blocks_sight": true},
+      {"type": "brazier", "position": [5, 5], "blocks_movement": true, "blocks_sight": false},
+      {"type": "brazier", "position": [13, 5], "blocks_movement": true, "blocks_sight": false},
+      {"type": "brazier", "position": [5, 9], "blocks_movement": true, "blocks_sight": false},
+      {"type": "brazier", "position": [13, 9], "blocks_movement": true, "blocks_sight": false},
+      {"type": "ritual_circle", "position": [9, 7], "blocks_movement": false, "blocks_sight": false}
+    ]
+  },
+  "spawn_zones": {
+    "player_start": [
+      [2, 11], [3, 11], [4, 11], [5, 11]
+    ],
+    "enemy_spawns": [
+      [9, 4], [7, 7], [11, 7], [15, 8], [3, 6]
+    ],
+    "exit_point": [2, 11]
+  },
+  "lighting": "ominous",
+  "environmental_effects": [
+    {"type": "void_energy", "effect": "arcane_corruption"}
+  ]
+}
