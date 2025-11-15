@@ -130,7 +130,7 @@ AREA_TRANSITIONS = {
             'interaction_type': 'navigation',
             'target_screen': 'dungeon_level_4_nav',
             'action': 'Descend to Level 4 - Cult Sanctum',
-            'requirements': {'flag': 'dungeon_level_3_complete'}
+            'requirements': {}
         }
     },
     'stairs_to_level_2': {
@@ -142,6 +142,20 @@ AREA_TRANSITIONS = {
             'target_screen': 'dungeon_level_2_nav',
             'action': 'Return to Level 2',
             'requirements': {}
+        }
+    },
+    'convergence_chest': {
+        'search_tiles': [(7, 8), (8, 8), (6, 8)],  # Around chest
+        'object_pos': [(7, 8)],
+        'info': {
+            'name': 'Heavy Iron Chest',
+            'interaction_type': 'dialogue',  # CHANGED from 'loot'
+            'description': 'A reinforced chest marked with both ancient and cult symbols.',
+            'examine_dialogue': 'dungeon_level_3_chest',  # ADDED
+            'loot_table': None,  # CHANGED from the loot table name
+            'flag_set': 'dungeon_level_3_chest_looted',
+            'requirements': {},
+            'one_time': True
         }
     },
     'mine_tunnel_entrance': {
@@ -160,8 +174,11 @@ AREA_TRANSITIONS = {
 def get_transition_at_entrance(player_x, player_y):
     """Check if player is at area transition point"""
     for transition_id, transition_data in AREA_TRANSITIONS.items():
+        # Safety check for malformed data
+        if 'entrance_tiles' not in transition_data:
+            continue
         if (player_x, player_y) in transition_data['entrance_tiles']:
-            return transition_data['info']
+            return transition_data.get('info')
     return None
 
 # Searchable objects
@@ -171,8 +188,9 @@ SEARCHABLE_OBJECTS = {
         'object_pos': [(7, 8)],
         'info': {
             'name': 'Heavy Iron Chest',
-            'interaction_type': 'loot',
+            'interaction_type': 'searchable',
             'description': 'A reinforced chest marked with both ancient and cult symbols.',
+            'examine_dialogue': 'dungeon_level_3_chest',
             'loot_table': 'dungeon_level_3_chest_loot',
             'flag_set': 'dungeon_level_3_chest_looted',
             'requirements': {},
