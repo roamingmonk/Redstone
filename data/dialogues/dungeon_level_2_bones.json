@@ -22,10 +22,11 @@
             "id": "search_bones",
             "text": "[Search the remains for anything useful]",
             "effects": [
+              {"type": "set_flag", "flag": "trigger_loot_check", "value": "dungeon_level_2_bones_loot"},
               {"type": "set_flag", "flag": "dungeon_level_2_bones_examined", "value": true},
               {"type": "award_xp", "amount": 25}
             ],
-            "next_state": "searched"
+            "next_state": "exit"
           },
           {
             "id": "leave_them",
@@ -33,32 +34,6 @@
             "effects": [
               {"type": "set_flag", "flag": "dungeon_level_2_bones_examined", "value": true}
             ],
-            "next_state": "exit"
-          }
-        ]
-      },
-      "searched": {
-        "introduction": [
-          "*You carefully examine the remains*",
-          "",
-          "Among the bones, you find a tarnished badge bearing an unfamiliar royal seal. These guards died protecting their kingdom from something terrible.",
-          "",
-          "You also notice deep claw marks on the stone floor, leading toward the lower levels.",
-          "",
-          "*Whatever they tried to contain is down there. Waiting.*"
-        ],
-        "options": [
-          {
-            "id": "take_badge",
-            "text": "[Take the royal badge as evidence]",
-            "effects": [
-              {"type": "add_item", "item_id": "ancient_royal_badge"}
-            ],
-            "next_state": "exit"
-          },
-          {
-            "id": "leave_it",
-            "text": "[Leave the badge with its owner]",
             "next_state": "exit"
           }
         ]

@@ -148,6 +148,34 @@
           }
         ]
       },
+      "dungeon_level_2_bones_loot": {
+        "items": [
+          {
+            "item_id": "ancient_coins",
+            "quantity": 10,
+            "chance": 0.8,
+            "note": "Coins from fallen guards"
+          },
+          {
+            "item_id": "healing_potion",
+            "quantity": 1,
+            "chance": 0.5,
+            "note": "Old potion, still potent"
+          },
+          {
+            "item_id": "rusty_shortsword",
+            "quantity": 1,
+            "chance": 0.4,
+            "note": "Guard's weapon, corroded but usable"
+          },
+          {
+            "item_id": "ancient_royal_badge",
+            "quantity": 1,
+            "chance": 0.99,
+            "note": "A tarnished bronze badge bearing the seal of a forgotten kingdom."
+          }
+        ]
+      },
       "dungeon_level_3_chest_loot": {
         "items": [
           {
