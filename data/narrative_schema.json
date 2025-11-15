@@ -474,6 +474,34 @@
         "returned_ore_to_henrik"
       ]
     },
+    "dungeon_level_1": {
+      "display_name": "Dungeon Level 1",
+      "system_id": "dungeon_level_1",
+      "location_type": "dungeon_combat",
+      "story_flags": {
+        "altar_examined": "dungeon_level_1_altar_examined"
+      }
+    },
+    "dungeon_level_2": {
+      "display_name": "Dungeon Level 2",
+      "system_id": "dungeon_level_2",
+      "location_type": "dungeon_combat",
+      "story_flags": {
+        "chest_looted": "dungeon_level_2_chest_looted",
+        "bones_examined": "dungeon_level_2_bones_examined"
+      }
+    },
+    "dungeon_level_3": {
+      "display_name": "Dungeon Level 3",
+      "system_id": "dungeon_level_3",
+      "location_type": "dungeon_combat",
+      "story_flags": {
+        "chest_looted": "dungeon_level_3_chest_looted",
+        "altar_examined": "dungeon_level_3_altar_examined",
+        "brazier_examined": "dungeon_level_3_brazier_examined",
+        "ritual_examined": "dungeon_level_3_ritual_examined"
+      }
+    },
     "redstone_town": {
       "display_name": "Town Square",
       "system_id": "redstone_town",

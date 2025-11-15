@@ -5,8 +5,11 @@ Second level of the cult's sanctum - deeper and more dangerous
 
 import pygame
 import random
+import json
+import os
+import random
 from ui.base_location_navigation import NavigationRenderer
-from utils.constants import BLACK, WHITE, YELLOW, RED, LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT
+from utils.constants import BLACK, WHITE, YELLOW, RED, LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT, LOCATION_DATA_PATH
 from utils.graphics import draw_centered_text, draw_border
 from utils.party_display import draw_party_status_panel
 from utils.tile_graphics import get_tile_graphics_manager
@@ -71,7 +74,7 @@ class DungeonLevel2Nav:
         message = hazard_data.get('message', 'Environmental hazard!')
         
         # Show message
-        self.show_message(message)
+        self.show_temp_message(message)
         
         # Apply damage to party (simplified - could be more sophisticated)
         # For now, just log it
@@ -88,6 +91,18 @@ class DungeonLevel2Nav:
         """Update navigation state and handle interactions"""
         self.update_player_position(game_state)
         
+        # Check for loot trigger (from dialogue setting trigger_loot_check flag)
+        print(f"🔍 DEBUG: Checking for loot trigger...")  # ADD THIS
+        if hasattr(game_state, 'trigger_loot_check'):
+            print(f"🔍 DEBUG: trigger_loot_check exists: {game_state.trigger_loot_check}")  # ADD THIS
+        
+        if hasattr(game_state, 'trigger_loot_check') and game_state.trigger_loot_check:
+            loot_table_id = game_state.trigger_loot_check
+            print(f"🎁 DEBUG: Triggering loot check for: {loot_table_id}")  # ADD THIS
+            game_state.trigger_loot_check = None
+            self._trigger_loot_check(loot_table_id, game_state, controller)
+            return
+    
         # Handle movement
         old_x = game_state.dungeon_l2_x
         old_y = game_state.dungeon_l2_y
@@ -106,21 +121,17 @@ class DungeonLevel2Nav:
                 
                 # Check if already completed
                 completion_flag = combat_trigger.get('completion_flag')
-                if completion_flag:
-                    from utils.quest_system import get_quest_manager
-                    quest_mgr = get_quest_manager()
-                    if quest_mgr and quest_mgr.get_flag(completion_flag):
-                        print(f"   ✓ Already cleared, skipping")
-                        # Update position and continue
-                        game_state.dungeon_l2_x = new_x
-                        game_state.dungeon_l2_y = new_y
-                        self.renderer.update_camera(new_x, new_y)
-                        return
+                if completion_flag and getattr(game_state, completion_flag, False):
+                    # Already cleared, allow movement
+                    game_state.dungeon_l2_x = new_x
+                    game_state.dungeon_l2_y = new_y
+                    self.renderer.update_camera(new_x, new_y)
+                    return
                 
                 # Check if this is a trap encounter (applies damage first)
                 trap_damage = combat_trigger.get('trap_damage')
                 if trap_damage:
-                    self.show_message(f"TRAP! You take {trap_damage} damage!")
+                    self.show_temp_message(f"TRAP! You take {trap_damage} damage!")
                     print(f"   💥 Trap triggered! Damage: {trap_damage}")
                 
                 # Trigger combat
@@ -139,31 +150,63 @@ class DungeonLevel2Nav:
             if hazard:
                 # Check if already triggered this session
                 hazard_flag = f"hazard_{new_x}_{new_y}_triggered"
-                from utils.quest_system import get_quest_manager
-                quest_mgr = get_quest_manager()
-                
-                if not (quest_mgr and quest_mgr.get_flag(hazard_flag)):
+                if not getattr(game_state, hazard_flag, False):
                     # Trigger hazard
                     self.handle_environmental_hazard(hazard, game_state, controller)
-                    if quest_mgr:
-                        quest_mgr.set_flag(hazard_flag, True)
+                    setattr(game_state, hazard_flag, True)
             
             # PRIORITY 3: Update position if no combat
             game_state.dungeon_l2_x = new_x
             game_state.dungeon_l2_y = new_y
             self.renderer.update_camera(new_x, new_y)
         
-        # Check for transitions
-        self.current_transition = self.renderer.check_valid_entrance(
-            game_state.dungeon_l2_x, 
-            game_state.dungeon_l2_y
-        )
-        
-        # Check for searchables
-        self.current_searchable = self.renderer.check_searchable_interaction(
-            game_state.dungeon_l2_x, 
-            game_state.dungeon_l2_y
-        )
+        # Update transition cooldown
+        self.renderer.update_transition_cooldown(dt)
+
+        # Check for ENTER key interactions
+        if (self.renderer.check_enter_just_pressed(keys) and 
+            not self.showing_message and 
+            self.renderer.can_interact()):
+            
+            player_x = game_state.dungeon_l2_x
+            player_y = game_state.dungeon_l2_y
+
+            # Priority 1: Transitions
+            transition_info = self.renderer.check_valid_entrance(player_x, player_y, self.renderer.player_direction)
+            if transition_info and transition_info[0]:
+                if controller:
+                    target = transition_info[0]['target_screen']
+                    
+                    # Handle level-specific spawn points if needed
+                    # (Level 2 doesn't need spawn overrides currently)
+                    
+                    self.renderer.start_transition_cooldown()
+                    controller.event_manager.emit("SCREEN_CHANGE", {
+                        'target_screen': target,
+                        'source_screen': 'dungeon_level_2_nav'
+                    })
+                return
+
+            # Priority 2: Searchables
+            searchable_info = self.renderer.check_searchable_object(player_x, player_y)
+            if searchable_info:
+                flag_set = searchable_info.get('flag_set')
+                if flag_set and getattr(game_state, flag_set, False):
+                    self.show_temp_message("You've already searched here.")
+                else:
+                    examine_dialogue = searchable_info.get('examine_dialogue')
+                    if examine_dialogue and controller:
+                        # Extract npc_id from dialogue name (e.g., "dungeon_level_2_chest" -> "chest")
+                        npc_id = examine_dialogue.split('_')[-1]
+                        return_screen_attr = f'{npc_id}_return_screen'
+                        setattr(game_state, return_screen_attr, 'dungeon_level_2_nav')
+                        game_state.pending_search_flag = flag_set
+
+                        controller.event_manager.emit("SCREEN_CHANGE", {
+                            "target_screen": examine_dialogue,
+                            "source_screen": 'dungeon_level_2_nav'
+                        })
+                return
         
         # Update message timer
         if self.showing_message:
@@ -171,77 +214,99 @@ class DungeonLevel2Nav:
             if self.message_timer <= 0:
                 self.showing_message = False
     
-    def handle_interact(self, game_state, controller):
-        """Handle E key interaction"""
-        # Check transitions first
-        if self.current_transition:
-            requirements = self.current_transition.get('requirements', {})
-            required_flag = requirements.get('flag')
-            
-            # Check if stairs require level completion
-            if required_flag:
-                from utils.quest_system import get_quest_manager
-                quest_mgr = get_quest_manager()
-                
-                if not quest_mgr or not quest_mgr.get_flag(required_flag):
-                    self.show_message("The passage ahead is blocked. Clear all enemies first.")
-                    return
-            
-            # Navigate to target screen
-            target = self.current_transition.get('target_screen')
-            if controller and hasattr(controller, 'event_manager'):
-                controller.event_manager.emit("SCREEN_CHANGE", {"target": target})
-            return
-        
-        # Check searchables
-        if self.current_searchable:
-            interaction_type = self.current_searchable.get('interaction_type')
-            
-            if interaction_type == 'dialogue':
-                # Trigger dialogue (like bones)
-                dialogue_id = self.current_searchable.get('examine_dialogue')
-                if controller and hasattr(controller, 'event_manager'):
-                    controller.event_manager.emit("START_DIALOGUE", {
-                        "npc_id": dialogue_id,
-                        "dialogue_file": dialogue_id
-                    })
-            
-            elif interaction_type == 'loot':
-                # Trigger loot (like chest)
-                loot_table = self.current_searchable.get('loot_table')
-                flag = self.current_searchable.get('flag_set')
-                
-                # Check if already looted
-                from utils.quest_system import get_quest_manager
-                quest_mgr = get_quest_manager()
-                if quest_mgr and quest_mgr.get_flag(flag):
-                    self.show_message("Already searched.")
-                    return
-                
-                # Open loot screen
-                if controller and hasattr(controller, 'event_manager'):
-                    controller.event_manager.emit("OPEN_LOOT", {
-                        "loot_table": loot_table,
-                        "flag_to_set": flag
-                    })
+   
     
-    def show_message(self, text):
-        """Display temporary message"""
-        self.message_text = text
+    def show_temp_message(self, text):
         self.showing_message = True
-        self.message_timer = 2.5  # 2.5 seconds
+        self.message_text = text
+        self.message_timer = 3000  # milliseconds, matches Level 1
     
-    def render(self, surface, game_state, fonts, images):
+    def _trigger_loot_check(self, loot_table_id, game_state, controller):
+        """Trigger loot check using hill ruins loot tables"""
+        print(f"💰 DEBUG: _trigger_loot_check called with: {loot_table_id}")
+
+
+        location_file = os.path.join(LOCATION_DATA_PATH, "hill_ruins.json")
+        print(f"💰 DEBUG: Looking for loot file at: {location_file}")
+        
+        if not os.path.exists(location_file):
+            print(f"❌ DEBUG: Loot file NOT found!")
+            return
+
+        print(f"💰 DEBUG: Loading loot file...")
+        with open(location_file, 'r') as f:
+            location_full_data = json.load(f)
+            location_data = location_full_data.get('hill_ruins', location_full_data)
+
+        loot_tables = location_data.get('loot_tables', {})
+        loot_table = loot_tables.get(loot_table_id)
+        
+        print(f"💰 DEBUG: Found loot table: {loot_table is not None}")
+
+        if not loot_table:
+            print(f"❌ DEBUG: Loot table '{loot_table_id}' not found in file!")
+            return
+
+        print(f"💰 DEBUG: Processing loot items...")
+        items_dict = {}
+        for item_config in loot_table.get('items', []):
+            item_id = item_config.get('item_id')
+            quantity = item_config.get('quantity', 1)
+            chance = item_config.get('chance', 1.0)
+
+            if random.random() <= chance:
+                items_dict[item_id] = items_dict.get(item_id, 0) + quantity
+
+        print(f"💰 DEBUG: Items rolled: {items_dict}")
+        
+        items_list = []
+        item_manager = getattr(game_state, 'item_manager', None)
+
+        for item_id, quantity in items_dict.items():
+            if item_manager and hasattr(item_manager, 'get_display_name'):
+                display_name = item_manager.get_display_name(item_id)
+            else:
+                display_name = item_id.replace('_', ' ').title()
+
+            items_list.append({
+                'item_id': item_id,
+                'quantity': quantity,
+                'name': display_name
+            })
+
+        print(f"💰 DEBUG: Final items list: {items_list}")
+
+        if not items_list:
+            print(f"💰 DEBUG: No items found, showing message")
+            self.show_temp_message("You found nothing of value.")
+            if hasattr(game_state, 'pending_search_flag') and game_state.pending_search_flag:
+                setattr(game_state, game_state.pending_search_flag, True)
+                game_state.pending_search_flag = None
+            return
+
+        print(f"💰 DEBUG: Creating loot data and opening overlay...")
+        loot_data = {'total_gold': 0, 'items': items_list}
+        game_state.combat_loot_data = loot_data
+        game_state.pre_combat_location = 'dungeon_level_2_nav'
+
+        if hasattr(game_state, 'pending_search_flag') and game_state.pending_search_flag:
+            game_state.search_loot_flag = game_state.pending_search_flag
+            game_state.pending_search_flag = None
+
+        print(f"💰 DEBUG: About to call overlay_state.open_overlay('combat_loot')")
+        game_state.overlay_state.open_overlay("combat_loot")
+        print(f"✅ DEBUG: Overlay opened!")
+
+    def render(self, surface, fonts, images, game_state):
         """Render the dungeon level 2 navigation screen"""
         surface.fill(BLACK)
         
         # Render the map using shared renderer
-        self.renderer.render(
-            surface, 
-            game_state.dungeon_l2_x, 
-            game_state.dungeon_l2_y,
-            fonts
-        )
+        player_x = game_state.dungeon_l2_x
+        player_y = game_state.dungeon_l2_y
+        
+        self.renderer.draw_map(surface, fonts, player_x, player_y)
+        self.renderer.draw_player(surface, player_x, player_y)
         
         # Party status panel
         draw_party_status_panel(surface, game_state, fonts)
@@ -254,14 +319,20 @@ class DungeonLevel2Nav:
         # Interaction prompts
         prompt_font = fonts.get('fantasy_small', fonts.get('small', fonts['normal']))
         
-        if self.current_transition:
-            action_text = f"[E] {self.current_transition.get('action', 'Interact')}"
+        # Show interaction prompts based on player position
+        player_x = game_state.dungeon_l2_x
+        player_y = game_state.dungeon_l2_y
+        
+        transition_info = self.renderer.check_valid_entrance(player_x, player_y, self.renderer.player_direction)
+        if transition_info and transition_info[0]:
+            action_text = f"[ENTER] {transition_info[0].get('action', 'Use stairs')}"
             prompt_surface = prompt_font.render(action_text, True, YELLOW)
             surface.blit(prompt_surface, (20, 700))
         
-        if self.current_searchable:
-            name = self.current_searchable.get('name', 'Object')
-            action_text = f"[E] Examine {name}"
+        searchable_info = self.renderer.check_searchable_object(player_x, player_y)
+        if searchable_info:
+            name = searchable_info.get('name', 'Object')
+            action_text = f"[ENTER] Examine {name}"
             prompt_surface = prompt_font.render(action_text, True, YELLOW)
             surface.blit(prompt_surface, (20, 720))
         

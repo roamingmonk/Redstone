@@ -54,12 +54,16 @@ class DungeonLevel3Nav:
     
     def update_player_position(self, game_state):
         """Initialize or restore player position"""
-        if not hasattr(game_state, 'dungeon_l3_x'):
+        # Check for spawn override (from transitions)
+        if hasattr(game_state, 'dungeon_l3_spawn_override_x'):
+            game_state.dungeon_l3_x = game_state.dungeon_l3_spawn_override_x
+            game_state.dungeon_l3_y = game_state.dungeon_l3_spawn_override_y
+            delattr(game_state, 'dungeon_l3_spawn_override_x')
+            delattr(game_state, 'dungeon_l3_spawn_override_y')
+            print(f"✅ Level 3 spawn override: ({game_state.dungeon_l3_x}, {game_state.dungeon_l3_y})")
+        elif not hasattr(game_state, 'dungeon_l3_x'):
             # Check if player came via mine tunnel (future feature)
-            from utils.quest_system import get_quest_manager
-            quest_mgr = get_quest_manager()
-            
-            if quest_mgr and quest_mgr.get_flag('using_mine_tunnel_entrance'):
+            if getattr(game_state, 'using_mine_tunnel_entrance', False):
                 # Spawn at mine entrance (left side)
                 game_state.dungeon_l3_x = 2
                 game_state.dungeon_l3_y = 10
@@ -69,6 +73,8 @@ class DungeonLevel3Nav:
                 game_state.dungeon_l3_x = DUNGEON_L3_SPAWN_X
                 game_state.dungeon_l3_y = DUNGEON_L3_SPAWN_Y
                 print(f"🏛️ Entered Dungeon Level 3 via FRONT DOOR at ({DUNGEON_L3_SPAWN_X}, {DUNGEON_L3_SPAWN_Y})")
+        
+        self.renderer.update_camera(game_state.dungeon_l3_x, game_state.dungeon_l3_y)
         
         self.renderer.update_camera(
             game_state.dungeon_l3_x, 
@@ -98,11 +104,8 @@ class DungeonLevel3Nav:
                 # Check if already completed
                 completion_flag = combat_trigger.get('completion_flag')
                 if completion_flag:
-                    from utils.quest_system import get_quest_manager
-                    quest_mgr = get_quest_manager()
-                    if quest_mgr and quest_mgr.get_flag(completion_flag):
-                        print(f"   ✓ Already cleared, skipping")
-                        # Update position and continue
+                    if completion_flag and getattr(game_state, completion_flag, False):
+                        # Already cleared, allow movement
                         game_state.dungeon_l3_x = new_x
                         game_state.dungeon_l3_y = new_y
                         self.renderer.update_camera(new_x, new_y)
@@ -123,17 +126,53 @@ class DungeonLevel3Nav:
             game_state.dungeon_l3_y = new_y
             self.renderer.update_camera(new_x, new_y)
         
-        # Check for transitions
-        self.current_transition = self.renderer.check_valid_entrance(
-            game_state.dungeon_l3_x, 
-            game_state.dungeon_l3_y
-        )
-        
-        # Check for searchables
-        self.current_searchable = self.renderer.check_searchable_interaction(
-            game_state.dungeon_l3_x, 
-            game_state.dungeon_l3_y
-        )
+        # Update transition cooldown
+        self.renderer.update_transition_cooldown(dt)
+
+        # Check for ENTER key interactions
+        if (self.renderer.check_enter_just_pressed(keys) and 
+            not self.showing_message and 
+            self.renderer.can_interact()):
+            
+            player_x = game_state.dungeon_l3_x
+            player_y = game_state.dungeon_l3_y
+
+            # Priority 1: Transitions
+            transition_info = self.renderer.check_valid_entrance(player_x, player_y, self.renderer.player_direction)
+            if transition_info and transition_info[0]:
+                if controller:
+                    target = transition_info[0]['target_screen']
+                    
+                    # Handle level-specific spawn points if needed
+                    # (Level 2 doesn't need spawn overrides currently)
+                    
+                    self.renderer.start_transition_cooldown()
+                    controller.event_manager.emit("SCREEN_CHANGE", {
+                        'target_screen': target,
+                        'source_screen': 'dungeon_level_3_nav'
+                    })
+                return
+
+            # Priority 2: Searchables
+            searchable_info = self.renderer.check_searchable_object(player_x, player_y)
+            if searchable_info:
+                flag_set = searchable_info.get('flag_set')
+                if flag_set and getattr(game_state, flag_set, False):
+                    self.show_temp_message("You've already searched here.")
+                else:
+                    examine_dialogue = searchable_info.get('examine_dialogue')
+                    if examine_dialogue and controller:
+                        # Extract npc_id from dialogue name (e.g., "dungeon_level_2_chest" -> "chest")
+                        npc_id = examine_dialogue.split('_')[-1]
+                        return_screen_attr = f'{npc_id}_return_screen'
+                        setattr(game_state, return_screen_attr, 'dungeon_level_3_nav')
+                        game_state.pending_search_flag = flag_set
+
+                        controller.event_manager.emit("SCREEN_CHANGE", {
+                            "target_screen": examine_dialogue,
+                            "source_screen": 'dungeon_level_3_nav'
+                        })
+                return
         
         # Update message timer
         if self.showing_message:
@@ -141,66 +180,7 @@ class DungeonLevel3Nav:
             if self.message_timer <= 0:
                 self.showing_message = False
     
-    def handle_interact(self, game_state, controller):
-        """Handle E key interaction"""
-        # Check transitions first
-        if self.current_transition:
-            requirements = self.current_transition.get('requirements', {})
-            required_flag = requirements.get('flag')
-            
-            # Check if stairs/transition requires level completion
-            if required_flag:
-                from utils.quest_system import get_quest_manager
-                quest_mgr = get_quest_manager()
-                
-                if not quest_mgr or not quest_mgr.get_flag(required_flag):
-                    self.show_message("The passage ahead is blocked. Clear all enemies first.")
-                    return
-            
-            # Navigate to target screen
-            target = self.current_transition.get('target_screen')
-            action = self.current_transition.get('action', '')
-            
-            # Check for "NOT YET IMPLEMENTED" message
-            if 'NOT YET IMPLEMENTED' in action:
-                self.show_message("This route is not yet available. Use the front door for now.")
-                return
-            
-            if controller and hasattr(controller, 'event_manager'):
-                controller.event_manager.emit("SCREEN_CHANGE", {"target": target})
-            return
-        
-        # Check searchables
-        if self.current_searchable:
-            interaction_type = self.current_searchable.get('interaction_type')
-            
-            if interaction_type == 'dialogue':
-                # Trigger dialogue (altar, ritual, brazier, etc.)
-                dialogue_id = self.current_searchable.get('examine_dialogue')
-                if controller and hasattr(controller, 'event_manager'):
-                    controller.event_manager.emit("START_DIALOGUE", {
-                        "npc_id": dialogue_id,
-                        "dialogue_file": dialogue_id
-                    })
-            
-            elif interaction_type == 'loot':
-                # Trigger loot (chest)
-                loot_table = self.current_searchable.get('loot_table')
-                flag = self.current_searchable.get('flag_set')
-                
-                # Check if already looted
-                from utils.quest_system import get_quest_manager
-                quest_mgr = get_quest_manager()
-                if quest_mgr and quest_mgr.get_flag(flag):
-                    self.show_message("Already searched.")
-                    return
-                
-                # Open loot screen
-                if controller and hasattr(controller, 'event_manager'):
-                    controller.event_manager.emit("OPEN_LOOT", {
-                        "loot_table": loot_table,
-                        "flag_to_set": flag
-                    })
+    
     
     def show_message(self, text):
         """Display temporary message"""
@@ -208,17 +188,16 @@ class DungeonLevel3Nav:
         self.showing_message = True
         self.message_timer = 2.5  # 2.5 seconds
     
-    def render(self, surface, game_state, fonts, images):
+    def render(self, surface, fonts, images, game_state):
         """Render the dungeon level 3 navigation screen"""
         surface.fill(BLACK)
         
         # Render the map using shared renderer
-        self.renderer.render(
-            surface, 
-            game_state.dungeon_l3_x, 
-            game_state.dungeon_l3_y,
-            fonts
-        )
+        player_x = game_state.dungeon_l3_x
+        player_y = game_state.dungeon_l3_y
+        
+        self.renderer.draw_map(surface, fonts, player_x, player_y)
+        self.renderer.draw_player(surface, player_x, player_y)
         
         # Party status panel
         draw_party_status_panel(surface, game_state, fonts)
@@ -236,14 +215,20 @@ class DungeonLevel3Nav:
         # Interaction prompts
         prompt_font = fonts.get('fantasy_small', fonts.get('small', fonts['normal']))
         
-        if self.current_transition:
-            action_text = f"[E] {self.current_transition.get('action', 'Interact')}"
+        # Show interaction prompts based on player position
+        player_x = game_state.dungeon_l2_x
+        player_y = game_state.dungeon_l2_y
+        
+        transition_info = self.renderer.check_valid_entrance(player_x, player_y, self.renderer.player_direction)
+        if transition_info and transition_info[0]:
+            action_text = f"[ENTER] {transition_info[0].get('action', 'Use stairs')}"
             prompt_surface = prompt_font.render(action_text, True, YELLOW)
             surface.blit(prompt_surface, (20, 700))
         
-        if self.current_searchable:
-            name = self.current_searchable.get('name', 'Object')
-            action_text = f"[E] Examine {name}"
+        searchable_info = self.renderer.check_searchable_object(player_x, player_y)
+        if searchable_info:
+            name = searchable_info.get('name', 'Object')
+            action_text = f"[ENTER] Examine {name}"
             prompt_surface = prompt_font.render(action_text, True, YELLOW)
             surface.blit(prompt_surface, (20, 720))
         

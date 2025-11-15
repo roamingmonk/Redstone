@@ -58,7 +58,7 @@ WALKABLE_TILES = {'floor', 'door', 'stairs_down', 'stairs_up', 'combat_zone',
 #  . = Floor
 
 DUNGEON_L2_MAP = [
-    "##################",  # Row 0
+    "###################",  # Row 0
     "#........U........#",  # Row 1 - Stairs up (spawn)
     "#.................#",  # Row 2
     "#..PP.........PP..#",  # Row 3 - Pillars
@@ -75,7 +75,7 @@ DUNGEON_L2_MAP = [
     "#..T..............#",  # Row 14 - Trap + encounter
     "#.................#",  # Row 15
     "#........S........#",  # Row 16 - Stairs down
-    "##################"   # Row 17
+    "###################"   # Row 17
 ]
 
 def get_tile_type(x, y):

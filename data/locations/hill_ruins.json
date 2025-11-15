@@ -112,8 +112,8 @@
             "chance": 0.4
           }
         ]
-      }
-    },
+      },
+    
     "dungeon_level_2_chest_loot": {
         "items": [
           {
@@ -257,7 +257,8 @@
           "description": "Go back upstairs"
         }
       }
-    }
+     }
     }
   }
+}
 }
