@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-11-14 14:17)
+﻿## Repository Structure (generated 2025-11-16 08:21)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -57,6 +57,7 @@ C:.
 |       |   |   |       jenna_portrait.jpg
 |       |   |   |       leader_portrait.jpg
 |       |   |   |       lyra_portrait.jpg
+|       |   |   |       marcus_portrait.jpg
 |       |   |   |       marta_portrait.jpg
 |       |   |   |       mayor_portrait.jpg
 |       |   |   |       mayor_portrait_happy.jpg
@@ -273,9 +274,12 @@ C:.
 |   |   |       mine_collapsed_area.json
 |   |   |       mine_tunnel.json
 |   |   |       portal_chamber.json
+|   |   |       portal_chamber_approach.json
+|   |   |       prison_cells.json
 |   |   |       redstone_town_alley - gaunlet.json
 |   |   |       redstone_town_alley.json
 |   |   |       refugee_camp_night.json
+|   |   |       sanctum_antechamber.json
 |   |   |       small_cellar.json
 |   |   |       swamp_exterior.json
 |   |   |       
@@ -310,6 +314,7 @@ C:.
 |   |   |       
 |   |   \---enemies
 |   |           animated_statue.json
+|   |           archon_of_the_void.json
 |   |           baby_spider.json
 |   |           bandit_common.json
 |   |           bandit_leader.json
@@ -325,7 +330,10 @@ C:.
 |   |           kobold_scout.json
 |   |           kobold_shaman.json
 |   |           kobold_warrior.json
+|   |           lesser_void_spawn.json
+|   |           marcus_nightshade.json
 |   |           ogre_archer.json
+|   |           possessed_villager.json
 |   |           shadow_ghost.json
 |   |           skeleton.json
 |   |           thief_common.json
@@ -334,7 +342,9 @@ C:.
 |   |       broken_blade_garrick.json
 |   |       broken_blade_meredith.json
 |   |       dungeon_level_1_altar.json
+|   |       dungeon_level_1_chest.json
 |   |       dungeon_level_2_bones.json
+|   |       dungeon_level_2_chest.json
 |   |       dungeon_level_3_altar.json
 |   |       dungeon_level_3_brazier.json
 |   |       dungeon_level_3_chest.json
@@ -345,7 +355,7 @@ C:.
 |   |       dungeon_level_4_shrine.json
 |   |       dungeon_level_4_villager_cells.json
 |   |       dungeon_level_5_final_boss_intro.json
-|   |       dungeon_level_5_marcus_pre_combat.json
+|   |       dungeon_level_5_marcus.json
 |   |       dungeon_level_5_portal.json
 |   |       dungeon_level_5_ritual_circle.json
 |   |       hill_ruins_carved_stones.json
