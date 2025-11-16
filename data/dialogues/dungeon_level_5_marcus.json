@@ -1,187 +1,641 @@
 {
-  "dungeon_level_5_marcus": {
-    "npc_name": "Marcus Nightshade",
-    "dialogue_id": "dungeon_level_5_marcus",
-    "is_object": false,
-    "hide_portrait": false,
-    "initial_state": "initial_confrontation",
-    "states": {
-      "initial_confrontation": {
-        "introduction": [
-          "Marcus turns to face you, void energy crackling around his hands. His eyes are black abysses, but you can see traces of the man he once was fighting beneath the corruption.",
-          "",
-          "'So. Cassia sent someone after all,' he says, his voice layered with unnatural harmonics. 'I hoped she would understand. That she would see the glorious future I'm creating.'",
-          "",
-          "He gestures toward the pulsing portal behind him. 'The Void Prince offers true power. Freedom from weakness, from mortality, from the pathetic limitations of flesh and morality. I will be his vessel, his herald. Through me, he will reshape this world.'",
-          "",
-          "'Stand aside, or I will destroy you.'"
-        ],
-        "options": [
-          {
-            "id": "offer_redemption",
-            "text": "[Show him Cassia's locket] 'Cassia believes you can still be saved.'",
-            "requirements": {
-              "item": "cassia_locket"
-            },
-            "next_state": "redemption_offer"
-          },
-          {
-            "id": "challenge_combat",
-            "text": "'I won't let you doom this world, Marcus. Stand down or be stopped.'",
-            "next_state": "combat_path"
-          },
-          {
-            "id": "appeal_reason",
-            "text": "'Look at what you've become! This isn't power - it's corruption!'",
-            "next_state": "appeal_attempt"
-          }
-        ]
-      },
-      "redemption_offer": {
-        "introduction": [
-          "Marcus's eyes widen as he sees the locket. For a moment - just a moment - the void corruption flickers, and you see his true eyes. Brown. Human. Terrified.",
-          "",
-          "'Cassia...' he whispers. His hand reaches toward the locket, trembling. 'She... she still...'",
-          "",
-          "The void energy surges back, fighting for control. Marcus's face contorts in agony. 'NO! I am beyond such weakness! I am chosen! I am--'",
-          "",
-          "But the locket pulses with a gentle light - not magic, just the power of genuine love and hope. Marcus screams, clutching his head.",
-          "",
-          "'Get it away! Get it-- no, wait... I remember... I remember who I was...'"
-        ],
-        "options": [
-          {
-            "id": "press_redemption",
-            "text": "'Fight it, Marcus! Come back! Cassia is waiting for you!'",
-            "next_state": "redemption_success",
-            "effects": [
-              {"type": "set_flag", "flag": "marcus_redemption_attempted", "value": true}
-            ]
-          },
-          {
-            "id": "attack_while_weak",
-            "text": "[Attack while he's vulnerable]",
-            "next_state": "combat_path",
-            "effects": [
-              {"type": "set_flag", "flag": "betrayed_marcus_trust", "value": true}
-            ]
-          }
-        ]
-      },
-      "redemption_success": {
-        "introduction": [
-          "The void energy shatters like glass. Marcus collapses to his knees, gasping. When he looks up, his eyes are his own again - brown, human, filled with horror and grief.",
-          "",
-          "'Gods... oh gods, what have I done?' Tears stream down his face. 'The villages. The sacrifices. Thomas, Sarah, all those people... I killed them. I KILLED them, and I felt NOTHING.'",
-          "",
-          "He looks at you with desperate clarity. 'The void showed me such wonders. Promised such power. But it was all lies. It wanted to use me - use my bloodline - to open the door for the Void Prince.'",
-          "",
-          "He stands, legs shaking, and turns toward the portal. 'I can't undo what I've done. I can't bring those people back. But I can close this portal. The ritual requires Nightshade blood to open it - the same blood can seal it. From the inside.'",
-          "",
-          "'Tell Cassia... tell her I'm sorry. Tell her I loved her. And that in the end, I chose to be the man she believed I could be.'"
-        ],
-        "options": [
-          {
-            "id": "let_him_sacrifice",
-            "text": "'Go. End this. Be the hero you should have been.'",
-            "next_state": "marcus_sacrifice",
-            "effects": [
-              {"type": "set_flag", "flag": "marcus_redeemed", "value": true},
-              {"type": "set_flag", "flag": "marcus_sacrificed_himself", "value": true},
-              {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
-              {"type": "set_flag", "flag": "portal_weakened", "value": true}
-            ]
-          },
-          {
-            "id": "stop_him",
-            "text": "'No! There has to be another way! We can find it together!'",
-            "next_state": "marcus_insists"
-          }
-        ]
-      },
-      "marcus_sacrifice": {
-        "introduction": [
-          "Marcus nods solemnly and walks toward the ritual circle. He steps into its center, and immediately void energy begins swirling around him. But this time, he's in control.",
-          "",
-          "He raises his hands and begins chanting in the ancient tongue - the same words that opened the portal, now reversed. The portal shudders, its edges beginning to fray.",
-          "",
-          "From within the portal, you hear a terrible roar. Something massive is trying to force its way through before the door closes. The Archon of the Void.",
-          "",
-          "Marcus grits his teeth, blood running from his nose and ears as he pours everything he has into the sealing ritual. 'GO!' he shouts to you. 'I've weakened it, but the Archon won't give up! You have to destroy it before it manifests fully!'",
-          "",
-          "The portal contracts, but not before a massive void-touched form pulls itself through. The Archon of the Void has arrived - wounded and weakened by Marcus's sacrifice, but still terrifyingly powerful.",
-          "",
-          "Marcus collapses, spent. The final battle begins."
-        ],
-        "options": [
-          {
-            "id": "fight",
-            "text": "[Prepare for combat with the Archon]",
-            "next_state": "exit"
-          }
-        ]
-      },
-      "marcus_insists": {
-        "introduction": [
-          "Marcus shakes his head, a sad smile on his face. 'There isn't time. The portal is nearly complete. If I don't act now, the Void Prince himself will come through. And if that happens... the world ends.'",
-          "",
-          "'I made this mess. I have to clean it up. That's what Cassia would say, right?' He laughs weakly. 'I'm sorry we didn't have more time. You seem like good people.'",
-          "",
-          "'Now go. Let me do this one last thing right.'"
-        ],
-        "options": [
-          {
-            "id": "accept",
-            "text": "[Step back and let him sacrifice himself]",
-            "next_state": "marcus_sacrifice",
-            "effects": [
-              {"type": "set_flag", "flag": "marcus_redeemed", "value": true},
-              {"type": "set_flag", "flag": "marcus_sacrificed_himself", "value": true},
-              {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
-              {"type": "set_flag", "flag": "portal_weakened", "value": true}
-            ]
-          }
-        ]
-      },
-      "appeal_attempt": {
-        "introduction": [
-          "Marcus laughs - a sound with too many voices layered within it. 'Corruption? You call enlightenment corruption? You call ascension corruption?'",
-          "",
-          "'I was nothing before! A scholar, a researcher, playing with scraps of power while the true forces of the cosmos ignored me! Now I am CHOSEN! The Void Prince himself speaks to me!'",
-          "",
-          "His expression darkens. 'I gave you a chance. You refused. Now you die.'"
-        ],
-        "options": [
-          {
-            "id": "fight",
-            "text": "[Prepare for combat]",
-            "next_state": "combat_path"
-          }
-        ]
-      },
-      "combat_path": {
-        "introduction": [
-          "Marcus's eyes blaze with void energy. 'So be it. I will crush you, and your broken bodies will be the first offerings to my new god.'",
-          "",
-          "Dark energy swirls around him as he summons shadow servants to his side. The final confrontation begins."
-        ],
-        "options": [
-          {
-            "id": "fight",
-            "text": "[FIGHT]",
-            "next_state": "exit",
-            "effects": [
-              {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
-              {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_confrontation"}
-            ]
-          }
-        ]
-      },
-      "exit": {
-        "npc_name": "",
-        "introduction": [],
-        "options": []
-      }
+  "dialogue_id": "dungeon_level_5_marcus",
+  "title": "Marcus Nightshade - The Corrupted Scholar",
+  "npc_id": "marcus",
+  "is_object": false,
+  "states": {
+    "marcus_encounter": {
+      "introduction": [
+        "*A figure emerges from the shadows ahead. Dark robes hang from a gaunt frame, and shadow corruption seeps from his hands like smoke. His eyes are haunted, ringed with darkness.*",
+        "",
+        "*As he steps into the torchlight, you recognize him from Cassia's description. This is Marcus Nightshade - her missing husband, the scholar who disappeared years ago.*",
+        "",
+        "*Black veins crawl across his exposed skin like spider webs. The Shadow Blight has marked him.*",
+        "",
+        "'So,' Marcus says, his voice hollow and distant. 'You've come to stop the ritual. Cassia sent you, didn't she? She always was... persistent.'"
+      ],
+      "options": [
+        {
+          "id": "no_journals",
+          "text": "Stand aside, Marcus. You don't have to die here.",
+          "requirements": {"flag_not": "cassia_gave_journals"},
+          "next_state": "standard_confrontation"
+        },
+        {
+          "id": "has_journals",
+          "text": "[Pull out his journals] Cassia gave me these.",
+          "requirements": {"flag": "cassia_gave_journals"},
+          "next_state": "journals_recognition"
+        },
+        {
+          "id": "hostile",
+          "text": "I'm here to end this. All of it.",
+          "next_state": "immediate_hostility"
+        }
+      ]
+    },
+
+    "standard_confrontation": {
+      "introduction": [
+        "*He laughs, but there's no humor in it*",
+        "Die? You think I fear death?",
+        "*He gestures to the pulsing portal behind him*",
+        "Death is liberation. The Shadow Blight promises ascension.",
+        "The High Cultist showed me the truth of the Aethel's work.",
+        "*His expression hardens*",
+        "You cannot understand. You haven't seen what lies beyond."
+      ],
+      "options": [
+        {
+          "id": "cassia_mention",
+          "text": "Cassia still believes there's good in you.",
+          "requirements": {"flag": "cassia_wants_marcus_saved"},
+          "next_state": "cassia_reaction"
+        },
+        {
+          "id": "challenge_corruption",
+          "text": "The Blight is using you. This isn't ascension - it's slavery.",
+          "next_state": "corruption_defense"
+        },
+        {
+          "id": "attack",
+          "text": "Then you leave me no choice.",
+          "next_state": "combat_begins"
+        }
+      ]
+    },
+
+    "journals_recognition": {
+      "introduction": [
+        "*He freezes, staring at the worn leather-bound books*",
+        "My... my journals?",
+        "*His hands shake*",
+        "She... she kept them? After everything I—",
+        "*The shadow corruption flickers around him, dimming slightly*",
+        "'Knowledge serves life, not power.' I wrote that.",
+        "*His voice breaks*",
+        "Before Vexthar showed me the 'truth.' Before the Blight called to me.",
+        "*He clutches his head*",
+        "No. No, the High Cultist is right. The old ways were weakness. The Blight is strength."
+      ],
+      "options": [
+        {
+          "id": "trigger_phrase",
+          "text": "'Knowledge serves life, not power.' Remember who you were.",
+          "next_state": "internal_struggle"
+        },
+        {
+          "id": "cassia_loves_you",
+          "text": "Cassia never stopped loving the man who wrote those words.",
+          "requirements": {"flag": "cassia_final_words_for_marcus"},
+          "next_state": "cassia_final_words"
+        },
+        {
+          "id": "youre_weak",
+          "text": "Vexthar made you weak, Marcus. Not strong.",
+          "next_state": "wrong_approach"
+        }
+      ]
+    },
+
+    "internal_struggle": {
+      "introduction": [
+        "*He staggers as if physically struck*",
+        "I wanted... I wanted to help people.",
+        "*The shadow corruption wavers*",
+        "Cure diseases. Ease suffering. That's why I studied the ore.",
+        "*His eyes meet yours, lucid for a moment*",
+        "But Vexthar said the Aethel had the answer. That the Blight was the KEY.",
+        "He said sacrifice was necessary. That the worthy would understand.",
+        "*He looks at his corrupted hands*",
+        "How many have died because I believed him?"
+      ],
+      "options": [
+        {
+          "id": "not_too_late",
+          "text": "It's not too late. Help me stop this.",
+          "next_state": "redemption_offer"
+        },
+        {
+          "id": "cassia_message",
+          "text": "Cassia asked me to tell you: she never stopped loving who you were.",
+          "requirements": {"flag": "cassia_gave_locket"},
+          "next_state": "cassia_locket_reveal"
+        },
+        {
+          "id": "too_far_gone",
+          "text": "It's too late for you. But I can still save the others.",
+          "next_state": "reluctant_combat"
+        }
+      ]
+    },
+
+    "cassia_final_words": {
+      "introduction": [
+        "*Tears cut tracks through the grime on his face*",
+        "She... she still loves me? After what I've become?",
+        "*His voice is barely a whisper*",
+        "I became a monster. I helped Vexthar hurt innocent people.",
+        "The mayor's family... the refugees... the townspeople...",
+        "*He falls to his knees*",
+        "I told myself it was for the greater good. That the Blight's power was worth it.",
+        "*Shadow corruption pulses around him painfully*",
+        "But it's all lies, isn't it? Vexthar lied. The Blight corrupts. There is no ascension.",
+        "*He looks up at you*",
+        "I can't undo what I've done. But maybe... maybe I can stop it getting worse."
+      ],
+      "options": [
+        {
+          "id": "help_us",
+          "text": "Then help me stop Vexthar. Stop the ritual.",
+          "next_state": "redemption_path"
+        },
+        {
+          "id": "too_dangerous",
+          "text": "You're too corrupted. You'll betray us.",
+          "next_state": "rejected_redemption"
+        }
+      ]
+    },
+
+    "cassia_locket_reveal": {
+      "introduction": [
+        "*You hold out the locket. He stares at it, trembling.*",
+        "Our... our wedding locket.",
+        "*He reaches for it with shaking hands, then pulls back*",
+        "I don't deserve to touch it. Not with these hands. These... corrupted hands.",
+        "*He's crying openly now*",
+        "We were so happy. I was going to change the world. Heal people.",
+        "*He looks at the pulsing portal*",
+        "Instead I helped bring darkness into it.",
+        "*From deeper in the chamber, a voice shouts*",
+        "MARCUS! What are you doing? Kill them NOW!",
+        "*Marcus flinches at Vexthar's voice but doesn't move*"
+      ],
+      "options": [
+        {
+          "id": "run_marcus",
+          "text": "Run, Marcus. Save yourself. Let Cassia know you chose to live.",
+          "next_state": "marcus_flees"
+        },
+        {
+          "id": "fight_with_us",
+          "text": "Fight with us. Help us stop Vexthar.",
+          "next_state": "marcus_ally"
+        },
+        {
+          "id": "its_too_late",
+          "text": "It's too late for you. I'm sorry.",
+          "next_state": "mercy_kill"
+        }
+      ]
+    },
+
+    "redemption_path": {
+      "introduction": [
+        "*He struggles to his feet*",
+        "Vexthar... he's powerful. The Blight has given him strength.",
+        "But I know his wards. The ritual's weak points.",
+        "*Shadow corruption pulses through him painfully*",
+        "The Blight won't let me go easily. It's... it's in my blood now.",
+        "*He takes a ragged breath*",
+        "I can disrupt the portal stabilizers. Weaken Vexthar's connection.",
+        "But once I do, he'll know. He'll kill me.",
+        "*He meets your eyes*",
+        "Tell Cassia... tell her I tried to come back. At the end."
+      ],
+      "options": [
+        {
+          "id": "well_protect_you",
+          "text": "We'll protect you. You're not alone anymore.",
+          "effects": [
+            {"type": "set_flag", "flag": "marcus_redeemed", "value": true},
+            {"type": "set_flag", "flag": "marcus_ally_in_boss_fight", "value": true},
+            {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true}
+          ],
+          "next_state": "marcus_ally_confirmed"
+        },
+        {
+          "id": "just_weaken_him",
+          "text": "Just weaken the portal and get out. We'll handle Vexthar.",
+          "effects": [
+            {"type": "set_flag", "flag": "marcus_redeemed", "value": true},
+            {"type": "set_flag", "flag": "portal_weakened", "value": true},
+            {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true}
+          ],
+          "next_state": "marcus_sabotage"
+        }
+      ]
+    },
+
+    "marcus_flees": {
+      "introduction": [
+        "*He nods slowly*",
+        "Run. Yes. I... I should have run years ago.",
+        "*He pockets the locket carefully*",
+        "There's a passage. Behind the statue. Leads to the old mine tunnels.",
+        "*Vexthar's voice grows closer: 'MARCUS! Betrayer!'*",
+        "I'll tell Cassia... I'll tell her I'm sorry. That I remembered. At the end.",
+        "*He turns to go, then pauses*",
+        "Vexthar keeps ritual focuses on the altar. Destroy them. It will weaken the portal.",
+        "*He disappears into the shadows*",
+        "*Vexthar emerges, rage twisting his corrupted features*",
+        "'Coward! You were MY lieutenant! My chosen vessel!'",
+        "*He turns his fury on you*",
+        "'No matter. You will all die. And the Blight will FEAST!'"
+      ],
+      "options": [
+        {
+          "id": "face_vexthar",
+          "text": "[Prepare for battle]",
+          "effects": [
+            {"type": "set_flag", "flag": "marcus_redeemed", "value": true},
+            {"type": "set_flag", "flag": "marcus_fled", "value": true},
+            {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
+            {"type": "set_flag", "flag": "boss_fight_easier", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "marcus_ally_confirmed": {
+      "introduction": [
+        "*Relief and terror war on his face*",
+        "Together. Right.",
+        "*He moves to the portal's control mechanism*",
+        "Give me a moment. This is... delicate.",
+        "*Shadow energy arcs as he manipulates the Aethel glyphs*",
+        "There! The primary stabilizer is disrupted!",
+        "*The portal flickers, contracts slightly*",
+        "*Vexthar's roar echoes from the inner chamber*",
+        "'WHAT HAVE YOU DONE?!'",
+        "*Marcus turns, exhausted but determined*",
+        "He's coming. And he is NOT happy."
+      ],
+      "options": [
+        {
+          "id": "ready_for_boss",
+          "text": "Then let's finish this together.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "marcus_sabotage": {
+      "introduction": [
+        "*He nods*",
+        "I'll disrupt what I can, then get clear.",
+        "*He moves to the ritual apparatus*",
+        "The locket... I'll hold onto it. Try to remember who I was.",
+        "*Shadow energy crackles as he works*",
+        "When you face Vexthar, watch for the portal surges. He draws power from it.",
+        "*A critical glyph shatters under his touch*",
+        "There! Portal integrity at 60%. He won't be able to summon his full strength.",
+        "*He looks at you one last time*",
+        "Thank you. For giving me a chance to choose.",
+        "*He disappears into the shadows*",
+        "*Vexthar emerges, less powerful but still formidable*",
+        "'You'll pay for that betrayal! All of you!'"
+      ],
+      "options": [
+        {
+          "id": "face_weakened_vexthar",
+          "text": "[Prepare for battle]",
+          "effects": [
+            {"type": "set_flag", "flag": "boss_fight_easier", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "cassia_reaction": {
+      "introduction": [
+        "*The name visibly shakes him*",
+        "Cassia...",
+        "*Shadow corruption wavers*",
+        "She... she shouldn't believe in me. I left her. Abandoned her.",
+        "For this. For the Blight. For Vexthar's promises.",
+        "*His voice breaks*",
+        "I became exactly what she feared."
+      ],
+      "options": [
+        {
+          "id": "not_too_late",
+          "text": "It's not too late to prove her right.",
+          "next_state": "redemption_offer"
+        },
+        {
+          "id": "she_deserves_better",
+          "text": "She deserves better than what you've become.",
+          "next_state": "harsh_truth"
+        }
+      ]
+    },
+
+    "corruption_defense": {
+      "introduction": [
+        "*He snarls*",
+        "Slavery? You understand NOTHING!",
+        "The Blight offers power beyond mortal comprehension!",
+        "*But his voice wavers*",
+        "Vexthar said... he said the sacrifices were necessary.",
+        "That I would understand when the ascension was complete.",
+        "*He looks uncertain*",
+        "But the screams... why do they never stop echoing?"
+      ],
+      "options": [
+        {
+          "id": "because_they_died",
+          "text": "Because you helped murder innocent people.",
+          "next_state": "guilt_realization"
+        },
+        {
+          "id": "vexthar_lied",
+          "text": "Because Vexthar lied to you. There is no ascension.",
+          "next_state": "cult_lies"
+        }
+      ]
+    },
+
+    "immediate_hostility": {
+      "introduction": [
+        "*His eyes harden*",
+        "Then you will die like all the others who stood against the High Cultist.",
+        "*Shadow corruption surges around him*",
+        "I am his lieutenant. His enforcer. His chosen.",
+        "*He raises his hands, dark energy gathering*",
+        "And you are just meat for the Blight."
+      ],
+      "options": [
+        {
+          "id": "fight",
+          "text": "[Ready your weapon]",
+          "effects": [
+            {"type": "set_flag", "flag": "marcus_hostile", "value": true},
+            {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
+            {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_hostile"}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "wrong_approach": {
+      "introduction": [
+        "*Rage flashes across his face*",
+        "WEAK? Vexthar made me POWERFUL!",
+        "*Shadow corruption explodes outward*",
+        "You know nothing! NOTHING!",
+        "*He's beyond reason now*",
+        "I will show you what the Blight's gift looks like!"
+      ],
+      "options": [
+        {
+          "id": "fight",
+          "text": "[Defend yourself]",
+          "effects": [
+            {"type": "set_flag", "flag": "marcus_hostile", "value": true},
+            {"type": "set_flag", "flag": "marcus_enraged", "value": true},
+            {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
+            {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_enraged"}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "redemption_offer": {
+      "introduction": [
+        "*He wavers*",
+        "Help you? Against Vexthar?",
+        "*Fear crosses his face*",
+        "He'll kill me. The Blight will tear me apart from the inside.",
+        "*But he's considering it*",
+        "But... if I don't... more will die. More families destroyed.",
+        "Like Cassia and I were destroyed."
+      ],
+      "options": [
+        {
+          "id": "show_locket",
+          "text": "[Show him the locket] She gave me this. For you.",
+          "requirements": {"flag": "cassia_gave_locket"},
+          "next_state": "cassia_locket_reveal"
+        },
+        {
+          "id": "you_can_still_choose",
+          "text": "You can still choose. Right now. Choose to be Marcus again.",
+          "next_state": "redemption_path"
+        },
+        {
+          "id": "i_cant_trust_you",
+          "text": "Never mind. I can't trust someone so corrupted.",
+          "next_state": "rejected_redemption"
+        }
+      ]
+    },
+
+    "rejected_redemption": {
+      "introduction": [
+        "*His face hardens*",
+        "Of course. Who could trust a monster?",
+        "*Shadow corruption surges*",
+        "Vexthar was right. There is no redemption. Only power.",
+        "*He raises his hands*",
+        "And you just rejected your only chance at mercy."
+      ],
+      "options": [
+        {
+          "id": "fight",
+          "text": "[Prepare for combat]",
+          "effects": [
+            {"type": "set_flag", "flag": "marcus_hostile", "value": true},
+            {"type": "set_flag", "flag": "redemption_rejected", "value": true},
+            {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
+            {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_hostile"}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "guilt_realization": {
+      "introduction": [
+        "*He crumples*",
+        "The refugees... the townspeople... the Mayor's family...",
+        "*His voice is hollow*",
+        "I helped Vexthar take them. Process them. Feed them to the portal.",
+        "*Tears stream down his face*",
+        "I told myself they were sacrifices for a greater purpose.",
+        "But they were just people. Frightened people.",
+        "*He looks at his corrupted hands*",
+        "What have I become?"
+      ],
+      "options": [
+        {
+          "id": "help_make_it_right",
+          "text": "Help me make it right. Stop Vexthar.",
+          "next_state": "redemption_offer"
+        },
+        {
+          "id": "nothing_human",
+          "text": "A monster. Nothing human is left.",
+          "next_state": "harsh_truth"
+        }
+      ]
+    },
+
+    "cult_lies": {
+      "introduction": [
+        "*He staggers*",
+        "Lied? But... the power. The knowledge. It's real.",
+        "*Doubt creeps into his voice*",
+        "Isn't it?",
+        "*He looks at the pulsing portal*",
+        "Vexthar said the Aethel discovered transcendence. That the Blight was the path.",
+        "But if it's lies... if it's all lies...",
+        "*His voice hardens with sudden clarity*",
+        "Then what have I done?"
+      ],
+      "options": [
+        {
+          "id": "you_can_still_stop_this",
+          "text": "You can still stop this. Help me end it.",
+          "next_state": "redemption_offer"
+        },
+        {
+          "id": "youve_done_evil",
+          "text": "You've helped spread evil. That's what you've done.",
+          "next_state": "guilt_realization"
+        }
+      ]
+    },
+
+    "harsh_truth": {
+      "introduction": [
+        "*He flinches as if struck*",
+        "Nothing human...",
+        "*Shadow corruption pulses painfully*",
+        "You're right. Look at me.",
+        "*He spreads his corrupted hands*",
+        "Vexthar's lieutenant. The Blight's vessel.",
+        "*His voice goes cold*",
+        "Then I have nothing left to lose."
+      ],
+      "options": [
+        {
+          "id": "fight",
+          "text": "[Prepare for combat]",
+          "effects": [
+            {"type": "set_flag", "flag": "marcus_hostile", "value": true},
+            {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
+            {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_hostile"}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "reluctant_combat": {
+      "introduction": [
+        "*He nods slowly*",
+        "You're right. It IS too late for me.",
+        "*Shadow corruption writhes around him*",
+        "The Blight is too deep. I can feel it eating away at what's left.",
+        "*He raises his hands*",
+        "Maybe... maybe dying fighting Vexthar's enemies is the closest I'll get to redemption.",
+        "*Sadness and resignation in his voice*",
+        "Tell Cassia... tell her I'm sorry. And that I loved her. Always."
+      ],
+      "options": [
+        {
+          "id": "make_it_quick",
+          "text": "I'll make it quick. I promise.",
+          "effects": [
+            {"type": "set_flag", "flag": "marcus_hostile", "value": true},
+            {"type": "set_flag", "flag": "mercy_promised", "value": true},
+            {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
+            {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_merciful"}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "mercy_kill": {
+      "introduction": [
+        "*He closes his eyes*",
+        "I understand. The corruption runs too deep.",
+        "*A single tear falls*",
+        "Just... make it quick. And tell Cassia I thought of her. At the end.",
+        "*He doesn't raise his hands to defend himself*",
+        "Do it."
+      ],
+      "options": [
+        {
+          "id": "grant_mercy",
+          "text": "[End his suffering]",
+          "effects": [
+            {"type": "set_flag", "flag": "marcus_mercy_killed", "value": true},
+            {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
+            {"type": "add_xp", "amount": 200}
+          ],
+          "next_state": "mercy_granted"
+        },
+        {
+          "id": "cant_do_it",
+          "text": "I... I can't. There has to be another way.",
+          "next_state": "redemption_offer"
+        }
+      ]
+    },
+
+    "mercy_granted": {
+      "introduction": [
+        "*He slumps, the shadow corruption dissipating*",
+        "*His last words are barely a whisper*",
+        "'Thank you... tell Cassia...'",
+        "*He's gone*",
+        "",
+        "*From deeper in the chamber, Vexthar's enraged voice*",
+        "'You KILLED my lieutenant?! You will suffer for that betrayal!'",
+        "*Heavy footsteps approach*",
+        "*The final confrontation begins*"
+      ],
+      "options": [
+        {
+          "id": "face_vexthar",
+          "text": "[Prepare to face Vexthar]",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "combat_begins": {
+      "introduction": [
+        "*Marcus raises his hands, shadow corruption surging*",
+        "So be it. Vexthar will feast on your corpses!",
+        "*Combat begins*"
+      ],
+      "options": [
+        {
+          "id": "fight",
+          "text": "[FIGHT]",
+          "effects": [
+            {"type": "set_flag", "flag": "marcus_hostile", "value": true},
+            {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
+            {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_hostile"}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "exit": {
+      "npc_name": "",
+      "introduction": [],
+      "options": []
     }
   }
 }

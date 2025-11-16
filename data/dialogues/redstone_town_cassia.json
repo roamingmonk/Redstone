@@ -1,14 +1,19 @@
 {
-  "id": "redstone_town_cassia",
-  "npc_name": "Cassia Nightshade",
+  "dialogue_id": "redstone_town_cassia",
+  "title": "Cassia Nightshade - The Alchemist's Loss",
+  "npc_id": "cassia",
+  "is_object": false,
   "states": {
     "first_meeting": {
       "introduction": [
-        "*A woman in her mid-forties looks up from grinding herbs*",
-        "*She attempts a warm smile, but it doesn't quite reach her tired eyes*",
-        "Welcome to The Violet Mortar. I'm Cassia.",
-        "Looking for healing draughts? Antidotes? Something stronger?",
-        "I have the finest alchemical selection in Redstone."
+        "*A woman in her early thirties tends to various alchemical apparatus behind a well-organized counter. Her dark hair is pulled back, and there are circles under her eyes suggesting many sleepless nights.*",
+        "",
+        "*She looks up as you enter, managing a professional smile despite obvious weariness*",
+        "",
+        "Welcome to the Violet Mortar. I'm Cassia Nightshade.",
+        "Potions, salves, alchemical supplies... if it can heal or help, I probably have it.",
+        "*She gestures to the well-stocked shelves*",
+        "What can I do for you?"
       ],
       "options": [
         {
@@ -24,14 +29,24 @@
           "next_state": "garrick_referral"
         },
         {
-          "id": "found_myself",
-          "text": "Just exploring town. What do you sell?",
-          "next_state": "shop_introduction"
+          "id": "browse_shop",
+          "text": "I'd like to see your inventory.",
+          "effects": [
+            {"type": "open_shop", "merchant_id": "cassia"}
+          ],
+          "next_state": "post_shopping"
         },
         {
-          "id": "just_browsing",
-          "text": "Just looking around.",
-          "effects": [{"type": "set_flag", "flag": "cassia_talked", "value": true}],
+          "id": "ask_about_tremors",
+          "text": "Have the tremors affected your business?",
+          "next_state": "tremors_discussion"
+        },
+        {
+          "id": "just_looking",
+          "text": "Just looking around for now.",
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_met", "value": true}
+          ],
           "next_state": "exit"
         }
       ]
@@ -63,16 +78,6 @@
           "next_state": "precision_matters"
         },
         {
-          "id": "ask_about_swamp",
-          "text": "Have you heard about strange activity in the marshlands?",
-          "requirements": {
-            "flags": {
-              "learned_about_swamp_church": false
-            }
-          },
-          "next_state": "swamp_conversation"
-        },
-        {
           "id": "maybe_later",
           "text": "I'll come back later.",
           "effects": [{"type": "set_flag", "flag": "cassia_talked", "value": true}],
@@ -85,17 +90,16 @@
       "introduction": [
         "*Something flickers in her expression - surprise? Gratitude?*",
         "Garrick said that? That's... kind of him.",
-        "*She busies herself organizing already-organized bottles*",
-        "I do my best. Every potion is made with care.",
-        "*She catches herself, voice quieter*",
-        "It's all I have left.",
-        "*A moment of silence, then she straightens*",
-        "What can I help you with today?"
+        "*She sets down her mortar*",
+        "He knows his potions. If he sent you here, you're looking for quality.",
+        "*A pause*",
+        "Most people don't think about the work that goes into each batch.",
+        "But Garrick... he understands."
       ],
       "options": [
         {
-          "id": "browse_now",
-          "text": "Show me your inventory.",
+          "id": "show_me_shop",
+          "text": "He said you're the best. Let me see your work.",
           "effects": [
             {"type": "set_flag", "flag": "cassia_talked", "value": true},
             {"type": "open_shop", "merchant_id": "cassia"}
@@ -103,55 +107,13 @@
           "next_state": "post_shopping"
         },
         {
-          "id": "ask_about_swamp",
-          "text": "Have you heard about strange activity in the marshlands?",
-          "requirements": {
-            "flags": {
-              "learned_about_swamp_church": false
-            }
-          },
-          "next_state": "swamp_conversation"
-        },
-        {
-          "id": "ask_meaning",
-          "text": "All you have left?",
-          "requirements": {"flag": "garrick_told_cassia_story"},
-          "next_state": "hint_at_loss"
-        },
-        {
-          "id": "be_respectful",
-          "text": "Your work speaks for itself.",
-          "next_state": "appreciates_respect"
-        }
-      ]
-    },
-
-    "shop_introduction": {
-      "introduction": [
-        "*She gestures to the shelves lined with bottles*",
-        "I specialize in medicinal alchemy. Healing draughts, antidotes, restorative tonics.",
-        "Everything from basic healing to advanced formulations.",
-        "*Her hand trembles slightly as she touches a particular bottle*",
-        "Each one is made to exacting standards."
-      ],
-      "options": [
-        {
-          "id": "see_inventory",
-          "text": "I'd like to purchase something.",
-          "effects": [
-            {"type": "set_flag", "flag": "cassia_talked", "value": true},
-            {"type": "open_shop", "merchant_id": "cassia"}
-          ],
-          "next_state": "post_shopping"
-        },
-        {
-          "id": "ask_about_standards",
-          "text": "Why are standards so important to you?",
+          "id": "ask_about_work",
+          "text": "What makes your alchemy different?",
           "next_state": "precision_matters"
         },
         {
-          "id": "leave_shop",
-          "text": "Thank you, I'll come back.",
+          "id": "maybe_later",
+          "text": "I'll browse later. Thanks.",
           "effects": [{"type": "set_flag", "flag": "cassia_talked", "value": true}],
           "next_state": "exit"
         }
@@ -160,120 +122,95 @@
 
     "precision_matters": {
       "introduction": [
-        "*Her hands still completely*",
-        "Because mistakes in alchemy can kill people.",
-        "Because carelessness... changes things.",
-        "*She looks away*",
-        "Someone I knew... he was brilliant. Talented beyond measure.",
-        "But he started cutting corners. Chasing results over safety.",
-        "*Her voice hardens*",
-        "I won't make that mistake. Every potion. Perfect. Every time."
+        "*She touches a small pendant at her throat*",
+        "My husband taught me that.",
+        "*Her voice is distant*",
+        "Marcus. He was... he was brilliant. Meticulous.",
+        "Every formula had to be exact. Every measurement perfect.",
+        "*She looks at her hands*",
+        "I work the same way now. It's all I have left of him."
       ],
       "options": [
         {
-          "id": "ask_who",
-          "text": "Who was this person? If you don't mind me asking.",
+          "id": "what_happened",
+          "text": "What happened to him?",
           "next_state": "marcus_introduction"
         },
         {
-          "id": "sorry_to_hear",
-          "text": "I'm sorry. That must have been difficult.",
-          "next_state": "appreciates_sympathy"
-        },
-        {
-          "id": "browse_after",
-          "text": "Your dedication shows. May I see your wares?",
-          "effects": [
-            {"type": "set_flag", "flag": "cassia_talked", "value": true},
-            {"type": "open_shop", "merchant_id": "cassia"}
-          ],
-          "next_state": "post_shopping"
-        }
-      ]
-    },
-
-    "hint_at_loss": {
-      "introduction": [
-        "*She pauses, considering whether to speak*",
-        "I... lost someone. Years ago.",
-        "He was an alchemist too. My partner. In work and... life.",
-        "*Her voice drops to almost a whisper*",
-        "He got involved with people. Ideas. Dangerous ones.",
-        "I couldn't save him from himself.",
-        "*She straightens, blinking rapidly*",
-        "But that's old history. You're here for potions, not sad stories."
-      ],
-      "options": [
-        {
-          "id": "offer_condolences",
+          "id": "im_sorry",
           "text": "I'm sorry for your loss.",
-          "next_state": "appreciates_sympathy"
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_talked", "value": true}
+          ],
+          "next_state": "appreciate_condolence"
         },
         {
-          "id": "respect_privacy",
-          "text": "Thank you for sharing. May I see your shop?",
-          "effects": [
-            {"type": "set_flag", "flag": "cassia_talked", "value": true},
-            {"type": "set_flag", "flag": "cassia_hinted_at_marcus", "value": true},
-            {"type": "open_shop", "merchant_id": "cassia"}
-          ],
+          "id": "browse_shop",
+          "text": "Perhaps I could see your shop?",
+          "effects": [{"type": "open_shop", "merchant_id": "cassia"}],
           "next_state": "post_shopping"
         }
       ]
     },
 
-    "appreciates_sympathy": {
+    "appreciate_condolence": {
       "introduction": [
-        "*She gives a small, sad smile*",
-        "Thank you. That's... kind.",
-        "*She takes a breath*",
-        "The work helps. Keeps my hands busy. My mind focused.",
-        "Now, let me show you what I have. I promise you won't find better."
+        "*She nods, blinking back tears*",
+        "Thank you. It's been years, but...",
+        "*She straightens*",
+        "Some losses you carry forever.",
+        "Now. Can I help you with anything else?"
       ],
       "options": [
-        {
-          "id": "see_goods",
-          "text": "Please, show me.",
-          "effects": [
-            {"type": "set_flag", "flag": "cassia_talked", "value": true},
-            {"type": "set_flag", "flag": "cassia_hinted_at_marcus", "value": true},
-            {"type": "open_shop", "merchant_id": "cassia"}
-          ],
-          "next_state": "post_shopping"
-        }
-      ]
-    },
-
-    "appreciates_respect": {
-      "introduction": [
-        "*She nods gratefully*",
-        "I appreciate that. More than you know.",
-        "*A slight tremor in the air - another faint tremor from beneath the town*",
-        "*She winces*",
-        "These tremors... they're getting worse."
-      ],
-      "options": [
-        {
-          "id": "about_tremors",
-          "text": "Do you know what's causing them?",
-          "next_state": "tremor_concern"
-        },
         {
           "id": "shop_now",
-          "text": "Let me see your potions.",
-          "effects": [
-            {"type": "set_flag", "flag": "cassia_talked", "value": true},
-            {"type": "open_shop", "merchant_id": "cassia"}
-          ],
+          "text": "Yes, let me see your inventory.",
+          "effects": [{"type": "open_shop", "merchant_id": "cassia"}],
           "next_state": "post_shopping"
+        },
+        {
+          "id": "leave_now",
+          "text": "I'll come back another time.",
+          "next_state": "exit"
         }
       ]
     },
 
-    "tremor_concern": {
+    "post_shopping": {
       "introduction": [
-        "*She wraps her arms around herself*",
-        "No. But they remind me of... before.",
+        "*She carefully wraps your purchases*",
+        "Anything else I can help you with?"
+      ],
+      "options": [
+        {
+          "id": "ask_tremors",
+          "text": "Have the tremors affected your work?",
+          "next_state": "tremors_discussion"
+        },
+        {
+          "id": "can_i_help",
+          "text": "Is there anything I can do to help you?",
+          "requirements": {"flags": ["mayor_quest_active"], "not_flag": "recipe_quest_active"},
+          "next_state": "recipe_quest_offer"
+        },
+        {
+          "id": "thats_all",
+          "text": "That's all for now. Thank you.",
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_met", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "tremors_discussion": {
+      "introduction": [
+        "*Her expression darkens*",
+        "The tremors? They terrify me.",
+        "*She touches the pendant nervously*",
+        "They're not natural. I've lived here my whole life.",
+        "But they remind me of... before.",
         "When Marcus started bringing home those strange rocks.",
         "Aethel Ore, he called it. Said it hummed with potential.",
         "*Her voice breaks slightly*",
@@ -283,7 +220,7 @@
       "options": [
         {
           "id": "ask_about_marcus",
-          "text": "Who was Marcus?",
+          "text": "Tell me about Marcus.",
           "next_state": "marcus_introduction"
         },
         {
@@ -302,7 +239,7 @@
       "introduction": [
         "*She's silent for a long moment*",
         "Marcus Nightshade. My husband.",
-        "*She touches a ring on her finger*",
+        "*She touches her wedding ring*",
         "He was... brilliant. Passionate about alchemy. About helping people.",
         "Then he found those ore samples. Started obsessing over them.",
         "Said they could revolutionize medicine. Create miracles.",
@@ -353,48 +290,50 @@
         {
           "id": "offer_help",
           "text": "If I learn anything about Marcus, I'll tell you.",
-          "next_state": "grateful_for_offer"
+          "next_state": "appreciate_offer"
+        }
+      ]
+    },
+
+    "appreciate_offer": {
+      "introduction": [
+        "*She looks at you with sudden hope*",
+        "You would? After hearing all this?",
+        "*Her voice softens*",
+        "Thank you. That... that means more than you know.",
+        "If you're investigating the troubles in town... the disappearances...",
+        "*She hesitates*",
+        "Just be careful. If the cult is involved...",
+        "They took Marcus from me once. I won't let them take anyone else."
+      ],
+      "options": [
+        {
+          "id": "ill_be_careful",
+          "text": "I will. Thank you, Cassia.",
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_offered_help", "value": true}
+          ],
+          "next_state": "exit"
         }
       ]
     },
 
     "after_marcus_story": {
       "introduction": [
-        "*She composes herself*",
-        "Thank you. I... don't talk about it often.",
-        "The work helps. Creating something good from... everything.",
-        "*She manages a small smile*",
-        "Let me show you what I have. You'll see the difference care makes."
+        "*She wipes her eyes and straightens*",
+        "I'm sorry. It's been years, but sometimes...",
+        "*She takes a breath*",
+        "If you're investigating what's happening in Redstone...",
+        "Please be careful. The people who took Marcus... they're dangerous."
       ],
       "options": [
         {
-          "id": "see_potions",
-          "text": "I'd be honored.",
-          "effects": [{"type": "open_shop", "merchant_id": "cassia"}],
-          "next_state": "post_shopping"
-        }
-      ]
-    },
-
-    "grateful_for_offer": {
-      "introduction": [
-        "*Her eyes widen slightly*",
-        "You... you would do that?",
-        "*She looks away*",
-        "I don't know if I want to know. But... thank you.",
-        "That's kind. Unexpectedly kind.",
-        "*She straightens*",
-        "Here. Let me show you my best work."
-      ],
-      "options": [
-        {
-          "id": "view_shop",
-          "text": "Please do.",
+          "id": "ill_watch_out",
+          "text": "I'll be careful. Thank you for telling me.",
           "effects": [
-            {"type": "set_flag", "flag": "offered_to_help_cassia", "value": true},
-            {"type": "open_shop", "merchant_id": "cassia"}
+            {"type": "set_flag", "flag": "cassia_offered_help", "value": true}
           ],
-          "next_state": "post_shopping"
+          "next_state": "exit"
         }
       ]
     },
@@ -402,127 +341,71 @@
     "return_to_business": {
       "introduction": [
         "*She nods gratefully*",
-        "Yes. Business. That's... better.",
-        "*She gestures to her shelves*",
-        "What do you need?"
+        "Yes. Business.",
+        "Can I interest you in any supplies?"
       ],
       "options": [
         {
-          "id": "shop_time",
-          "text": "Show me what you have.",
+          "id": "show_inventory",
+          "text": "Yes, let me see what you have.",
           "effects": [{"type": "open_shop", "merchant_id": "cassia"}],
           "next_state": "post_shopping"
         },
         {
-          "id": "come_back",
-          "text": "I'll return later.",
+          "id": "maybe_later",
+          "text": "Not right now. Thank you.",
           "next_state": "exit"
         }
       ]
     },
 
-    "post_shopping": {
+    "return_visit": {
       "introduction": [
-        "*She carefully wraps any purchases*",
-        "Use them wisely. They're made to last."
+        "*She looks up from her work and offers a small smile*",
+        "Back again. How can I help you today?"
       ],
       "options": [
         {
-          "id": "talk_more",
-          "text": "Can we talk more?",
-          "next_state": "returning_customer"
-        },
-        {
-          "id": "thank_you",
-          "text": "Thank you for your help.",
-          "next_state": "exit"
-        }
-      ]
-    },
-
-    "returning_customer": {
-      "introduction": [
-        "*She looks up as you approach*",
-        "Back again? Good.",
-        "*There's a hint of warmth in her eyes*",
-        "What can I do for you?"
-      ],
-      "options": [
-        {
-          "id": "shop_again",
-          "text": "I need more supplies.",
+          "id": "browse_again",
+          "text": "I'd like to browse your inventory.",
           "effects": [{"type": "open_shop", "merchant_id": "cassia"}],
           "next_state": "post_shopping"
         },
         {
-          "id": "ask_if_ok",
-          "text": "Is everything alright? You seem stressed.",
-          "requirements": {"not_flag": "cassia_told_marcus_story"},
-          "next_state": "precision_matters"
+          "id": "check_on_her",
+          "text": "Just wanted to see how you're doing.",
+          "next_state": "appreciate_visit"
         },
-        {
-          "id": "offer_recipe_quest",
-          "text": "You seem troubled. Can I help?",
-          "requirements": {
-            "flag": "cassia_told_marcus_story",
-            "not_flag": "cassia_gave_recipe_quest"
-          },
-          "next_state": "recipe_quest_offer"
-        },
-        {
-          "id": "ask_about_swamp",
-          "text": "Have you heard about strange activity in the marshlands?",
-          "requirements": {
-            "flags": {
-              "learned_about_swamp_church": false
-            }
-          },
-          "next_state": "swamp_conversation"
-        },
-        {
-          "id": "act_three_warning",
-          "text": "I'm heading to the Hill Ruins soon.",
-          "requirements": {
-            "flag": "act_three_started",
-            "not_flag": "cassia_discussed_marcus"
-          },
-          "next_state": "act_three_marcus_warning"
-        },
-        {
-          "id": "just_checking_in",
-          "text": "Just wanted to check on you.",
-          "requirements": {"flag": "cassia_told_marcus_story"},
-          "next_state": "checking_in"
-        },
-        {
-          "id": "goodbye_for_now",
-          "text": "Just saying hello. I'll be going.",
-          "next_state": "exit"
-        }
-      ]
-    },
-
-    "checking_in": {
-      "introduction": [
-        "*She seems surprised*",
-        "That's... thoughtful of you.",
-        "*She sets down her mortar*",
-        "I'm managing. Same as always.",
-        "*A pause*",
-        "It helps, having customers who care. Makes the days easier."
-      ],
-      "options": [
-        {
-          "id": "glad_to_hear",
-          "text": "I'm glad.",
-          "next_state": "returning_customer"
-        },
-        
         {
           "id": "can_i_help",
-          "text": "Is there anything I can do to help?",
-          "requirements": {"not_flag": "cassia_gave_recipe_quest"},
+          "text": "Is there anything I can do to help you?",
+          "requirements": {"flags": ["mayor_quest_active"], "not_flag": "recipe_quest_active"},
           "next_state": "recipe_quest_offer"
+        },
+        {
+          "id": "phase_two_journals",
+          "text": "You mentioned Marcus kept journals...",
+          "requirements": {
+            "flags": ["mayor_quest_active", "act_two_location_completed"],
+            "not_flag": "cassia_gave_journals"
+          },
+          "next_state": "journal_transition"
+        }
+      ]
+    },
+
+    "appreciate_visit": {
+      "introduction": [
+        "*She smiles warmly*",
+        "That means more than you know.",
+        "It's good to have friends who check in.",
+        "Stay safe out there."
+      ],
+      "options": [
+        {
+          "id": "you_too",
+          "text": "You too, Cassia.",
+          "next_state": "exit"
         }
       ]
     },
@@ -533,7 +416,7 @@
         "Actually... there is something.",
         "*She pulls out an old, leather-bound journal*",
         "This was Marcus's. His recipe journal.",
-        "*Her fingers trace the cover*",
+        "*Her fingers trace the cover lovingly*",
         "There's one formula he never finished. His masterwork.",
         "A restorative elixir beyond anything I've managed to recreate.",
         "*She opens to a marked page*",
@@ -570,9 +453,11 @@
         "Because it was the last thing he worked on before... before he changed.",
         "His notes talk about healing. About saving lives.",
         "Not power. Not transcendence. Just... helping people.",
-        "*She clutches the journal*",
+        "*She clutches the journal to her chest*",
         "If I can finish it... maybe I can remember him as he was.",
-        "Not as whatever he became."
+        "Not as whatever he became.",
+        "*Tears glisten in her eyes*",
+        "It's all I have left of the man I loved."
       ],
       "options": [
         {
@@ -607,7 +492,7 @@
         {
           "id": "ill_be_careful",
           "text": "I'll watch my back.",
-          "next_state": "quest_in_progress"
+          "next_state": "exit"
         },
         {
           "id": "what_dangers",
@@ -630,7 +515,7 @@
         {
           "id": "understood",
           "text": "I understand. I'll be cautious.",
-          "next_state": "quest_in_progress"
+          "next_state": "exit"
         }
       ]
     },
@@ -711,9 +596,9 @@
         "You found them. You actually...",
         "*She holds them up to the light - they glow faintly blue-green*",
         "Perfect. These are perfect.",
-        "*She immediately begins preparing the mixture*",
+        "*She immediately begins preparing the mixture with absolute precision*",
         "The formula calls for... here... and this temperature...",
-        "*You watch as she works with absolute precision*",
+        "*You watch as she works, her movements becoming almost ritualistic*",
         "*After several minutes, a deep blue elixir sits in a crystal vial*",
         "*She stares at it, tears streaming down her face*",
         "It's exactly as he described. The color. The clarity.",
@@ -746,70 +631,25 @@
 
     "after_quest_gratitude": {
       "introduction": [
-        "*She takes a shaky breath*",
+        "*She takes a steadying breath*",
+        "It does, doesn't it? Through the work. The formulas.",
+        "*She looks at you earnestly*",
         "You've done more for me than you know.",
-        "*She manages a genuine smile - the first real one you've seen*",
-        "If you ever need anything, anything at all...",
-        "My door is always open to you."
+        "Not just the elixir. But... remembering. Who he was before.",
+        "*She straightens*",
+        "If you need anything from my shop, anything at all, you have my friendship."
       ],
       "options": [
         {
-          "id": "glad_to_help",
-          "text": "I'm glad I could help.",
-          "next_state": "post_quest_customer"
-        },
-        {
-          "id": "browse_shop_grateful",
-          "text": "Actually, I could use some supplies.",
-          "effects": [{"type": "open_shop", "merchant_id": "cassia"}],
-          "next_state": "post_shopping"
-        }
-      ]
-    },
-
-    "post_quest_customer": {
-      "introduction": [
-        "*She looks genuinely happy to see you*",
-        "Welcome back, my friend.",
-        "What can I do for you today?"
-      ],
-      "options": [
-        {
-          "id": "shop_post_quest",
-          "text": "I need supplies.",
-          "effects": [{"type": "open_shop", "merchant_id": "cassia"}],
-          "next_state": "post_shopping"
-        },
-        {
-          "id": "journal_offer",
-          "text": "How are you holding up?",
-          "requirements": {
-            "flag": "completed_marcus_recipe",
-            "not_flag": "cassia_gave_journals",
-            "any_flag": ["cleared_swamp_church", "cleared_hill_ruins_initial", "cleared_refugee_camp"]
-          },
-          "next_state": "journal_transition"
-        },
-        {
-          "id": "just_visiting",
-          "text": "Just wanted to say hello.",
-          "next_state": "appreciate_visit"
-        }
-      ]
-    },
-
-    "appreciate_visit": {
-      "introduction": [
-        "*She smiles warmly*",
-        "That means more than you know.",
-        "It's good to have friends who check in.",
-        "Stay safe out there."
-      ],
-      "options": [
-        {
-          "id": "you_too",
-          "text": "You too, Cassia.",
+          "id": "thank_you",
+          "text": "Thank you, Cassia. Take care.",
           "next_state": "exit"
+        },
+        {
+          "id": "browse_now",
+          "text": "Actually, could I see your inventory?",
+          "effects": [{"type": "open_shop", "merchant_id": "cassia"}],
+          "next_state": "post_shopping"
         }
       ]
     },
@@ -840,7 +680,7 @@
 
     "journal_offer_sequence": {
       "introduction": [
-        "*She moves to her locked drawer again*",
+        "*She moves to a locked drawer and opens it with a key from her necklace*",
         "I've been thinking. About Marcus. About what you're doing.",
         "*She pulls out several worn journals*",
         "These are his. All of them.",
@@ -875,7 +715,7 @@
       "introduction": [
         "*She's quiet for a long time*",
         "I don't know.",
-        "*She twists her ring*",
+        "*She twists her wedding ring*",
         "Part of me hopes he's dead. That it was quick.",
         "Part of me hopes he's still in there. Still Marcus.",
         "*Tears fall freely now*",
@@ -883,150 +723,23 @@
         "So if you find him... and he's become something terrible...",
         "*She looks you in the eye*",
         "Do what you have to do.",
-        "But if there's even a chance... even the smallest chance...",
-        "*She whispers*",
-        "Tell him I never stopped loving who he was."
+        "End his suffering. And everyone else's."
       ],
       "options": [
         {
-          "id": "i_will",
-          "text": "I promise. I'll remember.",
+          "id": "take_journals_grim",
+          "text": "I understand. I'll take the journals.",
           "effects": [
             {"type": "add_item", "item_id": "marcus_journals"},
             {"type": "set_flag", "flag": "cassia_gave_journals", "value": true},
-            {"type": "set_flag", "flag": "cassia_final_words_for_marcus", "value": true}
-          ],
-          "next_state": "after_journal_handoff"
-        }
-      ]
-    },
-
-    "after_journal_handoff": {
-      "introduction": [
-        "*She composes herself*",
-        "Thank you. For everything.",
-        "For listening. For helping. For... caring.",
-        "*She straightens*",
-        "Now go. Do what needs to be done.",
-        "And come back safe."
-      ],
-      "options": [
-        {
-          "id": "i_will_return",
-          "text": "I will. I promise.",
-          "next_state": "exit"
-        }
-      ]
-    },
-
-    "has_journals": {
-      "introduction": [
-        "*She looks at you with a mix of hope and dread*",
-        "Have you... learned anything?",
-        "From the journals? From your investigations?"
-      ],
-      "options": [
-        {
-          "id": "still_investigating",
-          "text": "Still working on it. These things take time.",
-          "next_state": "waiting_for_news"
-        },
-        {
-          "id": "found_marcus_fled",
-          "text": "I found him. He... he chose to leave the cult.",
-          "requirements": {"flag": "marcus_fled_battle"},
-          "next_state": "marcus_fled_ending"
-        },
-        {
-          "id": "found_marcus_died",
-          "text": "I found him. I'm... I'm so sorry, Cassia.",
-          "requirements": {"flag": "marcus_died_in_battle"},
-          "next_state": "marcus_died_ending"
-        },
-        {
-          "id": "need_supplies",
-          "text": "I need supplies for what's ahead.",
-          "effects": [{"type": "open_shop", "merchant_id": "cassia"}],
-          "next_state": "post_shopping"
-        }
-      ]
-    },
-    "act_three_marcus_warning": {
-      "introduction": [
-        "*Cassia looks up as you enter, her expression troubled*",
-        "You're going there, aren't you? To the Hill Ruins.",
-        "*She sets down her mortar carefully*",
-        "I've heard the rumors. The cult. The portal.",
-        "*Her voice drops to a whisper*",
-        "And Marcus... he's there, isn't he?",
-        "*She looks at you with desperate eyes*",
-        "I know he is. I can feel it. After all these years...",
-        "You're going to face him."
-      ],
-      "options": [
-        {
-          "id": "offer_journals_first",
-          "text": "Do you have anything that could help me understand the cult?",
-          "requirements": {"not_flag": "cassia_gave_journals"},
-          "next_state": "act_three_journal_offer"
-        },
-        {
-          "id": "try_to_save",
-          "text": "I'll try to reach him. Try to bring him back.",
-          "requirements": {"flag": "cassia_gave_journals"},
-          "effects": [
-            {"type": "set_flag", "flag": "cassia_wants_marcus_saved", "value": true},
-            {"type": "set_flag", "flag": "cassia_discussed_marcus", "value": true},
-            {"type": "add_buff", "buff_id": "cassia_blessing_persuasion", "duration": -1}
-          ],
-          "next_state": "save_marcus_path"
-        },
-        {
-          "id": "do_what_must",
-          "text": "If he's with the cult... I'll do what I must.",
-          "requirements": {"flag": "cassia_gave_journals"},
-          "effects": [
-            {"type": "set_flag", "flag": "cassia_wants_marcus_saved", "value": false},
-            {"type": "set_flag", "flag": "cassia_discussed_marcus", "value": true},
-            {"type": "add_buff", "buff_id": "cassia_blessing_combat", "duration": -1}
-          ],
-          "next_state": "defeat_marcus_path"
-        },
-        {
-          "id": "need_time",
-          "text": "I need time to think about this.",
-          "next_state": "postpone_decision"
-        }
-      ]
-    },
-
-    "act_three_journal_offer": {
-      "introduction": [
-        "*She moves to her locked drawer*",
-        "I've been holding onto these. Marcus's journals.",
-        "*She pulls out several worn volumes*",
-        "Everything he wrote. His research. His... descent.",
-        "*She sets them on the counter*",
-        "These might help you understand what you're facing.",
-        "Help you understand what he became.",
-        "*Her voice breaks*",
-        "And maybe... maybe you'll find him out there.",
-        "Whatever's left of him."
-      ],
-      "options": [
-        {
-          "id": "accept_journals",
-          "text": "I'll take them. Thank you.",
-          "effects": [
-            {"type": "add_item", "item_id": "marcus_journals"},
-            {"type": "set_flag", "flag": "cassia_gave_journals", "value": true}
+            {"type": "set_flag", "flag": "cassia_wants_marcus_saved", "value": false}
           ],
           "next_state": "after_journals_decision"
         }
       ]
     },
 
-    "after_journals_decision": {
+    "after_journal_handoff": {
       "introduction": [
         "*She takes a breath*",
         "Now... what will you do when you find him?",
@@ -1063,7 +776,7 @@
         "*She takes both your hands*",
         "He wasn't always like this. He was kind. Brilliant. He wanted to help people.",
         "*She reaches into her apron and pulls out a small locket*",
-        "Take this. It was his. Our wedding gift.",
+        "Take this. It was his. Our wedding gift to each other.",
         "If there's any part of him left... maybe he'll remember.",
         "*She presses it into your palm*",
         "And if you can reach him... tell him I never stopped loving who he was."
@@ -1085,38 +798,37 @@
       "introduction": [
         "*She closes her eyes, a single tear falling*",
         "I understand. I... I knew this day might come.",
-        "*She takes a shaky breath*",
-        "The Marcus I knew would never hurt innocent people.",
-        "If he's become something terrible... if there's no saving him...",
-        "*She looks at you with hollow determination*",
-        "End it quickly. Don't let him suffer.",
-        "*She pulls a vial from her shelf*",
-        "This is my strongest potion. Take it. You'll need every advantage."
+        "*She opens her eyes, resolve hardening*",
+        "The Marcus I loved is already gone. Has been for years.",
+        "If you have to fight him... don't hesitate.",
+        "*Her voice breaks*",
+        "He would want it to end. Not to become a monster.",
+        "Just... make it quick. Please."
       ],
       "options": [
         {
-          "id": "accept_potion",
-          "text": "I'll make it quick. I promise.",
-          "effects": [
-            {"type": "add_item", "item_id": "cassia_masterwork_combat_elixir"}
-          ],
+          "id": "i_will",
+          "text": "I will. You have my word.",
           "next_state": "final_blessing"
         }
       ]
     },
 
-    "postpone_decision": {
+    "after_journals_decision": {
       "introduction": [
         "*She nods slowly*",
-        "I understand. It's... it's a lot to ask.",
-        "*She wrings her hands*",
-        "But please, before you go... come back and tell me.",
-        "I need to know what you've decided."
+        "Whatever you decide... I trust your judgment.",
+        "You've seen what the cult does. You understand.",
+        "*She straightens*",
+        "Be safe. And... thank you. For caring enough to try."
       ],
       "options": [
         {
-          "id": "will_return",
-          "text": "I'll come back before I leave.",
+          "id": "farewell",
+          "text": "I'll do my best. Take care, Cassia.",
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_discussed_marcus", "value": true}
+          ],
           "next_state": "exit"
         }
       ]
@@ -1124,350 +836,40 @@
 
     "final_blessing": {
       "introduction": [
-        "*She straightens, wiping her eyes*",
-        "Go. Do what needs to be done.",
-        "And come back to me. Please.",
-        "*She manages a fragile smile*",
-        "The world needs good people. Now more than ever."
-      ],
-      "options": [
-        {
-          "id": "farewell",
-          "text": "I'll return. I promise.",
-          "next_state": "exit"
-        }
-      ]
-    },
-
-    "waiting_for_news": {
-      "introduction": [
-        "*She nods*",
-        "I understand. Just... be careful.",
-        "And when you find him...",
-        "*She trails off*",
-        "Never mind. Just come back safe."
-      ],
-      "options": [
-        {
-          "id": "will_do",
-          "text": "I will.",
-          "next_state": "exit"
-        }
-      ]
-    },
-
-    "marcus_fled_ending": {
-      "introduction": [
-        "*Her hand flies to her mouth*",
-        "He's... alive?",
-        "*Tears stream down her face*",
-        "And he walked away? He chose to leave?",
-        "*She sits down heavily*",
-        "That means... somewhere in there... some part of him remembered.",
-        "*She looks up at you*",
-        "Did he... did he say anything?"
-      ],
-      "options": [
-        {
-          "id": "he_couldnt_face_you",
-          "text": "He said he couldn't face what he'd become.",
-          "next_state": "marcus_fled_resolution"
-        },
-        {
-          "id": "he_remembered",
-          "text": "I reminded him of who he was. Of you.",
-          "requirements": {"flag": "cassia_final_words_for_marcus"},
-          "next_state": "marcus_fled_with_message"
-        }
-      ]
-    },
-
-    "marcus_fled_with_message": {
-      "introduction": [
-        "*She sobs openly*",
-        "You told him... you told him I still...",
-        "*She can't speak for a moment*",
-        "Thank you. Thank you for giving him that.",
-        "*She wipes her eyes*",
-        "He's alive. That's something. Even if I never see him again.",
-        "Even if he's broken beyond repair.",
-        "*She looks at you with profound gratitude*",
-        "At least he chose to live. That's more than I dared hope."
-      ],
-      "options": [
-        {
-          "id": "he_loved_you",
-          "text": "He still loves you, Cassia. I could see it.",
-          "next_state": "marcus_fled_final"
-        }
-      ]
-    },
-
-    "marcus_fled_resolution": {
-      "introduction": [
-        "*She nods slowly*",
-        "That sounds like him. Pride. Always his weakness.",
-        "*She takes a shaky breath*",
-        "But he's alive. And he walked away.",
-        "That's more than I thought possible.",
-        "*A bittersweet smile*",
-        "Maybe someday... maybe when the shame fades...",
-        "No. That's foolish hope.",
-        "But thank you. For giving me even this much."
-      ],
-      "options": [
-        {
-          "id": "its_closure",
-          "text": "I hope it brings you peace.",
-          "next_state": "marcus_fled_final"
-        }
-      ]
-    },
-
-    "marcus_fled_final": {
-      "introduction": [
-        "*She stands and extends her hand*",
-        "You've given me more than I deserved to ask.",
-        "Closure. Hope. Truth.",
-        "*Her voice is stronger now*",
-        "I can live with this. I can move forward.",
-        "Thank you. From the bottom of my heart."
-      ],
-      "options": [
-        {
-          "id": "glad_to_help_final",
-          "text": "You're welcome, Cassia.",
-          "effects": [
-            {"type": "set_flag", "flag": "cassia_story_complete", "value": true},
-            {"type": "award_xp", "amount": 100}
-          ],
-          "next_state": "post_resolution"
-        }
-      ]
-    },
-
-    "marcus_died_ending": {
-      "introduction": [
-        "*She already knows. You can see it in her eyes*",
-        "He's dead, isn't he?",
-        "*She closes her eyes*",
-        "I felt it. When it happened. Like something broke inside.",
-        "*She opens her eyes - they're red but dry*",
-        "Tell me. Please. I need to know."
-      ],
-      "options": [
-        {
-          "id": "he_fought_for_them",
-          "text": "He died fighting for the cult. I'm sorry.",
-          "next_state": "marcus_died_no_words"
-        },
-        {
-          "id": "he_hesitated",
-          "text": "I tried to reach him. He hesitated. But it was too late.",
-          "requirements": {"flag": "cassia_final_words_for_marcus"},
-          "next_state": "marcus_died_with_message"
-        }
-      ]
-    },
-
-    "marcus_died_with_message": {
-      "introduction": [
-        "*She's utterly still*",
-        "He hesitated.",
-        "*A tear falls*",
-        "That means he heard you. Heard me.",
-        "*She covers her face*",
-        "That means he was still in there. Somewhere.",
-        "And I'll never know if he could have come back.",
-        "*She looks up, voice breaking*",
-        "But at least... at least he knew. In the end.",
-        "That I never stopped loving him."
-      ],
-      "options": [
-        {
-          "id": "he_knew",
-          "text": "He knew, Cassia. I'm certain he knew.",
-          "next_state": "marcus_died_final"
-        }
-      ]
-    },
-
-    "marcus_died_no_words": {
-      "introduction": [
-        "*She nods slowly*",
-        "Then he was truly lost.",
-        "*She sits down*",
-        "Part of me is... relieved. That he's not suffering anymore.",
-        "That whatever they did to him... it's over.",
-        "*She looks at you*",
-        "Thank you for telling me the truth.",
-        "Not the kindness I wanted. But the truth I needed."
-      ],
-      "options": [
-        {
-          "id": "im_sorry_cassia",
-          "text": "I wish it could have been different.",
-          "next_state": "marcus_died_final"
-        }
-      ]
-    },
-
-    "marcus_died_final": {
-      "introduction": [
-        "*She stands*",
-        "Me too. Every day, me too.",
-        "*She removes her ring and sets it on the counter*",
-        "But now I know. And knowing... is better than wondering.",
-        "*She looks at you with hollow eyes*",
-        "Thank you. For ending it. For bringing me closure.",
-        "It will take time. But I'll heal.",
-        "*A ghost of a smile*",
-        "His journals. His recipe. His memory.",
-        "I'll make sure they help people. That was always his dream.",
-        "Before the cult twisted it."
-      ],
-      "options": [
-        {
-          "id": "honor_his_memory",
-          "text": "That's a beautiful way to honor him.",
-          "effects": [
-            {"type": "set_flag", "flag": "cassia_story_complete", "value": true},
-            {"type": "award_xp", "amount": 100}
-          ],
-          "next_state": "post_resolution"
-        }
-      ]
-    },
-
-    "post_resolution": {
-      "introduction": [
-        "*She takes a deep breath*",
-        "Life goes on. Work continues.",
-        "*She manages a small, real smile*",
-        "And I have friends now. That helps.",
-        "What can I do for you today?"
-      ],
-      "options": [
-        {
-          "id": "shop_after_resolution",
-          "text": "I could use some supplies.",
-          "effects": [{"type": "open_shop", "merchant_id": "cassia"}],
-          "next_state": "post_shopping"
-        },
-        {
-          "id": "just_checking",
-          "text": "Just wanted to check on you.",
-          "next_state": "appreciate_final_visit"
-        }
-      ]
-    },
-    "swamp_conversation": {
-      "introduction": [
-        "The marsh? I gather herbs there sometimes.",
-        "Or... I used to.",
-        "*Her expression darkens.*",
-        "There is an old church deep in the swamp.",
-        "Lately, I hear chanting when I'm near it.",
-        "And the herbs around it... they're dying."
-      ],
-      "options": [
-        {
-          "id": "chanting",
-          "text": "What kind of chanting?",
-          "next_state": "chanting_details"
-        },
-        {
-          "id": "mark_map",
-          "text": "Can you show me where this church is?",
-          "effects": [
-            { "type": "set_flag", "flag": "cassia_gave_swamp_info", "value": true },
-            { "type": "set_flag", "flag": "learned_about_swamp_church", "value": true },
-            { "type": "award_xp", "amount": 25 }
-          ],
-          "next_state": "marked_swamp"
-        },
-        { "id": "bye", "text": "That sounds dangerous.", "next_state": "exit" }
-      ]
-    },
-
-    "chanting_details": {
-      "introduction": [
-        "*She wraps her arms around herself.*",
-        "Voices. Multiple voices. In a language I don't know.",
-        "It reminds me of... of when Marcus changed.",
-        "Before he left.",
-        "*She looks away.*",
-        "Dangerous people. That's what he got involved with."
-      ],
-      "options": [
-        {
-          "id": "help",
-          "text": "I'll investigate. Show me where.",
-          "effects": [
-            { "type": "set_flag", "flag": "cassia_gave_swamp_info", "value": true },
-            { "type": "set_flag", "flag": "learned_about_swamp_church", "value": true },
-            { "type": "award_xp", "amount": 25 }
-          ],
-          "next_state": "marked_swamp"
-        },
-        { "id": "sorry", "text": "I'm sorry about Marcus.", "next_state": "marcus_sympathy" }
-      ]
-    },
-
-    "marked_swamp": {
-      "introduction": [
-        "*She sketches directions on a scrap of parchment.*",
-        "South road, then west into the marsh.",
-        "Follow the old stone markers.",
-        "*Her voice is quiet.*",
-        "Be careful. More than wildlife lurks there now."
-      ],
-      "options": [
-        { "id": "thanks", "text": "Thank you for the warning.", "next_state": "exit" }
-      ]
-    },
-
-    "marcus_sympathy": {
-      "introduction": [
-        "*She nods slowly.*",
-        "Thank you. It was a long time ago.",
-        "*She takes a breath.*",
-        "But if someone is going to stop whatever's happening in that swamp...",
-        "I can at least help them find it."
-      ],
-      "options": [
-        {
-          "id": "show_location",
-          "text": "Will you show me where it is?",
-          "effects": [
-           { "type": "set_flag", "flag": "cassia_gave_swamp_info", "value": true },
-            { "type": "set_flag", "flag": "learned_about_swamp_church", "value": true },
-            { "type": "award_xp", "amount": 25 }
-          ],
-          "next_state": "marked_swamp"
-        },
-        { "id": "understand", "text": "I understand. Thank you.", "next_state": "exit" }
-      ]
-    },
-
-    "appreciate_final_visit": {
-      "introduction": [
-        "*Her eyes glisten*",
-        "You're a good person. Better than most.",
+        "*She embraces you briefly*",
         "Thank you. For everything.",
-        "Now get out there. The world needs more people like you."
+        "May the light guide you in the darkness ahead.",
+        "*She steps back*",
+        "Now go. Before I lose my courage and beg you not to."
       ],
       "options": [
         {
-          "id": "take_care",
-          "text": "You take care of yourself, Cassia.",
+          "id": "leave",
+          "text": "[Leave quietly]",
           "next_state": "exit"
+        }
+      ]
+    },
+
+    "returning_customer": {
+      "introduction": [
+        "*She sets down her mortar*",
+        "I'm managing. Same as always.",
+        "*A pause*",
+        "It helps, having customers who care. Makes the days easier."
+      ],
+      "options": [
+        {
+          "id": "glad_to_hear",
+          "text": "I'm glad.",
+          "next_state": "return_visit"
         }
       ]
     },
 
     "exit": {
-      "introduction": ["*She nods as you leave*"],
+      "npc_name": "",
+      "introduction": [],
       "options": []
     }
   }
