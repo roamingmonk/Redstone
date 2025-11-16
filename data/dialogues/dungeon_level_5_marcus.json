@@ -6,7 +6,7 @@
     "hide_portrait": false,
     "initial_state": "initial_confrontation",
     "states": {
-      "examine": {
+      "initial_confrontation": {
         "introduction": [
           "Marcus turns to face you, void energy crackling around his hands. His eyes are black abysses, but you can see traces of the man he once was fighting beneath the corruption.",
           "",
@@ -177,7 +177,7 @@
           }
         ]
       },
-        "exit": {
+      "exit": {
         "npc_name": "",
         "introduction": [],
         "options": []

@@ -376,7 +376,7 @@
     "marcus": {
       "system_id": "marcus",
       "full_name": "Marcus Nightshade",
-      "dialogue_file": "dungeon_level_5_marcus_pre_combat",
+      "dialogue_file": "dungeon_level_5_marcus",
       "conversation_flag": "marcus_encountered_level_5",
       "location": "dungeon_level_5",
       "role": "corrupted_mage",
@@ -561,6 +561,13 @@
         "marcus_encountered": "marcus_encountered_level_5",
         "marcus_confrontation_complete": "marcus_confrontation_complete",
         "ritual_examined": "dungeon_l5_ritual_examined",
+        "marcus_plan_understood": "understood_marcus_plan",
+        "vessel_plan_known": "knows_vessel_plan",
+        "void_ichor_found": "found_void_ichor",
+        "circle_age_known": "knows_circle_age",
+        "void_prince_true_form_seen": "saw_void_prince_true_form",
+        "portal_sealing_method_known": "knows_how_to_seal_portal",
+        "void_touched_hand": "void_touched_hand",
         "final_boss_defeated": "final_boss_defeated"
       }
     },
