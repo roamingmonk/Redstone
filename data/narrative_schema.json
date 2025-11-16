@@ -502,6 +502,42 @@
         "ritual_examined": "dungeon_level_3_ritual_examined"
       }
     },
+    "dungeon_level_4": {
+      "display_name": "Dungeon Level 4 - Cult Sanctum Upper",
+      "system_id": "dungeon_level_4",
+      "location_type": "dungeon_combat",
+      "story_flags": {
+        "chest_opened": "dungeon_l4_chest_opened",
+        "planning_table_examined": "dungeon_l4_planning_examined",
+        "study_examined": "dungeon_l4_study_examined",
+        "cells_examined": "dungeon_l4_cells_examined",
+        "shrine_examined": "dungeon_l4_shrine_examined",
+        "marcus_journal_read": "read_marcus_journal",
+        "marcus_letter_read": "read_marcus_letter",
+        "marcus_books_examined": "examined_marcus_books",
+        "void_offerings_examined": "examined_void_offerings",
+        "void_shrine_desecrated": "desecrated_void_shrine",
+        "void_prince_awareness": "void_prince_noticed",
+        "cult_battle_plans_found": "found_cult_battle_plans",
+        "cult_ledger_found": "found_cult_ledger",
+        "cult_scope_known": "knows_cult_scope",
+        "marcus_vessel_knowledge": "knows_marcus_is_vessel",
+        "prisoner_note_found": "found_prisoner_note",
+        "prisoner_messages_read": "read_prisoner_messages",
+        "prison_cells_searched": "searched_prison_cells"
+      }
+    },
+    "dungeon_level_5": {
+      "display_name": "Dungeon Level 5 - Portal Chamber",
+      "system_id": "dungeon_level_5",
+      "location_type": "dungeon_combat",
+      "story_flags": {
+        "portal_examined": "examined_portal_chamber",
+        "ritual_circle_examined": "examined_ritual_circle",
+        "marcus_confronted": "confronted_marcus_final",
+        "marcus_sacrifice_acknowledged": "acknowledged_marcus_sacrifice"
+      }
+    },
     "redstone_town": {
       "display_name": "Town Square",
       "system_id": "redstone_town",
