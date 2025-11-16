@@ -216,6 +216,13 @@ class SwampChurchInteriorNav:
             'total_gold': 0,
             'items': items_list
         }
+        game_state.pre_combat_location = 'swamp_church_interior_nav'
+
+        # Store the search flag to set when overlay closes
+        if hasattr(game_state, 'pending_search_flag') and game_state.pending_search_flag:
+            game_state.search_loot_flag = game_state.pending_search_flag
+            game_state.pending_search_flag = None
+
         game_state.overlay_state.open_overlay("combat_loot")
         
     def handle_input(self, event, game_state, controller):

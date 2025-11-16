@@ -66,7 +66,7 @@
       "icon_file": "reinforced_miners_lantern.png",
       "consumable": false,
       "weight": 3,
-      "rarity": "uncommon",
+      "rarity": "special",
       "special_effects": {
         "perception_bonus": 2,
         "description": "Grants +2 Perception in dark areas, minor bonus vs undead enemies"

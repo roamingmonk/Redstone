@@ -98,6 +98,7 @@
             "label": "Search Pews",
             "loot_table": "swamp_church_pews",
             "description": "Look for items among the overturned benches.",
+            "return_to": "swamp_church_interior",
             "one_time_flag": "searched_church_pews"
           },
           "examine_altar": {

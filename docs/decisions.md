@@ -2334,6 +2334,22 @@ Two issues needed resolution:
 - `screens/dungeon_level_5_nav.py` - Auto-trigger check in movement
 - `game_logic/dialogue_engine.py` - State determination before option retrieval
 
+# ADR-141: Dialogue Item Requirement Validation (item and not_item)
+# Date: 2025-11-16
+# Status: Accepted
+**Context** Dialogue options needed to show/hide based on whether the player has specific items in their inventory (e.g., Cassia's mushroom quest).
+**Decision** Added item and not_item requirement checks to DialogueEngine's _check_option_requirements() method, using item IDs and InventoryEngine for validation.
+**Technical Details** "item": "item_id" - Shows option only if player HAS the item
+"not_item": "item_id" - Shows option only if player does NOT have the item
+Both support optional "quantity": N parameter for quantity validation
+Uses inv_engine.has_item(item_id, category) and get_item_count(item_id) for validation
+**Consequences**
+Dialogue options can now conditionally appear based on inventory contents
+Fixed bug where item requirements used display names instead of item IDs
+Enables cleaner quest dialogue flows (e.g., hiding "still looking" when quest item obtained)
+
+
+
 
 ```
 ## ADR-XXX: <Short title>

@@ -51,6 +51,27 @@
         }
       ]
     },
+    "glowcap_offer_pending": {
+      "introduction": [
+        "*Cassia looks up as you enter, worry and resolve mixed in her eyes.*",
+        "About Marcus… there *is* something you might be able to help with."
+      ],
+      "options": [
+        {
+          "id": "hear_glowcap_request",
+          "text": "Tell me what you need.",
+          "effects": [
+            { "type": "set_flag", "flag": "cassia_offered_help", "value": true }
+          ],
+          "next_state": "recipe_quest_offer"
+        },
+        {
+          "id": "put_it_off",
+          "text": "I can't take this on right now.",
+          "next_state": "return_visit"
+        }
+      ]
+    },
 
     "bernard_referral": {
       "introduction": [
@@ -185,13 +206,31 @@
         {
           "id": "ask_tremors",
           "text": "Have the tremors affected your work?",
+          "requirements": {"not_flag": "cassia_mentioned_marcus"},
           "next_state": "tremors_discussion"
         },
         {
           "id": "can_i_help",
           "text": "Is there anything I can do to help you?",
-          "requirements": {"flags": ["mayor_quest_active"], "not_flag": "recipe_quest_active"},
+          "requirements": {
+            "flags": {
+              
+              "cassia_told_marcus_story": true
+            },
+            "not_flag": "recipe_quest_active"
+          },
           "next_state": "recipe_quest_offer"
+        },
+        {
+          "id": "ask_about_marcus_late",
+          "text": "Earlier you mentioned Marcus... can you tell me more?",
+          "requirements": {
+            "flags": {
+              "cassia_mentioned_marcus": true
+            },
+            "not_flag": "cassia_told_marcus_story"
+          },
+          "next_state": "marcus_introduction"
         },
         {
           "id": "thats_all",
@@ -221,6 +260,10 @@
         {
           "id": "ask_about_marcus",
           "text": "Tell me about Marcus.",
+          "requirements": {
+            "flags": {},
+            "not_flag": "cassia_told_marcus_story"
+          },
           "next_state": "marcus_introduction"
         },
         {
@@ -291,6 +334,14 @@
           "id": "offer_help",
           "text": "If I learn anything about Marcus, I'll tell you.",
           "next_state": "appreciate_offer"
+        },
+        {
+          "id": "leave_respectfully",
+          "text": "I should let you get back to work.",
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_offered_help", "value": true}
+          ],
+          "next_state": "exit"
         }
       ]
     },
@@ -314,6 +365,15 @@
             {"type": "set_flag", "flag": "cassia_offered_help", "value": true}
           ],
           "next_state": "exit"
+        },
+        {
+          "id": "how_can_i_help",
+          "text": "Is there anything I can do for you now?",
+          "requirements": {"flag": "mayor_quest_active"},
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_offered_help", "value": true}
+          ],
+          "next_state": "recipe_quest_offer"
         }
       ]
     },
@@ -334,6 +394,15 @@
             {"type": "set_flag", "flag": "cassia_offered_help", "value": true}
           ],
           "next_state": "exit"
+        },
+        {
+          "id": "can_i_help",
+          "text": "Is there anything I can do to help you?",
+          "requirements": {"flag": "mayor_quest_active"},
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_offered_help", "value": true}
+          ],
+          "next_state": "recipe_quest_offer"
         }
       ]
     },
@@ -377,16 +446,47 @@
           "next_state": "appreciate_visit"
         },
         {
+          "id": "ask_about_marcus_late_return",
+          "text": "Before, you mentioned Marcus. I'd like to hear the whole story.",
+          "requirements": {
+            "flags": {
+              "cassia_mentioned_marcus": true
+            },
+            "not_flag": "cassia_told_marcus_story"
+          },
+          "next_state": "marcus_introduction"
+        },
+        {
+          "id": "ask_more_about_marcus",
+          "text": "Tell me more about Marcus and his research.",
+          "requirements": {
+            "flags": {
+              "cassia_told_marcus_story": true
+            },
+            "not_flag": "act_two_location_completed"
+          },
+          "next_state": "tremors_discussion"
+        },
+
+        {
           "id": "can_i_help",
           "text": "Is there anything I can do to help you?",
-          "requirements": {"flags": ["mayor_quest_active"], "not_flag": "recipe_quest_active"},
+          "requirements": {
+            "flags": {
+              "cassia_told_marcus_story": true
+            },
+            "not_flag": "recipe_quest_active"
+          },
           "next_state": "recipe_quest_offer"
         },
         {
           "id": "phase_two_journals",
           "text": "You mentioned Marcus kept journals...",
           "requirements": {
-            "flags": ["mayor_quest_active", "act_two_location_completed"],
+            "flags": {
+              "mayor_quest_active": true,
+              "act_two_location_completed": true
+            },
             "not_flag": "cassia_gave_journals"
           },
           "next_state": "journal_transition"
@@ -430,7 +530,8 @@
           "text": "I'll get them for you.",
           "effects": [
             {"type": "set_flag", "flag": "cassia_gave_recipe_quest", "value": true},
-            {"type": "set_flag", "flag": "recipe_quest_active", "value": true}
+            {"type": "set_flag", "flag": "recipe_quest_active", "value": true},
+            {"type": "set_flag", "flag": "learned_about_swamp_church", "value": true}
           ],
           "next_state": "quest_accepted"
         },
@@ -465,7 +566,8 @@
           "text": "I'll get those mushrooms for you.",
           "effects": [
             {"type": "set_flag", "flag": "cassia_gave_recipe_quest", "value": true},
-            {"type": "set_flag", "flag": "recipe_quest_active", "value": true}
+            {"type": "set_flag", "flag": "recipe_quest_active", "value": true},
+            {"type": "set_flag", "flag": "learned_about_swamp_church", "value": true}
           ],
           "next_state": "quest_accepted"
         },
@@ -551,6 +653,7 @@
         {
           "id": "still_looking",
           "text": "Still searching. It's dangerous out there.",
+          "requirements": {"not_item": "glowcap_mushrooms"},
           "next_state": "still_searching"
         },
         {
@@ -604,22 +707,12 @@
         "It's exactly as he described. The color. The clarity.",
         "*She carefully bottles it and places it in your hands*",
         "This is yours. You earned it.",
-        "*She wipes her eyes*",
         "Thank you. You've given me back a piece of him I thought was lost forever."
       ],
       "options": [
         {
           "id": "honored_to_help",
           "text": "I'm honored I could help.",
-          "effects": [
-            {"type": "add_item", "item_id": "marcus_masterwork_elixir"},
-            {"type": "award_xp", "amount": 75}
-          ],
-          "next_state": "after_quest_gratitude"
-        },
-        {
-          "id": "his_legacy",
-          "text": "His legacy lives on through you.",
           "effects": [
             {"type": "add_item", "item_id": "marcus_masterwork_elixir"},
             {"type": "award_xp", "amount": 75}

@@ -1159,17 +1159,61 @@ class DialogueEngine:
                     print(f"⚠️ WARNING: Unknown item '{item_id}' in requirements")
                     return False
                 
-                item_name = item_data.get('name', item_id)
+                # Get required quantity (default to 1)
                 quantity = requirements.get('quantity', 1)
-                
-                # Check if player has the required quantity
-                if not inv_engine.has_item(item_name, quantity):
+
+                # Get the item category from item data
+                category = item_data.get('category', 'items')
+
+                # Check if player has the item (using ID, not display name)
+                if not inv_engine.has_item(item_id, category):
                     return False
+
+                # Check quantity if more than 1 required
+                if quantity > 1:
+                    item_count = inv_engine.get_item_count(item_id)
+                    if item_count < quantity:
+                        return False
                     
             except Exception as e:
                 print(f"❌ ERROR checking item requirement: {e}")
                 return False
-        
+            
+        # Check not_item requirement (e.g., "not_item": "glowcap_mushrooms")
+        # Shows option only if player does NOT have the item
+        if 'not_item' in requirements:
+            item_id = requirements['not_item']
+            
+            try:
+                from game_logic.inventory_engine import get_inventory_engine
+                inv_engine = get_inventory_engine()
+                
+                if not inv_engine:
+                    # If inventory engine not available, assume player doesn't have it
+                    pass
+                else:
+                    # Get item data
+                    item_data = self.item_manager.get_item_by_id(item_id)
+                    if item_data:
+                        # Get required quantity (default to 1)
+                        quantity = requirements.get('quantity', 1)
+                        
+                        # Get the item category from item data
+                        category = item_data.get('category', 'items')
+                        
+                        # If player HAS the item, hide this option
+                        if inv_engine.has_item(item_id, category):
+                            # Check quantity if specified
+                            if quantity > 1:
+                                item_count = inv_engine.get_item_count(item_id)
+                                if item_count >= quantity:
+                                    return False
+                            else:
+                                return False
+            except Exception as e:
+                print(f"❌ ERROR checking not_item requirement: {e}")
+                # On error, show the option (fail-safe)
+
         return True
 
     def _emit_quest_event(self, event: Dict[str, Any]):
