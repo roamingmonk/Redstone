@@ -1,0 +1,187 @@
+{
+  "dungeon_level_5_marcus": {
+    "npc_name": "Marcus Nightshade",
+    "dialogue_id": "dungeon_level_5_marcus",
+    "is_object": false,
+    "hide_portrait": false,
+    "initial_state": "initial_confrontation",
+    "states": {
+      "examine": {
+        "introduction": [
+          "Marcus turns to face you, void energy crackling around his hands. His eyes are black abysses, but you can see traces of the man he once was fighting beneath the corruption.",
+          "",
+          "'So. Cassia sent someone after all,' he says, his voice layered with unnatural harmonics. 'I hoped she would understand. That she would see the glorious future I'm creating.'",
+          "",
+          "He gestures toward the pulsing portal behind him. 'The Void Prince offers true power. Freedom from weakness, from mortality, from the pathetic limitations of flesh and morality. I will be his vessel, his herald. Through me, he will reshape this world.'",
+          "",
+          "'Stand aside, or I will destroy you.'"
+        ],
+        "options": [
+          {
+            "id": "offer_redemption",
+            "text": "[Show him Cassia's locket] 'Cassia believes you can still be saved.'",
+            "requirements": {
+              "item": "cassia_locket"
+            },
+            "next_state": "redemption_offer"
+          },
+          {
+            "id": "challenge_combat",
+            "text": "'I won't let you doom this world, Marcus. Stand down or be stopped.'",
+            "next_state": "combat_path"
+          },
+          {
+            "id": "appeal_reason",
+            "text": "'Look at what you've become! This isn't power - it's corruption!'",
+            "next_state": "appeal_attempt"
+          }
+        ]
+      },
+      "redemption_offer": {
+        "introduction": [
+          "Marcus's eyes widen as he sees the locket. For a moment - just a moment - the void corruption flickers, and you see his true eyes. Brown. Human. Terrified.",
+          "",
+          "'Cassia...' he whispers. His hand reaches toward the locket, trembling. 'She... she still...'",
+          "",
+          "The void energy surges back, fighting for control. Marcus's face contorts in agony. 'NO! I am beyond such weakness! I am chosen! I am--'",
+          "",
+          "But the locket pulses with a gentle light - not magic, just the power of genuine love and hope. Marcus screams, clutching his head.",
+          "",
+          "'Get it away! Get it-- no, wait... I remember... I remember who I was...'"
+        ],
+        "options": [
+          {
+            "id": "press_redemption",
+            "text": "'Fight it, Marcus! Come back! Cassia is waiting for you!'",
+            "next_state": "redemption_success",
+            "effects": [
+              {"type": "set_flag", "flag": "marcus_redemption_attempted", "value": true}
+            ]
+          },
+          {
+            "id": "attack_while_weak",
+            "text": "[Attack while he's vulnerable]",
+            "next_state": "combat_path",
+            "effects": [
+              {"type": "set_flag", "flag": "betrayed_marcus_trust", "value": true}
+            ]
+          }
+        ]
+      },
+      "redemption_success": {
+        "introduction": [
+          "The void energy shatters like glass. Marcus collapses to his knees, gasping. When he looks up, his eyes are his own again - brown, human, filled with horror and grief.",
+          "",
+          "'Gods... oh gods, what have I done?' Tears stream down his face. 'The villages. The sacrifices. Thomas, Sarah, all those people... I killed them. I KILLED them, and I felt NOTHING.'",
+          "",
+          "He looks at you with desperate clarity. 'The void showed me such wonders. Promised such power. But it was all lies. It wanted to use me - use my bloodline - to open the door for the Void Prince.'",
+          "",
+          "He stands, legs shaking, and turns toward the portal. 'I can't undo what I've done. I can't bring those people back. But I can close this portal. The ritual requires Nightshade blood to open it - the same blood can seal it. From the inside.'",
+          "",
+          "'Tell Cassia... tell her I'm sorry. Tell her I loved her. And that in the end, I chose to be the man she believed I could be.'"
+        ],
+        "options": [
+          {
+            "id": "let_him_sacrifice",
+            "text": "'Go. End this. Be the hero you should have been.'",
+            "next_state": "marcus_sacrifice",
+            "effects": [
+              {"type": "set_flag", "flag": "marcus_redeemed", "value": true},
+              {"type": "set_flag", "flag": "marcus_sacrificed_himself", "value": true},
+              {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
+              {"type": "set_flag", "flag": "portal_weakened", "value": true}
+            ]
+          },
+          {
+            "id": "stop_him",
+            "text": "'No! There has to be another way! We can find it together!'",
+            "next_state": "marcus_insists"
+          }
+        ]
+      },
+      "marcus_sacrifice": {
+        "introduction": [
+          "Marcus nods solemnly and walks toward the ritual circle. He steps into its center, and immediately void energy begins swirling around him. But this time, he's in control.",
+          "",
+          "He raises his hands and begins chanting in the ancient tongue - the same words that opened the portal, now reversed. The portal shudders, its edges beginning to fray.",
+          "",
+          "From within the portal, you hear a terrible roar. Something massive is trying to force its way through before the door closes. The Archon of the Void.",
+          "",
+          "Marcus grits his teeth, blood running from his nose and ears as he pours everything he has into the sealing ritual. 'GO!' he shouts to you. 'I've weakened it, but the Archon won't give up! You have to destroy it before it manifests fully!'",
+          "",
+          "The portal contracts, but not before a massive void-touched form pulls itself through. The Archon of the Void has arrived - wounded and weakened by Marcus's sacrifice, but still terrifyingly powerful.",
+          "",
+          "Marcus collapses, spent. The final battle begins."
+        ],
+        "options": [
+          {
+            "id": "fight",
+            "text": "[Prepare for combat with the Archon]",
+            "next_state": "exit"
+          }
+        ]
+      },
+      "marcus_insists": {
+        "introduction": [
+          "Marcus shakes his head, a sad smile on his face. 'There isn't time. The portal is nearly complete. If I don't act now, the Void Prince himself will come through. And if that happens... the world ends.'",
+          "",
+          "'I made this mess. I have to clean it up. That's what Cassia would say, right?' He laughs weakly. 'I'm sorry we didn't have more time. You seem like good people.'",
+          "",
+          "'Now go. Let me do this one last thing right.'"
+        ],
+        "options": [
+          {
+            "id": "accept",
+            "text": "[Step back and let him sacrifice himself]",
+            "next_state": "marcus_sacrifice",
+            "effects": [
+              {"type": "set_flag", "flag": "marcus_redeemed", "value": true},
+              {"type": "set_flag", "flag": "marcus_sacrificed_himself", "value": true},
+              {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
+              {"type": "set_flag", "flag": "portal_weakened", "value": true}
+            ]
+          }
+        ]
+      },
+      "appeal_attempt": {
+        "introduction": [
+          "Marcus laughs - a sound with too many voices layered within it. 'Corruption? You call enlightenment corruption? You call ascension corruption?'",
+          "",
+          "'I was nothing before! A scholar, a researcher, playing with scraps of power while the true forces of the cosmos ignored me! Now I am CHOSEN! The Void Prince himself speaks to me!'",
+          "",
+          "His expression darkens. 'I gave you a chance. You refused. Now you die.'"
+        ],
+        "options": [
+          {
+            "id": "fight",
+            "text": "[Prepare for combat]",
+            "next_state": "combat_path"
+          }
+        ]
+      },
+      "combat_path": {
+        "introduction": [
+          "Marcus's eyes blaze with void energy. 'So be it. I will crush you, and your broken bodies will be the first offerings to my new god.'",
+          "",
+          "Dark energy swirls around him as he summons shadow servants to his side. The final confrontation begins."
+        ],
+        "options": [
+          {
+            "id": "fight",
+            "text": "[FIGHT]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
+              {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_confrontation"}
+            ]
+          }
+        ]
+      },
+        "exit": {
+        "npc_name": "",
+        "introduction": [],
+        "options": []
+      }
+    }
+  }
+}

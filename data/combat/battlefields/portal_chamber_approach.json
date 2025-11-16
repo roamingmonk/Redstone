@@ -1,0 +1,44 @@
+{
+  "battlefield_id": "portal_chamber_approach",
+  "name": "Ritual Circle Approach",
+  "tileset": "dungeon",
+  "description": "The massive ritual circle lies before you, pulsing with void energy. Marcus stands at its center, dark power crackling around him.",
+  "dimensions": {
+    "width": 12,
+    "height": 10
+  },
+  "tile_size": 48,
+  "terrain": {
+    "default": "dark_stone",
+    "walls": [
+      [0, 0, 11, 0],
+      [0, 9, 11, 9],
+      [0, 0, 0, 9],
+      [11, 0, 11, 9]
+    ],
+    "obstacles": [
+      {"type": "ritual_rune", "position": [5, 3], "blocks_movement": false, "blocks_sight": false},
+      {"type": "ritual_rune", "position": [6, 3], "blocks_movement": false, "blocks_sight": false},
+      {"type": "pillar", "position": [3, 2], "blocks_movement": true, "blocks_sight": true},
+      {"type": "pillar", "position": [8, 2], "blocks_movement": true, "blocks_sight": true},
+      {"type": "pillar", "position": [3, 7], "blocks_movement": true, "blocks_sight": true},
+      {"type": "pillar", "position": [8, 7], "blocks_movement": true, "blocks_sight": true},
+      {"type": "void_circle", "position": [5, 4], "blocks_movement": false, "blocks_sight": false},
+      {"type": "void_circle", "position": [6, 4], "blocks_movement": false, "blocks_sight": false}
+    ]
+  },
+  "spawn_zones": {
+    "player_start": [
+      [0, 4], [0, 5], [1, 4], [1, 5]
+    ],
+    "enemy_spawns": [
+      [7, 4], [5, 3], [7, 6]
+    ],
+    "exit_point": [0, 4]
+  },
+  "lighting": "dim_purple",
+  "environmental_effects": [
+    {"type": "void_corruption", "effect": "oppressive_energy"},
+    {"type": "ritual_power", "effect": "reality_weakening"}
+  ]
+}

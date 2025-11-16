@@ -1,0 +1,124 @@
+{
+  "enemy_id": "marcus_nightshade",
+  "name": "Marcus Nightshade",
+  "description": "Once a brilliant mage and scholar, Marcus has been corrupted by void energy. His eyes are black abysses, and dark power crackles around his hands. He wields devastating arcane magic twisted by void corruption.",
+  "stats": {
+    "hp": 45,
+    "max_hp": 45,
+    "ac": 15,
+    "strength": 12,
+    "dexterity": 14,
+    "constitution": 16,
+    "intelligence": 20,
+    "wisdom": 14,
+    "charisma": 16
+  },
+  "saving_throw_proficiencies": ["intelligence", "wisdom", "constitution"],
+  "spell_slots": 8,
+  "resistances": {
+    "necrotic": 0.5,
+    "psychic": 0.5
+  },
+  "attacks": [
+    {
+      "name": "Void-Touched Staff",
+      "damage_dice": "1d8+3",
+      "attack_bonus": 5,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "His ornate staff pulses with corrupted void energy",
+      "damage_type": "force"
+    },
+    {
+      "name": "Void Blast",
+      "damage_dice": "2d8+4",
+      "attack_bonus": 8,
+      "attack_type": "spell",
+      "spell_id": "void_blast",
+      "spell_cost": 2,
+      "range": 8,
+      "description": "A devastating blast of pure void energy",
+      "damage_type": "necrotic"
+    },
+    {
+      "name": "Shadow Bolt",
+      "damage_dice": "1d10+3",
+      "attack_bonus": 8,
+      "attack_type": "spell",
+      "spell_id": "shadow_bolt",
+      "spell_cost": 1,
+      "range": 10,
+      "description": "A bolt of shadowy magic",
+      "damage_type": "necrotic"
+    },
+    {
+      "name": "Corrupted Fireball",
+      "attack_type": "spell",
+      "spell_id": "corrupted_fireball",
+      "spell_cost": 3,
+      "attack_bonus": 8,
+      "description": "Fireball infused with void energy - burns with cold darkness instead of flame",
+      "damage_type": "cold"
+    },
+    {
+      "name": "Void Shield",
+      "attack_type": "spell",
+      "spell_id": "void_shield",
+      "spell_cost": 2,
+      "attack_bonus": 8,
+      "description": "Creates a protective barrier of void energy (grants +3 AC for 3 turns)",
+      "damage_type": "none"
+    }
+  ],
+  "movement": {
+    "speed": 3,
+    "movement_type": "ground",
+    "notes": "Tactical movement, prefers to maintain distance"
+  },
+  "special_abilities": [
+    {
+      "name": "Void Corruption",
+      "description": "Attacks have a 25% chance to inflict void corruption (1d4 max HP reduction)",
+      "effect_type": "debuff",
+      "trigger": "on_hit",
+      "chance": 0.25
+    },
+    {
+      "name": "Scholar's Knowledge",
+      "description": "High intelligence allows better tactical decisions and spell choices",
+      "effect_type": "tactical",
+      "trigger": "always"
+    },
+    {
+      "name": "Desperate Gambit",
+      "description": "When HP drops below 25%, may attempt to flee or make a suicidal final attack",
+      "effect_type": "phase_transition",
+      "trigger": "health_threshold_25"
+    },
+    {
+      "name": "Void Affinity",
+      "description": "Resistant to necrotic and psychic damage. Vulnerable to radiant damage (takes 1.5x)",
+      "effect_type": "resistance",
+      "trigger": "passive"
+    }
+  ],
+  "loot": {
+    "xp_value": 500,
+    "gold_range": [150, 250],
+    "items": [],
+    "item_drops": [
+      {"item_id": "marcus_arcane_focus", "drop_chance": 1.0, "quantity_range": [1, 1]},
+      {"item_id": "void_corrupted_tome", "drop_chance": 1.0, "quantity_range": [1, 1]},
+      {"item_id": "marcus_nightshade_staff", "drop_chance": 0.8, "quantity_range": [1, 1]},
+      {"item_id": "void_essence", "drop_chance": 0.7, "quantity_range": [2, 3]}
+    ]
+  },
+  "behavior": {
+    "aggression": "high",
+    "intelligence": "very_high",
+    "tactics": "spell_mastery",
+    "acceptable_friendly_fire": 20,
+    "retreat_threshold": 10,
+    "notes": "Brilliant tactician. Uses Void Shield defensively, Shadow Bolt for single targets, Void Blast for high-priority threats, Corrupted Fireball for groups. Maintains range 6-8 tiles. May flee if heavily wounded (unless void corruption has fully consumed his mind). Will accept limited friendly fire to maximize damage."
+  }
+}

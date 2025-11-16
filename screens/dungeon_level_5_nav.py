@@ -19,9 +19,10 @@ from data.maps.dungeon_level_5_map import (
     get_tile_type,
     is_walkable,
     get_tile_color,
-    get_transition_info,
+    get_transition_at_entrance, 
     get_searchable_at_position,
-    get_combat_trigger
+    get_combat_trigger,
+    get_auto_dialogue_trigger
 )
 
 from data.maps.dungeon_level_4_map import DUNGEON_L4_SPAWN_POINTS
@@ -38,7 +39,7 @@ class DungeonLevel5Nav:
                 'get_tile_type': get_tile_type,
                 'is_walkable': is_walkable,
                 'get_tile_color': get_tile_color,
-                'get_building_info': get_transition_info,
+                'get_building_info': get_transition_at_entrance,  # FIXED: Was get_transition_info
                 'get_searchable_info': get_searchable_at_position,
                 'get_combat_trigger': get_combat_trigger
             }
@@ -76,9 +77,10 @@ class DungeonLevel5Nav:
             self.show_temp_message("The Portal Chamber. The air crackles with void energy.")
             self.first_entry = False
 
-        # Check for loot trigger
+        # Check for loot trigger - MUST BE FIRST
         if hasattr(game_state, 'trigger_loot_check') and game_state.trigger_loot_check:
             loot_table_id = game_state.trigger_loot_check
+            print(f"💰 Level 5 Nav: Detected loot trigger: {loot_table_id}")
             game_state.trigger_loot_check = None
             self._trigger_loot_check(loot_table_id, game_state, controller)
             return
@@ -102,7 +104,7 @@ class DungeonLevel5Nav:
                     self.renderer.update_camera(new_x, new_y)
                     return
 
-                # Check if requires a flag
+                # Check if requires a flag (Level 5 specific - final boss needs Marcus defeated)
                 requires_flag = combat_trigger.get('requires_flag')
                 if requires_flag and not getattr(game_state, requires_flag, False):
                     # Can't trigger this encounter yet
@@ -118,6 +120,27 @@ class DungeonLevel5Nav:
                         "target_screen": "combat",
                         "source_screen": "dungeon_level_5_nav"
                     })
+                return
+
+            # Check for auto-dialogue triggers
+            auto_dialogue = get_auto_dialogue_trigger(new_x, new_y)
+            if auto_dialogue:
+                flag_check = auto_dialogue.get('flag_check')
+                # Only trigger if flag is not set (first time)
+                if flag_check and not getattr(game_state, flag_check, False):
+                    if controller:
+                        npc_id = auto_dialogue.get('npc_id', 'npc')
+                        dialogue_id = auto_dialogue.get('dialogue_id')
+                        
+                        # Set return screen for after dialogue
+                        return_screen_attr = f'{npc_id}_return_screen'
+                        setattr(game_state, return_screen_attr, 'dungeon_level_5_nav')
+                        
+                        # Emit screen change to dialogue
+                        controller.event_manager.emit("SCREEN_CHANGE", {
+                            "target_screen": dialogue_id,
+                            "source_screen": 'dungeon_level_5_nav'
+                        })
                 return
 
             game_state.dungeon_l5_x = new_x
@@ -138,23 +161,15 @@ class DungeonLevel5Nav:
             # Priority 1: Transitions
             transition_info = self.renderer.check_valid_entrance(player_x, player_y, self.renderer.player_direction)
             if transition_info and transition_info[0]:
-                transition = transition_info[0]
-                
-                # Check for required flag
-                requires_flag = transition.get('requires_flag')
-                if requires_flag and not getattr(game_state, requires_flag, False):
-                    blocked_msg = transition.get('blocked_message', 'The way is blocked.')
-                    self.show_temp_message(blocked_msg)
-                    return
-                
                 if controller:
-                    target = transition['target_screen']
+                    target = transition_info[0]['target_screen']
                     
                     # Set spawn position for destination level
                     if target == 'dungeon_level_4_nav':
-                        spawn_point = DUNGEON_L4_SPAWN_POINTS.get('from_level_5', DUNGEON_L4_SPAWN_POINTS['default'])
-                        game_state.dungeon_l4_spawn_override_x = spawn_point[0]
-                        game_state.dungeon_l4_spawn_override_y = spawn_point[1]
+                        spawn_point = DUNGEON_L4_SPAWN_POINTS.get('from_level_5')
+                        if spawn_point:
+                            game_state.dungeon_l4_spawn_override_x = spawn_point[0]
+                            game_state.dungeon_l4_spawn_override_y = spawn_point[1]
                     
                     self.renderer.start_transition_cooldown()
                     controller.event_manager.emit("SCREEN_CHANGE", {
@@ -166,7 +181,7 @@ class DungeonLevel5Nav:
             # Priority 2: Searchables
             searchable_info = self.renderer.check_searchable_object(player_x, player_y)
             if searchable_info:
-                # Check if requires flag
+                # Check if requires flag (Level 5 specific - portal needs Marcus defeated)
                 requires_flag = searchable_info.get('requires_flag')
                 if requires_flag and not getattr(game_state, requires_flag, False):
                     self.show_temp_message("You should deal with Marcus before approaching the portal.")
@@ -174,13 +189,15 @@ class DungeonLevel5Nav:
 
                 flag_set = searchable_info.get('flag_set')
                 if flag_set and getattr(game_state, flag_set, False):
-                    self.show_temp_message("You've already examined this.")
+                    self.show_temp_message("You've already searched here.")  # FIXED: Consistency with Level 4
                 else:
                     examine_dialogue = searchable_info.get('examine_dialogue')
                     if examine_dialogue and controller:
                         npc_id = examine_dialogue.split('_')[-1]
                         if npc_id == 'circle':
                             npc_id = 'ritual'
+                        elif npc_id == 'combat':
+                            npc_id = 'marcus'
                         return_screen_attr = f'{npc_id}_return_screen'
                         setattr(game_state, return_screen_attr, 'dungeon_level_5_nav')
                         game_state.pending_search_flag = flag_set
@@ -208,8 +225,11 @@ class DungeonLevel5Nav:
         import os
         from utils.constants import LOCATION_DATA_PATH
 
+        print(f"💰 _trigger_loot_check called with: {loot_table_id}")
+
         location_file = os.path.join(LOCATION_DATA_PATH, "hill_ruins.json")
         if not os.path.exists(location_file):
+            print(f"❌ Loot file not found: {location_file}")
             return
 
         with open(location_file, 'r') as f:
@@ -220,7 +240,10 @@ class DungeonLevel5Nav:
         loot_table = loot_tables.get(loot_table_id)
 
         if not loot_table:
+            print(f"❌ Loot table '{loot_table_id}' not found in hill_ruins.json")
             return
+
+        print(f"✅ Found loot table: {loot_table_id}")
 
         items_dict = {}
         for item_config in loot_table.get('items', []):
@@ -247,12 +270,14 @@ class DungeonLevel5Nav:
             })
 
         if not items_list:
+            print(f"💰 No items rolled from loot table")
             self.show_temp_message("You found nothing of value.")
             if hasattr(game_state, 'pending_search_flag') and game_state.pending_search_flag:
                 setattr(game_state, game_state.pending_search_flag, True)
                 game_state.pending_search_flag = None
             return
 
+        print(f"💰 Opening loot overlay with {len(items_list)} items")
         loot_data = {'total_gold': 0, 'items': items_list}
         game_state.combat_loot_data = loot_data
         game_state.pre_combat_location = 'dungeon_level_5_nav'
@@ -274,13 +299,22 @@ class DungeonLevel5Nav:
         self.renderer.draw_player(surface, player_x, player_y)
         draw_party_status_panel(surface, game_state, fonts)
 
-        # Check if final boss defeated for title color
+        # Title changes color based on victory status
         title_color = YELLOW
         if getattr(game_state, 'final_boss_defeated', False):
             title_color = (100, 255, 100)  # Green for victory
 
-        title_text = "PORTAL CHAMBER - LEVEL 5"
+        title_text = "DUNGEON - LEVEL 5: PORTAL CHAMBER"
         draw_centered_text(surface, title_text, fonts['fantasy_medium'], 20, title_color, 880)
+
+        # ADDED: Thematic subtitle matching Level 4 pattern
+        if not getattr(game_state, 'final_boss_defeated', False):
+            subtitle_text = "The void tears at reality itself..."
+            subtitle_color = RED
+        else:
+            subtitle_text = "The portal sealed. Victory achieved."
+            subtitle_color = (100, 255, 100)
+        draw_centered_text(surface, subtitle_text, fonts['fantasy_small'], 45, subtitle_color, 880)
 
         # Dialog zone
         dialog_y = LAYOUT_DIALOG_Y
@@ -297,7 +331,7 @@ class DungeonLevel5Nav:
         if searchable:
             flag_set = searchable.get('flag_set')
             if flag_set and getattr(game_state, flag_set, False):
-                prompt = f"{searchable['name']} (already examined)"
+                prompt = f"{searchable['name']} (already searched)"  # FIXED: Consistency
                 draw_centered_text(surface, prompt, fonts['fantasy_small'], LAYOUT_DIALOG_Y + 15, WHITE, 1024)
             else:
                 prompt = f"Press ENTER to examine {searchable['name']}"
@@ -307,7 +341,7 @@ class DungeonLevel5Nav:
             draw_centered_text(surface, self.message_text, fonts['fantasy_medium'], LAYOUT_DIALOG_Y + 50, RED, 1024)
 
 
-# Global instance
+# ScreenManager registration function
 _dungeon_level_5_instance = None
 
 def draw_dungeon_level_5_nav(surface, game_state, fonts, images, controller=None):

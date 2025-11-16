@@ -1,152 +1,135 @@
 {
-  "dialogue_id": "dungeon_level_5_ritual_circle",
-  "title": "Ancient Ritual Circle",
-  "states": {
-    "first_examination": {
-      "npc_name": "Narrator",
-      "introduction": [
-        "The massive ritual circle dominates the chamber floor. Unlike the crude blood circles on the levels above, this one is ancient - carved into the stone itself millennia ago.",
-        "",
-        "The grooves are filled with crystallized void energy that pulses with a slow, rhythmic beat. Runes in a language that predates humanity spiral outward from the center, each one a word of power.",
-        "",
-        "At the circle's heart, you see a deep gouge in the stone - recently made. Fresh blood fills it, still wet. Marcus's blood."
-      ],
-      "options": [
-        {
-          "id": "examine_runes",
-          "text": "[Study the ancient runes]",
-          "next_state": "rune_examination"
-        },
-        {
-          "id": "examine_blood",
-          "text": "[Examine the fresh blood]",
-          "next_state": "blood_examination"
-        },
-        {
-          "id": "examine_structure",
-          "text": "[Analyze the circle's structure]",
-          "next_state": "structure_analysis"
-        },
-        {
-          "id": "leave",
-          "text": "[Step away from the circle]",
-          "next_state": "exit"
-        }
-      ]
-    },
-    "rune_examination": {
-      "npc_name": "Narrator",
-      "introduction": [
-        "You kneel at the circle's edge, studying the alien runes. Your mind struggles to comprehend them - they weren't meant for mortal understanding.",
-        "",
-        "But fragments of meaning seep through:",
-        "",
-        "'...door between worlds... blood of ancients... vessel for the Prince... reality tears... void consumes...'",
-        "",
-        "One rune in particular draws your attention. It's been modified - recently, judging by the fresh chisel marks. Marcus changed the ritual.",
-        "",
-        "The original rune meant 'sacrifice.' Marcus altered it to mean 'vessel.' He didn't intend to die in the ritual - he intended to become the host for the Void Prince itself."
-      ],
-      "options": [
-        {
-          "id": "continue",
-          "text": "[Continue examining]",
-          "next_state": "rune_insight",
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "understood_marcus_plan",
-              "value": true
-            }
-          ]
-        }
-      ]
-    },
-    "rune_insight": {
-      "npc_name": "Narrator",
-      "introduction": [
-        "A horrifying realization strikes you: Marcus wasn't just summoning the Void Prince. He was trying to MERGE with it. To become a god-vessel, wielding the Prince's power while maintaining his own consciousness and will.",
-        "",
-        "The arrogance. The insanity. Did he really think he could control such a being?",
-        "",
-        "Or perhaps the void corruption had progressed so far that he genuinely believed it. That the whispers in his mind were his own thoughts."
-      ],
-      "options": [
-        {
-          "id": "leave",
-          "text": "[Step back, disturbed]",
-          "next_state": "exit",
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "knows_vessel_plan",
-              "value": true
-            }
-          ]
-        }
-      ]
-    },
-    "blood_examination": {
-      "npc_name": "Narrator",
-      "introduction": [
-        "You examine the fresh blood at the circle's center. It's still warm - Marcus performed the blood sacrifice very recently, perhaps mere hours before you arrived.",
-        "",
-        "The blood doesn't pool naturally. Instead, it flows along invisible channels in the stone, spreading outward in precise geometric patterns. Each drop activates another rune, another layer of the summoning ritual.",
-        "",
-        "You notice something else: mixed with Marcus's blood is something darker. Void ichor. He didn't just cut himself - he mixed his blood with essence from beyond the veil.",
-        "",
-        "His transformation into a vessel had already begun."
-      ],
-      "options": [
-        {
-          "id": "leave",
-          "text": "[Step away from the blood]",
-          "next_state": "exit",
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "found_void_ichor",
-              "value": true
-            }
-          ]
-        }
-      ]
-    },
-    "structure_analysis": {
-      "npc_name": "Narrator",
-      "introduction": [
-        "You walk around the circle's perimeter, analyzing its construction. The precision is astounding - each line, each curve is mathematically perfect.",
-        "",
-        "This wasn't built by the cult. This circle is ANCIENT. The ruins above are thousands of years old, but this circle predates even them. It was here before the kingdom of Redstone. Before humans settled these lands.",
-        "",
-        "Someone - or something - built this circle in the dawn of the world. A door between realms, waiting to be opened.",
-        "",
-        "Marcus didn't create this ritual. He simply found it and was arrogant enough to use it."
-      ],
-      "options": [
-        {
-          "id": "leave",
-          "text": "[Step away, contemplating the age of this evil]",
-          "next_state": "exit",
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "knows_circle_age",
-              "value": true
-            }
-          ]
-        }
-      ]
-    },
-    "exit": {
-      "npc_name": "",
-      "introduction": [],
-      "options": []
-    }
-  },
-  "state_transition_logic": {
-    "entry_state": {
-      "default": "first_examination"
+  "dungeon_level_5_ritual_circle": {
+    "npc_name": "Ancient Ritual Circle",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "The massive ritual circle dominates the chamber floor. Unlike the crude blood circles on the levels above, this one is ancient - carved into the stone itself millennia ago.",
+          "",
+          "The grooves are filled with crystallized void energy that pulses with a slow, rhythmic beat. Runes in a language that predates humanity spiral outward from the center, each one a word of power.",
+          "",
+          "At the circle's heart, you see a deep gouge in the stone - recently made. Fresh blood fills it, still wet. Marcus's blood."
+        ],
+        "options": [
+          {
+            "id": "examine_runes",
+            "text": "[Study the ancient runes]",
+            "next_state": "rune_examination"
+          },
+          {
+            "id": "examine_blood",
+            "text": "[Examine the fresh blood]",
+            "next_state": "blood_examination"
+          },
+          {
+            "id": "examine_structure",
+            "text": "[Analyze the circle's structure]",
+            "next_state": "structure_analysis"
+          },
+          {
+            "id": "leave",
+            "text": "[Step away from the circle]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "dungeon_l5_ritual_examined", "value": true}
+            ]
+          }
+        ]
+      },
+      "rune_examination": {
+        "introduction": [
+          "You kneel at the circle's edge, studying the alien runes. Your mind struggles to comprehend them - they weren't meant for mortal understanding.",
+          "",
+          "But fragments of meaning seep through:",
+          "",
+          "'...door between worlds... blood of ancients... vessel for the Prince... reality tears... void consumes...'",
+          "",
+          "One rune in particular draws your attention. It's been modified - recently, judging by the fresh chisel marks. Marcus changed the ritual.",
+          "",
+          "The original rune meant 'sacrifice.' Marcus altered it to mean 'vessel.' He didn't intend to die in the ritual - he intended to become the host for the Void Prince itself."
+        ],
+        "options": [
+          {
+            "id": "continue",
+            "text": "[Continue examining]",
+            "next_state": "rune_insight",
+            "effects": [
+              {"type": "set_flag", "flag": "understood_marcus_plan", "value": true}
+            ]
+          }
+        ]
+      },
+      "rune_insight": {
+        "introduction": [
+          "A horrifying realization strikes you: Marcus wasn't just summoning the Void Prince. He was trying to MERGE with it. To become a god-vessel, wielding the Prince's power while maintaining his own consciousness and will.",
+          "",
+          "The arrogance. The insanity. Did he really think he could control such a being?",
+          "",
+          "Or perhaps the void corruption had progressed so far that he genuinely believed it. That the whispers in his mind were his own thoughts."
+        ],
+        "options": [
+          {
+            "id": "leave",
+            "text": "[Step back, disturbed]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "knows_vessel_plan", "value": true},
+              {"type": "set_flag", "flag": "dungeon_l5_ritual_examined", "value": true}
+            ]
+          }
+        ]
+      },
+      "blood_examination": {
+        "introduction": [
+          "You examine the fresh blood at the circle's center. It's still warm - Marcus performed the blood sacrifice very recently, perhaps mere hours before you arrived.",
+          "",
+          "The blood doesn't pool naturally. Instead, it flows along invisible channels in the stone, spreading outward in precise geometric patterns. Each drop activates another rune, another layer of the summoning ritual.",
+          "",
+          "You notice something else: mixed with Marcus's blood is something darker. Void ichor. He didn't just cut himself - he mixed his blood with essence from beyond the veil.",
+          "",
+          "His transformation into a vessel had already begun."
+        ],
+        "options": [
+          {
+            "id": "leave",
+            "text": "[Step away from the blood]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "found_void_ichor", "value": true},
+              {"type": "set_flag", "flag": "dungeon_l5_ritual_examined", "value": true}
+            ]
+          }
+        ]
+      },
+      "structure_analysis": {
+        "introduction": [
+          "You walk around the circle's perimeter, analyzing its construction. The precision is astounding - each line, each curve is mathematically perfect.",
+          "",
+          "This wasn't built by the cult. This circle is ANCIENT. The ruins above are thousands of years old, but this circle predates even them. It was here before the kingdom of Redstone. Before humans settled these lands.",
+          "",
+          "Someone - or something - built this circle in the dawn of the world. A door between realms, waiting to be opened.",
+          "",
+          "Marcus didn't create this ritual. He simply found it and was arrogant enough to use it."
+        ],
+        "options": [
+          {
+            "id": "leave",
+            "text": "[Step away, contemplating the age of this evil]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "knows_circle_age", "value": true},
+              {"type": "set_flag", "flag": "dungeon_l5_ritual_examined", "value": true}
+            ]
+          }
+        ]
+      },
+      "exit": {
+        "introduction": [],
+        "options": []
+      }
     }
   }
 }

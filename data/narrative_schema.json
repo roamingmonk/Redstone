@@ -373,6 +373,24 @@
         "confirmed_family": "confirmed_mayors_family_taken"
       }
     },
+    "marcus": {
+      "system_id": "marcus",
+      "full_name": "Marcus Nightshade",
+      "dialogue_file": "dungeon_level_5_marcus_pre_combat",
+      "conversation_flag": "marcus_encountered_level_5",
+      "location": "dungeon_level_5",
+      "role": "corrupted_mage",
+      "species": "human",
+      "story_flags": {
+        "encountered": "marcus_encountered_level_5",
+        "redemption_attempted": "marcus_redemption_attempted",
+        "redeemed": "marcus_redeemed",
+        "sacrificed": "marcus_sacrificed_himself",
+        "betrayed": "betrayed_marcus_trust",
+        "confrontation_complete": "marcus_confrontation_complete",
+        "portal_weakened": "portal_weakened"
+      }
+    },
     "cassia": {
       "system_id": "cassia",
       "full_name": "Cassia Nightshade",
@@ -407,6 +425,7 @@
       }
     }
   },
+  
 
   "locations": {
     "swamp_church": {
@@ -524,6 +543,9 @@
         "marcus_vessel_knowledge": "knows_marcus_is_vessel",
         "prisoner_note_found": "found_prisoner_note",
         "prisoner_messages_read": "read_prisoner_messages",
+        "possessed_defeated": "dungeon_level_4_possessed_defeated",
+        "elite_guards_defeated": "dungeon_level_4_elite_guards_defeated",
+        "treasure_looted": "dungeon_level_4_treasure_looted",
         "prison_cells_searched": "searched_prison_cells"
       }
     },
@@ -535,7 +557,11 @@
         "portal_examined": "examined_portal_chamber",
         "ritual_circle_examined": "examined_ritual_circle",
         "marcus_confronted": "confronted_marcus_final",
-        "marcus_sacrifice_acknowledged": "acknowledged_marcus_sacrifice"
+        "marcus_sacrifice_acknowledged": "acknowledged_marcus_sacrifice",
+        "marcus_encountered": "marcus_encountered_level_5",
+        "marcus_confrontation_complete": "marcus_confrontation_complete",
+        "ritual_examined": "dungeon_l5_ritual_examined",
+        "final_boss_defeated": "final_boss_defeated"
       }
     },
     "redstone_town": {
@@ -1095,11 +1121,15 @@
       "marcus_fled_ending": "cassia_gave_journals && marcus_fled_battle && !cassia_story_complete",
       "marcus_died_ending": "cassia_gave_journals && marcus_died_in_battle && !cassia_story_complete",
       "post_resolution": "cassia_story_complete"
-      }
+      },
+    "marcus": {
+      "redemption_offer": "marcus_encountered_level_5 && cassia_wants_marcus_saved && has_cassia_locket",
+      "initial_confrontation": "!marcus_encountered_level_5"
+    }
     },
     "act_progression": {
     "act_one": {
-      "name": "The Gathering Storm",
+      "name": "The Gathering Storm",  
       "start_flag": null,
       "completion_flag": "act_one_complete",
       "key_milestones": ["mayor_talked", "quest_active", "recruited_count >= 1"]

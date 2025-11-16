@@ -2298,7 +2298,41 @@ screens/exploration_hub.py
 ui/screen_manager.py
 core/game_controller.py
 
+# ADR-140: Auto-Dialogue Triggers and Object Dialogue State Management
+## Date: 2025-11-16
+## Status: Accepted
+## Context
+Two issues needed resolution:
+1. Some dialogues (like Marcus confrontation) should trigger automatically when stepping on tiles, not require ENTER key
+2. Multi-state object dialogues were using initial_state instead of current stored state when processing choices
+## Decision
+### Auto-Dialogue Triggers
+- Added `AUTO_DIALOGUE_TRIGGERS` dictionary structure to map files
+- Structure: `{trigger_id: {trigger_tiles: [(x,y)...], dialogue_id, npc_id, flag_check, one_time}}`
+- Added `get_auto_dialogue_trigger(x, y)` function to map files
+- Nav files check for auto-triggers during movement, before transition cooldown
+- Only triggers once based on flag_check (typically `!{npc}_encountered`)
 
+### Object Dialogue State Fix
+- Modified `dialogue_engine.py::_handle_dialogue_choice()` to determine current state BEFORE calling `get_conversation_options()`
+- Pass current state as `forced_state` parameter to ensure options map to correct state
+- Fixes issue where choice indices mapped to initial_state instead of current dialogue state
+
+## Consequences
+**Positive:**
+- Dramatic encounters can auto-trigger for better narrative flow
+- Data-driven approach keeps tile positions in map files, not hardcoded in nav
+- Object dialogues now correctly track multi-state transitions
+- Easy to add new auto-triggers without modifying navigation code
+
+**Negative:**
+- Nav files must import and check auto-dialogue triggers during movement
+- Slight complexity added to movement handling logic
+
+## Implementation Files
+- `data/maps/dungeon_level_5_map.py` - AUTO_DIALOGUE_TRIGGERS structure
+- `screens/dungeon_level_5_nav.py` - Auto-trigger check in movement
+- `game_logic/dialogue_engine.py` - State determination before option retrieval
 
 
 ```

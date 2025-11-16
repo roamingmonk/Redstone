@@ -4,7 +4,7 @@
   "description": "Marcus Nightshade stands before you, eyes blazing with void energy!",
   "battlefield_id": "portal_chamber_approach",
   "difficulty": "hard",
-  "pre_combat_dialogue": "dialogue_dungeon_level_5_marcus_pre_combat",
+  "pre_combat_dialogue": "dialogue_dungeon_level_5_marcus",
   "enemies": [
     {
       "enemy_id": "marcus_nightshade",

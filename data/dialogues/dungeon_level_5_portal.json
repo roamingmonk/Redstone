@@ -1,157 +1,139 @@
 {
-  "dialogue_id": "dungeon_level_5_portal",
-  "title": "The Void Portal",
-  "states": {
-    "portal_examination": {
-      "npc_name": "Narrator",
-      "introduction": [
-        "The void portal hangs in the air before you - a tear in reality itself. Through it, you see... nothing. Not darkness. Not space. True void - the absence of existence.",
-        "",
-        "Shapes move in the nothingness. Vast, incomprehensible forms that your mind refuses to fully process. You catch glimpses: writhing tentacles larger than mountains, eyes that burn with anti-light, geometries that couldn't exist in three-dimensional space.",
-        "",
-        "This is the realm of the Void Prince. The space between spaces. The nothing that hungers to consume everything."
-      ],
-      "options": [
-        {
-          "id": "look_deeper",
-          "text": "[Look deeper into the void]",
-          "next_state": "void_vision"
-        },
-        {
-          "id": "examine_edges",
-          "text": "[Examine the portal's edges]",
-          "next_state": "portal_structure"
-        },
-        {
-          "id": "close_portal",
-          "text": "[Attempt to close the portal]",
-          "next_state": "closure_attempt"
-        },
-        {
-          "id": "leave",
-          "text": "[Step away from the portal]",
-          "next_state": "exit"
-        }
-      ]
-    },
-    "void_vision": {
-      "npc_name": "Narrator",
-      "introduction": [
-        "Against every instinct screaming at you to look away, you force yourself to gaze deeper into the void. Your mind strains, cracks forming in your sanity as you perceive things mortal minds were never meant to see.",
-        "",
-        "You see worlds - thousands of them - consumed by the void. Entire civilizations snuffed out like candle flames. You see the Void Prince itself, a being so vast that galaxies are mere motes of dust in its presence.",
-        "",
-        "And then you see Earth. Your world. Still whole, still alive - but marked. The Void Prince has noticed it. Has tasted it through this portal. Whether you close this door or not, it will remember. It will return.",
-        "",
-        "Your nose is bleeding. Your head pounds. You've seen too much."
-      ],
-      "options": [
-        {
-          "id": "look_away",
-          "text": "[Force yourself to look away]",
-          "next_state": "portal_examination",
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "saw_void_prince_true_form",
-              "value": true
-            },
-            {
-              "type": "set_flag",
-              "flag": "void_whisper_debuff",
-              "value": true
-            }
-          ]
-        }
-      ]
-    },
-    "portal_structure": {
-      "npc_name": "Narrator",
-      "introduction": [
-        "You carefully examine the portal's edges, avoiding looking directly into the void itself. The tear in reality is held open by anchors - points where void energy has been bound to physical reality.",
-        "",
-        "There are five anchors, arranged in a pentagram around the portal. Three are still pulsing with power. Two have gone dark.",
-        "",
-        "The dark ones... you realize with a shock that those are where Marcus would have stood, and where another person - probably the cult's high priest - should have been. Without those anchors, the portal is unstable.",
-        "",
-        "If you can disrupt the remaining three anchors, the portal will collapse. But something has already come through. The Archon of the Void."
-      ],
-      "options": [
-        {
-          "id": "examine_anchors",
-          "text": "[Examine the anchors more closely]",
-          "next_state": "anchor_detail"
-        },
-        {
-          "id": "back",
-          "text": "[Step back from the portal edge]",
-          "next_state": "portal_examination"
-        }
-      ]
-    },
-    "anchor_detail": {
-      "npc_name": "Narrator",
-      "introduction": [
-        "Each anchor is a physical object infused with void energy:",
-        "",
-        "1. A cultist's skull, eyes glowing with purple light",
-        "2. A shard of crystallized void energy, pulsing rhythmically",
-        "3. A ancient stone tablet covered in summoning runes",
-        "",
-        "You could destroy these anchors and collapse the portal - but not while the Archon is still here. Its presence is holding the portal open through sheer force of will.",
-        "",
-        "First, you must defeat the Archon. Then the portal can be sealed."
-      ],
-      "options": [
-        {
-          "id": "leave",
-          "text": "[Step away, understanding what must be done]",
-          "next_state": "exit",
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "knows_how_to_seal_portal",
-              "value": true
-            }
-          ]
-        }
-      ]
-    },
-    "closure_attempt": {
-      "npc_name": "Narrator",
-      "introduction": [
-        "You reach toward the portal, trying to disrupt its structure, to force it closed through sheer will.",
-        "",
-        "The moment your hand approaches the void, pain unlike anything you've ever felt tears through your body. The void BURNS. Not with heat, but with the absence of existence itself.",
-        "",
-        "You snatch your hand back, gasping. Your fingers are blackened, void-touched. They'll heal, but the pain is a stark reminder: you cannot close this portal through direct force.",
-        "",
-        "It must be sealed properly, ritually. And not while the Archon still anchors it from the other side."
-      ],
-      "options": [
-        {
-          "id": "step_back",
-          "text": "[Nurse your wounded hand and step back]",
-          "next_state": "exit",
-          "effects": [
-            {
-              "type": "set_flag",
-              "flag": "void_touched_hand",
-              "value": true
-            }
-          ]
-        }
-      ]
-    },
-    "exit": {
-      "npc_name": "",
-      "introduction": [],
-      "options": []
-    }
-  },
-  "state_transition_logic": {
-    "entry_state": {
-      "default": "portal_examination"
+  "dungeon_level_5_portal": {
+    "npc_name": "Void Portal",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine",
+    "states": {
+      "examine": {
+        "introduction": [
+          "The void portal hangs in the air before you - a tear in reality itself. Through it, you see... nothing. Not darkness. Not space. True void - the absence of existence.",
+          "",
+          "Shapes move in the nothingness. Vast, incomprehensible forms that your mind refuses to fully process. You catch glimpses: writhing tentacles larger than mountains, eyes that burn with anti-light, geometries that couldn't exist in three-dimensional space.",
+          "",
+          "This is the realm of the Void Prince. The space between spaces. The nothing that hungers to consume everything."
+        ],
+        "options": [
+          {
+            "id": "look_deeper",
+            "text": "[Look deeper into the void]",
+            "next_state": "void_vision"
+          },
+          {
+            "id": "examine_edges",
+            "text": "[Examine the portal's edges]",
+            "next_state": "portal_structure"
+          },
+          {
+            "id": "close_portal",
+            "text": "[Attempt to close the portal]",
+            "next_state": "closure_attempt"
+          },
+          {
+            "id": "leave",
+            "text": "[Step away from the portal]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "dungeon_l5_portal_examined", "value": true}
+            ]
+          }
+        ]
+      },
+      "void_vision": {
+        "introduction": [
+          "Against every instinct screaming at you to look away, you force yourself to gaze deeper into the void. Your mind strains, cracks forming in your sanity as you perceive things mortal minds were never meant to see.",
+          "",
+          "You see worlds - thousands of them - consumed by the void. Entire civilizations snuffed out like candle flames. You see the Void Prince itself, a being so vast that galaxies are mere motes of dust in its presence.",
+          "",
+          "And then you see Earth. Your world. Still whole, still alive - but marked. The Void Prince has noticed it. Has tasted it through this portal. Whether you close this door or not, it will remember. It will return.",
+          "",
+          "Your nose is bleeding. Your head pounds. You've seen too much."
+        ],
+        "options": [
+          {
+            "id": "look_away",
+            "text": "[Force yourself to look away]",
+            "next_state": "examine",
+            "effects": [
+              {"type": "set_flag", "flag": "saw_void_prince_true_form", "value": true},
+              {"type": "set_flag", "flag": "void_whisper_debuff", "value": true}
+            ]
+          }
+        ]
+      },
+      "portal_structure": {
+        "introduction": [
+          "You carefully examine the portal's edges, avoiding looking directly into the void itself. The tear in reality is held open by anchors - points where void energy has been bound to physical reality.",
+          "",
+          "There are five anchors, arranged in a pentagram around the portal. Three are still pulsing with power. Two have gone dark.",
+          "",
+          "The dark ones... you realize with a shock that those are where Marcus would have stood, and where another person - probably the cult's high priest - should have been. Without those anchors, the portal is unstable.",
+          "",
+          "If you can disrupt the remaining three anchors, the portal will collapse. But something has already come through. The Archon of the Void."
+        ],
+        "options": [
+          {
+            "id": "examine_anchors",
+            "text": "[Examine the anchors more closely]",
+            "next_state": "anchor_detail"
+          },
+          {
+            "id": "back",
+            "text": "[Step back from the portal edge]",
+            "next_state": "examine"
+          }
+        ]
+      },
+      "anchor_detail": {
+        "introduction": [
+          "Each anchor is a physical object infused with void energy:",
+          "",
+          "1. A cultist's skull, eyes glowing with purple light",
+          "2. A shard of crystallized void energy, pulsing rhythmically",
+          "3. A ancient stone tablet covered in summoning runes",
+          "",
+          "You could destroy these anchors and collapse the portal - but not while the Archon is still here. Its presence is holding the portal open through sheer force of will.",
+          "",
+          "First, you must defeat the Archon. Then the portal can be sealed."
+        ],
+        "options": [
+          {
+            "id": "leave",
+            "text": "[Step away, understanding what must be done]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "knows_how_to_seal_portal", "value": true},
+              {"type": "set_flag", "flag": "dungeon_l5_portal_examined", "value": true}
+            ]
+          }
+        ]
+      },
+      "closure_attempt": {
+        "introduction": [
+          "You reach toward the portal, trying to disrupt its structure, to force it closed through sheer will.",
+          "",
+          "The moment your hand approaches the void, pain unlike anything you've ever felt tears through your body. The void BURNS. Not with heat, but with the absence of existence itself.",
+          "",
+          "You snatch your hand back, gasping. Your fingers are blackened, void-touched. They'll heal, but the pain is a stark reminder: you cannot close this portal through direct force.",
+          "",
+          "It must be sealed properly, ritually. And not while the Archon still anchors it from the other side."
+        ],
+        "options": [
+          {
+            "id": "step_back",
+            "text": "[Nurse your wounded hand and step back]",
+            "next_state": "exit",
+            "effects": [
+              {"type": "set_flag", "flag": "void_touched_hand", "value": true},
+              {"type": "set_flag", "flag": "dungeon_l5_portal_examined", "value": true}
+            ]
+          }
+        ]
+      },
+      "exit": {
+        "introduction": [],
+        "options": []
+      }
     }
   }
 }

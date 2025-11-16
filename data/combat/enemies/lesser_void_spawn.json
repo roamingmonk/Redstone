@@ -1,0 +1,76 @@
+{
+  "enemy_id": "lesser_void_spawn",
+  "name": "Lesser Void Spawn",
+  "description": "A writhing mass of void energy given semi-physical form. It looks like living darkness with too many limbs and mouths that open in impossible directions. Created by the Archon as disposable servants.",
+  "stats": {
+    "hp": 18,
+    "max_hp": 18,
+    "ac": 12,
+    "strength": 14,
+    "dexterity": 13,
+    "constitution": 14,
+    "intelligence": 6,
+    "wisdom": 8,
+    "charisma": 6
+  },
+  "saving_throw_proficiencies": [],
+  "resistances": {
+    "necrotic": 0.5
+  },
+  "immunities": ["poison"],
+  "attacks": [
+    {
+      "name": "Void Claw",
+      "damage_dice": "1d8+2",
+      "attack_bonus": 4,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A slash with claws made of solidified void energy",
+      "damage_type": "necrotic"
+    },
+    {
+      "name": "Void Spit",
+      "damage_dice": "1d6+1",
+      "attack_bonus": 3,
+      "attack_type": "ranged",
+      "range": 4,
+      "description": "Spits a glob of corrosive void energy",
+      "damage_type": "acid"
+    }
+  ],
+  "movement": {
+    "speed": 4,
+    "movement_type": "ground",
+    "notes": "Fast and erratic movement"
+  },
+  "special_abilities": [
+    {
+      "name": "Void Being",
+      "description": "Immune to poison and disease. Takes double damage from radiant sources.",
+      "effect_type": "passive",
+      "trigger": "always"
+    },
+    {
+      "name": "Unstable Form",
+      "description": "When killed, explodes dealing 1d4 necrotic damage to adjacent enemies",
+      "effect_type": "death_trigger",
+      "trigger": "on_death"
+    }
+  ],
+  "loot": {
+    "xp_value": 75,
+    "gold_range": [0, 0],
+    "items": [],
+    "item_drops": [
+      {"item_id": "void_essence", "drop_chance": 0.3, "quantity_range": [1, 1]}
+    ]
+  },
+  "behavior": {
+    "aggression": "very_high",
+    "intelligence": "very_low",
+    "tactics": "reckless_assault",
+    "acceptable_friendly_fire": 0,
+    "retreat_threshold": -1,
+    "notes": "Mindless minion that rushes toward enemies. Prefers melee but will use Void Spit if can't reach target. Never retreats."
+  }
+}
