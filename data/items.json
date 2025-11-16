@@ -131,7 +131,7 @@
       "icon_file": "ancient_royal_badge.png",
       "consumable": false,
       "weight": 0.2,
-      "rarity": "rare",
+      "rarity": "special",
       "special_effects": {
         "lore_value": true,
         "description": "A historical artifact from the ancient civilization that built these ruins"
@@ -1584,6 +1584,23 @@
           "damage_bonus_vs_void": 3,
           "duration": "3",
           "description": "Apply to weapon for +3 damage vs undead/void enemies for 3 combats"
+        }
+      },
+      {
+        "id": "villagers_abandoned_belongings",
+        "name": "Abandoned Belongings",
+        "description": "A heartbreaking collection: a child's doll, a wedding ring, and an unsent letter. Personal effects from villagers who never made it home. These should be returned to their families.",
+        "base_cost": 0,
+        "category": "items",
+        "icon_file": "villagers_abandoned_belongings.png",
+        "consumable": false,
+        "weight": 1.0,
+        "rarity": "special",
+        "stackable": false,
+        "quest_item": true,
+        "special_effects": {
+          "lore_value": true,
+          "description": "Tragic mementos that deserve to be returned to the victims' families"
         }
       },
       {

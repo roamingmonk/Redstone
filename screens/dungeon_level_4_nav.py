@@ -6,7 +6,7 @@ Active headquarters of the cult with living quarters and evidence of Marcus's le
 import pygame
 import random
 from ui.base_location_navigation import NavigationRenderer
-from utils.constants import BLACK, WHITE, YELLOW, LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT
+from utils.constants import BLACK, WHITE, YELLOW, RED, LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT
 from utils.graphics import draw_centered_text, draw_border
 from utils.party_display import draw_party_status_panel
 from utils.tile_graphics import get_tile_graphics_manager
@@ -19,7 +19,7 @@ from data.maps.dungeon_level_4_map import (
     get_tile_type,
     is_walkable,
     get_tile_color,
-    get_transition_info,
+    get_transition_at_entrance,
     get_searchable_at_position,
     get_combat_trigger
 )
@@ -28,7 +28,7 @@ from data.maps.dungeon_level_3_map import DUNGEON_L3_SPAWN_POINTS
 from data.maps.dungeon_level_5_map import DUNGEON_L5_SPAWN_POINTS
 
 class DungeonLevel4Nav:
-    """Navigation screen for dungeon level 4"""
+    """Navigation screen for dungeon level 4 - Cult Sanctum Upper"""
 
     def __init__(self):
         config = {
@@ -39,7 +39,7 @@ class DungeonLevel4Nav:
                 'get_tile_type': get_tile_type,
                 'is_walkable': is_walkable,
                 'get_tile_color': get_tile_color,
-                'get_building_info': get_transition_info,
+                'get_building_info': get_transition_at_entrance,
                 'get_searchable_info': get_searchable_at_position,
                 'get_combat_trigger': get_combat_trigger
             }
@@ -71,9 +71,10 @@ class DungeonLevel4Nav:
         """Update navigation state and handle interactions"""
         self.update_player_position(game_state)
 
-        # Check for loot trigger
+        # Check for loot trigger - MUST BE FIRST
         if hasattr(game_state, 'trigger_loot_check') and game_state.trigger_loot_check:
             loot_table_id = game_state.trigger_loot_check
+            print(f"💰 Level 4 Nav: Detected loot trigger: {loot_table_id}")
             game_state.trigger_loot_check = None
             self._trigger_loot_check(loot_table_id, game_state, controller)
             return
@@ -126,27 +127,20 @@ class DungeonLevel4Nav:
             # Priority 1: Transitions
             transition_info = self.renderer.check_valid_entrance(player_x, player_y, self.renderer.player_direction)
             if transition_info and transition_info[0]:
-                transition = transition_info[0]
-                
-                # Check for required flag
-                requires_flag = transition.get('requires_flag')
-                if requires_flag and not getattr(game_state, requires_flag, False):
-                    blocked_msg = transition.get('blocked_message', 'The way is blocked.')
-                    self.show_temp_message(blocked_msg)
-                    return
-                
                 if controller:
-                    target = transition['target_screen']
+                    target = transition_info[0]['target_screen']
                     
                     # Set spawn position for destination level
                     if target == 'dungeon_level_3_nav':
-                        spawn_point = DUNGEON_L3_SPAWN_POINTS.get('from_level_4', DUNGEON_L3_SPAWN_POINTS['default'])
-                        game_state.dungeon_l3_spawn_override_x = spawn_point[0]
-                        game_state.dungeon_l3_spawn_override_y = spawn_point[1]
+                        spawn_point = DUNGEON_L4_SPAWN_POINTS.get('from_level_3')
+                        if spawn_point:
+                            game_state.dungeon_l3_spawn_override_x = spawn_point[0]
+                            game_state.dungeon_l3_spawn_override_y = spawn_point[1]
                     elif target == 'dungeon_level_5_nav':
-                        spawn_point = DUNGEON_L5_SPAWN_POINTS.get('from_level_4', DUNGEON_L5_SPAWN_POINTS['default'])
-                        game_state.dungeon_l5_spawn_override_x = spawn_point[0]
-                        game_state.dungeon_l5_spawn_override_y = spawn_point[1]
+                        spawn_point = DUNGEON_L5_SPAWN_POINTS.get('from_level_4')
+                        if spawn_point:
+                            game_state.dungeon_l5_spawn_override_x = spawn_point[0]
+                            game_state.dungeon_l5_spawn_override_y = spawn_point[1]
                     
                     self.renderer.start_transition_cooldown()
                     controller.event_manager.emit("SCREEN_CHANGE", {
@@ -192,8 +186,11 @@ class DungeonLevel4Nav:
         import os
         from utils.constants import LOCATION_DATA_PATH
 
+        print(f"💰 _trigger_loot_check called with: {loot_table_id}")
+
         location_file = os.path.join(LOCATION_DATA_PATH, "hill_ruins.json")
         if not os.path.exists(location_file):
+            print(f"❌ Loot file not found: {location_file}")
             return
 
         with open(location_file, 'r') as f:
@@ -204,7 +201,10 @@ class DungeonLevel4Nav:
         loot_table = loot_tables.get(loot_table_id)
 
         if not loot_table:
+            print(f"❌ Loot table '{loot_table_id}' not found in hill_ruins.json")
             return
+
+        print(f"✅ Found loot table: {loot_table_id}")
 
         items_dict = {}
         for item_config in loot_table.get('items', []):
@@ -231,12 +231,14 @@ class DungeonLevel4Nav:
             })
 
         if not items_list:
+            print(f"💰 No items rolled from loot table")
             self.show_temp_message("You found nothing of value.")
             if hasattr(game_state, 'pending_search_flag') and game_state.pending_search_flag:
                 setattr(game_state, game_state.pending_search_flag, True)
                 game_state.pending_search_flag = None
             return
 
+        print(f"💰 Opening loot overlay with {len(items_list)} items")
         loot_data = {'total_gold': 0, 'items': items_list}
         game_state.combat_loot_data = loot_data
         game_state.pre_combat_location = 'dungeon_level_4_nav'
@@ -258,8 +260,12 @@ class DungeonLevel4Nav:
         self.renderer.draw_player(surface, player_x, player_y)
         draw_party_status_panel(surface, game_state, fonts)
 
-        title_text = "CULT SANCTUM - LEVEL 4"
+        title_text = "DUNGEON - LEVEL 4: CULT SANCTUM"
         draw_centered_text(surface, title_text, fonts['fantasy_medium'], 20, YELLOW, 880)
+
+        # Cult warning subtitle (similar to Level 3)
+        subtitle_text = "The heart of the cult's operations..."
+        draw_centered_text(surface, subtitle_text, fonts['fantasy_small'], 45, RED, 880)
 
         # Dialog zone
         dialog_y = LAYOUT_DIALOG_Y
@@ -286,7 +292,7 @@ class DungeonLevel4Nav:
             draw_centered_text(surface, self.message_text, fonts['fantasy_medium'], LAYOUT_DIALOG_Y + 50, WHITE, 1024)
 
 
-# Global instance
+# ScreenManager registration function
 _dungeon_level_4_instance = None
 
 def draw_dungeon_level_4_nav(surface, game_state, fonts, images, controller=None):

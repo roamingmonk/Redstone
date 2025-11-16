@@ -63,98 +63,142 @@ TILE_COLORS = {
     'X': (150, 120, 50)     # Golden chest
 }
 
-# Searchable objects
-SEARCHABLES = {
-    (7, 5): {
-        'name': 'Cult Planning Table',
-        'examine_dialogue': 'dialogue_dungeon_level_4_planning',
-        'flag_set': 'dungeon_l4_planning_examined'
+# Searchable objects (FIXED to match Level 2/3 pattern)
+SEARCHABLE_OBJECTS = {
+    'cult_planning_table': {
+        'search_tiles': [(7, 5), (6, 5), (8, 5)],
+        'object_pos': [(7, 5)],
+        'info': {
+            'name': 'Cult Planning Table',
+            'interaction_type': 'dialogue',
+            'examine_dialogue': 'dungeon_level_4_planning',
+            'flag_set': 'dungeon_l4_planning_examined',
+            'one_time': True
+        }
     },
-    (13, 10): {
-        'name': 'Marcus\'s Study',
-        'examine_dialogue': 'dialogue_dungeon_level_4_marcus_study',
-        'flag_set': 'dungeon_l4_study_examined'
+    'marcus_study': {
+        'search_tiles': [(13, 10), (12, 10), (14, 10)],
+        'object_pos': [(13, 10)],
+        'info': {
+            'name': 'Marcus\'s Study',
+            'interaction_type': 'dialogue',
+            'examine_dialogue': 'dungeon_level_4_marcus_study',
+            'flag_set': 'dungeon_l4_study_examined',
+            'one_time': True
+        }
     },
-    (8, 13): {
-        'name': 'Prison Cells',
-        'examine_dialogue': 'dialogue_dungeon_level_4_villager_cells',
-        'flag_set': 'dungeon_l4_cells_examined'
+    'prison_cells': {
+        'search_tiles': [(8, 13), (7, 13), (9, 13)],
+        'object_pos': [(8, 13)],
+        'info': {
+            'name': 'Prison Cells',
+            'interaction_type': 'dialogue',
+            'examine_dialogue': 'dungeon_level_4_villager_cells',
+            'flag_set': 'dungeon_l4_cells_examined',
+            'one_time': True
+        }
     },
-    (11, 17): {
-        'name': 'Cult Shrine',
-        'examine_dialogue': 'dialogue_dungeon_level_4_shrine',
-        'flag_set': 'dungeon_l4_shrine_examined'
+    'cult_shrine': {
+        'search_tiles': [(11, 17), (10, 17), (12, 17)],
+        'object_pos': [(11, 17)],
+        'info': {
+            'name': 'Cult Shrine',
+            'interaction_type': 'dialogue',
+            'examine_dialogue': 'dungeon_level_4_shrine',
+            'flag_set': 'dungeon_l4_shrine_examined',
+            'one_time': True
+        }
     },
-    (2, 19): {
-        'name': 'Ancient Chest',
-        'examine_dialogue': 'dialogue_dungeon_level_4_chest',
-        'flag_set': 'dungeon_l4_chest_opened'
+    'ancient_chest': {
+        'search_tiles': [(2, 19), (1, 19), (3, 19)],
+        'object_pos': [(2, 19)],
+        'info': {
+            'name': 'Ancient Chest',
+            'interaction_type': 'searchable',
+            'examine_dialogue': 'dungeon_level_4_chest',
+            'loot_table': 'dungeon_level_4_chest_loot',
+            'flag_set': 'dungeon_l4_chest_opened',
+            'one_time': True
+        }
     }
 }
+
+def get_searchable_at_position(x, y):
+    """Check if player is near searchable object"""
+    for obj_id, obj_data in SEARCHABLE_OBJECTS.items():
+        if (x, y) in obj_data['search_tiles']:
+            return obj_data['info']
+    return None
 
 # Combat encounters
-COMBAT_TRIGGERS = {
-    (2, 7): {
+COMBAT_ENCOUNTERS = {
+    'cult_patrol': {
+        'trigger_tiles': [(2, 7), (3, 7), (2, 8), (3, 8)],
         'encounter_id': 'dungeon_l4_cult_patrol',
-        'completion_flag': 'dungeon_l4_encounter_1_complete'
+        'one_time': True,
+        'completion_flag': 'dungeon_l4_encounter_1_complete',
+        'repeatable': False,
+        'chance': 1.0
     },
-    (3, 7): {
-        'encounter_id': 'dungeon_l4_cult_patrol',
-        'completion_flag': 'dungeon_l4_encounter_1_complete'
-    },
-    (2, 8): {
-        'encounter_id': 'dungeon_l4_cult_patrol',
-        'completion_flag': 'dungeon_l4_encounter_1_complete'
-    },
-    (3, 8): {
-        'encounter_id': 'dungeon_l4_cult_patrol',
-        'completion_flag': 'dungeon_l4_encounter_1_complete'
-    },
-    (18, 15): {
+    'possessed_villagers': {
+        'trigger_tiles': [(18, 15), (19, 15), (18, 16), (19, 16)],
         'encounter_id': 'dungeon_l4_possessed_villagers',
-        'completion_flag': 'dungeon_l4_encounter_2_complete'
+        'one_time': True,
+        'completion_flag': 'dungeon_l4_encounter_2_complete',
+        'repeatable': False,
+        'chance': 1.0
     },
-    (19, 15): {
-        'encounter_id': 'dungeon_l4_possessed_villagers',
-        'completion_flag': 'dungeon_l4_encounter_2_complete'
-    },
-    (18, 16): {
-        'encounter_id': 'dungeon_l4_possessed_villagers',
-        'completion_flag': 'dungeon_l4_encounter_2_complete'
-    },
-    (19, 16): {
-        'encounter_id': 'dungeon_l4_possessed_villagers',
-        'completion_flag': 'dungeon_l4_encounter_2_complete'
-    },
-    (18, 19): {
+    'elite_guards': {
+        'trigger_tiles': [(17, 19), (18, 19), (19, 19)],
         'encounter_id': 'dungeon_l4_elite_guards',
-        'completion_flag': 'dungeon_l4_encounter_3_complete'
-    },
-    (19, 19): {
-        'encounter_id': 'dungeon_l4_elite_guards',
-        'completion_flag': 'dungeon_l4_encounter_3_complete'
-    },
-    (17, 19): {
-        'encounter_id': 'dungeon_l4_elite_guards',
-        'completion_flag': 'dungeon_l4_encounter_3_complete'
+        'one_time': True,
+        'completion_flag': 'dungeon_l4_encounter_3_complete',
+        'repeatable': False,
+        'chance': 1.0
     }
 }
 
-# Transitions
-TRANSITIONS = {
-    (10, 1): {
-        'target_screen': 'dungeon_level_3_nav',
-        'action': 'go up stairs to Level 3',
-        'direction': 'north'
+def get_combat_trigger(x, y):
+    """Check if position triggers combat encounter"""
+    for encounter_id, encounter_data in COMBAT_ENCOUNTERS.items():
+        if (x, y) in encounter_data['trigger_tiles']:
+            return encounter_data
+    return None
+
+# Area transitions (FIXED to match Level 2/3 nested structure)
+AREA_TRANSITIONS = {
+    'stairs_to_level_3': {
+        'entrance_tiles': [(12, 1), (11, 1), (13, 1)],
+        'building_pos': [(12, 1)],
+        'info': {
+            'name': 'Ascending Stairs',
+            'interaction_type': 'navigation',
+            'target_screen': 'dungeon_level_3_nav',
+            'action': 'Return to Level 3',
+            'requirements': {}
+        }
     },
-    (18, 20): {
-        'target_screen': 'dungeon_level_5_nav',
-        'action': 'descend to Portal Chamber',
-        'direction': 'south',
-        'requires_flag': 'dungeon_level_4_complete',
-        'blocked_message': 'The passage is sealed by dark magic. You must defeat the elite guards first.'
+    'stairs_to_level_5': {
+        'entrance_tiles': [(18, 20), (17, 20), (19, 20)],
+        'building_pos': [(18, 20)],
+        'info': {
+            'name': 'Descending Stairs',
+            'interaction_type': 'navigation',
+            'target_screen': 'dungeon_level_5_nav',
+            'action': 'Descend to Portal Chamber',
+            'requirements': {}
+        }
     }
 }
+
+def get_transition_at_entrance(x, y):
+    """Check if player is at area transition point"""
+    for transition_id, transition_data in AREA_TRANSITIONS.items():
+        if 'entrance_tiles' not in transition_data:
+            continue
+        if (x, y) in transition_data['entrance_tiles']:
+            return transition_data.get('info')
+    return None
 
 def get_tile_type(x, y):
     """Get the tile character at coordinates."""
@@ -167,18 +211,10 @@ def is_walkable(x, y):
     tile = get_tile_type(x, y)
     return tile in WALKABLE_TILES
 
-def get_tile_color(tile_char):
-    """Get the color for a tile character."""
+def get_tile_color(x, y):
+    """
+    Get color for tile rendering
+    These are PLACEHOLDER colors for testing
+    """
+    tile_char = get_tile_type(x, y)
     return TILE_COLORS.get(tile_char, (50, 50, 50))
-
-def get_transition_info(x, y):
-    """Get transition info at position."""
-    return TRANSITIONS.get((x, y))
-
-def get_searchable_at_position(x, y):
-    """Get searchable object at position."""
-    return SEARCHABLES.get((x, y))
-
-def get_combat_trigger(x, y):
-    """Get combat trigger at position."""
-    return COMBAT_TRIGGERS.get((x, y))
