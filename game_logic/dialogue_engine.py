@@ -346,24 +346,41 @@ class DialogueEngine:
             dialogue_file_id = f'{location_id}_{npc_id}'
             print(f"🎭 DEBUG: Looking for dialogue file: {dialogue_file_id}")
             
-            # Get choice_id from conversation data
-            conversation_data = self.get_conversation_options(dialogue_file_id, npc_id)
+            # Load dialogue if needed
+            if dialogue_file_id not in self.dialogues:
+                self.load_dialogue_file(dialogue_file_id)
+            
+            dialogue_tree = self.dialogues.get(dialogue_file_id, {})
+            
+            # Get metadata first to determine state handling
+            metadata = self.get_dialogue_metadata(dialogue_file_id)
+            is_object = metadata.get('is_object', False)
+            
+            #  Determine current state BEFORE getting conversation options
+            if is_object:
+                stored_state_attr = f'{npc_id}_dialogue_state'
+                stored_state = getattr(self.game_state, stored_state_attr, None)
+                in_progress = getattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
+                
+                if in_progress and stored_state:
+                    current_state = stored_state  # Use the stored state for subsequent choices
+                    print(f"🎯 DEBUG: Using stored state for object: {current_state}")
+                else:
+                    current_state = dialogue_tree.get('initial_state', 'examine')
+                    print(f"🎯 DEBUG: Using initial state for object: {current_state}")
+            else:
+                current_state = self.get_current_dialogue_state(npc_id)
+                print(f"🎯 DEBUG: Using narrative schema state for NPC: {current_state}")
+            
+            # NOW get conversation options with the correct state
+            conversation_data = self.get_conversation_options(dialogue_file_id, npc_id, forced_state=current_state)
             options = conversation_data.get('options', [])
+            
+            print(f"🎯 DEBUG: Got {len(options)} options for state '{current_state}'")
 
             if choice_index < len(options):
                 choice_id = options[choice_index]['id']
                 print(f"🎭 DEBUG: Selected option ID: {choice_id}")
-                
-                # Get metadata first to determine state handling
-                metadata = self.get_dialogue_metadata(dialogue_file_id)
-                is_object = metadata.get('is_object', False)
-                
-                # Determine state BEFORE setting flags for consistency
-                # For objects, don't use narrative schema - let process_dialogue_choice use initial_state
-                if is_object:
-                    current_state = None  # Let process_dialogue_choice determine from initial_state
-                else:
-                    current_state = self.get_current_dialogue_state(npc_id)
                 
                 # NARRATIVE SCHEMA INTEGRATION - Set conversation flag AFTER state determination
                 conv_flag = narrative_schema.get_npc_conversation_flag(npc_id)
@@ -392,7 +409,7 @@ class DialogueEngine:
                             self.game_state.player_statistics['objects_examined'] += 1
                             print(f"🔍 Examined object: {npc_id} (Total objects: {self.game_state.player_statistics['objects_examined']})")
 
-                # Call existing business logic method (current_state may be None for objects)
+                # Call existing business logic method (pass current_state as forced_state for consistency)
                 result = self.process_dialogue_choice(dialogue_file_id, npc_id, choice_id, current_state)
                 
                 #Get metadata for response screen (needs to know if object)
@@ -653,15 +670,22 @@ class DialogueEngine:
                 return {'response': ["I see."], 'effects': []}
             
             # Handle normal dialogue choices
-            # For objects, use initial_state instead of narrative schema
+            # For objects, check stored state first before falling back to initial_state
             if dialogue_tree.get('is_object', False):
-                # Objects use initial_state from their JSON
-                current_state = forced_state or dialogue_tree.get('initial_state', 'examine')
+                # Check if there's an active dialogue session with a stored state
+                stored_state_attr = f'{npc_id}_dialogue_state'
+                stored_state = getattr(self.game_state, stored_state_attr, None)
+                in_progress = getattr(self.game_state, f'{npc_id}_dialogue_in_progress', False)
+                
+                if in_progress and stored_state and not forced_state:
+                    # Mid-dialogue: use the stored state
+                    current_state = stored_state
+                else:
+                    # First interaction OR explicit forced_state
+                    current_state = forced_state or dialogue_tree.get('initial_state', 'examine')
             else:
                 # NPCs use narrative schema state mapping
                 current_state = forced_state or self.get_current_dialogue_state(npc_id)
-            #print(f"🔧 DEBUG PROCESS: DE: Using current_state={current_state}")
-            #print(f"DEBUG: DE: Current state = {current_state}")
 
             if current_state not in dialogue_tree.get('states', {}):
                 return {'response': ["I don't understand."], 'effects': []}

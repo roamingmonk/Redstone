@@ -1,0 +1,42 @@
+{
+  "battlefield_id": "sanctum_antechamber",
+  "name": "Sanctum Antechamber",
+  "tileset": "dungeon",
+  "description": "A ceremonial antechamber where elite guards defend the passage to the Portal Chamber. A magical barrier shimmers behind them, sealing the descending stairs.",
+  "dimensions": {
+    "width": 10,
+    "height": 8
+  },
+  "tile_size": 48,
+  "terrain": {
+    "default": "ritual_floor",
+    "walls": [
+      [0, 0, 9, 0],
+      [0, 7, 9, 7],
+      [0, 0, 0, 7],
+      [9, 0, 9, 7]
+    ],
+    "obstacles": [
+      {"type": "pillar", "position": [3, 1], "blocks_movement": true, "blocks_sight": true},
+      {"type": "pillar", "position": [3, 6], "blocks_movement": true, "blocks_sight": true},
+      {"type": "brazier", "position": [7, 2], "blocks_movement": true, "blocks_sight": false},
+      {"type": "brazier", "position": [7, 5], "blocks_movement": true, "blocks_sight": false},
+      {"type": "altar", "position": [8, 3], "blocks_movement": true, "blocks_sight": true},
+      {"type": "barrier_seal", "position": [9, 4], "blocks_movement": false, "blocks_sight": false}
+    ]
+  },
+  "spawn_zones": {
+    "player_start": [
+      [0, 3], [0, 4], [1, 3], [1, 4]
+    ],
+    "enemy_spawns": [
+      [4, 2], [4, 5], [5, 3], [5, 4], [6, 3]
+    ],
+    "exit_point": [0, 3]
+  },
+  "lighting": "ominous",
+  "environmental_effects": [
+    {"type": "void_energy", "effect": "arcane_corruption"},
+    {"type": "magical_barrier", "effect": "blocks_escape"}
+  ]
+}

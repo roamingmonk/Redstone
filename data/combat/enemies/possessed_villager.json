@@ -1,0 +1,72 @@
+{
+  "enemy_id": "possessed_villager",
+  "name": "Possessed Villager",
+  "description": "A tragic victim of the cult's void experiments. Black energy crackles around their body, and their eyes are empty voids. They move with unnatural, jerky movements - puppets of dark magic.",
+  "stats": {
+    "hp": 16,
+    "max_hp": 16,
+    "ac": 11,
+    "strength": 14,
+    "dexterity": 10,
+    "constitution": 14,
+    "intelligence": 6,
+    "wisdom": 6,
+    "charisma": 6
+  },
+  "saving_throw_proficiencies": ["constitution"],
+  "resistances": {
+    "poison": 0.5
+  },
+  "immunities": [],
+  "attacks": [
+    {
+      "name": "Void-Touched Strike",
+      "damage_dice": "1d6+2",
+      "attack_bonus": 3,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "A frenzied blow infused with corrupting void energy",
+      "damage_type": "necrotic"
+    }
+  ],
+  "movement": {
+    "speed": 3,
+    "movement_type": "ground",
+    "notes": "Shambling, erratic movement"
+  },
+  "special_abilities": [
+    {
+      "name": "Void Possession",
+      "description": "Immune to fear and mind-affecting effects. Controlled by dark magic.",
+      "effect_type": "condition_immunity",
+      "trigger": "always"
+    },
+    {
+      "name": "Corrupting Touch",
+      "description": "Attacks may inflict void corruption, reducing max HP temporarily (15% chance)",
+      "effect_type": "status_effect",
+      "trigger": "on_hit",
+      "chance": 0.15,
+      "effect": "void_corruption"
+    },
+    {
+      "name": "Unnatural Vigor",
+      "description": "Enhanced strength and endurance from void energy, feels no pain",
+      "effect_type": "passive",
+      "trigger": "always"
+    }
+  ],
+  "loot": {
+    "xp_value": 100,
+    "gold_range": [0, 0],
+    "items": [],
+    "item_drops": []
+  },
+  "behavior": {
+    "aggression": "very_high",
+    "intelligence": "very_low",
+    "tactics": "aggressive_rush",
+    "retreat_threshold": -1,
+    "notes": "Mindlessly attacks nearest target. Never retreats. Tragic puppets controlled by void magic."
+  }
+}
