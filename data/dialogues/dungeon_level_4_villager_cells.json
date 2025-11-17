@@ -89,33 +89,82 @@
       },
       "search_for_survivors": {
         "introduction": [
-          "You search each cell methodically, hoping against hope to find someone still alive, someone you can save.",
+          "You search each cell methodically, hoping against hope to find someone still alive.",
           "",
-          "But there's no one. The cells are empty except for the one body. The rest became the possessed villagers you fought earlier - or worse, willing converts to the cult.",
+          "The first three cells are empty except for shackles and bloodstains. The fourth contains only a corpse.",
           "",
-          "You find abandoned belongings: a child's doll, a wedding ring, a letter never sent. Each one a life destroyed by Marcus's ambition.",
+          "But in the fifth cell, hidden behind a false wall...",
           "",
-          "The weight of it settles on your shoulders. You're too late to save these people. But you can still stop this from happening to anyone else."
+          "You hear breathing.",
+          "",
+          "*You tear down the loose stones to reveal a small hidden chamber. Inside, huddled together, are five people - a woman, two children, and two elderly villagers.*",
+          "",
+          "*The woman looks up with hollow, haunted eyes. You recognize her from the town square portrait - the Mayor's wife.*",
+          "",
+          "\"Are... are you real?\" she whispers. \"Or another trick?\""
         ],
         "options": [
           {
-            "id": "take_belongings",
-            "text": "[Take the belongings to return to their families]",
-            "next_state": "exit",
-            "effects": [
-              {"type": "add_item", "item_id": "villagers_abandoned_belongings", "quantity": 1},
-              {"type": "set_flag", "flag": "searched_prison_cells", "value": true},
-              {"type": "set_flag", "flag": "dungeon_l4_cells_examined", "value": true}
-            ]
-          },
+            "id": "reassure_them",
+            "text": "\"I'm real. Your husband sent me. You're safe now.\"",
+            "next_state": "family_rescue"
+          }
+        ]
+      },
+
+      "family_rescue": {
+        "introduction": [
+          "*She breaks down sobbing, clutching her children. The others begin to cry as well - tears of relief.*",
+          "",
+          "\"He's alive? Aldwin is alive?\"",
+          "",
+          "\"Yes. And Redstone is fighting back. But we need to get you out of here first.\"",
+          "",
+          "*You help them stand. They're weak, malnourished, but alive. The Shadow Blight touched them - you can see the faint dark veins on their skin - but they fought it off.*",
+          "",
+          "*The mayor's wife grips your arm with surprising strength.*",
+          "",
+          "\"There were more. They took them deeper. To the portal chamber. For... for the ritual. We only survived because Marcus hid us. Before he completely lost himself, he sealed us in here. Told the others we'd died.\"",
+          "",
+          "*Her voice breaks.*",
+          "",
+          "\"Go. Stop them. We'll find our way out. Just... end this nightmare.\""
+        ],
+        "options": [
           {
-            "id": "leave",
-            "text": "[Leave the cells, determined]",
-            "next_state": "exit",
+            "id": "help_them_escape",
+            "text": "\"Can you make it to the surface? Follow the stairways up. Town guards are waiting.\"",
             "effects": [
+              {"type": "set_flag", "flag": "mayors_family_rescued", "value": true},
               {"type": "set_flag", "flag": "searched_prison_cells", "value": true},
-              {"type": "set_flag", "flag": "dungeon_l4_cells_examined", "value": true}
-            ]
+              {"type": "set_flag", "flag": "dungeon_l4_cells_examined", "value": true},
+              {"type": "set_flag", "flag": "marcus_saved_some_prisoners", "value": true},
+              {"type": "award_xp", "amount": 150}
+            ],
+            "next_state": "family_departure"
+          }
+        ]
+      },
+
+      "family_departure": {
+        "introduction": [
+          "*The mayor's wife nods, helping the others stand.*",
+          "",
+          "\"We'll make it. We've survived this long.\"",
+          "",
+          "*She looks back at you one more time.*",
+          "",
+          "\"Thank you. For coming for us. For not giving up.\"",
+          "",
+          "*They begin the slow climb upward. You watch until they're out of sight, then turn back toward the depths.*",
+          "",
+          "*The portal chamber awaits. And the final confrontation with the cult.*"
+        ],
+        "options": [
+          {
+            "id": "continue",
+            "text": "[Continue deeper into the dungeon]",
+            "next_state": "exit"
           }
         ]
       },

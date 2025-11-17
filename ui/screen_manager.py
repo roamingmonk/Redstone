@@ -29,6 +29,7 @@ from ui.death_overlay import create_death_overlay
 from screens.intro_scenes import draw_intro_scene_1, draw_intro_scene_2, draw_intro_scene_3
 from screens.act_two_transition import (draw_act_two_start, register_act_two_buttons, get_act_two_manager)
 from screens.act_three_transition import (draw_act_three_start, register_act_three_buttons, get_act_three_manager)
+from screens.victory_screen import draw_victory_screen
 
 from screens.exploration_hub import draw_exploration_hub, register_exploration_hub_buttons, get_hub_manager
 #from screens.exploration_hub import get_hub_manager
@@ -78,18 +79,18 @@ class ScreenManager:
         self.event_manager = event_manager
         self.screens = {}  # screen_name -> screen_handler (click handlers)
         
-        # NEW: Full screen rendering system
+        # Full screen rendering system
         self.screen = screen  # pygame display surface
         self.fonts = fonts    # font dictionary
         self.images = images  # image dictionary
         
-        # NEW: Screen render function registry
+        # Screen render function registry
         self.render_functions = {}  # screen_name -> render_function
         self.enter_hooks = {}       # screen_name -> enter_function
         self.exit_hooks = {}        # screen_name -> exit_function
         self.floating_text_manager = None
 
-        # NEW: Screen state tracking
+        # Screen state tracking
         self.current_screen = None
         self.previous_screen = None
         self.screen_history = []
@@ -101,11 +102,10 @@ class ScreenManager:
 
         self._current_game_controller = None 
 
-        # Initialize Act II transition manager 
+        # Initialize - Manager References
         self.act_two_manager = None  
-
-        # Initialize Act III transition manager 
         self.act_three_manager = None  
+        self.victory_manager = None
 
         # Navigation route map for simple transitions
         self.navigation_routes = {
@@ -738,6 +738,34 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for Act III registration")
 
+    def register_victory_screen_clickables(self):
+        """
+        Register clickable button for victory screen
+        Follows intro_scenes and act_two patterns
+        """
+        if hasattr(self, 'input_handler') and self.input_handler:
+            # Get button coordinates by rendering to temp surface
+            temp_surface = pygame.Surface((1024, 768))
+            
+            # Call the draw function to get button rect
+            from screens.victory_screen import draw_victory_screen
+            scene_result = draw_victory_screen(temp_surface, self._current_game_state, self.fonts, self.images)
+            
+            if scene_result and "continue_button" in scene_result:
+                # Register CONTINUE button with screen change event
+                self.input_handler.register_clickable(
+                    "victory_screen",
+                    scene_result["continue_button"],
+                    "SCREEN_CHANGE",
+                    {"target": "redstone_town", "source": "victory_screen"}
+                )
+                
+                print(f"🏆 Victory screen clickables registered")
+            else:
+                print(f"⚠️ Could not register victory screen clickables")
+        else:
+            print("⚠️ No InputHandler available for victory screen registration")
+
     def register_load_screen_clickables(self):
         """Register load screen clickables when load overlay opens"""
         if hasattr(self, 'input_handler') and self.input_handler:
@@ -1256,6 +1284,10 @@ class ScreenManager:
             self.register_render_function("dungeon_level_4_nav", draw_dungeon_level_4_nav)
             self.register_render_function("dungeon_level_5_nav", draw_dungeon_level_5_nav)
 
+            # Victory screen (post-boss defeat)
+            self.register_render_function("victory_screen", draw_victory_screen,
+                                        enter_hook=self.register_victory_screen_clickables)
+            print("🏆 Victory screen registered")
             # Utility screens
             self.register_render_function("inventory", draw_inventory_screen,
                 enter_hook=lambda _: self.register_inventory_screen_clickables())

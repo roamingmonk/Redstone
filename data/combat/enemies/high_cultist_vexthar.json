@@ -3,7 +3,7 @@
   "name": "High Cultist Vexthar the Consumed",
   "description": "A gaunt figure in black robes adorned with silver Aethel glyphs. Shadow corruption visibly courses through his veins like black lightning. His eyes are completely black abysses. Once a scholar like Marcus, he has gone far deeper into the Blight's embrace - willingly, eagerly. He is the true architect of the ritual, and the Shadow Blight's chosen vessel.",
   "stats": {
-    "hp": 80,
+    "hp": 1,
     "max_hp": 80,
     "ac": 17,
     "strength": 14,

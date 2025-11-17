@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-11-16 08:21)
+﻿## Repository Structure (generated 2025-11-17 18:09)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -314,7 +314,6 @@ C:.
 |   |   |       
 |   |   \---enemies
 |   |           animated_statue.json
-|   |           archon_of_the_void.json
 |   |           baby_spider.json
 |   |           bandit_common.json
 |   |           bandit_leader.json
@@ -326,11 +325,12 @@ C:.
 |   |           giant_rat.json
 |   |           giant_spider.json
 |   |           goblin.json
+|   |           high_cultist_vexthar.json
 |   |           kobold.json
 |   |           kobold_scout.json
 |   |           kobold_shaman.json
 |   |           kobold_warrior.json
-|   |           lesser_void_spawn.json
+|   |           lesser_blight_spawn.json
 |   |           marcus_nightshade.json
 |   |           ogre_archer.json
 |   |           possessed_villager.json
@@ -465,11 +465,13 @@ C:.
 |   |       
 |           
 +---docs
+|       Act-III-Narative-Realignment-plan.md
 |       acti-II-mayor-and-discovery-system-implementation-plan.md
 |       Act_II_Exploration_System_Implementation_Plan.md
 |       adding_npc_dialogue.md
 |       decisions.md
 |       Dialogue_issues_-_what_to_review_-Nov_5.md
+|       epilogue-system-design.md
 |       Flag-analysis-and-path-forward.md
 |       Hill_Ruins_Implementation_Plan.md
 |       Phase_11.5_Location_Navigation_Conversion_Plan_v2.md
@@ -477,7 +479,6 @@ C:.
 |       project_context.md
 |       Refugee_Camp_and_Red_Hollow_Mine_Implementation_Plan.md
 |       Repository_Structure.md
-|       Terror in Redstone - Act III Master Implementation Plan.md
 |       
 +---game_logic
 |   |   character_engine.py
@@ -540,6 +541,7 @@ C:.
 |   |   swamp_church_exterior_nav.py
 |   |   swamp_church_interior_nav.py
 |   |   title_menu.py
+|   |   victory_screen.py
 |   |   __init__.py
 |   |   
 |           

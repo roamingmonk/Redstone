@@ -120,6 +120,9 @@
           "id": "cassia_message",
           "text": "Cassia asked me to tell you: she never stopped loving who you were.",
           "requirements": {"flag": "cassia_gave_locket"},
+          "effects": [
+              {"type": "remove_item", "item_id": "cassia_locket", "quantity": 1}
+          ],
           "next_state": "cassia_locket_reveal"
         },
         {
@@ -375,7 +378,7 @@
           "effects": [
             {"type": "set_flag", "flag": "marcus_hostile", "value": true},
             {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
-            {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_hostile"}
+            {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_confrontation"}
           ],
           "next_state": "exit"
         }
@@ -453,7 +456,7 @@
             {"type": "set_flag", "flag": "marcus_hostile", "value": true},
             {"type": "set_flag", "flag": "redemption_rejected", "value": true},
             {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
-            {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_hostile"}
+            {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_confrontation"}
           ],
           "next_state": "exit"
         }
@@ -530,7 +533,7 @@
           "effects": [
             {"type": "set_flag", "flag": "marcus_hostile", "value": true},
             {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
-            {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_hostile"}
+            {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_confrontation"}
           ],
           "next_state": "exit"
         }
@@ -625,7 +628,7 @@
           "effects": [
             {"type": "set_flag", "flag": "marcus_hostile", "value": true},
             {"type": "set_flag", "flag": "marcus_confrontation_complete", "value": true},
-            {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_hostile"}
+            {"type": "start_combat", "encounter_id": "dungeon_l5_marcus_confrontation"}
           ],
           "next_state": "exit"
         }

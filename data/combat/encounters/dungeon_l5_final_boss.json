@@ -8,20 +8,20 @@
   "enemies": [
     {
       "enemy_id": "high_cultist_vexthar",
-      "position": [5, 3],
-      "facing": "west",
+      "position": [9, 8],
+      "facing": "north",
       "boss": true,
       "unique": true
     },
     {
       "enemy_id": "lesser_blight_spawn",
       "position": [4, 2],
-      "facing": "west",
+      "facing": "north",
       "description_override": "A writhing tendril of shadow corruption"
     },
     {
       "enemy_id": "lesser_blight_spawn",
-      "position": [4, 4],
+      "position": [5, 12],
       "facing": "west",
       "description_override": "A writhing tendril of shadow corruption"
     }
@@ -46,7 +46,7 @@
   ],
   "player_party": {
     "starting_positions": [
-      [0, 3], [0, 4], [1, 3], [1, 4]
+      [7, 3], [7, 4], [8, 3], [8, 4]
     ],
     "facing": "east"
   },

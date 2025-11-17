@@ -428,6 +428,210 @@
         }
       ]
     },
+    "post_victory_celebration": {
+      "introduction": [
+        "*The Mayor's office is transformed. Sunlight streams through clean windows, and the man himself looks ten years younger.*",
+        "",
+        "*He stands as you enter, a broad smile on his face*",
+        "",
+        "The hero of Redstone returns!",
+        "*He comes around the desk to grip your shoulders*",
+        "My family is safe. The town is saved. The Shadow Blight is sealed.",
+        "We owe you everything."
+      ],
+      "options": [
+        {
+          "id": "how_is_family",
+          "text": "How is your family? Are they recovering?",
+          "next_state": "family_recovery"
+        },
+        {
+          "id": "just_doing_job",
+          "text": "I just did what needed to be done.",
+          "next_state": "humble_response"
+        },
+        {
+          "id": "whats_next",
+          "text": "What's next for Redstone?",
+          "next_state": "town_future"
+        }
+      ]
+    },
+
+    "family_recovery": {
+      "introduction": [
+        "*His smile falters slightly*",
+        "",
+        "They're alive. That's what matters most.",
+        "But they were... touched by the corruption. Briefly.",
+        "The healers say they'll recover fully, but they have nightmares.",
+        "Dreams of darkness and whispering shadows.",
+        "*He steadies himself*",
+        "But they're HERE. Safe. Healing.",
+        "That's more than I dared hope for when you first walked into the Broken Blade."
+      ],
+      "options": [
+        {
+          "id": "glad_to_hear",
+          "text": "I'm glad they're safe.",
+          "next_state": "mayor_gratitude"
+        },
+        {
+          "id": "ask_about_future",
+          "text": "Will the Shadow Blight return?",
+          "next_state": "blight_concerns"
+        }
+      ]
+    },
+
+    "humble_response": {
+      "introduction": [
+        "*He shakes his head*",
+        "",
+        "Don't diminish what you did.",
+        "You walked into the deepest darkness this region has ever known.",
+        "You faced corrupted cultists, ancient horrors, and the very essence of the Shadow Blight itself.",
+        "*His voice grows serious*",
+        "And you came back. With my family. With survivors.",
+        "That's not 'just doing your job.' That's heroism."
+      ],
+      "options": [
+        {
+          "id": "thank_you",
+          "text": "Thank you, Mayor.",
+          "next_state": "mayor_gratitude"
+        }
+      ]
+    },
+
+    "blight_concerns": {
+      "introduction": [
+        "*He walks to the window, looking out over the town square*",
+        "",
+        "The portal is destroyed. The ritual interrupted. Vexthar is dead.",
+        "But the portal-stone itself still exists in those ruins.",
+        "The Aethel left their mark on this land centuries ago.",
+        "*He turns back to you*",
+        "We must remain vigilant. The Shadow Blight may sleep, but it does not die.",
+        "Henrik is organizing a watch. We'll seal the ruins permanently.",
+        "And we'll remember. We'll teach our children what happened here.",
+        "So it never happens again."
+      ],
+      "options": [
+        {
+          "id": "wise_plan",
+          "text": "That's a wise plan.",
+          "next_state": "mayor_gratitude"
+        }
+      ]
+    },
+
+    "town_future": {
+      "introduction": [
+        "*He gestures broadly*",
+        "",
+        "Rebuilding. Healing. Living.",
+        "The refugees can return to their homes. The mine can reopen - carefully.",
+        "Trade will resume. The Broken Blade will be full again.",
+        "*A genuine smile*",
+        "Redstone will be a town of life again, not fear.",
+        "And we have you to thank for that."
+      ],
+      "options": [
+        {
+          "id": "proud_of_you",
+          "text": "I'm proud to have helped.",
+          "next_state": "mayor_gratitude"
+        }
+      ]
+    },
+
+    "mayor_gratitude": {
+      "introduction": [
+        "*He produces a heavy coin purse*",
+        "",
+        "This is from the town treasury. Your reward.",
+        "It's not enough. It could never be enough.",
+        "But it's what we can offer.",
+        "*He also hands you an ornate key*",
+        "And this. The Key to Redstone. An honorary citizenship.",
+        "You will always have a home here. Always be welcome.",
+        "You are family now."
+      ],
+      "options": [
+        {
+          "id": "accept_reward",
+          "text": "Thank you, Mayor. I'm honored.",
+          "effects": [
+            {"type": "add_gold", "amount": 500},
+            {"type": "add_item", "item_id": "redstone_honorary_key"},
+            {"type": "set_flag", "flag": "mayor_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "received_redstone_key", "value": true},
+            {"type": "award_xp", "amount": 200}
+          ],
+          "next_state": "post_victory_idle"
+        }
+      ]
+    },
+
+    "post_victory_idle": {
+      "introduction": [
+        "*The Mayor nods warmly*",
+        "",
+        "Is there anything else I can help you with?"
+      ],
+      "options": [
+        {
+          "id": "ask_about_family_again",
+          "text": "How is your family doing?",
+          "next_state": "family_update"
+        },
+        {
+          "id": "ask_about_town",
+          "text": "How is the rebuilding going?",
+          "next_state": "rebuilding_update"
+        },
+        {
+          "id": "leave",
+          "text": "Nothing right now. Good day, Mayor.",
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "family_update": {
+      "introduction": [
+        "*His expression softens*",
+        "",
+        "Better each day. The nightmares are fading.",
+        "My daughter even smiled yesterday. Really smiled.",
+        "It will take time, but we have time now. Thanks to you."
+      ],
+      "options": [
+        {
+          "id": "good_to_hear",
+          "text": "That's good to hear.",
+          "next_state": "post_victory_idle"
+        }
+      ]
+    },
+
+    "rebuilding_update": {
+      "introduction": [
+        "Remarkably well. People are resilient.",
+        "The refugees have returned. Businesses are reopening.",
+        "Henrik sealed the mine entrance - permanently this time.",
+        "We're building a memorial. For those we lost.",
+        "Redstone is healing."
+      ],
+      "options": [
+        {
+          "id": "excellent",
+          "text": "Excellent news.",
+          "next_state": "post_victory_idle"
+        }
+      ]
+    },
 
     "final_blessing": {
       "introduction": [

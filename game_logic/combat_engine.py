@@ -95,6 +95,9 @@ class CombatEngine:
             event_manager.register("DEATH_ACTION_RESTART_COMBAT", self._handle_death_restart_combat)
             event_manager.register("DEATH_ACTION_RETURN_TO_TITLE", self._handle_death_return_to_title)
             print("💀 Death overlay events registered in CombatEngine")
+            # Register combat trigger from dialogue
+            event_manager.register("START_COMBAT", self._handle_start_combat_event)
+            print("⚔️ Combat engine listening for START_COMBAT events")
         
         print("CombatEngine initialized")
     
@@ -188,6 +191,31 @@ class CombatEngine:
         # Start idle; buttons set an explicit mode
         self.current_action_mode = None
 
+    def _handle_start_combat_event(self, event_data):
+        """
+        Handle START_COMBAT event from dialogue system
+        Engine-to-engine communication via EventManager
+        """
+        encounter_id = event_data.get('encounter_id')
+        source = event_data.get('source', 'unknown')
+        
+        print(f"⚔️ CombatEngine: Received START_COMBAT from {source}: {encounter_id}")
+        
+        if not encounter_id:
+            print("❌ No encounter_id in START_COMBAT event")
+            return
+        
+        # Start the encounter
+        success = self.start_encounter(encounter_id)
+        
+        if success:
+            # Transition to combat screen
+            self.game_state.screen = 'combat'
+            print(f"📺 Combat screen activated for: {encounter_id}")
+        else:
+            print(f"❌ Failed to start encounter: {encounter_id}")
+    
+    
     def start_encounter(self, encounter_id: str, combat_context: Dict = None) -> bool:
         """
         Load encounter data and initialize combat state
@@ -2698,6 +2726,38 @@ class CombatEngine:
         self.current_phase = CombatPhase.VICTORY
         self._add_to_combat_log("VICTORY!")
         
+        # 🏆 CHECK IF THIS IS THE BOSS FIGHT FIRST
+        is_boss_fight = self._is_boss_encounter()
+        
+        if is_boss_fight:
+            print("🏆 BOSS DEFEATED! Redirecting to victory screen...")
+            
+            # Set boss victory flags
+            self.game_state.boss_defeated = True
+            self.game_state.portal_sealed = True
+            
+            # Check mayor's family status from combat data/flags
+            # This should already be set during Level 4 villager rescue
+            if not hasattr(self.game_state, 'mayor_family_status'):
+                # Default to 'none' if not set (shouldn't happen in normal play)
+                self.game_state.mayor_family_status = 'none'
+                print("⚠️ mayor_family_status not set - defaulting to 'none'")
+            
+            # Transition to victory screen (skip all normal loot/reward processing)
+            self.game_state.screen = 'victory_screen'
+            print("📺 Screen changed to: victory_screen")
+            
+            # Emit boss victory event (for any listeners)
+            encounter_id = self.combat_data.get("encounter", {}).get("encounter_id")
+            self.event_manager.emit("BOSS_DEFEATED", {
+                "encounter_id": encounter_id,
+                "mayor_family_status": getattr(self.game_state, 'mayor_family_status', 'none')
+            })
+            
+            return  # ⚠️ EXIT HERE - skip all the normal combat victory logic below
+        
+        # === NORMAL COMBAT VICTORY (not boss) - your existing code continues ===
+        
         # Stabilize unconscious party members at 1 HP
         for char_id, char_state in self.character_states.items():
             if char_id == 'player':
@@ -2767,6 +2827,25 @@ class CombatEngine:
         
         self.game_state.overlay_state.open_overlay("combat_loot")
         print(f"💰 Combat loot overlay opened: {loot_data['total_gold']} gold, {len(loot_data['items'])} item types")
+
+
+    def _is_boss_encounter(self) -> bool:
+        """
+        Check if current encounter is the final boss fight
+        Returns True if encounter contains high_cultist_vexthar
+        """
+        enemy_instances = self.combat_data.get("enemy_instances", [])
+        
+        for enemy in enemy_instances:
+            enemy_id = enemy.get("enemy_id", "")
+            enemy_name = enemy.get("name", "")
+            
+            # Check for boss by enemy_id or name
+            if enemy_id == "high_cultist_vexthar" or "vexthar" in enemy_name.lower():
+                print(f"🎯 Boss encounter detected: {enemy_name} ({enemy_id})")
+                return True
+        
+        return False
     
     def _handle_combat_defeat(self):
         """Handle combat defeat"""

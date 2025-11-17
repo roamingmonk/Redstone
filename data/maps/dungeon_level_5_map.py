@@ -26,9 +26,9 @@ DUNGEON_L5_MAP = [
     "###..................###",
     "##..PP............PP..##",
     "##....................##",
-    "#.....................##",
-    "#....M................##",  # Marcus confrontation zone (M)
-    "#.....................##",
+    "####................####",
+    "######MMMMMMMMMMM#######",  # Marcus confrontation zone (M)
+    "####................####",
     "##....................##",
     "##..PP............PP..##",
     "###..................###",
@@ -42,7 +42,7 @@ DUNGEON_L5_MAP = [
     "####.....PPPPP.......###",
     "#####................###",
     "######..............####",
-    "#######............#####",
+    "#######...........######",
     "########################"
 ]
 
@@ -64,17 +64,17 @@ TILE_COLORS = {
 # Searchable objects (FIXED to match Level 4 pattern)
 # Searchable objects (FIXED to match Level 4 pattern)
 SEARCHABLE_OBJECTS = {
-    'marcus_confrontation': {
-        'search_tiles': [(8, 7), (9, 7), (10, 7), (11, 7), (12, 7)],
-        'object_pos': [(10, 7)],
-        'info': {
-            'name': 'Marcus Nightshade',
-            'interaction_type': 'dialogue',
-            'examine_dialogue': 'dungeon_level_5_marcus',
-            'flag_set': 'marcus_encountered_level_5',
-            'one_time': False  # Can re-examine if needed
-        }
-    },
+    # 'marcus_confrontation': {
+    #     'search_tiles': [(6, 7),(7, 7),(8, 7), (9, 7), (10, 7), (11, 7), (12, 7), (13,7), (14,7), (15, 7), (16, 7)],
+    #     'object_pos': [(10, 7)],
+    #     'info': {
+    #         'name': 'Marcus Nightshade',
+    #         'interaction_type': 'dialogue',
+    #         'examine_dialogue': 'dungeon_level_5_marcus',
+    #         'flag_set': 'marcus_encountered_level_5',
+    #         'one_time': False  # Can re-examine if needed
+    #     }
+    # },
     'ritual_circle': {
         'search_tiles': [(11, 13), (12, 13), (13, 13), (11, 14), (12, 14), (13, 14)],
         'object_pos': [(12, 13)],
@@ -103,7 +103,7 @@ SEARCHABLE_OBJECTS = {
 # Auto-triggered dialogues (trigger on movement, no ENTER required)
 AUTO_DIALOGUE_TRIGGERS = {
     'marcus_confrontation': {
-        'trigger_tiles': [(8, 7), (9, 7), (10, 7), (11, 7), (12, 7)],
+        'trigger_tiles': [(6, 7),(7, 7),(8, 7), (9, 7), (10, 7), (11, 7), (12, 7), (13,7), (14,7), (15, 7), (16, 7)],
         'dialogue_id': 'dungeon_level_5_marcus',
         'npc_id': 'marcus',
         'flag_check': 'marcus_encountered_level_5',
@@ -146,7 +146,7 @@ def get_auto_dialogue_trigger(x, y):
 # Combat encounters (FIXED - Marcus REMOVED, only final boss remains)
 COMBAT_ENCOUNTERS = {
     'final_boss': {
-        'trigger_tiles': [(10, 18), (11, 18), (12, 18), (10, 19), (11, 19), (12, 19)],
+        'trigger_tiles': [(6, 11),(7, 11),(8, 11), (9, 11), (10, 11), (11, 11), (12, 11), (13,11), (14,11), (15, 11), (16, 11)],
         'encounter_id': 'dungeon_l5_final_boss',
         'one_time': True,
         'completion_flag': 'final_boss_defeated',

@@ -10,9 +10,9 @@
           "A large wooden table dominates the chamber, its surface covered in maps, diagrams, and handwritten notes. This is clearly a strategic planning area for the cult's operations.",
           "",
           "Several maps are spread across the table:",
-          "- A map of Redstone with red X marks over key locations: the temple, the town hall, the barracks.",
+          "- A map of Redstone with red X marks over key locations: the church, the town hall, the barracks.",
           "- A detailed floor plan of these very ruins, with annotations in Marcus's handwriting.",
-          "- A regional map showing other towns, each with dates written beside them.",
+          "- A regional map showing other towns in the Crimson Reach, each with dates written beside them.",
           "",
           "You notice a ledger lying open, filled with names and numbers."
         ],
@@ -42,7 +42,7 @@
           "You examine the Redstone map more carefully. The red X marks aren't random - they represent strategic targets:",
           "",
           "- The Temple: 'Consecrated ground - barrier against shadow corruption. Must be neutralized first.'",
-          "- Town Hall: 'Mayor Blackwood - potential resistance leader. Monitor closely.'",
+          "- Town Hall: 'Mayor - political leader. Monitor closely.'",
           "- The Barracks: 'Guards weak, untrained. Infiltration complete.'",
           "",
           "The floor plan of the ruins shows your current path marked in red ink, with a note: 'Expected intrusion route. Guards positioned accordingly.'",
@@ -78,7 +78,7 @@
           "",
           "At the bottom of the page, in Marcus's distinctive handwriting:",
           "",
-          "'High Cultist Vexthar demands blood. The portal requires sacrifice. My family's legacy will open the way to the Shadow Blight. Nothing else matters now.'"
+          "'High Cultist Vexthar needs their blood. The portal requires sacrifice. My legacy is to open the way to the Shadow Blight. Nothing else matters now.'"
         ],
         "options": [
           {

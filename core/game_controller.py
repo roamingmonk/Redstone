@@ -29,6 +29,7 @@ from input_handler import InputHandler
 from screens.intro_scenes import IntroSequenceManager
 from screens.act_two_transition import get_act_two_manager
 from screens.act_three_transition import get_act_three_manager
+from screens.victory_screen import VictoryScreenManager
 
 
 class InitializationPhase(Enum):
@@ -287,6 +288,17 @@ class GameController:
             self.game_state
         )
         self._mark_system_created("act_three_manager")
+
+        # Step 10: Victory Screen Manager (requires: EventManager, SaveManager)
+        self._validate_dependency("event_manager", self.event_manager)
+        self._validate_dependency("save_manager", self.save_manager)
+
+        from screens.victory_screen import VictoryScreenManager
+        self.victory_manager = VictoryScreenManager(
+            self.event_manager,
+            self.save_manager
+        )
+        self._mark_system_created("victory_manager")
         
          # Initial quest sync + detection (safe if nothing changed)
         update_quest_system(self.game_state)

@@ -4,39 +4,39 @@
   "tileset": "dungeon",
   "description": "A massive chamber dominated by the corrupted Aethel portal-stone. Reality itself seems to tear at the edges as shadow corruption seeps through.",
   "dimensions": {
-    "width": 20,
-    "height": 16
+    "width": 13,
+    "height": 11
   },
   "tile_size": 48,
   "terrain": {
     "default": "corrupted_floor",
     "walls": [
-      [0, 0, 19, 0],
-      [0, 15, 19, 15],
-      [0, 0, 0, 15],
-      [19, 0, 19, 15]
+      [0, 0, 12, 0],
+      [0, 10, 12, 10],
+      [0, 0, 0, 10],
+      [12, 0, 12, 10]
     ],
     "obstacles": [
       {"type": "shadow_portal", "position": [10, 3], "blocks_movement": true, "blocks_sight": false},
       {"type": "broken_pillar", "position": [5, 6], "blocks_movement": true, "blocks_sight": true},
-      {"type": "broken_pillar", "position": [15, 6], "blocks_movement": true, "blocks_sight": true},
+      {"type": "broken_pillar", "position": [9, 6], "blocks_movement": true, "blocks_sight": true},
       {"type": "broken_pillar", "position": [5, 10], "blocks_movement": true, "blocks_sight": true},
-      {"type": "broken_pillar", "position": [15, 10], "blocks_movement": true, "blocks_sight": true},
+      {"type": "broken_pillar", "position": [9, 10], "blocks_movement": true, "blocks_sight": true},
       {"type": "rubble", "position": [3, 4], "blocks_movement": true, "blocks_sight": false},
-      {"type": "rubble", "position": [17, 4], "blocks_movement": true, "blocks_sight": false},
-      {"type": "rubble", "position": [3, 12], "blocks_movement": true, "blocks_sight": false},
-      {"type": "rubble", "position": [17, 12], "blocks_movement": true, "blocks_sight": false}
+      {"type": "rubble", "position": [8, 5], "blocks_movement": true, "blocks_sight": false},
+      {"type": "rubble", "position": [3, 10], "blocks_movement": true, "blocks_sight": false},
+      {"type": "rubble", "position": [7, 10], "blocks_movement": true, "blocks_sight": false}
     ]
   },
   "spawn_zones": {
     "player_start": [
-      [2, 13], [3, 13], [4, 13], [5, 13]
+      [2, 9], [3, 9], [4, 8], [5, 8]
     ],
     "enemy_spawns": [
       [10, 6],
-      [8, 8], [12, 8],
-      [10, 10],
-      [6, 11], [14, 11]
+      [8, 8], [10, 8],
+      [10, 9],
+      [6, 8], [10, 10]
     ],
     "exit_point": [2, 13]
   },

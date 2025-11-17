@@ -7,15 +7,15 @@
     "states": {
       "examine": {
         "introduction": [
-          "A bronze brazier stands before you, burning with eerie green flames that cast no warmth. The fire seems to consume light itself rather than wood or oil.",
+          "A bronze brazier stands before you, burning with eerie green flames. The fire seems to consume light itself rather than wood or oil.",
           "",
-          "Strange shapes move within the flames - faces, perhaps, or writhing tendrils of shadow given form. You hear faint whispers emanating from the fire, speaking in a language that predates humanity - ancient Aethel script, corrupted and twisted.",
+          "Strange shapes move within the flames You hear faint whispers emanating from the fire, speaking in a language that predates humanity - ancient Aethel script, corrupted and twisted.",
           "",
           "Peering into the green flames, you see visions: A dark figure at an altar. Marcus Nightshade, his eyes ringed with darkness and black veins crawling across his face, chanting before a massive portal-stone. A rift tearing open in reality, and shadow corruption pouring through like a flood. The Shadow Blight, vast and consuming, reaching for this world. Redstone in flames.",
           "",
-          "Near the brazier's base, an inscription in corrupted Aethel glyphs reads: 'The Shadow-Flame burns eternal, fed by despair and blood. It lights the path for the Blight's return. The door will open. The corruption will spread. All will be consumed.'",
+          "An inscription in corrupted Aethel glyphs reads: 'The Shadow-Flame burns eternal, fed by despair and blood. It lights the path for the Blight's return. The door will open. The corruption will spread. All will be consumed.'",
           "",
-          "The visions end abruptly, leaving you shaken. These aren't memories - they're prophecies of what WILL happen if the ritual succeeds. The Shadow Blight is showing you the future it desires."
+          "The visions end abruptly, leaving you shaken. These aren't memories - they're prophecies. The Shadow Blight is showing you the future it desires."
         ],
         "options": [
           {

@@ -706,8 +706,15 @@ class DialogueEngine:
 
             # Process effects immediately when choice is selected
             effects_processed = []
+            combat_triggered = False  # Track if combat was started
+
             for effect in selected_choice.get('effects', []):
                 effect_result = self._apply_dialogue_effect(effect, npc_id)
+                
+                # NEW: Check if this effect started combat
+                if effect.get('type') == 'start_combat':
+                    combat_triggered = True
+                    print("⚔️ Dialogue: Combat triggered - will skip normal dialogue cleanup")
                 
                 # If remove_item fails, stop processing remaining effects
                 if effect.get('type') == 'remove_item' and effect_result is None:
@@ -721,13 +728,31 @@ class DialogueEngine:
                 if effect_result:
                     effects_processed.append(effect_result)
 
+            # NEW: If combat was triggered, end dialogue immediately without screen navigation
+            if combat_triggered:
+                print("⚔️ Dialogue: Ending immediately due to combat - screen already set by CombatEngine")
+                # Clear dialogue state silently (no events that trigger navigation)
+                state_attr = f'{npc_id}_dialogue_state'
+                setattr(self.game_state, state_attr, None)
+                
+                conversation_attr = f'{npc_id}_conversation_data'
+                setattr(self.game_state, conversation_attr, None)
+                
+                # Return special combat response (no navigation events)
+                return {
+                    'conversation_ended': True,
+                    'effects': effects_processed,
+                    'combat_started': True,  # Signal to UI: don't navigate back
+                    'return_to': None         # No navigation needed
+                }
+
             # Handle next state - simplified direct transition
             next_state = selected_choice.get('next_state')
 
             if next_state == 'exit':
                 # End conversation and return to location
                 
-                # ADD THIS: Clear stored dialogue state so next conversation evaluates fresh
+                # Clear stored dialogue state so next conversation evaluates fresh
                 state_attr = f'{npc_id}_dialogue_state'
                 setattr(self.game_state, state_attr, None)
                 
@@ -1049,7 +1074,26 @@ class DialogueEngine:
                 traceback.print_exc()
                 return None
 
-        # 12) heal_party  ----------------------------------------------------------
+        # 12) start_combat  ---------------------------------------------------------
+        elif effect_type == 'start_combat':
+            encounter_id = effect.get('encounter_id')
+            if not encounter_id:
+                print(f"WARNING: start_combat effect missing encounter_id: {effect}")
+                return None
+            
+            print(f"⚔️ Dialogue triggering combat: {encounter_id}")
+            
+            # Emit combat start event (CombatEngine will receive it)
+            if self.event_manager:
+                self.event_manager.emit("START_COMBAT", {
+                    'encounter_id': encounter_id,
+                    'source': 'dialogue',
+                    'npc_id': npc_id
+                })
+            
+            return f"Combat initiated: {encounter_id}"
+        
+        # 13) heal_party  ----------------------------------------------------------
         elif effect_type == 'heal_party':
             amount = effect.get('amount', 'full')  # Can be 'full', 'half', or a number
             

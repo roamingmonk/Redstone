@@ -141,7 +141,8 @@ class DungeonLevel5Nav:
                             "target_screen": dialogue_id,
                             "source_screen": 'dungeon_level_5_nav'
                         })
-                return
+                    return  # Prevent movement only if dialogue is triggering
+                # If flag is already set, fall through to allow movement
 
             game_state.dungeon_l5_x = new_x
             game_state.dungeon_l5_y = new_y
