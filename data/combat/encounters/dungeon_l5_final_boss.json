@@ -1,29 +1,29 @@
 {
   "encounter_id": "dungeon_l5_final_boss",
-  "name": "The Archon of the Void",
-  "description": "A massive void entity emerges from the portal!",
+  "name": "High Cultist Vexthar the Consumed",
+  "description": "The corrupted priest stands before the portal, shadow energy swirling around him!",
   "battlefield_id": "portal_chamber",
   "difficulty": "extreme",
-  "pre_combat_dialogue": "dialogue_dungeon_level_5_final_boss_intro",
+  "pre_combat_dialogue": "dungeon_level_5_final_boss_intro",
   "enemies": [
     {
-      "enemy_id": "archon_of_the_void",
+      "enemy_id": "high_cultist_vexthar",
       "position": [5, 3],
       "facing": "west",
       "boss": true,
       "unique": true
     },
     {
-      "enemy_id": "lesser_void_spawn",
+      "enemy_id": "lesser_blight_spawn",
       "position": [4, 2],
       "facing": "west",
-      "description_override": "A writhing tendril of void energy"
+      "description_override": "A writhing tendril of shadow corruption"
     },
     {
-      "enemy_id": "lesser_void_spawn",
+      "enemy_id": "lesser_blight_spawn",
       "position": [4, 4],
       "facing": "west",
-      "description_override": "A writhing tendril of void energy"
+      "description_override": "A writhing tendril of shadow corruption"
     }
   ],
   "reinforcements": [
@@ -31,17 +31,17 @@
       "trigger": "boss_health_below_50_percent",
       "enemies": [
         {
-          "enemy_id": "lesser_void_spawn",
+          "enemy_id": "lesser_blight_spawn",
           "position": [6, 2],
           "facing": "west"
         },
         {
-          "enemy_id": "lesser_void_spawn",
+          "enemy_id": "lesser_blight_spawn",
           "position": [6, 4],
           "facing": "west"
         }
       ],
-      "message": "The Archon tears open reality, summoning more void spawn to its defense!"
+      "message": "Vexthar channels the portal's power, manifesting more Blight horrors to his defense!"
     }
   ],
   "player_party": {
@@ -59,12 +59,12 @@
   "rewards": {
     "xp": 1500,
     "gold": 500,
-    "items": ["void_shard", "archons_crown", "ancient_kings_blade"],
+    "items": ["blight_crystal", "vexthars_corrupted_tome", "ancient_kings_blade"],
     "story_progress": {
       "quest_flags": {
         "final_boss_defeated": {
           "value": true,
-          "display_message": "The Archon of the Void lets out a reality-shaking scream as it dissolves into nothingness. The portal behind it collapses, the void energy dissipating. You've done it. You've saved Redstone - saved the entire world - from the Void Prince's invasion."
+          "display_message": "Vexthar collapses, shadow corruption pouring from his body like smoke. 'Impossible...' he gasps, blood on his lips. 'The Blight... promised... immortality...' His eyes clear for just a moment - human again - before going dark forever. The portal behind him shudders, cracks spreading across its surface. With a thunderous implosion, it collapses completely. You've done it. You've defeated the High Cultist and sealed the portal. Redstone is safe. The world is safe. For now."
         },
         "act_three_complete": {
           "value": true,
@@ -80,32 +80,32 @@
   "special_rules": [
     {
       "rule_type": "epic_boss_encounter",
-      "description": "The Archon is a legendary-tier threat with multiple phases"
+      "description": "Vexthar is a legendary-tier threat empowered by the Shadow Blight"
     },
     {
-      "rule_type": "void_aura",
-      "description": "All characters take 1d4 void damage at the start of each turn while in the Archon's presence"
+      "rule_type": "shadow_aura",
+      "description": "All characters take 1d4 necrotic damage at the start of each turn while near Vexthar"
     },
     {
-      "rule_type": "reality_distortion",
-      "description": "The battlefield itself is unstable - random effects may occur"
+      "rule_type": "portal_empowerment",
+      "description": "Vexthar gains bonus damage and temp HP when standing near the portal"
     },
     {
       "rule_type": "weakened_if_marcus_redeemed",
-      "description": "If marcus_redeemed flag is set, the Archon has reduced max HP and damage (Marcus's sacrifice weakened the portal)"
+      "description": "If marcus_redeemed flag is set, Vexthar has reduced max HP and damage (Marcus's sabotage weakened the portal)"
     },
     {
       "rule_type": "enraged_if_marcus_fled",
-      "description": "If marcus_fled_combat flag is set, the Archon is enraged and more dangerous (its intended vessel escaped)"
+      "description": "If marcus_fled flag is set, Vexthar is enraged and more dangerous (his lieutenant betrayed him)"
     },
     {
       "rule_type": "summon_minions",
-      "description": "The Archon can summon void spawn reinforcements during combat"
+      "description": "Vexthar can summon Blight spawn reinforcements during combat"
     }
   ],
   "escape_allowed": false,
   "turn_limit": null,
-  "ambient_description": "The void portal tears fully open, and something MASSIVE begins to emerge. Reality itself screams in protest. What emerges is beyond mortal comprehension - a towering entity of living darkness, its form constantly shifting between nightmarish shapes. Hundreds of eyes open across its surface, all focused on you. This is the Archon of the Void - the herald and champion of the Void Prince. Its voice resonates directly in your mind: 'MORTALS. YOU DARE STAND AGAINST THE INFINITE? YOUR WORLD WILL BE CONSUMED. YOUR LIGHT WILL BE EXTINGUISHED. ONLY THE VOID IS ETERNAL.' The final battle begins.",
-  "victory_description": "The Archon of the Void writhes and shrieks as your final blow strikes true. Its form begins to collapse, void energy spiraling back into the portal. 'IMPOSSIBLE...' its voice thunders in your mind, now tinged with something that might be fear. 'THE VOID PRINCE... WILL NOT FORGET... THIS WORLD... IS MARKED...' With a sound like reality tearing, the Archon is pulled back through the portal. The portal itself shudders, cracks spreading across its surface like breaking glass. Then, with a thunderous implosion, it collapses completely. Silence falls over the chamber. The oppressive void energy is gone. Sunlight - actual sunlight - begins to filter down from cracks in the ceiling above. You've done it. Against all odds, you've defeated the Archon and closed the portal. Redstone is safe. The world is safe. For now.",
-  "defeat_description": "The Archon's power is too great. Its void magic tears through your defenses, and one by one, your party members fall. As darkness claims you, the last thing you hear is the Archon's triumphant voice: 'THE VOID PRINCE RISES. YOUR WORLD FALLS. THIS IS ONLY THE BEGINNING.' The portal expands, void energy pouring out like a flood. You have failed. Redstone - and perhaps the entire world - is doomed."
+  "ambient_description": "High Cultist Vexthar stands before the massive portal, arms raised. Shadow corruption oozes from the Aethel portal-stone, and the air itself feels wrong - reality warping under the Blight's presence. Vexthar's eyes are completely black, his veins visible as dark lines under pale skin. When he speaks, multiple voices echo from his throat - his own, and the whispers of the Shadow Blight itself. 'Ah. The meddlers have arrived. How fortuitous. The ritual requires blood sacrifice, and you will serve admirably.' The final battle begins.",
+  "victory_description": "High Cultist Vexthar the Consumed falls to his knees, shadow corruption leaving his body in wisps of dark smoke. For just a moment, his eyes clear - they're blue again, human again. 'What... have I... become?' he gasps. Then he's gone. The portal behind him shudders violently. Without Vexthar to anchor it, the ancient Aethel mechanism begins to fail. Cracks spread across the portal-stone's surface like breaking glass. Then, with a sound like reality healing, it seals completely. Silence falls over the chamber. The oppressive shadow energy is gone. Sunlight - actual sunlight - begins to filter down from cracks in the ceiling above. You've done it. Against all odds, you've defeated the High Cultist and closed the portal. Redstone is safe. The world is safe. For now.",
+  "defeat_description": "Vexthar's Blight-enhanced power is too great. His shadow magic tears through your defenses, and one by one, your party members fall. As darkness claims you, the last thing you hear is Vexthar's triumphant laughter: 'The Shadow Blight rises. Your world falls. This is only the beginning.' The portal expands, shadow corruption pouring out like a flood. You have failed. Redstone - and perhaps the entire world - is doomed."
 }

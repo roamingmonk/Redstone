@@ -187,13 +187,13 @@
   },
   "description": "Bless up to 3 allies within 6 tiles. They gain 1d4 to attack rolls and saving throws for the duration of combat."
 },
-  "void_bolt": {
-    "id": "void_bolt",
-    "name": "Void Bolt",
+  "blight_bolt": {
+    "id": "blight_bolt",
+    "name": "Blight Bolt",
     "damage_dice": "2d6+4",
     "damage_type": "damage",
     "elemental_type": "necrotic",
-    "animation": "void_projectile",
+    "animation": "necrotic_projectile",
     "area_type": "single",
     "range": 10,
     "slot_cost": 1,
@@ -201,7 +201,7 @@
     "attack_type": "spell_attack",
     "requires_line_of_sight": true,
     "scales_with_level": false,
-    "description": "A bolt of concentrated void energy. Ranged spell attack. 2d6+4 necrotic damage."
+    "description": "A bolt of concentrated Shadow Blight energy. Ranged spell attack. 2d6+4 necrotic damage."
   },
   "shadow_bolt": {
     "id": "shadow_bolt",
@@ -217,15 +217,15 @@
     "attack_type": "spell_attack",
     "requires_line_of_sight": true,
     "scales_with_level": false,
-    "description": "A bolt of shadowy magic infused with void corruption. Ranged spell attack. 1d10+3 necrotic damage."
+    "description": "A bolt of shadowy magic infused with Blight corruption. Ranged spell attack. 1d10+3 necrotic damage."
   },
-  "void_blast": {
-    "id": "void_blast",
-    "name": "Void Blast",
+  "blight_blast": {
+    "id": "blight_blast",
+    "name": "Blight Blast",
     "damage_dice": "2d8+4",
     "damage_type": "damage",
     "elemental_type": "necrotic",
-    "animation": "void_explosion",
+    "animation": "necrotic_explosion",
     "area_type": "single",
     "range": 8,
     "slot_cost": 2,
@@ -233,7 +233,7 @@
     "attack_type": "spell_attack",
     "requires_line_of_sight": true,
     "scales_with_level": false,
-    "description": "A devastating blast of pure void energy. Ranged spell attack. 2d8+4 necrotic damage."
+    "description": "A devastating blast of pure Shadow Blight energy. Ranged spell attack. 2d8+4 necrotic damage."
   },
   "reality_tear": {
     "id": "reality_tear",
@@ -241,7 +241,7 @@
     "damage_dice": "3d8+3",
     "damage_type": "damage",
     "elemental_type": "force",
-    "animation": "void_tear",
+    "animation": "force_tear",
     "area_type": "single",
     "range": 8,
     "slot_cost": 3,
@@ -249,15 +249,15 @@
     "attack_type": "spell_attack",
     "requires_line_of_sight": true,
     "scales_with_level": false,
-    "description": "Tears a hole in reality itself, dealing massive void damage. Ranged spell attack. 3d8+3 force damage."
+    "description": "Tears reality like the Aethel's dimensional experiments did. Ranged spell attack. 3d8+3 force damage."
   },
-  "corrupted_fireball": {
-    "id": "corrupted_fireball",
-    "name": "Corrupted Fireball",
+  "shadow_fireball": {
+    "id": "shadow_fireball",
+    "name": "Shadow Fireball",
     "damage_dice": "6d6",
     "damage_type": "damage",
     "elemental_type": "cold",
-    "animation": "void_fire_area",
+    "animation": "shadow_fire_area",
     "area_type": "area",
     "area_size": 3,
     "range": 7,
@@ -267,15 +267,15 @@
     "save_type": "dexterity",
     "requires_line_of_sight": true,
     "scales_with_level": false,
-    "description": "Fireball infused with void energy - burns with cold darkness instead of flame. 3x3 area. DEX save or take 6d6 cold damage. Damages ALL units!"
+    "description": "Fireball infused with shadow energy - burns with cold darkness instead of flame. 3x3 area. DEX save or take 6d6 cold damage. Damages ALL units!"
   },
-  "entropy_wave": {
-    "id": "entropy_wave",
-    "name": "Entropy Wave",
+  "corruption_wave": {
+    "id": "corruption_wave",
+    "name": "Shadow Corruption Wave",
     "damage_dice": "4d8",
     "damage_type": "damage",
     "elemental_type": "necrotic",
-    "animation": "void_wave",
+    "animation": "shadow_wave",
     "area_type": "cone",
     "area_size": 5,
     "range": 5,
@@ -285,14 +285,14 @@
     "save_type": "constitution",
     "requires_line_of_sight": true,
     "scales_with_level": false,
-    "description": "A wave of destructive void energy in a cone. CON save or take 4d8 necrotic damage. Affects all units in cone!"
+    "description": "A wave of Shadow Blight corruption in a cone. CON save or take 4d8 necrotic damage and suffer corruption debuff. Affects all units in cone!"
   },
-  "void_shield": {
-    "id": "void_shield",
-    "name": "Void Shield",
+  "shadow_shield": {
+    "id": "shadow_shield",
+    "name": "Shadow Shield",
     "damage_type": "buff",
     "elemental_type": "necrotic",
-    "animation": "void_barrier",
+    "animation": "shadow_barrier",
     "area_type": "self",
     "range": 0,
     "slot_cost": 2,
@@ -303,6 +303,6 @@
       "ac_bonus": 3,
       "duration_turns": 3
     },
-    "description": "Creates a protective barrier of void energy around the caster. Grants +3 AC for 3 turns."
+    "description": "Creates a protective barrier of shadow energy around the caster. Grants +3 AC for 3 turns."
   }
 }

@@ -534,9 +534,9 @@
         "marcus_journal_read": "read_marcus_journal",
         "marcus_letter_read": "read_marcus_letter",
         "marcus_books_examined": "examined_marcus_books",
-        "void_offerings_examined": "examined_void_offerings",
-        "void_shrine_desecrated": "desecrated_void_shrine",
-        "void_prince_awareness": "void_prince_noticed",
+        "blight_offerings_examined": "examined_blight_offerings",
+        "blight_shrine_desecrated": "desecrated_blight_shrine",
+        "shadow_blight_awareness": "shadow_blight_noticed",
         "cult_battle_plans_found": "found_cult_battle_plans",
         "cult_ledger_found": "found_cult_ledger",
         "cult_scope_known": "knows_cult_scope",
@@ -563,11 +563,11 @@
         "ritual_examined": "dungeon_l5_ritual_examined",
         "marcus_plan_understood": "understood_marcus_plan",
         "vessel_plan_known": "knows_vessel_plan",
-        "void_ichor_found": "found_void_ichor",
+        "shadow_essence_found": "found_shadow_essence",
         "circle_age_known": "knows_circle_age",
-        "void_prince_true_form_seen": "saw_void_prince_true_form",
+        "blight_true_nature_seen": "saw_blight_true_nature",
         "portal_sealing_method_known": "knows_how_to_seal_portal",
-        "void_touched_hand": "void_touched_hand",
+        "blight_touched_hand": "blight_touched_hand",
         "final_boss_defeated": "final_boss_defeated"
       }
     },
@@ -1158,8 +1158,8 @@
         "dungeon_unlocked": "hill_ruins_dungeon_unlocked",
         "cassia_blessing_obtained": "cassia_discussed_marcus",
         "marcus_outcome": ["marcus_redeemed", "marcus_fled_battle", "marcus_died_in_battle"],
-        "void_whisper_debuff": {
-            "description": "Player listened to void whispers and is mentally weakened. Should apply -1 to attack rolls or -2 to concentration checks in next combat. Cleared after one combat encounter.",
+        "blight_whisper_debuff": {
+            "description": "Player gazed into the Shadow Blight and is mentally weakened. Should apply -1 to attack rolls or -2 to concentration checks in next combat. Cleared after one combat encounter.",
             "type": "combat_debuff",
             "default": false
           }

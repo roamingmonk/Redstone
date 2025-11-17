@@ -2,7 +2,7 @@
   "battlefield_id": "portal_chamber_approach",
   "name": "Ritual Circle Approach",
   "tileset": "dungeon",
-  "description": "The massive ritual circle lies before you, pulsing with void energy. Marcus stands at its center, dark power crackling around him.",
+  "description": "The massive ritual circle lies before you, pulsing with shadow corruption. Marcus stands at its center, dark power crackling around him.",
   "dimensions": {
     "width": 12,
     "height": 10
@@ -23,8 +23,8 @@
       {"type": "pillar", "position": [8, 2], "blocks_movement": true, "blocks_sight": true},
       {"type": "pillar", "position": [3, 7], "blocks_movement": true, "blocks_sight": true},
       {"type": "pillar", "position": [8, 7], "blocks_movement": true, "blocks_sight": true},
-      {"type": "void_circle", "position": [5, 4], "blocks_movement": false, "blocks_sight": false},
-      {"type": "void_circle", "position": [6, 4], "blocks_movement": false, "blocks_sight": false}
+      {"type": "shadow_circle", "position": [5, 4], "blocks_movement": false, "blocks_sight": false},
+      {"type": "shadow_circle", "position": [6, 4], "blocks_movement": false, "blocks_sight": false}
     ]
   },
   "spawn_zones": {
@@ -38,7 +38,7 @@
   },
   "lighting": "dim_purple",
   "environmental_effects": [
-    {"type": "void_corruption", "effect": "oppressive_energy"},
+    {"type": "shadow_corruption", "effect": "oppressive_energy"},
     {"type": "ritual_power", "effect": "reality_weakening"}
   ]
 }

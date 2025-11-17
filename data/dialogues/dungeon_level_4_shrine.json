@@ -7,13 +7,13 @@
     "states": {
       "examine": {
         "introduction": [
-          "An altar dedicated to the Void Prince stands before you, still active with malevolent energy. Unlike the defiled altar on Level 3, this one was built by the cult from the ground up.",
+          "An altar dedicated to the Shadow Blight stands before you, still active with malevolent energy. Unlike the defiled altar on Level 3, this one was built by the cult from the ground up.",
           "",
           "Fresh offerings cover the surface: bowls of blood, bone fragments arranged in geometric patterns, and crystals that pulse with sickly purple light.",
           "",
-          "A ceremonial dagger lies on the altar, its blade stained black. Behind the altar, a tapestry depicts the Void Prince - a massive, impossible form of writhing darkness and too many eyes.",
+          "A ceremonial dagger lies on the altar, its blade stained black with shadow corruption. Behind the altar, a tapestry depicts the Shadow Blight - a massive, consuming darkness with tendrils reaching across a map of the world.",
           "",
-          "The void symbols carved into the altar pulse with sickly purple light. One symbol draws your eye: a spiral within a broken circle - the mark of the Void Prince, a being of pure entropy from beyond the stars."
+          "The Aethel symbols carved into the altar pulse with corrupt energy. One symbol draws your eye: a spiral within a broken circle - the mark of dimensional collapse, of the door the Aethel opened and could not close."
         ],
         "options": [
           {
@@ -40,11 +40,11 @@
         "introduction": [
           "You examine the offerings more closely, fighting down revulsion:",
           "",
-          "The blood is fresh - offered within the last few hours. The bones have been carved with void runes that seem to shift when you're not looking directly at them.",
+          "The blood is fresh - offered within the last few hours. The bones have been carved with Aethel runes that seem to shift when you're not looking directly at them.",
           "",
-          "The crystals are the most disturbing. They pulse in rhythm with... something. You realize with horror that it's a heartbeat - but not any heartbeat you recognize. It's too slow, too deep, too vast.",
+          "The crystals are the most disturbing. They pulse in rhythm with... something. You realize with horror that it's a heartbeat - but not any heartbeat you recognize. It's too slow, too deep, like the breathing of something vast.",
           "",
-          "You're hearing the Void Prince's heartbeat. It's already partially manifested."
+          "You're sensing the Shadow Blight's presence. It's already partially manifested through the portal. Waiting. Hungry."
         ],
         "options": [
           {
@@ -57,7 +57,7 @@
             "text": "[Step back, disturbed]",
             "next_state": "exit",
             "effects": [
-              {"type": "set_flag", "flag": "examined_void_offerings", "value": true},
+              {"type": "set_flag", "flag": "examined_blight_offerings", "value": true},
               {"type": "set_flag", "flag": "dungeon_l4_shrine_examined", "value": true}
             ]
           }
@@ -65,13 +65,13 @@
       },
       "desecration": {
         "introduction": [
-          "You grab the ceremonial dagger and slash at the tapestry, then sweep the offerings from the altar. The crystals shatter, their eerie heartbeat ceasing.",
+          "You grab the ceremonial dagger and slash at the tapestry, then sweep the offerings from the altar. The crystals shatter, their eerie pulsing ceasing.",
           "",
-          "For a moment, you feel a surge of satisfaction - then the shrine flares with dark energy. The void runes carved into the altar ignite with purple fire.",
+          "For a moment, you feel a surge of satisfaction - then the shrine flares with dark energy. The Aethel runes carved into the altar ignite with purple fire.",
           "",
-          "A psychic scream tears through your mind. The Void Prince NOTICED you. For one terrible instant, you feel its attention focus on you across the dimensional barrier.",
+          "A psychic scream tears through your mind. The Shadow Blight NOTICED you. For one terrible instant, you feel its attention focus on you across the dimensional barrier. Ancient. Vast. Hungry.",
           "",
-          "Then the feeling passes. The shrine goes dark, desecrated. But you know you've been marked. IT knows you're here now."
+          "Then the feeling passes. The shrine goes dark, desecrated. But you know you've been marked. IT knows you're here now. It knows you're coming to stop the ritual."
         ],
         "options": [
           {
@@ -79,13 +79,13 @@
             "text": "[Stagger away from the ruined shrine]",
             "next_state": "exit",
             "effects": [
-              {"type": "set_flag", "flag": "desecrated_void_shrine", "value": true},
-              {"type": "set_flag", "flag": "void_prince_noticed", "value": true},
+              {"type": "set_flag", "flag": "desecrated_blight_shrine", "value": true},
+              {"type": "set_flag", "flag": "shadow_blight_noticed", "value": true},
               {"type": "set_flag", "flag": "dungeon_l4_shrine_examined", "value": true}
             ]
           }
         ]
-          },
+      },
       "exit": {
         "introduction": [],
         "options": []

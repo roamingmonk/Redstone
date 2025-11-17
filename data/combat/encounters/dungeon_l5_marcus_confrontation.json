@@ -1,7 +1,7 @@
 {
   "encounter_id": "dungeon_l5_marcus_confrontation",
   "name": "Confrontation with Marcus Nightshade",
-  "description": "Marcus Nightshade stands before you, eyes blazing with void energy!",
+  "description": "Marcus Nightshade stands before you, eyes blazing with shadow energy!",
   "battlefield_id": "portal_chamber_approach",
   "difficulty": "hard",
   "pre_combat_dialogue": "dialogue_dungeon_level_5_marcus",
@@ -40,7 +40,7 @@
   "rewards": {
     "xp": 750,
     "gold": 200,
-    "items": ["marcus_arcane_focus", "void_corrupted_tome"],
+    "items": ["marcus_arcane_focus", "shadow_corrupted_tome"],
     "story_progress": {
       "quest_flags": {
         "marcus_confrontation_complete": {
@@ -49,7 +49,7 @@
         },
         "marcus_defeated_in_combat": {
           "value": true,
-          "display_message": "Marcus falls to his knees, void energy dissipating from his body. 'Cassia... I'm sorry...' he whispers before collapsing. You've defeated him, but there's no time to mourn. The portal behind him pulses with terrible energy - something is coming through."
+          "display_message": "Marcus falls to his knees, shadow corruption dissipating from his body. 'Cassia... I'm sorry...' he whispers before collapsing. You've defeated him, but there's no time to mourn. The portal behind him pulses with terrible energy - Vexthar awaits."
         }
       }
     }
@@ -64,11 +64,11 @@
     },
     {
       "rule_type": "boss_encounter",
-      "description": "Marcus has enhanced abilities and void corruption powers"
+      "description": "Marcus has enhanced abilities and shadow corruption powers"
     },
     {
       "rule_type": "phase_transition",
-      "description": "Marcus may become more dangerous as his HP drops, calling on void power"
+      "description": "Marcus may become more dangerous as his HP drops, calling on the Blight's power"
     },
     {
       "rule_type": "bound_servants",
@@ -77,16 +77,16 @@
   ],
   "escape_allowed": false,
   "turn_limit": null,
-  "ambient_description": "As you approach, a figure steps from the shadows. Marcus Nightshade - once a respected mage, now twisted by void corruption. His eyes are black voids, dark energy crackling around his hands. Behind him, the ritual circle pulses with malevolent light. 'I knew you would come,' he says, his voice echoing with unnatural harmonics. 'Cassia sent you, didn't she? It doesn't matter. You're too late. The Void Prince calls to me. I will be his vessel, his herald in this world. Stand aside, or be destroyed.'",
-  "victory_description": "Marcus collapses, the void energy leaving his body in wisps of dark smoke. For a moment, his eyes clear - they're brown again, human again. 'What... what have I done?' he gasps. 'The things I've seen... the things I've become...' He looks at you with desperate clarity. 'Stop it. Stop the portal. Don't let HIM through. Promise me...' He shudders and goes still. Whether he's dead or merely unconscious, you can't tell. But the portal chamber beckons - your work here isn't finished.",
-  "defeat_description": "Marcus's void magic overwhelms you. As darkness claims your vision, you hear him speak: 'You fought well. But you cannot stop destiny. The Void Prince rises, and a new age begins.' He turns back toward the portal, leaving you broken on the chamber floor.",
+  "ambient_description": "As you approach, a figure steps from the shadows. Marcus Nightshade - once a respected mage, now twisted by shadow corruption. His eyes are haunted and ringed with darkness, black veins visible under pale skin. Behind him, the ritual circle pulses with malevolent light. 'I knew you would come,' he says, his voice hollow and distant. 'Cassia sent you, didn't she? It doesn't matter. You're too late. High Cultist Vexthar has shown me the truth. The Blight promises power beyond imagining. Stand aside, or be destroyed.'",
+  "victory_description": "Marcus collapses, the shadow corruption leaving his body in wisps of dark smoke. For a moment, his eyes clear - they're brown again, human again. 'What... what have I done?' he gasps. 'The things I've seen... the things I've become...' He looks at you with desperate clarity. 'Stop it. Stop Vexthar. Don't let the Blight through. Promise me...' He shudders and goes still. Whether he's dead or merely unconscious, you can't tell. But the portal chamber beckons - your work here isn't finished.",
+  "defeat_description": "Marcus's shadow magic overwhelms you. As darkness claims your vision, you hear him speak: 'You fought well. But you cannot stop destiny. The Shadow Blight rises, and a new age begins.' He turns back toward the portal, leaving you broken on the chamber floor.",
   "alternate_outcomes": {
     "marcus_redeemed": {
       "trigger_flag": "marcus_redeemed",
       "xp": 500,
       "gold": 100,
       "items": ["marcus_nightshade_staff"],
-      "victory_description": "The locket's presence breaks through Marcus's void-touched madness. His eyes clear, the black void fading to show the man he once was. 'Cassia...' he whispers, tears streaming down his face. 'I remember now. What I've done... gods, what I've done...' He turns to face the portal. 'I can't undo my crimes, but I can stop this. The ritual requires Nightshade blood - but it can work in reverse.' Before you can stop him, Marcus steps into the ritual circle and begins chanting. Void energy swirls around him as he fights to close the portal from within. He's sacrificing himself to undo what he started.",
+      "victory_description": "As the battle turns against him, Marcus's shadow-corrupted confidence wavers. 'This... this wasn't supposed to happen!' he shouts. With a gesture, he tears open a rift and stumbles through it. 'Vexthar will complete the ritual without me!' The rift closes behind him. Marcus has escaped, but you've disrupted his plans. The portal ahead pulses angrily - Vexthar awaits in the chamber beyond.",
       "story_flags": {
         "marcus_redeemed": true,
         "marcus_sacrificed_himself": true,
@@ -99,7 +99,7 @@
       "xp": 400,
       "gold": 50,
       "items": [],
-      "victory_description": "As the battle turns against him, Marcus's void-corrupted confidence wavers. 'This... this wasn't supposed to happen!' he shouts. With a gesture, he tears open a rift in reality and stumbles through it. 'The Archon will have his vessel one way or another!' The rift closes behind him. Marcus has escaped, but you've disrupted his plans. The portal ahead pulses angrily - something is coming through, with or without Marcus.",
+      "victory_description": "As the battle turns against him, Marcus's blight-corrupted confidence wavers. 'This... this wasn't supposed to happen!' he shouts. With a gesture, he tears open a rift in reality and stumbles through it. 'The Archon will have his vessel one way or another!' The rift closes behind him. Marcus has escaped, but you've disrupted his plans. The portal ahead pulses angrily - something is coming through, with or without Marcus.",
       "story_flags": {
         "marcus_fled_combat": true,
         "marcus_confrontation_complete": true,

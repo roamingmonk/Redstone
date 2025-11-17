@@ -74,7 +74,7 @@ class DungeonLevel5Nav:
 
         # Show dramatic entrance message on first entry
         if self.first_entry and not self.showing_message:
-            self.show_temp_message("The Portal Chamber. The air crackles with void energy.")
+            self.show_temp_message("The Portal Chamber. The air crackles with shadow corruption.")
             self.first_entry = False
 
         # Check for loot trigger - MUST BE FIRST
@@ -309,7 +309,7 @@ class DungeonLevel5Nav:
 
         # ADDED: Thematic subtitle matching Level 4 pattern
         if not getattr(game_state, 'final_boss_defeated', False):
-            subtitle_text = "The void tears at reality itself..."
+            subtitle_text = "The Shadow Blight tears at reality itself..."
             subtitle_color = RED
         else:
             subtitle_text = "The portal sealed. Victory achieved."

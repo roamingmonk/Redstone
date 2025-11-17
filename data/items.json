@@ -1558,7 +1558,7 @@
       {
         "id": "prisoner_final_note",
         "name": "Prisoner's Final Note",
-        "description": "A hastily scrawled note from a villager who resisted the void corruption until death.",
+        "description": "A hastily scrawled note from a villager who resisted the shadow blight until death.",
         "base_cost": 0,
         "category": "items",
         "icon_file": "prisoner_final_note.png",
@@ -1572,7 +1572,7 @@
       {
         "id": "blessed_weapon_oil",
         "name": "Blessed Weapon Oil",
-        "description": "Sacred oil that can be applied to weapons. Grants bonus damage against undead and void-touched enemies.",
+        "description": "Sacred oil that can be applied to weapons. Grants bonus damage against undead and shadow-touched enemies.",
         "base_cost": 150,
         "category": "consumable",
         "rarity": "rare",
@@ -1581,9 +1581,9 @@
         "max_stack": 20,
         "consumable_effects": {
           "damage_bonus_vs_undead": 3,
-          "damage_bonus_vs_void": 3,
+          "damage_bonus_vs_blight": 3,
           "duration": "3",
-          "description": "Apply to weapon for +3 damage vs undead/void enemies for 3 combats"
+          "description": "Apply to weapon for +3 damage vs undead/blight enemies for 3 combats"
         }
       },
       {
@@ -1604,17 +1604,17 @@
         }
       },
       {
-        "id": "void_ward_charm",
-        "name": "Void Ward Charm",
-        "description": "An ancient charm inscribed with protective runes. Provides resistance to void corruption and psychic attacks.",
+        "id": "blight_ward_charm",
+        "name": "Blight Ward Charm",
+        "description": "An ancient charm inscribed with protective runes. Provides resistance to blight corruption and psychic attacks.",
         "base_cost": 200,
         "category": "items",
         "rarity": "rare",
         "weight": 1,
         "special_effects": {
-          "void_resistance": 2,
+          "blight_resistance": 2,
           "psychic_resistance": 2,
-          "description": "Grants +2 to saves vs void corruption and psychic damage"
+          "description": "Grants +2 to saves vs blight corruption and psychic damage"
         }
   }
 

@@ -1,7 +1,7 @@
 {
   "encounter_id": "dungeon_l4_possessed_villagers",
   "name": "Possessed Villagers",
-  "description": "Void-touched villagers attack with unnatural strength!",
+  "description": "Shadow-corrupted villagers attack with unnatural strength!",
   "battlefield_id": "prison_cells",
   "difficulty": "medium",
   "enemies": [
@@ -48,7 +48,7 @@
         },
         "killed_possessed_villagers": {
           "value": true,
-          "display_message": "The possessed villagers collapse, the void energy leaving their bodies. They were already dead - the cult had turned them into puppets. You whisper a prayer for their souls."
+          "display_message": "The possessed villagers collapse, the shadow corruption leaving their bodies. They were already dead - the cult had turned them into puppets. You whisper a prayer for their souls."
         }
       }
     }
@@ -59,13 +59,13 @@
       "description": "These enemies are possessed innocents - killing them weighs on the conscience"
     },
     {
-      "rule_type": "void_possession",
-      "description": "Possessed enemies may inflict void corruption on hit"
+      "rule_type": "blight_possession",
+      "description": "Possessed enemies may inflict shadow corruption on hit"
     }
   ],
   "escape_allowed": true,
   "turn_limit": null,
-  "ambient_description": "The prison cells swing open. Inside, you see familiar faces - villagers who disappeared months ago. But their eyes are black voids, and dark energy crackles around them. They shamble toward you with unnatural movements, mouths opening in silent screams. The cult has turned them into weapons.",
-  "victory_description": "As the last possessed villager falls, the void energy dissipates like smoke. Their faces, in death, finally look peaceful. You recognize Thomas Greenfield, the baker's son. Sarah Ironforge, the merchant. All victims of the cult's experiments. You've freed them from their torment, but the cost weighs heavily on your heart.",
+  "ambient_description": "The prison cells swing open. Inside, you see familiar faces - villagers who disappeared months ago. But their eyes are ringed with darkness, and shadow corruption seeps from their skin. They shamble toward you with unnatural movements, mouths opening in silent screams. The cult has turned them into weapons.",
+  "victory_description": "As the last possessed villager falls, the shadow corruption dissipates like smoke. Their faces, in death, finally look peaceful. You recognize Thomas Greenfield, the baker's son. Sarah Ironforge, the merchant. All victims of the cult's experiments. You've freed them from their torment, but the cost weighs heavily on your heart.",
   "defeat_description": "The possessed villagers' unnatural strength overwhelms you. As consciousness fades, you see cult fanatics approaching to drag the villagers back to their cells. You barely escape with your lives."
 }

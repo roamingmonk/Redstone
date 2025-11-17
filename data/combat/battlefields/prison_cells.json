@@ -2,7 +2,7 @@
   "battlefield_id": "prison_cells",
   "name": "Possessed Villagers' Prison",
   "tileset": "dungeon",
-  "description": "A grim prison block where the cult kept captured villagers. Empty cells with rusted bars line the walls, their doors hanging open. Dark void energy lingers in the air.",
+  "description": "A grim prison block where the cult kept captured villagers. Empty cells with rusted bars line the walls, their doors hanging open. Dark shadow energy lingers in the air.",
   "dimensions": {
     "width": 9,
     "height": 8
@@ -36,7 +36,7 @@
   },
   "lighting": "very_dark",
   "environmental_effects": [
-    {"type": "void_corruption", "effect": "oppressive_atmosphere"},
+    {"type": "blight_corruption", "effect": "oppressive_atmosphere"},
     {"type": "lingering_suffering", "effect": "morale_penalty"}
   ]
 }

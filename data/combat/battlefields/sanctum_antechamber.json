@@ -36,7 +36,7 @@
   },
   "lighting": "ominous",
   "environmental_effects": [
-    {"type": "void_energy", "effect": "arcane_corruption"},
+    {"type": "blight_energy", "effect": "arcane_corruption"},
     {"type": "magical_barrier", "effect": "blocks_escape"}
   ]
 }

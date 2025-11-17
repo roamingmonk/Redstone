@@ -7,11 +7,11 @@
     "states": {
       "examine": {
         "introduction": [
-          "The massive ritual circle dominates the chamber floor. Unlike the crude blood circles on the levels above, this one is ancient - carved into the stone itself millennia ago.",
+          "The massive ritual circle dominates the chamber floor. Unlike the crude blood circles on the levels above, this one is ancient - carved into the stone itself millennia ago by the Aethel.",
           "",
-          "The grooves are filled with crystallized void energy that pulses with a slow, rhythmic beat. Runes in a language that predates humanity spiral outward from the center, each one a word of power.",
+          "The grooves are filled with crystallized shadow essence that pulses with a slow, rhythmic beat. Runes in the ancient Aethel language spiral outward from the center, each one a word of power.",
           "",
-          "At the circle's heart, you see a deep gouge in the stone - recently made. Fresh blood fills it, still wet. Marcus's blood."
+          "At the circle's heart, you see a deep gouge in the stone - recently made. Fresh blood fills it, still wet. Marcus's blood, mixed with shadow corruption."
         ],
         "options": [
           {
@@ -41,15 +41,15 @@
       },
       "rune_examination": {
         "introduction": [
-          "You kneel at the circle's edge, studying the alien runes. Your mind struggles to comprehend them - they weren't meant for mortal understanding.",
+          "You kneel at the circle's edge, studying the alien runes. Your mind struggles to comprehend them - Aethel script wasn't meant for mortal understanding.",
           "",
           "But fragments of meaning seep through:",
           "",
-          "'...door between worlds... blood of ancients... vessel for the Prince... reality tears... void consumes...'",
+          "'...door between dimensions... blood of the bloodline... vessel for the Blight... reality weakens... shadow consumes...'",
           "",
           "One rune in particular draws your attention. It's been modified - recently, judging by the fresh chisel marks. Marcus changed the ritual.",
           "",
-          "The original rune meant 'sacrifice.' Marcus altered it to mean 'vessel.' He didn't intend to die in the ritual - he intended to become the host for the Void Prince itself."
+          "The original rune meant 'sacrifice.' Marcus altered it to mean 'vessel.' He didn't intend to die in the ritual - he intended to become the host for the Shadow Blight's full manifestation."
         ],
         "options": [
           {
@@ -64,11 +64,11 @@
       },
       "rune_insight": {
         "introduction": [
-          "A horrifying realization strikes you: Marcus wasn't just summoning the Void Prince. He was trying to MERGE with it. To become a god-vessel, wielding the Prince's power while maintaining his own consciousness and will.",
+          "A horrifying realization strikes you: Marcus wasn't just opening a portal. He was trying to MERGE with the Shadow Blight. To become its primary vessel in this world, wielding its power while maintaining his consciousness.",
           "",
-          "The arrogance. The insanity. Did he really think he could control such a being?",
+          "The arrogance. The insanity. Did he really think he could contain such an entity?",
           "",
-          "Or perhaps the void corruption had progressed so far that he genuinely believed it. That the whispers in his mind were his own thoughts."
+          "Or perhaps the Blight's corruption had progressed so far that he genuinely believed it. That the whispers in his mind were his own thoughts, not the Blight's manipulation."
         ],
         "options": [
           {
@@ -86,9 +86,9 @@
         "introduction": [
           "You examine the fresh blood at the circle's center. It's still warm - Marcus performed the blood sacrifice very recently, perhaps mere hours before you arrived.",
           "",
-          "The blood doesn't pool naturally. Instead, it flows along invisible channels in the stone, spreading outward in precise geometric patterns. Each drop activates another rune, another layer of the summoning ritual.",
+          "The blood doesn't pool naturally. Instead, it flows along invisible channels carved into the Aethel stone, spreading outward in precise geometric patterns. Each drop activates another rune, another layer of the summoning ritual.",
           "",
-          "You notice something else: mixed with Marcus's blood is something darker. Void ichor. He didn't just cut himself - he mixed his blood with essence from beyond the veil.",
+          "You notice something else: mixed with Marcus's blood is something darker. Shadow essence. He didn't just cut himself - he mixed his blood with corruption from the Blight itself.",
           "",
           "His transformation into a vessel had already begun."
         ],
@@ -98,7 +98,7 @@
             "text": "[Step away from the blood]",
             "next_state": "exit",
             "effects": [
-              {"type": "set_flag", "flag": "found_void_ichor", "value": true},
+              {"type": "set_flag", "flag": "found_shadow_essence", "value": true},
               {"type": "set_flag", "flag": "dungeon_l5_ritual_examined", "value": true}
             ]
           }
@@ -108,16 +108,16 @@
         "introduction": [
           "You walk around the circle's perimeter, analyzing its construction. The precision is astounding - each line, each curve is mathematically perfect.",
           "",
-          "This wasn't built by the cult. This circle is ANCIENT. The ruins above are thousands of years old, but this circle predates even them. It was here before the kingdom of Redstone. Before humans settled these lands.",
+          "This wasn't built by the cult. This circle is ANCIENT. The ruins above are thousands of years old, but this circle predates even them. The Aethel built it during their height of power.",
           "",
-          "Someone - or something - built this circle in the dawn of the world. A door between realms, waiting to be opened.",
+          "A nexus point. A door between dimensions. One of many scattered across the world after the Arcane Collapse. Most were sealed. This one merely lay dormant.",
           "",
-          "Marcus didn't create this ritual. He simply found it and was arrogant enough to use it."
+          "Marcus and Vexthar didn't create this ritual. They simply found it and were arrogant enough to use it."
         ],
         "options": [
           {
             "id": "leave",
-            "text": "[Step away, contemplating the age of this evil]",
+            "text": "[Step away, contemplating the age of this danger]",
             "next_state": "exit",
             "effects": [
               {"type": "set_flag", "flag": "knows_circle_age", "value": true},

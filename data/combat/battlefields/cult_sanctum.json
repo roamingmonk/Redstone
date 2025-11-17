@@ -2,7 +2,7 @@
   "battlefield_id": "cult_sanctum",
   "name": "Cult Sanctum",
   "tileset": "dungeon",
-  "description": "A ritual chamber stained with dark magic. Void energy pulses from arcane circles.",
+  "description": "A ritual chamber stained with dark magic. Shadow energy pulses from arcane circles.",
   "dimensions": {
     "width": 12,
     "height": 11
@@ -36,6 +36,6 @@
   },
   "lighting": "ominous",
   "environmental_effects": [
-    {"type": "void_energy", "effect": "arcane_corruption"}
+    {"type": "blight_energy", "effect": "arcane_corruption"}
   ]
 }

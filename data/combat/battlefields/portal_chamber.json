@@ -1,8 +1,8 @@
 {
   "battlefield_id": "portal_chamber",
-  "name": "The Void Portal Chamber",
+  "name": "The Shadow Portal Chamber",
   "tileset": "dungeon",
-  "description": "A massive chamber dominated by a swirling void portal. Reality itself seems to tear at the edges.",
+  "description": "A massive chamber dominated by the corrupted Aethel portal-stone. Reality itself seems to tear at the edges as shadow corruption seeps through.",
   "dimensions": {
     "width": 20,
     "height": 16
@@ -17,7 +17,7 @@
       [19, 0, 19, 15]
     ],
     "obstacles": [
-      {"type": "void_portal", "position": [10, 3], "blocks_movement": true, "blocks_sight": false},
+      {"type": "shadow_portal", "position": [10, 3], "blocks_movement": true, "blocks_sight": false},
       {"type": "broken_pillar", "position": [5, 6], "blocks_movement": true, "blocks_sight": true},
       {"type": "broken_pillar", "position": [15, 6], "blocks_movement": true, "blocks_sight": true},
       {"type": "broken_pillar", "position": [5, 10], "blocks_movement": true, "blocks_sight": true},
@@ -40,9 +40,9 @@
     ],
     "exit_point": [2, 13]
   },
-  "lighting": "void_touched",
+  "lighting": "shadow_touched",
   "environmental_effects": [
-    {"type": "reality_distortion", "effect": "void_corruption"},
+    {"type": "reality_distortion", "effect": "shadow_corruption"},
     {"type": "portal_energy", "effect": "arcane_instability"}
   ]
 }

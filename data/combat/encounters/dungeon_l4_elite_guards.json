@@ -58,7 +58,7 @@
         },
         "dungeon_level_4_complete": {
           "value": true,
-          "display_message": "The elite guards fall. As the captain dies, he gasps, 'You're too late... Marcus has already begun... the Portal Chamber... the Void Prince comes...' The magical seal blocking the stairs down dissipates. The path to Level 5 - and Marcus - is open."
+          "display_message": "The elite guards fall. As the captain dies, he gasps, 'You're too late... Marcus has already begun... the Portal Chamber... the Shadow Blight comes...' The magical seal blocking the stairs down dissipates. The path to Level 5 - and Marcus - is open."
         }
       }
     }
@@ -75,7 +75,7 @@
   ],
   "escape_allowed": false,
   "turn_limit": null,
-  "ambient_description": "You approach the stairs leading deeper into the sanctum, but the way is blocked by a shimmering magical barrier. Standing before it are five figures - the cult's elite guards, clad in dark ceremonial armor bearing the mark of the Void Prince. Their captain steps forward: 'By order of Marcus Nightshade, none shall pass. The ritual must not be interrupted.'",
-  "victory_description": "The elite guards fight to the last, but eventually fall. As the captain's life fades, he looks at you with eyes that show a flicker of the man he once was. 'Forgive me,' he whispers. 'The void... it promises so much... shows you such wonders... but takes... everything...' He dies, and the magical barrier sealing the stairs collapses. The way to the Portal Chamber - and your final confrontation with Marcus - is open.",
-  "defeat_description": "The elite guards are too powerful. Their coordinated assault and bound shadow servant overwhelm your party. You're forced to retreat back toward the entrance, hearing the captain's mocking voice: 'Marcus was right about you - persistent, but ultimately inadequate. The Void Prince will rise, and there's nothing you can do to stop it.'"
+  "ambient_description": "You approach the stairs leading deeper into the sanctum, but the way is blocked by a shimmering magical barrier. Standing before it are five figures - the cult's elite guards, clad in dark ceremonial armor bearing corrupted Aethel glyphs. Their captain steps forward: 'By order of Marcus Nightshade, none shall pass. The ritual must not be interrupted.'",
+  "victory_description": "The elite guards fight to the last, but eventually fall. As the captain's life fades, he looks at you with eyes that show a flicker of the man he once was. 'Forgive me,' he whispers. 'The corruption... it promises so much... shows you such wonders... but takes... everything...' He dies, and the magical barrier sealing the stairs collapses. The way to the Portal Chamber - and your final confrontation with Marcus - is open.",
+  "defeat_description": "The elite guards are too powerful. Their coordinated assault and bound shadow servant overwhelm your party. You're forced to retreat back toward the entrance, hearing the captain's mocking voice: 'Marcus was right about you - persistent, but ultimately inadequate. The Shadow Blight will spread, and there's nothing you can do to stop it.'"
 }

@@ -64,6 +64,6 @@
   "escape_allowed": false,
   "turn_limit": null,
   "ambient_description": "The chamber ahead serves as a guard post. Cult fanatics in ceremonial armor stand watch alongside regular cultists. Braziers burn with green flames, and ritual circles are carved into the floor. They've been waiting for intruders.",
-  "victory_description": "The last cult fanatic falls with a curse on his lips. You search their bodies and find orders - 'Defend the sanctum. The Archon must not be disturbed during the final ritual.' The stairs beyond lead deeper, toward whatever horror they've been preparing.",
+  "victory_description": "The last cult fanatic falls with a curse on his lips. You search their bodies and find orders - 'Defend the sanctum. High Cultist Vexthar must not be disturbed during the final ritual.' The stairs beyond lead deeper, toward whatever horror they've been preparing.",
   "defeat_description": "The cult guards prove too strong. Wounded and desperate, you fall back to regroup. Their fanatical laughter echoes through the chamber as you retreat."
 }

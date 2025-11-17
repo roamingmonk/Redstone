@@ -7,17 +7,17 @@
     "states": {
       "examine": {
         "introduction": [
-          "A stone altar stands before you, its surface stained with dark, dried blood. The carvings that once adorned it have been chiseled away and replaced with crude symbols of void and shadow.",
+          "A stone altar stands before you, its surface stained with dark, dried blood. The carvings that once adorned it have been chiseled away and replaced with crude symbols of shadow and corruption.",
           "",
           "Fresh candles burn at each corner. Ritual daggers and bone fragments are scattered around the altar's base. A journal lies open, its pages filled with cramped handwriting:",
           "",
-          "'Day 47: The Archon's power grows. The sacrifices have weakened the barrier. Soon, HE will walk among us.'",
+          "'Day 47: The Shadow Blight's power grows. The sacrifices have weakened the barrier. Soon, IT will flow through the portal.'",
           "",
-          "'Day 51: Marcus Nightshade arrived today. The Archon says he is the key - the bloodline necessary for the final ritual.'",
+          "'Day 51: Marcus Nightshade arrived today. High Cultist Vexthar says he is the key - the bloodline necessary for the final ritual.'",
           "",
-          "'Day 53: Marcus grows more powerful. More distant. Sometimes I wonder if he controls the Archon, or if the Archon controls him.'",
+          "'Day 53: Marcus grows more powerful. More distant. Sometimes I wonder if he serves Vexthar, or if they both serve something far worse.'",
           "",
-          "The void symbols carved into the altar pulse with sickly purple light. One symbol draws your eye: a spiral within a broken circle - the mark of the Void Prince, a being of pure entropy from beyond the stars.",
+          "The Aethel symbols carved into the altar pulse with sickly purple light. One symbol draws your eye: a spiral within a broken circle - the mark of the Arcane Collapse, the disaster that consumed the Aethel Imperium.",
           "",
           "This is apocalyptic madness."
         ],
@@ -28,7 +28,7 @@
             "next_state": "exit",
             "effects": [
               {"type": "set_flag", "flag": "dungeon_l3_altar_journal_read", "value": true},
-              {"type": "set_flag", "flag": "dungeon_l3_void_symbols_examined", "value": true},
+              {"type": "set_flag", "flag": "dungeon_l3_blight_symbols_examined", "value": true},
               {"type": "set_flag", "flag": "dungeon_level_3_altar_examined", "value": true}
             ]
           }

@@ -43,11 +43,11 @@
         "introduction": [
           "You open the journal to a recent entry:",
           "",
-          "'I can feel IT in my mind now. The Archon speaks to me in dreams, shows me visions of what could be. Power beyond imagination. The ability to reshape reality itself.'",
+          "'I can feel IT in my mind now. The Shadow Blight whispers to me, shows me visions of what the Aethel discovered. Power beyond imagination. The ability to transcend mortality itself.'",
           "",
           "'But the price... Cassia wouldn't understand. She clings to the old ways, to compassion and mercy. She doesn't see that those virtues are chains, holding us back from our true potential.'",
           "",
-          "'I've made my choice. The ritual will proceed. If she tries to stop me... I'll do what must be done. The Void Prince demands it.'"
+          "'I've made my choice. The ritual will proceed. If she tries to stop me... I'll do what must be done. High Cultist Vexthar has shown me the path.'"
         ],
         "options": [
           {
@@ -75,11 +75,11 @@
         "introduction": [
           "The letter is addressed to someone named 'Brother Aldric' in a distant city:",
           "",
-          "'The final phase begins tonight. The sacrifices are complete, the barrier weakened. My family's bloodline - the key the Archon needed - will open the portal.'",
+          "'The final phase begins tonight. The sacrifices are complete, the barrier weakened. My family's bloodline - the key Vexthar needed - will open the portal.'",
           "",
-          "'Once the Void Prince manifests, our organization will control power beyond mortal comprehension. The kingdoms will fall. A new age begins.'",
+          "'Once the Shadow Blight flows through fully, our organization will control power beyond mortal comprehension. The kingdoms will fall. The corrupted shall inherit the earth.'",
           "",
-          "'I regret only one thing: Cassia. She was the light to my darkness, and I loved her for it. But love is weakness. The Archon has shown me this truth.'",
+          "'I regret only one thing: Cassia. She was the light to my darkness, and I loved her for it. But love is weakness. The Blight has shown me this truth.'",
           "",
           "'If she comes for me, I will not hesitate. The work is too important.'",
           "",
@@ -101,15 +101,18 @@
         "introduction": [
           "The books on Marcus's desk are deeply disturbing:",
           "",
-          "'Rituals of Binding and Summoning' - A tome describing how to open portals between planes.",
-          "'The Void Codex' - Pages filled with alien geometries that hurt to look at.",
-          "'Nightshade Family Grimoire' - Marcus's own family spellbook, now corrupted with void magic.",
+          "'Rituals of Dimensional Binding' - An Aethel tome describing how to open and stabilize portal-stones.",
+          "'The Shadow Protocols' - Pages filled with corrupted Aethel glyphs that seem to writhe when you're not looking directly at them.",
+          "'Nightshade Family Grimoire' - Marcus's own ancestral spellbook, now defaced with shadow corruption sigils.",
+          "'Fragments of the Arcane Collapse' - A historical account of the Aethel's final days, with certain passages heavily annotated.",
           "",
-          "One passage is bookmarked:",
+          "One passage in the Aethel tome is bookmarked, with Marcus's notes in the margin:",
           "",
-          "'The Old Blood carries the key. Those descended from the First Kings can pierce the veil. Their sacrifice opens the door, or their willing service binds the power. The Void Prince seeks such a vessel.'",
+          "Original text: 'The Old Blood carries the resonance. Those descended from the First Kings of the pre-Collapse era can attune to dormant nexus points. Their bloodline acts as a living key to the portal-stones.'",
           "",
-          "Marcus isn't just a cultist - he's a necessary component of the ritual itself."
+          "Marcus's note: 'The Nightshade line traces back to the Aethel nobility. Vexthar was right - I am the key. My blood can awaken the portal. But do I sacrifice myself... or bind myself to the Blight as its vessel? Power beyond imagining...'",
+          "",
+          "A chill runs down your spine. Marcus isn't just a cultist - he's a necessary component of the ritual itself. His bloodline is the key to opening the ancient Aethel portal and releasing the Shadow Blight."
         ],
         "options": [
           {

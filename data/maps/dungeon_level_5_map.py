@@ -1,6 +1,6 @@
 """
 Dungeon Level 5 - Portal Chamber
-The deepest level. Site of the void portal and final confrontation.
+The deepest level. Site of the portal and final confrontation.
 Features Marcus encounter and final boss fight.
 """
 
@@ -86,11 +86,11 @@ SEARCHABLE_OBJECTS = {
             'one_time': True
         }
     },
-    'void_portal': {
+    'portal': {
         'search_tiles': [(10, 18), (11, 18), (12, 18), (10, 19), (11, 19), (12, 19)],
         'object_pos': [(11, 18)],
         'info': {
-            'name': 'Void Portal',
+            'name': 'Portal',
             'interaction_type': 'dialogue',
             'examine_dialogue': 'dungeon_level_5_portal',
             'flag_set': 'dungeon_l5_portal_examined',

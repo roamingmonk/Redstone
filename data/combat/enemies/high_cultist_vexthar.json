@@ -1,0 +1,141 @@
+{
+  "enemy_id": "high_cultist_vexthar",
+  "name": "High Cultist Vexthar the Consumed",
+  "description": "A gaunt figure in black robes adorned with silver Aethel glyphs. Shadow corruption visibly courses through his veins like black lightning. His eyes are completely black abysses. Once a scholar like Marcus, he has gone far deeper into the Blight's embrace - willingly, eagerly. He is the true architect of the ritual, and the Shadow Blight's chosen vessel.",
+  "stats": {
+    "hp": 80,
+    "max_hp": 80,
+    "ac": 17,
+    "strength": 14,
+    "dexterity": 16,
+    "constitution": 18,
+    "intelligence": 22,
+    "wisdom": 20,
+    "charisma": 24
+  },
+  "saving_throw_proficiencies": ["intelligence", "wisdom", "charisma", "constitution"],
+  "spell_slots": 12,
+  "resistances": {
+    "necrotic": 0.25,
+    "psychic": 0.5,
+    "cold": 0.5
+  },
+  "immunities": ["poison", "fear"],
+  "attacks": [
+    {
+      "name": "Corrupted Staff",
+      "damage_dice": "2d8+4",
+      "attack_bonus": 7,
+      "attack_type": "melee",
+      "range": 1,
+      "description": "An ancient Aethel staff pulsing with shadow corruption",
+      "damage_type": "necrotic"
+    },
+    {
+      "name": "Blight Bolt",
+      "damage_dice": "3d8+4",
+      "attack_bonus": 10,
+      "attack_type": "spell",
+      "spell_id": "blight_bolt",
+      "spell_cost": 3,
+      "range": 10,
+      "description": "A lance of concentrated Shadow Blight energy",
+      "damage_type": "necrotic"
+    },
+    {
+      "name": "Shadow Bolt",
+      "damage_dice": "2d6+4",
+      "attack_bonus": 10,
+      "attack_type": "spell",
+      "spell_id": "shadow_bolt",
+      "spell_cost": 1,
+      "range": 10,
+      "description": "A bolt of shadow corruption",
+      "damage_type": "necrotic"
+    },
+    {
+      "name": "Shadow Corruption Wave",
+      "attack_type": "spell",
+      "spell_id": "corruption_wave",
+      "spell_cost": 4,
+      "attack_bonus": 10,
+      "description": "A wave of Shadow Blight that corrupts all it touches, reducing max HP",
+      "damage_type": "necrotic"
+    },
+    {
+      "name": "Life Siphon",
+      "attack_type": "spell",
+      "spell_id": "life_siphon",
+      "spell_cost": 3,
+      "attack_bonus": 10,
+      "description": "Drains life force from target, healing Vexthar for half the damage dealt",
+      "damage_type": "necrotic"
+    }
+  ],
+  "movement": {
+    "speed": 3,
+    "movement_type": "ground",
+    "notes": "Moves deliberately, favoring positions near the portal for power"
+  },
+  "special_abilities": [
+    {
+      "name": "Shadow Aura",
+      "description": "All enemies within 3 tiles take 1d4 necrotic damage at the start of each turn",
+      "effect_type": "aura",
+      "trigger": "turn_start"
+    },
+    {
+      "name": "Blight Empowerment",
+      "description": "When standing adjacent to the portal, Vexthar gains +2 to all damage rolls and +10 temporary HP per turn",
+      "effect_type": "buff",
+      "trigger": "position_based"
+    },
+    {
+      "name": "Manifest Blight Horror",
+      "description": "When HP drops below 50%, summons 1-2 lesser blight spawn from the portal",
+      "effect_type": "summon",
+      "trigger": "health_threshold_50",
+      "summon_enemy": "lesser_blight_spawn",
+      "summon_count_range": [1, 2]
+    },
+    {
+      "name": "Legendary Resistance",
+      "description": "Can choose to succeed on a failed saving throw (3/day)",
+      "effect_type": "resistance",
+      "trigger": "saving_throw",
+      "uses_per_day": 3
+    },
+    {
+      "name": "Corruption Touch",
+      "description": "Attacks may inflict shadow corruption, reducing max HP by 1d4 until long rest",
+      "effect_type": "debuff",
+      "trigger": "on_hit",
+      "chance": 0.3
+    },
+    {
+      "name": "Scholar's Cunning",
+      "description": "Vexthar prioritizes high-threat targets and uses tactical positioning",
+      "effect_type": "tactical",
+      "trigger": "combat_ai"
+    }
+  ],
+  "loot": {
+    "xp_value": 1500,
+    "gold_range": [400, 600],
+    "item_drops": [
+      {"item_id": "vexthars_corrupted_tome", "drop_chance": 1.0, "quantity_range": [1, 1]},
+      {"item_id": "aethel_ritual_crown", "drop_chance": 1.0, "quantity_range": [1, 1]},
+      {"item_id": "ancient_kings_blade", "drop_chance": 0.8, "quantity_range": [1, 1]},
+      {"item_id": "shadow_essence", "drop_chance": 1.0, "quantity_range": [3, 5]},
+      {"item_id": "blight_crystal", "drop_chance": 1.0, "quantity_range": [1, 1]}
+    ]
+  },
+  "behavior": {
+    "aggression": "very_high",
+    "intelligence": "genius",
+    "tactics": "calculated_destruction",
+    "acceptable_friendly_fire": 50,
+    "retreat_threshold": -1,
+    "notes": "Epic boss-tier enemy. Uses Blight Bolt for single high-priority targets, Shadow Corruption Wave for groups, Life Siphon when wounded. Extremely intelligent - stays near portal when possible for empowerment. Will summon reinforcements when bloodied. Ruthless and fanatical."
+  }
+}

@@ -232,7 +232,7 @@
             "chance": 0.8
           },
           {
-            "item_id": "void_ward_charm",
+            "item_id": "blight_ward_charm",
             "quantity": 1,
             "chance": 0.6
           }

@@ -1,27 +1,29 @@
 {
   "dungeon_level_5_portal": {
-    "npc_name": "Void Portal",
+    "npc_name": "Shadow Portal",
     "is_object": true,
     "hide_portrait": true,
     "initial_state": "examine",
     "states": {
       "examine": {
         "introduction": [
-          "The void portal hangs in the air before you - a tear in reality itself. Through it, you see... nothing. Not darkness. Not space. True void - the absence of existence.",
+          "The ancient Aethel portal-stone dominates the chamber - a massive obsidian monolith carved with glyphs that pulse with malevolent energy. Shadow corruption oozes from its surface like black ichor.",
           "",
-          "Shapes move in the nothingness. Vast, incomprehensible forms that your mind refuses to fully process. You catch glimpses: writhing tentacles larger than mountains, eyes that burn with anti-light, geometries that couldn't exist in three-dimensional space.",
+          "Through the portal's surface, you see darkness moving. Not shadow - something deeper. The Shadow Blight itself, a consuming entity from the Aethel's failed experiments, pressing against the barrier between worlds.",
           "",
-          "This is the realm of the Void Prince. The space between spaces. The nothing that hungers to consume everything."
+          "Tendrils of pure darkness writhe at the portal's edge, seeking purchase in your reality. Each pulse sends waves of cold through the chamber.",
+          "",
+          "This is the gateway the Aethel built in their arrogance. The door through which the Shadow Blight seeks to pour into the world and consume everything."
         ],
         "options": [
           {
             "id": "look_deeper",
-            "text": "[Look deeper into the void]",
-            "next_state": "void_vision"
+            "text": "[Look deeper into the portal]",
+            "next_state": "blight_vision"
           },
           {
             "id": "examine_edges",
-            "text": "[Examine the portal's edges]",
+            "text": "[Examine the portal's structure]",
             "next_state": "portal_structure"
           },
           {
@@ -39,15 +41,17 @@
           }
         ]
       },
-      "void_vision": {
+      "blight_vision": {
         "introduction": [
-          "Against every instinct screaming at you to look away, you force yourself to gaze deeper into the void. Your mind strains, cracks forming in your sanity as you perceive things mortal minds were never meant to see.",
+          "Against every instinct screaming at you to look away, you force yourself to gaze deeper into the portal. Your mind strains as you perceive the Shadow Blight's true nature.",
           "",
-          "You see worlds - thousands of them - consumed by the void. Entire civilizations snuffed out like candle flames. You see the Void Prince itself, a being so vast that galaxies are mere motes of dust in its presence.",
+          "You see the Aethel Imperium at its height - scientists experimenting with dimensional energies, opening doors they didn't understand. You see the Arcane Collapse - reality tearing as the Shadow Blight poured through, consuming their civilization in weeks.",
           "",
-          "And then you see Earth. Your world. Still whole, still alive - but marked. The Void Prince has noticed it. Has tasted it through this portal. Whether you close this door or not, it will remember. It will return.",
+          "You see the Cavia, the Aethel's earliest test subjects, fleeing through the dying empire. You see the desperate measures taken to seal the portals, the sacrifices made.",
           "",
-          "Your nose is bleeding. Your head pounds. You've seen too much."
+          "And then you see now. This portal. One of many nexus points scattered across the world. Dormant for millennia. Until Vexthar found it.",
+          "",
+          "Your nose is bleeding. Your head pounds. The Blight has noticed your gaze. It hungers."
         ],
         "options": [
           {
@@ -55,21 +59,21 @@
             "text": "[Force yourself to look away]",
             "next_state": "examine",
             "effects": [
-              {"type": "set_flag", "flag": "saw_void_prince_true_form", "value": true},
-              {"type": "set_flag", "flag": "void_whisper_debuff", "value": true}
+              {"type": "set_flag", "flag": "saw_blight_true_nature", "value": true},
+              {"type": "set_flag", "flag": "blight_whisper_debuff", "value": true}
             ]
           }
         ]
       },
       "portal_structure": {
         "introduction": [
-          "You carefully examine the portal's edges, avoiding looking directly into the void itself. The tear in reality is held open by anchors - points where void energy has been bound to physical reality.",
+          "You carefully examine the portal structure, avoiding looking directly at the Blight beyond. The Aethel portal-stone is held stable by ritual anchors - points where shadow energy has been bound to physical objects.",
           "",
           "There are five anchors, arranged in a pentagram around the portal. Three are still pulsing with power. Two have gone dark.",
           "",
-          "The dark ones... you realize with a shock that those are where Marcus would have stood, and where another person - probably the cult's high priest - should have been. Without those anchors, the portal is unstable.",
+          "The dark ones... you realize with a shock that those are where Marcus disrupted the ritual, and where another anchor should have been. Without them, the portal is unstable.",
           "",
-          "If you can disrupt the remaining three anchors, the portal will collapse. But something has already come through. The Archon of the Void."
+          "If you can disrupt the remaining three anchors, the portal will collapse. But Vexthar is maintaining the connection through sheer will and the Blight's power. You must defeat him first."
         ],
         "options": [
           {
@@ -79,22 +83,22 @@
           },
           {
             "id": "back",
-            "text": "[Step back from the portal edge]",
+            "text": "[Step back from the portal]",
             "next_state": "examine"
           }
         ]
       },
       "anchor_detail": {
         "introduction": [
-          "Each anchor is a physical object infused with void energy:",
+          "Each anchor is a physical object infused with shadow corruption:",
           "",
-          "1. A cultist's skull, eyes glowing with purple light",
-          "2. A shard of crystallized void energy, pulsing rhythmically",
-          "3. A ancient stone tablet covered in summoning runes",
+          "1. A cultist's skull, eyes glowing with sickly purple light",
+          "2. A shard of crystallized shadow essence, pulsing rhythmically",
+          "3. An ancient Aethel tablet covered in corrupted glyphs",
           "",
-          "You could destroy these anchors and collapse the portal - but not while the Archon is still here. Its presence is holding the portal open through sheer force of will.",
+          "You could destroy these anchors and collapse the portal - but not while Vexthar lives. His connection to the Blight is holding the portal open through force of will.",
           "",
-          "First, you must defeat the Archon. Then the portal can be sealed."
+          "First, you must defeat the High Cultist. Then the portal can be sealed."
         ],
         "options": [
           {
@@ -112,11 +116,11 @@
         "introduction": [
           "You reach toward the portal, trying to disrupt its structure, to force it closed through sheer will.",
           "",
-          "The moment your hand approaches the void, pain unlike anything you've ever felt tears through your body. The void BURNS. Not with heat, but with the absence of existence itself.",
+          "The moment your hand approaches the corrupted surface, pain unlike anything you've ever felt tears through your body. The Shadow Blight BURNS. Not with heat, but with the absence of life itself.",
           "",
-          "You snatch your hand back, gasping. Your fingers are blackened, void-touched. They'll heal, but the pain is a stark reminder: you cannot close this portal through direct force.",
+          "You snatch your hand back, gasping. Your fingers are blackened, marked with shadow corruption. They'll heal, but the pain is a stark reminder: you cannot close this portal through direct force.",
           "",
-          "It must be sealed properly, ritually. And not while the Archon still anchors it from the other side."
+          "It must be sealed properly, ritually. And not while Vexthar still channels the Blight's power."
         ],
         "options": [
           {
@@ -124,7 +128,7 @@
             "text": "[Nurse your wounded hand and step back]",
             "next_state": "exit",
             "effects": [
-              {"type": "set_flag", "flag": "void_touched_hand", "value": true},
+              {"type": "set_flag", "flag": "blight_touched_hand", "value": true},
               {"type": "set_flag", "flag": "dungeon_l5_portal_examined", "value": true}
             ]
           }

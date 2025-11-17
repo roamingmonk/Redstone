@@ -1,7 +1,7 @@
 {
   "enemy_id": "possessed_villager",
   "name": "Possessed Villager",
-  "description": "A tragic victim of the cult's void experiments. Black energy crackles around their body, and their eyes are empty voids. They move with unnatural, jerky movements - puppets of dark magic.",
+  "description": "A tragic victim of the cult's shadow corruption experiments. Dark energy crackles around their body, and their eyes are ringed with darkness. They move with unnatural, jerky movements - puppets of dark magic.",
   "stats": {
     "hp": 16,
     "max_hp": 16,
@@ -20,12 +20,12 @@
   "immunities": [],
   "attacks": [
     {
-      "name": "Void-Touched Strike",
+      "name": "Shadow-Touched Strike",
       "damage_dice": "1d6+2",
       "attack_bonus": 3,
       "attack_type": "melee",
       "range": 1,
-      "description": "A frenzied blow infused with corrupting void energy",
+      "description": "A frenzied blow infused with corrupting shadow energy",
       "damage_type": "necrotic"
     }
   ],
@@ -36,22 +36,22 @@
   },
   "special_abilities": [
     {
-      "name": "Void Possession",
+      "name": "Shadow Possession",
       "description": "Immune to fear and mind-affecting effects. Controlled by dark magic.",
       "effect_type": "condition_immunity",
       "trigger": "always"
     },
     {
       "name": "Corrupting Touch",
-      "description": "Attacks may inflict void corruption, reducing max HP temporarily (15% chance)",
+      "description": "Attacks may inflict shadow corruption, reducing max HP temporarily (15% chance)",
       "effect_type": "status_effect",
       "trigger": "on_hit",
       "chance": 0.15,
-      "effect": "void_corruption"
+      "effect": "shadow_corruption"
     },
     {
       "name": "Unnatural Vigor",
-      "description": "Enhanced strength and endurance from void energy, feels no pain",
+      "description": "Enhanced strength and endurance from shadow energy, feels no pain",
       "effect_type": "passive",
       "trigger": "always"
     }
@@ -67,6 +67,6 @@
     "intelligence": "very_low",
     "tactics": "aggressive_rush",
     "retreat_threshold": -1,
-    "notes": "Mindlessly attacks nearest target. Never retreats. Tragic puppets controlled by void magic."
+    "notes": "Mindlessly attacks nearest target. Never retreats. Tragic puppets controlled by shadow magic."
   }
 }
