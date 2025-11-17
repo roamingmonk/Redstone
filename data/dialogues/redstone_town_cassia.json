@@ -473,7 +473,8 @@
           "text": "Is there anything I can do to help you?",
           "requirements": {
             "flags": {
-              "cassia_told_marcus_story": true
+              "cassia_told_marcus_story": true,
+              "completed_marcus_recipe": false
             },
             "not_flag": "recipe_quest_active"
           },

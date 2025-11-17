@@ -1129,8 +1129,9 @@
       "post_resolution": "cassia_story_complete"
     },
     "marcus": {
-      "redemption_offer": "marcus_encountered_level_5 && cassia_wants_marcus_saved && has_cassia_locket",
-      "initial_confrontation": "!marcus_encountered_level_5"
+      "marcus_encounter": "!marcus_encountered_level_5",
+      "redemption_offer": "marcus_encountered_level_5 && cassia_wants_marcus_saved && has_cassia_locket"
+      
     }
     },
     "act_progression": {
