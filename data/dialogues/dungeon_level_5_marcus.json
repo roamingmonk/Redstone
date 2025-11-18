@@ -185,7 +185,7 @@
         {
           "id": "fight_with_us",
           "text": "Fight with us. Help us stop Vexthar.",
-          "next_state": "marcus_ally"
+          "next_state": "marcus_ally_confirmed"
         },
         {
           "id": "its_too_late",

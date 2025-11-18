@@ -1,0 +1,315 @@
+{
+  "dungeon_level_5_portal_postboss": {
+    "npc_name": "Shadow Portal",
+    "is_object": true,
+    "hide_portrait": true,
+    "initial_state": "examine_unstable",
+    "states": {
+      "examine_unstable": {
+        "introduction": [
+          "With High Cultist Vexthar dead, the portal has become violently unstable. The Shadow Blight writhes and pulses behind the barrier, its anchor in this world severed.",
+          "",
+          "Vexthar's will was the only thing holding this nexus open. Without him channeling the Blight's power, the ritual structure is collapsing.",
+          "",
+          "The ritual anchors - the skull, the shadow crystal, and the corrupted tablet - still pulse with residual energy. But they're failing, the corruption leaking away like blood from a mortal wound.",
+          "",
+          "You understand what must be done. You must destroy the remaining anchors and seal this gateway permanently. But doing so will trigger a catastrophic collapse.",
+          "",
+          "Once you seal this portal, the entire chamber may come down. You'll need to run."
+        ],
+        "options": [
+          {
+            "id": "examine_anchors",
+            "text": "[Examine the ritual anchors]",
+            "next_state": "anchor_examination"
+          },
+          {
+            "id": "destroy_portal",
+            "text": "[Destroy the anchors and seal the portal]",
+            "next_state": "portal_destruction_warning"
+          },
+          {
+            "id": "leave_unsealed",
+            "text": "[Leave the portal as it is and depart]",
+            "next_state": "leave_unsealed_warning"
+          },
+          {
+            "id": "leave",
+            "text": "[Step away for now]",
+            "next_state": "exit"
+          }
+        ]
+      },
+      "anchor_examination": {
+        "introduction": [
+            "You carefully examine each of the three remaining anchors - the keystones of Vexthar's ritual:",
+            "",
+            "The SKULL - one of Vexthar's most devoted cultists, sacrificed willingly. Shadow corruption still oozes from the eye sockets, but it's weakening.",
+            "",
+            "The CRYSTAL - pure solidified darkness, harvested from the Blight itself. It thrums with fading power. Vexthar used this to channel the portal's energy.",
+            "",
+            "The TABLET - ancient Aethel script, rewritten and corrupted by Vexthar's decades of study. The glyphs flicker, unstable without their master.",
+            "",
+            "Two other anchor positions stand empty..."
+        ],
+        "options": [
+            {
+            "id": "examine_empty_marcus_fled",
+            "text": "[Examine the empty anchor positions]",
+            "requirements": {"flag": "marcus_fled"},
+            "next_state": "anchors_marcus_sabotaged"
+            },
+            {
+            "id": "examine_empty_marcus_defeated",
+            "text": "[Examine the empty anchor positions]",
+            "requirements": {"flag": "marcus_hostile"},
+            "next_state": "anchors_marcus_stopped"
+            },
+            {
+            "id": "examine_empty_default",
+            "text": "[Examine the empty anchor positions]",
+            "next_state": "anchors_marcus_stopped"
+            }
+        ]
+        },
+
+        "anchors_marcus_sabotaged": {
+        "introduction": [
+            "You see scorch marks and signs of deliberate sabotage around the empty positions. Marcus did this. In his final act of defiance against Vexthar, he destroyed two of the five anchors before fleeing.",
+            "",
+            "His sabotage weakened the ritual significantly. Vexthar tried to compensate with raw power, but without the full anchor array, the portal could never fully stabilize.",
+            "",
+            "Marcus saved countless lives with that choice. Perhaps there was still good in him after all.",
+            "",
+            "Destroying the remaining three will sever the portal's connection permanently. The Blight will be trapped on the other side. This nexus point will die."
+        ],
+        "options": [
+            {
+            "id": "understand",
+            "text": "[You understand what must be done]",
+            "next_state": "examine_unstable"
+            }
+        ]
+        },
+
+        "anchors_marcus_stopped": {
+        "introduction": [
+            "The ritual objects were never placed. You stopped Marcus before he could complete the anchor array. He was carrying them when you fought - two more keystones that would have made the portal far more stable.",
+            "",
+            "If you'd arrived even minutes later... if Marcus had finished setting up all five anchors... Vexthar's ritual would have been far more powerful.",
+            "",
+            "You prevented the worst outcome by stopping Marcus when you did.",
+            "",
+            "Destroying the remaining three will sever the portal's connection permanently. The Blight will be trapped on the other side. This nexus point will die."
+        ],
+        "options": [
+            {
+            "id": "understand",
+            "text": "[You understand what must be done]",
+            "next_state": "examine_unstable"
+            }
+        ]
+        },
+      "portal_destruction_warning": {
+        "introduction": [
+          "You prepare yourself for what comes next. This is the final act - the moment that will truly save Redstone and the entire Crimson Reach from the Shadow Blight.",
+          "",
+          "But destroying the anchors while the portal is this unstable... there's no telling how violent the collapse will be.",
+          "",
+          "The entire chamber could come down. The ancient Aethel architecture has stood for millennia, but Vexthar's ritual has weakened the very fabric of reality here.",
+          "",
+          "Are you certain you're ready?"
+        ],
+        "options": [
+          {
+            "id": "destroy",
+            "text": "[Destroy the anchors]",
+            "next_state": "portal_destruction"
+          },
+          {
+            "id": "reconsider",
+            "text": "[Not yet - step back]",
+            "next_state": "examine_unstable"
+          }
+        ]
+      },
+      "portal_destruction": {
+  "introduction": [
+    "You steel yourself. This ends now.",
+    "",
+    "You approach the first anchor. The cultist's skull.",
+    "",
+    "With a savage stomp, you crush it beneath your boot. Bone splinters. Shadow energy erupts in a keening wail.",
+    "",
+    "The portal ROARS. The chamber shakes. Reality itself buckles.",
+    "",
+    "You move to the crystal - Vexthar's focus, his channel to the Blight. One strike of your weapon.",
+    "",
+    "The crystal SHATTERS into a thousand fragments of frozen darkness that evaporate into nothingness."
+  ],
+  "options": [
+    {
+      "id": "continue",
+      "text": "[Continue]",
+      "next_state": "portal_implodes"
+    }
+  ]
+},
+"portal_implodes": {
+  "introduction": [
+    "The portal convulses violently. Massive cracks spread across its surface. The Shadow Blight beyond howls in impotent rage, sensing its gateway closing.",
+    "",
+    "The tablet. You tear the corrupted Aethel stone apart with your bare hands. Vexthar's life's work - his obsession - crumbles to dust.",
+    "",
+    "The portal IMPLODES.",
+    "",
+    "Shadow energy detonates outward in a shockwave of pure force. The chamber quakes. Stone cracks and falls.",
+    "",
+    "The portal-stone itself - the massive obsidian monolith Vexthar died trying to open - cracks down the center with a sound like breaking thunder."
+  ],
+  "options": [
+    {
+      "id": "continue",
+      "text": "[Continue]",
+      "next_state": "chamber_collapse"
+    }
+  ]
+},
+"chamber_collapse": {
+  "introduction": [
+    "Light pours from the fissure in the portal-stone. Not shadow. Real light. Sunlight from the surface above.",
+    "",
+    "The portal is sealed. The Shadow Blight is trapped. Vexthar's decades of work are undone in moments.",
+    "",
+    "But the entire chamber is collapsing around you! Stone pillars crack and topple. The floor heaves.",
+    "",
+    "RUN!"
+  ],
+  "options": [
+    {
+      "id": "run",
+      "text": "[RUN FOR YOUR LIFE!]",
+      "next_state": "exit",
+      "effects": [
+        {
+          "type": "set_flag",
+          "flag": "portal_destroyed",
+          "value": true
+        },
+        {
+          "type": "set_flag",
+          "flag": "chamber_collapsing",
+          "value": true
+        },
+        {
+          "type": "set_flag",
+          "flag": "vexthar_ritual_ended",
+          "value": true
+        },
+        
+        {
+          "type": "set_flag",
+          "flag": "portal_left_unsealed",
+          "value": false
+        },
+        {
+          "type": "set_flag",
+          "flag": "bad_ending_triggered",
+          "value": false
+        },
+        {
+        "type": "set_flag",
+        "flag": "act_three_complete",
+        "value": true
+        },
+        {
+        "type": "set_flag",
+        "flag": "main_quest_completed",
+        "value": true
+        }
+      ]
+    }
+  ]
+},
+
+      "leave_unsealed_warning": {
+        "introduction": [
+          "You stare at the unstable portal. Without Vexthar's will holding it open, it's collapsing on its own. Slowly. Chaotically.",
+          "",
+          "Perhaps you don't need to destroy it. Perhaps nature - or whatever passes for nature in dimensional mechanics - will seal it eventually.",
+          "",
+          "Or perhaps it will stabilize. Find a new equilibrium. Remain open just enough for the Shadow Blight to seep through. Slowly at first. Then faster.",
+          "",
+          "You defeated the cultists. You killed Vexthar. Surely that's enough?",
+          "",
+          "But a voice in the back of your mind whispers: is it? Will this portal truly close on its own? Or are you leaving the door cracked open for something ancient and hungry to exploit?",
+          "",
+          "Are you certain you want to leave without sealing it?"
+        ],
+        "options": [
+          {
+            "id": "leave_anyway",
+            "text": "[Leave it unsealed and depart]",
+            "next_state": "portal_left_unsealed"
+          },
+          {
+            "id": "reconsider",
+            "text": "[No - I should seal it properly]",
+            "next_state": "examine_unstable"
+          }
+        ]
+      },
+      "portal_left_unsealed": {
+        "introduction": [
+          "You turn your back on the portal. You've done enough. Vexthar is dead. The cult is broken. That will have to be sufficient.",
+          "",
+          "As you walk away, the portal continues to pulse behind you. Unstable. Dying. But not dead.",
+          "",
+          "The Shadow Blight watches through the barrier. Waiting. Patient.",
+          "",
+          "You climb the stairs toward the exit, leaving the ancient chamber - and its terrible secret - behind.",
+          "",
+          "Time will tell if this was wisdom... or the greatest mistake of your life."
+        ],
+        "options": [
+          {
+            "id": "leave",
+            "text": "[Leave the ruins]",
+            "next_state": "exit",
+            "effects": [
+              {
+                "type": "set_flag",
+                "flag": "portal_destroyed",
+                "value": false
+              },
+              {
+                "type": "set_flag",
+                "flag": "portal_left_unsealed",
+                "value": true
+              },
+              {
+                "type": "set_flag",
+                "flag": "bad_ending_triggered",
+                "value": true
+              },
+              {
+              "type": "set_flag",
+              "flag": "act_three_complete",
+              "value": true
+              },
+              {
+              "type": "set_flag",
+              "flag": "main_quest_completed",
+              "value": true
+              }
+            ]
+          }
+        ]
+      },
+      "exit": {
+        "introduction": [],
+        "options": []
+      }
+    }
+  }
+}

@@ -437,7 +437,8 @@
         "encountered": "vexthar_encountered",
         "defeated": "final_boss_defeated",
         "boss_fight_started": "boss_fight_started",
-        "cavia_challenged": "cavia_challenged_vexthar"
+        "cavia_challenged": "cavia_challenged_vexthar",
+        "vexthar_ritual": "vexthar_ritual_ended"
       }
     }
   },
@@ -903,6 +904,10 @@
         "confront_cult_leader": ["cult_leader_confronted"],
         "stop_ritual": ["portal_ritual_stopped"],
         "defeat_final_boss": ["final_boss_defeated"],
+        "portal_unsealed": ["portal_left_unsealed"],
+        "bad_ending": ["bad_ending_triggered"],
+        "chamber_collapse": ["chamber_collapsing"],
+        "portal_condition": ["portal_destroyed"],
 
 
         "_comment_quest EPILOGUE: ": "=== RESOLUTION",
@@ -1178,6 +1183,7 @@
     "act_three": {
       "name": "The Final Confrontation",
       "start_flag": "act_three_started",
+      "act_three_complete": "act_three_complete",
       "completion_flag": "main_quest_completed",
       "key_milestones": ["entered_final_dungeon", "defeated_cult_leader", "rescued_mayors_family"],
       "dungeon_flags": {

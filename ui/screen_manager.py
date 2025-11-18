@@ -757,7 +757,7 @@ class ScreenManager:
                     "victory_screen",
                     scene_result["continue_button"],
                     "SCREEN_CHANGE",
-                    {"target": "redstone_town", "source": "victory_screen"}
+                    {"target": "dungeon_level_5_nav", "source": "victory_screen"}
                 )
                 
                 print(f"🏆 Victory screen clickables registered")

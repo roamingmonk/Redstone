@@ -60,21 +60,9 @@
     "xp": 1500,
     "gold": 500,
     "items": ["blight_crystal", "vexthars_corrupted_tome", "ancient_kings_blade"],
-    "story_progress": {
-      "quest_flags": {
-        "final_boss_defeated": {
-          "value": true,
-          "display_message": "Vexthar collapses, shadow corruption pouring from his body like smoke. 'Impossible...' he gasps, blood on his lips. 'The Blight... promised... immortality...' His eyes clear for just a moment - human again - before going dark forever. The portal behind him shudders, cracks spreading across its surface. With a thunderous implosion, it collapses completely. You've done it. You've defeated the High Cultist and sealed the portal. Redstone is safe. The world is safe. For now."
-        },
-        "act_three_complete": {
-          "value": true,
-          "display_message": ""
-        },
-        "terror_in_redstone_complete": {
-          "value": true,
-          "display_message": "The Terror in Redstone is over."
-        }
-      }
+    "flags": {
+      "final_boss_defeated": true
+      
     }
   },
   "special_rules": [

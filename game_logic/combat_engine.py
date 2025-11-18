@@ -2753,17 +2753,24 @@ class CombatEngine:
                 self.game_state.mayor_family_status = 'none'
                 print("⚠️ mayor_family_status not set - defaulting to 'none'")
             
-            # Transition to victory screen (skip all normal loot/reward processing)
+            # Process reward flags BEFORE transitioning to victory screen
+            rewards = self.combat_data.get("encounter", {}).get("rewards", {})
+            flags_to_set = rewards.get("flags", {})
+            for flag_name, flag_value in flags_to_set.items():
+                setattr(self.game_state, flag_name, flag_value)
+                print(f"✅ Boss victory flag set: {flag_name} = {flag_value}")
+
+            # Transition to victory screen (skip normal loot/reward processing)
             self.game_state.screen = 'victory_screen'
             print("📺 Screen changed to: victory_screen")
-            
+
             # Emit boss victory event (for any listeners)
             encounter_id = self.combat_data.get("encounter", {}).get("encounter_id")
             self.event_manager.emit("BOSS_DEFEATED", {
                 "encounter_id": encounter_id,
                 "mayor_family_status": getattr(self.game_state, 'mayor_family_status', 'none')
             })
-            
+
             return  # ⚠️ EXIT HERE - skip all the normal combat victory logic below
         
         # === NORMAL COMBAT VICTORY (not boss) - your existing code continues ===

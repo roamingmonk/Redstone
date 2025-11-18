@@ -104,11 +104,11 @@ class DungeonLevel5Nav:
                     self.renderer.update_camera(new_x, new_y)
                     return
 
-                # Check if requires a flag (Level 5 specific - final boss needs Marcus defeated)
-                requires_flag = combat_trigger.get('requires_flag')
+                # Check if requires a flag
+                requires_flag = searchable_info.get('requires_flag')
                 if requires_flag and not getattr(game_state, requires_flag, False):
-                    # Can't trigger this encounter yet
-                    self.show_temp_message("You must deal with Marcus first.")
+                    blocked_msg = searchable_info.get('blocked_message', 'You cannot access this yet.')
+                    self.show_temp_message(blocked_msg)
                     return
 
                 # Trigger combat
@@ -152,73 +152,100 @@ class DungeonLevel5Nav:
         self.renderer.update_transition_cooldown(dt)
 
         # Check for ENTER key interactions
-        if (self.renderer.check_enter_just_pressed(keys) and 
-            not self.showing_message and 
-            self.renderer.can_interact()):
+        if self.renderer.check_enter_just_pressed(keys):
+            # If showing temp message, dismiss it early
+            if self.showing_message:
+                self.showing_message = False
+                self.message_timer = 0
+                return  # Consume the ENTER press
             
-            player_x = game_state.dungeon_l5_x
-            player_y = game_state.dungeon_l5_y
+            # Otherwise, proceed with normal interactions if allowed
+            if self.renderer.can_interact():
+            
+                player_x = game_state.dungeon_l5_x
+                player_y = game_state.dungeon_l5_y
 
-            # Priority 1: Transitions
-            transition_info = self.renderer.check_valid_entrance(player_x, player_y, self.renderer.player_direction)
-            if transition_info and transition_info[0]:
-                if controller:
-                    target = transition_info[0]['target_screen']
+                # Priority 1: Transitions
+                transition_info = self.renderer.check_valid_entrance(player_x, player_y, self.renderer.player_direction)
+                if transition_info and transition_info[0]:
+                    # Check if transition is blocked by flag
+                    blocked_by = transition_info[0].get('blocked_by_flag')
+                    if blocked_by and getattr(game_state, blocked_by, False):
+                        blocked_msg = transition_info[0].get('blocked_message', 'This way is blocked.')
+                        self.show_temp_message(blocked_msg)
+                        return
                     
-                    # Set spawn position for destination level
-                    if target == 'dungeon_level_4_nav':
-                        spawn_point = DUNGEON_L4_SPAWN_POINTS.get('from_level_5')
-                        if spawn_point:
-                            game_state.dungeon_l4_spawn_override_x = spawn_point[0]
-                            game_state.dungeon_l4_spawn_override_y = spawn_point[1]
+                    # Check if transition requires flag
+                    required_flag = transition_info[0].get('requirements', {}).get('flag')
+                    if required_flag and not getattr(game_state, required_flag, False):
+                        # Transition not available yet
+                        return
                     
-                    self.renderer.start_transition_cooldown()
-                    controller.event_manager.emit("SCREEN_CHANGE", {
-                        'target_screen': target,
-                        'source_screen': 'dungeon_level_5_nav'
-                    })
-                return
-
-            # Priority 2: Searchables
-            searchable_info = self.renderer.check_searchable_object(player_x, player_y)
-            if searchable_info:
-                # Check if requires flag (Level 5 specific - portal needs Marcus defeated)
-                requires_flag = searchable_info.get('requires_flag')
-                if requires_flag and not getattr(game_state, requires_flag, False):
-                    self.show_temp_message("You should deal with Marcus before approaching the portal.")
+                    if controller:
+                        target = transition_info[0]['target_screen']
+                        
+                        # Set spawn position for destination level
+                        if target == 'dungeon_level_4_nav':
+                            spawn_point = DUNGEON_L4_SPAWN_POINTS.get('from_level_5')
+                            if spawn_point:
+                                game_state.dungeon_l4_spawn_override_x = spawn_point[0]
+                                game_state.dungeon_l4_spawn_override_y = spawn_point[1]
+                        
+                        self.renderer.start_transition_cooldown()
+                        controller.event_manager.emit("SCREEN_CHANGE", {
+                            'target_screen': target,
+                            'source_screen': 'dungeon_level_5_nav'
+                        })
                     return
 
-                flag_set = searchable_info.get('flag_set')
-                if flag_set and getattr(game_state, flag_set, False):
-                    self.show_temp_message("You've already searched here.")  # FIXED: Consistency with Level 4
-                else:
-                    examine_dialogue = searchable_info.get('examine_dialogue')
-                    if examine_dialogue and controller:
-                        npc_id = examine_dialogue.split('_')[-1]
-                        if npc_id == 'circle':
-                            npc_id = 'ritual'
-                        elif npc_id == 'combat':
-                            npc_id = 'marcus'
-                        return_screen_attr = f'{npc_id}_return_screen'
-                        setattr(game_state, return_screen_attr, 'dungeon_level_5_nav')
-                        game_state.pending_search_flag = flag_set
+                # Priority 2: Searchables
+                searchable_info = self.renderer.check_searchable_object(player_x, player_y)
+                if searchable_info:
+                    # Check if requires a flag
+                    requires_flag = searchable_info.get('requires_flag')
+                    if requires_flag and not getattr(game_state, requires_flag, False):
+                        blocked_msg = searchable_info.get('blocked_message', 'You cannot access this yet.')
+                        self.show_temp_message(blocked_msg)
+                        return
+                    
+                    # Check if blocked by flag (e.g., portal already destroyed)
+                    blocked_by = searchable_info.get('blocked_by_flag')
+                    if blocked_by and getattr(game_state, blocked_by, False):
+                        blocked_msg = searchable_info.get('blocked_message_after', 'This is no longer accessible.')
+                        self.show_temp_message(blocked_msg)
+                        return
 
-                        controller.event_manager.emit("SCREEN_CHANGE", {
-                            "target_screen": examine_dialogue,
-                            "source_screen": 'dungeon_level_5_nav'
-                        })
-                return
+                    flag_set = searchable_info.get('flag_set')
+                    if flag_set and getattr(game_state, flag_set, False):
+                        self.show_temp_message("You've already searched here.")  # FIXED: Consistency with Level 4
+                    else:
+                        examine_dialogue = searchable_info.get('examine_dialogue')
+                        if examine_dialogue and controller:
+                            npc_id = examine_dialogue.split('_')[-1]
+                            if npc_id == 'circle':
+                                npc_id = 'ritual'
+                            elif npc_id == 'combat':
+                                npc_id = 'marcus'
+                            return_screen_attr = f'{npc_id}_return_screen'
+                            setattr(game_state, return_screen_attr, 'dungeon_level_5_nav')
+                            game_state.pending_search_flag = flag_set
 
-        # Update message timer
-        if self.showing_message:
-            self.message_timer -= dt
-            if self.message_timer <= 0:
-                self.showing_message = False
+                            controller.event_manager.emit("SCREEN_CHANGE", {
+                                "target_screen": examine_dialogue,
+                                "source_screen": 'dungeon_level_5_nav'
+                            })
+                    return
+
+            # Update message timer
+            if self.showing_message:
+                self.message_timer -= dt
+                if self.message_timer <= 0:
+                    self.showing_message = False
 
     def show_temp_message(self, text):
         self.showing_message = True
         self.message_text = text
-        self.message_timer = 3000
+        self.message_timer = 2000
 
     def _trigger_loot_check(self, loot_table_id, game_state, controller):
         """Trigger loot check using hill ruins loot tables"""
@@ -308,7 +335,7 @@ class DungeonLevel5Nav:
         title_text = "DUNGEON - LEVEL 5: PORTAL CHAMBER"
         draw_centered_text(surface, title_text, fonts['fantasy_medium'], 20, title_color, 880)
 
-        # ADDED: Thematic subtitle matching Level 4 pattern
+        # Thematic subtitle matching Level 4 pattern
         if not getattr(game_state, 'final_boss_defeated', False):
             subtitle_text = "The Shadow Blight tears at reality itself..."
             subtitle_color = RED
@@ -325,8 +352,21 @@ class DungeonLevel5Nav:
 
         transition = self.renderer.check_valid_entrance(player_x, player_y, self.renderer.player_direction)
         if transition and transition[0]:
-            prompt = f"Press ENTER to {transition[0]['action']}"
-            draw_centered_text(surface, prompt, fonts['fantasy_small'], LAYOUT_DIALOG_Y + 15, YELLOW, 1024)
+            # Check if blocked
+            blocked_by = transition[0].get('blocked_by_flag')
+            if blocked_by and getattr(game_state, blocked_by, False):
+                prompt = transition[0]['name']
+                draw_centered_text(surface, prompt, fonts['fantasy_small'], LAYOUT_DIALOG_Y + 15, RED, 1024)
+            else:
+                # Check if available
+                required_flag = transition[0].get('requirements', {}).get('flag')
+                if required_flag and not getattr(game_state, required_flag, False):
+                    # Don't show prompt if requirement not met
+                    pass
+                else:
+                    prompt = f"Press ENTER to {transition[0]['action']}"
+                    draw_centered_text(surface, prompt, fonts['fantasy_small'], LAYOUT_DIALOG_Y + 15, YELLOW, 1024)
+
 
         searchable = self.renderer.check_searchable_object(player_x, player_y)
         if searchable:

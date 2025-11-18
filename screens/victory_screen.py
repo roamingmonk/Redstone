@@ -198,7 +198,7 @@ def draw_victory_screen(surface: pygame.Surface, game_state, fonts: Dict, images
         button_y,
         INTRO_BUTTON_WIDTH, 
         INTRO_BUTTON_HEIGHT,
-        "Continue to Redstone",
+        "Return to Portal Chamber",
         content_font
     )
     

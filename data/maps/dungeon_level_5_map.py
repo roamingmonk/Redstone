@@ -36,11 +36,11 @@ DUNGEON_L5_MAP = [
     "###......RRRRR.......###",
     "###.......RRR........###",
     "####.................###",
-    "####.....PPPPP.......###",
+    "####.....PP~PP.......###",
     "####.....P~~~P.......###",  # Portal area - FINAL BOSS
     "####.....P~~~P.......###",
     "####.....PPPPP.......###",
-    "#####................###",
+    "#####................U##",
     "######..............####",
     "#######...........######",
     "########################"
@@ -81,7 +81,7 @@ SEARCHABLE_OBJECTS = {
         'info': {
             'name': 'Ancient Ritual Circle',
             'interaction_type': 'dialogue',
-            'examine_dialogue': 'dungeon_level_5_ritual_circle',
+            'examine_dialogue': 'dungeon_level_5_ritual',
             'flag_set': 'dungeon_l5_ritual_examined',
             'one_time': True
         }
@@ -90,12 +90,15 @@ SEARCHABLE_OBJECTS = {
         'search_tiles': [(10, 18), (11, 18), (12, 18), (10, 19), (11, 19), (12, 19)],
         'object_pos': [(11, 18)],
         'info': {
-            'name': 'Portal',
+            'name': 'Unstable Portal',
             'interaction_type': 'dialogue',
-            'examine_dialogue': 'dungeon_level_5_portal',
-            'flag_set': 'dungeon_l5_portal_examined',
-            'one_time': True,
-            'requires_flag': 'marcus_confrontation_complete'
+            'examine_dialogue': 'dungeon_level_5_portal_postboss',
+            'flag_set': 'dungeon_l5_portal_postboss_examined',
+            'one_time': False,
+            'requires_flag': 'final_boss_defeated',
+            'blocked_message': 'The portal is too dangerous to approach while Vexthar still lives.',
+            'blocked_by_flag': 'portal_destroyed',
+            'blocked_message_after': 'The portal is sealed. Only rubble and broken stone remain.'
         }
     }
 }
@@ -181,6 +184,17 @@ AREA_TRANSITIONS = {
             'target_screen': 'dungeon_level_4_nav',
             'action': 'Return to Level 4',
             'requirements': {}
+        }
+   },
+    'exit_to_entrance': {
+        'entrance_tiles': [(21, 20)],
+        'building_pos': [(21, 20)],
+        'info': {
+            'name': 'Exit Passage',
+            'interaction_type': 'navigation',
+            'target_screen': 'hill_ruins_entrance_nav',
+            'action': 'Leave the ruins',
+            'requirements': {'flag': 'final_boss_defeated'}
         }
     }
 }
