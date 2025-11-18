@@ -422,10 +422,16 @@ class DialogueEngine:
                         conversation_attr = f'{npc_id}_conversation_data'
                         setattr(self.game_state, conversation_attr, None)
                         
-                        self.event_manager.emit("DIALOGUE_ENDED", {
-                            'npc_id': npc_id,
-                            'return_to': result.get('return_to', 'location')
-                        })
+                        # NEW: Don't emit DIALOGUE_ENDED if combat was started
+                        # Combat screen is already set by CombatEngine, navigation would interfere
+                        if not result.get('combat_started'):
+                            self.event_manager.emit("DIALOGUE_ENDED", {
+                                'npc_id': npc_id,
+                                'return_to': result.get('return_to', 'location')
+                            })
+                        else:
+                            print("⚔️ Dialogue: Skipping DIALOGUE_ENDED emission - combat screen already active")
+                        
                         return result
                     elif result.get('new_conversation'):
                         new_conv = result['new_conversation']
@@ -1083,6 +1089,21 @@ class DialogueEngine:
             
             print(f"⚔️ Dialogue triggering combat: {encounter_id}")
             
+            # CRITICAL: Set return location to where dialogue came from, not dialogue screen
+            if npc_id:
+                return_screen_attr = f'{npc_id}_return_screen'
+                return_location = getattr(self.game_state, return_screen_attr, None)
+                
+                if return_location:
+                    self.game_state.pre_combat_location = return_location
+                    print(f"💾 Combat will return to: {return_location}")
+                else:
+                    # Fallback: use current location if return screen not set
+                    location_id = getattr(self.game_state, f'{npc_id}_current_location', None)
+                    if location_id:
+                        self.game_state.pre_combat_location = location_id
+                        print(f"💾 Combat will return to: {location_id} (fallback)")
+            
             # Emit combat start event (CombatEngine will receive it)
             if self.event_manager:
                 self.event_manager.emit("START_COMBAT", {
@@ -1092,7 +1113,7 @@ class DialogueEngine:
                 })
             
             return f"Combat initiated: {encounter_id}"
-        
+                
         # 13) heal_party  ----------------------------------------------------------
         elif effect_type == 'heal_party':
             amount = effect.get('amount', 'full')  # Can be 'full', 'half', or a number

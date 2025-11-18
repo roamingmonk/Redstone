@@ -3,6 +3,7 @@
   "title": "Marcus Nightshade - The Corrupted Scholar",
   "npc_id": "marcus",
   "is_object": false,
+  
   "states": {
     "marcus_encounter": {
       "introduction": [
@@ -118,7 +119,7 @@
         },
         {
           "id": "cassia_message",
-          "text": "Cassia asked me to tell you: she never stopped loving who you were.",
+          "text": "Cassia asked me to tell you: she never stopped loving you.",
           "requirements": {"flag": "cassia_gave_locket"},
           "effects": [
               {"type": "remove_item", "item_id": "cassia_locket", "quantity": 1}

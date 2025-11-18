@@ -738,7 +738,7 @@ class ScreenManager:
         else:
             print("⚠️ No InputHandler available for Act III registration")
 
-    def register_victory_screen_clickables(self):
+    def register_victory_screen_clickables(self, game_state):
         """
         Register clickable button for victory screen
         Follows intro_scenes and act_two patterns

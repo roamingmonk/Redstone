@@ -205,6 +205,16 @@ class CombatEngine:
             print("❌ No encounter_id in START_COMBAT event")
             return
         
+        # CRITICAL: Only set pre_combat_location if not already set by dialogue
+        # Dialogue engine sets it to the navigation screen before emitting START_COMBAT
+        if not hasattr(self.game_state, 'pre_combat_location') or not self.game_state.pre_combat_location:
+            current_screen = self.game_state.screen
+            if current_screen and current_screen != 'combat':
+                self.game_state.pre_combat_location = current_screen
+                print(f"💾 Saved return location (fallback): {current_screen}")
+        else:
+            print(f"💾 Return location already set: {self.game_state.pre_combat_location}")
+        
         # Start the encounter
         success = self.start_encounter(encounter_id)
         

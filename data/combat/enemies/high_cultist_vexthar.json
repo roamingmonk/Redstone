@@ -43,13 +43,13 @@
       "damage_type": "necrotic"
     },
     {
-      "name": "Shadow Bolt",
+      "name": "Darkbolt",
       "damage_dice": "2d6+4",
       "attack_bonus": 10,
       "attack_type": "spell",
       "spell_id": "shadow_bolt",
       "spell_cost": 1,
-      "range": 10,
+      "range": 12,
       "description": "A bolt of shadow corruption",
       "damage_type": "necrotic"
     },
@@ -73,7 +73,7 @@
     }
   ],
   "movement": {
-    "speed": 3,
+    "speed": 5,
     "movement_type": "ground",
     "notes": "Moves deliberately, favoring positions near the portal for power"
   },

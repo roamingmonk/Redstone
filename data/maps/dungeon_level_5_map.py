@@ -108,6 +108,13 @@ AUTO_DIALOGUE_TRIGGERS = {
         'npc_id': 'marcus',
         'flag_check': 'marcus_encountered_level_5',
         'one_time': True
+    },
+    'vexthar_confrontration': {
+        'trigger_tiles': [(6, 11),(7, 11),(8, 11), (9, 11), (10, 11), (11, 11), (12, 11), (13,11), (14,11), (15, 11), (16, 11)],
+        'dialogue_id': 'dungeon_level_5_vexthar',
+        'npc_id': 'vexthar',
+        'flag_check': 'vexthar_encountered',
+        'requires_flag': 'marcus_confrontation_complete'
     }
 }
 
@@ -144,17 +151,17 @@ def get_auto_dialogue_trigger(x, y):
     return None
 
 # Combat encounters (FIXED - Marcus REMOVED, only final boss remains)
-COMBAT_ENCOUNTERS = {
-    'final_boss': {
-        'trigger_tiles': [(6, 11),(7, 11),(8, 11), (9, 11), (10, 11), (11, 11), (12, 11), (13,11), (14,11), (15, 11), (16, 11)],
-        'encounter_id': 'dungeon_l5_final_boss',
-        'one_time': True,
-        'completion_flag': 'final_boss_defeated',
-        'repeatable': False,
-        'chance': 1.0,
-        'requires_flag': 'marcus_confrontation_complete'
-    }
-}
+COMBAT_ENCOUNTERS = {}
+#     'final_boss': {
+#         'trigger_tiles': [(6, 11),(7, 11),(8, 11), (9, 11), (10, 11), (11, 11), (12, 11), (13,11), (14,11), (15, 11), (16, 11)],
+#         'encounter_id': 'dungeon_l5_final_boss',
+#         'one_time': True,
+#         'completion_flag': 'final_boss_defeated',
+#         'repeatable': False,
+#         'chance': 1.0,
+#         'requires_flag': 'marcus_confrontation_complete'
+#     }
+# }
 
 def get_combat_trigger(x, y):
     """Check if position triggers combat encounter"""

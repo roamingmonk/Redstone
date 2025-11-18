@@ -94,7 +94,7 @@ def draw_victory_screen(surface: pygame.Surface, game_state, fonts: Dict, images
     pygame.draw.rect(surface, YELLOW, border_rect, 3)
     
     # Title section
-    title_font = fonts.get('fantasy_large', fonts['large'])
+    title_font = fonts.get('fantasy_large', fonts['normal'])
     title_text = title_font.render("VICTORY!", True, YELLOW)
     title_rect = title_text.get_rect(center=(width // 2, 80))
     surface.blit(title_text, title_rect)

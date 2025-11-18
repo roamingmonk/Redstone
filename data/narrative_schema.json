@@ -424,6 +424,21 @@
         "marcus_redeemed": "marcus_redeemed",
         "marcus_saved_family": "post_victory_marcus_saved_mayor_family"
       }
+    },
+    "vexthar": {
+      "system_id": "vexthar",
+      "full_name": "High Cultist Vexthar the Consumed",
+      "dialogue_file": "dungeon_level_5_vexthar",
+      "conversation_flag": "vexthar_encountered",
+      "location": "dungeon_level_5",
+      "role": "final_boss",
+      "species": "human",
+      "story_flags": {
+        "encountered": "vexthar_encountered",
+        "defeated": "final_boss_defeated",
+        "boss_fight_started": "boss_fight_started",
+        "cavia_challenged": "cavia_challenged_vexthar"
+      }
     }
   },
   
@@ -1117,6 +1132,10 @@
         "first_meeting": "!refugee_group_talked",
         "return_visits": "refugee_group_talked"
       },
+      "vexthar": {
+      "first_meeting": "!vexthar_encountered && marcus_confrontation_complete",
+      "exit": "vexthar_encountered"
+    },
     "cassia": {
       "post_victory_marcus_redeemed": "act_three_complete && cassia_gave_journals && marcus_redeemed && !cassia_post_victory_complete",
       "post_victory_marcus_died": "act_three_complete && cassia_gave_journals && (marcus_died_in_battle || marcus_fled_battle) && !cassia_post_victory_complete",

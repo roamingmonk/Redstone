@@ -3,7 +3,7 @@
   "name": "Lesser Blight Spawn",
   "description": "A writhing mass of shadow corruption given semi-physical form. It looks like living darkness with too many limbs and mouths that open in impossible directions. Manifested by Vexthar from the portal's corruption.",
   "stats": {
-    "hp": 18,
+    "hp": 1,
     "max_hp": 18,
     "ac": 12,
     "strength": 14,

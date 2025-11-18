@@ -4,7 +4,7 @@
   "description": "The corrupted priest stands before the portal, shadow energy swirling around him!",
   "battlefield_id": "portal_chamber",
   "difficulty": "extreme",
-  "pre_combat_dialogue": "dungeon_level_5_final_boss_intro",
+  "pre_combat_dialogue": null,
   "enemies": [
     {
       "enemy_id": "high_cultist_vexthar",
@@ -21,7 +21,7 @@
     },
     {
       "enemy_id": "lesser_blight_spawn",
-      "position": [5, 12],
+      "position": [5, 9],
       "facing": "west",
       "description_override": "A writhing tendril of shadow corruption"
     }
@@ -51,7 +51,7 @@
     "facing": "east"
   },
   "victory_conditions": {
-    "victory_type": "defeat_boss"
+    "victory_type": "defeat_all_enemies"
   },
   "defeat_conditions": {
     "defeat_type": "all_party_defeated"

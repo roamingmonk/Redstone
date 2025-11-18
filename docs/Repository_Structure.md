@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-11-17 18:09)
+﻿## Repository Structure (generated 2025-11-17 21:02)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -65,6 +65,7 @@ C:.
 |       |   |   |       pete_portrait.jpg
 |       |   |   |       swamp_church_altar.aseprite
 |       |   |   |       thorman_portrait.jpg
+|       |   |   |       vexthar_portrait.jpg
 |       |   |   |       
 |       |   |   \---player_portraits
 |       |   |       +---active
@@ -354,10 +355,10 @@ C:.
 |   |       dungeon_level_4_planning.json
 |   |       dungeon_level_4_shrine.json
 |   |       dungeon_level_4_villager_cells.json
-|   |       dungeon_level_5_final_boss_intro.json
 |   |       dungeon_level_5_marcus.json
 |   |       dungeon_level_5_portal.json
 |   |       dungeon_level_5_ritual_circle.json
+|   |       dungeon_level_5_vexthar.json
 |   |       hill_ruins_carved_stones.json
 |   |       hill_ruins_forcedoor.json
 |   |       hill_ruins_lockeddoor.json
