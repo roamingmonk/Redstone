@@ -1173,6 +1173,79 @@ class DialogueEngine:
                 import traceback
                 traceback.print_exc()
                 return None   
+            
+        # 14) award_xp  ------------------------------------------------------------
+        elif effect_type == 'award_xp':
+            amount = effect.get('amount', 0)
+            reason = effect.get('reason', 'dialogue reward')
+            recipient = effect.get('recipient', 'party')
+            
+            # SAFETY: Check if this specific XP was already awarded
+            # Create a unique tracking flag based on reason
+            tracking_flag = effect.get('tracking_flag')  # Optional explicit flag
+            
+            if not tracking_flag and npc_id:
+                # Auto-generate tracking flag: "mayor_victory_family_saved_xp_awarded"
+                current_state = getattr(self.game_state, f'{npc_id}_dialogue_state', 'unknown')
+                tracking_flag = f"{npc_id}_{current_state}_xp_awarded"
+            
+            # Check if already awarded
+            if tracking_flag:
+                already_awarded = getattr(self.game_state, tracking_flag, False)
+                if already_awarded:
+                    print(f"⚠️ XP already awarded for {tracking_flag}, skipping")
+                    return None
+            
+            # Award XP
+            if amount > 0 and self.event_manager:
+                self.event_manager.emit("XP_AWARDED", {
+                    'amount': amount,
+                    'reason': reason,
+                    'recipient': recipient
+                })
+                print(f"⚡ Awarded {amount} XP: {reason}")
+                
+                # Mark as awarded
+                if tracking_flag:
+                    setattr(self.game_state, tracking_flag, True)
+                    print(f"✅ Set tracking flag: {tracking_flag}")
+                
+                return f"Awarded {amount} XP"
+            return None
+
+        # 15) add_gold  ------------------------------------------------------------
+        elif effect_type == 'add_gold':
+            amount = effect.get('amount', 0)
+            
+            # SAFETY: Optional tracking to prevent double-rewards
+            tracking_flag = effect.get('tracking_flag')
+            
+            if tracking_flag:
+                already_awarded = getattr(self.game_state, tracking_flag, False)
+                if already_awarded:
+                    print(f"⚠️ Gold already awarded for {tracking_flag}, skipping")
+                    return None
+            
+            if amount > 0:
+                current_gold = self.game_state.character.get('gold', 0)
+                self.game_state.character['gold'] = current_gold + amount
+                print(f"💰 Awarded {amount} gold (was {current_gold}, now {self.game_state.character['gold']})")
+                
+                # Mark as awarded if tracking enabled
+                if tracking_flag:
+                    setattr(self.game_state, tracking_flag, True)
+                    print(f"✅ Set tracking flag: {tracking_flag}")
+                
+                # Show visual notification
+                if self.event_manager:
+                    self.event_manager.emit("SHOW_FLOATING_TEXT", {
+                        "text": f"+{amount} gold",
+                        "color": (255, 215, 0),
+                        "duration": 2200
+                    })
+                
+                return f"Received {amount} gold"
+            return None
 
         
 

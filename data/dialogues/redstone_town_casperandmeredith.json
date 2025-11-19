@@ -204,7 +204,7 @@
       ]
     },
 
-    "final_thanks": {
+     "final_thanks": {
       "introduction": [
         "*They both look at you with deep gratitude*",
         "*Casper speaks quietly*",
@@ -219,7 +219,17 @@
         {
           "id": "farewell",
           "text": "Take care of each other.",
-          "next_state": "return_visit"
+          "effects": [
+            {
+              "type": "award_xp", 
+              "amount": 250, 
+              "reason": "Casper and Meredith's redemption romance",
+              "tracking_flag": "casper_meredith_victory_xp_awarded"
+            },
+            {"type": "set_flag", "flag": "casper_meredith_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+          ],
+          "next_state": "exit"
         }
       ]
     },
@@ -265,6 +275,7 @@
         }
       ]
     },
+    
 
     "warm_greeting": {
       "introduction": [

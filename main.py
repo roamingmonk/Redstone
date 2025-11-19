@@ -35,7 +35,26 @@ def main():
     
     # Initialize game data and state
     data_manager = get_data_manager()
+    
+    ######################################################################
+     # REMOVE THIS AFTER TESTING
+    def setup_victory_test(game_state):
+        print("🧪 VICTORY TEST MODE ENABLED")
+        game_state.act_three_complete = True
+        game_state.returned_to_redstone_victorious = False
+        game_state.mayor_family_status = 'all_saved'
+        game_state.marcus_redeemed = True
+        game_state.reported_shaft_to_henrik = True
+        game_state.mayor_post_victory_complete = False
+        game_state.cassia_post_victory_complete = False
+        game_state.henrik_post_victory_complete = False
+        game_state.trigger_victory_celebration = True
+     # REMOVE THIS AFTER TESTING
+    ###################################################################### 
+    
     game_state = GameState()
+
+    setup_victory_test(game_state)  # REMOVE THIS AFTER TESTING
     
     # Create GameController (Phase 1: Infrastructure only)
     controller = GameController(screen, game_state, fonts, images, data_manager)

@@ -1019,7 +1019,7 @@
       "return_visits": "beggar_talked"
     },
     "casper_and_meredith_epilogue": {
-      "first_meeting": "!epilogue_couple_talked",
+      "first_meeting": "act_three_complete && casper_redemption_complete && !epilogue_couple_talked",
       "return_visit": "epilogue_couple_talked"
     },
     "garrick": {
@@ -1041,6 +1041,10 @@
       "pre_recruitment_comedy": "pete_talked && !pete_attempted_recruitment"
     },
    "mayor": {
+      "victory_family_saved": "act_three_complete && mayor_family_status == 'all_saved' && !mayor_post_victory_complete",
+      "victory_family_partial": "act_three_complete && mayor_family_status == 'partial' && !mayor_post_victory_complete",
+      "victory_family_lost": "act_three_complete && mayor_family_status == 'none' && !mayor_post_victory_complete",
+      
       "_comment_victory": "=== ACT II OFFICE STATES (redstone_town_mayor.json) - Most specific first ===",
       "post_victory_celebration": "act_three_complete && !mayor_post_victory_complete",
       "post_victory_idle": "act_three_complete && mayor_post_victory_complete",
@@ -1108,6 +1112,8 @@
       "returning_customer": "jenna_talked && !jenna_gave_discount"
     },
     "henrik": {
+      "victory_mine_route": "act_three_complete && reported_shaft_to_henrik && !henrik_post_victory_complete",
+      
       "act_three_mine_tunnel_assistance": "act_three_started && red_hollow_mine_secret_entrance_found && !henrik_helped_act_three",
       "post_act_three_victory": "act_three_complete && henrik_helped_act_three && !henrik_act_three_complete",
       "cavia_first_meeting": "!henrik_talked && is_cavia",
@@ -1142,6 +1148,10 @@
       "exit": "vexthar_encountered"
     },
     "cassia": {
+      "victory_marcus_redeemed": "act_three_complete && marcus_redeemed && !cassia_post_victory_complete",
+      "victory_marcus_killed": "act_three_complete && marcus_died_in_battle && !cassia_post_victory_complete",
+      "victory_marcus_fled": "act_three_complete && marcus_fled_battle && !cassia_post_victory_complete",
+
       "post_victory_marcus_redeemed": "act_three_complete && cassia_gave_journals && marcus_redeemed && !cassia_post_victory_complete",
       "post_victory_marcus_died": "act_three_complete && cassia_gave_journals && (marcus_died_in_battle || marcus_fled_battle) && !cassia_post_victory_complete",
       "post_victory_no_marcus_interaction": "act_three_complete && cassia_gave_journals && !marcus_redeemed && !marcus_died_in_battle && !marcus_fled_battle && !cassia_post_victory_complete",

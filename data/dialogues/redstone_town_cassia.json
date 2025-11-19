@@ -1153,6 +1153,102 @@
         }
       ]
     },
+    "victory_marcus_fled": {
+      "introduction": [
+        "*Cassia looks toward the horizon, a sad smile on her face*",
+        "",
+        "He's gone. Fled after the battle, I'm told.",
+        "",
+        "Part of me hoped he would stay. That we could find a way forward.",
+        "",
+        "*She turns to you*",
+        "",
+        "But perhaps distance is what he needs. Time to heal, to remember who he was.",
+        "",
+        "Thank you for giving him that chance."
+      ],
+      "options": [
+        {
+          "id": "offer_condolences",
+          "text": "[Offer condolences]",
+          "effects": [
+            {
+              "type": "award_xp", 
+              "amount": 200, 
+              "reason": "Cassia's closure - Marcus fled",
+              "tracking_flag": "cassia_victory_marcus_fled_xp_awarded"
+            },
+            {"type": "set_flag", "flag": "cassia_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+    
+    "victory_marcus_killed": {
+      "introduction": [
+        "*Cassia's eyes are red from crying*",
+        "",
+        "He's dead. The Shadow Blight finally took him completely.",
+        "",
+        "*She wipes her eyes*",
+        "",
+        "I held a private memorial. For the man he once was, not the monster he became.",
+        "",
+        "Thank you for... ending his torment. It was a kindness, in the end."
+      ],
+      "options": [
+        {
+          "id": "offer_condolences",
+          "text": "[Offer condolences]",
+          "effects": [
+            {
+              "type": "award_xp", 
+              "amount": 300, 
+              "reason": "Marcus defeated - Cassia mourns",
+              "tracking_flag": "cassia_victory_marcus_killed_xp_awarded"
+            },
+            {"type": "set_flag", "flag": "cassia_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+    
+    "victory_marcus_redeemed": {
+      "introduction": [
+        "*Cassia's face lights up with bittersweet hope*",
+        "",
+        "You saw it, didn't you? In the final moment, he fought WITH you.",
+        "",
+        "The Marcus I loved was still there. Buried, but not gone.",
+        "",
+        "*Tears stream down her face*",
+        "",
+        "He gave his life to weaken the portal. A final act of redemption.",
+        "",
+        "That's how I'll remember him. Not as a cultist, but as a hero."
+      ],
+      "options": [
+        {
+          "id": "console_her",
+          "text": "[Console her]",
+          "effects": [
+            {
+              "type": "award_xp", 
+              "amount": 500, 
+              "reason": "Marcus redeemed - ultimate sacrifice",
+              "tracking_flag": "cassia_victory_marcus_redeemed_xp_awarded"
+            },
+            {"type": "set_flag", "flag": "cassia_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
 
     "returning_customer": {
       "introduction": [

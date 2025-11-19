@@ -1040,6 +1040,43 @@
         }
       ]
     },
+    "victory_mine_route": {
+      "introduction": [
+        "*Henrik grins widely, slapping you on the back*",
+        "",
+        "You used the mine route! Smart thinking!",
+        "",
+        "And those ore samples you brought back from the deeper levels...",
+        "",
+        "*His eyes gleam*",
+        "",
+        "Pure Aethel ore! With the cult gone, I can safely reopen the mine.",
+        "",
+        "Here - your share of the first finds. Consider it an investment!"
+      ],
+      "options": [
+        {
+          "id": "accept_reward",
+          "text": "[Accept the reward]",
+          "effects": [
+            {
+              "type": "add_gold", 
+              "amount": 500,
+              "tracking_flag": "henrik_victory_mine_route_gold_awarded"
+            },
+            {
+              "type": "award_xp", 
+              "amount": 200, 
+              "reason": "Henrik's mine route bonus",
+              "tracking_flag": "henrik_victory_mine_route_xp_awarded"
+            },
+            {"type": "set_flag", "flag": "henrik_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
 
     "relief": {
       "introduction": [

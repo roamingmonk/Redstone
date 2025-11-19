@@ -644,6 +644,110 @@
         { "id": "depart", "text": "I will.", "next_state": "exit" }
       ]
 
+    },
+    "victory_family_saved": {
+      "introduction": [
+        "*The Mayor embraces his family, tears streaming*",
+        "",
+        "You did it. You brought them back.",
+        "",
+        "*He turns to you, his voice thick with emotion*",
+        "",
+        "Words cannot express my gratitude. Redstone owes you everything.",
+        "",
+        "*He presses a pouch of gold and a ring into your hands*",
+        "",
+        "Take these. You've earned far more than I can ever repay."
+      ],
+      "options": [
+        {
+          "id": "accept_reward",
+          "text": "[Accept the rewards and continue]",
+          "effects": [
+            {
+              "type": "award_xp", 
+              "amount": 500, 
+              "reason": "Mayor's family fully rescued",
+              "tracking_flag": "mayor_victory_family_saved_xp_awarded"
+            },
+            {
+              "type": "add_gold", 
+              "amount": 1000,
+              "tracking_flag": "mayor_victory_family_saved_gold_awarded"
+            },
+            {"type": "set_flag", "flag": "mayor_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+    
+    "victory_family_partial": {
+      "introduction": [
+        "*The Mayor's joy is tempered by profound loss*",
+        "",
+        "You saved those you could. I am grateful for that.",
+        "",
+        "But the empty chairs at my table... they will haunt me forever.",
+        "",
+        "*He steadies himself, forcing composure*",
+        "",
+        "Take this. You earned it, even if the cost was high."
+      ],
+      "options": [
+        {
+          "id": "accept_reward",
+          "text": "[Accept the reward and continue]",
+          "effects": [
+            {
+              "type": "award_xp", 
+              "amount": 300, 
+              "reason": "Mayor's family partially rescued",
+              "tracking_flag": "mayor_victory_family_partial_xp_awarded"
+            },
+            {
+              "type": "add_gold", 
+              "amount": 750,
+              "tracking_flag": "mayor_victory_family_partial_gold_awarded"
+            },
+            {"type": "set_flag", "flag": "mayor_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+    
+    "victory_family_lost": {
+      "introduction": [
+        "*The Mayor stands alone, hollow-eyed*",
+        "",
+        "They're gone. All of them.",
+        "",
+        "*His voice cracks*",
+        "",
+        "You sealed the portal. You saved the town. But my family...",
+        "",
+        "*He cannot continue*"
+      ],
+      "options": [
+        {
+          "id": "leave",
+          "text": "[Leave him to his grief]",
+          "effects": [
+            {
+              "type": "award_xp", 
+              "amount": 100, 
+              "reason": "Portal sealed despite losses",
+              "tracking_flag": "mayor_victory_family_lost_xp_awarded"
+            },
+            {"type": "set_flag", "flag": "mayor_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
     }
     
   }

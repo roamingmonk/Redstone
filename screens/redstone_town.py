@@ -53,6 +53,9 @@ class RedstoneTownNavigation:
         self.npc_required_direction = None
         self.can_interact_npc = False
 
+        self.can_interact = False  # For building interactions
+        self.required_direction = None  # For building direction checking
+
         # Use shared graphics manager (singleton)
         self.graphics_manager = get_tile_graphics_manager()
         # After all your imports, before the class definition:
@@ -68,10 +71,195 @@ class RedstoneTownNavigation:
         
         self.renderer.update_camera(game_state.town_player_x, game_state.town_player_y)
     
+    def check_victory_celebration_trigger(self, game_state, controller):
+        """Check if we should auto-trigger victory celebration dialogues"""
+        
+        # Only trigger if flag is set and not already started
+        if not getattr(game_state, 'trigger_victory_celebration', False):
+            return False
+            
+        if getattr(game_state, 'victory_celebration_started', False):
+            return False
+        
+        print("🎊 VICTORY CELEBRATION AUTO-TRIGGER")
+        
+        # Mark as started
+        game_state.victory_celebration_started = True
+        game_state.trigger_victory_celebration = False
+        
+        # Set up the NPC dialogue sequence
+        game_state.victory_npc_sequence = []
+        game_state.victory_npc_index = 0
+        
+        # Build sequence: Mayor -> Cassia -> Henrik (if quest done)
+        game_state.victory_npc_sequence.append('mayor')
+        game_state.victory_npc_sequence.append('cassia')
+        
+        # Add Henrik only if his mine quest was completed
+        if getattr(game_state, 'reported_shaft_to_henrik', False):
+            game_state.victory_npc_sequence.append('henrik')
+        
+        print(f"📜 Victory NPC sequence: {game_state.victory_npc_sequence}")
+        
+        # Trigger first NPC dialogue (Mayor)
+        self._start_next_victory_dialogue(game_state, controller)
+        
+        return True
+
+    def _start_next_victory_dialogue(self, game_state, controller):
+        """Start the next NPC in the victory dialogue sequence"""
+        
+        if not hasattr(game_state, 'victory_npc_sequence'):
+            print("⚠️ No victory sequence defined")
+            return False
+        
+        if game_state.victory_npc_index >= len(game_state.victory_npc_sequence):
+            print("✅ Victory dialogue sequence complete - all NPCs done")
+            # All NPCs done - transition to epilogue slides (or just end for now)
+            self._transition_to_epilogue_slides(game_state, controller)
+            return False
+        
+        current_npc = game_state.victory_npc_sequence[game_state.victory_npc_index]
+        print(f"🗣️ Starting victory dialogue #{game_state.victory_npc_index + 1} with: {current_npc}")
+        
+        # Set the dialogue state based on outcome
+        self._set_victory_dialogue_state(game_state, current_npc)
+        
+        # Set return handler
+        game_state.victory_dialogue_return_screen = 'redstone_town'
+        
+        # Emit dialogue screen change
+        dialogue_file = f'redstone_town_{current_npc}'
+        controller.event_manager.emit("SCREEN_CHANGE", {
+            "target_screen": dialogue_file,
+            "source_screen": 'redstone_town',
+            "is_victory_sequence": True
+        })
+        
+        # Increment for next time
+        game_state.victory_npc_index += 1
+        
+        return True
+
+    def _set_victory_dialogue_state(self, game_state, npc_id):
+        """Set the correct dialogue state for victory conversations"""
+        
+        if npc_id == 'mayor':
+            # Check mayor family status
+            family_status = getattr(game_state, 'mayor_family_status', 'none')
+            
+            if family_status == 'all_saved':
+                game_state.mayor_dialogue_state = 'victory_family_saved'
+            elif family_status == 'partial':
+                game_state.mayor_dialogue_state = 'victory_family_partial'
+            else:
+                game_state.mayor_dialogue_state = 'victory_family_lost'
+            
+            print(f"📋 Mayor dialogue state: {game_state.mayor_dialogue_state}")
+        
+        elif npc_id == 'cassia':
+            # Check Marcus outcome
+            if getattr(game_state, 'marcus_redeemed', False):
+                game_state.cassia_dialogue_state = 'victory_marcus_redeemed'
+            elif getattr(game_state, 'marcus_died_in_battle', False):
+                game_state.cassia_dialogue_state = 'victory_marcus_killed'
+            elif getattr(game_state, 'marcus_fled_battle', False):
+                game_state.cassia_dialogue_state = 'victory_marcus_fled'
+            else:
+                game_state.cassia_dialogue_state = 'victory_marcus_fled'
+            
+            print(f"📋 Cassia dialogue state: {game_state.cassia_dialogue_state}")
+        
+        elif npc_id == 'casper_and_meredith_epilogue':
+            # Let narrative schema handle the state selection
+            # It will pick "first_meeting" if they haven't talked yet
+            # This allows full branching dialogue exploration
+            print(f"📋 Casper & Meredith dialogue: Using narrative schema state selection")
+        
+        elif npc_id == 'henrik':
+            game_state.henrik_dialogue_state = 'victory_mine_route'
+            print(f"📋 Henrik dialogue state: {game_state.henrik_dialogue_state}")
+
+    def _transition_to_epilogue_slides(self, game_state, controller):
+        """Transition to epilogue cinematic slides"""
+        print("🎬 Transitioning to epilogue slides")
+        
+        # Mark celebration complete
+        game_state.victory_celebration_complete = True
+        
+        # TODO: When epilogue_slides screen is implemented, transition there
+        # For now, just show a message and stay in town
+        self.showing_temp_message = True
+        self.temp_message_text = "🎉 Victory celebration complete! (Epilogue slides coming soon)"
+        self.temp_message_timer = 5000
+        
+        print("✨ Victory celebration sequence finished!")
+        print(f"📊 NPCs dialogued: {game_state.victory_npc_sequence}")
+        
+        # Future implementation:
+        # controller.event_manager.emit("SCREEN_CHANGE", {
+        #     "target_screen": 'epilogue_slides',
+        #     "source_screen": 'redstone_town'
+        # })
+
+    def check_victory_dialogue_return(self, game_state, controller):
+        """Check if we just returned from a victory dialogue and should continue sequence"""
+        
+        # Only process if we're in a victory sequence
+        if not getattr(game_state, 'victory_celebration_started', False):
+            return False
+        
+        if getattr(game_state, 'victory_celebration_complete', False):
+            return False
+        
+        # Check if we just returned from dialogue
+        just_completed = getattr(game_state, 'just_completed_victory_dialogue', False)
+
+        if just_completed:
+            print(f"✅ Returned from victory dialogue, continuing sequence")
+            
+            # IMPORTANT: Clear the flag FIRST to prevent re-triggering
+            setattr(game_state, 'just_completed_victory_dialogue', False)
+            
+            # Small delay before next dialogue
+            import pygame
+            pygame.time.wait(500)
+            
+            # Check if there are more NPCs in the sequence
+            if not hasattr(game_state, 'victory_npc_index'):
+                print("⚠️ No victory_npc_index found, ending sequence")
+                game_state.victory_celebration_complete = True
+                return False
+            
+            # Start next dialogue in sequence
+            result = self._start_next_victory_dialogue(game_state, controller)
+            
+            if not result:
+                # No more dialogues in sequence
+                print("✨ Victory celebration sequence complete!")
+                game_state.victory_celebration_complete = True
+            
+            return True
+        
+        return False
+
     def update(self, dt, keys, game_state, controller=None):
         """Update town navigation state"""
         # Initialize position FIRST before using it
         self.update_player_position(game_state)
+
+        # DEBUG: Check flags
+        if getattr(game_state, 'victory_celebration_started', False):
+            print(f"🔍 DEBUG: victory_celebration_started=True, index={getattr(game_state, 'victory_npc_index', 'NOT SET')}, just_completed={getattr(game_state, 'just_completed_victory_dialogue', False)}")
+        
+
+        # CHECK FOR VICTORY CELEBRATION AUTO-TRIGGER (NEW)
+        if controller and self.check_victory_celebration_trigger(game_state, controller):
+            return  # Dialogue is starting, don't process other input
+        
+        # CHECK FOR VICTORY DIALOGUE CONTINUATION (AFTER RETURN FROM DIALOGUE)
+        if controller and self.check_victory_dialogue_return(game_state, controller):
+            return  # Next dialogue is starting
         
         # Handle movement using shared renderer
         new_x, new_y = self.renderer.handle_movement(
