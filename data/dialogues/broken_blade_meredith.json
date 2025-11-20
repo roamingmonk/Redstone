@@ -320,7 +320,10 @@
           "text": "I found it! [Give ring]",
           "requirements": {
             "flags": {
-              "returned_meredith_ring": true
+              "found_merediths_ring": true,
+              "returned_meredith_ring": false,
+              "casper_given_ring": false
+
             }
           },
           "effects": [
@@ -506,6 +509,7 @@
           "requirements": {
             "flags": {
               "found_merediths_ring": true,
+              "casper_given_ring": false,
               "casper_declined_redemption": true
             }
           },

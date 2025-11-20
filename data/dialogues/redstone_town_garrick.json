@@ -1,0 +1,76 @@
+{
+  "id": "redstone_town_garrick",
+  "npc_name": "Garrick Ironbrew",
+
+  "states": {
+    "victory_simple": {
+      "introduction": [
+        "*Garrick grins from behind the bar*",
+        "",
+        "Well, well! The hero returns!",
+        "",
+        "*He pours you a drink*",
+        "",
+        "You saved Redstone. Stopped the cult. Sealed the portal.",
+        "And you didn't even complain about the basement rats.",
+        "",
+        "*He raises his glass*",
+        "",
+        "The Broken Blade will always have a seat for you.",
+        "First drink's on the house. Hell, first ten drinks are on the house!"
+      ],
+      "options": [
+        {
+          "id": "accept_thanks",
+          "text": "Thank you, Garrick.",
+          "effects": [
+            {
+              "type": "award_xp",
+              "amount": 50,
+              "reason": "Garrick's gratitude",
+              "tracking_flag": "garrick_victory_xp_awarded"
+            },
+            {"type": "set_flag", "flag": "garrick_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    },
+
+    "victory_with_basement": {
+      "introduction": [
+        "*Garrick grins from behind the bar*",
+        "",
+        "Well, well! The hero returns!",
+        "",
+        "*He pours you a drink*",
+        "",
+        "You cleared my basement of rats AND saved the entire town.",
+        "That's what I call going above and beyond.",
+        "",
+        "*He raises his glass*",
+        "",
+        "The Broken Blade will always have a seat for you.",
+        "First drink's on the house. Hell, first ten drinks are on the house!"
+      ],
+      "options": [
+        {
+          "id": "accept_thanks",
+          "text": "Thank you, Garrick.",
+          "effects": [
+            {
+              "type": "award_xp",
+              "amount": 75,
+              "reason": "Garrick's gratitude (with basement bonus)",
+              "tracking_flag": "garrick_victory_xp_awarded"
+            },
+            {"type": "set_flag", "flag": "garrick_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    }
+  }
+}

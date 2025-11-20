@@ -1,0 +1,45 @@
+{
+  "id": "redstone_town_pete",
+  "npc_name": "Pete Stumblefoot",
+
+  "states": {
+    "victory_simple": {
+      "introduction": [
+        "*Pete rushes up with his characteristic enthusiasm*",
+        "",
+        "You actually did it! You're a REAL hero!",
+        "",
+        "*He grins widely*",
+        "",
+        "I told everyone I knew you were special.",
+        "Well, I told them after you won. But still!",
+        "",
+        "*He strikes a dramatic pose*",
+        "",
+        "Maybe I should write a ballad about your adventures.",
+        "'The Hero Who Saved Redstone and Tolerated Pete.'",
+        "",
+        "*He laughs*",
+        "",
+        "Seriously though, thank you. You're amazing."
+      ],
+      "options": [
+        {
+          "id": "accept_thanks",
+          "text": "Thanks, Pete. Stay out of trouble.",
+          "effects": [
+            {
+              "type": "award_xp",
+              "amount": 50,
+              "reason": "Pete's gratitude",
+              "tracking_flag": "pete_victory_xp_awarded"
+            },
+            {"type": "set_flag", "flag": "pete_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    }
+  }
+}

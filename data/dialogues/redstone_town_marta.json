@@ -1,0 +1,204 @@
+{
+  "id": "redstone_town_marta",
+  "npc_name": "Marta",
+
+  "states": {
+    "victory_arrival": {
+      "introduction": [
+        "*Marta stands among the returning refugees, tears streaming down her face*",
+        "",
+        "You did it. You actually did it.",
+        "",
+        "*She grips your hands*",
+        "",
+        "The refugees can go home. Their nightmares are over.",
+        "Families can be together again.",
+        "",
+        "*Her voice breaks*",
+        "",
+        "We thought we'd lost everything. Our homes. Our future.",
+        "You gave it all back to us."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Let her compose herself]",
+          "next_state": "victory_hub"
+        }
+      ]
+    },
+
+    "victory_hub": {
+      "introduction": [
+        "*She wipes her eyes*",
+        "",
+        "Is there anything you'd like to know? About what happens next?"
+      ],
+      "options": [
+        {
+          "id": "refugees_returning",
+          "text": "Are the refugees already heading home?",
+          "requirements": {
+            "flags": {
+              "marta_discussed_return": false
+            }
+          },
+          "next_state": "topic_refugees_returning"
+        },
+        {
+          "id": "camp_defense",
+          "text": "How is the camp holding up after the attack?",
+          "requirements": {
+            "flags": {
+              "refugee_camp_defended": true,
+              "marta_discussed_defense": false
+            }
+          },
+          "next_state": "topic_camp_defense"
+        },
+        {
+          "id": "rebuilding",
+          "text": "What will you do now?",
+          "requirements": {
+            "flags": {
+              "marta_discussed_future": false
+            }
+          },
+          "next_state": "topic_marta_future"
+        },
+        {
+          "id": "done",
+          "text": "That's all I wanted to know.",
+          "next_state": "victory_farewell"
+        }
+      ]
+    },
+
+    "topic_refugees_returning": {
+      "introduction": [
+        "*She nods enthusiastically*",
+        "",
+        "They started packing this morning. Can you believe it?",
+        "Word spread about the portal's destruction.",
+        "",
+        "*Pride fills her voice*",
+        "",
+        "I organized supply caravans. Food, tools, building materials.",
+        "Some homes need repairs. Some are... gone.",
+        "",
+        "*She straightens*",
+        "",
+        "But we'll rebuild. Together.",
+        "That's what community means. We survive together."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "marta_discussed_return", "value": true}
+          ],
+          "next_state": "victory_hub"
+        }
+      ]
+    },
+
+    "topic_camp_defense": {
+      "introduction": [
+        "*Her expression darkens slightly*",
+        "",
+        "The attack was brutal. But we held.",
+        "Thanks to you, we were ready.",
+        "",
+        "*She looks at the refugees*",
+        "",
+        "They fought for their lives. For each other.",
+        "Lost some good people that day.",
+        "",
+        "*Her jaw sets*",
+        "",
+        "But we survived. And now we're going home.",
+        "Those we lost didn't die for nothing."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "marta_discussed_defense", "value": true}
+          ],
+          "next_state": "victory_hub"
+        }
+      ]
+    },
+
+    "topic_marta_future": {
+      "introduction": [
+        "*She looks thoughtful*",
+        "",
+        "I'll help coordinate the rebuilding.",
+        "Make sure families have what they need.",
+        "",
+        "*A small smile*",
+        "",
+        "Then maybe I'll rest. Just for a day or two.",
+        "Haven't slept properly in weeks.",
+        "",
+        "*She laughs softly*",
+        "",
+        "But I'll probably end up organizing something.",
+        "Old habits. Can't help myself."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "marta_discussed_future", "value": true}
+          ],
+          "next_state": "victory_hub"
+        }
+      ]
+    },
+
+    "victory_farewell": {
+      "introduction": [
+        "*Marta pulls you into a tight embrace*",
+        "",
+        "Thank you. For everything.",
+        "",
+        "*She steps back*",
+        "",
+        "The refugees wanted me to give you this.",
+        "It's not much, but it's from all of us.",
+        "",
+        "*She presses a bundle into your hands*",
+        "",
+        "You gave us back our lives.",
+        "We'll never forget what you did."
+      ],
+      "options": [
+        {
+          "id": "accept",
+          "text": "[Accept the gift]",
+          "effects": [
+            {
+              "type": "award_xp",
+              "amount": 150,
+              "reason": "Marta and the refugees' gratitude",
+              "tracking_flag": "marta_victory_xp_awarded"
+            },
+            {
+              "type": "add_gold",
+              "amount": 300,
+              "tracking_flag": "marta_victory_gold_awarded"
+            },
+            {"type": "set_flag", "flag": "marta_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    }
+  }
+}

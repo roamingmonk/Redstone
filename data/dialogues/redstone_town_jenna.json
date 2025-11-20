@@ -329,6 +329,41 @@
           "next_state": "after_rest_discount"
         }
       ]
+    },
+
+    "victory_simple": {
+      "introduction": [
+        "*Jenna approaches with tears in her eyes*",
+        "",
+        "You saved us. All of us.",
+        "",
+        "*She wipes her eyes*",
+        "",
+        "I can sleep without nightmares now.",
+        "The tremors have stopped. The disappearances are over.",
+        "",
+        "*She smiles*",
+        "",
+        "Thank you. From the bottom of my heart.",
+        "The inn is always open to you. Always."
+      ],
+      "options": [
+        {
+          "id": "accept_thanks",
+          "text": "Take care, Jenna.",
+          "effects": [
+            {
+              "type": "award_xp",
+              "amount": 50,
+              "reason": "Jenna's gratitude",
+              "tracking_flag": "jenna_victory_xp_awarded"
+            },
+            {"type": "set_flag", "flag": "jenna_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
     }
   }
 }

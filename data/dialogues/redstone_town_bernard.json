@@ -299,6 +299,7 @@
         { "id": "thanks", "text": "Thanks for the information.", "next_state": "exit" }
       ]
     },
+    
 
   "cassia_reputation": {
     "introduction": [
@@ -319,6 +320,41 @@
         "next_state": "regular_customer"
       }
     ]
-  }
+  },
+
+  "victory_simple": {
+    "introduction": [
+      "*Bernard looks up from his ledger with a warm smile*",
+      "",
+      "You did it! The town is safe!",
+      "",
+      "*He gestures around the store*",
+      "",
+      "Trade can resume. Caravans will return.",
+      "My shelves will be full again, not gathering dust.",
+      "",
+      "*He nods gratefully*",
+      "",
+      "Thank you, friend. Redstone owes you everything.",
+      "Business is good again because of you."
+    ],
+    "options": [
+      {
+        "id": "accept_thanks",
+        "text": "Glad I could help.",
+        "effects": [
+          {
+            "type": "award_xp",
+            "amount": 50,
+            "reason": "Bernard's gratitude",
+            "tracking_flag": "bernard_victory_xp_awarded"
+          },
+          {"type": "set_flag", "flag": "bernard_post_victory_complete", "value": true},
+          {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+        ],
+        "next_state": "exit"
+      }
+    ]
+   }
   }
 }

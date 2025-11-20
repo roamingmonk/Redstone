@@ -101,8 +101,10 @@
       "system_id": "meredith",
       "full_name": "Meredith Whisperwind",
       "dialogue_file": "broken_blade_meredith",
+      "victory_dialogue_file": "redstone_town_meredith",
       "conversation_flag": "meredith_talked",
       "location": "broken_blade",
+      "victory_location": "redstone_town",
       "role": "server",
       "species": "human",
       "story_flags": {
@@ -113,7 +115,8 @@
         "ring_found_in_mine": "found_merediths_ring",
         "ring_recovered": "returned_meredith_ring",
         "mentioned_old_mine": "meredith_mentioned_old_mine",
-        "heard_about_tremors": "meredith_worried_tremors"
+        "heard_about_tremors": "meredith_worried_tremors",
+        "victory_complete": "meredith_post_victory_complete"
       }
     },
     "beggar": {
@@ -1011,6 +1014,8 @@
     "_comment3": "////  Note:  ! = false,  && = AND ,  || = OR //////////////////////////////////////////",
     
     "meredith": {
+      "victory_ring_returned": "act_three_complete && returned_meredith_ring && !casper_given_ring && !meredith_post_victory_complete",
+      
       "first_meeting": "!meredith_talked",
       "meredith_after_casper_returned_ring": "casper_returned_ring_to_meredith && meredith_talked",
       "ring_returned_thanks": "returned_meredith_ring && !casper_returned_ring_to_meredith",
@@ -1031,6 +1036,9 @@
       "return_visit": "epilogue_couple_talked"
     },
     "garrick": {
+      "victory_with_basement": "act_three_complete && reported_basement_victory && !garrick_post_victory_complete",
+      "victory_simple": "act_three_complete && garrick_talked && !garrick_post_victory_complete",
+      
       "first_meeting": "!garrick_talked",
       "casual_chat": "(garrick_talked && garrick_mentioned_mayor && !mayor_talked) || (garrick_talked && mayor_talked && reported_basement_victory && post_payment_acknowledged)",
       "knows_about_ruins": "garrick_talked && !mayor_talked && learned_about_ruins",
@@ -1042,6 +1050,8 @@
       "post_mayor_no_basement": "garrick_talked && mayor_talked && !garrick_offered_basement"
     },
     "pete": {
+      "victory_simple": "act_three_complete && pete_talked && !pete_post_victory_complete",
+
       "first_meeting": "!pete_talked",
       "comedy_sequence": "pete_attempted_recruitment && !pete_comedy_complete",
       "post_info_comedy": "pete_comedy_complete && pete_gave_refugee_info",
@@ -1110,11 +1120,15 @@
       "casual_chat": "lyra_talked && !mayor_talked"
     },
     "bernard": {
+      "victory_simple": "act_three_complete && bernard_talked && !bernard_post_victory_complete",
+
       "first_meeting": "!bernard_talked",
       "regular_customer": "bernard_talked",
       "bulk_discounts": "bernard_talked && recruited_count >= 2"
     },
     "jenna": {
+      "victory_simple": "act_three_complete && jenna_talked && !jenna_post_victory_complete",
+
       "first_meeting": "!jenna_talked",
       "returning_discount_customer": "jenna_talked && jenna_gave_discount",
       "returning_customer": "jenna_talked && !jenna_gave_discount"
@@ -1142,6 +1156,8 @@
         
       },
       "marta": {
+        "victory_arrival": "act_three_complete && refugee_leader_talked && !marta_post_victory_complete",
+        
         "post_combat_thanks": "refugee_camp_defended && !refugee_combat_rewarded",
         "return_visits": "refugee_combat_rewarded",
         "waiting_for_defense": "agreed_to_defend_camp && !refugee_camp_defended",

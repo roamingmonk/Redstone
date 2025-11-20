@@ -1,0 +1,41 @@
+{
+  "id": "redstone_town_meredith",
+  "npc_name": "Meredith",
+
+  "states": {
+    "victory_ring_returned": {
+      "introduction": [
+        "*Meredith approaches with a warm smile*",
+        "",
+        "You did it. You saved everyone.",
+        "",
+        "*She touches the ring on her finger*",
+        "",
+        "When I asked you to find this ring, I never imagined...",
+        "I never imagined you'd end up saving the entire town.",
+        "",
+        "*Her eyes glisten*",
+        "",
+        "Thank you. For the ring, yes. But more importantly...",
+        "For giving us all a future."
+      ],
+      "options": [
+        {
+          "id": "accept_thanks",
+          "text": "I'm glad I could help.",
+          "effects": [
+            {
+              "type": "award_xp",
+              "amount": 100,
+              "reason": "Meredith's gratitude",
+              "tracking_flag": "meredith_victory_xp_awarded"
+            },
+            {"type": "set_flag", "flag": "meredith_post_victory_complete", "value": true},
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
+          ],
+          "next_state": "exit"
+        }
+      ]
+    }
+  }
+}

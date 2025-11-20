@@ -92,52 +92,43 @@ class RedstoneTownNavigation:
         game_state.victory_npc_index = 0
         
         # Build sequence: Mayor -> Cassia -> Henrik (if quest done)
-        game_state.victory_npc_sequence.append('mayor')
-        game_state.victory_npc_sequence.append('cassia')
+        # MAIN NPCS (branching dialogues)
+        game_state.victory_npc_sequence.append('mayor')  # Always required
         
-        # Add Henrik only if his mine quest was completed
+        if getattr(game_state, 'cassia_talked', False):
+            game_state.victory_npc_sequence.append('cassia')
+        
+        # Casper & Meredith: Couple dialogue OR Meredith solo
+        if getattr(game_state, 'casper_redemption_complete', False):
+            # Casper returned ring - use couple dialogue
+            game_state.victory_npc_sequence.append('casper_and_meredith_epilogue')
+        elif getattr(game_state, 'meredith_talked', False):
+            # Player talked to Meredith - simple dialogue
+            game_state.victory_npc_sequence.append('meredith')
+        
         if getattr(game_state, 'reported_shaft_to_henrik', False):
             game_state.victory_npc_sequence.append('henrik')
+        
+        # SUPPORTING NPCS (simple dialogues)
+        if getattr(game_state, 'garrick_talked', False):
+            game_state.victory_npc_sequence.append('garrick')
+        
+        if getattr(game_state, 'bernard_talked', False):
+            game_state.victory_npc_sequence.append('bernard')
+        
+        if getattr(game_state, 'jenna_talked', False):
+            game_state.victory_npc_sequence.append('jenna')
+        
+        if getattr(game_state, 'pete_talked', False):
+            game_state.victory_npc_sequence.append('pete')
+        
+        if getattr(game_state, 'refugee_leader_talked', False):
+            game_state.victory_npc_sequence.append('marta')
         
         print(f"📜 Victory NPC sequence: {game_state.victory_npc_sequence}")
         
         # Trigger first NPC dialogue (Mayor)
         self._start_next_victory_dialogue(game_state, controller)
-        
-        return True
-
-    def _start_next_victory_dialogue(self, game_state, controller):
-        """Start the next NPC in the victory dialogue sequence"""
-        
-        if not hasattr(game_state, 'victory_npc_sequence'):
-            print("⚠️ No victory sequence defined")
-            return False
-        
-        if game_state.victory_npc_index >= len(game_state.victory_npc_sequence):
-            print("✅ Victory dialogue sequence complete - all NPCs done")
-            # All NPCs done - transition to epilogue slides (or just end for now)
-            self._transition_to_epilogue_slides(game_state, controller)
-            return False
-        
-        current_npc = game_state.victory_npc_sequence[game_state.victory_npc_index]
-        print(f"🗣️ Starting victory dialogue #{game_state.victory_npc_index + 1} with: {current_npc}")
-        
-        # Set the dialogue state based on outcome
-        self._set_victory_dialogue_state(game_state, current_npc)
-        
-        # Set return handler
-        game_state.victory_dialogue_return_screen = 'redstone_town'
-        
-        # Emit dialogue screen change
-        dialogue_file = f'redstone_town_{current_npc}'
-        controller.event_manager.emit("SCREEN_CHANGE", {
-            "target_screen": dialogue_file,
-            "source_screen": 'redstone_town',
-            "is_victory_sequence": True
-        })
-        
-        # Increment for next time
-        game_state.victory_npc_index += 1
         
         return True
 
@@ -173,6 +164,77 @@ class RedstoneTownNavigation:
             # It will pick "first_meeting" if they haven't talked yet
             # This allows full branching dialogue exploration
             print(f"📋 Casper & Meredith dialogue: Using narrative schema state selection")
+        
+        elif npc_id == 'meredith':
+            # Meredith solo dialogue (player returned ring directly)
+            game_state.meredith_dialogue_state = 'victory_ring_returned'
+            print(f"📋 Meredith dialogue state: {game_state.meredith_dialogue_state}")
+        
+        elif npc_id == 'henrik':
+            game_state.henrik_dialogue_state = 'victory_mine_route_arrival'
+            print(f"📋 Henrik dialogue state: {game_state.henrik_dialogue_state}")
+        
+        elif npc_id == 'garrick':
+            # Check if basement quest was completed for special dialogue
+            if getattr(game_state, 'reported_basement_victory', False):
+                game_state.garrick_dialogue_state = 'victory_with_basement'
+            else:
+                game_state.garrick_dialogue_state = 'victory_simple'
+            print(f"📋 Garrick dialogue state: {game_state.garrick_dialogue_state}")
+        
+        elif npc_id == 'bernard':
+            game_state.bernard_dialogue_state = 'victory_simple'
+            print(f"📋 Bernard dialogue state: {game_state.bernard_dialogue_state}")
+        
+        elif npc_id == 'jenna':
+            game_state.jenna_dialogue_state = 'victory_simple'
+            print(f"📋 Jenna dialogue state: {game_state.jenna_dialogue_state}")
+        
+        elif npc_id == 'pete':
+            game_state.pete_dialogue_state = 'victory_simple'
+            print(f"📋 Pete dialogue state: {game_state.pete_dialogue_state}")
+        
+        elif npc_id == 'marta':
+            game_state.marta_dialogue_state = 'victory_arrival'
+            print(f"📋 Marta dialogue state: {game_state.marta_dialogue_state}")
+
+    def _set_victory_dialogue_state(self, game_state, npc_id):
+        """Set the correct dialogue state for victory conversations"""
+        
+        if npc_id == 'mayor':
+            # Check mayor family status - use ARRIVAL states
+            family_status = getattr(game_state, 'mayor_family_status', 'none')
+            
+            if family_status == 'all_saved':
+                game_state.mayor_dialogue_state = 'victory_family_saved_arrival'
+            elif family_status == 'partial':
+                game_state.mayor_dialogue_state = 'victory_family_partial_arrival'
+            else:
+                game_state.mayor_dialogue_state = 'victory_family_lost_arrival'
+            
+            print(f"📋 Mayor dialogue state: {game_state.mayor_dialogue_state}")
+        
+        elif npc_id == 'cassia':
+            # Check Marcus outcome - use ARRIVAL states
+            if getattr(game_state, 'marcus_redeemed', False):
+                game_state.cassia_dialogue_state = 'victory_marcus_redeemed_arrival'
+            elif getattr(game_state, 'marcus_died_in_battle', False):
+                game_state.cassia_dialogue_state = 'victory_marcus_died_arrival'
+            else:
+                game_state.cassia_dialogue_state = 'victory_marcus_died_arrival'
+            
+            print(f"📋 Cassia dialogue state: {game_state.cassia_dialogue_state}")
+        
+        elif npc_id == 'casper_and_meredith_epilogue':
+            # Let narrative schema handle the state selection
+            # It will pick "first_meeting" if they haven't talked yet
+            # This allows full branching dialogue exploration
+            print(f"📋 Casper & Meredith dialogue: Using narrative schema state selection")
+        
+        elif npc_id == 'meredith':
+            # Meredith solo dialogue (player returned ring directly)
+            game_state.meredith_dialogue_state = 'victory_ring_returned'
+            print(f"📋 Meredith dialogue state: {game_state.meredith_dialogue_state}")
         
         elif npc_id == 'henrik':
             game_state.henrik_dialogue_state = 'victory_mine_route_arrival'
