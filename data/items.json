@@ -57,22 +57,6 @@
       }
     },
     {
-      "id": "reinforced_miners_lantern",
-      "name": "Reinforced Miner's Lantern",
-      "description": "Henrik's foreman's lantern with heavy brass construction and thick glass panes. Provides superior illumination and wards off certain creatures with its steady light.",
-      "base_cost": 50,
-      "category": "items",
-      "subcategory": "tool",
-      "icon_file": "reinforced_miners_lantern.png",
-      "consumable": false,
-      "weight": 3,
-      "rarity": "special",
-      "special_effects": {
-        "perception_bonus": 2,
-        "description": "Grants +2 Perception in dark areas, minor bonus vs undead enemies"
-      }
-    },
-    {
       "id": "cassia_locket",
       "name": "Cassia's Wedding Locket",
       "description": "A delicate silver locket containing a faded portrait of a younger Marcus and Cassia. The inscription reads: 'Knowledge serves life.' Cassia's most precious keepsake.",

@@ -992,8 +992,8 @@
           "id": "accept_lantern",
           "text": "Thank you, Henrik. I'll put it to good use.",
           "effects": [
-            {"type": "add_item", "item_id": "reinforced_miners_lantern"},
-            {"type": "set_flag", "flag": "henrik_gave_reinforced_lantern", "value": true},
+            {"type": "add_item", "item_id": "henriks_lantern"},
+            {"type": "set_flag", "flag": "henrik_gave_lantern", "value": true},
             {"type": "set_flag", "flag": "henrik_helped_act_three", "value": true}
           ],
           "next_state": "final_blessing"
@@ -1040,36 +1040,370 @@
         }
       ]
     },
-    "victory_mine_route": {
+    "victory_mine_route_arrival": {
       "introduction": [
-        "*Henrik grins widely, slapping you on the back*",
+        "*Henrik looks up as you approach, his weathered face breaking into a genuine smile*",
         "",
-        "You used the mine route! Smart thinking!",
+        "You're back. And alive.",
         "",
-        "And those ore samples you brought back from the deeper levels...",
+        "*He grips your shoulders firmly*",
         "",
-        "*His eyes gleam*",
+        "It's over, isn't it? Really over.",
+        "I can feel it. The tremors have stopped.",
         "",
-        "Pure Aethel ore! With the cult gone, I can safely reopen the mine.",
+        "*His eyes glisten*",
         "",
-        "Here - your share of the first finds. Consider it an investment!"
+        "After all these years... the weight's finally lifting."
       ],
       "options": [
         {
-          "id": "accept_reward",
-          "text": "[Accept the reward]",
+          "id": "continue",
+          "text": "[Let him collect himself]",
+          "next_state": "victory_mine_route_hub"
+        }
+      ]
+    },
+
+    "victory_mine_route_hub": {
+      "introduction": [
+        "*He releases you and steps back*",
+        "",
+        "There's so much I want to ask. So much I need to know."
+      ],
+      "options": [
+        {
+          "id": "how_feel",
+          "text": "How do you feel now that it's over?",
+          "requirements": {
+            "flags": {
+              "henrik_discussed_feelings": false
+            }
+          },
+          "next_state": "topic_henrik_feelings"
+        },
+        {
+          "id": "mine_route",
+          "text": "The mine tunnel helped us bypass the outer defenses.",
+          "requirements": {
+            "flags": {
+              "red_hollow_mine_secret_entrance_found": true,
+              "henrik_discussed_mine_route": false
+            }
+          },
+          "next_state": "topic_mine_route_strategy"
+        },
+        {
+          "id": "ore_samples",
+          "text": "What should we do with the Aethel ore samples?",
+          "requirements": {
+            "flags": {
+              "retrieved_ore_samples": true,
+              "henrik_discussed_ore_fate": false
+            }
+          },
+          "next_state": "topic_ore_fate"
+        },
+        {
+          "id": "reopen_mine",
+          "text": "Will you reopen the mine now?",
+          "requirements": {
+            "flags": {
+              "henrik_discussed_mine_future": false
+            }
+          },
+          "next_state": "topic_mine_reopening"
+        },
+        {
+          "id": "return_lantern",
+          "text": "I brought your lantern back. Do you want it returned?",
+          "requirements": {
+            "flags": {
+              "returned_henriks_lantern": false,
+              "henrik_discussed_lantern": false
+            }
+          },
+          "next_state": "topic_lantern_return"
+        },
+        {
+          "id": "done",
+          "text": "That's all I wanted to share.",
+          "next_state": "victory_mine_route_farewell"
+        }
+      ]
+    },
+
+    "topic_henrik_feelings": {
+      "introduction": [
+        "*He sits down on his cart, looking out over the square*",
+        "",
+        "Lighter. Free.",
+        "For five years, I've carried the guilt of what we unleashed.",
+        "",
+        "*His hands, usually shaking, are steady*",
+        "",
+        "Every tremor reminded me. Every disappearance was my fault.",
+        "I sealed that chamber, but I knew it wasn't enough.",
+        "",
+        "*He looks at you*",
+        "",
+        "You did what I couldn't. What I was too afraid to do.",
+        "You went down there and ended it.",
+        "",
+        "Thank you. Truly."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "henrik_discussed_feelings", "value": true}
+          ],
+          "next_state": "victory_mine_route_hub"
+        }
+      ]
+    },
+
+    "topic_mine_route_strategy": {
+      "introduction": [
+        "*Henrik's eyes widen*",
+        "",
+        "You found the connection? The tunnel from the chamber?",
+        "",
+        "*He nods slowly*",
+        "",
+        "I always suspected the cult knew about it.",
+        "That's why they wanted the Aethel ore so badly.",
+        "The chamber wasn't just a source of power. It was a backdoor.",
+        "",
+        "*A grim smile*",
+        "",
+        "Smart thinking, using it. Probably saved lives.",
+        "The cultists never expected an attack from below."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "henrik_discussed_mine_route", "value": true}
+          ],
+          "next_state": "victory_mine_route_hub"
+        }
+      ]
+    },
+
+    "topic_ore_fate": {
+      "introduction": [
+        "*He looks troubled*",
+        "",
+        "The Aethel ore. Even the name tastes like poison now.",
+        "",
+        "*He thinks carefully*",
+        "",
+        "Part of me says destroy it. Melt it down. Bury it in the lake.",
+        "But another part...",
+        "",
+        "*He gestures to the town*",
+        "",
+        "Knowledge preserved us before. The Mayor's scholars.",
+        "If we destroy it, we forget. And forgotten dangers return.",
+        "",
+        "*His voice hardens*",
+        "",
+        "Seal it away. Deep. With warnings.",
+        "Let our grandchildren know what we faced.",
+        "So they never dig that deep again."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "henrik_discussed_ore_fate", "value": true}
+          ],
+          "next_state": "victory_mine_route_hub"
+        }
+      ]
+    },
+
+    "topic_mine_reopening": {
+      "introduction": [
+        "*Henrik looks at his weathered hands*",
+        "",
+        "I've thought about it. Every day since the tremors stopped.",
+        "",
+        "*He pauses*",
+        "",
+        "The upper levels are safe. Good copper veins. Some silver.",
+        "We could work those. Bring jobs back to Redstone.",
+        "",
+        "*His voice drops*",
+        "",
+        "But the deep shaft? The chamber?",
+        "That stays sealed. Forever.",
+        "",
+        "*He looks up*",
+        "",
+        "I'll oversee it personally. New seals. Proper wards.",
+        "And if anyone asks why we don't dig deeper...",
+        "",
+        "*A grim smile*",
+        "",
+        "I'll tell them about turnips. How they grow toward the sun.",
+        "Not everything valuable lies in the dark."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "henrik_discussed_mine_future", "value": true}
+          ],
+          "next_state": "victory_mine_route_hub"
+        }
+      ]
+    },
+    "topic_lantern_return": {
+      "introduction": [
+        "*Henrik looks at the reinforced lantern you're holding*",
+        "",
+        "My foreman's lantern. You kept it safe.",
+        "",
+        "*He reaches out, then hesitates*",
+        "",
+        "That lantern saw me through twenty years underground.",
+        "It's probably worth more to me than anything else I own.",
+        "",
+        "*He meets your eyes*",
+        "",
+        "But you're the one who took it into the deepest dark.",
+        "You're the one who came back.",
+        "",
+        "The choice is yours. Keep it, or return it."
+      ],
+      "options": [
+        {
+          "id": "return_lantern",
+          "text": "It's yours, Henrik. You should have it back.",
+          "effects": [
+            {"type": "remove_item", "item_id": "henriks_lantern"},
+            {"type": "award_xp", "amount": 150, "reason": "Returned Henrik's treasured lantern"},
+            {"type": "set_flag", "flag": "henrik_discussed_lantern", "value": true},
+            {"type": "set_flag", "flag": "returned_henriks_lantern", "value": true}
+          ],
+          "next_state": "lantern_returned_gratitude"
+        },
+        {
+          "id": "keep_lantern",
+          "text": "If you're sure... I'd like to keep it. As a reminder.",
+          "effects": [
+            {"type": "award_xp", "amount": 50, "reason": "Kept Henrik's lantern as memento"},
+            {"type": "set_flag", "flag": "henrik_discussed_lantern", "value": true},
+            {"type": "set_flag", "flag": "kept_henriks_lantern", "value": true}
+          ],
+          "next_state": "lantern_kept_blessing"
+        }
+      ]
+    },
+
+    "lantern_returned_gratitude": {
+      "introduction": [
+        "*Henrik takes the lantern carefully, his hands trembling*",
+        "",
+        "Thank you. You don't know what this means.",
+        "",
+        "*He holds it close*",
+        "",
+        "This light guided me through the darkest places.",
+        "Now it's home. Where it belongs.",
+        "",
+        "*He looks up with tears in his eyes*",
+        "",
+        "You're a good soul. The kind this town needs.",
+        "",
+        "*He reaches into his coin purse*",
+        "",
+        "Take this. For bringing back more than just a lantern."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "add_gold", "amount": 250}
+          ],
+          "next_state": "victory_mine_route_hub"
+        }
+      ]
+    },
+
+    "lantern_kept_blessing": {
+      "introduction": [
+        "*Henrik nods with understanding*",
+        "",
+        "Then keep it. Use it well.",
+        "",
+        "*A sad but genuine smile*",
+        "",
+        "Maybe it's fitting. That lantern was meant for the depths.",
+        "For those brave enough to face what lies below.",
+        "",
+        "You've earned it. More than I ever did.",
+        "",
+        "*He places his hand on your shoulder*",
+        "",
+        "Just... bring it back to the surface sometimes.",
+        "Let it see the sun. Remember there's light above the dark."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "next_state": "victory_mine_route_hub"
+        }
+      ]
+    },
+
+    "victory_mine_route_farewell": {
+      "introduction": [
+        "*Henrik stands and extends his hand*",
+        "",
+        "You've given me something I thought I'd lost forever.",
+        "Peace. A chance to make things right.",
+        "",
+        "*He pulls out a heavy coin purse*",
+        "",
+        "This is from the town. For clearing the mine route.",
+        "For ending the nightmare we started five years ago.",
+        "",
+        "*He presses it into your hands*",
+        "",
+        "And this...",
+        "",
+        "*He pulls out a small, glowing crystal - carefully wrapped in cloth*",
+        "",
+        "A piece of Aethel ore. Properly sealed.",
+        "Not as a weapon. As a reminder.",
+        "",
+        "That even the deepest darkness can be overcome."
+      ],
+      "options": [
+        {
+          "id": "accept",
+          "text": "[Accept the rewards]",
           "effects": [
             {
-              "type": "add_gold", 
+              "type": "add_gold",
               "amount": 500,
               "tracking_flag": "henrik_victory_mine_route_gold_awarded"
             },
             {
-              "type": "award_xp", 
-              "amount": 200, 
+              "type": "award_xp",
+              "amount": 200,
               "reason": "Henrik's mine route bonus",
               "tracking_flag": "henrik_victory_mine_route_xp_awarded"
             },
+            {"type": "add_item", "item_id": "sealed_aethel_crystal"},
             {"type": "set_flag", "flag": "henrik_post_victory_complete", "value": true},
             {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
           ],

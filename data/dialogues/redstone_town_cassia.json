@@ -944,304 +944,362 @@
         }
       ]
     },
-    "post_victory_marcus_redeemed": {
+    "victory_marcus_redeemed_arrival": {
       "introduction": [
-        "*Cassia is grinding ingredients at her workbench when you enter. She sets down her mortar immediately, eyes searching yours.*",
+        "*Cassia stands by her workbench, Marcus's journals carefully stacked beside her*",
         "",
-        "You're back. You're alive.",
-        "*Her voice is barely a whisper*",
-        "Marcus?"
+        "*She looks up as you approach, hope and sorrow mingling in her eyes*",
+        "",
+        "You're back. And alive.",
+        "",
+        "Marcus... he fled. Broke free at the last moment and ran.",
+        "",
+        "*Tears stream down her face*",
+        "",
+        "*She steadies herself*"
       ],
       "options": [
         {
-          "id": "tell_her",
-          "text": "He fled. At the last moment, he broke free and ran.",
-          "next_state": "marcus_fled_resolution"
+          "id": "continue",
+          "text": "[Let her compose herself]",
+          "next_state": "victory_marcus_redeemed_hub"
         }
       ]
     },
 
-    "marcus_fled_resolution": {
+    "victory_marcus_redeemed_hub": {
       "introduction": [
-        "*She grips the counter, knuckles white*",
+        "*She wipes her eyes*",
         "",
-        "He... he's alive? Free of the cult?",
-        "*Tears stream down her face*",
-        "I knew it. I knew there was still something of him left.",
-        "*She takes a shaky breath*",
-        "He can't come back. Not yet. Maybe not ever. The Shadow Blight touched him too deeply.",
-        "But he's ALIVE. And he chose to run. That's... that's enough.",
-        "*She wipes her eyes and pulls out a wrapped package*",
-        "This is his masterwork formula - the one you helped me complete. It's yours.",
-        "You gave me back hope. That's worth more than any coin."
+        "Is there... is there anything else you can tell me?"
       ],
       "options": [
         {
-          "id": "accept_gift",
-          "text": "Thank you, Cassia. Take care of yourself.",
-          "effects": [
-            {"type": "add_item", "item_id": "marcus_masterwork_elixir"},
-            {"type": "set_flag", "flag": "cassia_post_victory_complete", "value": true},
-            {"type": "award_xp", "amount": 100}
-          ],
-          
-          "next_state": "post_victory_idle"
+          "id": "holding_up",
+          "text": "How are you holding up?",
+          "requirements": {
+            "flags": {
+              "cassia_discussed_emotions": false
+            }
+          },
+          "next_state": "topic_holding_up_redeemed"
         },
         {
-          "id": "he_saved_them",
-          "text": "He saved the mayor's family. Hid them from the cult. Part of him was still fighting.",
-          "effects": [
-            {"type": "set_flag", "flag": "post_victory_marcus_saved_mayor_family", "value": true}
-          ],
-          "requirements": {"not_flag": "ost_victory_marcus_saved_mayor_family"},
-          "next_state": "marcus_redemption_acknowledgment"
+          "id": "find_peace",
+          "text": "Do you think he'll find peace?",
+          "requirements": {
+            "flags": {
+              "cassia_discussed_peace": false
+            }
+          },
+          "next_state": "topic_marcus_peace"
+        },
+        {
+          "id": "saved_family",
+          "text": "He saved the mayor's family. Hid them from the cult.",
+          "requirements": {
+            "flags": {
+              "mayor_family_status": "all_saved",
+              "cassia_discussed_family_save": false
+            }
+          },
+          "next_state": "topic_saved_family"
+        },
+        {
+          "id": "done",
+          "text": "That's all I wanted to share.",
+          "next_state": "victory_marcus_redeemed_farewell"
         }
       ]
     },
-    "marcus_redemption_acknowledgment": {
+
+    "topic_holding_up_redeemed": {
+      "introduction": [
+        "*She wipes her eyes*",
+        "",
+        "I'm... I don't know. Better than I feared. Worse than I hoped.",
+        "",
+        "He's alive. That's more than I dared dream when you left.",
+        "",
+        "*She touches her wedding ring*",
+        "",
+        "But he's still out there. Corrupted. Changed.",
+        "Maybe he can heal. Maybe time and distance...",
+        "",
+        "*She takes a breath*",
+        "",
+        "But he chose to run. That's something. That's hope."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_discussed_emotions", "value": true}
+          ],
+          "next_state": "victory_marcus_redeemed_hub"
+        }
+      ]
+    },
+
+    "topic_marcus_peace": {
+      "introduction": [
+        "*She looks toward the window*",
+        "",
+        "I hope so. The Shadow Blight touched him deeply.",
+        "But he broke free. In the final moment, he chose himself over the cult.",
+        "",
+        "*Her voice strengthens*",
+        "",
+        "That's the Marcus I knew. The one who fought for what was right.",
+        "Maybe... maybe that part of him is still in there.",
+        "Maybe he can find his way back to himself.",
+        "",
+        "*She manages a sad smile*",
+        "",
+        "Even if he can't come back to me."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_discussed_peace", "value": true}
+          ],
+          "next_state": "victory_marcus_redeemed_hub"
+        }
+      ]
+    },
+
+    "topic_saved_family": {
       "introduction": [
         "*Her hand flies to her mouth*",
         "",
         "He... he saved them?",
-        "*Fresh tears, but these are different*",
+        "",
+        "*Fresh tears, but these are different - joy mixed with pain*",
+        "",
         "Even in the darkness, even corrupted, he still tried to save people.",
+        "",
         "*She clutches Marcus's journal to her chest*",
+        "",
         "That's the man I married. That's who he really was.",
+        "Not the cultist. Not the monster.",
+        "",
+        "*She looks at you with gratitude*",
+        "",
         "Thank you. For telling me. For giving me that."
       ],
       "options": [
         {
           "id": "continue",
-          "text": "[Nod respectfully]",
-          "next_state": "marcus_fled_resolution"
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_discussed_family_save", "value": true}
+          ],
+          "next_state": "victory_marcus_redeemed_hub"
         }
       ]
     },
 
-    "post_victory_marcus_died": {
+    "victory_marcus_redeemed_farewell": {
       "introduction": [
-        "*Cassia is sitting at her workbench, Marcus's journals spread before her. She doesn't look up as you enter.*",
+        "*She takes a steadying breath*",
         "",
-        "I felt it. When he died. Like a candle going out.",
-        "*Her voice is hollow*",
-        "Tell me. Was it quick?"
+        "You've given me more than you know.",
+        "Not just information. Hope.",
+        "",
+        "*She pulls out a wrapped package*",
+        "",
+        "This is Marcus's masterwork formula - the one you helped me complete.",
+        "It's yours. You gave me back hope. That's worth more than any coin."
       ],
       "options": [
         {
-          "id": "tell_truth",
-          "text": "He fought to the end. There was no saving him.",
-          "next_state": "marcus_death_resolution"
-        },
-        {
-          "id": "merciful_lie",
-          "text": "It was quick. He didn't suffer.",
-          "next_state": "marcus_death_resolution"
-        }
-      ]
-    },
-
-    "marcus_death_resolution": {
-      "introduction": [
-        "*She closes the journals carefully, one by one*",
-        "",
-        "The man I loved died years ago. The Shadow Blight took him long before you did.",
-        "You just... you put an end to what was left.",
-        "*She stands, facing you*",
-        "Thank you. For trying. For caring enough to give him a chance.",
-        "And for doing what had to be done when that chance failed.",
-        "*She pulls out a vial of deep blue liquid*",
-        "Marcus's masterwork elixir. The last piece of who he was before the darkness took him.",
-        "Keep it. Remember him as he should have been, not as he became."
-      ],
-      "options": [
-        {
-          "id": "accept_memorial",
-          "text": "I will. I'm sorry, Cassia.",
+          "id": "accept_gift",
+          "text": "[Accept the gift]",
           "effects": [
             {"type": "add_item", "item_id": "marcus_masterwork_elixir"},
             {"type": "set_flag", "flag": "cassia_post_victory_complete", "value": true},
-            {"type": "award_xp", "amount": 100}
+            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
           ],
-          "next_state": "post_victory_idle"
+          "next_state": "exit"
         }
       ]
     },
 
-    "post_victory_no_marcus_interaction": {
+    "victory_marcus_died_arrival": {
       "introduction": [
-        "*Cassia looks up from organizing her shelves*",
+        "*Cassia sits at her workbench, Marcus's journals spread before her*",
         "",
-        "I heard. The cult is destroyed. The Shadow Blight sealed once more.",
-        "*She touches the pendant at her throat*",
-        "And Marcus...?",
-        "*Her eyes search yours*"
+        "*She doesn't look up as you enter*",
+        "",
+        "I felt it. When he died. Like a candle going out.",
+        "",
+        "*Her voice is hollow*",
+        "",
+        "*A long silence*",
+        "",
+        "*Finally, she looks up*"
       ],
       "options": [
         {
-          "id": "tell_outcome",
-          "text": "I never encountered him. Perhaps he escaped before the end.",
-          "next_state": "marcus_unknown_resolution"
+          "id": "continue",
+          "text": "[Wait quietly]",
+          "next_state": "victory_marcus_died_hub"
         }
       ]
     },
 
-    "marcus_unknown_resolution": {
+    "victory_marcus_died_hub": {
+      "introduction": [
+        "*She takes a breath*",
+        "",
+        "Tell me what you need to tell me."
+      ],
+      "options": [
+        {
+          "id": "how_coping",
+          "text": "How are you coping with this?",
+          "requirements": {
+            "flags": {
+              "cassia_discussed_grief": false
+            }
+          },
+          "next_state": "topic_coping_grief"
+        },
+        {
+          "id": "remember_marcus",
+          "text": "Tell me about the Marcus you remember.",
+          "requirements": {
+            "flags": {
+              "cassia_discussed_memories": false
+            }
+          },
+          "next_state": "topic_marcus_memories"
+        },
+        {
+          "id": "fought_bravely",
+          "text": "He fought to the end. The corruption was too deep.",
+          "requirements": {
+            "flags": {
+              "cassia_discussed_battle": false
+            }
+          },
+          "next_state": "topic_battle_end"
+        },
+        {
+          "id": "done",
+          "text": "I'm so sorry, Cassia.",
+          "next_state": "victory_marcus_died_farewell"
+        }
+      ]
+    },
+
+    "topic_coping_grief": {
+      "introduction": [
+        "*She closes one journal carefully*",
+        "",
+        "The Marcus I loved died years ago. The Shadow Blight took him long before you did.",
+        "",
+        "*Her hands are steady, but her voice wavers*",
+        "",
+        "You just... you put an end to what was left.",
+        "To the suffering. To the corruption.",
+        "",
+        "*She looks at you directly*",
+        "",
+        "I'm grateful for that. Strange as it sounds.",
+        "Better a clean end than... whatever he was becoming."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_discussed_grief", "value": true}
+          ],
+          "next_state": "victory_marcus_died_hub"
+        }
+      ]
+    },
+
+    "topic_marcus_memories": {
+      "introduction": [
+        "*A ghost of a smile crosses her face*",
+        "",
+        "He was... brilliant. Kind. So passionate about helping people.",
+        "",
+        "*She touches a journal*",
+        "",
+        "He'd spend hours perfecting a formula. Every measurement precise.",
+        "Not for glory. Not for gold. Just to make something that would heal.",
+        "",
+        "*Her voice breaks*",
+        "",
+        "That's the Marcus I'll remember. The alchemist. The healer.",
+        "Not... not what he became."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_discussed_memories", "value": true}
+          ],
+          "next_state": "victory_marcus_died_hub"
+        }
+      ]
+    },
+
+    "topic_battle_end": {
       "introduction": [
         "*She nods slowly*",
         "",
-        "Then he's still out there. Somewhere.",
-        "Maybe that's for the best. Maybe he can find peace away from all this.",
-        "*She manages a sad smile*",
-        "You saved Redstone. That's what matters.",
+        "I knew. I knew when I gave you the journals that it might come to this.",
+        "",
+        "*She stands, facing you*",
+        "",
+        "Thank you. For trying. For caring enough to give him a chance.",
+        "And for doing what had to be done when that chance failed.",
+        "",
+        "*Her voice is steady now*",
+        "",
+        "You saved Redstone. You ended the Shadow Blight.",
+        "Marcus... Marcus would have wanted that. The real Marcus."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "cassia_discussed_battle", "value": true}
+          ],
+          "next_state": "victory_marcus_died_hub"
+        }
+      ]
+    },
+
+    "victory_marcus_died_farewell": {
+      "introduction": [
+        "*She pulls out a vial of deep blue liquid*",
+        "",
+        "Marcus's masterwork elixir. The last piece of who he was before the darkness.",
+        "",
+        "*She places it in your hands*",
+        "",
+        "Keep it. Remember him as he should have been, not as he became.",
+        "",
+        "*She embraces you briefly*",
+        "",
         "Thank you. For everything."
       ],
       "options": [
         {
-          "id": "youre_welcome",
-          "text": "You're welcome, Cassia.",
+          "id": "accept_memorial",
+          "text": "[Accept the elixir]",
           "effects": [
-            {"type": "set_flag", "flag": "cassia_post_victory_complete", "value": true},
-            {"type": "award_xp", "amount": 50}
-          ],
-          "next_state": "post_victory_idle"
-        }
-      ]
-    },
-
-    "post_victory_idle": {
-      "introduction": [
-        "*She returns to her work, more at peace than you've ever seen her*",
-        "",
-        "The Violet Mortar is open for business.",
-        "What do you need?"
-      ],
-      "options": [
-        {
-          "id": "browse_shop",
-          "text": "I'd like to see your inventory.",
-          "effects": [
-            {"type": "open_shop", "merchant_id": "cassia"}
-          ],
-          "next_state": "post_shopping"
-        },
-        {
-          "id": "just_checking",
-          "text": "Just wanted to see how you were doing.",
-          "next_state": "thank_you_for_checking"
-        },
-        {
-          "id": "leave",
-          "text": "Nothing right now. Take care.",
-          "next_state": "exit"
-        }
-      ]
-    },
-
-    "thank_you_for_checking": {
-      "introduction": [
-        "*She smiles genuinely*",
-        "",
-        "I'm... managing. Better than I was.",
-        "Some days are harder than others, but the work helps.",
-        "Thank you for asking."
-      ],
-      "options": [
-        {
-          "id": "good",
-          "text": "Good to hear. Stay well.",
-          "next_state": "exit"
-        }
-      ]
-    },
-    "victory_marcus_fled": {
-      "introduction": [
-        "*Cassia looks toward the horizon, a sad smile on her face*",
-        "",
-        "He's gone. Fled after the battle, I'm told.",
-        "",
-        "Part of me hoped he would stay. That we could find a way forward.",
-        "",
-        "*She turns to you*",
-        "",
-        "But perhaps distance is what he needs. Time to heal, to remember who he was.",
-        "",
-        "Thank you for giving him that chance."
-      ],
-      "options": [
-        {
-          "id": "offer_condolences",
-          "text": "[Offer condolences]",
-          "effects": [
-            {
-              "type": "award_xp", 
-              "amount": 200, 
-              "reason": "Cassia's closure - Marcus fled",
-              "tracking_flag": "cassia_victory_marcus_fled_xp_awarded"
-            },
-            {"type": "set_flag", "flag": "cassia_post_victory_complete", "value": true},
-            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
-          ],
-          "next_state": "exit"
-        }
-      ]
-    },
-    
-    "victory_marcus_killed": {
-      "introduction": [
-        "*Cassia's eyes are red from crying*",
-        "",
-        "He's dead. The Shadow Blight finally took him completely.",
-        "",
-        "*She wipes her eyes*",
-        "",
-        "I held a private memorial. For the man he once was, not the monster he became.",
-        "",
-        "Thank you for... ending his torment. It was a kindness, in the end."
-      ],
-      "options": [
-        {
-          "id": "offer_condolences",
-          "text": "[Offer condolences]",
-          "effects": [
-            {
-              "type": "award_xp", 
-              "amount": 300, 
-              "reason": "Marcus defeated - Cassia mourns",
-              "tracking_flag": "cassia_victory_marcus_killed_xp_awarded"
-            },
-            {"type": "set_flag", "flag": "cassia_post_victory_complete", "value": true},
-            {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
-          ],
-          "next_state": "exit"
-        }
-      ]
-    },
-    
-    "victory_marcus_redeemed": {
-      "introduction": [
-        "*Cassia's face lights up with bittersweet hope*",
-        "",
-        "You saw it, didn't you? In the final moment, he fought WITH you.",
-        "",
-        "The Marcus I loved was still there. Buried, but not gone.",
-        "",
-        "*Tears stream down her face*",
-        "",
-        "He gave his life to weaken the portal. A final act of redemption.",
-        "",
-        "That's how I'll remember him. Not as a cultist, but as a hero."
-      ],
-      "options": [
-        {
-          "id": "console_her",
-          "text": "[Console her]",
-          "effects": [
-            {
-              "type": "award_xp", 
-              "amount": 500, 
-              "reason": "Marcus redeemed - ultimate sacrifice",
-              "tracking_flag": "cassia_victory_marcus_redeemed_xp_awarded"
-            },
+            {"type": "add_item", "item_id": "marcus_masterwork_elixir"},
             {"type": "set_flag", "flag": "cassia_post_victory_complete", "value": true},
             {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
           ],

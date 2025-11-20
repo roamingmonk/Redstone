@@ -145,28 +145,26 @@ class RedstoneTownNavigation:
         """Set the correct dialogue state for victory conversations"""
         
         if npc_id == 'mayor':
-            # Check mayor family status
+            # Check mayor family status - use ARRIVAL states
             family_status = getattr(game_state, 'mayor_family_status', 'none')
             
             if family_status == 'all_saved':
-                game_state.mayor_dialogue_state = 'victory_family_saved'
+                game_state.mayor_dialogue_state = 'victory_family_saved_arrival'
             elif family_status == 'partial':
-                game_state.mayor_dialogue_state = 'victory_family_partial'
+                game_state.mayor_dialogue_state = 'victory_family_partial_arrival'
             else:
-                game_state.mayor_dialogue_state = 'victory_family_lost'
+                game_state.mayor_dialogue_state = 'victory_family_lost_arrival'
             
             print(f"📋 Mayor dialogue state: {game_state.mayor_dialogue_state}")
         
         elif npc_id == 'cassia':
-            # Check Marcus outcome
+            # Check Marcus outcome - use ARRIVAL states
             if getattr(game_state, 'marcus_redeemed', False):
-                game_state.cassia_dialogue_state = 'victory_marcus_redeemed'
+                game_state.cassia_dialogue_state = 'victory_marcus_redeemed_arrival'
             elif getattr(game_state, 'marcus_died_in_battle', False):
-                game_state.cassia_dialogue_state = 'victory_marcus_killed'
-            elif getattr(game_state, 'marcus_fled_battle', False):
-                game_state.cassia_dialogue_state = 'victory_marcus_fled'
+                game_state.cassia_dialogue_state = 'victory_marcus_died_arrival'
             else:
-                game_state.cassia_dialogue_state = 'victory_marcus_fled'
+                game_state.cassia_dialogue_state = 'victory_marcus_died_arrival'
             
             print(f"📋 Cassia dialogue state: {game_state.cassia_dialogue_state}")
         
@@ -177,7 +175,7 @@ class RedstoneTownNavigation:
             print(f"📋 Casper & Meredith dialogue: Using narrative schema state selection")
         
         elif npc_id == 'henrik':
-            game_state.henrik_dialogue_state = 'victory_mine_route'
+            game_state.henrik_dialogue_state = 'victory_mine_route_arrival'
             print(f"📋 Henrik dialogue state: {game_state.henrik_dialogue_state}")
 
     def _transition_to_epilogue_slides(self, game_state, controller):

@@ -338,10 +338,18 @@
         "deep_ore_searched": "searched_deep_ore_chamber",
         "secret_tunnel_found": "red_hollow_mine_secret_entrance_found",
         "mine_complete": "red_hollow_mine_complete",
-        "act_three_warnings_given": "henrik_gave_act_three_warnings",
-        "reinforced_lantern_given": "henrik_gave_reinforced_lantern",
+        "henrik_lantern_status": "henrik_gave_lantern",
+        "henrik_lantern_discussed": "henrik_discussed_lantern",
+        "henrik_lantern_return": "returned_henriks_lantern",
+        "henrik_keep_henrik_lantern": "kept_henriks_lantern",
+        "henrik_ore_fate": "henrik_discussed_ore_fate",
         "helped_act_three": "henrik_helped_act_three",
-        "act_three_resolved": "henrik_act_three_complete"
+        "henrik_mine_future": "henrik_discussed_mine_future",
+        "henrik_feelings": "henrik_discussed_feelings",
+        "henrik_mine_route": "henrik_discussed_mine_route",
+        "act_three_warnings_given": "henrik_gave_act_three_warnings",
+        "act_three_resolved": "henrik_act_three_complete",
+        "completed_victory_dialogue": "just_completed_victory_dialogue"
       }
     },
     "marta": {
@@ -1041,9 +1049,9 @@
       "pre_recruitment_comedy": "pete_talked && !pete_attempted_recruitment"
     },
    "mayor": {
-      "victory_family_saved": "act_three_complete && mayor_family_status == 'all_saved' && !mayor_post_victory_complete",
-      "victory_family_partial": "act_three_complete && mayor_family_status == 'partial' && !mayor_post_victory_complete",
-      "victory_family_lost": "act_three_complete && mayor_family_status == 'none' && !mayor_post_victory_complete",
+      "victory_family_saved_arrival": "act_three_complete && mayor_family_status == 'all_saved' && !mayor_post_victory_complete",
+      "victory_family_partial_arrival": "act_three_complete && mayor_family_status == 'partial' && !mayor_post_victory_complete",
+      "victory_family_lost_arrival": "act_three_complete && mayor_family_status == 'none' && !mayor_post_victory_complete",
       
       "_comment_victory": "=== ACT II OFFICE STATES (redstone_town_mayor.json) - Most specific first ===",
       "post_victory_celebration": "act_three_complete && !mayor_post_victory_complete",
@@ -1112,7 +1120,7 @@
       "returning_customer": "jenna_talked && !jenna_gave_discount"
     },
     "henrik": {
-      "victory_mine_route": "act_three_complete && reported_shaft_to_henrik && !henrik_post_victory_complete",
+      "victory_mine_arrival": "act_three_complete && reported_shaft_to_henrik && !henrik_post_victory_complete",
       
       "act_three_mine_tunnel_assistance": "act_three_started && red_hollow_mine_secret_entrance_found && !henrik_helped_act_three",
       "post_act_three_victory": "act_three_complete && henrik_helped_act_three && !henrik_act_three_complete",
@@ -1148,9 +1156,8 @@
       "exit": "vexthar_encountered"
     },
     "cassia": {
-      "victory_marcus_redeemed": "act_three_complete && marcus_redeemed && !cassia_post_victory_complete",
-      "victory_marcus_killed": "act_three_complete && marcus_died_in_battle && !cassia_post_victory_complete",
-      "victory_marcus_fled": "act_three_complete && marcus_fled_battle && !cassia_post_victory_complete",
+      "victory_marcus_redeemed_arrival": "act_three_complete && marcus_redeemed && !cassia_post_victory_complete",
+      "victory_marcus_died_arrival": "act_three_complete && marcus_died_in_battle && !cassia_post_victory_complete",
 
       "post_victory_marcus_redeemed": "act_three_complete && cassia_gave_journals && marcus_redeemed && !cassia_post_victory_complete",
       "post_victory_marcus_died": "act_three_complete && cassia_gave_journals && (marcus_died_in_battle || marcus_fled_battle) && !cassia_post_victory_complete",

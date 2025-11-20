@@ -645,36 +645,240 @@
       ]
 
     },
-    "victory_family_saved": {
+    "victory_family_saved_arrival": {
       "introduction": [
-        "*The Mayor embraces his family, tears streaming*",
+        "*The Mayor embraces his family, tears streaming down his face*",
         "",
         "You did it. You brought them back.",
         "",
+        "*His wife holds their children close, all of them safe*",
+        "",
         "*He turns to you, his voice thick with emotion*",
         "",
-        "Words cannot express my gratitude. Redstone owes you everything.",
-        "",
-        "*He presses a pouch of gold and a ring into your hands*",
-        "",
-        "Take these. You've earned far more than I can ever repay."
+        "Words cannot express my gratitude. Redstone owes you everything."
       ],
       "options": [
         {
-          "id": "accept_reward",
-          "text": "[Accept the rewards and continue]",
+          "id": "continue",
+          "text": "[Let him compose himself]",
+          "next_state": "victory_family_saved_hub"
+        }
+      ]
+    },
+
+    "victory_family_saved_hub": {
+      "introduction": [
+        "*He wipes his eyes*",
+        "",
+        "Is there anything else you'd like to know? About what happens now?"
+      ],
+      "options": [
+        {
+          "id": "family_recovery",
+          "text": "How is your family? Are they recovering?",
+          "requirements": {
+            "flags": {
+              "mayor_discussed_family_recovery": false
+            }
+          },
+          "next_state": "topic_family_recovery_saved"
+        },
+        {
+          "id": "aethel_ore",
+          "text": "What will you do with the Aethel ore samples?",
+          "requirements": {
+            "flags": {
+              "retrieved_ore_samples": true,
+              "mayor_discussed_ore": false
+            }
+          },
+          "next_state": "topic_aethel_ore"
+        },
+        {
+          "id": "refugees",
+          "text": "What about the refugees? Can they return home?",
+          "requirements": {
+            "flags": {
+              "refugee_camp_complete": true,
+              "mayor_discussed_refugees": false
+            }
+          },
+          "next_state": "topic_refugees_returning"
+        },
+        {
+          "id": "town_future",
+          "text": "What's next for Redstone?",
+          "requirements": {
+            "flags": {
+              "mayor_discussed_town_future": false
+            }
+          },
+          "next_state": "topic_town_future_saved"
+        },
+        {
+          "id": "done",
+          "text": "That's all I wanted to know.",
+          "next_state": "victory_family_saved_farewell"
+        }
+      ]
+    },
+
+    "topic_family_recovery_saved": {
+      "introduction": [
+        "*He glances at his family with deep relief*",
+        "",
+        "They're shaken. My wife had nightmares the first few nights.",
+        "The children ask questions I don't know how to answer.",
+        "",
+        "*He smiles despite the pain*",
+        "",
+        "But they're here. Alive. Safe.",
+        "That's all that matters. The rest... we'll heal together.",
+        "",
+        "The town healer says the corruption left no lasting mark.",
+        "Time and love will mend what fear has broken."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "mayor_discussed_family_recovery", "value": true}
+          ],
+          "next_state": "victory_family_saved_hub"
+        }
+      ]
+    },
+
+    "topic_aethel_ore": {
+      "introduction": [
+        "*He looks troubled*",
+        "",
+        "Henrik and I have discussed this at length.",
+        "The ore is dangerous. Even sealed, it radiates corruption.",
+        "",
+        "*He gestures firmly*",
+        "",
+        "We're entombing it. Deep beneath the town hall.",
+        "Multiple seals. Guardian runes. The works.",
+        "",
+        "Future generations need to know what happened here.",
+        "But they don't need access to the tools of our destruction.",
+        "",
+        "*His voice hardens*",
+        "",
+        "The Aethel brought nothing but suffering.",
+        "Their legacy ends here."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "mayor_discussed_ore", "value": true}
+          ],
+          "next_state": "victory_family_saved_hub"
+        }
+      ]
+    },
+
+    "topic_refugees_returning": {
+      "introduction": [
+        "*His expression brightens*",
+        "",
+        "They're already packing. Can you believe it?",
+        "Word spread about the portal's destruction.",
+        "Families are heading home as we speak.",
+        "",
+        "*Pride enters his voice*",
+        "",
+        "Marta organized the whole thing. Food supplies, escorts, rebuilding plans.",
+        "The woman is a force of nature.",
+        "",
+        "Some homes need repairs. Some families need help.",
+        "But Redstone takes care of its own.",
+        "",
+        "*He looks at you*",
+        "",
+        "And you gave us the chance to do that."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "mayor_discussed_refugees", "value": true}
+          ],
+          "next_state": "victory_family_saved_hub"
+        }
+      ]
+    },
+
+    "topic_town_future_saved": {
+      "introduction": [
+        "*He walks to the window, looking over the town square*",
+        "",
+        "Rebuilding. Healing. Living without fear.",
+        "",
+        "The mine will reopen - carefully this time, with proper seals.",
+        "Trade will resume. The Broken Blade will be packed every night.",
+        "",
+        "*He turns back with a genuine smile*",
+        "",
+        "Redstone will thrive again. Not just survive. Thrive.",
+        "",
+        "We'll build a memorial. For those we lost.",
+        "And we'll teach our children what happened here.",
+        "",
+        "*His voice grows solemn*",
+        "",
+        "So it never happens again."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "mayor_discussed_town_future", "value": true}
+          ],
+          "next_state": "victory_family_saved_hub"
+        }
+      ]
+    },
+
+    "victory_family_saved_farewell": {
+      "introduction": [
+        "*He produces a heavy coin purse and an ornate ring*",
+        "",
+        "This is from the town treasury. And this...",
+        "",
+        "*He holds up the ring*",
+        "",
+        "The Key to Redstone. Honorary citizenship.",
+        "You will always have a home here. Always be welcome.",
+        "",
+        "*His voice breaks with emotion*",
+        "",
+        "You gave me back my family. You saved this town.",
+        "You are family now. Remember that."
+      ],
+      "options": [
+        {
+          "id": "accept",
+          "text": "[Accept the rewards]",
           "effects": [
             {
-              "type": "award_xp", 
-              "amount": 500, 
+              "type": "award_xp",
+              "amount": 500,
               "reason": "Mayor's family fully rescued",
               "tracking_flag": "mayor_victory_family_saved_xp_awarded"
             },
             {
-              "type": "add_gold", 
+              "type": "add_gold",
               "amount": 1000,
               "tracking_flag": "mayor_victory_family_saved_gold_awarded"
             },
+            {"type": "add_item", "item_id": "redstone_honorary_key"},
             {"type": "set_flag", "flag": "mayor_post_victory_complete", "value": true},
             {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
           ],
@@ -682,32 +886,180 @@
         }
       ]
     },
-    
-    "victory_family_partial": {
+
+    "victory_family_partial_arrival": {
       "introduction": [
-        "*The Mayor's joy is tempered by profound loss*",
+        "*The Mayor holds his surviving family members, grief and relief warring on his face*",
         "",
-        "You saved those you could. I am grateful for that.",
+        "You saved them. Not all... but them.",
         "",
-        "But the empty chairs at my table... they will haunt me forever.",
+        "*His voice cracks*",
         "",
-        "*He steadies himself, forcing composure*",
+        "My son... he didn't make it. But my wife and daughter are here.",
         "",
-        "Take this. You earned it, even if the cost was high."
+        "*He looks at you with haunted eyes*",
+        "",
+        "I am grateful. And I am devastated.",
+        "Is that selfish? To feel both at once?"
       ],
       "options": [
         {
-          "id": "accept_reward",
-          "text": "[Accept the reward and continue]",
+          "id": "continue",
+          "text": "[Give him a moment]",
+          "next_state": "victory_family_partial_hub"
+        }
+      ]
+    },
+
+    "victory_family_partial_hub": {
+      "introduction": [
+        "*He composes himself with visible effort*",
+        "",
+        "Is there... is there anything else you can tell me?"
+      ],
+      "options": [
+        {
+          "id": "family_recovery",
+          "text": "How are the survivors coping?",
+          "requirements": {
+            "flags": {
+              "mayor_discussed_family_recovery": false
+            }
+          },
+          "next_state": "topic_family_recovery_partial"
+        },
+        {
+          "id": "aethel_ore",
+          "text": "What will you do with the Aethel ore samples?",
+          "requirements": {
+            "flags": {
+              "retrieved_ore_samples": true,
+              "mayor_discussed_ore": false
+            }
+          },
+          "next_state": "topic_aethel_ore"
+        },
+        {
+          "id": "refugees",
+          "text": "What about the refugees? Can they return home?",
+          "requirements": {
+            "flags": {
+              "refugee_camp_complete": true,
+              "mayor_discussed_refugees": false
+            }
+          },
+          "next_state": "topic_refugees_returning"
+        },
+        {
+          "id": "town_future",
+          "text": "What's next for Redstone?",
+          "requirements": {
+            "flags": {
+              "mayor_discussed_town_future": false
+            }
+          },
+          "next_state": "topic_town_future_partial"
+        },
+        {
+          "id": "done",
+          "text": "That's all I needed to say.",
+          "next_state": "victory_family_partial_farewell"
+        }
+      ]
+    },
+
+    "topic_family_recovery_partial": {
+      "introduction": [
+        "*He looks at his wife and daughter*",
+        "",
+        "My wife... she barely speaks. The nightmares won't stop.",
+        "My daughter keeps asking when her brother is coming home.",
+        "",
+        "*His hands clench*",
+        "",
+        "How do I tell her he's never coming back?",
+        "That I have to choose between truth and mercy?",
+        "",
+        "*He steadies himself*",
+        "",
+        "But they're alive. They're here.",
+        "We'll heal. Somehow. Together.",
+        "",
+        "The empty chair at our table...",
+        "It will always be there. A reminder."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "mayor_discussed_family_recovery", "value": true}
+          ],
+          "next_state": "victory_family_partial_hub"
+        }
+      ]
+    },
+
+    "topic_town_future_partial": {
+      "introduction": [
+        "*He looks out over the town, his expression distant*",
+        "",
+        "Redstone will rebuild. It has to.",
+        "The survivors need normalcy. Hope.",
+        "",
+        "*His voice hardens*",
+        "",
+        "But we'll never forget. I won't let them.",
+        "Every family that lost someone... they deserve to be remembered.",
+        "",
+        "We're building a memorial. Names carved in stone.",
+        "So our children know the price of this victory.",
+        "",
+        "*He turns back*",
+        "",
+        "The mine stays sealed. Forever.",
+        "Whatever wealth lies beneath isn't worth one more life."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "mayor_discussed_town_future", "value": true}
+          ],
+          "next_state": "victory_family_partial_hub"
+        }
+      ]
+    },
+
+    "victory_family_partial_farewell": {
+      "introduction": [
+        "*He hands you a coin purse, his movements mechanical*",
+        "",
+        "This is what I can offer. What the town can offer.",
+        "It's not enough. It could never be enough.",
+        "",
+        "*His voice drops*",
+        "",
+        "You saved who you could. I know that.",
+        "I'm grateful. Even through the grief.",
+        "",
+        "Thank you. For trying. For fighting.",
+        "For bringing some of them home."
+      ],
+      "options": [
+        {
+          "id": "accept",
+          "text": "[Accept the reward]",
           "effects": [
             {
-              "type": "award_xp", 
-              "amount": 300, 
+              "type": "award_xp",
+              "amount": 300,
               "reason": "Mayor's family partially rescued",
               "tracking_flag": "mayor_victory_family_partial_xp_awarded"
             },
             {
-              "type": "add_gold", 
+              "type": "add_gold",
               "amount": 750,
               "tracking_flag": "mayor_victory_family_partial_gold_awarded"
             },
@@ -718,29 +1070,198 @@
         }
       ]
     },
-    
-    "victory_family_lost": {
+
+    "victory_family_lost_arrival": {
       "introduction": [
-        "*The Mayor stands alone, hollow-eyed*",
+        "*The Mayor stands alone in his office, hollow-eyed and broken*",
         "",
         "They're gone. All of them.",
         "",
-        "*His voice cracks*",
+        "*His voice is barely a whisper*",
         "",
-        "You sealed the portal. You saved the town. But my family...",
+        "You sealed the portal. You saved the town.",
         "",
-        "*He cannot continue*"
+        "*He looks at you with empty eyes*",
+        "",
+        "But my family... they're just... gone."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Say nothing]",
+          "next_state": "victory_family_lost_hub"
+        }
+      ]
+    },
+
+    "victory_family_lost_hub": {
+      "introduction": [
+        "*He stares at his desk*",
+        "",
+        "Was there... was there something else?"
+      ],
+      "options": [
+        {
+          "id": "aethel_ore",
+          "text": "What will you do with the Aethel ore samples?",
+          "requirements": {
+            "flags": {
+              "retrieved_ore_samples": true,
+              "mayor_discussed_ore": false
+            }
+          },
+          "next_state": "topic_aethel_ore_lost"
+        },
+        {
+          "id": "refugees",
+          "text": "What about the refugees?",
+          "requirements": {
+            "flags": {
+              "refugee_camp_complete": true,
+              "mayor_discussed_refugees": false
+            }
+          },
+          "next_state": "topic_refugees_lost"
+        },
+        {
+          "id": "town_future",
+          "text": "What's next for Redstone?",
+          "requirements": {
+            "flags": {
+              "mayor_discussed_town_future": false
+            }
+          },
+          "next_state": "topic_town_future_lost"
+        },
+        {
+          "id": "done",
+          "text": "I should go.",
+          "next_state": "victory_family_lost_farewell"
+        }
+      ]
+    },
+
+    "topic_aethel_ore_lost": {
+      "introduction": [
+        "*His voice is flat, emotionless*",
+        "",
+        "Henrik will seal it away. Deep underground.",
+        "Multiple barriers. Runes. Whatever it takes.",
+        "",
+        "*A flicker of anger crosses his face*",
+        "",
+        "That cursed ore took everything from me.",
+        "From all of us.",
+        "",
+        "Future generations can know about it. Learn from our mistakes.",
+        "But they'll never touch it. Never use it.",
+        "",
+        "*The anger fades back to emptiness*",
+        "",
+        "What's the point of wealth when everyone you love is gone?"
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "mayor_discussed_ore", "value": true}
+          ],
+          "next_state": "victory_family_lost_hub"
+        }
+      ]
+    },
+
+    "topic_refugees_lost": {
+      "introduction": [
+        "*He nods slowly*",
+        "",
+        "Marta is handling it. She's better at this than I am right now.",
+        "Organizing returns. Rebuilding plans. Food supplies.",
+        "",
+        "*His voice is distant*",
+        "",
+        "At least some families survived intact.",
+        "They can go home. Be together.",
+        "",
+        "*A long pause*",
+        "",
+        "I envy them that."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "mayor_discussed_refugees", "value": true}
+          ],
+          "next_state": "victory_family_lost_hub"
+        }
+      ]
+    },
+
+    "topic_town_future_lost": {
+      "introduction": [
+        "*He stares at the empty desk*",
+        "",
+        "Redstone will rebuild. It has to.",
+        "People need leadership. Direction. Hope.",
+        "",
+        "*He laughs bitterly*",
+        "",
+        "Even if their leader has none left to give.",
+        "",
+        "The mine stays sealed. The memorial will be built.",
+        "Trade will resume. Life goes on.",
+        "",
+        "*His voice drops*",
+        "",
+        "It just goes on. Without them.",
+        "Without the people who made it worth living."
+      ],
+      "options": [
+        {
+          "id": "continue",
+          "text": "[Continue]",
+          "effects": [
+            {"type": "set_flag", "flag": "mayor_discussed_town_future", "value": true}
+          ],
+          "next_state": "victory_family_lost_hub"
+        }
+      ]
+    },
+
+    "victory_family_lost_farewell": {
+      "introduction": [
+        "*He doesn't look up*",
+        "",
+        "You did what you could. I know that.",
+        "The town is saved. That's what matters.",
+        "",
+        "*A long silence*",
+        "",
+        "Take this. The treasury can spare it.",
+        "You earned it. You fought.",
+        "",
+        "*His voice breaks*",
+        "",
+        "It just... wasn't enough."
       ],
       "options": [
         {
           "id": "leave",
-          "text": "[Leave him to his grief]",
+          "text": "[Leave quietly]",
           "effects": [
             {
-              "type": "award_xp", 
-              "amount": 100, 
+              "type": "award_xp",
+              "amount": 100,
               "reason": "Portal sealed despite losses",
               "tracking_flag": "mayor_victory_family_lost_xp_awarded"
+            },
+            {
+              "type": "add_gold",
+              "amount": 500,
+              "tracking_flag": "mayor_victory_family_lost_gold_awarded"
             },
             {"type": "set_flag", "flag": "mayor_post_victory_complete", "value": true},
             {"type": "set_flag", "flag": "just_completed_victory_dialogue", "value": true}
