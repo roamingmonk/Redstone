@@ -391,6 +391,9 @@ class RedstoneTownNavigation:
             game_state.town_player_y = new_y
             self.renderer.update_camera(new_x, new_y)
         
+        # Update transition cooldown (decrease timer each frame)
+        self.renderer.update_transition_cooldown(dt)
+        
         # Check for building interactions with direction validation
         building_at_entrance = get_building_at_entrance(
             game_state.town_player_x, 
@@ -443,7 +446,8 @@ class RedstoneTownNavigation:
         self.can_interact_npc = can_interact_npc
         
         # Handle building entry OR NPC dialogue (only if facing correct direction)
-        if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]):
+        # Use NavigationRenderer's debouncing to prevent key repeat issues
+        if self.renderer.check_enter_just_pressed(keys) and self.renderer.can_interact():
             if self.current_building and self.can_interact:
                 interaction_type = self.current_building.get('interaction_type')
                 
@@ -542,6 +546,7 @@ class RedstoneTownNavigation:
 
                         # CHECK: Is the target screen implemented?
                         if hasattr(controller, 'screen_manager') and target_screen in controller.screen_manager.render_functions:
+                            self.renderer.start_transition_cooldown() 
                             controller.event_manager.emit("SCREEN_CHANGE", {
                                 'target_screen': target_screen,
                                 'source': 'town_navigation'
@@ -566,6 +571,7 @@ class RedstoneTownNavigation:
                         # CHECK: Is this screen actually implemented?
                         if hasattr(controller, 'screen_manager') and screen in controller.screen_manager.render_functions:
                             # Screen exists, proceed with transition
+                            self.renderer.start_transition_cooldown() 
                             controller.event_manager.emit("SCREEN_CHANGE", {
                                 'target_screen': screen,
                                 'source': 'town_navigation'

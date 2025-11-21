@@ -38,6 +38,7 @@ class BrokenBladeNav:
         self.renderer = NavigationRenderer(config)
         self.temp_message = None
         self.temp_message_timer = 0
+        self.just_entered_screen = True
     
     def _get_current_npcs(self, game_state):
         """Get NPCs that should be visible based on game state"""
@@ -96,6 +97,11 @@ class BrokenBladeNav:
     def update(self, dt, keys, game_state, controller=None):
         """Update navigation state and handle interactions"""
         self.update_player_position(game_state)
+        
+        # Reset cooldown when first entering screen
+        if self.just_entered_screen:
+            self.renderer.transition_cooldown = 0
+            self.just_entered_screen = False
         
         # Update temp message timer
         if self.temp_message_timer > 0:
@@ -161,6 +167,7 @@ class BrokenBladeNav:
                         target_screen = interaction['target_screen']
                         game_state.previous_screen = 'broken_blade_nav'
                         self.renderer.start_transition_cooldown()
+                        self.just_entered_screen = True 
                         controller.event_manager.emit("SCREEN_CHANGE", {
                             'target_screen': target_screen,
                             'source_screen': 'broken_blade_nav'
