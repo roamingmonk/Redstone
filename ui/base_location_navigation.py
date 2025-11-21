@@ -343,13 +343,20 @@ class NavigationRenderer:
         
         return True
 
-    def draw_interaction_prompt(self, surface, fonts, building_name, can_interact=True):
-        """Draw interaction prompt only if player can interact"""
-        if not building_name or not can_interact:
+    def draw_interaction_prompt(self, surface, fonts, prompt_text, can_interact=True):
+        """Draw interaction prompt with smart formatting for NPCs vs buildings"""
+        if not prompt_text or not can_interact:
             return
 
-        # Center the prompt text
-        action_text = f"Press ENTER to enter {building_name}"
+        # Smart formatting: detect if it's already a complete action phrase
+        # Actions like "Talk to X", "Leave X", "Play X" don't need "to enter"
+        action_verbs = ['Talk to', 'Leave', 'Play', 'Visit', 'Descend', 'Examine']
+        needs_enter_prefix = not any(prompt_text.startswith(verb) for verb in action_verbs)
+        
+        if needs_enter_prefix:
+            action_text = f"Press ENTER to enter {prompt_text}"
+        else:
+            action_text = f"Press ENTER: {prompt_text}"
 
         prompt_font = fonts.get('fantasy_medium', fonts['normal'])
         text_surface = prompt_font.render(action_text, True, YELLOW)

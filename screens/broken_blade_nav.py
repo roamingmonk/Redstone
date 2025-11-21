@@ -278,22 +278,19 @@ class BrokenBladeNav:
         
         interaction = self._get_interaction_at_tile(player_x, player_y, game_state)
         
-        prompt_y = LAYOUT_DIALOG_Y + 15  # Position inside the dialog border
-        
         if interaction:
             if interaction.get('interaction_type') == 'blocked':
-                # Blocked interaction (locked door, etc.)
+                # Blocked interaction - show as temp message style
                 prompt_text = f"🚫 {interaction.get('message', 'Blocked')}"
-                draw_centered_text(screen, prompt_text, fonts['fantasy_medium'], prompt_y, RED)
+                prompt_font = fonts.get('fantasy_medium', fonts['normal'])
+                draw_centered_text(screen, prompt_text, prompt_font, LAYOUT_DIALOG_Y + 15, RED)
             else:
-                # Available interaction
+                # Available interaction - use renderer's boxed prompt
                 action = interaction.get('action', 'Interact')
-                prompt_text = f"Press ENTER: {action}"
-                draw_centered_text(screen, prompt_text, fonts['fantasy_medium'], prompt_y, CYAN)
+                self.renderer.draw_interaction_prompt(screen, fonts, action, True)
         else:
-            # Movement instructions
-            prompt_text = "Arrow Keys: Move | ENTER: Interact | I/Q/C/H: Menus"
-            draw_centered_text(screen, prompt_text, fonts['fantasy_small'], prompt_y, WHITE)
+            # No interaction available - clear the prompt
+            self.renderer.draw_interaction_prompt(screen, fonts, None, False)
 
 # === SCREEN INTERFACE FUNCTIONS ===
 
