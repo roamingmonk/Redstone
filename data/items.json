@@ -651,6 +651,25 @@
       }
     },
     {
+      "id": "rusty_shortsword",
+      "name": "Shortsword",
+      "description": "A corroded blade. Barely worth melting down.",
+      "base_cost": 10,
+      "category": "weapons",
+      "icon_file": "rusty_shortsword.png",
+      "consumable": false,
+      "weight": 2,
+      "rarity": "common",
+      "combat_stats": {
+        "damage_dice": "1d6-1",
+        "damage_type": "slashing",
+        "attack_bonus": -1,
+        "range": "melee",
+        "weapon_properties": ["versatile"],
+        "abilities_used": ["strength"]
+      }
+    },
+    {
       "id": "mace",
       "name": "Mace",
       "description": "A simple bludgeoning weapon.",
