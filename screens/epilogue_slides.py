@@ -542,20 +542,22 @@ class EpilogueSequenceManager:
             self.epilogue_started = True
             print("🎬 Starting epilogue sequence...")
             
-            # Start first slide
+            # Start first slide - use screen number, NOT JSON ID
             self.current_slide_index = 0
-            first_slide_id = self.epilogue_data["slides"][0]["id"]
-            self.event_manager.emit("SCREEN_CHANGE", {"target": first_slide_id})
-        
+            first_slide_screen = "epilogue_slide_1"
+            print(f"🎬 Starting with {first_slide_screen}")
+            self.event_manager.emit("SCREEN_CHANGE", {"target": first_slide_screen})
+
     def handle_next_slide(self, event_data):
         """Handle advancing to next slide in sequence"""
         slides = self.epilogue_data["slides"]
         
         if self.current_slide_index < len(slides) - 1:
             self.current_slide_index += 1
-            next_slide_id = slides[self.current_slide_index]["id"]
-            print(f"🎬 Advancing to epilogue slide: {next_slide_id}")
-            self.event_manager.emit("SCREEN_CHANGE", {"target": next_slide_id})
+            # CRITICAL: Use screen number, NOT JSON ID
+            next_slide_screen = f"epilogue_slide_{self.current_slide_index + 1}"
+            print(f"🎬 Advancing to epilogue slide #{self.current_slide_index + 1}: {next_slide_screen}")
+            self.event_manager.emit("SCREEN_CHANGE", {"target": next_slide_screen})
         else:
             # End of epilogue sequence - go to credits
             self.complete_epilogue_sequence()
@@ -1006,16 +1008,3 @@ def _check_condition(condition_string, game_state):
         print(f"⚠️ Condition evaluation error: {condition_string} - {e}")
         return False
     
-def handle_next_slide(self, event_data):
-    """Handle advancing to next slide in sequence"""
-    slides = self.epilogue_data["slides"]
-    
-    if self.current_slide_index < len(slides) - 1:
-        self.current_slide_index += 1
-        # CRITICAL: Use screen number, NOT JSON ID
-        next_slide_screen = f"epilogue_slide_{self.current_slide_index + 1}"
-        print(f"🎬 Advancing to epilogue slide #{self.current_slide_index + 1}: {next_slide_screen}")
-        self.event_manager.emit("SCREEN_CHANGE", {"target": next_slide_screen})
-    else:
-        # End of epilogue sequence - go to credits
-        self.complete_epilogue_sequence()

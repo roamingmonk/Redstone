@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-11-18 18:12)
+﻿## Repository Structure (generated 2025-11-20 21:55)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -392,9 +392,13 @@ C:.
 |   |       redstone_town_bernard.json
 |   |       redstone_town_casperandmeredith.json
 |   |       redstone_town_cassia.json
+|   |       redstone_town_garrick.json
 |   |       redstone_town_henrik.json
 |   |       redstone_town_jenna.json
+|   |       redstone_town_marta.json
 |   |       redstone_town_mayor.json
+|   |       redstone_town_meredith.json
+|   |       redstone_town_pete.json
 |   |       refugee_camp_campfire.json
 |   |       refugee_camp_leader_rest.json
 |   |       refugee_camp_marta.json
@@ -440,7 +444,9 @@ C:.
 |   +---narrative
 |   |       act_three.json
 |   |       act_two.json
+|   |       credits_data.json
 |   |       death_quotes.json
+|   |       epilogue_sequence.json
 |   |       intro_sequence.json
 |   |       
 |   +---npcs
@@ -481,6 +487,7 @@ C:.
 |       project_context.md
 |       Refugee_Camp_and_Red_Hollow_Mine_Implementation_Plan.md
 |       Repository_Structure.md
+|       Terror-in-redstone-narrative-summaryOct29.md
 |       
 +---game_logic
 |   |   character_engine.py
@@ -517,11 +524,13 @@ C:.
 |   |   character_creation.py
 |   |   character_overlay.py
 |   |   combat_loot_overlay.py
+|   |   credits.py
 |   |   dungeon_level_1_nav.py
 |   |   dungeon_level_2_nav.py
 |   |   dungeon_level_3_nav.py
 |   |   dungeon_level_4_nav.py
 |   |   dungeon_level_5_nav.py
+|   |   epilogue_slides.py
 |   |   exploration_hub.py
 |   |   gambling_dice.py
 |   |   help_overlay.py
