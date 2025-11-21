@@ -83,7 +83,7 @@ def get_fallback_intro_data():
                     "At the town's center stands The Broken Blade tavern, its warm light a welcome beacon in the growing dusk. "
                     "Perhaps the locals there will have answers... and maybe you'll find allies for whatever lies ahead."
                 ],
-                "next_scene": "broken_blade",
+                "next_scene": "broken_blade_nav",
                 "background_style": "tavern_approach"
             }
         ],
@@ -153,7 +153,7 @@ class IntroSequenceManager:
         scenes = self.intro_data["scenes"]
         if scenes:
             final_scene = scenes[-1]
-            target = final_scene.get("next_scene", "broken_blade")
+            target = final_scene.get("next_scene", "broken_blade_nav")
             
             # Transition to main game FIRST
             self.event_manager.emit("SCREEN_CHANGE", {"target": target})
@@ -169,7 +169,7 @@ class IntroSequenceManager:
                 except Exception as e:
                     print(f"⚠️ Auto-save error: {e}, but continuing to game")
         else:
-            self.event_manager.emit("SCREEN_CHANGE", {"target": "broken_blade"})
+            self.event_manager.emit("SCREEN_CHANGE", {"target": "broken_blade_nav"})
     
     def get_current_scene_data(self):
         """Get data for currently active intro scene"""

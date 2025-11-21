@@ -361,9 +361,9 @@ class InputHandler:
             #if self.debug_input:
                 #print(f"❌ Click missed all {regions_checked} regions on {current_screen}")
         
-        else:
-            if self.debug_input:
-                print(f"⚠️  No clickable regions registered for screen: {current_screen}")
+        #else:
+            #if self.debug_input:
+                #print(f"⚠️  No clickable regions registered for screen: {current_screen}")
         
     
         # Handle dialogue state input
@@ -374,8 +374,8 @@ class InputHandler:
             return True       
         
         if hasattr(self, 'screen_manager') and self.screen_manager:
-            if self.debug_input:
-                print(f"🔄 Delegating to ScreenManager for screen: {current_screen}")
+            #if self.debug_input:
+                #print(f"🔄 Delegating to ScreenManager for screen: {current_screen}")
             
             # Try ScreenManager's click handling
             if self.screen_manager.handle_screen_click(current_screen, mouse_pos, self.game_controller):

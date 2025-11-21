@@ -2348,7 +2348,45 @@ Dialogue options can now conditionally appear based on inventory contents
 Fixed bug where item requirements used display names instead of item IDs
 Enables cleaner quest dialogue flows (e.g., hiding "still looking" when quest item obtained)
 
+# ADR-142: Convert Broken Blade Tavern to Tile-Based Navigation
+**Status:** Implemented  
+**Date:** 2025-11-21
+**Context:** Broken Blade tavern used static ActionHub button system while all other locations (Swamp Church, Hill Ruins, Refugee Camp, Redstone Town) used tile-based navigation, creating inconsistent player experience and limiting future expansion.
+**Decision:** Converted Broken Blade to scrollable 20x20 tile-based navigation system using proven NavigationRenderer pattern from existing locations.
+**Implementation:**
+- Created `data/maps/broken_blade_map.py` - 20x20 ASCII map with NPC positions, tile types, interaction zones, area transitions (exit, basement, dice game)
+- Created `screens/broken_blade_nav.py` - Navigation screen handler with render/update logic, NPC visibility filtering (recruitment/act progression), interaction priority system
+- Modified `ui/screen_manager.py` - Registered `broken_blade_nav` screen, deprecated old `broken_blade` ActionHub registration
+- Modified `data/maps/redstone_town_map.py` - Updated tavern entrance transition from `broken_blade` to `broken_blade_nav`
+- Modified `data/narrative/intro_sequence.json` - Updated intro sequence final scene transition to `broken_blade_nav`
+- Modified `screens/combat_loot_overlay.py` - Updated fallback return screen to `broken_blade_nav`
+**Technical Details:**
+- NPCs positioned at fixed coordinates with adjacent interaction tiles - Garrick (bartender), Meredith (server), Mayor (Act I only), Gareth/Elara/Thorman/Lyra (recruitable), Pete (informant)
+- Dynamic NPC visibility using `getattr(game_state, '{npc}_recruited', False)` pattern for recruitment checks and `current_act` for Mayor Act I restriction
+- Interaction priority: NPCs > Area Transitions > Locked Areas > Special Areas (dice game)
+- Dialogue return handling via `setattr(game_state, f'{npc_id}_return_screen', 'broken_blade_nav')` pattern
+- Flag checking uses `getattr(game_state, flag_name, False)` throughout for consistency with codebase patterns
+- Used existing constants (LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT, color constants) for UI consistency
 
+**Consequences:**
+- **Positive:** Consistent navigation UX across all game locations, easier to add new tavern NPCs/features, better immersion through exploration
+- **Positive:** Established reusable pattern for future interior locations (shops, inn, manor, etc.)
+- **Positive:** All existing functionality preserved (recruitment, dialogues, shopping, gambling, basement quest)
+- **Neutral:** Slightly longer time to reach NPCs (walk vs click), more screen real estate for visual map
+- **Negative:** Backward compatibility broken for old `broken_blade` screen references (all updated during refactor)
+- **Risk Mitigation:** Old `broken_blade.json` kept for potential `basement_cleared` area dependencies
+
+**Testing Verified:**
+- Movement and collision detection (walls, bar counter, walkable tiles)
+- All 8 NPC dialogues load and return correctly to tavern
+- NPC recruitment removes NPCs from tavern map
+- Mayor disappears in Act II (conditions working)
+- Basement stairs show locked message before quest acceptance
+- Basement combat triggers correctly after quest acceptance
+- Dice game area navigation works
+- Exit to Redstone Town and return to tavern work
+- Party status panel displays correctly 
+**Files Deprecated:** `data/locations/broken_blade.json` (ActionHub config - kept for reference)
 
 
 ```

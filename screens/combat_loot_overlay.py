@@ -274,7 +274,7 @@ class CombatLootOverlay(BaseTabbedOverlay):
             # Fallback if no pre_combat_location set
             if self.screen_manager and hasattr(self.screen_manager, 'event_manager'):
                 self.screen_manager.event_manager.emit("SCREEN_CHANGE", {
-                    'target_screen': 'broken_blade',
+                    'target_screen': 'broken_blade_nav',
                     'source_screen': 'combat_loot'
                 })
 

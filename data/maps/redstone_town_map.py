@@ -67,8 +67,8 @@ WALKABLE_TILES = {
 BUILDING_TILES = {
     'tavern': {
         'name': 'The Broken Blade Tavern',
-        'screen': 'broken_blade',
-        'action': 'Enter tavern'
+        'screen': 'broken_blade_nav',
+        'action': 'Enter the Broken Blade tavern'
     },
     'general_store': {
         'name': "Bernard's General Store", 
@@ -111,8 +111,8 @@ BUILDING_ENTRANCES = {
         'info': {
             'name': 'The Broken Blade Tavern',
             'interaction_type': 'screen_transition',
-            'screen': 'broken_blade',
-            'action': 'Enter tavern'
+            'screen': 'broken_blade_nav',
+            'action': 'Enter the Broken Blade tavern'
         }
     },
     'general_store': {

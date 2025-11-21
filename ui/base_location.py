@@ -558,7 +558,7 @@ class ActionHubLocation(BaseLocation):
             if action_name == 'back':
                 # Navigate back to parent location
                 area_data = self.get_current_area_data()
-                parent = area_data.get('parent', 'broken_blade')
+                parent = area_data.get('parent', 'broken_blade_nav')
                 
                 event_manager.emit("SCREEN_CHANGE", {
                     "target_screen": parent,
@@ -818,9 +818,9 @@ class NPCSelectionLocation(BaseLocation):
                 from utils.narrative_schema import narrative_schema
                 npc_schema = narrative_schema.schema.get('npcs', {}).get(npc_id, {})
                 
-                act_one_location = npc_schema.get('location', 'broken_blade')
+                act_one_location = npc_schema.get('location', 'broken_blade_nav')
                 act_two_location = npc_schema.get('act_two_location', None)
-                parent_location = area_data.get('parent', 'broken_blade')
+                parent_location = area_data.get('parent', 'broken_blade_nav')
                 
                 if act_two_location:
                     act_two_started = getattr(game_state, 'act_two_started', False)
@@ -927,7 +927,7 @@ class NPCSelectionLocation(BaseLocation):
             elif action_name == 'back':
                 # Navigate back to parent location
                 area_data = self.get_current_area_data()
-                parent = area_data.get('parent', 'broken_blade')
+                parent = area_data.get('parent', 'broken_blade_nav')
                 
                 event_manager.emit("SCREEN_CHANGE", {
                     "target_screen": parent,

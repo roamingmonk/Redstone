@@ -54,7 +54,7 @@ def main():
     
     game_state = GameState()
 
-    setup_victory_test(game_state)  # REMOVE THIS AFTER TESTING
+    #setup_victory_test(game_state)  #  TESTING
     
     # Create GameController (Phase 1: Infrastructure only)
     controller = GameController(screen, game_state, fonts, images, data_manager)

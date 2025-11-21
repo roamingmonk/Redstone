@@ -76,7 +76,7 @@ def handle_dice_bets_clicks(mouse_pos, game_controller, event_manager):
         return True
     elif back_btn and back_btn.collidepoint(mouse_pos):
         event_manager.emit("SCREEN_CHANGE", {
-            "target_screen": "broken_blade", "source_screen": "dice_bets"
+            "target_screen": "broken_blade_nav", "source_screen": "dice_bets"
         })
         return True
     return False
@@ -123,12 +123,12 @@ def handle_dice_results_clicks(mouse_pos, game_controller, event_manager):
             return True
         elif quit_btn and quit_btn.collidepoint(mouse_pos):
             event_manager.emit("SCREEN_CHANGE", {
-                "target_screen": "broken_blade", "source_screen": "dice_results"
+                "target_screen": "broken_blade_nav", "source_screen": "dice_results"
             })
             return True
     elif buttons and buttons.collidepoint(mouse_pos):  # Single quit button
         event_manager.emit("SCREEN_CHANGE", {
-            "target_screen": "broken_blade", "source_screen": "dice_results"
+            "target_screen": "broken_blade_nav", "source_screen": "dice_results"
         })
         return True
     return False

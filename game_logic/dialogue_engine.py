@@ -886,7 +886,7 @@ class DialogueEngine:
             if self.event_manager:
                 self.event_manager.emit('OPEN_SHOPPING', {
                     'merchant_id': merchant_id,
-                    'source_location': getattr(self.game_state, f'{npc_id}_current_location', 'broken_blade')
+                    'source_location': getattr(self.game_state, f'{npc_id}_current_location', 'broken_blade_nav')
                 })
                 return f"Opening shop for {merchant_id}"
             return None

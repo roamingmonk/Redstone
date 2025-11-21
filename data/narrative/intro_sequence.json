@@ -26,7 +26,7 @@
         "content": [
           "Every town has a heart, and Redstone's beats within the Broken Blade Tavern. Music once spilled from its door, but tonight the sound is muted—just hushed voices, the clink of mugs, and the watchful eyes of patrons sizing you up. This is where adventurers make their start. If Redstone has secrets, the Broken Blade will whisper them first."
         ],
-        "next_scene": "broken_blade",
+        "next_scene": "broken_blade_nav",
         "background_style": "tavern_approach"
       }
     ],

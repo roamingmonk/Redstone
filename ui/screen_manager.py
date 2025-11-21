@@ -36,6 +36,7 @@ from screens.epilogue_slides import (draw_epilogue_slide_1, draw_epilogue_slide_
                                     draw_epilogue_slide_7)
 from screens.credits import CreditsScreen
 
+from screens.broken_blade_nav import draw_broken_blade_nav
 from screens.exploration_hub import draw_exploration_hub, register_exploration_hub_buttons, get_hub_manager
 from screens.swamp_church_exterior_nav import draw_swamp_church_exterior_nav
 from screens.swamp_church_interior_nav import draw_swamp_church_interior_nav
@@ -1269,9 +1270,12 @@ class ScreenManager:
                 enter_hook=lambda _: self.register_exploration_hub_clickables())
 
         # BaseLocation System
-            # Broken Blade Tavern 
-            self._auto_register_location("broken_blade")
-            self._auto_register_location("patron_selection")
+            # Broken Blade Tavern - Navigation-based (NEW)
+            self.register_render_function("broken_blade_nav", draw_broken_blade_nav)
+            
+            # OLD: TODO ActionHub system (deprecated - keeping for basement_cleared area)
+            # self._auto_register_location("broken_blade")
+            self._auto_register_location("patron_selection")  # Keep for now (may deprecate later)
 
             # Act II Exploration Hub (custom tile-based map - NOT auto-registered)
             # self._auto_register_location("exploration_hub")  # Disabled - using custom renderer
