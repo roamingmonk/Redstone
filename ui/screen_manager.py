@@ -31,8 +31,12 @@ from screens.act_two_transition import (draw_act_two_start, register_act_two_but
 from screens.act_three_transition import (draw_act_three_start, register_act_three_buttons, get_act_three_manager)
 from screens.victory_screen import draw_victory_screen
 
+from screens.epilogue_slides import (draw_epilogue_slide_1, draw_epilogue_slide_2, draw_epilogue_slide_3,
+                                    draw_epilogue_slide_4, draw_epilogue_slide_5, draw_epilogue_slide_6,
+                                    draw_epilogue_slide_7)
+from screens.credits import CreditsScreen
+
 from screens.exploration_hub import draw_exploration_hub, register_exploration_hub_buttons, get_hub_manager
-#from screens.exploration_hub import get_hub_manager
 from screens.swamp_church_exterior_nav import draw_swamp_church_exterior_nav
 from screens.swamp_church_interior_nav import draw_swamp_church_interior_nav
 from screens.hill_ruins_entrance_nav import draw_hill_ruins_entrance_nav
@@ -106,6 +110,9 @@ class ScreenManager:
         self.act_two_manager = None  
         self.act_three_manager = None  
         self.victory_manager = None
+        self.epilogue_manager = None
+        self.credits_screen_instance = None
+        self.epilogue_manager = None
 
         # Navigation route map for simple transitions
         self.navigation_routes = {
@@ -233,6 +240,17 @@ class ScreenManager:
         event_manager.register("EXPLORATION_HUB_ACTION", handle_exploration_hub_action)
         print("🗺️ Registered EXPLORATION_HUB_ACTION event handler")
 
+    def get_epilogue_manager(self):
+        """Get or create epilogue manager"""
+        if not self.epilogue_manager:
+            from screens.epilogue_slides import EpilogueSequenceManager
+            self.epilogue_manager = EpilogueSequenceManager(
+                self.event_manager,
+                self._current_game_state
+            )
+            print("🎬 EpilogueSequenceManager created")
+        return self.epilogue_manager
+    
     def _handle_full_screen_registration(self, event_data):
         """Handle dynamic full-screen clickable registration"""
         screen = event_data.get("screen")
@@ -1239,6 +1257,8 @@ class ScreenManager:
             self.register_render_function("intro_scene_3", draw_intro_scene_3,
                 enter_hook=lambda _: self.register_intro_scene_clickables("intro_scene_3"))
 
+
+
             self.register_render_function("act_two_start", draw_act_two_start,
                 enter_hook=lambda _: self.register_act_two_clickables())
             self.register_render_function("act_three_start", draw_act_three_start,
@@ -1288,6 +1308,36 @@ class ScreenManager:
             self.register_render_function("victory_screen", draw_victory_screen,
                                         enter_hook=self.register_victory_screen_clickables)
             print("🏆 Victory screen registered")
+
+            # Epilogue slides 
+            self.register_render_function("epilogue_slide_1", draw_epilogue_slide_1,
+                enter_hook=lambda _: (self.get_epilogue_manager(), self.register_epilogue_slide_clickables("epilogue_slide_1")))
+
+            self.register_render_function("epilogue_slide_2", draw_epilogue_slide_2,
+                enter_hook=lambda _: (self.get_epilogue_manager(), self.register_epilogue_slide_clickables("epilogue_slide_2")))
+
+            self.register_render_function("epilogue_slide_3", draw_epilogue_slide_3,
+                enter_hook=lambda _: (self.get_epilogue_manager(), self.register_epilogue_slide_clickables("epilogue_slide_3")))
+            
+            self.register_render_function("epilogue_slide_4", draw_epilogue_slide_4,
+                enter_hook=lambda _: (self.get_epilogue_manager(),self.register_epilogue_slide_clickables("epilogue_slide_4")))
+
+            self.register_render_function("epilogue_slide_5", draw_epilogue_slide_5,
+                enter_hook=lambda _: (self.get_epilogue_manager(),self.register_epilogue_slide_clickables("epilogue_slide_5")))
+
+            self.register_render_function("epilogue_slide_6", draw_epilogue_slide_6,
+                enter_hook=lambda _: (self.get_epilogue_manager(),self.register_epilogue_slide_clickables("epilogue_slide_6")))
+
+            self.register_render_function("epilogue_slide_7", draw_epilogue_slide_7,
+                enter_hook=lambda _: (self.get_epilogue_manager(),self.register_epilogue_slide_clickables("epilogue_slide_7")))
+
+            print("🎬 Epilogue slides registered")
+
+            # Credits screen (Session D)
+            self.register_render_function("credits", self._render_credits_screen,
+                enter_hook=lambda _: self.register_credits_clickables())
+            print("🎞️ Credits screen registered")
+
             # Utility screens
             self.register_render_function("inventory", draw_inventory_screen,
                 enter_hook=lambda _: self.register_inventory_screen_clickables())
@@ -1730,6 +1780,110 @@ class ScreenManager:
     def get_registered_render_screens(self) -> list:
         """Get list of all screens with render functions"""
         return list(self.render_functions.keys())
+    
+    def get_credits_screen(self):
+        """Get or create credits screen instance"""
+        if not self.credits_screen_instance:
+            from screens.credits import CreditsScreen
+            self.credits_screen_instance = CreditsScreen(self.event_manager)
+            print("🎞️ Credits screen instance created")
+        return self.credits_screen_instance
+
+    def get_epilogue_manager(self):
+        """Get or create epilogue manager"""
+        if not self.epilogue_manager:
+            from screens.epilogue_slides import EpilogueSequenceManager
+            self.epilogue_manager = EpilogueSequenceManager(
+                self.event_manager,
+                self._current_game_state
+            )
+            print("🎬 EpilogueSequenceManager created")
+        return self.epilogue_manager
+    
+    def _render_credits_screen(self, surface, game_state, fonts, images, controller=None):
+        """Render credits screen wrapper"""
+        credits_screen = self.get_credits_screen()
+        
+        # Update credits scroll position (16ms = ~60fps)
+        credits_screen.update(16)
+        
+        # Draw credits
+        credits_screen.draw(surface, fonts)
+        
+        return {"credits_screen": credits_screen}
+
+    def register_epilogue_slide_clickables(self, slide_id):
+        """Register clickables for epilogue slides (follows intro_scenes pattern)"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            # Get button coordinates by rendering the slide to temp surface
+            temp_surface = pygame.Surface((1024, 768))
+            
+            # Import the draw function based on slide_id
+            from screens import epilogue_slides
+            
+            # Call the appropriate draw function
+            if slide_id == "epilogue_slide_1":
+                slide_result = epilogue_slides.draw_epilogue_slide_1(
+                    temp_surface, self._current_game_state, self.fonts, self.images
+                )
+            elif slide_id == "epilogue_slide_2":
+                slide_result = epilogue_slides.draw_epilogue_slide_2(
+                    temp_surface, self._current_game_state, self.fonts, self.images
+                )
+            elif slide_id == "epilogue_slide_3":
+                slide_result = epilogue_slides.draw_epilogue_slide_3(
+                    temp_surface, self._current_game_state, self.fonts, self.images
+                )
+            elif slide_id == "epilogue_slide_4":
+                slide_result = epilogue_slides.draw_epilogue_slide_4(
+                    temp_surface, self._current_game_state, self.fonts, self.images
+                )
+            elif slide_id == "epilogue_slide_5":
+                slide_result = epilogue_slides.draw_epilogue_slide_5(
+                    temp_surface, self._current_game_state, self.fonts, self.images
+                )
+            elif slide_id == "epilogue_slide_6":
+                slide_result = epilogue_slides.draw_epilogue_slide_6(
+                    temp_surface, self._current_game_state, self.fonts, self.images
+                )
+            elif slide_id == "epilogue_slide_7":
+                slide_result = epilogue_slides.draw_epilogue_slide_7(
+                    temp_surface, self._current_game_state, self.fonts, self.images
+                )
+            else:
+                slide_result = None
+            
+            if slide_result:
+                # Register CONTINUE button
+                self.input_handler.register_clickable(
+                    slide_id, 
+                    slide_result["continue_button"], 
+                    "EPILOGUE_NEXT", 
+                    {}
+                )
+                
+                # Register SKIP button
+                self.input_handler.register_clickable(
+                    slide_id, 
+                    slide_result["skip_button"], 
+                    "EPILOGUE_SKIP", 
+                    {}
+                )
+                
+                print(f"🎬 Epilogue slide clickables registered: {slide_id}")
+            else:
+                print(f"⚠️ Could not register clickables for {slide_id}")
+        else:
+            print("⚠️ No InputHandler available for epilogue slide registration")
+
+    def register_credits_clickables(self):
+        """Register credits screen clickables (ESC to skip)"""
+        if hasattr(self, 'input_handler') and self.input_handler:
+            # Credits screen is mainly auto-scroll, ESC handled by credits screen itself
+            # No specific clickables needed
+            print("🎞️ Credits screen ready (ESC to skip)")
+        else:
+            print("⚠️ No InputHandler available for credits registration")
     
     def get_debug_info(self) -> dict:
         """Get debug information about the ScreenManager state"""

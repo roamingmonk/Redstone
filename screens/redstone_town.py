@@ -306,20 +306,27 @@ class RedstoneTownNavigation:
         # Mark celebration complete
         game_state.victory_celebration_complete = True
         
-        # TODO: When epilogue_slides screen is implemented, transition there
-        # For now, just show a message and stay in town
-        self.showing_temp_message = True
-        self.temp_message_text = "🎉 Victory celebration complete! (Epilogue slides coming soon)"
-        self.temp_message_timer = 5000
+        # Transition to first epilogue slide
+        controller.event_manager.emit("SCREEN_CHANGE", {
+            "target_screen": 'epilogue_slide_1',
+            "source_screen": 'redstone_town'
+        })
         
         print("✨ Victory celebration sequence finished!")
         print(f"📊 NPCs dialogued: {game_state.victory_npc_sequence}")
+
+    def complete_epilogue_sequence(self):
+        """Complete epilogue and transition to credits"""
+        print("✨ Epilogue sequence complete - transitioning to credits")
         
-        # Future implementation:
-        # controller.event_manager.emit("SCREEN_CHANGE", {
-        #     "target_screen": 'epilogue_slides',
-        #     "source_screen": 'redstone_town'
-        # })
+        # Get the final slide's next_slide target
+        slides = self.epilogue_data["slides"]
+        if slides:
+            final_slide = slides[-1]
+            target = final_slide.get("next_slide", "credits")
+            self.event_manager.emit("SCREEN_CHANGE", {"target": target})
+        else:
+            self.event_manager.emit("SCREEN_CHANGE", {"target": "credits"})
 
     def check_victory_dialogue_return(self, game_state, controller):
         """Check if we just returned from a victory dialogue and should continue sequence"""

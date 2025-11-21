@@ -1,0 +1,262 @@
+{
+  "epilogue_sequence": {
+    "title": "Terror in Redstone - Epilogue",
+    "slides": [
+      {
+        "id": "epilogue_victory",
+        "title": "VICTORY",
+        "content": [
+          "The cult of Redstone has been vanquished.",
+          "",
+          "The Shadow Blight, sealed once more.",
+          "",
+          "The darkness that plagued the Crimson Reach has lifted.",
+          "",
+          "But the cost of victory varies with each hero's choices..."
+        ],
+        "next_slide": "epilogue_mayors_family",
+        "background_style": "dawn_sky"
+      },
+      {
+        "id": "epilogue_mayors_family",
+        "title": "THE MAYOR'S FAMILY",
+        "background_style": "town_square",
+        "next_slide": "epilogue_rescued_captives",
+        "variations": [
+          {
+            "condition": "game_state.mayor_family_status == 'all_saved'",
+            "content": [
+              "Mayor Aldwin Goldenbottom's family returned safely.",
+              "",
+              "His son will carry forward the family legacy of service to Redstone.",
+              "",
+              "The town rejoices in their reunion."
+            ]
+          },
+          {
+            "condition": "game_state.mayor_family_status == 'partial'",
+            "content": [
+              "Not all of the Mayor's family survived their captivity.",
+              "",
+              "Aldwin carries the weight of that loss, but continues to lead.",
+              "",
+              "Some chairs at his table will remain forever empty."
+            ]
+          },
+          {
+            "condition": "default",
+            "content": [
+              "The Mayor's family perished before they could be rescued.",
+              "",
+              "Grief-stricken, Aldwin will soon resign his post.",
+              "",
+              "Redstone mourns the loss of its beloved first family."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "epilogue_rescued_captives",
+        "title": "THE CAPTIVES",
+        "background_style": "town_square",
+        "next_slide": "epilogue_marcus_fate",
+        "variations": [
+          {
+            "condition": "game_state.mayor_family_status == 'all_saved'",
+            "content": [
+              "All of the cult's captives were freed from the dungeon.",
+              "",
+              "They return to their families, forever changed by their ordeal.",
+              "",
+              "The town celebrates their heroes' thorough victory."
+            ]
+          },
+          {
+            "condition": "game_state.mayor_family_status == 'partial'",
+            "content": [
+              "Some captives were rescued from the cult's prison.",
+              "",
+              "Others were not so fortunate.",
+              "",
+              "The survivors carry scars that may never fully heal."
+            ]
+          },
+          {
+            "condition": "default",
+            "content": [
+              "The heroes arrived too late to save the captives.",
+              "",
+              "Redstone mourns its lost children.",
+              "",
+              "But at least the Shadow Blight will claim no more victims."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "epilogue_marcus_fate",
+        "title": "THE CORRUPTED SCHOLAR",
+        "background_style": "violet_mortar_shop",
+        "next_slide": "epilogue_casper_meredith",
+        "variations": [
+          {
+            "condition": "has_flag:marcus_fled_battle",
+            "content": [
+              "Marcus Nightshade disappeared after the battle.",
+              "",
+              "Some say Cassia still receives letters from a distant land.",
+              "",
+              "Perhaps, in time, he will find redemption."
+            ]
+          },
+          {
+            "condition": "has_flag:marcus_died_in_battle",
+            "content": [
+              "Marcus Nightshade fell in the final battle.",
+              "",
+              "Cassia held a private memorial for the man he once was.",
+              "",
+              "The Shadow Blight takes everything, even those we love."
+            ]
+          },
+          {
+            "condition": "has_flag:marcus_redeemed",
+            "content": [
+              "Marcus Nightshade fought alongside the heroes at the end.",
+              "",
+              "His sacrifice weakened the Blight's hold on the portal.",
+              "",
+              "Cassia remembers him not as a monster,",
+              "but as her beloved husband who found his way back."
+            ]
+          },
+          {
+            "condition": "default",
+            "content": [
+              "The cult's machinations claimed many victims.",
+              "",
+              "Some lost to darkness, others to time.",
+              "",
+              "Redstone remembers them all."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "epilogue_casper_meredith",
+        "title": "LOVE RENEWED",
+        "background_style": "town_square",
+        "next_slide": "epilogue_hero_recognition",
+        "variations": [
+          {
+            "condition": "has_flag:casper_redemption_complete",
+            "content": [
+              "Casper Stillgarden and Meredith Whisperwind stand together.",
+              "",
+              "From tragedy and despair, a new beginning has bloomed.",
+              "",
+              "Their wedding bells will soon ring in Redstone's church.",
+              "",
+              "Even in darkness, hope can be found."
+            ]
+          },
+          {
+            "condition": "default",
+            "content": [
+              "The heroes' investigation brought many truths to light.",
+              "",
+              "Some stories ended in triumph, others in quiet resolution.",
+              "",
+              "But all contributed to Redstone's salvation."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "epilogue_hero_recognition",
+        "title": "THE HERO",
+        "background_style": "town_square",
+        "next_slide": "epilogue_mysteries",
+        "variations": [
+          {
+            "condition": "has_flag:is_cavia",
+            "content": [
+              "For the first time in Redstone's history,",
+              "a Cavia stood as the town's champion.",
+              "",
+              "Their dimensional sensitivity proved invaluable against the Blight.",
+              "",
+              "Perhaps this marks a new era of understanding",
+              "between Cavia and the other peoples of the realm."
+            ]
+          },
+          {
+            "condition": "default",
+            "content": [
+              "The heroes' victory will be remembered for generations.",
+              "",
+              "Songs will be sung of their courage.",
+              "",
+              "Redstone stands safe, thanks to their sacrifice."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "epilogue_mysteries",
+        "title": "MYSTERIES REMAIN",
+        "background_style": "ancient_scroll",
+        "next_slide": "credits",
+        "variations": [
+          {
+            "condition": "has_flag:retrieved_ore_samples",
+            "content": [
+              "But greater shadows stir beyond the Crimson Reach...",
+              "",
+              "The Aethel ore recovered from the mines pulses with strange energy.",
+              "",
+              "Ancient texts speak of other sealed portals across the realm.",
+              "",
+              "Darker secrets wait to be uncovered.",
+              "",
+              "And heroes will be needed once more."
+            ]
+          },
+          {
+            "condition": "has_flag:cassia_gave_journals",
+            "content": [
+              "But greater shadows stir beyond the Crimson Reach...",
+              "",
+              "Marcus's journals mention 'three great seals' protecting the realm.",
+              "",
+              "Redstone was only the first.",
+              "",
+              "Where are the others?",
+              "",
+              "And who guards them now?"
+            ]
+          },
+          {
+            "condition": "default",
+            "content": [
+              "But greater shadows stir beyond the Crimson Reach...",
+              "",
+              "Ancient evils stir in distant lands.",
+              "",
+              "Darker secrets wait to be uncovered.",
+              "",
+              "And heroes will be needed once more."
+            ]
+          }
+        ]
+      }
+    ],
+    "ui_config": {
+      "continue_button_text": "CONTINUE",
+      "skip_button_text": "SKIP TO CREDITS",
+      "title_color": "YELLOW",
+      "text_color": "WHITE",
+      "background_color": "BLACK"
+    }
+  }
+}

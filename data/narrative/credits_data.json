@@ -1,0 +1,101 @@
+{
+  "credits": {
+    "sections": [
+      {
+        "title": "TERROR IN REDSTONE",
+        "entries": [
+          "A Classic CRPG Adventure"
+        ],
+        "spacing": 4
+      },
+      {
+        "title": "Created By",
+        "entries": [
+          "Dennis [Last Name]"
+        ],
+        "spacing": 3
+      },
+      {
+        "title": "Design & Development",
+        "entries": [
+          "Game Design & Programming",
+          "Narrative Design",
+          "Systems Architecture",
+          "Combat & Balance"
+        ],
+        "spacing": 3
+      },
+      {
+        "title": "Special Thanks",
+        "entries": [
+          "Coffee - For the late nights",
+          "The debugging process - For teaching patience",
+          "The CRPG community - For inspiration",
+          "Every playtester who found those bugs"
+        ],
+        "spacing": 3
+      },
+      {
+        "title": "Built With",
+        "entries": [
+          "Python 3.x",
+          "Pygame",
+          "JSON-driven narrative systems",
+          "Stubborn determination",
+          "Love for classic RPGs"
+        ],
+        "spacing": 4
+      },
+      {
+        "title": "Inspired By",
+        "entries": [
+          "SSI Gold Box Games (1988-1992)",
+          "Ultima Series",
+          "Wizardry",
+          "Baldur's Gate",
+          "Planescape: Torment",
+          "The Golden Age of CRPGs"
+        ],
+        "spacing": 3
+      },
+      {
+        "title": "The Story Continues",
+        "entries": [
+          "The Shadow Blight may be sealed in Redstone,",
+          "but ancient evils stir across the realm.",
+          "",
+          "The Aethel's dark legacy stretches far beyond",
+          "the Crimson Reach.",
+          "",
+          "What other portals await discovery?",
+          "What other heroes will answer the call?"
+        ],
+        "spacing": 4
+      },
+      {
+        "title": "Thank You",
+        "entries": [
+          "For playing Terror in Redstone!",
+          "",
+          "Your choices shaped this story.",
+          "Your courage saved a town.",
+          "",
+          "May your adventures continue..."
+        ],
+        "spacing": 5
+      },
+      {
+        "title": "",
+        "entries": [
+          "~ The End ~",
+          "",
+          "(For now...)"
+        ],
+        "spacing": 3
+      }
+    ],
+    "scroll_speed": 1.0,
+    "final_message": "Press ESC to continue",
+    "final_message_pause": 3.0
+  }
+}

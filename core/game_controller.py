@@ -30,6 +30,8 @@ from screens.intro_scenes import IntroSequenceManager
 from screens.act_two_transition import get_act_two_manager
 from screens.act_three_transition import get_act_three_manager
 from screens.victory_screen import VictoryScreenManager
+from screens.epilogue_slides import EpilogueSequenceManager
+
 
 
 class InitializationPhase(Enum):
@@ -299,6 +301,8 @@ class GameController:
             self.save_manager
         )
         self._mark_system_created("victory_manager")
+
+        self.epilogue_manager = EpilogueSequenceManager(self.event_manager, self.game_state)
         
          # Initial quest sync + detection (safe if nothing changed)
         update_quest_system(self.game_state)
