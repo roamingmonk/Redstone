@@ -192,6 +192,8 @@ BUILDING_TILES_PATH = os.path.join(TILES_PATH, "buildings")
 DECORATIONS_TILES_PATH = os.path.join(TILES_PATH, "decorations")
 ANIMATED_TILES_PATH = os.path.join(TILES_PATH, "animated")
 COMBAT_FLOORS_PATH = os.path.join(TILES_PATH, "terrain")
+# Regional map tiles (16x16 pixelated overworld)
+REGIONMAP_TILES_PATH = os.path.join(TILES_PATH, "regionmap")
 
 # Sprite sizes for combat
 COMBAT_TILE_SIZE = 48

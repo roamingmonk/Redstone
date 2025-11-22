@@ -43,13 +43,13 @@ REDSTONE_REGION_TERRAIN = [
     ['H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'F', 'M', 'M'],
     ['H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'M', 'M', 'M'],
     ['H', 'H', 'H', 'H', 'H', 'H', 'H', 'F', 'H', 'H', 'H', 'H', 'M', 'M', 'M', 'M'],
-    ['H', 'H', 'H', 'H', 'H', 'F', 'F', 'F', 'T', 'F', 'H', 'H', 'M', 'M', 'M', 'M'],
+    ['H', 'H', 'H', 'H', 'H', 'F', 'F', 'F', 'F', 'F', 'H', 'H', 'M', 'M', 'M', 'M'],
     ['H', 'H', 'H', 'H', 'F', 'F', 'F', 'F', 'F', 'H', 'H', 'M', 'M', 'M', 'M', 'M'],
     ['H', 'H', 'H', 'H', 'F', 'F', 'F', 'F', 'F', 'H', 'H', 'M', 'M', 'M', 'M', 'M'],
     ['H', 'H', 'H', 'H', 'H', 'F', 'F', 'F', 'H', 'H', 'H', 'M', 'M', 'M', 'M', 'M'],
     ['H', 'H', 'H', 'H', 'H', 'H', 'F', 'F', 'H', ':', ':', 'M', 'M', 'M', 'M', 'M'],
     ['H', 'H', 'H', 'H', 'H', 'H', 'F', 'F', ':', ':', 'R', 'R', 'M', 'M', 'R', 'R'],
-    ['H', '-', 'F', 'F', 'H', 'H', 'F', 'F', ':', 'R', 'R', 'R', 'R', 'R', 'R', 'R'],
+    ['H', '-', 'F', 'F', 'H', 'H', 'F', 'F', ':', ':', 'R', 'R', 'R', 'R', 'R', 'R'],
     ['H', '-', '-', 'F', 'H', 'F', 'F', ':', ':', 'R', 'R', 'R', 'R', 'R', 'R', 'R'],
     ['H', 'H', 'H', 'F', 'F', 'F', ':', ':', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R'],
     ['H', 'H', 'H', 'H', 'F', 'F', ':', ':', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R'],
@@ -111,11 +111,11 @@ REDSTONE_REGION_LOCATIONS = {
 REDSTONE_REGION_TILE_SIZE = 32
 REDSTONE_REGION_GRID_WIDTH = 16
 REDSTONE_REGION_GRID_HEIGHT = 16
-REDSTONE_REGION_MAP_WIDTH = REDSTONE_REGION_GRID_WIDTH * REDSTONE_REGION_TILE_SIZE  # 512
-REDSTONE_REGION_MAP_HEIGHT = REDSTONE_REGION_GRID_HEIGHT * REDSTONE_REGION_TILE_SIZE  # 512
+REDSTONE_REGION_MAP_WIDTH = REDSTONE_REGION_GRID_WIDTH * REDSTONE_REGION_TILE_SIZE  
+REDSTONE_REGION_MAP_HEIGHT = REDSTONE_REGION_GRID_HEIGHT * REDSTONE_REGION_TILE_SIZE  
 
 # Center map on 1024x768 screen, leaving room for UI
-REDSTONE_REGION_MAP_X = (1024 - REDSTONE_REGION_MAP_WIDTH) // 2  # 256
+REDSTONE_REGION_MAP_X = (1024 - REDSTONE_REGION_MAP_WIDTH) // 2 
 REDSTONE_REGION_MAP_Y = 120  # Leave room for title and party panel at top
 
 def get_terrain_at(x, y):
@@ -144,3 +144,33 @@ def is_location_completed(location_id, game_state):
     # e.g., "swamp_church" → "swamp_church_complete"
     completion_flag = f"{location_id}_complete"
     return getattr(game_state, completion_flag, False)
+
+def get_terrain_neighbors(x, y):
+    """
+    Get terrain codes of all 8 neighbors for auto-tiling
+    Returns dict with keys: 'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'
+    Returns None for out-of-bounds positions
+    """
+    neighbors = {}
+    
+    # Define neighbor offsets
+    directions = {
+        'n':  (0, -1),
+        'ne': (1, -1),
+        'e':  (1, 0),
+        'se': (1, 1),
+        's':  (0, 1),
+        'sw': (-1, 1),
+        'w':  (-1, 0),
+        'nw': (-1, -1)
+    }
+    
+    for direction, (dx, dy) in directions.items():
+        neighbor_x = x + dx
+        neighbor_y = y + dy
+        
+        # Get terrain at neighbor position (returns None if out of bounds)
+        neighbor_terrain = get_terrain_at(neighbor_x, neighbor_y)
+        neighbors[direction] = neighbor_terrain
+    
+    return neighbors

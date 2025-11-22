@@ -14,6 +14,8 @@ from data.maps.redstone_region import (
 from utils.constants import YELLOW, WHITE, BLACK, GRAY, GREEN
 from utils.graphics import draw_button, draw_centered_text
 from utils.party_display import draw_party_status_panel
+from utils.tile_graphics import get_tile_graphics_manager
+from data.maps.redstone_region import get_terrain_neighbors
 
 class ExplorationHubManager:
     """Manages regional map display and location selection"""
@@ -65,22 +67,26 @@ class ExplorationHubManager:
         }
     
     def _render_terrain(self, surface):
-        """Draw terrain tiles"""
+        """Draw terrain tiles with auto-tiling transitions"""
+        
+        
+        graphics_mgr = get_tile_graphics_manager()
+        
         for y in range(REDSTONE_REGION_GRID_HEIGHT):
             for x in range(REDSTONE_REGION_GRID_WIDTH):
                 terrain = REDSTONE_REGION_TERRAIN[y][x]
-                color = TERRAIN_COLORS.get(terrain, GRAY)
+                
+                # Get neighbors for auto-tiling
+                neighbors = get_terrain_neighbors(x, y)
+                
+                # Get tile with transition support
+                tile_image = graphics_mgr.get_region_tile(terrain, neighbors)
                 
                 screen_x = REDSTONE_REGION_MAP_X + (x * REDSTONE_REGION_TILE_SIZE)
                 screen_y = REDSTONE_REGION_MAP_Y + (y * REDSTONE_REGION_TILE_SIZE)
                 
                 # Draw tile
-                pygame.draw.rect(surface, color,
-                               (screen_x, screen_y, REDSTONE_REGION_TILE_SIZE, REDSTONE_REGION_TILE_SIZE))
-                
-                # Draw subtle border
-                pygame.draw.rect(surface, (0, 0, 0, 50),
-                               (screen_x, screen_y, REDSTONE_REGION_TILE_SIZE, REDSTONE_REGION_TILE_SIZE), 1)
+                surface.blit(tile_image, (screen_x, screen_y))
     
     def _render_locations(self, surface, game_state, fonts):
         """Draw location icons for discovered locations"""

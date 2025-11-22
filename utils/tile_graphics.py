@@ -14,7 +14,8 @@ This utility can be used by:
 import pygame
 import os
 from utils.constants import (BLACK, RED, WHITE,
-                             TILES_PATH)
+                             TILES_PATH, REGIONMAP_TILES_PATH)
+
 
 class TileGraphicsManager:
     """
@@ -39,10 +40,13 @@ class TileGraphicsManager:
         self.tile_size = tile_size
         self.tile_images = {}
         self.character_sprites = {}
+        self.region_tiles = {}
+        self.terrain_names = {} 
         
         # Load graphics with fallback system
         self.load_tile_graphics()
         self.load_character_sprites()
+        self.load_region_map_tiles()
         
         TileGraphicsManager._initialized = True
         print("🎨 Shared tile graphics manager initialized (singleton)")
@@ -170,7 +174,215 @@ class TileGraphicsManager:
             except Exception as e:
                 print(f"⚠️ Error loading NPC sprite {npc_type}: {e}")
                 self.character_sprites['npcs'][npc_type] = self.create_npc_fallback(npc_type)
-    
+
+    def load_region_map_tiles(self):
+        """
+        Load 16x16 region map tiles and scale for display
+        Loads both BASE tiles and TRANSITION tiles
+        """
+        
+        DISPLAY_SIZE = 32  # Scale 16x16 source to 32x32 display
+        
+        # Define terrain code to filename mapping (BASE TILES)
+        terrain_files = {
+            'H': 'hills.png',
+            'F': 'forest.png',
+            'M': 'mountains.png',
+            '-': 'plains.png',
+            'R': 'river.png',
+            ':': 'swamp.png',
+        }
+        
+        # Terrain name mapping (for transition filenames)
+        self.terrain_names = {
+            'H': 'hills',
+            'F': 'forest',
+            'M': 'mountains',
+            '-': 'plains',
+            'R': 'river',
+            ':': 'swamp',
+        }
+        
+        # Color fallbacks
+        fallback_colors = {
+            'H': (139, 115, 85),
+            'F': (34, 139, 34),
+            'M': (105, 105, 105),
+            '-': (210, 180, 140),
+            'R': (70, 130, 180),
+            ':': (85, 107, 47),
+        }
+        
+        loaded_count = 0
+        fallback_count = 0
+        
+        print("🗺️ Loading region map tiles (16x16 → 32x32):")
+        
+        # Load BASE tiles
+        for terrain_code, filename in terrain_files.items():
+            file_path = os.path.join(REGIONMAP_TILES_PATH, filename)
+            
+            try:
+                if os.path.exists(file_path):
+                    image = pygame.image.load(file_path)
+                    scaled_image = pygame.transform.scale(image, (DISPLAY_SIZE, DISPLAY_SIZE))
+                    self.region_tiles[terrain_code] = scaled_image
+                    loaded_count += 1
+                    print(f"   ✅ {terrain_code}: {filename}")
+                else:
+                    fallback = self._create_region_fallback(terrain_code, fallback_colors, DISPLAY_SIZE)
+                    self.region_tiles[terrain_code] = fallback
+                    fallback_count += 1
+                    print(f"   🎨 {terrain_code}: Fallback")
+            except Exception as e:
+                print(f"   ⚠️ Error loading {filename}: {e}")
+                fallback = self._create_region_fallback(terrain_code, fallback_colors, DISPLAY_SIZE)
+                self.region_tiles[terrain_code] = fallback
+                fallback_count += 1
+        
+        print(f"   📊 Base tiles: {loaded_count} loaded, {fallback_count} fallbacks")
+        
+        # Load TRANSITION tiles (scan directory)
+        self._load_transition_tiles(REGIONMAP_TILES_PATH, DISPLAY_SIZE)
+
+    def _load_transition_tiles(self, tiles_path, display_size):
+        """
+        Scan directory for transition tiles and load them
+        Transition naming: {terrain}_{directions}_{neighbor}.png
+        File name should follow this orer: 
+            ['n', 'e', 's', 'w']  # North=0, East=1, South=2, West=3
+            Example: forest_n_e_hills.png
+        """
+        import glob
+        
+        transition_count = 0
+        
+        # Get all PNG files in the directory
+        all_files = glob.glob(os.path.join(tiles_path, "*.png"))
+        
+        # Filter for transition files (contain underscore and direction letters)
+        for filepath in all_files:
+            filename = os.path.basename(filepath)
+            
+            # Skip base tiles
+            if filename in ['hills.png', 'forest.png', 'mountains.png', 
+                        'plains.png', 'river.png', 'swamp.png']:
+                continue
+            
+            # This is a transition tile - load it with its full filename as key
+            try:
+                image = pygame.image.load(filepath)
+                scaled_image = pygame.transform.scale(image, (display_size, display_size))
+                
+                # Store with filename (without .png) as key
+                tile_key = filename.replace('.png', '')
+                self.region_tiles[tile_key] = scaled_image
+                transition_count += 1
+                
+            except Exception as e:
+                print(f"   ⚠️ Error loading transition {filename}: {e}")
+        
+        print(f"   🔀 Transition tiles: {transition_count} loaded")
+
+    def _create_region_fallback(self, terrain_code, color_map, display_size):
+        """Create fallback tile at display size"""
+        surface = pygame.Surface((display_size, display_size))
+        color = color_map.get(terrain_code, (128, 128, 128))
+        surface.fill(color)
+        pygame.draw.rect(surface, (0, 0, 0), (0, 0, display_size, display_size), 1)
+        return surface
+
+    def get_region_tile(self, terrain_code, neighbors=None):
+        """
+        Get region map tile with auto-tiling support
+        
+        Args:
+            terrain_code: Current tile terrain ('H', 'F', etc.)
+            neighbors: Dict with 'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw' keys
+                    Each value is the terrain code in that direction
+        
+        Returns:
+            pygame.Surface: 32x32 tile image
+        """
+        # If no neighbors provided, return base tile
+        if neighbors is None:
+            return self.region_tiles.get(terrain_code, self._create_region_fallback(
+                terrain_code, 
+                {'H': (139, 115, 85), 'F': (34, 139, 34), 'M': (105, 105, 105),
+                '-': (210, 180, 140), 'R': (70, 130, 180), ':': (85, 107, 47)},
+                32
+            ))
+        
+        # Try to find a matching transition tile
+        transition_tile = self._find_transition_tile(terrain_code, neighbors)
+        if transition_tile is not None:
+            return transition_tile
+        
+        # Fall back to base tile
+        return self.region_tiles.get(terrain_code, self._create_region_fallback(
+            terrain_code,
+            {'H': (139, 115, 85), 'F': (34, 139, 34), 'M': (105, 105, 105),
+            '-': (210, 180, 140), 'R': (70, 130, 180), ':': (85, 107, 47)},
+            32
+        ))
+
+    def _find_transition_tile(self, terrain_code, neighbors):
+        """
+        Find the best matching transition tile based on neighbors
+        
+        Naming convention: {terrain}_{directions}_{neighbor_terrain}.png
+        Example: forest_n_e_hills.png (forest with hills to north and east)
+        """
+        # Get terrain name
+        terrain_name = self.terrain_names.get(terrain_code, 'unknown')
+        
+        # Find which neighbors are DIFFERENT terrain
+        different_neighbors = {}
+        for direction, neighbor_terrain in neighbors.items():
+            if neighbor_terrain and neighbor_terrain != terrain_code:
+                different_neighbors[direction] = neighbor_terrain
+        
+        # If no different neighbors, use base tile
+        if not different_neighbors:
+            return None
+        
+        # Group neighbors by terrain type
+        neighbor_groups = {}
+        for direction, neighbor_terrain in different_neighbors.items():
+            if neighbor_terrain not in neighbor_groups:
+                neighbor_groups[neighbor_terrain] = []
+            neighbor_groups[neighbor_terrain].append(direction)
+        
+        # Try to find transition for the most common neighbor type
+        # (In case of mixed neighbors, prioritize the one with most contacts)
+        for neighbor_terrain, directions in sorted(neighbor_groups.items(), 
+                                                key=lambda x: len(x[1]), 
+                                                reverse=True):
+            neighbor_name = self.terrain_names.get(neighbor_terrain, 'unknown')
+            
+            # Build direction string (sorted for consistency)
+            # Cardinal directions only first (n, e, s, w)
+            cardinal_dirs = [d for d in directions if d in ['n', 'e', 's', 'w']]
+            
+            if cardinal_dirs:
+                direction_string = '_'.join(sorted(cardinal_dirs, 
+                                                key=lambda x: ['n', 'e', 's', 'w'].index(x)))
+                
+                # Try to find this specific transition
+                tile_key = f"{terrain_name}_{direction_string}_{neighbor_name}"
+                
+                if tile_key in self.region_tiles:
+                    return self.region_tiles[tile_key]
+                
+                # Try individual directions if multi-direction not found
+                for single_dir in cardinal_dirs:
+                    tile_key = f"{terrain_name}_{single_dir}_{neighbor_name}"
+                    if tile_key in self.region_tiles:
+                        return self.region_tiles[tile_key]
+        
+        # No matching transition found
+        return None
+
     def create_tile_fallback(self, tile_type, custom_color=None):
         """
         Create colored fallback tiles with universal color mapping
@@ -335,6 +547,7 @@ class TileGraphicsManager:
             'total_tiles': len(self.tile_images),
             'player_sprites': len(self.character_sprites.get('player', {})),
             'npc_sprites': len(self.character_sprites.get('npcs', {})),
+            'region_tiles': len(self.region_tiles),  # NEW
             'tile_size': self.tile_size
         }
 
