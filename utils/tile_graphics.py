@@ -13,6 +13,7 @@ This utility can be used by:
 
 import pygame
 import os
+import json
 from utils.constants import (BLACK, RED, WHITE,
                              TILES_PATH, REGIONMAP_TILES_PATH)
 
@@ -50,6 +51,192 @@ class TileGraphicsManager:
         
         TileGraphicsManager._initialized = True
         print("🎨 Shared tile graphics manager initialized (singleton)")
+    
+    def load_tileset(self, tileset_name, tile_size=None):
+        """
+        Load a tileset from Aseprite JSON export
+        
+        Args:
+            tileset_name: Name of the tileset (e.g., 'refugee_camp')
+            tile_size: Optional override for tile size (defaults to self.tile_size if not specified)
+        
+        This is ADDITIVE - doesn't replace existing tiles, just adds new ones.
+        """
+        import json
+        from utils.constants import TILESETS_PATH
+        
+        # Use default tile size if not specified
+        if tile_size is None:
+            tile_size = self.tile_size
+        
+        # Build file paths
+        json_path = os.path.join(TILESETS_PATH, f"{tileset_name}.json")
+        png_path = os.path.join(TILESETS_PATH, f"{tileset_name}.png")
+        
+        # Check if files exist
+        if not os.path.exists(png_path):
+            print(f"⚠️ Tileset image not found: {tileset_name}.png")
+            print(f"   Will use fallback colors for tiles")
+            return False
+        
+        print(f"📦 Loading tileset: {tileset_name}")
+        
+        try:
+            # Load the sprite sheet image
+            sprite_sheet = pygame.image.load(png_path)
+            
+            # If JSON exists, use it for tile definitions
+            if os.path.exists(json_path):
+                with open(json_path, 'r') as f:
+                    tileset_data = json.load(f)
+                
+                loaded_count = 0
+                
+                # Aseprite "JSON Hash" format has frames dictionary
+                if 'frames' in tileset_data:
+                    frames = tileset_data['frames']
+                    
+                    for tile_name, tile_info in frames.items():
+                        # Extract tile from sprite sheet
+                        frame_data = tile_info['frame']
+                        x = frame_data['x']
+                        y = frame_data['y']
+                        w = frame_data['w']
+                        h = frame_data['h']
+                        
+                        # Extract the tile
+                        tile_surface = sprite_sheet.subsurface((x, y, w, h))
+                        
+                        # Scale to desired size
+                        scaled_tile = pygame.transform.scale(tile_surface, (tile_size, tile_size))
+                        
+                        # Clean up the name (remove .png extension if present)
+                        clean_name = tile_name.replace('.png', '').replace('.ase', '')
+                        
+                        # Store in tile_images (same as manual tiles)
+                        self.tile_images[clean_name] = scaled_tile
+                        loaded_count += 1
+                
+                print(f"   ✅ Loaded {loaded_count} tiles from {tileset_name}")
+                return True
+            
+            else:
+                # No JSON - just load the single PNG as-is
+                # This is for simple single-image tilesets
+                print(f"   ℹ️ No JSON found, loading {tileset_name}.png as single tile")
+                scaled_tile = pygame.transform.scale(sprite_sheet, (tile_size, tile_size))
+                self.tile_images[tileset_name] = scaled_tile
+                print(f"   ✅ Loaded single tile: {tileset_name}")
+                return True
+                
+        except Exception as e:
+            print(f"   ⚠️ Error loading tileset: {e}")
+            return False
+    
+    def load_multiple_tilesets(self, tileset_names, tile_size=None):
+        """
+        Load multiple tilesets at once
+        
+        Args:
+            tileset_names: List of tileset names ['refugee_camp', 'swamp_church', ...]
+            tile_size: Optional tile size override
+        """
+        success_count = 0
+        
+        for tileset_name in tileset_names:
+            if self.load_tileset(tileset_name, tile_size):
+                success_count += 1
+        
+        print(f"📊 Tilesets loaded: {success_count}/{len(tileset_names)}")
+        return success_count == len(tileset_names)
+    
+    def preload_location_tileset(self, location_id):
+        """
+        Convenience method to load a tileset for a specific location
+        
+        Args:
+            location_id: Location identifier (e.g., 'refugee_camp_main_nav')
+        
+        Returns tileset name that was loaded, or None if failed
+        """
+        # Map location IDs to tileset names
+        location_to_tileset = {
+            'refugee_camp_main_nav': 'refugee_camp',
+            'swamp_church_exterior_nav': 'swamp_church',
+            'swamp_church_interior_nav': 'swamp_church',
+            'hill_ruins_entrance_nav': 'hill_ruins',
+            'red_hollow_mine_pre_entrance_nav': 'red_hollow_mine',
+        }
+        
+        tileset_name = location_to_tileset.get(location_id)
+        
+        if tileset_name:
+            if self.load_tileset(tileset_name):
+                return tileset_name
+        else:
+            print(f"ℹ️ No tileset defined for location: {location_id}")
+        
+        return None
+    
+    
+    def load_tileset_from_grid(self, tileset_name, tile_map, tile_size=32, columns=8):
+        """
+        Load tileset by slicing a grid-based sprite sheet
+        Uses tile_map to assign names to grid positions
+        
+        Args:
+            tileset_name: Name of PNG file (e.g., 'refugee_camp')
+            tile_map: Dict mapping indices to names (e.g., REFUGEE_CAMP_TILE_MAP)
+            tile_size: Size of each tile in pixels (default 32)
+            columns: Number of tiles per row in sprite sheet (default 8)
+        """
+        from utils.constants import TILESETS_PATH
+        
+        png_path = os.path.join(TILESETS_PATH, f"{tileset_name}.png")
+        
+        if not os.path.exists(png_path):
+            print(f"⚠️ Tileset not found: {tileset_name}.png")
+            return False
+        
+        print(f"📦 Loading tileset from grid: {tileset_name}")
+        
+        try:
+            sprite_sheet = pygame.image.load(png_path)
+            loaded_count = 0
+            
+            # Slice the sprite sheet into individual tiles
+            for index, tile_name in tile_map.items():
+                if index == 0 or tile_name is None:
+                    continue  # Skip empty tile
+                
+                # Calculate position in grid (Tiled uses 1-based indexing)
+                tile_index = index - 1  # Convert to 0-based for math
+                col = tile_index % columns
+                row = tile_index // columns
+                
+                x = col * tile_size
+                y = row * tile_size
+                
+                ## Extract tile from sprite sheet
+                try:
+                    tile_surface = sprite_sheet.subsurface((x, y, tile_size, tile_size))
+                    
+                    # Scale tile to 64×64 for display (2× scale for chunky pixels)
+                    scaled_tile = pygame.transform.scale(tile_surface, (64, 64))
+                    
+                    # Store the scaled version
+                    self.tile_images[tile_name] = scaled_tile
+                    loaded_count += 1
+                except ValueError:
+                    # Tile position out of bounds
+                    print(f"   ⚠️ Tile {index} ({tile_name}) at ({x},{y}) out of bounds")
+            
+            print(f"   ✅ Loaded {loaded_count} tiles from grid ({columns} columns)")
+            return True
+            
+        except Exception as e:
+            print(f"   ⚠️ Error loading grid tileset: {e}")
+            return False
     
     def load_tile_graphics(self):
         """Load all tile graphics for any tile-based system"""
@@ -97,13 +284,6 @@ class TileGraphicsManager:
             'tree': 'decorations/tree.png',
             'rock': 'decorations/rock.png',
             
-            # World map tiles (for future use)
-            'world_grass': 'world/grass_plains.png',
-            'world_hills': 'world/hills_grass.png',
-            'world_forest': 'world/forest_canopy.png',
-            'world_mountain': 'world/mountain_peak.png',
-            'world_water': 'world/water_surface.png',
-            'world_road': 'world/dirt_road.png'
         }
         
         # Load with professional fallback system

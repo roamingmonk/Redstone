@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-11-20 21:55)
+﻿## Repository Structure (generated 2025-11-23 17:50)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -98,21 +98,25 @@ C:.
 |       |   |       broken_compass.jpg
 |       |   |       broken_compass.png
 |       |   |       broken_holy_symbol.png
-|       |   |       carved_bone_dice.jpg
 |       |   |       Carved_bone_dice.PNG
+|       |   |       cassia_locket.png
+|       |   |       cassia_masterwork_combat_elixir-export.png
 |       |   |       chainmail.PNG
 |       |   |       cheap_cloak.png
 |       |   |       coal_ore.png
 |       |   |       crude_armor_scraps.png
 |       |   |       crude_shortbow.png
 |       |   |       crystal_pendant.jpg
+|       |   |       crystal_pendant.png
 |       |   |       cult_documents.png
 |       |   |       cult_robes.png
 |       |   |       cursed_talisman.png
+|       |   |       dagger.png
 |       |   |       diseased_fang.png
 |       |   |       elixir_of_vigor.png
 |       |   |       empty_bottle.png
 |       |   |       empty_small_leather_pouch_that_jingles.png
+|       |   |       enchanted_shortsword.png
 |       |   |       feathered_dream_catcher.png
 |       |   |       glass_vial_with_swirling_mist.png
 |       |   |       glowcap_mushrooms.png
@@ -147,6 +151,7 @@ C:.
 |       |   |       restoration_draught.png
 |       |   |       ritual_dagger.png
 |       |   |       rusted_shortsword.png
+|       |   |       scroll_of_protection.png
 |       |   |       shadow_essence.png
 |       |   |       shield.PNG
 |       |   |       shield_plus_1.PNG
@@ -181,6 +186,14 @@ C:.
 |       |   |       wooden_doll_with_button_eyes.jpg
 |       |   |       
 |       |   \---ui
+|       +---Redstone
+|       |   \---assets
+|       |       \---images
+|       |           \---icons
+|       |               \---Items
+|       |                       ancient_royal_badge.png
+|       |                       dagger.png
+|       |                       
 |       +---sprites
 |       |   +---effects
 |       |   |       acid_diag.png
@@ -248,10 +261,49 @@ C:.
 |           |       gate_north.png
 |           |       gate_south.png
 |           |       
-|           \---terrain
-|                   cobblestone_street.png
-|                   cobblestone_street_16x16.png
-|                   stone_floor_16x16.png
+|           +---regionmap
+|           |       forest.png
+|           |       forest_e_hills.png
+|           |       forest_e_mountains.png
+|           |       forest_e_s_hills.png
+|           |       forest_n_e_hills.png
+|           |       forest_n_e_s_hills.png
+|           |       forest_n_e_w_hills.png
+|           |       forest_n_hills.png
+|           |       forest_n_w_hills.png
+|           |       forest_s_w_hills.png
+|           |       forest_w_hills.png
+|           |       hills.png
+|           |       hills_e_mountains.png
+|           |       hills_e_s_mountains.png
+|           |       mountains.png
+|           |       mountains_e_s_river.png
+|           |       mountains_s_river.png
+|           |       mountains_s_w_river.png
+|           |       plains.png
+|           |       plains_n_e_forest.png
+|           |       plains_n_w_hills.png
+|           |       plains_s_w_hills.png
+|           |       river.png
+|           |       river_n_w_swamp.png
+|           |       swamp.png
+|           |       swamp_e_mountains.png
+|           |       swamp_e_river.png
+|           |       swamp_e_s_river.png
+|           |       swamp_n_w_forest.png
+|           |       swamp_n_w_hills.png
+|           |       swamp_w_forest.png
+|           |       swamp_w_forest_n_hills.png
+|           |       
+|           +---terrain
+|           |       cobblestone_street.png
+|           |       cobblestone_street_16x16.png
+|           |       stone_floor_16x16.png
+|           |       
+|           \---tilesets
+|                   refugee_camp.json
+|                   refugee_camp.png
+|                   refugee_camp_map.tmj
 |                   
 +---core
 |   |   game_controller.py
@@ -340,8 +392,14 @@ C:.
 |   |           thief_common.json
 |   |           
 |   +---dialogues
+|   |       broken_blade_elara.json
+|   |       broken_blade_gareth.json
 |   |       broken_blade_garrick.json
+|   |       broken_blade_lyra.json
+|   |       broken_blade_mayor.json
 |   |       broken_blade_meredith.json
+|   |       broken_blade_pete.json
+|   |       broken_blade_thorman.json
 |   |       dungeon_level_1_altar.json
 |   |       dungeon_level_1_chest.json
 |   |       dungeon_level_2_bones.json
@@ -382,12 +440,6 @@ C:.
 |   |       mine_secret_tunnel.json
 |   |       mine_unstable_tunnels.json
 |   |       mine_warning_signs.json
-|   |       patron_selection_elara.json
-|   |       patron_selection_gareth.json
-|   |       patron_selection_lyra.json
-|   |       patron_selection_mayor.json
-|   |       patron_selection_pete.json
-|   |       patron_selection_thorman.json
 |   |       redstone_town_beggar.json
 |   |       redstone_town_bernard.json
 |   |       redstone_town_casperandmeredith.json
@@ -422,6 +474,7 @@ C:.
 |   |       __init__.py
 |   |       
 |   +---maps
+|   |   |   broken_blade_map.py
 |   |   |   dungeon_level_1_map.py
 |   |   |   dungeon_level_2_map.py
 |   |   |   dungeon_level_3_map.py
@@ -437,6 +490,7 @@ C:.
 |   |   |   red_hollow_mine_level_3_map.py
 |   |   |   red_hollow_mine_pre_entrance_map.py
 |   |   |   refugee_camp_main_map.py
+|   |   |   refugee_camp_tiles.py
 |   |   |   swamp_church_exterior_map.py
 |   |   |   swamp_church_interior_map.py
 |   |   |   
@@ -474,9 +528,9 @@ C:.
 |           
 +---docs
 |       Act-III-Narative-Realignment-plan.md
-|       acti-II-mayor-and-discovery-system-implementation-plan.md
 |       Act_II_Exploration_System_Implementation_Plan.md
 |       adding_npc_dialogue.md
+|       Broken-Blade-Tavern-Navigation-Refactor.md
 |       decisions.md
 |       Dialogue_issues_-_what_to_review_-Nov_5.md
 |       epilogue-system-design.md
@@ -521,6 +575,7 @@ C:.
 +---screens
 |   |   act_three_transition.py
 |   |   act_two_transition.py
+|   |   broken_blade_nav.py
 |   |   character_creation.py
 |   |   character_overlay.py
 |   |   combat_loot_overlay.py
@@ -593,6 +648,7 @@ C:.
 |   |   quest_system.py
 |   |   stats_calculator.py
 |   |   tabbed_overlay_utils.py
+|   |   tiled_loader.py
 |   |   tile_graphics.py
 |   |   world_npc_spawner.py
 |   |   xp_manager.py

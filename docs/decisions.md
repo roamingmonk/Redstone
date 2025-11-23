@@ -2388,6 +2388,15 @@ Enables cleaner quest dialogue flows (e.g., hiding "still looking" when quest it
 - Party status panel displays correctly 
 **Files Deprecated:** `data/locations/broken_blade.json` (ActionHub config - kept for reference)
 
+# ADR-143: Tiled Map Editor Integration with Grid-Based Tileset Loading
+# Status: Accepted
+# Date: Nov 23, 2025
+**Context** ASCII map arrays became unmaintainable for complex maps with multiple tile variants (tree tops/trunks, directional tents, transition tiles). Need visual map editor that exports to JSON while maintaining backwards compatibility with existing 64×64 ASCII maps.
+**Decision** Integrate Tiled Map Editor for visual map creation with grid-based tileset loading. Aseprite creates 32×32 source tiles, exported as grid sprite sheet. Custom loader slices grid and scales tiles to 64×64 for display (2× upscaling for retro aesthetic). Tiled exports map layout as .tmj/.json with tile indices. Python mapping file (e.g., refugee_camp_tiles.py) maps indices to tile names for game logic.
+**Consequences**  Positive: Visual map editing in Tiled, unlimited tile variants, faster iteration (edit→export→test), 32×32 source scaled to 64×64 maintains screen coverage while allowing detailed pixel art, backwards compatible with existing 64×64 ASCII maps, industry-standard workflow.
+Negative: Requires manual tile index mapping file for each map (one-time setup), three-tool workflow (Aseprite→Tiled→Python), learning curve for Tiled, tile order in sprite sheet must match index mapping.
+**Implementation** Added load_tileset_from_grid() to TileGraphicsManager for grid-based sprite sheet slicing with 2× upscaling. Added utils/tiled_loader.py with auto-detection for .tmj/.json formats. Each Tiled-based location creates tile mapping file defining index→name relationships and walkability. NavigationRenderer default stays 64×64 for compatibility; new maps explicitly set tile_size in config. 
+**Related** Extends ADR-081 (Singleton TileGraphicsManager), ADR-122 (Regional Map Graphics), ADR-123 (Tile Graphics Architecture). First implementation: Refugee Camp (refugee_camp_main_nav.py), still will need to apply additional maps (17+ maps)
 
 ```
 ## ADR-XXX: <Short title>

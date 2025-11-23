@@ -6,42 +6,80 @@ Scrollable tile-based exploration screen
 import pygame
 import random
 from ui.base_location_navigation import NavigationRenderer
-from utils.constants import BLACK, WHITE, YELLOW, LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT
+from utils.constants import BLACK, WHITE, YELLOW, LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT, TILESETS_PATH
 from utils.graphics import draw_centered_text, draw_border
 from utils.party_display import draw_party_status_panel
 from utils.tile_graphics import get_tile_graphics_manager
 from data.maps.refugee_camp_main_map import (
-    REFUGEE_CAMP_WIDTH,
-    REFUGEE_CAMP_HEIGHT,
+    #REFUGEE_CAMP_WIDTH,
+    #REFUGEE_CAMP_HEIGHT,
     REFUGEE_CAMP_SPAWN_X,
     REFUGEE_CAMP_SPAWN_Y,
     get_tile_type,
-    is_walkable,
-    get_tile_color,
+    #is_walkable,
+    #get_tile_color,
     get_transition_info,
     get_searchable_at_position,
     get_combat_trigger
 )
+from utils.tiled_loader import (load_tiled_map_with_names,get_tile_type,is_walkable_tile)
+from data.maps.refugee_camp_tiles import (REFUGEE_CAMP_TILE_MAP, REFUGEE_CAMP_WALKABLE)
+
 
 class RefugeeCampMainNav:
     """Navigation screen for refugee camp main area exploration"""
     
     def __init__(self):
         # Configure NavigationRenderer with map functions
+        graphics_mgr = get_tile_graphics_manager()
+        graphics_mgr.load_tileset_from_grid ('refugee_camp', REFUGEE_CAMP_TILE_MAP, tile_size=32, columns=7)
+        
+         # Load Tiled map
+        try: 
+            self.tilemap = load_tiled_map_with_names('refugee_camp_map','refugee_camp', REFUGEE_CAMP_TILE_MAP,TILESETS_PATH)
+
+            print(f"✅ Tilemap loaded: {self.tilemap['width']}x{self.tilemap['height']}")
+        except FileNotFoundError as e:
+            print(f"❌ Tiled map file not found: {e}")
+            print(f"   Using fallback to old ASCII system")
+            # Fallback to old system
+            from data.maps.refugee_camp_main_map import REFUGEE_CAMP_WIDTH, REFUGEE_CAMP_HEIGHT
+            self.tilemap = {
+                'width': REFUGEE_CAMP_WIDTH,
+                'height': REFUGEE_CAMP_HEIGHT,
+                'tile_grid': None  # Will use old system
+            }
+        except Exception as e:
+            print(f"❌ Error loading Tiled map: {e}")
+            # Fallback to old system
+            from data.maps.refugee_camp_main_map import REFUGEE_CAMP_WIDTH, REFUGEE_CAMP_HEIGHT
+            self.tilemap = {
+                'width': REFUGEE_CAMP_WIDTH,
+                'height': REFUGEE_CAMP_HEIGHT,
+                'tile_grid': None  # Will use old system
+            }
+
+
         config = {
-            'map_width': REFUGEE_CAMP_WIDTH,
-            'map_height': REFUGEE_CAMP_HEIGHT,
-            'location_id': 'refugee_camp_main',
-            'map_functions': {
-                'get_tile_type': get_tile_type,
-                'is_walkable': is_walkable,
-                'get_tile_color': get_tile_color,
+             'tile_size': 64,
+             'map_width': self.tilemap['width'],
+             'map_height': self.tilemap['height'],
+        #     'location_id': 'refugee_camp_main',
+             'map_functions': {
+                'get_tile_type': lambda x, y: get_tile_type(x, y, self.tilemap['tile_grid']),
+                'is_walkable': lambda x, y: is_walkable_tile(
+                    get_tile_type(x, y, self.tilemap['tile_grid']),
+                    REFUGEE_CAMP_WALKABLE
+                ),
+                'get_tile_color': None,  # Using graphics now, not colors
                 'get_building_info': get_transition_info,
                 'get_searchable_info': get_searchable_at_position,
                 'get_combat_trigger': get_combat_trigger
-            }
-        }
+             }
+         }
         
+       
+
         self.renderer = NavigationRenderer(config)
         self.current_transition = None
         self.current_searchable = None
