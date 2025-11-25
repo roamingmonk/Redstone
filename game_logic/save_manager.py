@@ -3,7 +3,7 @@ import json
 import os
 import shutil        
 from datetime import datetime
-from utils.constants import SAVE_LOAD_RESTRICTED_SCREENS, MALE_PORTRAITS_PATH, FEMALE_PORTRAITS_PATH
+from utils.constants import SAVE_LOAD_RESTRICTED_SCREENS, MALE_PORTRAITS_PATH, FEMALE_PORTRAITS_PATH, get_display_location_name
 from utils.narrative_schema import narrative_schema
 
 class SaveManager:
@@ -541,7 +541,7 @@ class SaveManager:
             return {
                 'character_name': save_data.get('character', {}).get('name', 'Unknown'),
                 'timestamp': save_data.get('timestamp', 'Unknown'),
-                'current_screen': save_data.get('current_screen', 'Unknown'),
+                'current_screen': get_display_location_name(save_data.get('current_screen', 'Unknown')),
                 'party_size': len(save_data.get('party_members', [])) + 1,
                 'gold': save_data.get('character', {}).get('gold', 0),
                 'version': save_data.get('version', 'Unknown')
@@ -665,13 +665,13 @@ class SaveManager:
         """
         #print("🔍 DEBUG: SaveManager.populate_save_slot_cache() called!")
         slots_to_check = [
-            (99, "Quick Save"),
-            (1, "Slot 1"),
-            (2, "Slot 2"), 
-            (3, "Slot 3"),
-            (4, "Slot 4"),
-            (5, "Slot 5"),
-            (0, "Auto-Save")
+            (99, "Quick"),
+            (1, "1"),
+            (2, "2"), 
+            (3, "3"),
+            (4, "4"),
+            (5, "5"),
+            (0, "Auto")
         ]
         
         save_slots = []

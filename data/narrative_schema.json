@@ -3,12 +3,12 @@
   "description": "Canonical narrative identifiers for Terror in Redstone - Single source of truth for all story flags",
   "xp_balance": {
     "discovery_base": 50,
-    "recruitment_bonus": 25,
+    "recruitment_bonus": 20,
     "base_quest_xp": 50,
     "quest_multipliers": {
       "main_story": 20.0,
-      "secondary": 6.0,
-      "investigation": 8.0,
+      "secondary": 3.0,
+      "investigation": 3.0,
       "side_task": 3.0
     },
     "level_progression": {

@@ -52,6 +52,7 @@ DARK_COPPER = (184, 115, 51)
 FIRE_BRICK_RED = (178, 34, 34)
 
 # Gray scale refinement (fixing naming confusion)
+LIGHT_GRAY = (40, 40, 40)
 VERY_DARK_GRAY = (60, 60, 60)       #Disabled Text
 DARKEST_GRAY = (85, 85, 85)         # Button backgrounds (pressed state)
 MOUNTAIN_GRAY = (105, 105, 105)
@@ -130,7 +131,7 @@ DIALOGUE_TEXT_COLOR = WHITE
 DIALOGUE_TITLE_COLOR = (0, 255, 0)
 DIALOGUE_OPTION_COLOR = (0, 255, 0)
 DIALOGUE_OPTION_HOVER_COLOR = (255, 255, 0)
-DIALOGUE_OPTION_BG_HOVER = (40, 40, 40)
+DIALOGUE_OPTION_BG_HOVER = LIGHT_GRAY
 
 # === PROFESSIONAL ASSET PATH STRUCTURE ===
 
@@ -408,7 +409,7 @@ def _create_placeholder_image(width, height, title_text, subtitle_text="Missing 
         pygame.Surface with placeholder graphics
     """
     placeholder = pygame.Surface((width, height))
-    placeholder.fill((40, 40, 40))  # Dark gray background
+    placeholder.fill((LIGHT_GRAY))  # gray background
     pygame.draw.rect(placeholder, WHITE, (0, 0, width, height), 3)  # White border
     
     try:
@@ -677,10 +678,11 @@ TITLE_ANIMATIONS = {
 # Screen exclusion lists - centralized for maintainability
 # Overlay exclusion - screens where overlays should not appear
 OVERLAY_RESTRICTED_SCREENS = {
-    'game_title', 'developer_splash',  # Remove main_menu from here
+    'game_title', 'developer_splash', 'main_menu',  
     'stats', 'gender', 'name', 'portrait_selection', 'custom_name', 
     'name_confirm', 'gold', 'trinket', 'summary', 'welcome',
-    'dice_bets', 'dice_rolling', 'dice_results', 'dice_rules', 'merchant_shop'
+    'dice_bets', 'dice_rolling', 'dice_results', 'dice_rules', 'merchant_shop',
+    'combat', 'intro_scenes' 
 }
 
 # Save/Load exclusion - screens where save/load operations don't make sense
@@ -688,9 +690,88 @@ SAVE_LOAD_RESTRICTED_SCREENS = {
     'game_title', 'developer_splash', 'main_menu',  # Keep main_menu here
     'stats', 'gender', 'name', 'portrait_selection', 'custom_name', 
     'name_confirm', 'gold', 'trinket', 'summary', 'welcome',
-    'dice_bets', 'dice_rolling', 'dice_results', 'dice_rules', 'merchant_shop'
+    'dice_bets', 'dice_rolling', 'dice_results', 'dice_rules', 'merchant_shop',
+    'intro_scenes'
 }
 
 # Overlay access control - centralized configuration
 MAIN_MENU_ALLOWED_OVERLAYS = ['load_game']  
 
+
+# === SCREEN DISPLAY NAME MAPPING ===
+# Maps technical screen names to player-friendly display names for save/load screens
+# Add custom mappings here for any special screens that need specific display names
+SCREEN_DISPLAY_NAMES = {
+    # Town locations
+    'redstone_town': 'Redstone Town',
+    'broken_blade': 'Broken Blade Tavern',
+    'broken_blade_main_nav': 'Broken Blade Tavern',
+    
+    # Act II Investigation Locations
+    'hill_ruins': 'Hill Ruins',
+    'hill_ruins_entrance_nav': 'Hill Ruins',
+    'hill_ruins_main_nav': 'Hill Ruins',
+    'swamp_church_entrance_nav': 'Swamp Church',
+    'swamp_church_main_nav': 'Swamp Church',
+    'refugee_camp_entrance_nav': 'Refugee Camp',
+    'refugee_camp_main_nav': 'Refugee Camp',
+    'red_hollow_mine_entrance_nav': 'Red Hollow Mine',
+    'red_hollow_mine_main_nav': 'Red Hollow Mine',
+    
+    # Special screens
+    'patron_selection': 'Broken Blade Tavern',
+    'exploration_hub': 'Redstone Region Map',
+    
+    # Story transitions
+    'act_two_start': 'Act II Beginning',
+    'act_three_start': 'Act III Beginning',
+    'victory_screen': 'Victory',
+    
+    # Generic fallbacks (these would normally be auto-generated)
+    'combat': 'Combat',
+}
+
+def get_display_location_name(screen_name):
+    """
+    Convert technical screen name to player-friendly display name
+    
+    Args:
+        screen_name: Technical screen name (e.g., 'hill_ruins_entrance_nav')
+        
+    Returns:
+        Player-friendly display name (e.g., 'Hill Ruins')
+        
+    Examples:
+        'hill_ruins_entrance_nav' -> 'Hill Ruins'
+        'dungeon_level_3_nav' -> 'Dungeon Level 3'
+        'combat_goblins' -> 'Combat'
+    """
+    # First, check explicit mapping dictionary
+    if screen_name in SCREEN_DISPLAY_NAMES:
+        return SCREEN_DISPLAY_NAMES[screen_name]
+    
+    # Smart fallback processing for unmapped screens
+    name = screen_name
+    
+    # Handle dungeon levels specially: "dungeon_level_5_nav" -> "Dungeon Level 5"
+    if name.startswith('dungeon_level_'):
+        # Extract level number
+        parts = name.replace('_nav', '').split('_')
+        if len(parts) >= 3 and parts[2].isdigit():
+            return f"Dungeon Level {parts[2]}"
+    
+    # Handle combat screens: "combat_*" -> "Combat"
+    if name.startswith('combat'):
+        return "Combat"
+    
+    # Strip common navigation suffixes
+    suffixes_to_remove = ['_nav', '_entrance_nav', '_main_nav', '_main']
+    for suffix in suffixes_to_remove:
+        if name.endswith(suffix):
+            name = name[:-len(suffix)]
+            break
+    
+    # Convert underscores to spaces and title case
+    name = name.replace('_', ' ').title()
+    
+    return name

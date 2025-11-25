@@ -1928,6 +1928,12 @@ class ScreenManager:
     def _handle_overlay_toggle(self, event_data):
         """Handle overlay toggle - Centralized state management"""
         overlay_id = event_data.get("overlay_id")
+
+        # CRITICAL FIX: Check if current screen blocks overlays BEFORE toggling state
+        current_screen = getattr(self._current_game_state, 'screen', None)
+        if current_screen in OVERLAY_RESTRICTED_SCREENS:
+            print(f"🚫 Overlay '{overlay_id}' blocked on restricted screen: {current_screen}")
+            return  # Don't toggle state at all on restricted screens
         
         # Initialize overlay state if not exists
         if not hasattr(self._current_game_state, 'overlay_state'):

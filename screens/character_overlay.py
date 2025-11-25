@@ -25,6 +25,9 @@ from utils.constants import (MALE_PORTRAITS_PATH,
                              BRIGHT_GREEN, BLACK
                              )
 
+# Import wrap_text from constants
+from utils.constants import wrap_text
+
 class CharacterOverlay(BaseTabbedOverlay):
     """
     Character information overlay - 2-tab implementation
@@ -337,7 +340,7 @@ class CharacterOverlay(BaseTabbedOverlay):
                         (portrait_x, portrait_y, portrait_size, portrait_size), 2)
         
     def _render_abilities_tab(self, surface: pygame.Surface, content_rect: pygame.Rect, 
-                         game_state, fonts, images):
+                     game_state, fonts, images):
         """
         Render abilities tab - spells and special abilities
         """
@@ -372,16 +375,31 @@ class CharacterOverlay(BaseTabbedOverlay):
             for ability in abilities_gained:
                 draw_text(surface, f"• {ability}", normal_font, 
                         content_rect.x + 60, current_y, WHITE)
-                current_y += 20
+                current_y += 25
                 
-                # Show description
-                description = self._get_ability_description(ability, character_class)
-                if description:
-                    draw_text(surface, f"  {description}", normal_font, 
-                            content_rect.x + 80, current_y, GRAY)
-                    current_y += 20
-    
-                current_y += 5  # Extra spacing between abilities
+                # Show description with wrapping
+                description_data = self._get_ability_description(ability, character_class)
+                if description_data:
+                    # Extract description string from dictionary
+                    if isinstance(description_data, dict):
+                        description_text = description_data.get('description', '')
+                    else:
+                        description_text = str(description_data)
+                    
+                    if description_text:
+                        
+                        # Calculate max width for wrapping (content width - left margin - indent)
+                        max_width = content_rect.width - 120  # 80px indent + 40px right margin
+                        
+                        # Wrap the description text
+                        wrapped_lines = wrap_text(description_text, normal_font, max_width, SOFT_YELLOW)
+                        
+                        # Render each wrapped line
+                        for line_surface in wrapped_lines:
+                            surface.blit(line_surface, (content_rect.x + 80, current_y))
+                            current_y += 22  # Line height for small font
+                
+                current_y += 10  # Extra spacing between abilities
         
         # Show spells if spellcaster
         if character_class in ['wizard', 'cleric']:

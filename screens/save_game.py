@@ -4,7 +4,7 @@ Save Game Screen - Full screen overlay for save file management
 """
 
 import pygame
-from utils.constants import (BLACK, YELLOW, BLUE, WHITE, DARK_GRAY)
+from utils.constants import (BLACK, YELLOW, BLUE, WHITE, GRAY, LIGHT_GRAY)
 from utils.graphics import draw_border, draw_button, draw_centered_text
 from datetime import datetime
 
@@ -45,11 +45,11 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
     else:
         # Fallback - empty slots
         slots_to_check = [
-            (1, "Slot 1"),
-            (2, "Slot 2"), 
-            (3, "Slot 3"),
-            (4, "Slot 4"),
-            (5, "Slot 5"),
+            (1, "1"),
+            (2, "2"), 
+            (3, "3"),
+            (4, "4"),
+            (5, "5"),
         ]
         save_slots = [{'slot_num': slot_num, 'slot_name': slot_name, 'save_info': None} 
                      for slot_num, slot_name in slots_to_check]
@@ -69,13 +69,13 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
         if selected:
             pygame.draw.rect(surface, BLUE, slot_rect)  # Blue highlight
         else:
-            pygame.draw.rect(surface, DARK_GRAY, slot_rect)
+            pygame.draw.rect(surface, LIGHT_GRAY, slot_rect)
         
         # Draw slot border
         pygame.draw.rect(surface, WHITE, slot_rect, 2)
         
         # Slot name (left aligned)
-        slot_name_x = slot_rect.x + 20
+        slot_name_x = slot_rect.x + 10
         slot_name_y = slot_rect.y + 12
         slot_surface = fonts.get('fantasy_medium', fonts['normal']).render(
             slot_data['slot_name'], True, YELLOW)
@@ -85,7 +85,7 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
         if slot_data['save_info']:
             # Character name
             char_name = slot_data['save_info']['character_name']
-            char_x = slot_rect.x + 120
+            char_x = slot_rect.x + 40
             char_surface = fonts.get('fantasy_small', fonts['normal']).render(
                 char_name, True, WHITE)
             surface.blit(char_surface, (char_x, slot_name_y))
@@ -100,45 +100,7 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
             elif location == 'summary':
                 location_readable = 'Character Summary'
                 
-            location_x = char_x + 300
-            location_surface = fonts.get('fantasy_small', fonts['normal']).render(
-                location_readable, True, WHITE)
-            surface.blit(location_surface, (location_x, slot_name_y))
-            
-        else:
-            # Empty slot
-            empty_x = slot_rect.x + 200
-            empty_surface = fonts.get('fantasy_small', fonts['normal']).render(
-                "[Empty Slot]", True, (128, 128, 128))
-            surface.blit(empty_surface, (empty_x, slot_name_y))
-        
-        # Slot name (left aligned)
-        slot_name_x = slot_rect.x + 20
-        slot_name_y = slot_rect.y + 12
-        slot_surface = fonts.get('fantasy_medium', fonts['normal']).render(
-            slot_data['slot_name'], True, YELLOW)
-        surface.blit(slot_surface, (slot_name_x, slot_name_y))
-        
-        # Save information
-        if slot_data['save_info']:
-            # Character name
-            char_name = slot_data['save_info']['character_name']
-            char_x = slot_rect.x + 120
-            char_surface = fonts.get('fantasy_small', fonts['normal']).render(
-                char_name, True, WHITE)
-            surface.blit(char_surface, (char_x, slot_name_y))
-            
-            # Location (make it readable)
-            location = slot_data['save_info']['current_screen']
-            location_readable = location.replace('_', ' ').title()
-            if location == 'tavern_main':
-                location_readable = 'Tavern'
-            elif location == 'welcome':
-                location_readable = 'Town'
-            elif location == 'summary':
-                location_readable = 'Character Summary'
-                
-            location_x = char_x + 300
+            location_x = char_x + 340
             location_surface = fonts.get('fantasy_small', fonts['normal']).render(
                 location_readable, True, WHITE)
             surface.blit(location_surface, (location_x, slot_name_y))
@@ -154,7 +116,7 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
             else:
                 time_str = 'Unknown'
                 
-            time_x = location_x + 150
+            time_x = location_x + 240
             time_surface = fonts.get('fantasy_small', fonts['normal']).render(
                 time_str, True, WHITE)
             surface.blit(time_surface, (time_x, slot_name_y))
@@ -163,7 +125,7 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
             # Empty slot
             empty_x = slot_rect.x + 200
             empty_surface = fonts.get('fantasy_small', fonts['normal']).render(
-                "[Empty Slot]", True, (128, 128, 128))
+                "[Empty Slot]", True, (GRAY))
             surface.blit(empty_surface, (empty_x, slot_name_y))
     
       # Status message

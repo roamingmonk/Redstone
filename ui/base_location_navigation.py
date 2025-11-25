@@ -74,7 +74,7 @@ class NavigationRenderer:
         self.move_delay = 150
         self.last_move_time = 0
         self.keys_pressed_last_frame = set()
-        self.player_direction = 'down'
+        self.player_direction = config.get('spawn_direction', 'down')
 
         # Enter key debouncing
         self.enter_pressed_last_frame = False

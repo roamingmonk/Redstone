@@ -32,7 +32,8 @@ class BrokenBladeNav:
                 'get_combat_trigger': None,   # No random combat in tavern
                 'get_location_npcs': self._get_current_npcs
             },
-            'spawn_position': (TAVERN_SPAWN_X, TAVERN_SPAWN_Y)
+            'spawn_position': (TAVERN_SPAWN_X, TAVERN_SPAWN_Y),
+            'spawn_direction': 'up'
         }
         
         self.renderer = NavigationRenderer(config)

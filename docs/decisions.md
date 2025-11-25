@@ -2398,6 +2398,8 @@ Negative: Requires manual tile index mapping file for each map (one-time setup),
 **Implementation** Added load_tileset_from_grid() to TileGraphicsManager for grid-based sprite sheet slicing with 2× upscaling. Added utils/tiled_loader.py with auto-detection for .tmj/.json formats. Each Tiled-based location creates tile mapping file defining index→name relationships and walkability. NavigationRenderer default stays 64×64 for compatibility; new maps explicitly set tile_size in config. 
 **Related** Extends ADR-081 (Singleton TileGraphicsManager), ADR-122 (Regional Map Graphics), ADR-123 (Tile Graphics Architecture). First implementation: Refugee Camp (refugee_camp_main_nav.py), still will need to apply additional maps (17+ maps)
 
+
+
 ```
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected

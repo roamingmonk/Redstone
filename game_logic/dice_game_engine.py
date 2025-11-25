@@ -272,7 +272,7 @@ class DiceGameEngine:
         
         # Track player statistics
         self.game_state.player_statistics['dice_games_played'] += 1
-        winnings = payout - bet_amount if payout > 0 else -bet_amount
+        winnings = payout if payout > 0 else -bet_amount
         self.game_state.player_statistics['dice_total_winnings'] += winnings
         
         if payout > 0:
@@ -284,9 +284,9 @@ class DiceGameEngine:
                 self.game_state.player_statistics['longest_win_streak'] = current_win_streak
             
             # Track highest gold won in a single game 
-            winnings = payout - bet_amount  # Net winnings on this game
-            if winnings > self.game_state.player_statistics['highest_winning_roll']:
-                self.game_state.player_statistics['highest_winning_roll'] = winnings
+            
+            if payout > self.game_state.player_statistics['highest_winning_roll']:
+                self.game_state.player_statistics['highest_winning_roll'] = payout
 
             # Update longest win streak if current streak is higher
             current_win_streak = gambling_stats.get('win_streak', 0)

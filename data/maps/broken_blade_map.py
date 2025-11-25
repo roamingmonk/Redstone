@@ -15,7 +15,7 @@ TAVERN_SPAWN_Y = 18
 
 # === TILE TYPE DEFINITIONS ===
 TILE_TYPES = {
-    '#': 'wall',           # Walls (impassable)
+    '#': 'wooden_wall',           # Walls (impassable)
     '.': 'floor',          # Walkable floor
     'B': 'bar_counter',    # Bar counter (not walkable)
     'T': 'table',          # Tables (walkable)
@@ -27,27 +27,27 @@ TILE_TYPES = {
     '@': 'spawn_point',    # Entry spawn
 }
 
-WALKABLE_TILES = {'floor', 'table', 'chair', 'gamble_area', 'mayor_table', 'spawn_point', 'door'}
+WALKABLE_TILES = {'floor', 'chair', 'mayor_table', 'spawn_point', 'door', 'stairs'}
 
 # === ASCII MAP LAYOUT ===
 BROKEN_BLADE_MAP = [
     "####################",  # Row 0
     "#S.................#",  # Row 1 - Stairs upper left
-    "#..................#",  # Row 2
-    "#...BBBBBBBBB......#",  # Row 3 - Bar starts
-    "#...B.......B......#",  # Row 4 - Bar with back area (Garrick here)
-    "#...B.......B......#",  # Row 5
-    "#...BBBBBBBBB......#",  # Row 6 - Bar closes
-    "#..TTT......TTT...M#",  # Row 7 - First set of recruit tables + Mayor
-    "#..CCC......CCC...M#",  # Row 8
-    "#..................#",  # Row 9
-    "#......GGG.........#",  # Row 10 - Dice game area
-    "#......GGG.........#",  # Row 11
-    "#..............TTT.#",  # Row 12
-    "#..............CCC.#",  # Row 13
-    "#..................#",  # Row 14
+    "#...B........B..CC.#",  # Row 2
+    "#...B........B..TT.#",  # Row 3 - Bar starts
+    "#...B........B..CC.#",  # Row 4 - Bar with back area (Garrick here)
+    "#...BBBBBBBBBB.....#",  # Row 5
+    "#................C.#",  # Row 6 - Bar closes
+    "#.C.C............MM#",  # Row 7 - First set of recruit tables + Mayor
+    "#.TTT...........CMM#",  # Row 8
+    "#.................C#",  # Row 9
+    "#..................#",  # Row 10 - Dice game area
+    "#......GGG.....C.C.#",  # Row 11
+    "#......GGG.....TTT.#",  # Row 12
+    "#................C.#",  # Row 13
+    "#...CC....CCC......#",  # Row 14
     "#..TTT....TTT......#",  # Row 15
-    "#..CCC....CCC......#",  # Row 16 - Second set of tables
+    "#..CC......C.......#",  # Row 16 - Second set of tables
     "#..................#",  # Row 17
     "#.........@........#",  # Row 18 - Entry/exit (two door tiles)
     "##########DD########",  # Row 19
@@ -70,7 +70,7 @@ def get_tile_color(x, y):
     """Get color for tile rendering (placeholder - will use graphics later)"""
     tile_type = get_tile_type(x, y)
     TILE_COLORS = {
-        'wall': (40, 20, 10),           # Dark wood walls
+        'wooden_wall': (40, 20, 10),    # Dark wood walls
         'floor': (101, 67, 33),         # Brown wooden floor
         'bar_counter': (139, 69, 19),   # Saddle brown bar
         'table': (160, 82, 45),         # Sienna tables
@@ -88,63 +88,63 @@ TAVERN_NPCS = {
     'garrick': {
         'sprite_type': 'bartender',
         'position': (9, 4),  # Behind bar (center of bar back area)
-        'interaction_tiles': [(8, 7), (9, 7), (10, 7), (7, 7), (11, 7)],  # Front of bar
+        'interaction_tiles': [(9, 6), (9, 3), (10, 4), (8, 4), (10,6), (8,6)],  # Front of bar
         'display_name': 'Garrick',
         'dialogue_id': 'broken_blade_garrick',
         'conditions': None  # Always present
     },
     'meredith': {
         'sprite_type': 'server',
-        'position': (5, 8),  # Near upper tables
-        'interaction_tiles': [(4, 8), (6, 8), (5, 7), (5, 9)],  # Adjacent tiles
+        'position': (6, 6),  # Near BAR
+        'interaction_tiles': [(5, 6), (7, 6), (6, 7)],  # Adjacent tiles
         'display_name': 'Meredith',
         'dialogue_id': 'broken_blade_meredith',
         'conditions': None  # Always present
     },
     'mayor': {
         'sprite_type': 'noble',
-        'position': (18, 7),  # Upper right corner table
-        'interaction_tiles': [(17, 7), (18, 8), (17, 8)],  # Adjacent tiles
+        'position': (16, 7),  # Upper right corner table
+        'interaction_tiles': [(15, 7), (16, 6), (16, 8)],  # Adjacent tiles
         'display_name': 'Mayor Aldwin',
         'dialogue_id': 'broken_blade_mayor',
         'conditions': {'act_check': 1}  # Act I only
     },
     'gareth': {
         'sprite_type': 'warrior',
-        'position': (4, 7),  # Upper left table
-        'interaction_tiles': [(3, 7), (5, 7), (4, 6), (4, 8)],  # Adjacent tiles
+        'position': (1, 11),  # Upper left table
+        'interaction_tiles': [(1, 10), (1, 12), (2, 11)],  # Adjacent tiles
         'display_name': 'Gareth',
         'dialogue_id': 'broken_blade_gareth',
         'conditions': {'not_recruited': 'gareth_recruited'}
     },
     'elara': {
         'sprite_type': 'mage',
-        'position': (10, 7),  # Upper center table
-        'interaction_tiles': [(9, 7), (11, 7), (10, 6), (10, 8)],  # Adjacent tiles
+        'position': (3, 14),  # Upper center table
+        'interaction_tiles': [(3, 13), (3, 16), (4, 16), (2,14)],  # Adjacent tiles
         'display_name': 'Elara',
         'dialogue_id': 'broken_blade_elara',
         'conditions': {'not_recruited': 'elara_recruited'}
     },
     'thorman': {
         'sprite_type': 'dwarf',
-        'position': (4, 15),  # Lower left table
-        'interaction_tiles': [(3, 15), (5, 15), (4, 14), (4, 16)],  # Adjacent tiles
+        'position': (16, 11),  # Lower left table
+        'interaction_tiles': [(16, 13), (16, 10), (15, 11), (17, 11), (15,13)],  
         'display_name': 'Thorman',
         'dialogue_id': 'broken_blade_thorman',
         'conditions': {'not_recruited': 'thorman_recruited'}
     },
     'lyra': {
         'sprite_type': 'rogue',
-        'position': (10, 15),  # Lower center table (adjusted from 9 to avoid overlap)
-        'interaction_tiles': [(9, 15), (11, 15), (10, 14), (10, 16)],  # Adjacent tiles
+        'position': (4, 9),  # Lower center table (adjusted from 9 to avoid overlap)
+        'interaction_tiles': [(3, 9), (5, 9), (4, 10)],  # Adjacent tiles
         'display_name': 'Lyra',
         'dialogue_id': 'broken_blade_lyra',
         'conditions': {'not_recruited': 'lyra_recruited'}
     },
     'pete': {
         'sprite_type': 'commoner',
-        'position': (15, 12),  # Lower right table (adjusted from 14 to fit better)
-        'interaction_tiles': [(14, 12), (16, 12), (15, 11), (15, 13)],  # Adjacent tiles
+        'position': (14, 4),  # Lower right table (adjusted from 14 to fit better)
+        'interaction_tiles': [(14, 3), (14, 5), (15, 4)],  # Adjacent tiles
         'display_name': 'Pete',
         'dialogue_id': 'broken_blade_pete',
         'conditions': None  # Always present
@@ -278,7 +278,7 @@ def get_transition_at_entrance(player_x, player_y, game_state):
 # === SPECIAL INTERACTION AREAS ===
 SPECIAL_AREAS = {
     'dice_game': {
-        'trigger_tiles': [(7, 10), (8, 10), (9, 10), (7, 11), (8, 11), (9, 11)],
+        'trigger_tiles': [(7, 10), (8, 10), (9, 10), (7, 13), (8, 13), (9, 13), (10,11), (10,12)],
         'info': {
             'name': 'Dice Game Table',
             'interaction_type': 'navigation',
