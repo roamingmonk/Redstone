@@ -166,9 +166,9 @@ class GameState:
         
         # Save/load system state (game mechanics)
         self.load_selected_slot = None
-        self.load_status_message = "Select a save file to load or delete"
+        self.load_status_message = "Select a save file to load or delete (1-5, 0=Quick, A=Auto)"
         self.save_selected_slot = None
-        self.save_status_message = "Select a slot to save your game"
+        self.save_status_message = "Click or press 1-5 to select a slot to save your game"
 
         # Ensure XP fields exist
         self.character.setdefault('experience', 0)

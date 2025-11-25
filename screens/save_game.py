@@ -4,7 +4,7 @@ Save Game Screen - Full screen overlay for save file management
 """
 
 import pygame
-from utils.constants import (BLACK, YELLOW, BLUE, WHITE, GRAY, LIGHT_GRAY)
+from utils.constants import (BLACK, YELLOW, CORNFLOWER_BLUE, WHITE, GRAY, LIGHT_GRAY)
 from utils.graphics import draw_border, draw_button, draw_centered_text
 from datetime import datetime
 
@@ -67,7 +67,7 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
         
         # Draw slot background with selection highlighting
         if selected:
-            pygame.draw.rect(surface, BLUE, slot_rect)  # Blue highlight
+            pygame.draw.rect(surface, CORNFLOWER_BLUE, slot_rect)  # Blue highlight
         else:
             pygame.draw.rect(surface, LIGHT_GRAY, slot_rect)
         
@@ -130,7 +130,7 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
     
       # Status message
     status_y = slot_start_y + (len(save_slots) * (slot_height + slot_spacing)) + 20
-    status_text = getattr(game_state, 'save_status_message', "Select a slot to save your game")
+    status_text = getattr(game_state, 'save_status_message', "Click or press 1-5 to select a slot to save your game")
     draw_centered_text(surface, status_text,
                       fonts.get('fantasy_small', fonts['normal']),
                       status_y, WHITE)
@@ -186,3 +186,34 @@ def draw_save_game_screen(surface, game_state, fonts, images, save_manager=None)
         'save_quit_button': save_quit_button,  # Only returns if enabled
         'cancel_button': cancel_button
     }
+
+
+def handle_save_game_click(mouse_pos, game_state, result, event_manager=None):
+    """
+    Handle mouse clicks on the save game screen
+    Returns True if click was handled, False otherwise
+    """
+    print(f"🖱️ SAVE CLICK DEBUG: mouse_pos={mouse_pos}, event_manager={event_manager is not None}")
+    if not result:
+        return False
+    
+    # Handle slot selection clicks
+    for slot_rect, slot_num in result['slot_rects']:
+        if slot_rect.collidepoint(mouse_pos):
+            event_manager.emit("SAVE_SLOT_SELECTED", {'slot_num': slot_num})
+            return True
+    
+    # Handle button clicks
+    if result['save_button'] and result['save_button'].collidepoint(mouse_pos):
+        event_manager.emit("SAVE_GAME_CONFIRM", {})
+        return True
+    
+    if result['save_quit_button'] and result['save_quit_button'].collidepoint(mouse_pos):
+        event_manager.emit("SAVE_AND_QUIT_CONFIRM", {})
+        return True
+    
+    if result['cancel_button'] and result['cancel_button'].collidepoint(mouse_pos):
+        event_manager.emit("SAVE_SCREEN_CANCEL", {})
+        return True
+    
+    return False

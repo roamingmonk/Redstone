@@ -137,8 +137,9 @@ def draw_load_game_screen(surface, game_state, fonts, images, save_manager=None)
     
     # Status message area
     status_y = slot_start_y + (len(save_slots) * (slot_height + slot_spacing)) + 40
-    status_text = "Select a save file to load or delete"
+    status_text = "Select a save file to load or delete (1-5, 0=Quick, A=Auto)"
     
+
     # Check for status messages in game_state
     if hasattr(game_state, 'load_status_message'):
         status_text = game_state.load_status_message

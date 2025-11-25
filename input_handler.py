@@ -158,6 +158,46 @@ class InputHandler:
         #for i, region in enumerate(regions[:5]):  # Show first 5 for debugging
             #print(f"  {i+1}. Action: {region['action']}, Rect: {region['rect']}")
         
+    def _handle_load_save_keyboard_input(self, key, game_state) -> bool:
+        """Handle keyboard shortcuts for load_game and save_game overlays"""
+        if not hasattr(game_state, 'overlay_state'):
+            return False
+        
+        active_overlay = game_state.overlay_state.get_active_overlay()
+        
+        # Only handle if load_game or save_game overlay is open
+        if active_overlay not in ['load_game', 'save_game']:
+            return False
+        
+        # Map keys to slot numbers
+        key_to_slot = {
+            pygame.K_1: 1,
+            pygame.K_2: 2,
+            pygame.K_3: 3,
+            pygame.K_4: 4,
+            pygame.K_5: 5,
+            pygame.K_0: 99,  # Quick save slot
+            pygame.K_a: 0,   # Auto save slot
+        }
+        
+        # Check if a slot key was pressed
+        if key in key_to_slot:
+            slot_num = key_to_slot[key]
+            
+            # For save_game, only allow slots 1-5
+            if active_overlay == 'save_game' and slot_num not in [1, 2, 3, 4, 5]:
+                return False
+            
+            # Emit the appropriate slot selection event
+            event_type = 'SAVE_SLOT_SELECTED' if active_overlay == 'save_game' else 'LOAD_SLOT_SELECTED'
+            self.event_manager.emit(event_type, {'slot_num': slot_num})
+            
+            print(f"⌨️ Keyboard shortcut: Selected slot {slot_num} via key '{pygame.key.name(key)}'")
+            return True
+        
+        return False
+
+    
     def set_interactables(self, screen_name: str, interactables_data):
         """
         NEW SEMANTIC APPROACH: Register clickable regions using semantic actions
@@ -633,6 +673,14 @@ class InputHandler:
 
         # PRIORITY 5: Handle dialogue keyboard input
         if self._handle_dialogue_keyboard_input(event.key, game_state):
+            return True
+        
+        # PRIORITY 5.5: Handle load_game and save_game keyboard shortcuts
+        if self._handle_load_save_keyboard_input(event.key, game_state):
+            return True
+
+        # PRIORITY 6: Check registered overlays for keyboard shortcuts
+        if self._handle_registered_overlay_keyboard_input(event.key):
             return True
 
         #Handle screen-specific overlay keyboard input
