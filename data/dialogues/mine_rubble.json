@@ -20,7 +20,7 @@
             "next_state": "exit",
             "effects": [
               {"type": "set_flag", "flag": "trigger_loot_check", "value": "mine_rubble_loot"},
-              {"type": "set_flag", "flag": "searched_mine_rubble", "value": true}
+              {"type": "set_flag", "flag": "searched_red_hollow_mine_rubble", "value": true}
             ]
           },
           {
@@ -28,7 +28,7 @@
             "text": "[Too dangerous—leave it]",
             "next_state": "exit",
             "effects": [
-              {"type": "set_flag", "flag": "searched_mine_rubble", "value": true}
+              {"type": "set_flag", "flag": "searched_red_hollow_mine_rubble", "value": true}
             ]
           }
         ]

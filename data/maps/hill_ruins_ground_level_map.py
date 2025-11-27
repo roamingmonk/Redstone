@@ -149,7 +149,23 @@ SEARCHABLE_OBJECTS = {
             'requirements': {},
             'one_time': True
         }
-    }
+    },
+    'ground_level_ancient_rubble': {
+        'search_tiles': [(7, 5), (8, 5), (9, 5), (10, 5),    
+                       (7, 6), (8, 6), (9, 6), (10, 6)],  # Around rubble
+        'object_pos': [(7, 5), (8, 5), (9, 5), (10, 5),    
+                       (7, 6), (8, 6), (9, 6), (10, 6)],  # Rubble tiles
+        'info': {
+            'name': 'Ancient Rubble',
+            'interaction_type': 'searchable',
+            'description': 'Broken stones with faded rune carvings.',
+            'examine_dialogue': 'hill_ruins_ground_level_rubble',
+            'loot_table': None,
+            'flag_set': 'hill_ruins_ground_level_rubble_searched',
+            'requirements': {},
+            'one_time': True
+        }
+    },
 }
 
 def get_searchable_at_position(player_x, player_y):

@@ -75,6 +75,7 @@ class NavigationRenderer:
         self.last_move_time = 0
         self.keys_pressed_last_frame = set()
         self.player_direction = config.get('spawn_direction', 'down')
+        self.player_is_moving = False
 
         # Enter key debouncing
         self.enter_pressed_last_frame = False
@@ -122,11 +123,14 @@ class NavigationRenderer:
     
     def handle_movement(self, keys, player_x, player_y):
         """Handle movement input with turn-then-move mechanics and timing"""
+        self.player_is_moving = False
+        
         current_time = pygame.time.get_ticks()
         keys_pressed_this_frame = set()
         new_x, new_y = player_x, player_y
         intended_direction = None
         movement_attempted = False
+        
         
         # Determine intended direction from keys
         if keys[pygame.K_UP] or keys[pygame.K_w]:
@@ -146,6 +150,8 @@ class NavigationRenderer:
             intended_direction = 'right'
             movement_attempted = True
         
+        self.player_is_moving = False  # Reset at start of each frame
+
         # Process movement/turning with timing
         moved_or_turned = False
         if movement_attempted and (current_time - self.last_move_time >= self.move_delay):
@@ -174,7 +180,11 @@ class NavigationRenderer:
                         if self.map_functions['is_walkable'](new_x, new_y):
                             self.last_move_time = current_time
                             moved_or_turned = True
-                        
+                            self.player_is_moving = True 
+
+        if moved_or_turned:  # or wherever you confirm movement happened
+            self.player_is_moving = True    
+
         self.keys_pressed_last_frame = keys_pressed_this_frame
         
         if moved_or_turned:
@@ -243,6 +253,7 @@ class NavigationRenderer:
                 
                 surface.blit(tile_image, (screen_x, screen_y))
 
+
     def draw_player(self, surface, player_x, player_y):
         """
         Draw player sprite on map
@@ -255,6 +266,9 @@ class NavigationRenderer:
         player_screen_y = (player_y * self.tile_size) - self.camera_y
 
         try:
+            # Update player animation based on movement state
+            self.graphics_manager.update_player_animation(self.player_direction, self.player_is_moving)
+            
             # Get player sprite from shared graphics manager
             player_sprite = self.graphics_manager.get_player_sprite(self.player_direction)
             
@@ -265,7 +279,7 @@ class NavigationRenderer:
             # Draw player sprite
             surface.blit(player_sprite, (sprite_x, sprite_y))
             
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError) as e:
             # Fallback to red circle if sprite fails
             pygame.draw.circle(
                 surface,
@@ -273,6 +287,7 @@ class NavigationRenderer:
                 (player_screen_x + self.tile_size // 2, player_screen_y + self.tile_size // 2),
                 16
             )
+
     
     def check_npc_interaction(self, player_x, player_y, player_direction, location_id, game_state):
         """

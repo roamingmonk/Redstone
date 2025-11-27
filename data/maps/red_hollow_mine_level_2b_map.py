@@ -112,7 +112,7 @@ SEARCHABLE_OBJECTS = {
             'description': 'Collapsed rock and debris. Something glints within...',
             'examine_dialogue': 'mine_rubble',
             'loot_table': 'mine_rubble_loot',  # Better loot (risk/reward)
-            'flag_set': 'searched_mine_rubble',
+            'flag_set': 'searched_red_hollow_mine_rubble',
             'requirements': {},
             'one_time': True
         }

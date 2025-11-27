@@ -15,8 +15,7 @@ import pygame
 import os
 import json
 from utils.constants import (BLACK, RED, WHITE,
-                             TILES_PATH, REGIONMAP_TILES_PATH)
-
+                             TILES_PATH, REGIONMAP_TILES_PATH, PLAYER_SPRITES_PATH)
 
 class TileGraphicsManager:
     """
@@ -307,27 +306,71 @@ class TileGraphicsManager:
                 self.tile_images[tile_type] = self.create_tile_fallback(tile_type)
     
     def load_character_sprites(self):
-        """Load character sprites for all tile systems"""
+        """Load character sprites for all tile systems (supports both static and animated sprite sheets)"""
+
         
         # Player sprites (universal)
         player_sprites = {
-            'down': 'characters/player/player_down.png',
-            'up': 'characters/player/player_up.png', 
-            'left': 'characters/player/player_left.png',
-            'right': 'characters/player/player_right.png'
+            'down': 'player_down.png',
+            'up': 'player_up.png', 
+            'left': 'player_left.png',
+            'right': 'player_right.png'
         }
         
         self.character_sprites['player'] = {}
+        self.player_animations = {}  # Store animation data for sprite sheets
+        
+        # Configuration for sprite sheet animations
+        PLAYER_SPRITE_SIZE = 32  # Each frame is 32x32
+        PLAYER_FRAME_COUNT = 4   # Number of frames per direction (adjust as needed)
+        PLAYER_FRAME_SPEED = 150  # Milliseconds per frame
         
         for direction, sprite_path in player_sprites.items():
-            full_path = os.path.join(TILES_PATH, sprite_path)
+            full_path = os.path.join(PLAYER_SPRITES_PATH, sprite_path)
             
             try:
                 if os.path.exists(full_path):
-                    sprite = pygame.image.load(full_path)
-                    scaled_sprite = pygame.transform.scale(sprite, (32, 32))
-                    self.character_sprites['player'][direction] = scaled_sprite
-                    print(f"✅ Player sprite loaded: {direction}")
+                    sprite_image = pygame.image.load(full_path)
+                    image_width = sprite_image.get_width()
+                    image_height = sprite_image.get_height()
+                    
+                    # Detect if this is a sprite sheet (width > height)
+                    if image_width > PLAYER_SPRITE_SIZE:
+                        # Sprite sheet detected - extract frames
+                        frame_count = image_width // PLAYER_SPRITE_SIZE
+                        frames = []
+                        
+                        for i in range(frame_count):
+                            frame_rect = pygame.Rect(i * PLAYER_SPRITE_SIZE, 0, PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE)
+                            frame = sprite_image.subsurface(frame_rect)
+                            
+                            # Preserve alpha channel
+                            if sprite_image.get_flags() & pygame.SRCALPHA:
+                                frame = frame.convert_alpha()
+                            else:
+                                frame = frame.convert()
+                            
+                            frames.append(frame)
+                        
+                        # Store animation data
+                        self.player_animations[direction] = {
+                            'frames': frames,
+                            'frame_count': frame_count,
+                            'current_frame': 0,
+                            'last_update': pygame.time.get_ticks(),
+                            'frame_speed': PLAYER_FRAME_SPEED
+                        }
+                        
+                        # Set default sprite to first frame
+                        self.character_sprites['player'][direction] = frames[0]
+                        print(f"✅ Player sprite sheet loaded: {direction} ({frame_count} frames)")
+                        
+                    else:
+                        # Single static sprite
+                        scaled_sprite = pygame.transform.scale(sprite_image, (PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE))
+                        self.character_sprites['player'][direction] = scaled_sprite
+                        print(f"✅ Player sprite loaded: {direction} (static)")
+                        
                 else:
                     self.character_sprites['player'][direction] = self.create_player_fallback(direction)
                     print(f"🔴 Using red arrow for player: {direction}")
@@ -355,6 +398,35 @@ class TileGraphicsManager:
                 print(f"⚠️ Error loading NPC sprite {npc_type}: {e}")
                 self.character_sprites['npcs'][npc_type] = self.create_npc_fallback(npc_type)
 
+    def update_player_animation(self, direction, is_moving=False):
+        """
+        Update player animation for the given direction
+        
+        Args:
+            direction: Player's current facing direction ('up', 'down', 'left', 'right')
+            is_moving: Whether the player is currently moving (advances frames) or idle (shows first frame)
+        """
+        if direction not in self.player_animations:
+            return  # No animation data for this direction (using static sprite)
+        
+        anim_data = self.player_animations[direction]
+        current_time = pygame.time.get_ticks()
+        
+        if is_moving:
+            # Advance animation frames if enough time has passed
+            if current_time - anim_data['last_update'] > anim_data['frame_speed']:
+                anim_data['current_frame'] = (anim_data['current_frame'] + 1) % anim_data['frame_count']
+                anim_data['last_update'] = current_time
+                
+                # Update the displayed sprite
+                self.character_sprites['player'][direction] = anim_data['frames'][anim_data['current_frame']]
+        else:
+            # Player is idle - reset to first frame (idle pose)
+            anim_data['current_frame'] = 0
+            anim_data['last_update'] = current_time
+            self.character_sprites['player'][direction] = anim_data['frames'][0]
+
+    
     def load_region_map_tiles(self):
         """
         Load 16x16 region map tiles and scale for display
