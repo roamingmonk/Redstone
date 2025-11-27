@@ -32,6 +32,7 @@ class DungeonLevel2Nav:
 
     def __init__(self):
         config = {
+            'player_sprite_size': 64,
             'map_width': DUNGEON_L2_WIDTH,
             'map_height': DUNGEON_L2_HEIGHT,
             'location_id': 'dungeon_level_2',

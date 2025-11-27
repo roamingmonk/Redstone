@@ -26,6 +26,7 @@ _swamp_church_interior_nav_instance = None
 class SwampChurchInteriorNav:
     def __init__(self):
         config = {
+            'player_sprite_size': 64,
             'map_width': SWAMP_CHURCH_INT_WIDTH,
             'map_height': SWAMP_CHURCH_INT_HEIGHT,
             'map_functions': {

@@ -75,6 +75,7 @@ class NavigationRenderer:
         self.last_move_time = 0
         self.keys_pressed_last_frame = set()
         self.player_direction = config.get('spawn_direction', 'down')
+        self.player_sprite_size = config.get('player_sprite_size', 32) 
         self.player_is_moving = False
 
         # Enter key debouncing
@@ -124,7 +125,7 @@ class NavigationRenderer:
     def handle_movement(self, keys, player_x, player_y):
         """Handle movement input with turn-then-move mechanics and timing"""
         self.player_is_moving = False
-        
+
         current_time = pygame.time.get_ticks()
         keys_pressed_this_frame = set()
         new_x, new_y = player_x, player_y
@@ -272,9 +273,13 @@ class NavigationRenderer:
             # Get player sprite from shared graphics manager
             player_sprite = self.graphics_manager.get_player_sprite(self.player_direction)
             
-            # Center 32x32 sprite on 64x64 tile
-            sprite_x = player_screen_x + (self.tile_size - 32) // 2
-            sprite_y = player_screen_y + (self.tile_size - 32) // 2
+            # Scale sprite if needed (2x for 64x64, 1x for 32x32, etc.)
+            if self.player_sprite_size != 32:
+                player_sprite = pygame.transform.scale(player_sprite, (self.player_sprite_size, self.player_sprite_size))
+
+            # Center sprite on tile
+            sprite_x = player_screen_x + (self.tile_size - self.player_sprite_size) // 2
+            sprite_y = player_screen_y + (self.tile_size - self.player_sprite_size) // 2
             
             # Draw player sprite
             surface.blit(player_sprite, (sprite_x, sprite_y))

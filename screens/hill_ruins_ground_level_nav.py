@@ -29,6 +29,7 @@ class HillRuinsGroundLevelNav:
     def __init__(self):
         # Configure NavigationRenderer with map functions
         config = {
+            'player_sprite_size': 64,
             'map_width': HILL_RUINS_GL_WIDTH,
             'map_height': HILL_RUINS_GL_HEIGHT,
             'location_id': 'hill_ruins_ground_level',

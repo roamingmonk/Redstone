@@ -20,6 +20,7 @@ class BrokenBladeNav:
     def __init__(self):
         # Configure NavigationRenderer with map functions
         config = {
+            'player_sprite_size': 64,
             'map_width': BROKEN_BLADE_WIDTH,
             'map_height': BROKEN_BLADE_HEIGHT,
             'location_id': 'broken_blade_tavern',
