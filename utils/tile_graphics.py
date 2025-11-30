@@ -307,7 +307,7 @@ class TileGraphicsManager:
     
     def load_character_sprites(self):
         """Load character sprites for all tile systems (supports both static and animated sprite sheets)"""
-
+        from utils.constants import PLAYER_SPRITES_PATH
         
         # Player sprites (universal)
         player_sprites = {
@@ -321,9 +321,8 @@ class TileGraphicsManager:
         self.player_animations = {}  # Store animation data for sprite sheets
         
         # Configuration for sprite sheet animations
-        PLAYER_SPRITE_SIZE = 32  # Each frame is 32x32
-        PLAYER_FRAME_COUNT = 4   # Number of frames per direction (adjust as needed)
-        PLAYER_FRAME_SPEED = 150  # Milliseconds per frame
+        PLAYER_SPRITE_SIZE = 32   # Each frame is 32x32
+        PLAYER_FRAME_SPEED = 100  # Milliseconds per frame
         
         for direction, sprite_path in player_sprites.items():
             full_path = os.path.join(PLAYER_SPRITES_PATH, sprite_path)
@@ -398,35 +397,36 @@ class TileGraphicsManager:
                 print(f"⚠️ Error loading NPC sprite {npc_type}: {e}")
                 self.character_sprites['npcs'][npc_type] = self.create_npc_fallback(npc_type)
 
+    
     def update_player_animation(self, direction, is_moving=False):
-        """
-        Update player animation for the given direction
+        """Update player animation for the given direction"""
         
-        Args:
-            direction: Player's current facing direction ('up', 'down', 'left', 'right')
-            is_moving: Whether the player is currently moving (advances frames) or idle (shows first frame)
-        """
+        
         if direction not in self.player_animations:
-            return  # No animation data for this direction (using static sprite)
+            print(f"⚠️ No animation data for {direction}")  # DEBUG
+            return
         
         anim_data = self.player_animations[direction]
         current_time = pygame.time.get_ticks()
         
         if is_moving:
-            # Advance animation frames if enough time has passed
+            #print(f"🏃 Player moving! Current frame: {anim_data['current_frame']}/{anim_data['frame_count']}")  # DEBUG
+            
             if current_time - anim_data['last_update'] > anim_data['frame_speed']:
                 anim_data['current_frame'] = (anim_data['current_frame'] + 1) % anim_data['frame_count']
                 anim_data['last_update'] = current_time
                 
+                #print(f"🎬 Frame updated to: {anim_data['current_frame']}")  # DEBUG
+                
                 # Update the displayed sprite
                 self.character_sprites['player'][direction] = anim_data['frames'][anim_data['current_frame']]
         else:
-            # Player is idle - reset to first frame (idle pose)
+            # Reset to idle
             anim_data['current_frame'] = 0
             anim_data['last_update'] = current_time
             self.character_sprites['player'][direction] = anim_data['frames'][0]
 
-    
+
     def load_region_map_tiles(self):
         """
         Load 16x16 region map tiles and scale for display

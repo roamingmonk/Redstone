@@ -124,9 +124,8 @@ class NavigationRenderer:
     
     def handle_movement(self, keys, player_x, player_y):
         """Handle movement input with turn-then-move mechanics and timing"""
-        self.player_is_moving = False
-
         current_time = pygame.time.get_ticks()
+
         keys_pressed_this_frame = set()
         new_x, new_y = player_x, player_y
         intended_direction = None
@@ -150,9 +149,10 @@ class NavigationRenderer:
             keys_pressed_this_frame.add('right')
             intended_direction = 'right'
             movement_attempted = True
-        
-        self.player_is_moving = False  # Reset at start of each frame
 
+        # Set is_moving based on whether movement keys are HELD
+        self.player_is_moving = movement_attempted 
+        
         # Process movement/turning with timing
         moved_or_turned = False
         if movement_attempted and (current_time - self.last_move_time >= self.move_delay):
@@ -181,11 +181,8 @@ class NavigationRenderer:
                         if self.map_functions['is_walkable'](new_x, new_y):
                             self.last_move_time = current_time
                             moved_or_turned = True
-                            self.player_is_moving = True 
-
-        if moved_or_turned:  # or wherever you confirm movement happened
-            self.player_is_moving = True    
-
+                            # REMOVE: self.player_is_moving = True (already set above)
+                        
         self.keys_pressed_last_frame = keys_pressed_this_frame
         
         if moved_or_turned:
@@ -266,7 +263,9 @@ class NavigationRenderer:
         player_screen_x = (player_x * self.tile_size) - self.camera_x
         player_screen_y = (player_y * self.tile_size) - self.camera_y
 
+        
         try:
+
             # Update player animation based on movement state
             self.graphics_manager.update_player_animation(self.player_direction, self.player_is_moving)
             
@@ -276,7 +275,7 @@ class NavigationRenderer:
             # Scale sprite if needed (2x for 64x64, 1x for 32x32, etc.)
             if self.player_sprite_size != 32:
                 player_sprite = pygame.transform.scale(player_sprite, (self.player_sprite_size, self.player_sprite_size))
-
+            
             # Center sprite on tile
             sprite_x = player_screen_x + (self.tile_size - self.player_sprite_size) // 2
             sprite_y = player_screen_y + (self.tile_size - self.player_sprite_size) // 2
@@ -286,6 +285,7 @@ class NavigationRenderer:
             
         except (AttributeError, TypeError) as e:
             # Fallback to red circle if sprite fails
+            print(f"❌ Error in draw_player: {e}")  # <-- ADD THIS
             pygame.draw.circle(
                 surface,
                 (255, 0, 0),
