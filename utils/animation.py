@@ -63,6 +63,11 @@ class SpriteAnimation:
             self.current_frame = (self.current_frame + 1) % self.frame_count
             self.last_update = current_time
     
+    def reset(self):
+        """Reset animation to first frame"""
+        self.current_frame = 0
+        self.last_update = time.time() * 1000
+        
     def get_current_frame(self):
         """Get the current animation frame"""
         return self.frames[self.current_frame]

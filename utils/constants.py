@@ -674,6 +674,12 @@ TITLE_ANIMATIONS = {
     'torch': 'assets/images/sprites/fire/torch_animation.png',  
     'star_twinkle': 'assets/images/sprites/landscape/star_twinkle_1.png' 
 }
+# Lightning background animations for title screen
+LIGHTNING_ANIMATIONS = {
+    'short': 'assets/images/sprites/lightning/lightning_short.png',
+    'medium': 'assets/images/sprites/lightning/lightning_medium.png',
+    'long': 'assets/images/sprites/lightning/lightning_long.png'
+}
 
 # Screen exclusion lists - centralized for maintainability
 # Overlay exclusion - screens where overlays should not appear

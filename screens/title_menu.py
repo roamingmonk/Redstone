@@ -4,7 +4,9 @@ Title Screen and Main Menu - Professional RPG start experience
 """
 
 import pygame
-from utils.constants import (WHITE, BLACK, YELLOW, DARK_GRAY, CYAN, GRAY, BROWN)
+import random
+import time
+from utils.constants import (WHITE, BLACK, YELLOW, DARK_GRAY, CYAN, GRAY, BROWN, LIGHTNING_ANIMATIONS)
 from utils.graphics import draw_border, draw_button, draw_centered_text
 from utils.animation import SpriteAnimation
 
@@ -197,6 +199,57 @@ def draw_main_menu(surface, game_state, fonts, images=None):
                 13, (32, 32), 80  # Even faster twinkle
             )
         }
+    
+    # 🆕 Initialize lightning animations if not already done
+    if not hasattr(game_state, 'lightning_animations'):
+        game_state.lightning_animations = {
+            'short': SpriteAnimation(
+                LIGHTNING_ANIMATIONS['short'],
+                8,  # frame count
+                (514, 400),
+                100  # 100ms per frame
+            ),
+            'medium': SpriteAnimation(
+                LIGHTNING_ANIMATIONS['medium'],
+                11,  # frame count
+                (514, 400),
+                100
+            ),
+            'long': SpriteAnimation(
+                LIGHTNING_ANIMATIONS['long'],
+                16,  # frame count
+                (514, 400),
+                100
+            )
+        }
+        game_state.lightning_current = None
+        game_state.lightning_next_strike = time.time() + random.uniform(1, 4)  # between 5 and 20 sec.
+    
+    # 🆕 Handle lightning timing and updates
+    current_time = time.time()
+    
+    # Check if it's time for a new strike
+    if game_state.lightning_current is None and current_time >= game_state.lightning_next_strike:
+        # Pick random lightning
+        game_state.lightning_current = random.choice(['short', 'medium', 'long'])
+        game_state.lightning_animations[game_state.lightning_current].reset()  # Start from frame 0
+    
+    # Update current lightning animation if playing
+    if game_state.lightning_current:
+        anim = game_state.lightning_animations[game_state.lightning_current]
+        anim.update()
+        
+        # Check if animation finished
+        if anim.current_frame >= anim.frame_count - 1:
+            game_state.lightning_current = None
+            game_state.lightning_next_strike = time.time() + random.uniform(1, 4)  # between 5 and 20 sec.
+    
+    # 🆕 Draw lightning (if playing) - BEFORE stars, title, buttons
+    if game_state.lightning_current:
+        anim = game_state.lightning_animations[game_state.lightning_current]
+        # Scale from 514x400 to 1024x768
+        lightning_frame = pygame.transform.scale(anim.frames[anim.current_frame], (1024, 768))
+        surface.blit(lightning_frame, (0, 0))
     
     # Update star animations
     for animation in game_state.menu_stars.values():

@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-11-23 17:50)
+﻿## Repository Structure (generated 2025-11-30 14:39)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -233,7 +233,17 @@ C:.
 |       |   +---landscape
 |       |   |       star_twinkle_1.png
 |       |   |       
+|       |   +---lightning
+|       |   |       lightning_long.png
+|       |   |       lightning_medium.png
+|       |   |       lightning_short.png
+|       |   |       
 |       |   +---player
+|       |   |       player_down.png
+|       |   |       player_left.png
+|       |   |       player_right.png
+|       |   |       player_up.png
+|       |   |       
 |       |   \---walls
 |       |           cellar_corner_ne.png
 |       |           cellar_corner_nw.png
@@ -420,6 +430,7 @@ C:.
 |   |       dungeon_level_5_vexthar.json
 |   |       hill_ruins_carved_stones.json
 |   |       hill_ruins_forcedoor.json
+|   |       hill_ruins_ground_level_rubble.json
 |   |       hill_ruins_lockeddoor.json
 |   |       hill_ruins_marcus.json
 |   |       hill_ruins_mechanisms.json
@@ -542,6 +553,7 @@ C:.
 |       Refugee_Camp_and_Red_Hollow_Mine_Implementation_Plan.md
 |       Repository_Structure.md
 |       Terror-in-redstone-narrative-summaryOct29.md
+|       Tiled-Map-Workflow-Guide.md
 |       
 +---game_logic
 |   |   character_engine.py
