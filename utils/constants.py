@@ -80,6 +80,14 @@ BUTTON_DISABLED_BG = DARK_GRAY
 BUTTON_DISABLED_BORDER = DARK_GRAY
 BUTTON_DISABLED_TEXT = VERY_DARK_GRAY
 
+# === OVERLAY STATUS BAR (Item Description Display) ===
+# Used by inventory and shopping overlays to show item details
+DARK_OAK_PANEL = (70, 50, 30) 
+OVERLAY_STATUS_BAR_HEIGHT = 55  # Height for 2-line item descriptions
+OVERLAY_STATUS_BAR_PADDING = 10  # Internal text padding
+OVERLAY_STATUS_BAR_BG = DARK_OAK_PANEL  # Dark oak panel (darker than WALNUT_BROWN)
+OVERLAY_STATUS_BAR_FONT_KEY = 'fantasy_tiny'  # Smallest readable font
+
 # === IMAGE LOADING CONFIGURATION ===
 # Standardized image dimensions (makes resizing consistent)
 IMAGE_STANDARD_WIDTH = 1024

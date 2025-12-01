@@ -16,8 +16,10 @@ from typing import List, Dict, Any, Optional, Tuple
 from utils.overlay_utils import draw_tab_button, draw_chunky_border
 from utils.constants import (SPACING, 
                              DARK_GRAY, BRIGHT_GREEN, GRAY, WALNUT_BROWN,
-                             WHITE)
-from utils.graphics import draw_centered_text
+                             WHITE, OVERLAY_STATUS_BAR_HEIGHT, OVERLAY_STATUS_BAR_PADDING, 
+                                OVERLAY_STATUS_BAR_BG, OVERLAY_STATUS_BAR_FONT_KEY,
+                                wrap_text)
+from utils.graphics import draw_centered_text, draw_text
 
 # ========================================
 # STANDARD OVERLAY BUTTON ACTIONS
@@ -76,6 +78,7 @@ class BaseTabbedOverlay:
         self.header_height = 60
         self.tab_bar_height = 40
         self.footer_height = 50
+        self.status_bar_height = 0
         self.margin = 20
         
         # Tab bar layout
@@ -242,7 +245,8 @@ class BaseTabbedOverlay:
         content_x = popup_x + SPACING['margin']  # 20px margin
         content_y = popup_y + 60  # Space for title and tab area  
         content_width = popup_width - (2 * SPACING['margin'])  # 40px total margin
-        content_height = popup_height - 95  # Space for title, tab, and footer
+        content_height = popup_height - 95 - self.status_bar_height - 10  # Reserve space for status bar + spacing
+        
 
         self.content_rect = pygame.Rect(content_x, content_y, content_width, content_height)
         
@@ -326,17 +330,67 @@ class BaseTabbedOverlay:
             draw_centered_text(surface, error_text, error_font, 
                              self.content_rect.centery, WHITE, self.popup_width)
     
+    
+    def _render_status_bar(self, surface: pygame.Surface, fonts: Dict, 
+                          description_text: str, status_bar_y: int):
+        """
+        Render item description status bar (2 lines max with truncation)
+        Called by subclasses when they have item description to show
+        
+        Args:
+            surface: pygame.Surface to draw on
+            fonts: Font dictionary
+            description_text: String to display (will be wrapped/truncated)
+            status_bar_y: Y position where status bar should be drawn
+        """
+
+        
+        # Don't render if no text
+        if not description_text or description_text.strip() == "":
+            return
+        
+        # Use content_rect for width and X position (matches the light brown box)
+        status_bar_rect = pygame.Rect(self.content_rect.x, status_bar_y, 
+                                      self.content_rect.width, OVERLAY_STATUS_BAR_HEIGHT)
+        
+        # Draw background with border
+        pygame.draw.rect(surface, OVERLAY_STATUS_BAR_BG, status_bar_rect)
+        pygame.draw.rect(surface, WHITE, status_bar_rect, 2)  # White border
+        
+        # Render text with wrapping
+        desc_font = fonts.get(OVERLAY_STATUS_BAR_FONT_KEY, fonts.get('fantasy_tiny', fonts['small']))
+        max_width = status_bar_rect.width - 2 * OVERLAY_STATUS_BAR_PADDING
+        
+        # Wrap text to fit width
+        wrapped_lines = wrap_text(description_text, desc_font, max_width, WHITE)
+        
+        # Limit to 2 lines - if more, truncate with "..."
+        if len(wrapped_lines) > 2:
+            # Get the first ~150 characters and re-wrap to ensure "..." fits
+            truncated_text = description_text[:150].rstrip() + "..."
+            wrapped_lines = wrap_text(truncated_text, desc_font, max_width, WHITE)
+            
+            # Safety check - still take only first 2 lines
+            wrapped_lines = wrapped_lines[:2]
+        
+        # Draw the lines
+        text_y = status_bar_y + OVERLAY_STATUS_BAR_PADDING
+        line_spacing = 20  # Spacing between lines (gives us ~50px total for 2 lines)
+        
+        for i, line_surface in enumerate(wrapped_lines[:2]):  # Safety: max 2 lines
+            surface.blit(line_surface, (status_bar_rect.x + OVERLAY_STATUS_BAR_PADDING, 
+                                       text_y + i * line_spacing))
+
+    
     def _render_footer(self, surface: pygame.Surface, fonts: Dict, popup_x: int, popup_y: int, popup_width: int):
         """Render footer with instructions"""
-        #footer_font = fonts.get('fantasy_small', fonts.get('small', fonts['normal']))
         footer_font = fonts.get('help_text', fonts['small'])
         
         # Build instruction text based on available tabs
         instructions = []
         if len(self.tabs) > 1:
             instructions.append("N/P: Page up/down")
-            instructions.append("1-9: Select Tab")
-            #instructions.append("← →: Navigate")  # arrows do not render
+            instructions.append("1-9: Select Tab")           
         instructions.append("ESC: Close")
         
         instruction_text = " | ".join(instructions)

@@ -5,8 +5,8 @@ Converted to Universal Overlay System using BaseTabbedOverlay
 
 import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay
-from utils.constants import (WHITE, BRIGHT_GREEN, LIGHT_BROWN, YELLOW, BLACK,
-                             SPACING, CORNFLOWER_BLUE, BUTTON_SIZES)
+from utils.constants import (WHITE, BRIGHT_GREEN, LIGHT_BROWN, YELLOW, BLACK, WALNUT_BROWN,
+                             SPACING, CORNFLOWER_BLUE, BUTTON_SIZES, OVERLAY_STATUS_BAR_HEIGHT)
 from utils.graphics import draw_centered_text, draw_text
 from utils.overlay_utils import (
     draw_popup_background, draw_chunky_border, draw_tab_button,
@@ -17,6 +17,7 @@ from utils.party_display import draw_party_portrait, draw_empty_portrait_slot, l
 class InventoryOverlay(BaseTabbedOverlay):
     def __init__(self, screen_manager=None, item_manager=None):
         super().__init__("inventory_key", "INVENTORY", screen_manager)
+        self.status_bar_height = 0
         self.item_manager = item_manager
         # Add 4 tabs for inventory categories
         self.add_tab("weapons", "WEAPONS", hotkey=pygame.K_1)
@@ -72,14 +73,14 @@ class InventoryOverlay(BaseTabbedOverlay):
         # Calculate content area using constants
         content_rect = self.get_content_area_rect()
         content_x = content_rect.x + SPACING['margin']
-        content_y = content_rect.y + 60  # Leave room for title
+        content_y = content_rect.y + 20 # removed title (60) 
         content_width = content_rect.width - (2 * SPACING['margin'])
-        content_height = content_rect.height - 140  # Leave room for title and buttons
+        content_height = content_rect.height - 80  # Leave room for title and buttons 
         
         # Draw title
         title_y = content_rect.y + 30
-        draw_centered_text(surface, f"{character_name}'s Inventory", 
-                          fonts.get('fantasy_large', fonts['header']), title_y, BRIGHT_GREEN, 1024)
+        # draw_centered_text(surface, f"{character_name}'s Inventory", 
+        #                   fonts.get('fantasy_large', fonts['header']), title_y, BRIGHT_GREEN, 1024)
         
         # Fill content area with light brown background
         active_tab_color = LIGHT_BROWN
@@ -92,7 +93,7 @@ class InventoryOverlay(BaseTabbedOverlay):
         # Draw party panel ONLY on consumables tab (must be after border, before table)
         if current_tab == "consumables":
             panel_x = content_x + content_width - 80  # 80px from right edge
-            panel_y = content_y + 10
+            panel_y = content_y + 10    #OG
             self.party_portrait_rects = draw_compact_party_panel(
                 surface, game_state, panel_x, panel_y, 
                 portrait_size= 70, selected_member=self.selected_party_member
@@ -136,11 +137,26 @@ class InventoryOverlay(BaseTabbedOverlay):
         player_gold = game_state.character.get('gold', 0)
         
         draw_text(surface, f"Gold: {player_gold} gp",
-                          fonts.get('fantasy_small', fonts['normal']), 670, 580, BRIGHT_GREEN)
+                          fonts.get('fantasy_small', fonts['normal']), 670, 580, BRIGHT_GREEN)   #here og 670,580 ---120,630 (x, y)
 
-        # Draw action buttons
+        
+        # Calculate positioning for status bar and buttons        
+        status_bar_y =  content_height + content_y - OVERLAY_STATUS_BAR_HEIGHT  # 10px gap after content
+    
+        
+        # Render item description status bar if item is selected
+        selected_item = getattr(game_state, 'inventory_selected', None)
+        if selected_item and hasattr(self, 'item_manager') and self.item_manager:
+            try:
+                full_desc = self.item_manager.get_item_full_description(selected_item)
+                # Call parent's status bar renderer with explicit Y position
+                self._render_status_bar(surface, fonts, full_desc, status_bar_y)
+            except Exception as e:
+                print(f"⚠️ Error rendering status bar: {e}")
+        
+        # Draw action buttons BELOW status bar
         self._render_action_buttons(surface, game_state, fonts, current_tab, 
-                                   content_x, content_y + content_height + 10, content_width)
+                                   content_x, content_y + content_height + 10, content_width)   # OG no addition to y(button_y-5,)
     
     def _draw_table_headers(self, surface, fonts, table_x, table_y, current_tab):
         """Draw table column headers"""
@@ -284,7 +300,7 @@ class InventoryOverlay(BaseTabbedOverlay):
         
         # PAGINATION DISPLAY:
         if total_pages > 1:
-            page_y = item_y + (self.items_per_page * row_height) 
+            page_y = item_y + (self.items_per_page * row_height) - 10 # og no additional amount (-10)
             page_text = f"Page {current_page + 1} of {total_pages}"
             
             # position on right side of tab
@@ -292,14 +308,6 @@ class InventoryOverlay(BaseTabbedOverlay):
             page_surface = page_font.render(page_text, True, YELLOW)
             page_x = 800 
             surface.blit(page_surface, (page_x, page_y))
-            
-            # Navigation hint
-            hint_y = page_y + 5 #was 25
-            hint_text = "UP/DOWN or P/N to navigate pages"
-            hint_font = fonts.get('fantasy_tiny', fonts['small'])
-            hint_surface = hint_font.render(hint_text, True, WHITE)
-            hint_x = table_x + (table_width - hint_surface.get_width()) // 2
-            surface.blit(hint_surface, (hint_x, hint_y))
     
     def _render_action_buttons(self, surface, game_state, fonts, current_tab, 
                               content_x, button_y, content_width):
@@ -534,6 +542,15 @@ class InventoryOverlay(BaseTabbedOverlay):
         # Clear selection when closing
         game_state.inventory_selected = None
         print("🎒 Inventory overlay closed")
+
+    def on_tab_changed(self, old_index: int, new_index: int):
+        """Clear selection when switching tabs to reset status bar"""
+        # Access game_state through screen_manager if available
+        if hasattr(self, 'screen_manager') and self.screen_manager:
+            if hasattr(self.screen_manager, '_current_game_state'):
+                game_state = self.screen_manager._current_game_state
+                game_state.inventory_selected = None
+                print(f"🔄 Tab changed from {old_index} to {new_index}: Cleared selection")
 
 
 # Global instance management

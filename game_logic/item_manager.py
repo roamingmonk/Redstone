@@ -166,6 +166,105 @@ class ItemLoader:
         item = self.get_item_by_id(item_id)
         return item.get('description', '') if item else ''
 
+    def get_item_full_description(self, item_id, max_width=None, font=None):
+        """
+        Build complete item description from JSON data with all effect details
+        
+        Args:
+            item_id: Item identifier string
+            max_width: Maximum pixel width for wrapping (optional)
+            font: pygame.Font object for wrapping (optional)
+        
+        Returns:
+            String with combined description (if no wrapping requested) OR
+            List of wrapped pygame.Surface objects (if max_width and font provided)
+        """
+        item_data = self.get_item_by_id(item_id)
+        if not item_data:
+            return "Unknown item" if not (max_width and font) else []
+        
+        parts = []
+        
+        # 1. Main description (always present)
+        if 'description' in item_data:
+            parts.append(item_data['description'])
+        
+        # 2. Combat stats description (check for manual, fallback to auto-generate)
+        if 'combat_stats' in item_data:
+            combat_stats = item_data['combat_stats']
+            
+            # Check if manual description exists
+            if 'description' in combat_stats:
+                parts.append(combat_stats['description'])
+            else:
+                # Auto-generate from stats
+                auto_desc = self._generate_combat_description(combat_stats)
+                if auto_desc:
+                    parts.append(auto_desc)
+        
+        # 3. Consumable effects description
+        if 'consumable_effects' in item_data:
+            if 'description' in item_data['consumable_effects']:
+                parts.append(item_data['consumable_effects']['description'])
+        
+        # 4. Special effects description
+        if 'special_effects' in item_data:
+            if 'description' in item_data['special_effects']:
+                parts.append(item_data['special_effects']['description'])
+        
+        full_description = " ".join(parts)
+        
+        # If wrapping requested, use wrap_text utility
+        if max_width and font:
+            from utils.constants import wrap_text, WHITE
+            return wrap_text(full_description, font, max_width, WHITE)
+        
+        return full_description
+
+    def _generate_combat_description(self, combat_stats):
+        """
+        Auto-generate combat description from stats
+        
+        Args:
+            combat_stats: Dictionary of combat stat data
+        
+        Returns:
+            String with formatted combat info or None if no meaningful data
+        """
+        parts = []
+        
+        # Weapons: damage information
+        if 'damage_dice' in combat_stats:
+            dmg = combat_stats['damage_dice']
+            dmg_type = combat_stats.get('damage_type', 'damage')
+            parts.append(f"Deals {dmg} {dmg_type}")
+            
+            # Add attack bonus if present
+            attack_bonus = combat_stats.get('attack_bonus', 0)
+            if attack_bonus != 0:
+                sign = '+' if attack_bonus > 0 else ''
+                parts.append(f"{sign}{attack_bonus} to hit")
+        
+        # Armor: AC information
+        if 'armor_class' in combat_stats:
+            ac = combat_stats['armor_class']
+            armor_type = combat_stats.get('armor_type', '')
+            if armor_type:
+                parts.append(f"AC {ac} ({armor_type})")
+            else:
+                parts.append(f"AC {ac}")
+        
+        # Properties (versatile, heavy, finesse, etc.)
+        if 'weapon_properties' in combat_stats:
+            props = combat_stats['weapon_properties']
+            if props and len(props) > 0:
+                # Filter out technical properties, keep flavor ones
+                display_props = [p for p in props if p not in ['ammunition', 'loading']]
+                if display_props:
+                    parts.append(f"[{', '.join(display_props)}]")
+        
+        return ". ".join(parts) + "." if parts else None
+
     def get_item_price(self, item_id, merchant=None, merchant_modifier: float = 1.0) -> int:
         """
         Calculate final price with optional merchant context.
