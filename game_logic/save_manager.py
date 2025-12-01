@@ -74,6 +74,50 @@ class SaveManager:
                 'town_player_x': getattr(self.game_state, 'town_player_x', None),
                 'town_player_y': getattr(self.game_state, 'town_player_y', None),
 
+                # Broken Blade Tavern position
+                'tavern_x': getattr(self.game_state, 'tavern_x', None),
+                'tavern_y': getattr(self.game_state, 'tavern_y', None),
+
+                # Red Hollow Mine positions
+                'mine_pre_x': getattr(self.game_state, 'mine_pre_x', None),
+                'mine_pre_y': getattr(self.game_state, 'mine_pre_y', None),
+                'mine_l1_x': getattr(self.game_state, 'mine_l1_x', None),
+                'mine_l1_y': getattr(self.game_state, 'mine_l1_y', None),
+                'mine_l2_x': getattr(self.game_state, 'mine_l2_x', None),
+                'mine_l2_y': getattr(self.game_state, 'mine_l2_y', None),
+                'mine_l2b_x': getattr(self.game_state, 'mine_l2b_x', None),
+                'mine_l2b_y': getattr(self.game_state, 'mine_l2b_y', None),
+                'mine_l3_x': getattr(self.game_state, 'mine_l3_x', None),
+                'mine_l3_y': getattr(self.game_state, 'mine_l3_y', None),
+
+                # Dungeon positions
+                'dungeon_l1_x': getattr(self.game_state, 'dungeon_l1_x', None),
+                'dungeon_l1_y': getattr(self.game_state, 'dungeon_l1_y', None),
+                'dungeon_l2_x': getattr(self.game_state, 'dungeon_l2_x', None),
+                'dungeon_l2_y': getattr(self.game_state, 'dungeon_l2_y', None),
+                'dungeon_l3_x': getattr(self.game_state, 'dungeon_l3_x', None),
+                'dungeon_l3_y': getattr(self.game_state, 'dungeon_l3_y', None),
+                'dungeon_l4_x': getattr(self.game_state, 'dungeon_l4_x', None),
+                'dungeon_l4_y': getattr(self.game_state, 'dungeon_l4_y', None),
+                'dungeon_l5_x': getattr(self.game_state, 'dungeon_l5_x', None),
+                'dungeon_l5_y': getattr(self.game_state, 'dungeon_l5_y', None),
+
+                # Swamp Church positions
+                'swamp_church_ext_x': getattr(self.game_state, 'swamp_church_ext_x', None),
+                'swamp_church_ext_y': getattr(self.game_state, 'swamp_church_ext_y', None),
+                'swamp_church_int_x': getattr(self.game_state, 'swamp_church_int_x', None),
+                'swamp_church_int_y': getattr(self.game_state, 'swamp_church_int_y', None),
+
+                # Hill Ruins positions
+                'hill_ruins_entrance_x': getattr(self.game_state, 'hill_ruins_entrance_x', None),
+                'hill_ruins_entrance_y': getattr(self.game_state, 'hill_ruins_entrance_y', None),
+                'hill_ruins_ground_level_x': getattr(self.game_state, 'hill_ruins_ground_level_x', None),
+                'hill_ruins_ground_level_y': getattr(self.game_state, 'hill_ruins_ground_level_y', None),
+
+                # Refugee Camp position
+                'refugee_camp_x': getattr(self.game_state, 'refugee_camp_x', None),
+                'refugee_camp_y': getattr(self.game_state, 'refugee_camp_y', None),
+
                 # Game progression
                 'current_screen': self.game_state.screen,
                 'screen_history': [],  # Screen history not tracked by SaveManager
@@ -291,6 +335,89 @@ class SaveManager:
                 self.game_state.town_player_x = save_data.get('town_player_x')
                 self.game_state.town_player_y = save_data.get('town_player_y')
                 print(f"📍 Town position restored: ({self.game_state.town_player_x}, {self.game_state.town_player_y})")
+
+            # Town position restoration 
+            if save_data.get('town_player_x') is not None:
+                self.game_state.town_player_x = save_data.get('town_player_x')
+                self.game_state.town_player_y = save_data.get('town_player_y')
+                print(f"📍 Town position restored: ({self.game_state.town_player_x}, {self.game_state.town_player_y})")
+
+            # Broken Blade Tavern position restoration
+            if save_data.get('tavern_x') is not None:
+                self.game_state.tavern_x = save_data.get('tavern_x')
+                self.game_state.tavern_y = save_data.get('tavern_y')
+                print(f"📍 Tavern position restored: ({self.game_state.tavern_x}, {self.game_state.tavern_y})")
+
+            # Red Hollow Mine position restoration
+            if save_data.get('mine_pre_x') is not None:
+                self.game_state.mine_pre_x = save_data.get('mine_pre_x')
+                self.game_state.mine_pre_y = save_data.get('mine_pre_y')
+                print(f"📍 Mine Pre-entrance position restored: ({self.game_state.mine_pre_x}, {self.game_state.mine_pre_y})")
+            if save_data.get('mine_l1_x') is not None:
+                self.game_state.mine_l1_x = save_data.get('mine_l1_x')
+                self.game_state.mine_l1_y = save_data.get('mine_l1_y')
+                print(f"📍 Mine Level 1 position restored: ({self.game_state.mine_l1_x}, {self.game_state.mine_l1_y})")
+            if save_data.get('mine_l2_x') is not None:
+                self.game_state.mine_l2_x = save_data.get('mine_l2_x')
+                self.game_state.mine_l2_y = save_data.get('mine_l2_y')
+                print(f"📍 Mine Level 2 position restored: ({self.game_state.mine_l2_x}, {self.game_state.mine_l2_y})")
+            if save_data.get('mine_l2b_x') is not None:
+                self.game_state.mine_l2b_x = save_data.get('mine_l2b_x')
+                self.game_state.mine_l2b_y = save_data.get('mine_l2b_y')
+                print(f"📍 Mine Level 2B position restored: ({self.game_state.mine_l2b_x}, {self.game_state.mine_l2b_y})")
+            if save_data.get('mine_l3_x') is not None:
+                self.game_state.mine_l3_x = save_data.get('mine_l3_x')
+                self.game_state.mine_l3_y = save_data.get('mine_l3_y')
+                print(f"📍 Mine Level 3 position restored: ({self.game_state.mine_l3_x}, {self.game_state.mine_l3_y})")
+
+            # Dungeon position restoration
+            if save_data.get('dungeon_l1_x') is not None:
+                self.game_state.dungeon_l1_x = save_data.get('dungeon_l1_x')
+                self.game_state.dungeon_l1_y = save_data.get('dungeon_l1_y')
+                print(f"📍 Dungeon Level 1 position restored: ({self.game_state.dungeon_l1_x}, {self.game_state.dungeon_l1_y})")
+            if save_data.get('dungeon_l2_x') is not None:
+                self.game_state.dungeon_l2_x = save_data.get('dungeon_l2_x')
+                self.game_state.dungeon_l2_y = save_data.get('dungeon_l2_y')
+                print(f"📍 Dungeon Level 2 position restored: ({self.game_state.dungeon_l2_x}, {self.game_state.dungeon_l2_y})")
+            if save_data.get('dungeon_l3_x') is not None:
+                self.game_state.dungeon_l3_x = save_data.get('dungeon_l3_x')
+                self.game_state.dungeon_l3_y = save_data.get('dungeon_l3_y')
+                print(f"📍 Dungeon Level 3 position restored: ({self.game_state.dungeon_l3_x}, {self.game_state.dungeon_l3_y})")
+            if save_data.get('dungeon_l4_x') is not None:
+                self.game_state.dungeon_l4_x = save_data.get('dungeon_l4_x')
+                self.game_state.dungeon_l4_y = save_data.get('dungeon_l4_y')
+                print(f"📍 Dungeon Level 4 position restored: ({self.game_state.dungeon_l4_x}, {self.game_state.dungeon_l4_y})")
+            if save_data.get('dungeon_l5_x') is not None:
+                self.game_state.dungeon_l5_x = save_data.get('dungeon_l5_x')
+                self.game_state.dungeon_l5_y = save_data.get('dungeon_l5_y')
+                print(f"📍 Dungeon Level 5 position restored: ({self.game_state.dungeon_l5_x}, {self.game_state.dungeon_l5_y})")
+
+            # Swamp Church position restoration
+            if save_data.get('swamp_church_ext_x') is not None:
+                self.game_state.swamp_church_ext_x = save_data.get('swamp_church_ext_x')
+                self.game_state.swamp_church_ext_y = save_data.get('swamp_church_ext_y')
+                print(f"📍 Swamp Church Exterior position restored: ({self.game_state.swamp_church_ext_x}, {self.game_state.swamp_church_ext_y})")
+            if save_data.get('swamp_church_int_x') is not None:
+                self.game_state.swamp_church_int_x = save_data.get('swamp_church_int_x')
+                self.game_state.swamp_church_int_y = save_data.get('swamp_church_int_y')
+                print(f"📍 Swamp Church Interior position restored: ({self.game_state.swamp_church_int_x}, {self.game_state.swamp_church_int_y})")
+
+            # Hill Ruins position restoration
+            if save_data.get('hill_ruins_entrance_x') is not None:
+                self.game_state.hill_ruins_entrance_x = save_data.get('hill_ruins_entrance_x')
+                self.game_state.hill_ruins_entrance_y = save_data.get('hill_ruins_entrance_y')
+                print(f"📍 Hill Ruins Entrance position restored: ({self.game_state.hill_ruins_entrance_x}, {self.game_state.hill_ruins_entrance_y})")
+            if save_data.get('hill_ruins_ground_level_x') is not None:
+                self.game_state.hill_ruins_ground_level_x = save_data.get('hill_ruins_ground_level_x')
+                self.game_state.hill_ruins_ground_level_y = save_data.get('hill_ruins_ground_level_y')
+                print(f"📍 Hill Ruins Ground Level position restored: ({self.game_state.hill_ruins_ground_level_x}, {self.game_state.hill_ruins_ground_level_y})")
+
+            # Refugee Camp position restoration
+            if save_data.get('refugee_camp_x') is not None:
+                self.game_state.refugee_camp_x = save_data.get('refugee_camp_x')
+                self.game_state.refugee_camp_y = save_data.get('refugee_camp_y')
+                print(f"📍 Refugee Camp position restored: ({self.game_state.refugee_camp_x}, {self.game_state.refugee_camp_y})")
+
 
             if 'npcs_encountered' in save_data:
                 self.game_state.npcs_encountered = set(save_data['npcs_encountered'])  # Convert list back to set
