@@ -1576,6 +1576,12 @@ def register_combat_system_events(event_manager, game_controller):
         print("🔙 COMBAT_BACK EVENT HANDLER CALLED!")
         
         if game_controller:
+            # IMPORTANT: Close combat_loot overlay if it's open
+            if hasattr(game_controller.game_state, 'overlay_state'):
+                if game_controller.game_state.overlay_state.is_open('combat_loot'):
+                    print("🚪 Closing combat_loot overlay before exiting combat")
+                    game_controller.game_state.overlay_state.close_overlay()
+            
             # CRITICAL: Clean up combat state so next combat starts fresh
             # NOTE: game_controller here is actually the CombatEngine!
             game_controller.cleanup_combat()  # ← REMOVED .combat_engine
@@ -1586,13 +1592,17 @@ def register_combat_system_events(event_manager, game_controller):
             if hasattr(game_controller.game_state, 'combat_context'):
                 game_controller.game_state.combat_context = None
             
+            # Clear combat loot data
+            if hasattr(game_controller.game_state, 'combat_loot_data'):
+                game_controller.game_state.combat_loot_data = None
+            
             # Return to previous screen
             if hasattr(game_controller.game_state, 'previous_screen') and game_controller.game_state.previous_screen:
                 game_controller.game_state.screen = game_controller.game_state.previous_screen
             else:
                 game_controller.game_state.screen = "redstone_town"
             
-            print(f"Returning to: {game_controller.game_state.screen}")
+            print(f"✅ Returning to: {game_controller.game_state.screen}")
 
     def handle_spell_select(event_data):
         """Handle clicking on a specific spell"""

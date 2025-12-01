@@ -1976,9 +1976,17 @@ class ScreenManager:
                     return
                     
         elif game_state.screen in OVERLAY_RESTRICTED_SCREENS:
-            # All other restricted screens: Block ALL overlays
+            # Special exception: Allow combat_loot overlay on combat screen (post-victory)
+            if hasattr(game_state, 'overlay_state'):
+                active_overlay_id = game_state.overlay_state.get_active_overlay()
+                if active_overlay_id == 'combat_loot' and game_state.screen == 'combat':
+                    # Allow combat_loot to render on combat screen
+                    draw_combat_loot_screen(self.screen, game_state, self.fonts, self.images)
+                    return
+            
+            # All other restricted screens: Block ALL other overlays
             return
-        
+                
        # Get active overlay from unified state
         if hasattr(game_state, 'overlay_state'):
             active_overlay_id = game_state.overlay_state.get_active_overlay()

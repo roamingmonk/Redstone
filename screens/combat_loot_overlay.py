@@ -126,14 +126,22 @@ class CombatLootOverlay(BaseTabbedOverlay):
         leave_text = button_font.render("Leave All", True, WHITE)
         surface.blit(leave_text, leave_text.get_rect(center=self.leave_button.center))
     
-    def handle_mouse_click(self, mouse_pos):
+    def handle_mouse_click(self, mouse_pos, game_state=None):
         """Handle mouse clicks on loot overlay"""
         # Check parent class for tab clicks first
         if super().handle_mouse_click(mouse_pos):
             return True
         
-        game_state = self.screen_manager._current_game_state if self.screen_manager else None
+        # Get game_state from parameter first, then try screen_manager
+        if game_state is None:
+            if self.screen_manager and hasattr(self.screen_manager, '_current_game_state'):
+                game_state = self.screen_manager._current_game_state
+            else:
+                print("⚠️ CombatLootOverlay: No game_state available for click handling!")
+                return False
+        
         if not game_state:
+            print("⚠️ CombatLootOverlay: game_state is None!")
             return False
         
         # Item checkboxes
@@ -149,14 +157,17 @@ class CombatLootOverlay(BaseTabbedOverlay):
         
         # Bottom buttons
         if hasattr(self, 'take_button') and self.take_button.collidepoint(mouse_pos):
+            print("✅ Take Selected button clicked")
             self._take_selected_items(game_state)
             return True
         
         if hasattr(self, 'take_all_button') and self.take_all_button.collidepoint(mouse_pos):
+            print("✅ Take All button clicked")
             self._take_all_items(game_state)
             return True
         
         if hasattr(self, 'leave_button') and self.leave_button.collidepoint(mouse_pos):
+            print("✅ Leave All button clicked")
             self._leave_all_items(game_state)
             return True
         

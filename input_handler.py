@@ -542,8 +542,18 @@ class InputHandler:
             for state_flag, overlay_instance in self.overlay_registry.items():
                 if overlay_instance.overlay_id == active_overlay_id:
                     try:
-                        # Try mouse click
-                        if overlay_instance.handle_mouse_click(mouse_pos):
+                        # Try mouse click - pass game_state if the method accepts it
+                        import inspect
+                        sig = inspect.signature(overlay_instance.handle_mouse_click)
+                        
+                        if 'game_state' in sig.parameters:
+                            # New pattern: pass game_state explicitly
+                            handled = overlay_instance.handle_mouse_click(mouse_pos, game_state=game_state)
+                        else:
+                            # Legacy pattern: no game_state parameter
+                            handled = overlay_instance.handle_mouse_click(mouse_pos)
+                        
+                        if handled:
                             if self.debug_input:
                                 print(f"✅ Overlay {active_overlay_id} handled mouse click")
                             return True
@@ -551,6 +561,7 @@ class InputHandler:
                     except Exception as e:
                         print(f"❌ Error in overlay {active_overlay_id} input handling: {e}")
                         
+                        import traceback
                         traceback.print_exc() 
                         break
         
