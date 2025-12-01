@@ -98,6 +98,7 @@ class HillRuinsGroundLevelNav:
                     if controller:
                         # Save current screen for return after combat
                         game_state.previous_screen = 'hill_ruins_ground_level_nav'
+                        game_state.pre_combat_location = 'hill_ruins_ground_level_nav'  
                         # Set combat encounter
                         game_state.current_combat_encounter = combat_trigger['encounter_id']
                         

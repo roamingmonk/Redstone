@@ -93,6 +93,7 @@ class SwampChurchExteriorNav:
                     if controller:
                         # Save current screen for return after combat
                         game_state.previous_screen = 'swamp_church_exterior_nav'
+                        game_state.pre_combat_location = 'swamp_church_exterior_nav' 
                         # Set combat encounter
                         game_state.current_combat_encounter = combat_trigger['encounter_id']
                         print(f"🎯 Starting combat encounter: {combat_trigger['encounter_id']}")

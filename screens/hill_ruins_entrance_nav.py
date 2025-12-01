@@ -104,6 +104,7 @@ class HillRuinsEntranceNav:
                     if controller:
                         # Save current screen for return after combat
                         game_state.previous_screen = 'hill_ruins_entrance_nav'
+                        game_state.pre_combat_location = 'hill_ruins_entrance_nav' 
                         # Set combat encounter
                         game_state.current_combat_encounter = combat_trigger['encounter_id']
                         print(f"🎯 Starting combat encounter: {combat_trigger['encounter_id']}")
