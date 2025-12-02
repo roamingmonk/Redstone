@@ -7,19 +7,13 @@ import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay, TabDefinition
 from collections import Counter
 from utils.graphics import draw_centered_text
-# from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, 
-#                            LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
-#                            LAYOUT_BUTTON_Y, LAYOUT_DIALOG_TEXT_Y, LAYOUT_BUTTON_CENTER_Y)
 from utils.constants import (CORNFLOWER_BLUE, BLACK, WHITE, CYAN, RED, WARNING_RED, SOFT_YELLOW,
-                             DARK_GRAY, DARKEST_GRAY, BRIGHT_GREEN, DARK_BROWN)
+                             DARK_GRAY, DARKEST_GRAY, BRIGHT_GREEN, DARK_BROWN, OVERLAY_STATUS_BAR_HEIGHT)
 from game_logic.item_manager import item_manager, get_rarity_level
 
 # trying to fix get_cart_total pull 
 from game_logic.commerce_engine import get_commerce_engine
 
-# Colors
-#BRIGHT_GREEN = (85, 255, 85)
-#DARK_BROWN = (101, 67, 33)
 
 # ==========================================
 # TABBED SHOPPING OVERLAY CLASS (NEW)
@@ -38,6 +32,8 @@ class ShoppingOverlay(BaseTabbedOverlay):
     def __init__(self, screen_manager=None):
         super().__init__("merchant_shop", "MERCHANT", screen_manager)
         
+        self.status_bar_height = 55 
+
         # Add 3 tabs - using keys B, S, I for tab switching
         self.add_tab("buy", "BUY")
         self.add_tab("sell", "SELL")
@@ -49,13 +45,29 @@ class ShoppingOverlay(BaseTabbedOverlay):
         self.items_per_page = 7
         #self.info_page = 0
 
+        # Hover Tracking
+        self.hovered_item_id = None 
+
+        # Track current merchant to detect changes
+        self.current_merchant_id = None
+
         # Click tracking
         self.merchant_item_rects = []
         self.sell_item_rects = []
         self.button_rects = {}
+
         # Sell cart tracking (separate from buy cart)
         self.sell_cart = {}  # {item_name: quantity}
         self.sell_cart_total = 0
+    
+    def on_overlay_opened(self, game_state):
+        """Reset state when opening shopping overlay"""
+        super().on_overlay_opened(game_state)
+        # Always start on BUY tab
+        self.switch_to_tab(0)
+        # Clear any hovered item from previous session
+        self.hovered_item_id = None
+        print("🛒 Shopping overlay opened - reset to BUY tab")
     
     def render_tab_content(self, surface, active_tab, game_state, fonts, images):
         """
@@ -64,6 +76,17 @@ class ShoppingOverlay(BaseTabbedOverlay):
         """
         tab_id = active_tab.tab_id
         content_rect = self.get_content_area_rect()
+        
+        # Detect merchant change and reset to BUY tab
+        merchant_data = getattr(game_state, 'current_merchant_data', None)
+        if merchant_data:
+            merchant_id = merchant_data.get('merchant_id')
+            if merchant_id != self.current_merchant_id:
+                # New merchant detected - reset to BUY tab
+                self.current_merchant_id = merchant_id
+                self.switch_to_tab(0)  # Switch to BUY tab
+                self.hovered_item_id = None  # Clear hover
+                print(f"🛒 New merchant detected: {merchant_id} - reset to BUY tab")
         
         try:
             if tab_id == "buy":
@@ -80,7 +103,12 @@ class ShoppingOverlay(BaseTabbedOverlay):
     def _render_buy_tab(self, surface, content_rect, game_state, fonts, images):
         """ BUY tab - Show merchant stock with purchase options
         Reuses existing shopping logic with pagination  """
+        
+        # Clear any stale hover state at start of rendering
+        self.hovered_item_id = None
+
         merchant_data = getattr(game_state, 'current_merchant_data', None)
+
         if not merchant_data:
             draw_centered_text(surface, "No merchant data available", 
                              fonts['normal'], content_rect.centery, WHITE)
@@ -140,6 +168,9 @@ class ShoppingOverlay(BaseTabbedOverlay):
         item_y = header_y + 30
         line_height = 32
         
+        # Reset hovered item at start of rendering
+        self.hovered_item_id = None
+        
         for i, item in enumerate(page_items):
             current_y = item_y + i * line_height
             
@@ -148,9 +179,13 @@ class ShoppingOverlay(BaseTabbedOverlay):
                                    cart_x - icon_x + 100, line_height)
             
             mouse_pos = pygame.mouse.get_pos()
-            if item_rect.collidepoint(mouse_pos):
+            is_hovered = item_rect.collidepoint(mouse_pos)
+            
+            if is_hovered:
                 SELECTION_COLOR = (100, 149, 237)
                 pygame.draw.rect(surface, SELECTION_COLOR, item_rect)
+                # Store hovered item ID for status bar
+                self.hovered_item_id = item['item_id']
             
             # Store for click detection (with original index)
             self.merchant_item_rects.append((item_rect, start_idx + i))
@@ -181,26 +216,33 @@ class ShoppingOverlay(BaseTabbedOverlay):
                 cart_surface = item_font.render(str(cart_qty), True, BRIGHT_GREEN)
                 surface.blit(cart_surface, (cart_x + 20, current_y))
         
-        # Pagination controls
-        if total_pages > 1:
-            page_y = item_y + (self.items_per_page * line_height) + 10
-            page_text = f"Page {self.buy_page + 1} of {total_pages}"
-            draw_centered_text(surface, page_text, fonts['normal'], page_y, SOFT_YELLOW)
+        # Calculate positioning - status bar goes right after items
+        status_bar_y = item_y + (self.items_per_page * line_height) + 10
         
-        # Bottom section - Gold, Cart, Buttons
-        bottom_y = content_rect.bottom - 110
+        # Render status bar if item is hovered
+        if self.hovered_item_id:
+            try:
+                full_desc = game_state.item_manager.get_item_full_description(self.hovered_item_id)
+                self._render_status_bar(surface, fonts, full_desc, status_bar_y)
+            except Exception as e:
+                print(f"⚠️ Error rendering status bar: {e}")
+        
+        # Gold and cart summary (below status bar)
+        
+        gold_y = status_bar_y + OVERLAY_STATUS_BAR_HEIGHT + 15
         
         player_gold = game_state.character.get('gold', 0)
         cart_total = commerce.get_cart_total(merchant_id)
         
-        draw_centered_text(surface, f"Your Gold: {player_gold} gp  --  Cart Total: {cart_total} gp",
-                          fonts.get('fantasy_medium', fonts['normal']), bottom_y + 25, BRIGHT_GREEN)
+        gold_summary = f"Your Gold: {player_gold} gp  --  Cart Total: {cart_total} gp"
+        gold_font = fonts.get('fantasy_small', fonts['normal'])  # Smaller font
+        gold_surface = gold_font.render(gold_summary, True, BRIGHT_GREEN)
+        # Center the text
+        gold_x = content_rect.x + (content_rect.width - gold_surface.get_width()) // 2
+        surface.blit(gold_surface, (gold_x, gold_y))
         
-        #draw_centered_text(surface, f"Cart Total: {cart_total} gp",
-        #                  fonts.get('fantasy_small', fonts['normal']), bottom_y + 25, YELLOW)
-        
-        # Action buttons
-        button_y = bottom_y + 60
+        # Action buttons (below gold summary)
+        button_y = gold_y + 30
         button_width = 100
         button_spacing = 20
         
@@ -225,9 +267,22 @@ class ShoppingOverlay(BaseTabbedOverlay):
             surface, start_x + 2 * (button_width + button_spacing), button_y,
             button_width, 40, "CLOSE",
             fonts.get('fantasy_small', fonts['normal']))
+        
+        # Pagination text - bottom right corner
+        if total_pages > 1:
+            page_text = f"Page {self.buy_page + 1} of {total_pages}"
+            page_font = fonts.get('fantasy_small', fonts['normal'])
+            page_surface = page_font.render(page_text, True, SOFT_YELLOW)
+            page_x = content_rect.right - page_surface.get_width() - 10  # Right-aligned
+            page_y = button_y + 10  # Aligned with buttons
+            surface.blit(page_surface, (page_x, page_y))
 
     def _render_sell_tab(self, surface, content_rect, game_state, fonts, images):
         """SELL tab - player inventory with buyback pricing"""
+        
+        # Clear any stale hover state at start of rendering
+        self.hovered_item_id = None
+        
         merchant_data = getattr(game_state, 'current_merchant_data', None)
         if not merchant_data:
             return
@@ -238,16 +293,17 @@ class ShoppingOverlay(BaseTabbedOverlay):
         merchant_config = game_state.item_manager.merchant_data.get('merchants', {}).get(merchant_id, {})
         sell_multiplier = merchant_config.get('sell_multiplier', 0.4)
         stock_categories = merchant_config.get('stock_categories', [])
+
+        # Use buy_categories (what merchant BUYS), not stock_categories (what they SELL)
+        buy_categories = merchant_config.get('buy_categories', stock_categories)
         
         # Title
-        title_y = content_rect.y + 15
+        title_y = content_rect.y + 20
         draw_centered_text(surface, f"Sell Items to {merchant_data['merchant_name']}",
                         fonts.get('fantasy_medium', fonts['normal']), title_y, SOFT_YELLOW)
-        # Info text
-        info_y = title_y + 35
         
         # Table headers
-        header_y = info_y + 10
+        header_y = title_y + 35
         header_font = fonts.get('fantasy_small', fonts['normal'])
         
         icon_x = content_rect.x + 20
@@ -278,7 +334,7 @@ class ShoppingOverlay(BaseTabbedOverlay):
         surface.blit(header_surface, (cart_x, header_y))
         
         # Get sellable items from player inventory
-        sellable_items = self._get_sellable_items(game_state, merchant_id, stock_categories, sell_multiplier)
+        sellable_items = self._get_sellable_items(game_state, merchant_id, buy_categories, sell_multiplier)
 
         # Draw items
         self.sell_item_rects = []
@@ -298,6 +354,10 @@ class ShoppingOverlay(BaseTabbedOverlay):
         end_idx = min(start_idx + self.items_per_page, total_items)
         page_items = sellable_items[start_idx:end_idx]
 
+        # Reset hovered item at start of rendering
+        if not hasattr(self, 'hovered_item_id'):
+            self.hovered_item_id = None
+        
         # Update the item loop
         for i, item_data in enumerate(page_items):
             current_y = item_y + i * line_height
@@ -308,25 +368,15 @@ class ShoppingOverlay(BaseTabbedOverlay):
             
             # Hover highlight
             mouse_pos = pygame.mouse.get_pos()
-            if item_rect.collidepoint(mouse_pos):
+            is_hovered = item_rect.collidepoint(mouse_pos)
+            
+            if is_hovered:
                 pygame.draw.rect(surface, CORNFLOWER_BLUE, item_rect)
+                # Store hovered item ID for status bar
+                self.hovered_item_id = item_data['item_id']
             
             # Store for click detection (with original index)
             self.sell_item_rects.append((item_rect, start_idx + i))
-            
-            # Rest of item rendering code stays the same...
-            current_y = item_y + i * line_height
-            
-            # Create clickable rect
-            item_rect = pygame.Rect(icon_x - 5, current_y - 5,
-                                qty_x - icon_x + 100, line_height)
-            
-            # Hover highlight
-            mouse_pos = pygame.mouse.get_pos()
-            if item_rect.collidepoint(mouse_pos):
-                pygame.draw.rect(surface, CORNFLOWER_BLUE, item_rect)
-            
-            self.sell_item_rects.append((item_rect, i))
             
             # Draw item details
             item_name = item_data['name']
@@ -360,19 +410,27 @@ class ShoppingOverlay(BaseTabbedOverlay):
                 cart_surface = item_font.render(str(cart_qty), True, BRIGHT_GREEN)
                 surface.blit(cart_surface, (cart_x + 20, current_y))
 
-        # Pagination controls 
-        if total_pages > 1:
-            page_y = item_y + (self.items_per_page * line_height) + 10
-            page_text = f"Page {self.sell_page + 1} of {total_pages}"
-            draw_centered_text(surface, page_text, fonts['normal'], page_y, SOFT_YELLOW)
-
+        # Handle "no items" case
         if not sellable_items:
             no_items_y = content_rect.centery
             draw_centered_text(surface, f"No items to sell to {merchant_data['merchant_name']}",
                             fonts['normal'], no_items_y, WHITE)
+            return  # Exit early if no items
         
-        # Bottom section - Gold, Cart, Buttons (like BUY tab)
-        bottom_y = content_rect.bottom - 110
+        # Calculate positioning - status bar goes right after items
+        status_bar_y = item_y + (self.items_per_page * line_height) + 10
+        
+        # Render status bar if item is hovered
+        if self.hovered_item_id:
+            try:
+                full_desc = game_state.item_manager.get_item_full_description(self.hovered_item_id)
+                self._render_status_bar(surface, fonts, full_desc, status_bar_y)
+            except Exception as e:
+                print(f"⚠️ Error rendering status bar: {e}")
+        
+        # Gold and sell cart summary (below status bar)
+        from utils.constants import OVERLAY_STATUS_BAR_HEIGHT
+        gold_y = status_bar_y + OVERLAY_STATUS_BAR_HEIGHT + 15
         
         player_gold = game_state.character.get('gold', 0)
         
@@ -385,11 +443,14 @@ class ShoppingOverlay(BaseTabbedOverlay):
         )
         
         sell_summary = f"Your Gold: {player_gold} gp  --  Sell Total: +{self.sell_cart_total} gp"
-        draw_centered_text(surface, sell_summary,
-                        fonts.get('fantasy_medium', fonts['normal']), bottom_y + 25, BRIGHT_GREEN)
+        gold_font = fonts.get('fantasy_small', fonts['normal'])  # Smaller font
+        gold_surface = gold_font.render(sell_summary, True, BRIGHT_GREEN)
+        # Center the text
+        gold_x = content_rect.x + (content_rect.width - gold_surface.get_width()) // 2
+        surface.blit(gold_surface, (gold_x, gold_y))
         
-        # Action buttons
-        button_y = bottom_y + 60
+        # Action buttons (below gold summary)
+        button_y = gold_y + 30
         button_width = 100
         button_spacing = 20
         
@@ -413,6 +474,15 @@ class ShoppingOverlay(BaseTabbedOverlay):
             surface, start_x + 2 * (button_width + button_spacing), button_y,
             button_width, 40, "CLOSE",
             fonts.get('fantasy_small', fonts['normal']))
+        
+        # Pagination text - bottom right corner
+        if total_pages > 1:
+            page_text = f"Page {self.sell_page + 1} of {total_pages}"
+            page_font = fonts.get('fantasy_small', fonts['normal'])
+            page_surface = page_font.render(page_text, True, SOFT_YELLOW)
+            page_x = content_rect.right - page_surface.get_width() - 10  # Right-aligned
+            page_y = button_y + 10  # Aligned with buttons
+            surface.blit(page_surface, (page_x, page_y))
 
     def _get_item_data_by_name(self, item_name, sellable_items):
         """Helper to find item data by name"""
@@ -466,6 +536,13 @@ class ShoppingOverlay(BaseTabbedOverlay):
         draw_centered_text(surface, "More merchant lore coming soon!",
                           fonts['small'], location_y, DARKEST_GRAY)  
         
+    
+    def on_tab_changed(self, old_index: int, new_index: int):
+        """Clear hovered item when switching tabs"""
+        self.hovered_item_id = None
+        print(f"🛒 Tab changed: Cleared hover state")
+    
+    
     def handle_mouse_click(self, mouse_pos):
         """Handle mouse clicks on the shopping overlay"""
         print(f"🛒 DEBUG: ShoppingOverlay.handle_mouse_click called with {mouse_pos}")

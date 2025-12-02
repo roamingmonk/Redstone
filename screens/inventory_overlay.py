@@ -19,7 +19,7 @@ class InventoryOverlay(BaseTabbedOverlay):
         super().__init__("inventory_key", "INVENTORY", screen_manager)
         self.status_bar_height = 0
         self.item_manager = item_manager
-        # Add 4 tabs for inventory categories
+        # Inventory categories
         self.add_tab("weapons", "WEAPONS", hotkey=pygame.K_1)
         self.add_tab("armor", "ARMOR", hotkey=pygame.K_2) 
         self.add_tab("items", "ITEMS", hotkey=pygame.K_3)
@@ -38,6 +38,9 @@ class InventoryOverlay(BaseTabbedOverlay):
         self.button_rects = {}
         self.status_message = ""
         self.status_message_time = 0
+
+        #Track hovered item for status bar (separate from selection)
+        self.hovered_item_id = None
 
         # Consumables tab - party targeting
         self.party_portrait_rects = {}
@@ -144,11 +147,12 @@ class InventoryOverlay(BaseTabbedOverlay):
         status_bar_y =  content_height + content_y - OVERLAY_STATUS_BAR_HEIGHT  # 10px gap after content
     
         
-        # Render item description status bar if item is selected
-        selected_item = getattr(game_state, 'inventory_selected', None)
-        if selected_item and hasattr(self, 'item_manager') and self.item_manager:
+        # Render item description status bar - HOVER takes priority over SELECTION
+        item_to_describe = self.hovered_item_id or getattr(game_state, 'inventory_selected', None)
+        
+        if item_to_describe and hasattr(self, 'item_manager') and self.item_manager:
             try:
-                full_desc = self.item_manager.get_item_full_description(selected_item)
+                full_desc = self.item_manager.get_item_full_description(item_to_describe)
                 # Call parent's status bar renderer with explicit Y position
                 self._render_status_bar(surface, fonts, full_desc, status_bar_y)
             except Exception as e:
@@ -252,24 +256,38 @@ class InventoryOverlay(BaseTabbedOverlay):
         qty_x = table_x + 500
         equipped_x = table_x + 600
         
+        # Reset hovered item at start of rendering
+        self.hovered_item_id = None
+        
         for i, (item_name, quantity) in enumerate(page_items):
             current_row_y = item_y + i * row_height
             
-            # Check if this item is selected
-            is_selected = (getattr(game_state, 'inventory_selected', None) == item_name)
-            
-            # Draw row background (highlighted if selected)
+            # Calculate row dimensions first
             if current_tab == "consumables":
                 row_width = table_width - 180  # Leave room for party portraits
             else:
                 row_width = table_width - SPACING['margin']
             
-            if is_selected:
+            # Create row rectangle
+            item_rect = pygame.Rect(table_x + 10, current_row_y - 2, row_width, row_height)
+            
+            # Check if this item is selected (locked selection for action buttons)
+            is_selected = (getattr(game_state, 'inventory_selected', None) == item_name)
+            
+            # Check if this item is hovered (temporary highlight)
+            mouse_pos = pygame.mouse.get_pos()
+            is_hovered = item_rect.collidepoint(mouse_pos)
+            
+            if is_hovered:
+                # Store hovered item ID for status bar
+                self.hovered_item_id = item_name
+            
+            # Draw blue background if EITHER hovered OR selected
+            if is_hovered or is_selected:
                 pygame.draw.rect(surface, CORNFLOWER_BLUE, 
                                 (table_x + 10, current_row_y - 2, row_width, row_height))
             
             # Store row rectangle for click detection
-            item_rect = pygame.Rect(table_x + 10, current_row_y - 2, row_width, row_height)
             self.item_rects.append(item_rect)
             
             # Draw item icon
@@ -544,13 +562,16 @@ class InventoryOverlay(BaseTabbedOverlay):
         print("🎒 Inventory overlay closed")
 
     def on_tab_changed(self, old_index: int, new_index: int):
-        """Clear selection when switching tabs to reset status bar"""
-        # Access game_state through screen_manager if available
+        """Clear both selection and hover when switching tabs"""
+        # Clear hover state
+        self.hovered_item_id = None
+        
+        # Clear selection for action buttons
         if hasattr(self, 'screen_manager') and self.screen_manager:
             if hasattr(self.screen_manager, '_current_game_state'):
                 game_state = self.screen_manager._current_game_state
                 game_state.inventory_selected = None
-                print(f"🔄 Tab changed from {old_index} to {new_index}: Cleared selection")
+                print(f"🔄 Tab changed: Cleared selection and hover")
 
 
 # Global instance management
