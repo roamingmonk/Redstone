@@ -52,9 +52,10 @@ class Quest:
             self.status = "completed"
                 
     def get_progress(self):
-        """Return (completed_objectives, total_objectives)"""
-        completed = sum(1 for obj in self.objectives if obj.completed)
-        return (completed, len(self.objectives))
+        """Return (completed_objectives, total_objectives) - only counts visible objectives"""
+        visible_objectives = [obj for obj in self.objectives if not obj.hidden]
+        completed = sum(1 for obj in visible_objectives if obj.completed)
+        return (completed, len(visible_objectives))
 
 class QuestManager:
     """Schema-driven quest management system"""
@@ -131,6 +132,31 @@ class QuestManager:
         """Update quest progress based on narrative schema"""
         from utils.narrative_schema import narrative_schema
         #print(f"\n🔄 update_from_game_state() called")
+        # PROGRESSIVE OBJECTIVE REVEAL
+        if "main_story" in self.quests:
+            main_quest = self.quests["main_story"]
+            
+            # Get act progression flags
+            act_two_complete = getattr(self.game_state, 'act_two_complete', False)
+            act_three_complete = getattr(self.game_state, 'act_three_complete', False)
+            
+            # print(f"🎭 Progressive Reveal Check:")
+            # print(f"   act_two_complete: {act_two_started}")
+            # print(f"   act_three_complete: {act_three_started}")
+            
+            for obj in main_quest.objectives:
+                old_hidden = obj.hidden
+                
+                # Act III objectives: Hide until Act II is complete
+                if obj.id == "act_iii_finale":
+                    obj.hidden = not act_two_complete
+                    # print(f"   [{obj.id}] hidden: {old_hidden} -> {obj.hidden}")
+                
+                # Epilogue objectives: Hide until Act III starts
+                elif obj.id == "epilogue_resolution":
+                    obj.hidden = not act_three_complete
+                    # print(f"   [{obj.id}] hidden: {old_hidden} -> {obj.hidden}")
+        # === END PROGRESSIVE REVEAL ===
         quest_mappings = narrative_schema.schema.get("quest_mappings", {})
         
         for quest_id, quest_data in quest_mappings.items():
@@ -250,28 +276,58 @@ class QuestManager:
             return False
     
     def get_active_quests(self):
-        """Return list of active quests for display"""
+        """Return list of active quests for display (excluding hidden quests)"""
+        from utils.narrative_schema import narrative_schema
+        
         active_quests = []
         for quest_id in self.active_quest_ids:
             if quest_id in self.quests:
                 quest = self.quests[quest_id]
                 if quest.status == "active":
-                    active_quests.append(quest)
+                    # Check if quest should be displayed in log
+                    quest_def = narrative_schema.schema.get("quest_definitions", {}).get(quest.id, {})
+                    display_in_log = quest_def.get("display_in_log", True)  # Default to True
+                    
+                    if display_in_log:
+                        active_quests.append(quest)
+                    else:
+                        print(f"🔇 Hiding quest from log: {quest.title} (display_in_log=false)")
+        
         return active_quests
     
     def get_completed_quests(self):
-        """Return list of completed quests"""
+        """Return list of completed quests (excluding hidden quests)"""
+        from utils.narrative_schema import narrative_schema
+        
         completed_quests = []
         for quest in self.quests.values():
             if quest.status == "completed":
-                completed_quests.append(quest)
+                # Check if quest should be displayed in log
+                quest_def = narrative_schema.schema.get("quest_definitions", {}).get(quest.id, {})
+                display_in_log = quest_def.get("display_in_log", True)  # Default to True
+                
+                if display_in_log:
+                    completed_quests.append(quest)
+                else:
+                    print(f"🔇 Hiding completed quest from log: {quest.title} (display_in_log=false)")
+        
         return completed_quests
     
     def get_completed_objectives(self):
-        """Get all completed objectives from all quests for display"""
+        """Get all completed objectives from all quests for display (excluding hidden quests)"""
+        from utils.narrative_schema import narrative_schema
+        
         completed_objectives = []
         
         for quest in self.quests.values():
+            # Check if parent quest should be displayed
+            quest_def = narrative_schema.schema.get("quest_definitions", {}).get(quest.id, {})
+            display_in_log = quest_def.get("display_in_log", True)  # Default to True
+            
+            # Skip objectives from hidden quests
+            if not display_in_log:
+                continue
+            
             for objective in quest.objectives:
                 if objective.completed:
                     completed_obj = {

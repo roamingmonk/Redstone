@@ -7,7 +7,7 @@ Integrates with professional quest system for real quest data
 import pygame
 from utils.tabbed_overlay_utils import BaseTabbedOverlay
 from utils.constants import (YELLOW, WHITE, BRIGHT_GREEN, BROWN, DARK_GRAY, CORNFLOWER_BLUE,
-                             wrap_text)
+                             wrap_text, DARK_BROWN, WALNUT_BROWN)
 from utils.graphics import draw_text
 
 class QuestOverlay(BaseTabbedOverlay):
@@ -181,7 +181,7 @@ class QuestOverlay(BaseTabbedOverlay):
         details_height = quest_list_height
         
         # Draw quest list background
-        pygame.draw.rect(surface, DARK_GRAY, 
+        pygame.draw.rect(surface, DARK_BROWN, 
                         (quest_list_x, quest_list_y, quest_list_width, quest_list_height))
         pygame.draw.rect(surface, WHITE, 
                         (quest_list_x, quest_list_y, quest_list_width, quest_list_height), 2)
@@ -191,7 +191,7 @@ class QuestOverlay(BaseTabbedOverlay):
                         (divider_x, divider_y), (divider_x, divider_y + divider_height), 3)
         
         # Draw quest details background
-        pygame.draw.rect(surface, DARK_GRAY, 
+        pygame.draw.rect(surface, DARK_BROWN, 
                         (details_x, details_y, details_width, details_height))
         pygame.draw.rect(surface, WHITE, 
                         (details_x, details_y, details_width, details_height), 2)

@@ -35,8 +35,7 @@
     "intelligence_gathering": {
       "title": "Local Intelligence", 
       "description": "Gather detailed information about the mysterious locations",
-      "type": "secondary",
-      "display_in_log": false
+      "type": "secondary"
    },
     "kobold_mine_investigation": {
       "title": "The Sealed Shaft",
@@ -51,22 +50,6 @@
     "marcus_journals": {
       "title": "His Last Words",
       "description": "Cassia has entrusted you with Marcus's journals",
-      "type": "secondary"
-    },
-    "find_henrik": {
-      "title": "Seek Old Henrik",
-      "description": "Garrick mentioned a retired miner who knows about tremors",
-      "type": "side_task",
-      "display_in_log": false
-    },
-    "casper_redemption": {
-      "title": "A Second Chance",
-      "description": "Help the beggar find redemption",
-      "type": "secondary"
-    },
-    "refugee_defense": {
-      "title": "Aid the Refugees",
-      "description": "Help Elder Marta defend the refugee camp from attack",
       "type": "secondary"
     }
   },
@@ -94,7 +77,7 @@
     "report_success": "Report success to Garrick",
 
     "find_old_mine": "Locate the sealed mining shaft",
-    
+    "clear_kobolds": "Clear out the kobold infestation",
     "recover_ring": "Find Meredith's lost ring",
     "return_to_henrik": "Report findings to Henrik",
     "ore_samples_found": "Discover Aethel Ore samples",
@@ -106,21 +89,11 @@
     "read_marcus_journals": "Study Marcus's journals for cult information",
     "confront_marcus": "Face Marcus Nightshade at the Hill Ruins",
 
-    "clear_kobolds": "Clear the kobolds from Red Hollow Mine",
-    "retrieve_lantern": "Retrieve Henrik's lantern from the mine",
-    "find_ring": "Find Meredith's lost ring in the mine",
-    "return_ring": "Return the ring to Meredith (or give to Casper)",
     "meet_beggar": "Encounter the beggar near the alley",
-    "learn_beggar_name": "Learn the beggar's true name",
+    "learn_beggar_name": "Learn the beggar's name",
     "learn_casper_backstory": "Discover Casper's tragic past",
     "casper_redemption_choice": "Decide who should return the ring",
-    "casper_redemption_complete": "Witness Casper's redemption",
-    "defend_refugee_camp": "Help Elder Marta defend the refugee camp",
-
-    "act_i_setup": "Meet with Mayor Aldwin and begin recruiting your party",
-    "act_ii_investigation": "Investigate the three mysterious locations",
-    "act_iii_finale": "Enter the dungeon and stop Vexthar's ritual",
-    "epilogue_resolution": "Return to Redstone after defeating Vexthar"
+    "casper_redemption_complete": "Witness Casper's redemption"
   },
 
   "npcs": {
@@ -796,49 +769,49 @@
       },
       "henrik_ore_story": {
       "dialogue_flag": "henrik_told_ore_story",
-      "quest_objective": "henrik_lantern_quest.clear_kobolds",
+      "quest_objective": "kobold_mine_investigation.find_old_mine",
       "event_type": "INFORMATION_DISCOVERED",
       "xp_reward": "discovery_base"
       },
       "henrik_shaft_quest": {
         "dialogue_flag": "henrik_gave_shaft_quest",
-        "quest_objective": "henrik_lantern_quest.clear_kobolds",
+        "quest_objective": "kobold_mine_investigation.clear_kobolds",
         "event_type": "QUEST_ACCEPTED",
         "xp_reward": "discovery_base"
       },
       "meredith_ring_quest": {
         "dialogue_flag": "meredith_gave_ring_quest",
-        "quest_objective": "meredith_ring_quest.return_ring",
+        "quest_objective": "kobold_mine_investigation.recover_ring",
         "event_type": "QUEST_ACCEPTED",
         "xp_reward": "discovery_base"
       },
       "kobolds_defeated": {
         "dialogue_flag": "cleared_kobold_mine",
-        "quest_objective": "henrik_lantern_quest.clear_kobolds",
+        "quest_objective": "kobold_mine_investigation.clear_kobolds",
         "event_type": "COMBAT_VICTORY",
         "xp_reward": "quest_multipliers.side_task"
       },
       "ore_samples_discovered": {
         "dialogue_flag": "retrieved_ore_samples",
-        "quest_objective": "henrik_lantern_quest.retrieve_lantern",
+        "quest_objective": "kobold_mine_investigation.ore_samples_found",
         "event_type": "DISCOVERY",
         "xp_reward": "discovery_base"
       },
       "ring_returned": {
         "dialogue_flag": "returned_meredith_ring",
-        "quest_objective": "meredith_ring_quest.return_ring",
+        "quest_objective": "kobold_mine_investigation.recover_ring",
         "event_type": "QUEST_COMPLETED",
         "xp_reward": "quest_multipliers.side_task"
       },
       "henrik_quest_complete": {
       "dialogue_flag": "reported_shaft_to_henrik",
-      "quest_objective": "henrik_lantern_quest.return_to_henrik",
+      "quest_objective": "kobold_mine_investigation.return_to_henrik",
       "event_type": "QUEST_COMPLETED",
       "xp_reward": "quest_multipliers.side_task"
       },
       "mayor_ore_samples_shown": {
         "dialogue_flag": "mayor_examined_ore_samples",
-        "quest_objective": "henrik_lantern_quest.retrieve_lantern",
+        "quest_objective": "kobold_mine_investigation.ore_samples_found",
         "event_type": "QUEST_BONUS_COMPLETE",
         "xp_reward": "quest_multipliers.side_task"
       },
@@ -887,7 +860,7 @@
       },
       "meredith_ring_direct_return": {
         "dialogue_flag": "returned_meredith_ring",
-        "quest_objective": "meredith_ring_quest.return_ring",
+        "quest_objective": "kobold_mine_investigation.recover_ring",
         "event_type": "QUEST_COMPLETED",
         "xp_reward": 100
       },
@@ -910,23 +883,53 @@
     "main_story": {
       "type": "primary",
       "objectives": {
+        "_comment_quest ACT I": "=== ACT I SETUP ",
+        "talk_to_npcs": ["meredith_talked", "garrick_talked"],
+        "meet_mayor": ["mayor_talked"],
+        "recruit_party": ["recruited_count >= 1"],
         
+        "_comment_quest ACT II: A": "=== ACT II INVESTIGATION ",
+        "learn_swamp_church": ["meredith_gave_swamp_info"],
+        "learn_hill_ruins": ["garrick_gave_ruins_info"], 
+        "learn_refugee_camp": ["pete_gave_refugee_info"],
         
-        "act_i_setup": [
-          "mayor_talked && recruited_count >= 1"
-        ],
-        
-        "act_ii_investigation": [
-          "(explored_swamp_church || swamp_church_complete) && (explored_hill_ruins || hill_ruins_complete) && (gathered_refugee_info || refugee_camp_complete)"
-        ],
-        
-        "act_iii_finale": [
-          "portal_chamber_reached && final_boss_defeated"
-        ],
-        
-        "epilogue_resolution": [
-          "returned_to_redstone_victorious"
-        ]
+        "explore_swamp_church": ["learned_about_swamp_church", "explored_swamp_church"],
+        "explore_hill_ruins": [
+        "learned_about_ruins && hill_ruins_carved_searched && hill_ruins_portal_examined && hill_ruins_mechanisms_searched && hill_ruins_locked_door_found"
+      ],
+        "explore_refugee_camp": ["learned_about_refugees", "gathered_refugee_info"],
+
+        "_comment_quest ACT II: B": "=== ACT II UNDERSTAND CULT PLANS",
+        "understand_portal": ["hill_ruins_portal_examined", "read_cult_documents"],
+        "find_mayors_family_fate": ["learned_mayors_family_location"],
+        "learn_sacrifice_plan": ["learned_sacrifice_plan"],
+        "discover_aethel_ore_connection": ["found_cult_documents", "henrik_told_ore_story"],
+
+
+        "_comment_quest ACT II: C": "=== ACT II REPORT PLANS",
+        "report_to_mayor": ["mayor_acknowledged_swamp_complete", "mayor_acknowledged_ruins_complete", "mayor_acknowledged_refugee_complete"],
+        "obtain_dungeon_access": ["hill_ruins_dungeon_key_obtained || red_hollow_mine_secret_entrance_found"],
+
+
+        "_comment_quest ACT III: ": "=== ACT III Final ASSAULT",
+        "enter_dungeon": ["hill_ruins_dungeon_entered"],
+        "reach_portal_chamber": ["portal_chamber_reached"],
+        "confront_cult_leader": ["cult_leader_confronted"],
+        "stop_ritual": ["portal_ritual_stopped"],
+        "defeat_final_boss": ["final_boss_defeated"],
+        "portal_unsealed": ["portal_left_unsealed"],
+        "bad_ending": ["bad_ending_triggered"],
+        "chamber_collapse": ["chamber_collapsing"],
+        "portal_condition": ["portal_destroyed"],
+
+
+        "_comment_quest EPILOGUE: ": "=== RESOLUTION",
+        "rescue_survivors": ["mayors_family_rescued"],
+        "seal_portal": ["portal_permanently_sealed"],
+        "return_to_town": ["returned_to_redstone_victorious"]
+
+
+
       }
     },
     "party_building": {
@@ -955,6 +958,17 @@
         "swamp_detailed_intel": ["swamp_church_details_known"],
         "ruins_detailed_intel": ["hill_ruins_details_known"],
         "refugee_detailed_intel": ["refugee_camp_details_known"]
+      }
+    },
+    "kobold_mine_investigation": {
+      "type": "secondary",
+      "activation_flag": "henrik_gave_shaft_quest || meredith_gave_ring_quest",
+      "objectives": {
+        "find_old_mine": ["henrik_mentioned_old_shaft || meredith_mentioned_old_mine"],
+        "clear_kobolds": ["cleared_kobold_mine"],
+        "recover_ring": ["returned_meredith_ring"],
+        "return_to_henrik": ["reported_shaft_to_henrik"],
+        "ore_samples_found": ["retrieved_ore_samples"]
       }
     },
     "find_henrik": {
@@ -991,23 +1005,6 @@
         "learn_casper_backstory": ["casper_backstory_known"],
         "casper_redemption_choice": ["casper_given_ring || casper_declined_redemption"],
         "casper_redemption_complete": ["casper_redemption_complete"]
-      }
-    },
-    "henrik_lantern_quest": {
-      "type": "secondary",
-      "activation_flag": "henrik_gave_shaft_quest",
-      "objectives": {
-        "clear_kobolds": ["cleared_kobold_mine"],
-        "return_to_henrik": ["reported_shaft_to_henrik"],
-        "retrieve_lantern": ["henrik_lantern_obtained"]
-      }
-    },
-    "meredith_ring_quest": {
-      "type": "minor",
-      "activation_flag": "meredith_gave_ring_quest",
-      "objectives": {
-        "find_ring": ["ring_found_in_mine"],
-        "return_ring": ["returned_meredith_ring || casper_given_ring"]
       }
     }
   },
