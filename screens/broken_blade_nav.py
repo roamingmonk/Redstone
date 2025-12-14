@@ -6,31 +6,102 @@ Scrollable tile-based interior exploration
 
 import pygame
 from ui.base_location_navigation import NavigationRenderer
-from utils.constants import (BLACK, WHITE, YELLOW, CYAN, RED, 
-                             DARK_BROWN, WARM_GOLD, FIRE_BRICK_RED, 
-                             PURPLE_BLUE, AUBURN_BROWN, VERY_DARK_GRAY, 
-                             LIGHTEST_GRAY, LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT)
+from utils.constants import (BLACK, WHITE, YELLOW, CYAN, RED,
+                             DARK_BROWN, WARM_GOLD, FIRE_BRICK_RED,
+                             PURPLE_BLUE, AUBURN_BROWN, VERY_DARK_GRAY,
+                             LIGHTEST_GRAY, LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
+                             TILESETS_PATH)
 from utils.graphics import draw_centered_text, draw_border
 from utils.party_display import draw_party_status_panel
+from utils.tile_graphics import get_tile_graphics_manager
 from data.maps.broken_blade_map import *
+
+from utils.tiled_loader import (
+    load_tiled_map_with_names,
+    get_tile_type,
+    is_walkable_tile
+)
+
+from data.maps.broken_blade_tiles import (
+    BROKEN_BLADE_TILE_MAP,
+    BROKEN_BLADE_WALKABLE
+)
+from data.maps.broken_blade_map import (TAVERN_SPAWN_X, TAVERN_SPAWN_Y, get_visible_npcs, 
+                                        get_npc_interaction_at_tile, get_transition_at_entrance,
+                                        get_special_area_at_tile)
 
 class BrokenBladeNav:
     """Navigation screen for Broken Blade tavern interior"""
     
     def __init__(self):
         # Configure NavigationRenderer with map functions
+        # Load tileset from grid
+        graphics_mgr = get_tile_graphics_manager()
+        graphics_mgr.load_tileset_from_grid(
+            'broken_blade',              # PNG filename (without extension)
+            BROKEN_BLADE_TILE_MAP,       # Tile mapping
+            tile_size=16,                # Source tile size in Aseprite
+            columns=15                    # Number of columns in your PNG
+        )
+        
+        # Load Tiled map
+        try:
+            self.tilemap = load_tiled_map_with_names(
+                'broken_blade_map',       # TMJ filename (without extension)
+                'broken_blade',
+                BROKEN_BLADE_TILE_MAP,
+                TILESETS_PATH
+            )
+            print(f"✅ Tilemap loaded: {self.tilemap['width']}x{self.tilemap['height']}")
+            # Convert all layers to use tile names instead of indices
+            if 'layers' in self.tilemap:
+                for layer_name, layer_grid in self.tilemap['layers'].items():
+                    named_layer = []
+                    for row in layer_grid:
+                        named_row = []
+                        for tile_index in row:
+                            if tile_index in BROKEN_BLADE_TILE_MAP:
+                                tile_name = BROKEN_BLADE_TILE_MAP[tile_index]
+                            else:
+                                tile_name = None  # Unknown tiles become None
+                            named_row.append(tile_name)
+                        named_layer.append(named_row)
+                    self.tilemap['layers'][layer_name] = named_layer
+                print(f"✅ Converted {len(self.tilemap['layers'])} layers to use tile names")
+            
+            # Store layer names in render order
+            self.layer_names = ['Floor', 'Rugs', 'Tile Layer 1', 'Details']
+
+        except FileNotFoundError as e:
+            print(f"❌ Tiled map file not found: {e}")
+            # Fallback to old ASCII system
+            #from data.maps.broken_blade_map import BROKEN_BLADE_WIDTH, BROKEN_BLADE_HEIGHT
+            self.tilemap = {
+                'width': BROKEN_BLADE_WIDTH,
+                'height': BROKEN_BLADE_HEIGHT,
+                'tile_grid': None  # Will use old system
+            }
+            self.layer_names = None
+        
         config = {
+            'tile_size': 64,
             'player_sprite_size': 64,
-            'map_width': BROKEN_BLADE_WIDTH,
-            'map_height': BROKEN_BLADE_HEIGHT,
+            'map_width': self.tilemap['width'],
+            'map_height': self.tilemap['height'],
             'location_id': 'broken_blade_tavern',
+            'tilemap': self.tilemap,              
+            'layer_names': self.layer_names,      
             'map_functions': {
-                'get_tile_type': get_tile_type,
-                'is_walkable': is_walkable,
-                'get_tile_color': get_tile_color,
+                'get_tile_type': lambda x, y: get_tile_type(x, y, self.tilemap['tile_grid']),
+                # 'is_walkable': lambda x, y: is_walkable_tile(
+                #     get_tile_type(x, y, self.tilemap['tile_grid']),
+                #     BROKEN_BLADE_WALKABLE
+                # ),
+                'is_walkable': self._is_walkable_multi_layer, 
+                'get_tile_color': None,  # Using graphics now, not colors
                 'get_building_info': self._get_interaction_at_tile,
-                'get_searchable_info': None,  # No searchables in tavern
-                'get_combat_trigger': None,   # No random combat in tavern
+                'get_searchable_info': None,
+                'get_combat_trigger': None,
                 'get_location_npcs': self._get_current_npcs
             },
             'spawn_position': (TAVERN_SPAWN_X, TAVERN_SPAWN_Y),
@@ -42,6 +113,13 @@ class BrokenBladeNav:
         self.temp_message_timer = 0
         self.just_entered_screen = True
     
+    def get_tile_from_layer(self, x, y, layer_name):
+        """Get tile type from a specific layer"""
+        if layer_name in self.tilemap.get('layers', {}):
+            layer_grid = self.tilemap['layers'][layer_name]
+            return get_tile_type(x, y, layer_grid)
+        return None
+
     def _get_current_npcs(self, game_state):
         """Get NPCs that should be visible based on game state"""
         return get_visible_npcs(game_state)
@@ -87,6 +165,36 @@ class BrokenBladeNav:
             return special
         
         return None
+    
+    def _is_walkable_multi_layer(self, x, y):
+        """
+        Check if tile is walkable across ALL layers
+        A tile is only walkable if ALL layers at that position are either:
+        - None (empty)
+        - A walkable tile
+        """
+        if not self.tilemap or not self.layer_names:
+            return False
+        
+        # Check each layer in order
+        for layer_name in self.layer_names:
+            if layer_name not in self.tilemap.get('layers', {}):
+                continue
+            
+            layer_grid = self.tilemap['layers'][layer_name]
+            tile_name = get_tile_type(x, y, layer_grid)
+            
+            # Skip empty tiles
+            if tile_name is None:
+                continue
+            
+            # If tile exists and is NOT walkable, position is blocked
+            if tile_name not in BROKEN_BLADE_WALKABLE:
+                return False
+        
+        # All layers are either empty or walkable
+        return True
+
     
     def update_player_position(self, game_state):
         """Initialize or restore player position in tavern"""
@@ -301,6 +409,9 @@ _broken_blade_nav_instance = None
 def draw_broken_blade_nav(surface, game_state, fonts, images, controller=None):
     """ScreenManager integration function"""
     global _broken_blade_nav_instance
+    
+    # TEMPORARY: Force recreation to pick up code changes
+    #_broken_blade_nav_instance = None
     
     if _broken_blade_nav_instance is None:
         _broken_blade_nav_instance = BrokenBladeNav()

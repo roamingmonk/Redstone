@@ -1,4 +1,4 @@
-﻿## Repository Structure (generated 2025-12-09 18:02)
+﻿## Repository Structure (generated 2025-12-13 19:43)
 ```text
 Folder PATH listing for volume OS
 Volume serial number is 86A5-907E
@@ -89,6 +89,7 @@ C:.
 |       |   |       aethel_ore_sample.png
 |       |   |       alchemist_fire.png
 |       |   |       ancient_coins.png
+|       |   |       ancient_royal_badge.png
 |       |   |       antidote.png
 |       |   |       axe.PNG
 |       |   |       battleaxe.png
@@ -186,14 +187,6 @@ C:.
 |       |   |       wooden_doll_with_button_eyes.jpg
 |       |   |       
 |       |   \---ui
-|       +---Redstone
-|       |   \---assets
-|       |       \---images
-|       |           \---icons
-|       |               \---Items
-|       |                       ancient_royal_badge.png
-|       |                       dagger.png
-|       |                       
 |       +---sprites
 |       |   +---effects
 |       |   |       acid_diag.png
@@ -311,6 +304,8 @@ C:.
 |           |       stone_floor_16x16.png
 |           |       
 |           \---tilesets
+|                   broken_blade.png
+|                   broken_blade_map.tmj
 |                   refugee_camp.json
 |                   refugee_camp.png
 |                   refugee_camp_map.tmj
@@ -321,8 +316,10 @@ C:.
 |   |   
 |           
 +---data
+|   |   dialogue_tester.py
 |   |   items.json
 |   |   merchants.json
+|   |   narrative_schema copy.json
 |   |   narrative_schema.json
 |   |   spells.json
 |   |   __init__.py
@@ -486,6 +483,7 @@ C:.
 |   |       
 |   +---maps
 |   |   |   broken_blade_map.py
+|   |   |   broken_blade_tiles.py
 |   |   |   dungeon_level_1_map.py
 |   |   |   dungeon_level_2_map.py
 |   |   |   dungeon_level_3_map.py

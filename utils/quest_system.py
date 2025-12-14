@@ -290,8 +290,8 @@ class QuestManager:
                     
                     if display_in_log:
                         active_quests.append(quest)
-                    else:
-                        print(f"🔇 Hiding quest from log: {quest.title} (display_in_log=false)")
+                    #else:
+                        #print(f"🔇 Hiding quest from log: {quest.title} (display_in_log=false)")
         
         return active_quests
     

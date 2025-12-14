@@ -12,6 +12,7 @@ from utils.graphics import draw_border, draw_button, draw_centered_text
 from utils.party_display import draw_party_status_panel, PARTY_PANEL_WIDTH
 from utils.tile_graphics import get_tile_graphics_manager
 from utils.world_npc_spawner import get_world_npc_spawner
+from utils.tiled_loader import get_tile_type
 
 def calculate_required_direction(entrance_x, entrance_y, building_pos):
     """
@@ -89,6 +90,10 @@ class NavigationRenderer:
         # world npc spawner
         self.npc_manager = get_world_npc_spawner()
         self.location_id = config.get('location_id', 'unknown')
+
+        # Multi-layer tilemap support (optional)
+        self.tilemap = config.get('tilemap', None)
+        self.layer_names = config.get('layer_names', None)
 
     def check_valid_entrance(self, player_x, player_y, player_direction):
         """
@@ -223,33 +228,63 @@ class NavigationRenderer:
         return self.transition_cooldown <= 0
     
     def draw_map(self, surface, fonts, player_x, player_y, main_surface=None):
-        """Draw the map tiles"""
+        """Draw the map tiles - supports both single-layer and multi-layer rendering"""
+        from utils.tiled_loader import get_tile_type
+
         # Calculate visible tile range
         start_tile_x = max(0, self.camera_x // self.tile_size)
         start_tile_y = max(0, self.camera_y // self.tile_size)
         end_tile_x = min(self.map_width, (self.camera_x + self.display_width) // self.tile_size + 1)
         end_tile_y = min(self.map_height, (self.camera_y + self.display_height) // self.tile_size + 1)
-        
-                # Draw visible tiles
-        for map_y in range(start_tile_y, end_tile_y):
-            for map_x in range(start_tile_x, end_tile_x):
-                tile_type = self.map_functions['get_tile_type'](map_x, map_y)
-                screen_x = (map_x * self.tile_size) - self.camera_x
-                screen_y = (map_y * self.tile_size) - self.camera_y
-                
-                # CHANGED: Get tile with map-specific color if available
-                if self.get_tile_color:
-                    # Map provides its own colors (data-driven approach)
-                    custom_color = self.get_tile_color(map_x, map_y)
-                    tile_image = self.graphics_manager.get_tile_image(
-                        tile_type, 
-                        custom_color=custom_color
-                    )
-                else:
-                    # Use default TileGraphicsManager colors
-                    tile_image = self.graphics_manager.get_tile_image(tile_type)
-                
-                surface.blit(tile_image, (screen_x, screen_y))
+
+        # Check if multi-layer rendering is available
+        if self.tilemap and self.layer_names and 'layers' in self.tilemap:
+            # MULTI-LAYER RENDERING (new system)
+            for layer_name in self.layer_names:
+                if layer_name not in self.tilemap['layers']:
+                    continue
+
+                layer_grid = self.tilemap['layers'][layer_name]
+
+                # Draw all visible tiles in this layer
+                for map_y in range(start_tile_y, end_tile_y):
+                    for map_x in range(start_tile_x, end_tile_x):
+                        tile_name = get_tile_type(map_x, map_y, layer_grid)
+
+                        # Skip empty tiles (0 becomes None)
+                        if tile_name is None:
+                            continue
+
+
+                        screen_x = (map_x * self.tile_size) - self.camera_x
+                        screen_y = (map_y * self.tile_size) - self.camera_y
+
+                        # Get tile image
+                        tile_image = self.graphics_manager.get_tile_image(tile_name)
+
+                        if tile_image:
+                            surface.blit(tile_image, (screen_x, screen_y))
+        else:
+            # SINGLE-LAYER RENDERING (backward compatible - old system)
+            for map_y in range(start_tile_y, end_tile_y):
+                for map_x in range(start_tile_x, end_tile_x):
+                    tile_type = self.map_functions['get_tile_type'](map_x, map_y)
+                    screen_x = (map_x * self.tile_size) - self.camera_x
+                    screen_y = (map_y * self.tile_size) - self.camera_y
+
+                    # Get tile with map-specific color if available
+                    if self.get_tile_color:
+                        custom_color = self.get_tile_color(map_x, map_y)
+                        tile_image = self.graphics_manager.get_tile_image(
+                            tile_type,
+                            custom_color=custom_color
+                        )
+                    else:
+                        tile_image = self.graphics_manager.get_tile_image(tile_type)
+
+                    surface.blit(tile_image, (screen_x, screen_y))
+
+
 
 
     def draw_player(self, surface, player_x, player_y):
