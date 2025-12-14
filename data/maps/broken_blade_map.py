@@ -41,9 +41,9 @@ BROKEN_BLADE_MAP = [
     "#.C.C............MM#",  # Row 7 - First set of recruit tables + Mayor
     "#.TTT...........CMM#",  # Row 8
     "#.................C#",  # Row 9
-    "#..................#",  # Row 10 - Dice game area
-    "#......GGG.....C.C.#",  # Row 11
-    "#......GGG.....TTT.#",  # Row 12
+    "#........GG........#",  # Row 10 - Dice game area
+    "#........GG....C.C.#",  # Row 11
+    "#..............TTT.#",  # Row 12
     "#................C.#",  # Row 13
     "#...CC....CCC......#",  # Row 14
     "#..TTT....TTT......#",  # Row 15
@@ -103,8 +103,8 @@ TAVERN_NPCS = {
     },
     'mayor': {
         'sprite_type': 'noble',
-        'position': (16, 7),  # Upper right corner table
-        'interaction_tiles': [(15, 7), (16, 6), (16, 8)],  # Adjacent tiles
+        'position': (16, 8),  # Upper right corner table
+        'interaction_tiles': [(15, 8), (16, 7), (16, 9)],  # Adjacent tiles
         'display_name': 'Mayor Aldwin',
         'dialogue_id': 'broken_blade_mayor',
         'conditions': {'act_check': 1}  # Act I only
@@ -119,24 +119,24 @@ TAVERN_NPCS = {
     },
     'elara': {
         'sprite_type': 'mage',
-        'position': (3, 14),  # Upper center table
-        'interaction_tiles': [(3, 13), (3, 16), (4, 16), (2,14)],  # Adjacent tiles
+        'position': (2, 14),  # Upper center table
+        'interaction_tiles': [(2, 13), (3, 14), (1,14)],  # Adjacent tiles
         'display_name': 'Elara',
         'dialogue_id': 'broken_blade_elara',
         'conditions': {'not_recruited': 'elara_recruited'}
     },
     'thorman': {
         'sprite_type': 'dwarf',
-        'position': (16, 11),  # Lower left table
-        'interaction_tiles': [(16, 13), (16, 10), (15, 11), (17, 11), (15,13)],  
+        'position': (17, 13),  # Lower left table
+        'interaction_tiles': [(16, 13), (18, 13), (17, 12)],  
         'display_name': 'Thorman',
         'dialogue_id': 'broken_blade_thorman',
         'conditions': {'not_recruited': 'thorman_recruited'}
     },
     'lyra': {
         'sprite_type': 'rogue',
-        'position': (4, 9),  # Lower center table (adjusted from 9 to avoid overlap)
-        'interaction_tiles': [(3, 9), (5, 9), (4, 10)],  # Adjacent tiles
+        'position': (4, 10),  # Lower center table (adjusted from 9 to avoid overlap)
+        'interaction_tiles': [(3, 10), (5, 10), (4, 11)],  # Adjacent tiles
         'display_name': 'Lyra',
         'dialogue_id': 'broken_blade_lyra',
         'conditions': {'not_recruited': 'lyra_recruited'}
@@ -278,7 +278,7 @@ def get_transition_at_entrance(player_x, player_y, game_state):
 # === SPECIAL INTERACTION AREAS ===
 SPECIAL_AREAS = {
     'dice_game': {
-        'trigger_tiles': [(7, 10), (8, 10), (9, 10), (7, 13), (8, 13), (9, 13), (10,11), (10,12)],
+        'trigger_tiles': [(8, 10), (8, 11), (9, 12), (10, 12), (11,11), (11,10), (9,9), (10,9)],
         'info': {
             'name': 'Dice Game Table',
             'interaction_type': 'navigation',
