@@ -100,7 +100,7 @@ AREA_TRANSITIONS = {
     'info': {
         'name': 'Dungeon Stairs',
         'interaction_type': 'navigation',
-        'target_screen': 'hill_ruins_dungeon_entrance',  
+        'target_screen': 'dungeon_level_1_nav',  
         'action': 'Descend into Dungeon',
         'requirements': {}
     }
