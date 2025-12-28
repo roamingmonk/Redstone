@@ -6,44 +6,105 @@ Second level of the cult's sanctum - deeper and more dangerous
 import pygame
 import random
 from ui.base_location_navigation import NavigationRenderer
-from utils.constants import BLACK, WHITE, YELLOW, RED, LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT
+from utils.constants import (BLACK, WHITE, YELLOW, RED, LAYOUT_DIALOG_Y, 
+                             LAYOUT_DIALOG_HEIGHT, TILESETS_PATH)
 from utils.graphics import draw_centered_text, draw_border
 from utils.party_display import draw_party_status_panel
 from utils.tile_graphics import get_tile_graphics_manager
+from utils.tiled_loader import (
+    load_tiled_map_with_names,
+    get_tile_type,
+    is_walkable_tile
+)
+
+from data.maps.dungeon_tiles import (
+    DUNGEON_TILE_MAP,
+    DUNGEON_WALKABLE
+)
 from data.maps.dungeon_level_2_map import (
     DUNGEON_L2_WIDTH,
     DUNGEON_L2_HEIGHT,
     DUNGEON_L2_SPAWN_X,
     DUNGEON_L2_SPAWN_Y,
     DUNGEON_L2_SPAWN_POINTS,
-    get_tile_type,
-    is_walkable,
-    get_tile_color,
     get_transition_at_entrance,
     get_searchable_at_position,
     get_combat_trigger,
     get_environmental_hazard
 )
-
+from data.maps.dungeon_level_1_map import DUNGEON_L1_SPAWN_POINTS
 from data.maps.dungeon_level_3_map import DUNGEON_L3_SPAWN_POINTS
 
 class DungeonLevel2Nav:
     """Navigation screen for dungeon level 2"""
 
     def __init__(self):
+        # Load tileset from grid (shared dungeon tileset)
+        graphics_mgr = get_tile_graphics_manager()
+        graphics_mgr.load_tileset_from_grid(
+            'dungeon',                   # PNG filename (without extension)
+            DUNGEON_TILE_MAP,            # Tile mapping
+            tile_size=32,                # Source tile size in PNG
+            columns=8                    # Number of columns in dungeon.png
+        )
+        
+        # Load Tiled map
+        try:
+            self.tilemap = load_tiled_map_with_names(
+                'dungeon_level_2_tiles',  # TMJ filename (without extension)
+                'dungeon',
+                DUNGEON_TILE_MAP,
+                TILESETS_PATH
+            )
+            print(f"✅ Tilemap loaded: {self.tilemap['width']}x{self.tilemap['height']}")
+            
+            # Convert all layers to use tile names instead of indices
+            if 'layers' in self.tilemap:
+                for layer_name, layer_grid in self.tilemap['layers'].items():
+                    named_layer = []
+                    for row in layer_grid:
+                        named_row = []
+                        for tile_index in row:
+                            if tile_index in DUNGEON_TILE_MAP:
+                                tile_name = DUNGEON_TILE_MAP[tile_index]
+                            else:
+                                tile_name = None  # Unknown tiles become None
+                            named_row.append(tile_name)
+                        named_layer.append(named_row)
+                    self.tilemap['layers'][layer_name] = named_layer
+                print(f"✅ Converted {len(self.tilemap['layers'])} layers to use tile names")
+            
+            # Store layer names in render order
+            self.layer_names = ['Floor', 'Walls', 'Details']
+
+        except FileNotFoundError as e:
+            print(f"❌ Tiled map file not found: {e}")
+            # Fallback to old system
+            self.tilemap = {
+                'width': DUNGEON_L2_WIDTH,
+                'height': DUNGEON_L2_HEIGHT,
+                'tile_grid': None
+            }
+            self.layer_names = None
+        
         config = {
+            'tile_size': 64,
             'player_sprite_size': 64,
-            'map_width': DUNGEON_L2_WIDTH,
-            'map_height': DUNGEON_L2_HEIGHT,
+            'map_width': self.tilemap['width'],
+            'map_height': self.tilemap['height'],
             'location_id': 'dungeon_level_2',
+            'tilemap': self.tilemap,
+            'layer_names': self.layer_names,
             'map_functions': {
-                'get_tile_type': get_tile_type,
-                'is_walkable': is_walkable,
-                'get_tile_color': get_tile_color,
+                'get_tile_type': lambda x, y: get_tile_type(x, y, self.tilemap.get('tile_grid')),
+                'is_walkable': self._is_walkable_multi_layer,
+                'get_tile_color': None,  # Using graphics now, not colors
                 'get_building_info': get_transition_at_entrance,
                 'get_searchable_info': get_searchable_at_position,
                 'get_combat_trigger': get_combat_trigger
-            }
+            },
+            'spawn_position': (DUNGEON_L2_SPAWN_X, DUNGEON_L2_SPAWN_Y),
+            'spawn_direction': 'down'
         }
 
         self.renderer = NavigationRenderer(config)
@@ -52,6 +113,42 @@ class DungeonLevel2Nav:
         self.message_timer = 0
         self.is_hazard_message = False
         self.graphics_manager = get_tile_graphics_manager()
+
+    def get_tile_from_layer(self, x, y, layer_name):
+        """Get tile type from a specific layer"""
+        if layer_name in self.tilemap.get('layers', {}):
+            layer_grid = self.tilemap['layers'][layer_name]
+            return get_tile_type(x, y, layer_grid)
+        return None
+
+    def _is_walkable_multi_layer(self, x, y):
+        """
+        Check if tile is walkable across ALL layers
+        A tile is only walkable if ALL layers at that position are either:
+        - None (empty)
+        - A walkable tile
+        """
+        if not self.tilemap or not self.layer_names:
+            return False
+        
+        # Check each layer in order
+        for layer_name in self.layer_names:
+            if layer_name not in self.tilemap.get('layers', {}):
+                continue
+            
+            layer_grid = self.tilemap['layers'][layer_name]
+            tile_name = get_tile_type(x, y, layer_grid)
+            
+            # Skip empty tiles
+            if tile_name is None:
+                continue
+            
+            # If tile exists and is NOT walkable, position is blocked
+            if tile_name not in DUNGEON_WALKABLE:
+                return False
+        
+        # All layers are either empty or walkable
+        return True
 
     def update_player_position(self, game_state):
         """Initialize or restore player position"""
@@ -79,7 +176,6 @@ class DungeonLevel2Nav:
         self.show_temp_message(message, is_hazard=True)
         
         # Apply damage to party (simplified - could be more sophisticated)
-        # For now, just log it
         print(f"⚠️ Environmental hazard: {hazard_type}, damage: {damage}")
         
         # Could trigger event for damage application
@@ -165,7 +261,7 @@ class DungeonLevel2Nav:
                     
                     # Set spawn position for destination level
                     if target == 'dungeon_level_1_nav':
-                        spawn_point = DUNGEON_L2_SPAWN_POINTS.get('from_level_1')
+                        spawn_point = DUNGEON_L1_SPAWN_POINTS.get('from_level_2')
                         if spawn_point:
                             game_state.dungeon_l1_spawn_override_x = spawn_point[0]
                             game_state.dungeon_l1_spawn_override_y = spawn_point[1]
@@ -291,10 +387,16 @@ class DungeonLevel2Nav:
         player_x = game_state.dungeon_l2_x
         player_y = game_state.dungeon_l2_y
 
+        # Draw map tiles (multi-layer)
         self.renderer.draw_map(surface, fonts, player_x, player_y)
+        
+        # Draw player sprite
         self.renderer.draw_player(surface, player_x, player_y)
+        
+        # Draw party status panel
         draw_party_status_panel(surface, game_state, fonts)
 
+        # Draw title
         title_text = "DUNGEON - LEVEL 2"
         draw_centered_text(surface, title_text, fonts['fantasy_medium'], 20, YELLOW, 880)
 
@@ -304,6 +406,7 @@ class DungeonLevel2Nav:
         dialog_margin = 0
         draw_border(surface, dialog_margin, dialog_y, 1024 - (dialog_margin * 2), dialog_height)
 
+        # Draw interaction prompts
         transition = self.renderer.check_valid_entrance(player_x, player_y, self.renderer.player_direction)
         if transition and transition[0]:
             prompt = f"Press ENTER to {transition[0]['action']}"

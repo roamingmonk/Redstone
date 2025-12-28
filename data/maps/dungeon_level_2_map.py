@@ -1,9 +1,9 @@
 """
 Dungeon Level 2 - Ancient Lower Ruins
 18x18 tile grid - Deeper into the ancient structure
-ZONE 2: Transition between ancient ruins and cult occupation
-Enemies: Skeleton Archers, More Animated Armor, Shadow Wraiths
-Environmental Hazards: Collapsing floors, trapped corridors
+
+Visual tilemap is loaded from dungeon_level_2_tiles.tmj
+This file contains game logic: spawn points, transitions, searchables, combat triggers
 """
 
 from utils.constants import (
@@ -12,122 +12,37 @@ from utils.constants import (
     BUTTON_SIZES, SCREEN_WIDTH
 )
 
+# Map dimensions (must match TMJ file)
 DUNGEON_L2_WIDTH = 18
 DUNGEON_L2_HEIGHT = 18
 
-# Starting position (entering from Level 1 - at top stairs)
-DUNGEON_L2_SPAWN_X = 1
-DUNGEON_L2_SPAWN_Y = 1
-
 # Spawn points for different entry methods
 DUNGEON_L2_SPAWN_POINTS = {
-    'from_level_1': (1, 1),         # Top of map, at stairs up 'U'
-    'from_level_3': (12, 16),       # Bottom of map, at stairs down 'S'
-    'default': (1, 1)
-}
-# Tile type definitions
-TILE_TYPES = {
-    '#': 'wall',           # Stone walls (impassable)
-    '.': 'floor',          # Stone floor (walkable)
-    'P': 'pillar',         # Stone pillar (not walkable, cover in combat)
-    'D': 'door',           # Wooden door (walkable)
-    'S': 'stairs_down',    # Stairs to Level 3
-    'U': 'stairs_up',      # Stairs back to Level 1
-    '~': 'combat_zone',    # Combat encounter trigger
-    'C': 'chest',          # Loot chest (searchable)
-    'T': 'trap',           # Trapped floor (damage + combat trigger)
-    '+': 'rubble',         # Debris (walkable, slows movement)
-    'W': 'weak_floor',     # Collapsing floor (walkable, environmental hazard)
-    'B': 'bones',          # Bone pile (searchable, lore)
+    'from_level_1': (9, 1),         # Top center, at stairs up (Details layer tile 40)
+    'from_level_3': (9, 16),        # Bottom center, at stairs down (Details layer tile 39)
+    'default': (9, 1)
 }
 
-WALKABLE_TILES = {'floor', 'door', 'stairs_down', 'stairs_up', 'combat_zone', 
-                  'chest', 'trap', 'rubble', 'weak_floor', 'bones'}
+# Legacy support
+DUNGEON_L2_SPAWN_X = DUNGEON_L2_SPAWN_POINTS['default'][0]
+DUNGEON_L2_SPAWN_Y = DUNGEON_L2_SPAWN_POINTS['default'][1]
 
-# ASCII map layout - 18x18 grid
-# Legend:
-#  U = Stairs up to Level 1
-#  ~ = Combat encounter
-#  T = Trap (damage + combat)
-#  C = Chest
-#  W = Weak floor (hazard)
-#  B = Bone pile (searchable)
-#  S = Stairs down to Level 3
-#  P = Pillar
-#  # = Wall
-#  . = Floor
-
-DUNGEON_L2_MAP = [
-    "###################",  # Row 0
-    "#........U........#",  # Row 1 - Stairs up (spawn)
-    "#.................#",  # Row 2
-    "#..PP.........PP..#",  # Row 3 - Pillars
-    "#....~............#",  # Row 4 - ENCOUNTER 1: Skeleton archers
-    "#.................#",  # Row 5
-    "#..........W......#",  # Row 6 - Weak floor hazard
-    "#.....C...........#",  # Row 7 - Chest
-    "#..PP.........PP..#",  # Row 8
-    "#.................#",  # Row 9
-    "#......~..........#",  # Row 10 - ENCOUNTER 2: Animated armor patrol
-    "#.................#",  # Row 11
-    "#.....B...........#",  # Row 12 - Bone pile (lore)
-    "#.................#",  # Row 13
-    "#..T..............#",  # Row 14 - Trap + encounter
-    "#.................#",  # Row 15
-    "#........S........#",  # Row 16 - Stairs down
-    "###################"   # Row 17
-]
-
-def get_tile_type(x, y):
-    """Get tile type at coordinates"""
-    if 0 <= y < DUNGEON_L2_HEIGHT and 0 <= x < DUNGEON_L2_WIDTH:
-        char = DUNGEON_L2_MAP[y][x]
-        return TILE_TYPES.get(char, 'wall')
-    return 'wall'
-
-def is_walkable(x, y):
-    """Check if tile is walkable"""
-    tile_type = get_tile_type(x, y)
-    return tile_type in WALKABLE_TILES
-
-def get_tile_color(x, y):
-    """
-    Get color for tile rendering
-    TODO: Replace with proper tileset graphics
-    These are PLACEHOLDER colors for testing
-    """
-    tile_type = get_tile_type(x, y)
-    TILE_COLORS = {
-        'wall': (35, 35, 40),           # Darker stone walls
-        'floor': (75, 70, 65),          # Gray stone floor
-        'pillar': (55, 50, 45),         # Darker stone pillar
-        'door': (85, 65, 45),           # Wooden door
-        'stairs_down': (95, 85, 75),    # Lighter stone (highlight)
-        'stairs_up': (95, 85, 75),      # Lighter stone (highlight)
-        'combat_zone': (80, 70, 65),    # Slightly different floor
-        'chest': (140, 110, 40),        # Gold/brown chest (highlight)
-        'trap': (100, 50, 50),          # Reddish (danger)
-        'rubble': (65, 60, 55),         # Darker debris
-        'weak_floor': (85, 75, 70),     # Slightly cracked floor
-        'bones': (120, 115, 110),       # Pale bones (highlight)
-    }
-    return TILE_COLORS.get(tile_type, (128, 128, 128))
-
-# Area transitions
+# === AREA TRANSITIONS ===
+# These define where players can move between areas
 AREA_TRANSITIONS = {
     'stairs_to_level_3': {
-        'entrance_tiles': [(9, 16), (8, 16), (10, 16)],  # Around stairs
+        'entrance_tiles': [(9, 16), (8, 16), (10, 16), (9,15)],  # Around stairs down
         'building_pos': [(9, 16)],
         'info': {
             'name': 'Descending Stairs',
             'interaction_type': 'navigation',
             'target_screen': 'dungeon_level_3_nav',
             'action': 'Descend to Level 3',
-            'requirements': {'flag': 'dungeon_level_2_complete'}
+            'requirements': {}
         }
     },
     'stairs_to_level_1': {
-        'entrance_tiles': [(9, 1), (8, 1), (10, 1)],  # Stairs up
+        'entrance_tiles': [(9, 1), (9, 2), (10, 1)],  # Around stairs up
         'building_pos': [(9, 1)],
         'info': {
             'name': 'Ascending Stairs',
@@ -146,11 +61,12 @@ def get_transition_at_entrance(player_x, player_y):
             return transition_data['info']
     return None
 
-# Searchable objects
+# === SEARCHABLE OBJECTS ===
+# These are objects players can examine and interact with
 SEARCHABLE_OBJECTS = {
     'treasure_chest': {
-        'search_tiles': [(7, 7), (6, 7), (8, 7)],
-        'object_pos': [(7, 7)],
+        'search_tiles': [(4, 12), (6, 12), (3, 13), (3, 14)],  
+        'object_pos': [(5, 12)],
         'info': {
             'name': 'Ancient Treasure Chest',
             'interaction_type': 'searchable',
@@ -163,8 +79,8 @@ SEARCHABLE_OBJECTS = {
         }
     },
     'bone_pile': {
-        'search_tiles': [(6, 12), (7, 12), (5, 12)],  # Around bones
-        'object_pos': [(6, 12)],
+        'search_tiles': [(5, 12)],  # Debris position (Details layer tile 32)
+        'object_pos': [(5, 12)],
         'info': {
             'name': 'Ancient Bone Pile',
             'interaction_type': 'dialogue',
@@ -185,10 +101,12 @@ def get_searchable_at_position(player_x, player_y):
             return obj_data['info']
     return None
 
-# Combat encounters
+# === COMBAT TRIGGERS ===
+# These are tiles that trigger combat when stepped on
+# Positions should correspond to open floor areas in the tilemap
 COMBAT_ENCOUNTERS = {
     'skeleton_archers': {
-        'trigger_tiles': [(5, 4), (6, 4), (7, 4)],  # Combat zone 1
+        'trigger_tiles': [(5, 4), (6, 4)],  # Upper area
         'encounter_id': 'dungeon_l2_skeleton_archers',
         'one_time': True,
         'completion_flag': 'dungeon_l2_encounter_1_complete',
@@ -196,7 +114,7 @@ COMBAT_ENCOUNTERS = {
         'chance': 1.0
     },
     'animated_armor_patrol': {
-        'trigger_tiles': [(7, 10), (8, 10), (6, 10)],  # Combat zone 2
+        'trigger_tiles': [(10, 9), (11, 9), (12, 9)],  # Middle-right area near altar structure
         'encounter_id': 'dungeon_l2_animated_patrol',
         'one_time': True,
         'completion_flag': 'dungeon_l2_encounter_2_complete',
@@ -204,7 +122,7 @@ COMBAT_ENCOUNTERS = {
         'chance': 1.0
     },
     'trap_ambush': {
-        'trigger_tiles': [(3, 14), (4, 14)],  # Trap tile
+        'trigger_tiles': [(3, 14), (4, 14)],  # Lower area
         'encounter_id': 'dungeon_l2_trap_ambush',
         'one_time': True,
         'completion_flag': 'dungeon_l2_encounter_3_complete',
@@ -221,10 +139,11 @@ def get_combat_trigger(x, y):
             return encounter_data
     return None
 
-# Environmental hazards (weak floors, etc.)
+# === ENVIRONMENTAL HAZARDS ===
+# These are special tiles that cause environmental damage
 ENVIRONMENTAL_HAZARDS = {
     'weak_floor_1': {
-        'hazard_tiles': [(11, 6)],
+        'hazard_tiles': [(11, 6)],  # Right side, mid-upper area
         'hazard_type': 'collapsing_floor',
         'damage': '1d6',
         'message': 'The floor cracks beneath you! You fall through partially before catching yourself.'
@@ -237,3 +156,87 @@ def get_environmental_hazard(x, y):
         if (x, y) in hazard_data['hazard_tiles']:
             return hazard_data
     return None
+
+
+# === LEGACY TILE FUNCTIONS ===
+# These are kept for backwards compatibility but are not actively used
+# Visual rendering comes from dungeon_level_2_tiles.tmj
+
+# Tile type definitions (legacy)
+TILE_TYPES = {
+    '#': 'wall',
+    '.': 'floor',
+    'P': 'pillar',
+    'D': 'door',
+    'S': 'stairs_down',
+    'U': 'stairs_up',
+    '~': 'combat_zone',
+    'C': 'chest',
+    'T': 'trap',
+    '+': 'rubble',
+    'W': 'weak_floor',
+    'B': 'bones',
+}
+
+WALKABLE_TILES = {'floor', 'door', 'stairs_down', 'stairs_up', 'combat_zone', 
+                  'chest', 'trap', 'rubble', 'weak_floor', 'bones'}
+
+# ASCII map layout (legacy - visual comes from TMJ now)
+DUNGEON_L2_MAP = [
+    "###################",  # Row 0
+    "#........U........#",  # Row 1 - Stairs up (spawn)
+    "#.................#",  # Row 2
+    "#..PP.........PP..#",  # Row 3 - Pillars
+    "#....~............#",  # Row 4 - ENCOUNTER 1
+    "#.................#",  # Row 5
+    "#..........W......#",  # Row 6 - Weak floor hazard
+    "#.....C...........#",  # Row 7 - Chest
+    "#..PP.........PP..#",  # Row 8
+    "#.................#",  # Row 9
+    "#......~..........#",  # Row 10 - ENCOUNTER 2
+    "#.................#",  # Row 11
+    "#.....B...........#",  # Row 12 - Bone pile
+    "#.................#",  # Row 13
+    "#..T..............#",  # Row 14 - Trap + encounter
+    "#.................#",  # Row 15
+    "#........S........#",  # Row 16 - Stairs down
+    "###################"   # Row 17
+]
+
+def get_tile_type(x, y, tile_grid=None):
+    """Get tile type at coordinates (legacy function)"""
+    if tile_grid:
+        # New system: use provided tile grid
+        if 0 <= y < len(tile_grid) and 0 <= x < len(tile_grid[0]):
+            return tile_grid[y][x]
+        return None
+    else:
+        # Legacy system: use ASCII map
+        if 0 <= y < DUNGEON_L2_HEIGHT and 0 <= x < DUNGEON_L2_WIDTH:
+            char = DUNGEON_L2_MAP[y][x]
+            return TILE_TYPES.get(char, 'wall')
+        return 'wall'
+
+def is_walkable(x, y):
+    """Check if tile is walkable (legacy function)"""
+    tile_type = get_tile_type(x, y)
+    return tile_type in WALKABLE_TILES
+
+def get_tile_color(x, y):
+    """Get color for tile rendering (legacy function)"""
+    tile_type = get_tile_type(x, y)
+    TILE_COLORS = {
+        'wall': (35, 35, 40),
+        'floor': (75, 70, 65),
+        'pillar': (55, 50, 45),
+        'door': (85, 65, 45),
+        'stairs_down': (95, 85, 75),
+        'stairs_up': (95, 85, 75),
+        'combat_zone': (80, 70, 65),
+        'chest': (140, 110, 40),
+        'trap': (100, 50, 50),
+        'rubble': (65, 60, 55),
+        'weak_floor': (85, 75, 70),
+        'bones': (120, 115, 110),
+    }
+    return TILE_COLORS.get(tile_type, (128, 128, 128))
