@@ -184,7 +184,7 @@ def get_transition_at_entrance(player_x, player_y):
 # Searchable objects
 SEARCHABLE_OBJECTS = {
     'convergence_chest': {
-        'search_tiles': [(7, 8), (8, 8), (6, 8)],  # Around chest
+        'search_tiles': [(7, 7), (6, 8), (8, 8)],  # Around chest
         'object_pos': [(7, 8)],
         'info': {
             'name': 'Heavy Iron Chest',
@@ -198,8 +198,8 @@ SEARCHABLE_OBJECTS = {
         }
     },
     'cult_altar': {
-        'search_tiles': [(3, 17), (4, 17), (2, 17)],  # Around altar
-        'object_pos': [(3, 17)],
+        'search_tiles': [(2, 17), (5, 17), (3, 16), (4, 16)],  # Around altar
+        'object_pos': [(3, 17), (4, 17)],
         'info': {
             'name': 'Defiled Cult Altar',
             'interaction_type': 'dialogue',
@@ -212,8 +212,8 @@ SEARCHABLE_OBJECTS = {
         }
     },
     'ritual_circle': {
-        'search_tiles': [(7, 16), (8, 16), (6, 16)],  # Around circle
-        'object_pos': [(7, 16)],
+        'search_tiles': [(2, 14), (2, 15), (5, 14), (5, 15), (3, 13), (4, 13)],  # Around circle
+        'object_pos': [(3, 14), (4, 14), (3, 15), (4, 15)],
         'info': {
             'name': 'Blood Ritual Circle',
             'interaction_type': 'dialogue',
@@ -226,7 +226,7 @@ SEARCHABLE_OBJECTS = {
         }
     },
     'brazier': {
-        'search_tiles': [(11, 12), (12, 12), (10, 12)],  # Around brazier
+        'search_tiles': [(11, 13), (12, 12), (10, 12)],  # Around brazier
         'object_pos': [(11, 12)],
         'info': {
             'name': 'Burning Brazier',
