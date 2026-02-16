@@ -1,9 +1,9 @@
 {
   "version": "2.0",
-  "timestamp": "2025-10-26T10:19:47.400341",
+  "timestamp": "2025-11-25T16:27:23.933015",
   "save_slot": 99,
   "character": {
-    "name": "Rhea Nightblade",
+    "name": "Dara Strongwill",
     "class": "fighter",
     "species": {
       "id": "human",
@@ -18,33 +18,44 @@
       }
     },
     "gender": "female",
-    "trinket": "pressed_flowers",
-    "strength": 16,
-    "dexterity": 13,
-    "constitution": 10,
-    "intelligence": 11,
-    "wisdom": 12,
-    "charisma": 10,
+    "trinket": "polished_obsidian_shard",
+    "strength": 12,
+    "dexterity": 14,
+    "constitution": 15,
+    "intelligence": 15,
+    "wisdom": 15,
+    "charisma": 11,
     "level": 1,
-    "experience": 0,
-    "max_hp": 10,
-    "current_hp": 10,
+    "experience": 170,
+    "max_hp": 12,
+    "current_hp": 12,
     "abilities": [
-      "Fighting Style",
-      "Second Wind"
+      "Fighting Style"
     ],
-    "gold": 180,
+    "gold": 232,
     "gambling_stats": {
-      "house_money": 427,
+      "house_money": 587,
       "game_active": true,
-      "win_streak": 0,
+      "win_streak": 2,
       "loss_streak": 0,
-      "total_winnings": 0,
-      "total_losses": 0,
-      "games_played": 0,
-      "last_roll": [],
-      "current_bet": 0,
-      "last_result": {}
+      "total_winnings": 87,
+      "total_losses": 75,
+      "games_played": 5,
+      "last_roll": [
+        4,
+        5,
+        6
+      ],
+      "current_bet": 25,
+      "last_result": {
+        "combination": "Straight",
+        "payout": 75,
+        "description": "Excellent! Straight 4-5-6!",
+        "game_continues": true
+      },
+      "rolling": true,
+      "roll_start_time": 92551,
+      "animation_skipped": false
     },
     "is_cavia": false,
     "selected_portrait_file": "player_female_02.jpg",
@@ -65,22 +76,35 @@
       "shield"
     ],
     "items": [
-      "pressed_flowers"
+      "polished_obsidian_shard",
+      "ancient_coins",
+      "ancient_coins",
+      "ancient_coins",
+      "ancient_coins",
+      "ancient_coins",
+      "silver_coins",
+      "silver_coins",
+      "silver_coins",
+      "silver_coins",
+      "silver_coins",
+      "silver_coins",
+      "silver_coins",
+      "silver_coins"
     ],
     "consumables": []
   },
   "player_statistics": {
     "areas_visited": 0,
-    "npcs_met": 0,
+    "npcs_met": 2,
     "items_consumed": 0,
     "items_discarded": 0,
     "xp_from_combat": 0,
-    "xp_from_noncombat": 0,
-    "dice_games_played": 0,
-    "dice_total_winnings": 0,
-    "longest_win_streak": 0,
-    "longest_losing_streak": 0,
-    "highest_winning_roll": 0,
+    "xp_from_noncombat": 170,
+    "dice_games_played": 5,
+    "dice_total_winnings": 12,
+    "longest_win_streak": 2,
+    "longest_losing_streak": 3,
+    "highest_winning_roll": 75,
     "total_gold_earned": 0,
     "player_kills": 0,
     "weapon_kills": {},
@@ -94,23 +118,35 @@
     "party_knockouts": 0,
     "enemy_defeats": {},
     "total_damage_dealt": 0,
-    "times_saved": 1
+    "times_saved": 2,
+    "objects_examined": 1
   },
-  "npcs_encountered": [],
+  "npcs_encountered": [
+    "garrick",
+    "mayor"
+  ],
   "quest_system": {
     "main_story": {
       "status": "active",
       "objectives": [
+        {
+          "id": "_comment_quest ACT I",
+          "completed": false
+        },
         {
           "id": "talk_to_npcs",
           "completed": false
         },
         {
           "id": "meet_mayor",
-          "completed": false
+          "completed": true
         },
         {
           "id": "recruit_party",
+          "completed": false
+        },
+        {
+          "id": "_comment_quest ACT II: A",
           "completed": false
         },
         {
@@ -119,7 +155,7 @@
         },
         {
           "id": "learn_hill_ruins",
-          "completed": false
+          "completed": true
         },
         {
           "id": "learn_refugee_camp",
@@ -136,11 +172,99 @@
         {
           "id": "explore_refugee_camp",
           "completed": false
+        },
+        {
+          "id": "_comment_quest ACT II: B",
+          "completed": false
+        },
+        {
+          "id": "understand_portal",
+          "completed": false
+        },
+        {
+          "id": "find_mayors_family_fate",
+          "completed": false
+        },
+        {
+          "id": "learn_sacrifice_plan",
+          "completed": false
+        },
+        {
+          "id": "discover_aethel_ore_connection",
+          "completed": false
+        },
+        {
+          "id": "_comment_quest ACT II: C",
+          "completed": false
+        },
+        {
+          "id": "report_to_mayor",
+          "completed": false
+        },
+        {
+          "id": "obtain_dungeon_access",
+          "completed": false
+        },
+        {
+          "id": "_comment_quest ACT III: ",
+          "completed": false
+        },
+        {
+          "id": "enter_dungeon",
+          "completed": false
+        },
+        {
+          "id": "reach_portal_chamber",
+          "completed": false
+        },
+        {
+          "id": "confront_cult_leader",
+          "completed": false
+        },
+        {
+          "id": "stop_ritual",
+          "completed": false
+        },
+        {
+          "id": "defeat_final_boss",
+          "completed": false
+        },
+        {
+          "id": "portal_unsealed",
+          "completed": false
+        },
+        {
+          "id": "bad_ending",
+          "completed": false
+        },
+        {
+          "id": "chamber_collapse",
+          "completed": false
+        },
+        {
+          "id": "portal_condition",
+          "completed": false
+        },
+        {
+          "id": "_comment_quest EPILOGUE: ",
+          "completed": false
+        },
+        {
+          "id": "rescue_survivors",
+          "completed": false
+        },
+        {
+          "id": "seal_portal",
+          "completed": false
+        },
+        {
+          "id": "return_to_town",
+          "completed": false
         }
       ]
     },
     "party_building": {
-      "status": "inactive",
+      "status": "active",
       "objectives": [
         {
           "id": "recruit_warrior",
@@ -178,7 +302,7 @@
       ]
     },
     "intelligence_gathering": {
-      "status": "inactive",
+      "status": "active",
       "objectives": [
         {
           "id": "swamp_detailed_intel",
@@ -186,7 +310,7 @@
         },
         {
           "id": "ruins_detailed_intel",
-          "completed": false
+          "completed": true
         },
         {
           "id": "refugee_detailed_intel",
@@ -220,14 +344,69 @@
       ]
     },
     "find_henrik": {
-      "status": "inactive",
+      "status": "active",
       "objectives": [
         {
           "id": "find_henrik_square",
-          "completed": false
+          "completed": true
         },
         {
           "id": "talk_to_henrik",
+          "completed": false
+        }
+      ]
+    },
+    "marcus_last_recipe": {
+      "status": "inactive",
+      "objectives": [
+        {
+          "id": "find_glowcap_mushrooms",
+          "completed": false
+        },
+        {
+          "id": "return_mushrooms_to_cassia",
+          "completed": false
+        }
+      ]
+    },
+    "marcus_journals": {
+      "status": "inactive",
+      "objectives": [
+        {
+          "id": "read_marcus_journals",
+          "completed": false
+        },
+        {
+          "id": "confront_marcus",
+          "completed": false
+        },
+        {
+          "id": "report_to_cassia",
+          "completed": false
+        }
+      ]
+    },
+    "casper_redemption": {
+      "status": "inactive",
+      "objectives": [
+        {
+          "id": "meet_beggar",
+          "completed": false
+        },
+        {
+          "id": "learn_beggar_name",
+          "completed": false
+        },
+        {
+          "id": "learn_casper_backstory",
+          "completed": false
+        },
+        {
+          "id": "casper_redemption_choice",
+          "completed": false
+        },
+        {
+          "id": "casper_redemption_complete",
           "completed": false
         }
       ]
@@ -238,11 +417,11 @@
   "npc_interaction_flags": {},
   "time_of_day": "day",
   "current_day": "monday",
-  "town_player_x": null,
-  "town_player_y": null,
-  "current_screen": "broken_blade",
+  "town_player_x": 7,
+  "town_player_y": 11,
+  "current_screen": "hill_ruins_entrance_nav",
   "screen_history": [],
-  "previous_screen": null,
+  "previous_screen": "broken_blade_nav",
   "pending_combat_encounter": null,
   "party_members": [],
   "party_member_data": [],
@@ -251,15 +430,15 @@
   "quest_flags": {},
   "npc_recruitment_status": {},
   "conversations_had": [],
-  "mayor_talked": false,
+  "mayor_talked": true,
   "mayor_mentioned": false,
   "pete_attempted_recruitment": false,
   "pete_showing_comedy": false,
   "meredith_talked": false,
-  "garrick_talked": false,
+  "garrick_talked": true,
   "learned_about_church": false,
-  "learned_about_ruins": false,
-  "quest_active": false,
+  "learned_about_ruins": true,
+  "quest_active": true,
   "just_got_quest": false,
   "showing_meredith_response": false,
   "showing_garrick_response": false,
@@ -274,13 +453,31 @@
     "meredith_directed_to_mayor": false,
     "meredith_gave_swamp_info": false,
     "meredith_gave_ring_quest": false,
+    "found_merediths_ring": false,
     "returned_meredith_ring": false,
     "meredith_mentioned_old_mine": false,
     "meredith_worried_tremors": false,
-    "garrick_talked": false,
-    "garrick_gave_ruins_info": false,
+    "meredith_post_victory_complete": false,
+    "beggar_talked": false,
+    "beggar_name_revealed": false,
+    "casper_backstory_known": false,
+    "casper_ring_mentioned": false,
+    "casper_aware_player_has_ring": false,
+    "casper_offered_ring": false,
+    "casper_given_ring": false,
+    "casper_declined_redemption": false,
+    "casper_disappeared": false,
+    "casper_returned_ring_to_meredith": false,
+    "casper_redemption_complete": false,
+    "casper_recovery_visible": false,
+    "casper_epilogue_active": false,
+    "epilogue_couple_talked": false,
+    "invited_to_casper_meredith_wedding": false,
+    "meredith_casper_romance": false,
+    "garrick_talked": true,
+    "garrick_gave_ruins_info": true,
     "garrick_offered_basement": false,
-    "garrick_mentioned_mayor": false,
+    "garrick_mentioned_mayor": true,
     "accepted_basement_quest": false,
     "completed_basement_combat": false,
     "reported_basement_victory": false,
@@ -293,12 +490,16 @@
     "pete_showing_comedy": false,
     "pete_comedy_complete": false,
     "pete_gave_refugee_info": false,
-    "mayor_talked": false,
-    "quest_active": false,
-    "mayor_mentioned_family": false,
+    "mayor_talked": true,
+    "quest_active": true,
+    "mayor_mentioned_family": true,
     "mayor_gave_swamp_info": false,
-    "mayor_gave_ruins_info": false,
+    "mayor_gave_ruins_info": true,
     "mayor_gave_refugee_info": false,
+    "mayor_acknowledged_swamp_complete": false,
+    "mayor_acknowledged_ruins_complete": false,
+    "mayor_acknowledged_refugee_complete": false,
+    "mayor_acknowledged_mine_complete": false,
     "main_quest_completed": false,
     "reported_main_quest": false,
     "mayor_paid_main_quest": false,
@@ -319,10 +520,13 @@
     "lyra_shared_skills": false,
     "bernard_talked": false,
     "bernard_first_visit": false,
+    "bernard_gave_ruins_info": false,
+    "bernard_gave_refugee_info": false,
     "bernard_shared_rumors": false,
     "bernard_gave_discount": false,
     "jenna_talked": false,
     "jenna_gave_discount": false,
+    "jenna_gave_refugee_info": false,
     "henrik_talked": false,
     "henrik_told_ore_story": false,
     "henrik_shared_tremor_concern": false,
@@ -333,13 +537,176 @@
     "retrieved_ore_samples": false,
     "reported_shaft_to_henrik": false,
     "henrik_noticed_cavia_sensitivity": false,
+    "learned_about_mine": false,
+    "examined_henrik_seal": false,
+    "mine_seal_broken": false,
+    "examined_mine_warnings": false,
+    "searched_mine_equipment": false,
+    "saw_aethel_ore": false,
+    "searched_level_1_ore": false,
+    "searched_kobold_nest": false,
+    "examined_unstable_warning": false,
+    "searched_mining_carts": false,
+    "searched_mine_rubble": false,
+    "examined_collapse": false,
+    "examined_ritual_chamber": false,
+    "searched_deep_ore_chamber": false,
+    "red_hollow_mine_secret_entrance_found": false,
+    "red_hollow_mine_complete": false,
+    "henrik_gave_lantern": false,
+    "henrik_discussed_lantern": false,
+    "returned_henriks_lantern": false,
+    "kept_henriks_lantern": false,
+    "henrik_discussed_ore_fate": false,
+    "henrik_helped_act_three": false,
+    "henrik_discussed_mine_future": false,
+    "henrik_discussed_feelings": false,
+    "henrik_discussed_mine_route": false,
+    "henrik_gave_act_three_warnings": false,
+    "henrik_act_three_complete": false,
+    "just_completed_victory_dialogue": false,
+    "refugee_leader_talked": false,
+    "learned_mayors_family_location": false,
+    "talked_to_refugee_leader": false,
+    "refugee_camp_defended": false,
+    "agreed_to_defend_camp": false,
+    "refugee_combat_rewarded": false,
+    "refugee_group_talked": false,
+    "learned_cult_rituals_from_refugees": false,
+    "confirmed_mayors_family_taken": false,
+    "marcus_encountered_level_5": false,
+    "marcus_redemption_attempted": false,
+    "marcus_redeemed": false,
+    "marcus_sacrificed_himself": false,
+    "betrayed_marcus_trust": false,
+    "marcus_confrontation_complete": false,
+    "portal_weakened": false,
+    "cassia_talked": false,
+    "cassia_gave_swamp_info": false,
+    "learned_about_violet_mortar": false,
+    "bernard_mentioned_cassia": false,
+    "garrick_mentioned_cassia": false,
+    "garrick_told_cassia_story": false,
+    "cassia_hinted_at_marcus": false,
+    "cassia_mentioned_marcus": false,
+    "cassia_told_marcus_story": false,
+    "offered_to_help_cassia": false,
+    "cassia_gave_recipe_quest": false,
+    "recipe_quest_active": false,
+    "completed_marcus_recipe": false,
+    "cassia_gave_journals": false,
+    "cassia_final_words_for_marcus": false,
+    "confronted_marcus_ruins": false,
+    "marcus_fled_battle": false,
+    "marcus_died_in_battle": false,
+    "cassia_story_complete": false,
+    "cassia_discussed_marcus": false,
+    "cassia_wants_marcus_saved": false,
+    "cassia_gave_locket": false,
+    "post_victory_marcus_saved_mayor_family": false,
+    "vexthar_encountered": false,
+    "final_boss_defeated": false,
+    "boss_fight_started": false,
+    "cavia_challenged_vexthar": false,
+    "vexthar_ritual_ended": false,
     "learned_about_swamp_church": false,
-    "learned_about_ruins": false,
+    "swamp_church_complete": false,
+    "explored_swamp_church": false,
+    "found_cult_documents": false,
+    "read_cult_documents": false,
+    "learned_sacrifice_plan": false,
+    "learned_about_ruins": true,
+    "hill_ruins_complete": false,
+    "explored_hill_ruins": false,
+    "hill_ruins_dungeon_key_obtained": false,
+    "hill_ruins_dungeon_unlocked": false,
     "learned_about_refugees": false,
+    "refugee_camp_complete": false,
+    "explored_refugee_camp": false,
+    "explored_red_hollow_mine": false,
+    "dungeon_level_1_altar_examined": false,
+    "dungeon_level_2_chest_looted": false,
+    "dungeon_level_2_bones_examined": false,
+    "dungeon_level_3_chest_looted": false,
+    "dungeon_level_3_altar_examined": false,
+    "dungeon_level_3_brazier_examined": false,
+    "dungeon_level_3_ritual_examined": false,
+    "dungeon_l4_chest_opened": false,
+    "dungeon_l4_planning_examined": false,
+    "dungeon_l4_study_examined": false,
+    "dungeon_l4_cells_examined": false,
+    "dungeon_l4_shrine_examined": false,
+    "read_marcus_journal": false,
+    "read_marcus_letter": false,
+    "examined_marcus_books": false,
+    "examined_blight_offerings": false,
+    "desecrated_blight_shrine": false,
+    "shadow_blight_noticed": false,
+    "found_cult_battle_plans": false,
+    "found_cult_ledger": false,
+    "knows_cult_scope": false,
+    "knows_marcus_is_vessel": false,
+    "found_prisoner_note": false,
+    "read_prisoner_messages": false,
+    "dungeon_level_4_possessed_defeated": false,
+    "dungeon_level_4_elite_guards_defeated": false,
+    "dungeon_level_4_treasure_looted": false,
+    "searched_prison_cells": false,
+    "examined_portal_chamber": false,
+    "examined_ritual_circle": false,
+    "confronted_marcus_final": false,
+    "acknowledged_marcus_sacrifice": false,
+    "dungeon_l5_ritual_examined": false,
+    "understood_marcus_plan": false,
+    "knows_vessel_plan": false,
+    "found_shadow_essence": false,
+    "knows_circle_age": false,
+    "saw_blight_true_nature": false,
+    "knows_how_to_seal_portal": false,
+    "blight_touched_hand": false,
     "visited_town_square": false,
     "visited_general_store": false,
     "visited_mayor_office": false,
-    "discovered_old_mine_shaft": false
+    "act_one_complete": true,
+    "act_two_started": true,
+    "act_two_complete": false,
+    "act_three_started": false,
+    "first_party_member_recruited": false,
+    "swamp_church_details_known": false,
+    "hill_ruins_details_known": true,
+    "refugee_camp_details_known": false,
+    "garrick_mentioned_henrik": true
+  },
+  "exploration_flags": {
+    "examined_blight_offerings": false,
+    "examined_collapse": false,
+    "examined_henrik_seal": false,
+    "examined_marcus_books": false,
+    "examined_mine_warnings": false,
+    "examined_portal_chamber": false,
+    "examined_ritual_chamber": false,
+    "examined_ritual_circle": false,
+    "examined_unstable_warning": false,
+    "explored_hill_ruins": false,
+    "explored_red_hollow_mine": false,
+    "explored_refugee_camp": false,
+    "explored_swamp_church": false,
+    "investigated_old_shaft": false,
+    "learned_about_church": false,
+    "learned_about_mine": false,
+    "learned_about_refugees": false,
+    "learned_about_ruins": true,
+    "learned_about_swamp_church": false,
+    "learned_about_violet_mortar": false,
+    "searched_deep_ore_chamber": false,
+    "searched_kobold_nest": false,
+    "searched_level_1_ore": false,
+    "searched_mine_equipment": false,
+    "searched_mine_rubble": false,
+    "searched_mining_carts": false,
+    "searched_prison_cells": false,
+    "swamp_church_complete": false,
+    "swamp_church_details_known": false
   },
   "computed_data": {
     "recruited_count": 0,
