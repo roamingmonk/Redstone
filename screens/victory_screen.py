@@ -10,7 +10,7 @@ from typing import Dict, Any
 from utils.constants import (
     BLACK, YELLOW, WHITE, DARK_GRAY, LIGHTEST_GRAY,
     INTRO_TITLE_Y, INTRO_CONTENT_START_Y, INTRO_CONTENT_LINE_SPACING,
-    INTRO_BUTTON_Y, INTRO_BUTTON_WIDTH, INTRO_BUTTON_HEIGHT
+    INTRO_BUTTON_Y, INTRO_BUTTON_HEIGHT
 )
 from utils.graphics import draw_button, draw_centered_text
 
@@ -189,14 +189,15 @@ def draw_victory_screen(surface: pygame.Surface, game_state, fonts: Dict, images
     surface.blit(save_notice, save_rect)
     
     # Continue button at bottom
+    button_width = 280
     button_y = height - 100
-    button_x = (width - INTRO_BUTTON_WIDTH) // 2
-    
+    button_x = (width - button_width) // 2
+
     continue_button = draw_button(
-        surface, 
-        button_x, 
+        surface,
+        button_x,
         button_y,
-        INTRO_BUTTON_WIDTH, 
+        button_width,
         INTRO_BUTTON_HEIGHT,
         "Return to Portal Chamber",
         content_font
