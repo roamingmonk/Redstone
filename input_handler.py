@@ -939,15 +939,6 @@ class InputHandler:
                         'action_name': 'back'
                     })
                     return True
-#TODO  is this even active? Originally going to add s as shop for merchant dialogues.  need to consider removing
-                elif key == pygame.K_s:
-                    if self.debug_input:
-                        print(f"⌨️ Response shop pressed for {npc_id} → shop")
-                    self.event_manager.emit("DIALOGUE_ACTION", {
-                        'npc_id': npc_id,
-                        'action_name': 'shop'
-                    })
-                    return True
 
             else:
                 # Dynamically support up to 9 choices

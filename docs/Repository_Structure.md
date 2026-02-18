@@ -1,4 +1,4 @@
-## Repository Structure (generated 2026-02-17 19:38)
+## Repository Structure (generated 2026-02-17 20:21)
 ```text
 Redstone
 ├── .vscode
@@ -377,7 +377,6 @@ Redstone
 │   │   ├── dungeon_level_4_shrine.json
 │   │   ├── dungeon_level_4_villager_cells.json
 │   │   ├── dungeon_level_5_marcus.json
-│   │   ├── dungeon_level_5_portal.jsonOLD
 │   │   ├── dungeon_level_5_portal_postboss.json
 │   │   ├── dungeon_level_5_ritual.json
 │   │   ├── dungeon_level_5_vexthar.json
@@ -429,7 +428,6 @@ Redstone
 │   ├── items.json
 │   ├── locations
 │   │   ├── __init__.py
-│   │   ├── broken_blade.json
 │   │   ├── exploration_hub.json
 │   │   ├── hill_ruins.json
 │   │   ├── patron_selection.json
@@ -466,7 +464,6 @@ Redstone
 │   │   ├── death_quotes.json
 │   │   ├── epilogue_sequence.json
 │   │   └── intro_sequence.json
-│   ├── narrative_schema copy.json
 │   ├── narrative_schema.json
 │   ├── npcs
 │   │   ├── aldwin_goldenbottem.json
@@ -480,7 +477,6 @@ Redstone
 │   │   └── thorman.json
 │   ├── player
 │   │   ├── character_classes.json
-│   │   ├── character_classesd.py
 │   │   ├── character_names.json
 │   │   ├── current_character.json
 │   │   ├── low_stats_comments.json
@@ -504,7 +500,6 @@ Redstone
 │   ├── adding_npc_dialogue.md
 │   ├── decisions.md
 │   ├── epilogue-system-design.md
-│   ├── project_context copy.md
 │   └── project_context.md
 ├── game_logic
 │   ├── character_engine.py
@@ -532,7 +527,6 @@ Redstone
 │   ├── save_slot_1.json
 │   ├── save_slot_2.json
 │   ├── save_slot_3.json
-│   ├── save_slot_4 copy.json
 │   ├── save_slot_4.json
 │   └── save_slot_5.json
 ├── screens
@@ -596,7 +590,6 @@ Redstone
     ├── combat_sprite_manager.py
     ├── constants.py
     ├── debug_manager.py
-    ├── dialogue_ui_utils.py
     ├── dice_roller.py
     ├── graphics.py
     ├── location_loader.py
