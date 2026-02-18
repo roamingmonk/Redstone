@@ -1,73 +1,68 @@
 """
 Dungeon Level 4 - Cult Sanctum Upper
 The cult's active headquarters. Living quarters, planning rooms, evidence of Marcus's leadership.
+
+Visual tilemap is loaded from dungeon_level_4_tiles.tmj
+This file contains game logic: spawn points, transitions, searchables, combat triggers
 """
 
-# Map dimensions
+# Map dimensions (must match TMJ file)
 DUNGEON_L4_WIDTH = 22
 DUNGEON_L4_HEIGHT = 22
 
-# Starting position (entering from Level 3 - at top stairs)
-DUNGEON_L4_SPAWN_X = 12
-DUNGEON_L4_SPAWN_Y = 1
-
-# Spawn points for different entry methods
+# Named spawn points for different entrances
 DUNGEON_L4_SPAWN_POINTS = {
-    'from_level_3': (12, 1),        # Top of map, at stairs up 'U'
-    'from_level_5': (18, 20),       # Bottom of map, at stairs down 'S'
-    'default': (12, 1)
+    'from_level_3': (1, 1),         # Stairs up position (TMJ Details tile 40 at (1,1))
+    'from_level_5': (19, 20),       # Stairs down position (TMJ Details tile 39 at (19,20))
+    'default': (1, 1)
 }
 
-# Map Grid
-DUNGEON_L4_MAP = [
-    "######################",
-    "#U...................#",  # Stairs up to Level 3
-    "#....................#",
-    "#...PP..........PP...#",
-    "#....................#",
-    "#.......C............#",  # Cult planning table (C)
-    "#....................#",
-    "#~~..................#",  # ENCOUNTER 1 - cult patrol
-    "#~~..................#",
-    "#....................#",
-    "#............M.......#",  # Marcus's study (M)
-    "#....................#",
-    "#....................#",
-    "#.....V..............#",  # Possessed villager cells (V)
-    "#....................#",
-    "#..................~~#",  # ENCOUNTER 2 - possessed villagers
-    "#..................~~#",
-    "#..........A.........#",  # Cult shrine (A)
-    "#....................#",
-    "#.X.............~~...#",  # Chest (X), ENCOUNTER 3 (boss area)
-    "#..................S.#",  # Stairs down to Level 5
-    "######################"
-]
+# Legacy support
+DUNGEON_L4_SPAWN_X = DUNGEON_L4_SPAWN_POINTS['default'][0]
+DUNGEON_L4_SPAWN_Y = DUNGEON_L4_SPAWN_POINTS['default'][1]
 
-# Tile definitions
-WALKABLE_TILES = {'.', 'U', 'S', '~', 'C', 'M', 'V', 'A', 'X'}
-BLOCKED_TILES = {'#', 'P'}
-
-# Color mapping
-TILE_COLORS = {
-    '#': (60, 60, 60),      # Dark gray walls
-    '.': (40, 30, 25),      # Dark brown floor
-    'U': (100, 100, 150),   # Blue stairs up
-    'S': (150, 50, 50),     # Red stairs down
-    'P': (80, 80, 80),      # Gray pillars
-    '~': (80, 40, 40),      # Dark red combat zones
-    'C': (100, 80, 60),     # Brown table
-    'M': (60, 50, 80),      # Purple study
-    'V': (70, 70, 50),      # Yellowish cells
-    'A': (90, 50, 90),      # Purple shrine
-    'X': (150, 120, 50)     # Golden chest
+# === AREA TRANSITIONS ===
+AREA_TRANSITIONS = {
+    'stairs_to_level_3': {
+        'entrance_tiles': [(1, 1), (2, 1), (1, 2)],   # Stairs up area (TMJ tile 40 at (1,1))
+        'building_pos': [(1, 1)],
+        'info': {
+            'name': 'Ascending Stairs',
+            'interaction_type': 'navigation',
+            'target_screen': 'dungeon_level_3_nav',
+            'action': 'Return to Level 3',
+            'requirements': {}
+        }
+    },
+    'stairs_to_level_5': {
+        'entrance_tiles': [(19, 20), (18, 20), (20, 20)],  # Stairs down area (TMJ tile 39 at (19,20))
+        'building_pos': [(19, 20)],
+        'info': {
+            'name': 'Descending Stairs',
+            'interaction_type': 'navigation',
+            'target_screen': 'dungeon_level_5_nav',
+            'action': 'Descend to Portal Chamber',
+            'requirements': {}
+        }
+    }
 }
 
-# Searchable objects (FIXED to match Level 2/3 pattern)
+def get_transition_at_entrance(x, y):
+    """Check if player is at area transition point"""
+    for transition_id, transition_data in AREA_TRANSITIONS.items():
+        if 'entrance_tiles' not in transition_data:
+            continue
+        if (x, y) in transition_data['entrance_tiles']:
+            return transition_data.get('info')
+    return None
+
+# === SEARCHABLE OBJECTS ===
+# Positions based on TMJ tilemap layout - tune locally after testing
+# TMJ Details: chest tiles (46,47) at (6,6)/(7,6) and (11,17)/(12,17), debris (32) at (2,19)
 SEARCHABLE_OBJECTS = {
     'cult_planning_table': {
-        'search_tiles': [(7, 5), (6, 5), (8, 5)],
-        'object_pos': [(7, 5)],
+        'search_tiles': [(6, 5), (7, 5), (6, 7), (7, 7)],
+        'object_pos': [(6, 6), (7, 6)],
         'info': {
             'name': 'Cult Planning Table',
             'interaction_type': 'dialogue',
@@ -77,10 +72,10 @@ SEARCHABLE_OBJECTS = {
         }
     },
     'marcus_study': {
-        'search_tiles': [(13, 10), (12, 10), (14, 10)],
-        'object_pos': [(13, 10)],
+        'search_tiles': [(11, 4), (11, 5), (12, 4), (12, 5)],
+        'object_pos': [(11, 4)],
         'info': {
-            'name': 'Marcus\'s Study',
+            'name': "Marcus's Study",
             'interaction_type': 'dialogue',
             'examine_dialogue': 'dungeon_level_4_marcus_study',
             'flag_set': 'dungeon_l4_study_examined',
@@ -88,8 +83,8 @@ SEARCHABLE_OBJECTS = {
         }
     },
     'prison_cells': {
-        'search_tiles': [(8, 13), (7, 13), (9, 13)],
-        'object_pos': [(8, 13)],
+        'search_tiles': [(6, 14)],
+        'object_pos': [(6, 14)],
         'info': {
             'name': 'Prison Cells',
             'interaction_type': 'dialogue',
@@ -99,8 +94,8 @@ SEARCHABLE_OBJECTS = {
         }
     },
     'cult_shrine': {
-        'search_tiles': [(11, 17), (10, 17), (12, 17)],
-        'object_pos': [(11, 17)],
+        'search_tiles': [(11, 16), (12, 16), (11, 18), (12, 18)],  # TMJ chest tiles (46,47) at (11,17),(12,17)
+        'object_pos': [(11,16), (11, 17)],
         'info': {
             'name': 'Cult Shrine',
             'interaction_type': 'dialogue',
@@ -110,7 +105,7 @@ SEARCHABLE_OBJECTS = {
         }
     },
     'ancient_chest': {
-        'search_tiles': [(2, 19), (1, 19), (3, 19)],
+        'search_tiles': [(2, 20), (3, 19), (1, 19), (2, 18)],  # TMJ debris tile (32) at (2,19)
         'object_pos': [(2, 19)],
         'info': {
             'name': 'Ancient Chest',
@@ -130,7 +125,7 @@ def get_searchable_at_position(x, y):
             return obj_data['info']
     return None
 
-# Combat encounters
+# === COMBAT ENCOUNTERS ===
 COMBAT_ENCOUNTERS = {
     'cult_patrol': {
         'trigger_tiles': [(2, 7), (3, 7), (2, 8), (3, 8)],
@@ -165,56 +160,85 @@ def get_combat_trigger(x, y):
             return encounter_data
     return None
 
-# Area transitions (FIXED to match Level 2/3 nested structure)
-AREA_TRANSITIONS = {
-    'stairs_to_level_3': {
-        'entrance_tiles': [(12, 1), (11, 1), (13, 1)],
-        'building_pos': [(12, 1)],
-        'info': {
-            'name': 'Ascending Stairs',
-            'interaction_type': 'navigation',
-            'target_screen': 'dungeon_level_3_nav',
-            'action': 'Return to Level 3',
-            'requirements': {}
-        }
-    },
-    'stairs_to_level_5': {
-        'entrance_tiles': [(18, 20), (17, 20), (19, 20)],
-        'building_pos': [(18, 20)],
-        'info': {
-            'name': 'Descending Stairs',
-            'interaction_type': 'navigation',
-            'target_screen': 'dungeon_level_5_nav',
-            'action': 'Descend to Portal Chamber',
-            'requirements': {}
-        }
-    }
+
+# === LEGACY TILE FUNCTIONS ===
+# Kept for backwards compatibility - visual rendering comes from dungeon_level_4_tiles.tmj
+
+TILE_TYPES = {
+    '#': 'wall',
+    '.': 'floor',
+    'U': 'stairs_up',
+    'S': 'stairs_down',
+    'P': 'pillar',
+    '~': 'combat_zone',
+    'C': 'planning_table',
+    'M': 'study',
+    'V': 'cells',
+    'A': 'altar',
+    'X': 'chest'
 }
 
-def get_transition_at_entrance(x, y):
-    """Check if player is at area transition point"""
-    for transition_id, transition_data in AREA_TRANSITIONS.items():
-        if 'entrance_tiles' not in transition_data:
-            continue
-        if (x, y) in transition_data['entrance_tiles']:
-            return transition_data.get('info')
-    return None
+WALKABLE_TILES = {'floor', 'stairs_up', 'stairs_down', 'combat_zone', 'planning_table', 'study', 'cells', 'altar', 'chest'}
 
-def get_tile_type(x, y):
-    """Get the tile character at coordinates."""
-    if 0 <= y < len(DUNGEON_L4_MAP) and 0 <= x < len(DUNGEON_L4_MAP[y]):
-        return DUNGEON_L4_MAP[y][x]
-    return '#'
+# ASCII map layout (legacy - visual comes from TMJ now)
+DUNGEON_L4_MAP = [
+    "######################",
+    "#U...................#",  # Stairs up to Level 3
+    "#....................#",
+    "#...PP..........PP...#",
+    "#....................#",
+    "#.......C............#",  # Cult planning table (C)
+    "#....................#",
+    "#~~..................#",  # ENCOUNTER 1 - cult patrol
+    "#~~..................#",
+    "#....................#",
+    "#............M.......#",  # Marcus's study (M)
+    "#....................#",
+    "#....................#",
+    "#.....V..............#",  # Possessed villager cells (V)
+    "#....................#",
+    "#..................~~#",  # ENCOUNTER 2 - possessed villagers
+    "#..................~~#",
+    "#..........A.........#",  # Cult shrine (A)
+    "#....................#",
+    "#.X.............~~...#",  # Chest (X), ENCOUNTER 3 (boss area)
+    "#..................S.#",  # Stairs down to Level 5
+    "######################"
+]
+
+def get_tile_type(x, y, tile_grid=None):
+    """Get tile type at coordinates"""
+    if tile_grid:
+        # New system: use provided tile grid
+        if 0 <= y < len(tile_grid) and 0 <= x < len(tile_grid[0]):
+            return tile_grid[y][x]
+        return None
+    else:
+        # Legacy system: use ASCII map
+        if 0 <= y < DUNGEON_L4_HEIGHT and 0 <= x < DUNGEON_L4_WIDTH:
+            char = DUNGEON_L4_MAP[y][x]
+            return TILE_TYPES.get(char, 'wall')
+        return 'wall'
 
 def is_walkable(x, y):
-    """Check if a tile is walkable."""
-    tile = get_tile_type(x, y)
-    return tile in WALKABLE_TILES
+    """Check if tile is walkable (legacy function)"""
+    tile_type = get_tile_type(x, y)
+    return tile_type in WALKABLE_TILES
 
 def get_tile_color(x, y):
-    """
-    Get color for tile rendering
-    These are PLACEHOLDER colors for testing
-    """
-    tile_char = get_tile_type(x, y)
-    return TILE_COLORS.get(tile_char, (50, 50, 50))
+    """Get color for tile rendering (legacy function)"""
+    tile_type = get_tile_type(x, y)
+    TILE_COLORS = {
+        'wall': (60, 60, 60),
+        'floor': (40, 30, 25),
+        'stairs_up': (100, 100, 150),
+        'stairs_down': (150, 50, 50),
+        'pillar': (80, 80, 80),
+        'combat_zone': (80, 40, 40),
+        'planning_table': (100, 80, 60),
+        'study': (60, 50, 80),
+        'cells': (70, 70, 50),
+        'altar': (90, 50, 90),
+        'chest': (150, 120, 50)
+    }
+    return TILE_COLORS.get(tile_type, (50, 50, 50))
