@@ -373,21 +373,6 @@ class GameState:
             'trinket': self.character.get('trinket', 'None')
         }
     
-    #TODO Tavern Main is not active now.  This needs to be reviewed/removed. Basic tavern methods
-    def enter_tavern(self):
-        """Called when player enters the tavern"""
-        self.screen = "tavern_main"
-        self.tavern_visits += 1
-    
-    def recruit_npc(self, npc_name):
-        """Add an NPC to the party"""
-        if npc_name not in self.party_members:
-            self.party_members.append(npc_name)
-            if hasattr(self, 'quest_manager'):
-                self.quest_manager.update_from_game_state()
-            return True
-        return False
-    
     def get_party_size(self):
         """Get current party size (player + NPCs)"""
         return 1 + len(self.party_members)  # 1 for player character
@@ -417,28 +402,6 @@ class GameState:
         if not self.mayor_mentioned:
             self.mayor_mentioned = True
             print("You should seek out the Mayor to learn more about these troubles...")    
-
-#TODO  is this needed anymore?? why is it in gamestate?
-    def get_garrick_inventory(self):
-        """Get Garrick's merchant inventory (now fully data-driven!)"""
-        
-        from game_logic.data_manager import get_data_manager
-        item_manager = self.item_manager
-
-        merchant_inventory = item_manager.get_merchant_inventory('garrick_barkeep')
-        
-        merchant_inventory = None
-
-        # Fallback if merchant data not found
-        if merchant_inventory is None:
-
-            return {
-                'merchant_name': 'Garrick the Barkeep',
-                'greeting': "What can I get for you? I keep basic adventuring gear in stock:",
-                'items': []
-            }
-    
-        return merchant_inventory
 
     def get_items_by_category(self, category):
         """Get all items in a specific category"""
