@@ -116,9 +116,6 @@ class GameState:
 
         # Name generation system
         self.used_names = set()
-
-        # Name generation system
-        self.used_names = set()
         self.current_names = []
         self.selected_name = ""
         

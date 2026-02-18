@@ -95,53 +95,6 @@ class DataManager:
             print(f"❌ DataManager initialization failed: {e}")
             return False
 
-    def get_system_status(self) -> Dict[str, Any]:
-        """
-        Get comprehensive system status report
-        Useful for debugging and system monitoring
-        """
-        #print("🔍 DEBUG: get_system_status() called")
-        try:
-            print(f"🔍 DEBUG: self.initialized = {getattr(self, 'initialized', 'MISSING')}")
-            print(f"🔍 DEBUG: self.load_start_time = {getattr(self, 'load_start_time', 'MISSING')}")
-            print(f"🔍 DEBUG: self.system_health = {getattr(self, 'system_health', 'MISSING')}")
-            print(f"🔍 DEBUG: self.load_errors = {getattr(self, 'load_errors', 'MISSING')}")
-            
-            # Try each calculation separately
-            systems_healthy = sum(self.system_health.values()) if hasattr(self, 'system_health') else 0
-            total_systems = len(self.system_health) if hasattr(self, 'system_health') else 0
-            
-            print(f"🔍 DEBUG: systems_healthy = {systems_healthy}, total_systems = {total_systems}")
-            
-            #if self.load_start_time is None:
-            #    load_time_calc = None
-            #    print("🔍 DEBUG: load_start_time is None")
-            #else:
-            #    load_time_calc = (datetime.now() - self.load_start_time).total_seconds()
-
-            result = {
-                'initialized': self.initialized,
-                'event_manager': self.system_health.get('event_manager', False),
-                'load_time': None,  #load_time_calc,
-                'systems_healthy': sum(self.system_health.values()),
-                'total_systems': len(self.system_health),
-                'health_details': self.system_health.copy(),
-                'error_count': len(self.load_errors),
-                'errors': self.load_errors.copy()
-            }
-        
-            print(f"🔍 DEBUG: Returning result = {result}")
-            return result
-
-
-        except Exception as e:
-            print(f"❌ ERROR in get_system_status(): {e}")
-            import traceback
-            traceback.print_exc()
-            return None  # This will help us see the actual error
-
-
-
     def validate_data_integrity(self) -> bool:
         """
         Perform data integrity checks across all loaded systems
