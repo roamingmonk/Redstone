@@ -369,7 +369,7 @@
         {
           "id": "how_can_i_help",
           "text": "Is there anything I can do for you now?",
-          "requirements": {"flag": "mayor_quest_active"},
+          "requirements": {"flag": "quest_active"},
           "effects": [
             {"type": "set_flag", "flag": "cassia_offered_help", "value": true}
           ],
@@ -398,7 +398,7 @@
         {
           "id": "can_i_help",
           "text": "Is there anything I can do to help you?",
-          "requirements": {"flag": "mayor_quest_active"},
+          "requirements": {"flag": "quest_active"},
           "effects": [
             {"type": "set_flag", "flag": "cassia_offered_help", "value": true}
           ],
@@ -485,7 +485,7 @@
           "text": "You mentioned Marcus kept journals...",
           "requirements": {
             "flags": {
-              "mayor_quest_active": true,
+              "quest_active": true,
               "act_two_location_completed": true
             },
             "not_flag": "cassia_gave_journals"
