@@ -1,7 +1,8 @@
 {
     "files.exclude": {
         "**/__pycache__/": true,
-        "**/.venv/": true
+        "**/.venv/": true,
+        ".claude/worktrees": true
     },
     "python.defaultInterpreterPath": "${workspaceFolder}/venv/bin/python",
     "python.terminal.activateEnvironment": true,
