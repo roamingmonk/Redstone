@@ -913,7 +913,7 @@
         
         
         "act_i_setup": [
-          "mayor_talked && recruited_count >= 1"
+          "quest_active && recruited_count >= 1"
         ],
         
         "act_ii_investigation": [
@@ -931,7 +931,7 @@
     },
     "party_building": {
       "type": "secondary",
-      "activation_flag": "mayor_talked",
+      "activation_flag": "quest_active",
       "objectives": {
         "recruit_warrior": ["gareth_recruited"],
         "recruit_mage": ["elara_recruited"], 
@@ -1082,7 +1082,7 @@
       "no_progress": "act_two_started && mayor_talked",
       
       "_comment_act1": "=== ACT I TAVERN STATES (patron_selection_mayor.json) ===",
-      "first_meeting": "!mayor_talked && !act_two_started",
+      "first_meeting": "!quest_active && !act_two_started",
       "post_completion_reward": "!act_two_started && quest_active && main_quest_completed && !reported_main_quest",
       "ore_sample_discussion": "!act_two_started && reported_main_quest && retrieved_ore_samples && !mayor_examined_ore_samples",
       "post_completion_idle": "!act_two_started && quest_active && main_quest_completed && reported_main_quest",
@@ -1191,7 +1191,7 @@
       "first_meeting": "!cassia_talked && !cassia_met",
       "post_shopping": "cassia_met && !cassia_told_marcus_story && !recipe_quest_active && !completed_marcus_recipe",
       "quest_in_progress": "recipe_quest_active && !completed_marcus_recipe",
-      "glowcap_offer_pending": "cassia_told_marcus_story && mayor_quest_active && !recipe_quest_active && !completed_marcus_recipe",
+      "glowcap_offer_pending": "cassia_told_marcus_story && quest_active && !recipe_quest_active && !completed_marcus_recipe",
       "journal_transition": "completed_marcus_recipe && !cassia_gave_journals && act_two_location_completed",
       "return_visit": "cassia_talked || cassia_met",
       "has_journals": "cassia_gave_journals && !cassia_story_complete",
