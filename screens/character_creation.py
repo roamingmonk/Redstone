@@ -456,14 +456,14 @@ def draw_gold_screen(surface, game_state, fonts, images=None):
     draw_centered_text(surface, "STARTING GOLD", fonts.get('fantasy_medium', fonts['normal']), 120, SOFT_YELLOW)
     
     # Show gold if rolled
-    if 'gold' in game_state.character:
-        draw_centered_text(surface, f"{game_state.character['gold']} Gold Pieces", 
+    if game_state.character.get('gold', 0) > 0:
+        draw_centered_text(surface, f"{game_state.character['gold']} Gold Pieces",
                           fonts.get('fantasy_large', fonts['header']), 200, CYAN)
-        button_text = "CONTINUE"
+        button_text = "Continue"
     else:
-        draw_centered_text(surface, "Roll 3d6 x 5 for your starting gold", 
+        draw_centered_text(surface, "Roll 3d6 x 5 for your starting gold",
                           fonts.get('fantasy_medium', fonts['normal']), 200, WHITE)
-        button_text = "ROLL GOLD"
+        button_text = "Roll"
     
     # Button - centered using constants
     button_width = BUTTON_SIZES['medium'][0]  # 160
@@ -498,10 +498,10 @@ def draw_trinket_screen(surface, game_state, fonts, images=None):
     draw_centered_text(surface, "MYSTERIOUS TRINKET", fonts.get('fantasy_medium', fonts['normal']), 120, SOFT_YELLOW)
     
     # Show trinket if rolled
-    if 'trinket' in game_state.character:
+    if game_state.character.get('trinket', ''):
         # Get the display name from the ID
         trinket_id = game_state.character['trinket']
-        
+
         # Convert ID to display name using ItemManager
         from game_logic.data_manager import get_data_manager
         data_manager = get_data_manager()
@@ -510,15 +510,15 @@ def draw_trinket_screen(surface, game_state, fonts, images=None):
         else:
             # Fallback: capitalize the ID
             trinket_display = trinket_id.replace('_', ' ').title()
-        
-        draw_centered_text(surface, trinket_display, 
+
+        draw_centered_text(surface, trinket_display,
                         fonts.get('fantasy_medium', fonts['normal']), 200, CYAN)
-        button_text = "CONTINUE"
+        button_text = "Continue"
 
     else:
-        draw_centered_text(surface, "Roll for your mysterious trinket", 
+        draw_centered_text(surface, "Roll for your mysterious trinket",
                           fonts.get('fantasy_medium', fonts['normal']), 200, WHITE)
-        button_text = "ROLL TRINKET"
+        button_text = "Roll"
     
     # Button - centered using constants
     button_width = BUTTON_SIZES['medium'][0]  # 160

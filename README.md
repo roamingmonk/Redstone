@@ -13,10 +13,10 @@ git clone https://github.com/USERNAME/terror-in-redstone.git
 cd terror-in-redstone
 
 # set up environment
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
-pip install -r requirements.txt
+pip install pygame
 
 # run the game
-python game_controller.py
+python main.py
