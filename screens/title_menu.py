@@ -222,8 +222,10 @@ def draw_main_menu(surface, game_state, fonts, images=None):
                 100
             )
         }
-        game_state.lightning_current = None
-        game_state.lightning_next_strike = time.time() + random.uniform(1, 4)  # between 5 and 20 sec.
+        # Play the main (long) lightning sequence immediately on screen appear
+        game_state.lightning_current = 'long'
+        game_state.lightning_animations['long'].reset()
+        game_state.lightning_next_strike = time.time() + random.uniform(1, 4)
     
     # 🆕 Handle lightning timing and updates
     current_time = time.time()
