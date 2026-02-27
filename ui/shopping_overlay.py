@@ -537,6 +537,13 @@ class ShoppingOverlay(BaseTabbedOverlay):
                           fonts['small'], location_y, DARKEST_GRAY)  
         
     
+    def handle_keyboard_input(self, key: int) -> bool:
+        """Handle keyboard input - ESC closes the overlay"""
+        if key == pygame.K_ESCAPE:
+            self._handle_close()
+            return True
+        return super().handle_keyboard_input(key)
+
     def on_tab_changed(self, old_index: int, new_index: int):
         """Clear hovered item when switching tabs"""
         self.hovered_item_id = None

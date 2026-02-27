@@ -489,10 +489,10 @@ class InventoryOverlay(BaseTabbedOverlay):
         
         # Handle ESC key to close overlay
         if key == pygame.K_ESCAPE:
-            if hasattr(self, 'screen_manager') and hasattr(self.screen_manager, '_current_game_state'):
-                game_state = self.screen_manager._current_game_state
+            if hasattr(self, 'screen_manager') and hasattr(self.screen_manager, '_current_game_controller'):
+                game_state = self.screen_manager._current_game_controller.game_state
                 if hasattr(game_state, 'overlay_state'):
-                    game_state.overlay_state.close_overlay()  # ✅ FIXED - removed parameter
+                    game_state.overlay_state.close_overlay()
                     print("🔴 ESC pressed - closing inventory overlay")
                     return True
 

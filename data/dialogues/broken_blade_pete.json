@@ -92,7 +92,7 @@
           "text": "Do the routine again.",
           "next_state": "comedy_sequence"
         },
-        { "id": "bye_post", "text": "Keep the stool warm.", "next_state": "exit" }
+        { "id": "bye_post", "text": "Keep the stool warm. Goodbye.", "next_state": "exit" }
       ]
     },
 
@@ -120,7 +120,7 @@
         },
         { 
           "id": "bye_post_info", 
-          "text": "Keep the stool warm.", 
+          "text": "Keep the stool warm. Goodbye.",
           "next_state": "exit" 
         }
       ]

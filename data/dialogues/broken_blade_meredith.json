@@ -15,6 +15,7 @@
         {
           "id": "ask_rumors",
           "text": "Heard anything unusual lately?",
+          "requirements": { "not_flag": "quest_active" },
           "effects": [
             { "type": "set_flag", "flag": "meredith_gave_swamp_info", "value": true },
             { "type": "set_flag", "flag": "learned_about_swamp_church", "value": true }
@@ -102,7 +103,7 @@
         {
           "id": "swamp_followup",
           "text": "Any new word about the swamp church?",
-          "requirements": { "flags": { "learned_about_swamp_church": true } },
+          "requirements": { "flags": { "learned_about_swamp_church": true }, "not_flag": "quest_active" },
           "next_state": "swamp_update"
         },
         {"id": "ask_tremors",
@@ -127,7 +128,7 @@
       ],
       "options": [
         { "id": "back4", "text": "Makes sense.", "next_state": "return_visits" },
-        { "id": "bye4",  "text": "Take care.",   "next_state": "exit" }
+        { "id": "bye4",  "text": "Take care. Find me if you learn anything.",   "next_state": "exit" }
       ]
     },
 
@@ -150,7 +151,7 @@
         {
           "id": "post_swamp_followup",
           "text": "Any further word about the swamp church?",
-          "requirements": { "flags": { "learned_about_swamp_church": true } },
+          "requirements": { "flags": { "learned_about_swamp_church": true }, "not_flag": "quest_active" },
           "next_state": "swamp_update"
         },
         {
@@ -293,7 +294,8 @@
             "flags": {
               "learned_about_swamp_church": true,
               "swamp_church_details_known": false
-            }
+            },
+            "not_flag": "quest_active"
           },
           "effects": [
             {
@@ -404,7 +406,7 @@
       "options": [
         {
           "id": "find_henrik",
-          "text": "I'll find him.",
+          "text": "I'll find him. Goodbye for now, Meredith.",
           "next_state": "exit"
         }
       ]

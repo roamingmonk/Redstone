@@ -611,6 +611,13 @@ class InputHandler:
             if overlay_closed:
                 print("🔴 ESC closed overlay, input handled")
                 return True
+            # merchant_shop is a screen (not tracked in overlay_state) - handle ESC before
+            # universal hotkeys consume it at Priority 4
+            if game_state.screen == "merchant_shop":
+                for state_flag, overlay_instance in self.overlay_registry.items():
+                    if overlay_instance.overlay_id == "merchant_shop":
+                        overlay_instance._handle_close()
+                        return True
             # If no overlays were closed, continue to other ESC handling below
        
         

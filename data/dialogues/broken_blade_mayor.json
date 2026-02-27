@@ -20,7 +20,7 @@
           "next_state": "quest_given"
         },
         { "id": "ask_details", "text": "Start from the beginning.", "next_state": "story_details" },
-        { "id": "bye", "text": "Not now.", "next_state": "exit" }
+        { "id": "bye", "text": "Not now, goodbye.", "next_state": "exit" }
       ]
     },
 

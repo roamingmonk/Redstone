@@ -3,7 +3,7 @@
     {
       "id": "axe",
       "name": "Axe",
-      "description": "Look at you, swinging a piece of wood with a sharp rock attached! It’s primitive, it’s messy, and it’s perfect for turning those swamp-frogs into a very unappealing salad. Give 'em a good thunk!",
+      "description": "A simple but effective chopping weapon.",
       "base_cost": 5,
       "category": "weapons",
       "icon_file": "axe.png",
@@ -20,16 +20,16 @@
       }
     },
     {
-      "id": "enchanted_shortsword",
-      "name": "Enchanted Shortsword +1",
-      "description": "Oh, fancy! This one’s been dipped in the sparkly sauce. It’s faster, sharper, and significantly more likely to save your skin when the cultists come knocking. Try to keep the blood off the runes, okay?",
-      "base_cost": 150,
-      "category": "weapons",
-      "icon_file": "enchanted_shortsword.png",
-      "consumable": false,
-      "weight": 2,
-      "rarity": "rare",
-      "combat_stats": {
+    "id":"enchanted_shortsword", 
+    "name": "Enchanted Shortsword +1",
+    "description": "A finely crafted shortsword with faint magical runes. Deals extra damage.",
+    "base_cost": 150,
+    "category": "weapons",
+    "icon_file": "enchanted_shortsword.png",
+    "consumable": false,
+    "weight": 2,
+    "rarity": "rare",
+    "combat_stats": {
         "damage_dice": "1d6+2",
         "damage_type": "slashing",
         "attack_bonus": 1,
@@ -37,11 +37,11 @@
         "weapon_properties": ["versatile"],
         "abilities_used": ["strength"]
       }
-    },
-    {
+  },
+  {
       "id": "scroll_of_protection",
       "name": "Scroll of Protection",
-      "description": "Feeling a bit exposed? Read the squiggly lines on this paper and—BAM! Instant bubble of safety. It’s like a warm hug, if a warm hug could deflect a shadow-priest’s fireball. Don't trip while reading it!",
+      "description": "A magical scroll inscribed with protective wards. When read aloud, it grants temporary defensive bonuses.",
       "base_cost": 75,
       "category": "consumables",
       "icon_file": "scroll_of_protection.png",
@@ -59,7 +59,7 @@
     {
       "id": "cassia_locket",
       "name": "Cassia's Wedding Locket",
-      "description": "Aww, look at the little memento. It’s heavy with sentiment and the smell of a home that’s currently falling apart. It won't stop a ghoul, but it sure is pretty. Maybe give it back to the Mayor before he has a complete breakdown?",
+      "description": "A delicate silver locket containing a faded portrait of a younger Marcus and Cassia. The inscription reads: 'Knowledge serves life.' Cassia's most precious keepsake.",
       "base_cost": 0,
       "category": "items",
       "icon_file": "cassia_locket.png",
@@ -72,7 +72,7 @@
     {
       "id": "cassia_masterwork_combat_elixir",
       "name": "Cassia's Masterwork Combat Elixir",
-      "description": "This isn't your grandma's cough syrup! One swig of this crimson sludge and you'll feel like you can bench-press a draft horse. WARNING: Side effects include extreme confidence and a sudden urge to kick things.",
+      "description": "A deep crimson elixir representing Cassia's finest work. Grants significant combat prowess to the drinker.",
       "base_cost": 200,
       "category": "consumables",
       "icon_file": "cassia_masterwork_combat_elixir.png",
@@ -91,7 +91,7 @@
     {
       "id": "greater_healing_potion",
       "name": "Greater Healing Potion",
-      "description": "Gulp it down! This vibrant blue cocktail will patch up those holes in your hide faster than a seamstress on coffee. Tastes like blueberries and a second chance at life!",
+      "description": "A potent blue elixir that mends even grievous wounds.",
       "base_cost": 250,
       "category": "consumables",
       "icon_file": "greater_healing_potion.png",
@@ -108,7 +108,7 @@
     {
       "id": "ancient_royal_badge",
       "name": "Ancient Royal Badge",
-      "description": "A shiny relic from a kingdom that clearly didn't have a plan for 'sudden cultist uprising.' It’s historical! It’s bronze! It’s a great way to remember that empires are temporary, but shiny things are forever.",
+      "description": "A tarnished bronze badge bearing the seal of a forgotten kingdom. The guards who wore these died defending against something terrible.",
       "base_cost": 50,
       "category": "items",
       "subcategory": "trinket",
@@ -124,7 +124,7 @@
     {
       "id": "restoration_draught",
       "name": "Restoration Draught",
-      "description": "The gold standard of 'not dying today!' This golden nectar will basically reboot your internal systems. If you're currently in more than three pieces, this is the drink for you!",
+      "description": "A legendary golden potion that can bring someone back from death's door.",
       "base_cost": 500,
       "category": "consumables",
       "icon_file": "restoration_draught.png",
@@ -141,9 +141,9 @@
     {
       "id": "elixir_of_vigor",
       "name": "Elixir of Vigor",
-      "description": "High-octane fuel for your muscles! You'll be swinging that sword so fast the enemies won't even have time to scream. Just try to keep your heart from vibrating right out of your chest!",
+      "description": "A shimmering potion that grants supernatural speed and strength.",
       "base_cost": 300,
-      "category": "consumables",
+      "category": "consumables", 
       "icon_file": "elixir_of_vigor.png",
       "consumable": true,
       "weight": 0.5,
@@ -159,10 +159,10 @@
     {
       "id": "potion_of_clarity",
       "name": "Potion of Clarity",
-      "description": "The 'I forgot I'm in a nightmare' cure! It clears out the mental fog and reminds you exactly how to cast that spell you learned yesterday. Use it wisely, or don't. I'm just the system!",
+      "description": "A crystal-clear potion that sharpens the mind and restores magical energy.",
       "base_cost": 400,
       "category": "consumables",
-      "icon_file": "potion_of_clarity.png",
+      "icon_file": "potion_of_clarity.png", 
       "consumable": true,
       "weight": 0.5,
       "rarity": "rare",
@@ -176,7 +176,7 @@
     {
       "id": "alchemist_fire",
       "name": "Alchemist's Fire",
-      "description": "Who doesn't love a bit of pyrotechnics? Rub this on your blade and watch the bad guys do the 'oh-no-I'm-incinerating' shuffle. It’s bright, it’s hot, and it really brings out the color in a ghoul's eyes!",
+      "description": "A volatile orange potion that imbues weapons with supernatural flame.",
       "base_cost": 350,
       "category": "consumables",
       "icon_file": "alchemist_fire.png",
@@ -195,7 +195,7 @@
     {
       "id": "holy_water",
       "name": "Holy Water",
-      "description": "Sploosh! It’s water with an attitude. To you, it’s a refreshing splash; to a shadow-summon, it’s like a bath in liquid pain. Keep it away from the tavern ale!",
+      "description": "Blessed water that burns the undead and heals the faithful.",
       "base_cost": 200,
       "category": "consumables",
       "icon_file": "holy_water.png",
@@ -212,26 +212,26 @@
     },
     {
       "id": "antidote",
-      "name": "Antidote",
-      "description": "Tastes like swamp water, but it beats having your veins turn into lead. If a giant frog gave you a little 'love nip,' drink this immediately or prepare for a very quiet afternoon.",
-      "base_cost": 100,
-      "category": "consumables",
-      "icon_file": "antidote.png",
-      "consumable": true,
-      "weight": 0.5,
-      "rarity": "uncommon",
-      "stackable": true,
-      "max_stack": 5,
-      "consumable_effects": {
-        "cure_poison": true,
-        "healing": "1d4",
-        "description": "Neutralizes poison and restores 1d4 hit points"
-      }
+        "name": "Antidote",
+        "description": "A bitter green potion that neutralizes poisons and toxins.",
+        "base_cost": 100,
+        "category": "consumables",
+        "icon_file": "antidote.png",
+        "consumable": true,
+        "weight": 0.5,
+        "rarity": "uncommon",
+        "stackable": true,
+        "max_stack": 5,
+        "consumable_effects": {
+          "cure_poison": true,
+          "healing": "1d4",
+          "description": "Neutralizes poison and restores 1d4 hit points"
+       }
     },
     {
       "id": "bedroll",
       "name": "Bedroll",
-      "description": "The height of Redstone luxury! A slightly lumpy roll of fabric for you to lie on while you listen to the shadows whispering outside. It won't keep the cultists away, but at least you'll be comfy while they watch you sleep.",
+      "description": "A simple roll of bedding for sleeping on the road.",
       "base_cost": 1,
       "category": "items",
       "icon_file": "bedroll.png",
@@ -242,7 +242,7 @@
     {
       "id": "glowcap_mushrooms",
       "name": "Glowcap Mushrooms",
-      "description": "Bioluminescent fun! These little guys are the only reason you aren't walking off a cliff in the Hill Ruins. They’re pretty, they’re glowing, and for the love of the system, do NOT put them in an omelet.",
+      "description": "Bioluminescent mushrooms that emit a soft blue-green glow. Essential for advanced alchemical formulas.",
       "base_cost": 0,
       "category": "items",
       "icon_file": "glowcap_mushrooms.png",
@@ -255,7 +255,7 @@
     {
       "id": "marcus_masterwork_elixir",
       "name": "Marcus's Masterwork Elixir",
-      "description": "Now that’s what I call a cocktail! Marcus really knew his stuff before he went... well, you know. It’ll make you feel like a god for five minutes. Enjoy the peak, because the comedown is a real drag!",
+      "description": "A deep blue elixir of extraordinary potency, representing the pinnacle of alchemical achievement.",
       "base_cost": 800,
       "category": "consumables",
       "icon_file": "marcus_masterwork_elixir.png",
@@ -267,22 +267,19 @@
       "consumable_effects": {
         "healing": "6d8+15",
         "temporary_hp": "10",
-        "stat_bonus": {
-          "all_stats": 2,
-          "duration": 3
-        },
+        "stat_bonus": {"all_stats": 2,"duration": 3},
         "description": "Restores 6d8+15 hit points, grants 10 temporary hit points, and increases all stats by +2 for 3 rounds"
       }
     },
-    {
+      {
       "id": "marcus_journals",
       "name": "Marcus's Journals",
-      "description": "A step-by-step guide on how to lose your mind while playing with Aethel Ore. It’s full of secrets, scribbles, and a whole lot of 'I should have listened to Cassia.' Riveting stuff!",
+      "description": "A collection of worn leather journals documenting Marcus Nightshade's descent from idealistic alchemist to cult devotee. The pages smell faintly of chemicals and regret.",
       "base_cost": 0,
       "category": "items",
       "icon_file": "marcus_journals.png",
       "consumable": false,
-      "weight": 2,
+      "weight": 2.0,
       "rarity": "special",
       "stackable": false,
       "quest_item": true,
@@ -304,10 +301,11 @@
         "Tomorrow I transcend. The ritual is prepared. The Master has shown me what lies beyond. I will leave this journal for whoever finds it. Tell Cassia... No. She chose fear over greatness. My only regret is that she'll never understand what I've become. The portal calls. I answer."
       ]
     },
+      
     {
       "id": "broken_compass",
       "name": "Broken compass",
-      "description": "It doesn't care about North, it cares about Power! The needle is twitching because something very big and very magical is nearby. Follow the arrow if you’re looking for a fight!",
+      "description": "Broken compass that points toward magic instead of north.",
       "base_cost": 1,
       "category": "items",
       "subcategory": "trinket",
@@ -323,7 +321,7 @@
     {
       "id": "carved_bone_dice",
       "name": "Carved bone dice",
-      "description": "Want to gamble with fate? These are literally carved from the leftovers of someone’s bad day. Roll 'em and hope the system is feeling generous today. (Spoilers: It’s usually not!)",
+      "description": "Dice for playing games.",
       "base_cost": 1,
       "category": "items",
       "subcategory": "trinket",
@@ -339,7 +337,7 @@
     {
       "id": "chainmail",
       "name": "Chainmail",
-      "description": "Clink, clank, clunk! You’ll sound like a fallen chandelier, but those cultist daggers will have a much harder time reaching your squishy bits. Stealth? Forget about it. Protection? Absolutely!",
+      "description": "Armor made from interlocking metal rings.",
       "base_cost": 75,
       "category": "armor",
       "subcategory": "body_armor",
@@ -358,7 +356,7 @@
     {
       "id": "bracers",
       "name": "Bracers",
-      "description": "A little bit of leather to keep your wrists from getting lonely. It’s not much, but it might turn a graze into a bruise. Plus, you look at least 10% more heroic!",
+      "description": "Sturdy leather forearm guards that offer minimal protection without restricting movement.",
       "base_cost": 5,
       "category": "armor",
       "subcategory": "body_armor",
@@ -376,7 +374,7 @@
     {
       "id": "leather_armor",
       "name": "Leather Armor",
-      "description": "Light, flexible, and smells faintly of a cow that had a very stressful Tuesday. It’s perfect for the hero who prefers 'running away' to 'being crushed by a heavy rock.'",
+      "description": "Armor made from leather.",
       "base_cost": 40,
       "category": "armor",
       "subcategory": "body_armor",
@@ -394,7 +392,7 @@
     {
       "id": "crystal_pendant",
       "name": "Crystal pendant",
-      "description": "It’s a pretty little shard that catches the light. Does it do anything? Maybe! Is it worth a few coins? Definitely! Will it make the ghouls jealous? Probably not, they don't have great taste.",
+      "description": "A pendant with a shimmering crystal.",
       "base_cost": 10,
       "category": "items",
       "icon_file": "crystal_pendant.jpg",
@@ -405,7 +403,7 @@
     {
       "id": "dagger",
       "name": "Dagger",
-      "description": "Small, sharp, and very intimate. If you're close enough to use this, you're close enough to smell the breath of whatever is trying to kill you. Make it count, champ!",
+      "description": "A small, easily concealed bladed weapon.",
       "base_cost": 2,
       "category": "weapons",
       "icon_file": "dagger.png",
@@ -424,7 +422,7 @@
     {
       "id": "empty_small_leather_pouch_that_jingles",
       "name": "Empty small leather pouch that jingles",
-      "description": "It’s empty, yet it jingles. It’s a mystery! It’s a miracle! It’s a small leather bag that’s somehow providing you with a defensive bonus. Don't think about it too hard, your brain might leak.",
+      "description": "A mysterious empty pouch that jingles.",
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
@@ -440,7 +438,7 @@
     {
       "id": "feathered_dream_catcher",
       "name": "Feathered dream catcher",
-      "description": "Because the things you see while you're awake in Redstone aren't scary enough! This will keep the mental gunk at bay while you catch some z's. Sweet dreams, if you can find them!",
+      "description": "A charm to ward off bad dreams.",
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
@@ -456,7 +454,7 @@
     {
       "id": "glass_vial_with_swirling_mist",
       "name": "Glass vial with swirling mist",
-      "description": "There’s a tiny little hurricane trapped in this glass! It’s mesmerizing, it’s magical, and it makes you feel like you can take on the world. Or at least the tavern rats.",
+      "description": "A vial with a mysterious mist.",
       "base_cost": 1,
       "category": "items",
       "subcategory": "trinket",
@@ -472,7 +470,7 @@
     {
       "id": "greataxe",
       "name": "Greataxe",
-      "description": "The big daddy of the tool shed! This thing is for when you're tired of talking and just want to turn your problems into two smaller, quieter problems. Swing big, you glorious beast!",
+      "description": "A heavy, two-handed axe.",
       "base_cost": 30,
       "category": "weapons",
       "icon_file": "greataxe.png",
@@ -491,7 +489,7 @@
     {
       "id": "healing_potion",
       "name": "Healing potion",
-      "description": "The classic 'I messed up' juice! It’s sweet, it’s sticky, and it’s the only thing standing between you and a very permanent nap. Don't forget to recycle the bottle!",
+      "description": "A potion that restores health.",
       "base_cost": 50,
       "category": "consumables",
       "icon_file": "healing_potion.png",
@@ -505,10 +503,10 @@
         "description": "Restores 2d4+2 hit points when consumed"
       }
     },
-    {
+     {
       "id": "henriks_lantern",
       "name": "Henriks Lantern",
-      "description": "Henrik really didn't want you getting lost in the ruins. This little guy casts a warm glow that says 'everything is fine' even when it clearly isn't.",
+      "description": "A lucky Lantern provided by Hendrik to light your way.",
       "base_cost": 150,
       "category": "items",
       "subcategory": "special",
@@ -526,7 +524,7 @@
     {
       "id": "hemp_rope",
       "name": "Hemp Rope",
-      "description": "Ten feet of pure utility! Whether you're climbing out of a pit or tying up a cult spy, this rope has your back. Just... try not to let it fray, okay? That would be awkward.",
+      "description": "A length of durable hemp rope.",
       "base_cost": 3,
       "category": "items",
       "icon_file": "hemp_rope.png",
@@ -537,7 +535,7 @@
     {
       "id": "holy_symbol",
       "name": "Holy symbol",
-      "description": "A little piece of divinity to clutch when the shadow-blight gets too close. It’s a sign that someone might be listening. Or maybe it’s just a very pretty paperweight. Who knows?",
+      "description": "A symbol of a god or divine force.",
       "base_cost": 5,
       "category": "items",
       "icon_file": "holy_symbol.png",
@@ -548,7 +546,7 @@
     {
       "id": "iron_ring_with_strange_symbols",
       "name": "Iron ring with strange symbols",
-      "description": "These runes look like a mess, but they pack a punch! It creates a tiny field of 'please don't touch me' that’ll keep you upright for a few more rounds. Wear it with pride!",
+      "description": "An iron ring with strange symbols.",
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
@@ -564,7 +562,7 @@
     {
       "id": "shield",
       "name": "Shield",
-      "description": "The ultimate high-tech defense: a board! Hold it between you and the pointy bits. It’s simple, it’s effective, and it’s a great place to rest your head if you get tired.",
+      "description": "Basic wooden protection.",
       "base_cost": 10,
       "category": "armor",
       "subcategory": "shield",
@@ -580,7 +578,7 @@
     {
       "id": "leather_pouch_with_dried_herbs",
       "name": "Leather pouch with dried herbs",
-      "description": "Take a deep breath! These herbs smell like a summer meadow, which is a nice change from the 'ancient decay' scent of the ruins. It’s a spa day in a bag!",
+      "description": "A pouch containing dried herbs.",
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
@@ -596,7 +594,7 @@
     {
       "id": "light_crossbow",
       "name": "Light crossbow",
-      "description": "Point and click! It’s the lazy man’s way to win a fight. Launch a bolt from the safety of the back row and let the fighter take all the hits. That’s teamwork!",
+      "description": "A ranged weapon that fires bolts.",
       "base_cost": 25,
       "category": "weapons",
       "icon_file": "light_crossbow.png",
@@ -617,7 +615,7 @@
     {
       "id": "longsword",
       "name": "Longsword",
-      "description": "A reliable piece of steel for a reliable hero. It’s long, it’s sharp, and it works exactly how you think it does. No fancy tricks, just good old-fashioned violence!",
+      "description": "A sturdy, versatile sword.",
       "base_cost": 15,
       "category": "weapons",
       "icon_file": "longsword.png",
@@ -636,7 +634,7 @@
     {
       "id": "shortsword",
       "name": "Shortsword",
-      "description": "For when you want to get up close and personal without all that heavy lifting. It’s quick, it’s nimble, and it fits perfectly in a cultist’s ribcage.",
+      "description": "A sturdy, easily handled sword.",
       "base_cost": 10,
       "category": "weapons",
       "icon_file": "shortsword.png",
@@ -655,7 +653,7 @@
     {
       "id": "rusty_shortsword",
       "name": "Shortsword",
-      "description": "Oh, gross. This thing looks like it’s been sitting in a puddle since the first floor opened. It’s more likely to give someone tetanus than a clean cut, but hey, a blade’s a blade!",
+      "description": "A corroded blade. Barely worth melting down.",
       "base_cost": 10,
       "category": "weapons",
       "icon_file": "rusty_shortsword.png",
@@ -674,7 +672,7 @@
     {
       "id": "mace",
       "name": "Mace",
-      "description": "Why cut when you can crush? This heavy hunk of metal is perfect for tenderizing ghouls. No sharp edges to worry about, just raw, blunt force trauma!",
+      "description": "A simple bludgeoning weapon.",
       "base_cost": 5,
       "category": "weapons",
       "icon_file": "mace.png",
@@ -693,7 +691,7 @@
     {
       "id": "plate_armor",
       "name": "Plate armor",
-      "description": "Now you're playing with power! You're essentially a human fortress. You’ll be nearly impossible to hurt, but you’ll also be the loudest thing in Redstone. Hope you didn't want to be stealthy!",
+      "description": "Heavy-duty plate armor.",
       "base_cost": 1500,
       "category": "armor",
       "subcategory": "body_armor",
@@ -712,7 +710,7 @@
     {
       "id": "polished_obsidian_shard",
       "name": "Polished obsidian shard",
-      "description": "Smooth, black, and pulsing with the warmth of the deep earth. It’s like carrying a tiny radiator that also happens to make you physically tougher. Don't drop it!",
+      "description": "A shard of obsidian, polished smooth.",
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
@@ -728,7 +726,7 @@
     {
       "id": "quarterstaff",
       "name": "Quarterstaff",
-      "description": "The most versatile piece of wood in the world! Poke it, swing it, or use it to stay upright after a long night at the Broken Blade. It’s a classic for a reason.",
+      "description": "A versatile walking stick and weapon.",
       "base_cost": 1,
       "category": "weapons",
       "icon_file": "quarterstaff.png",
@@ -747,7 +745,7 @@
     {
       "id": "rapier",
       "name": "Rapier",
-      "description": "A thin, elegant needle for a thin, elegant hero. Don't just hack like a barbarian; poke them with a bit of flair! It’s basically a very aggressive sewing needle.",
+      "description": "A thin, elegant sword used for piercing.",
       "base_cost": 25,
       "category": "weapons",
       "icon_file": "rapier.png",
@@ -766,7 +764,7 @@
     {
       "id": "shield_plus_1",
       "name": "Shield +1",
-      "description": "This shield has been upgraded with the 'Extra-Safety' package! It’s sturdier, shinier, and significantly better at keeping your face in one piece. Use it well!",
+      "description": "A shield with a magical enhancement.",
       "base_cost": 200,
       "category": "armor",
       "subcategory": "shield",
@@ -782,7 +780,7 @@
     {
       "id": "shortbow",
       "name": "Shortbow",
-      "description": "Deliver a little 'gift' from eighty feet away! It’s light, it’s fast, and it’s perfect for the hero who doesn't like getting their clothes dirty.",
+      "description": "A small bow for ranged combat.",
       "base_cost": 25,
       "category": "weapons",
       "icon_file": "shortbow.png",
@@ -804,7 +802,7 @@
     {
       "id": "small_bronze_mirror",
       "name": "Small bronze mirror",
-      "description": "You might be fighting for the fate of Redstone, but that’s no reason to look like a mess! Take a quick peek and remind yourself why you're the hero of this story.",
+      "description": "A small mirror with a bronze frame.",
       "base_cost": 5,
       "category": "items",
       "subcategory": "trinket",
@@ -820,7 +818,7 @@
     {
       "id": "smooth_river_stone_with_runes",
       "name": "Smooth river stone with runes",
-      "description": "This little rock has been etched with ancient protection wards. It’s small enough to hide in your pocket and powerful enough to keep you from becoming a shadow’s dinner.",
+      "description": "A smooth stone etched with runes.",
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
@@ -836,7 +834,7 @@
     {
       "id": "splint_armor",
       "name": "Splint armor",
-      "description": "It’s leather! It’s metal! It’s a fashion statement! This armor will keep your organs exactly where they belong while you're busy clearing out the swamp church.",
+      "description": "Armor made from overlapping metal strips.",
       "base_cost": 200,
       "category": "armor",
       "subcategory": "body_armor",
@@ -855,7 +853,7 @@
     {
       "id": "strong_ale",
       "name": "Strong Ale",
-      "description": "One mug of this and you'll think you can take on the Shadow Priest solo! It makes you stronger, braver, and a lot more likely to trip over your own feet. Cheers!",
+      "description": "A strong, potent ale.",
       "base_cost": 1,
       "category": "consumables",
       "icon_file": "strong_ale.png",
@@ -873,7 +871,7 @@
     {
       "id": "tarnished_silver_locket",
       "name": "Tarnished silver locket",
-      "description": "A shiny little heart full of memories. It’s a reminder that people are waiting for you to come home. Don't let the cultists win, or the locket gets it!",
+      "description": "A tarnished silver locket.",
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
@@ -889,7 +887,7 @@
     {
       "id": "thieves_tools",
       "name": "Thieves' tools",
-      "description": "The 'Open Sesame' of the dungeon world. These little metal tools are the only thing standing between you and the loot. Be quiet, be careful, and try not to snap the pick!",
+      "description": "A set of tools for picking locks and disarming traps.",
       "base_cost": 25,
       "category": "items",
       "icon_file": "thieves_tools.png",
@@ -900,7 +898,7 @@
     {
       "id": "tinderbox",
       "name": "Tinderbox",
-      "description": "Let there be fire! Perfect for lighting torches, starting campfires, or setting 'accidental' traps for ghouls. Just keep it away from the alchemist fire.",
+      "description": "A small container with flint and steel for starting fires.",
       "base_cost": 1,
       "category": "items",
       "icon_file": "tinderbox.png",
@@ -911,7 +909,7 @@
     {
       "id": "torch",
       "name": "Torch",
-      "description": "It provides light, it provides heat, and it’s a great way to poke something that’s getting too close. Simple, classic, and 100% flammable!",
+      "description": "It is a piece of flammable wood.",
       "base_cost": 1,
       "category": "items",
       "icon_file": "torch.png",
@@ -924,7 +922,7 @@
     {
       "id": "henriks_lantern",
       "name": "Henriks Lantern",
-      "description": "The lantern is back! Because apparently, you can't have enough light in a place that’s actively trying to murder you. Henrik really wants you to see your doom coming.",
+      "description": "A lucky Lantern provided by Hendrik to light your way.",
       "base_cost": 150,
       "category": "items",
       "icon_file": "henriks_lantern.png",
@@ -940,7 +938,7 @@
     {
       "id": "trail_rations",
       "name": "Trail Rations",
-      "description": "Salty, dry, and vaguely nutritious. It’s exactly what you need to keep your strength up while hiking to the Hill Ruins. Try not to think about what kind of meat it is.",
+      "description": "Nourishing food for the road.",
       "base_cost": 10,
       "category": "consumables",
       "icon_file": "trail_rations.png",
@@ -958,7 +956,7 @@
     {
       "id": "twisted_driftwood_wand",
       "name": "Twisted driftwood wand",
-      "description": "This wand spent a long time in the sea, and now it’s super-sensitive to magic. If it starts vibrating, you’re either near a treasure or about to be cursed. Fun, right?",
+      "description": "A wand made from twisted driftwood.",
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
@@ -974,7 +972,7 @@
     {
       "id": "healing_scroll",
       "name": "Healing Scroll",
-      "description": "Read the words, feel the tingle! It’s a one-time-use miracle for the hero on the go. Perfect for when the healer is out of mana and you’re out of blood.",
+      "description": "A scroll inscribed with healing magic. Speak the words to mend wounds.",
       "base_cost": 50,
       "category": "consumables",
       "icon_file": "healing_scroll.png",
@@ -991,7 +989,7 @@
     {
       "id": "pressed_flowers",
       "name": "Colorful pressed flowers",
-      "description": "A colorful reminder of the world outside of Redstone’s shadows. It smells like a meadow and feels like hope. Keep it close to your heart!",
+      "description": "A sleeve of colorful pressed flowers from your childhood.",
       "base_cost": 0,
       "category": "items",
       "subcategory": "trinket",
@@ -1005,11 +1003,11 @@
       }
     }
   ],
-  "loot_items": [
+  "loot_items":[
     {
       "id": "rat_pelt",
       "name": "Rat Pelt",
-      "description": "Congratulations, you killed a rodent! Here is your reward: a damp, smelly piece of its skin. Someone in town might pay you a copper for it, but they'll definitely judge you.",
+      "description": "A smelly rat hide. Merchants will buy it for a pittance.",
       "base_cost": 1,
       "category": "items",
       "icon_file": "rat_pelt.png",
@@ -1020,7 +1018,7 @@
     {
       "id": "diseased_fang",
       "name": "Diseased Fang",
-      "description": "A nasty trophy from a basement rat. It’s probably covered in things that require an immediate bath. Save it for an alchemist or a very weird collector.",
+      "description": "A nasty tooth from a giant rat. Alchemists might want this.",
       "base_cost": 2,
       "category": "items",
       "icon_file": "diseased_fang.png",
@@ -1031,7 +1029,7 @@
     {
       "id": "rat_tail",
       "name": "Rat Tail",
-      "description": "A long, pink reminder of your victory over a very small enemy. It’s a trophy! Or a gross bookmark. Either way, it’s yours now!",
+      "description": "A disgusting trophy. Some pay coin for pest proof.",
       "base_cost": 1,
       "category": "items",
       "icon_file": "rat_tail.png",
@@ -1042,7 +1040,7 @@
     {
       "id": "goblin_ear",
       "name": "Goblin Ear",
-      "description": "You're really going for the full 'trophy hunter' look, aren't you? This ear belonged to a goblin who probably had a very bad day. Wash your hands after touching it!",
+      "description": "Proof of a goblin kill. Bounties are paid for these.",
       "base_cost": 3,
       "category": "items",
       "icon_file": "goblin_ear.png",
@@ -1053,7 +1051,7 @@
     {
       "id": "rusty_dagger",
       "name": "Rusty Dagger",
-      "description": "This thing is a disaster. It’s orange with rust and probably has the structural integrity of a biscuit. Use it only as a last, desperate resort!",
+      "description": "A corroded blade. Barely worth melting down.",
       "base_cost": 1,
       "category": "weapons",
       "icon_file": "rusty_dagger.png",
@@ -1072,7 +1070,7 @@
     {
       "id": "crude_shortbow",
       "name": "Crude Shortbow",
-      "description": "It looks like it was made with a bent twig and some old twine. It’ll fire an arrow, but don't expect it to win any marksman awards. It’s a bow, technically.",
+      "description": "A poorly made bow. The string is frayed.",
       "base_cost": 8,
       "category": "weapons",
       "icon_file": "crude_shortbow.png",
@@ -1091,7 +1089,7 @@
     {
       "id": "tattered_leather_scraps",
       "name": "Tattered Leather Scraps",
-      "description": "A collection of leather pieces that used to be a suit of armor. Now they're just scraps. You could sell them, or use them to patch up your dignity. Your call!",
+      "description": "Worn leather pieces. Could be repaired or sold for scrap.",
       "base_cost": 2,
       "category": "armor",
       "subcategory": "body_armor",
@@ -1109,7 +1107,7 @@
     {
       "id": "kobold_scale",
       "name": "Kobold Scale",
-      "description": "Shiny! This scale is tough, pretty, and a great way to prove you’ve been cleaning out the local pest population. It’s worth a few coins to a jeweler!",
+      "description": "A shimmering scale from a kobold. Collectors pay for exotic specimens.",
       "base_cost": 4,
       "category": "items",
       "icon_file": "kobold_scale.png",
@@ -1120,7 +1118,7 @@
     {
       "id": "kobold_trap_parts",
       "name": "Kobold Trap Parts",
-      "description": "The remnants of a kobold’s 'Surprise Party' kit. It’s a jumble of metal and wood that might be useful to someone who likes things that go 'click' and 'bang.'",
+      "description": "Springs, wire, and mechanisms. Could be useful for a tinkerer.",
       "base_cost": 5,
       "category": "items",
       "icon_file": "trap_parts.png",
@@ -1131,7 +1129,7 @@
     {
       "id": "bone_fragment",
       "name": "Bone Fragment",
-      "description": "A piece of a skeleton that’s still vibrating with residual magic. It’s a bit creepy and definitely cold to the touch. Keep it away from your snacks.",
+      "description": "A piece of ancient bone. Still has dark magic clinging to it.",
       "base_cost": 3,
       "category": "items",
       "icon_file": "bone_fragment.png",
@@ -1142,7 +1140,7 @@
     {
       "id": "rusted_shortsword",
       "name": "Rusted Shortsword",
-      "description": "This blade has definitely seen better days. It’s orange with age and wouldn't know an edge if it fell on one. But hey, it's still a piece of steel!",
+      "description": "An old blade covered in rust. Barely functional.",
       "base_cost": 5,
       "category": "weapons",
       "icon_file": "rusted_shortsword.png",
@@ -1161,7 +1159,7 @@
     {
       "id": "cracked_wooden_shield",
       "name": "Cracked Wooden Shield",
-      "description": "This shield is one good hit away from becoming kindling. It might stop an arrow, but it probably won't survive the experience. Use it while it lasts!",
+      "description": "A broken shield. Might stop one blow before falling apart.",
       "base_cost": 3,
       "category": "armor",
       "subcategory": "shield",
@@ -1178,7 +1176,7 @@
     {
       "id": "shadow_essence",
       "name": "Shadow Essence",
-      "description": "A swirling puff of pure 'nope' in a glass jar. It’s cold, it’s creepy, and it’s exactly what the Shadow Priest ordered. Please, for the love of the system, do NOT drink it.",
+      "description": "A wisp of darkness captured in a vial. Necromancers seek this.",
       "base_cost": 15,
       "category": "items",
       "icon_file": "shadow_essence.png",
@@ -1189,7 +1187,7 @@
     {
       "id": "spectral_fragment",
       "name": "Spectral Fragment",
-      "description": "A literal piece of a phantom! It’s glowing with an unsettling light and feels like a bucket of ice water. It’s a soul-fragment, so treat it with respect.",
+      "description": "A shard of ghostly energy. Glows faintly in darkness.",
       "base_cost": 20,
       "category": "items",
       "icon_file": "spectral_fragment.png",
@@ -1200,7 +1198,7 @@
     {
       "id": "cursed_talisman",
       "name": "Cursed Talisman",
-      "description": "It pulses with a rhythmic 'go away' energy. It’s clearly evil, probably dangerous, and definitely cursed. But the craftsmanship is really top-notch!",
+      "description": "A dark amulet that pulses with malevolent energy.",
       "base_cost": 25,
       "category": "items",
       "icon_file": "cursed_talisman.png",
@@ -1215,7 +1213,7 @@
     {
       "id": "cult_robes",
       "name": "Cult Robes",
-      "description": "Perfect for the hero who wants to blend in with the local shadow-worshippers! It’s drafty, it’s dark, and it comes with a 100% chance of being mistaken for a villain.",
+      "description": "Dark robes marked with sinister symbols. Disturbing to wear.",
       "base_cost": 10,
       "category": "armor",
       "subcategory": "body_armor",
@@ -1233,7 +1231,7 @@
     {
       "id": "ritual_dagger",
       "name": "Ritual Dagger",
-      "description": "This isn't for cutting bread. It’s a sleek, magical tool for performing rituals you definitely shouldn't be involved in. It’s sharp, it’s mean, and it’s very cool.",
+      "description": "A ceremonial blade with dark runes. Still sharp and deadly.",
       "base_cost": 12,
       "category": "weapons",
       "icon_file": "ritual_dagger.png",
@@ -1252,7 +1250,7 @@
     {
       "id": "stolen_coin_purse",
       "name": "Stolen Coin Purse",
-      "description": "Someone dropped this during the panic. Now it’s yours! It’s got a few coins and a whole lot of 'I shouldn't have stolen this' guilt. Enjoy the extra gold!",
+      "description": "A small purse with someone else's initials. Contains a few coins.",
       "base_cost": 8,
       "category": "items",
       "icon_file": "coin_purse.png",
@@ -1263,7 +1261,7 @@
     {
       "id": "lockpicks",
       "name": "Lockpicks",
-      "description": "A set of bendy metal bits for when you find a door that’s playing hard to get. Be gentle, be patient, and don't get caught!",
+      "description": "A set of thieves' tools. Well-worn but functional.",
       "base_cost": 15,
       "category": "items",
       "icon_file": "lockpicks.png",
@@ -1278,7 +1276,7 @@
     {
       "id": "cheap_cloak",
       "name": "Cheap Cloak",
-      "description": "A basic rag for keeping the damp out. It’s seen better days, it’s got a few holes, and it smells faintly of adventure (and mud). It’s a classic!",
+      "description": "A worn traveler's cloak. Has seen better days.",
       "base_cost": 3,
       "category": "items",
       "icon_file": "cheap_cloak.png",
@@ -1289,7 +1287,7 @@
     {
       "id": "spider_silk",
       "name": "Spider Silk",
-      "description": "Stronger than steel and lighter than air! This silk is a dream for any armorer. Just try to forget where it came from (spoiler: it was a giant bug’s mouth).",
+      "description": "Fine, incredibly strong silk from a giant spider. Sought after by armorers and enchanters.",
       "base_cost": 8,
       "category": "items",
       "icon_file": "spider_silk.png",
@@ -1302,7 +1300,7 @@
     {
       "id": "venom_gland",
       "name": "Venom Gland",
-      "description": "A pouch full of concentrated spider toxin. Alchemists will pay a fortune for this, but if you poke it, you're going to have a very short, very painful day.",
+      "description": "A potent poison sac from a spider. Alchemists can extract valuable toxins from it.",
       "base_cost": 12,
       "category": "items",
       "icon_file": "venom_gland.png",
@@ -1315,7 +1313,7 @@
     {
       "id": "spider_leg",
       "name": "Spider Leg",
-      "description": "It’s sharp, it’s barbed, and it’s absolutely disgusting. It makes a great crafting material, if you can get past the 'carrying a dead bug's leg' part.",
+      "description": "A chitinous spider leg. The barbed hairs and sharp tip make it useful for crafting.",
       "base_cost": 5,
       "category": "items",
       "icon_file": "spider_leg.png",
@@ -1328,7 +1326,7 @@
     {
       "id": "twisted_staff",
       "name": "Twisted Staff",
-      "description": "A piece of wood that looks like it’s screaming. It hums with a corrupted energy that’ll make your hair stand on end. Perfect for the mage with a dark side!",
+      "description": "A gnarled wooden staff carved with dark runes. It hums with corrupted magic.",
       "base_cost": 45,
       "category": "weapons",
       "icon_file": "twisted_staff.png",
@@ -1347,7 +1345,7 @@
     {
       "id": "crude_armor_scraps",
       "name": "Crude Armor Scraps",
-      "description": "Bits of leather and hide that a skilled blacksmith could turn into something useful. Or you could just use them to fix a hole in your boot.",
+      "description": "Pieces of poorly-made leather and hide armor. A blacksmith could salvage the materials.",
       "base_cost": 3,
       "category": "items",
       "icon_file": "armor_scraps.png",
@@ -1360,7 +1358,7 @@
     {
       "id": "kobold_spell_focus",
       "name": "Kobold Spell Focus",
-      "description": "A bone talisman that still carries the heat of a fire-spell. It was used by a kobold mage to cause trouble, and now it’s your turn to use it for 'good.'",
+      "description": "A crude bone talisman used by kobold shamans to channel their magic. Still radiates faint power.",
       "base_cost": 20,
       "category": "items",
       "icon_file": "kobold_spell_focus.png",
@@ -1368,10 +1366,11 @@
       "weight": 0.3,
       "rarity": "uncommon"
     },
+    
     {
       "id": "silver_coins",
       "name": "Silver Coins",
-      "description": "Coins from a kingdom that doesn't exist anymore! They’re old, they’re dirty, but they’re still silver. Spend them before the economy collapses!",
+      "description": "A small collection of old silver coins, tarnished with age but still valuable.",
       "base_cost": 5,
       "category": "items",
       "icon_file": "silver_coins.png",
@@ -1384,7 +1383,7 @@
     {
       "id": "merediths_silver_ring",
       "name": "Meredith's Silver Ring",
-      "description": "A beautiful silver ring that belongs to Meredith Whisperwind. She’s probably worried sick about it. You’re going to give it back, right? Right?",
+      "description": "A delicate silver ring with a small blue stone. Family heirloom lost near the old mine.",
       "base_cost": 0,
       "category": "items",
       "icon_file": "merediths_silver_ring.png",
@@ -1397,12 +1396,12 @@
     {
       "id": "strange_relic",
       "name": "Strange Relic",
-      "description": "An ancient relic that’s been vandalized by a cult. It radiates a massive 'leave me alone' aura and is clearly important to the local ritual scene.",
+      "description": "An ancient religious artifact defaced with dark symbols. It radiates an unsettling aura.",
       "base_cost": 0,
       "category": "items",
       "icon_file": "strange_relic.png",
       "consumable": false,
-      "weight": 1,
+      "weight": 1.0,
       "rarity": "rare",
       "stackable": false,
       "quest_item": true
@@ -1410,7 +1409,7 @@
     {
       "id": "ancient_coins",
       "name": "Ancient Coins",
-      "description": "Coins stamped with the face of a king who’s been dust for a thousand years. Collectors will love these, or you can just use them to buy a very expensive ale.",
+      "description": "Weathered coins from a long-forgotten era, stamped with symbols of an ancient kingdom. Collectors might pay well for these.",
       "base_cost": 15,
       "category": "items",
       "icon_file": "ancient_coins.png",
@@ -1423,7 +1422,7 @@
     {
       "id": "stone_fragment",
       "name": "Stone Fragment",
-      "description": "A piece of a golem that’s still humming with energy. It’s a magical battery that’s almost out of juice. Keep it safe, it might be useful!",
+      "description": "A chunk of enchanted stone from an animated guardian. Still faintly warm with residual magic.",
       "base_cost": 8,
       "category": "items",
       "icon_file": "stone_fragment.png",
@@ -1436,7 +1435,7 @@
     {
       "id": "cult_documents",
       "name": "Cult Documents",
-      "description": "A collection of ritual notes, diagrams, and creepy poetry. It’s the ultimate guide to 'How to Ruin a Mining Town.' Turn it in for a reward!",
+      "description": "Disturbing papers covered in ritual diagrams and cryptic notes about dark ceremonies.",
       "base_cost": 0,
       "category": "items",
       "icon_file": "cult_documents.png",
@@ -1449,7 +1448,7 @@
     {
       "id": "hill_ruins_dungeon_key",
       "name": "Ancient Runic Key",
-      "description": "It thrums with an icy magic that makes your fingers go numb. It’s the key to the Hill Ruins’ deepest secrets. Don't lose it, or we're all in trouble!",
+      "description": "An iron key covered in mysterious runes that seem to shimmer in the light. The brigand leader must have stolen it from the hill ruins. It feels cold to the touch and thrums with residual magic.",
       "base_cost": 0,
       "category": "items",
       "icon_file": "hill_ruins_dungeon_key.png",
@@ -1466,7 +1465,7 @@
     {
       "id": "broken_holy_symbol",
       "name": "Broken Holy Symbol",
-      "description": "A snapped symbol of divinity. It’s a tragic little object that belonged to someone who didn't survive the shadow-blight. Rest in pieces.",
+      "description": "A damaged religious symbol, split in half. It once belonged to a priest or paladin.",
       "base_cost": 2,
       "category": "items",
       "icon_file": "broken_holy_symbol.png",
@@ -1477,7 +1476,7 @@
     {
       "id": "aethel_ore_sample",
       "name": "Aethel Ore Sample",
-      "description": "This ore is pulsing with a weird, otherworldly light. It’s humming, it’s glowing, and it’s exactly what Marcus was looking for. Don't stare at it too long!",
+      "description": "A chunk of strange, glowing ore that pulses with an otherworldly blue-green light. The mineral hums faintly and feels warm to the touch. Marcus's journals mentioned this mysterious substance.",
       "base_cost": 25,
       "category": "items",
       "icon_file": "aethel_ore_sample.png",
@@ -1495,7 +1494,7 @@
     {
       "id": "rare_gem",
       "name": "Rare Gem",
-      "description": "A gemstone that’s worth more than the entire general store. It catches the light and makes you look like a winner. Try not to lose it in the swamp!",
+      "description": "A brilliantly cut gemstone that catches and refracts light in dazzling patterns. Highly valuable to jewelers and collectors.",
       "base_cost": 50,
       "category": "items",
       "icon_file": "rare_gem.png",
@@ -1508,7 +1507,7 @@
     {
       "id": "coal_ore",
       "name": "Coal Ore",
-      "description": "Essential for the forge! It’s not fancy, but without this, your weapons are just expensive sticks. Keep the fires burning!",
+      "description": "A dark, combustible mineral used for fuel and smithing. Essential for forges and heating.",
       "base_cost": 2,
       "category": "items",
       "icon_file": "coal_ore.png",
@@ -1521,7 +1520,7 @@
     {
       "id": "iron_ore",
       "name": "Iron Ore",
-      "description": "The raw material of every sword, shield, and helmet in Redstone. It’s heavy, it’s grey, and it’s the foundation of your survival!",
+      "description": "Raw iron ore that can be smelted and forged into weapons, armor, and tools. A staple of any blacksmith's workshop.",
       "base_cost": 5,
       "category": "items",
       "icon_file": "iron_ore.png",
@@ -1534,7 +1533,7 @@
     {
       "id": "marcus_pendant",
       "name": "Marcus's Royal Pendant",
-      "description": "A silver pendant with the royal seal. What was Marcus doing with something this fancy? It’s a mystery wrapped in a silver chain!",
+      "description": "A silver pendant bearing the moon and star symbol of Redstone's old royal family. Marcus wore this - its presence in the ritual circle raises troubling questions.",
       "base_cost": 0,
       "category": "items",
       "icon_file": "marcus_pendant.png",
@@ -1548,7 +1547,7 @@
     {
       "id": "marcus_letter_to_aldric",
       "name": "Marcus's Unsent Letter",
-      "description": "A letter that reveals a massive plot and probably puts a target on your back. Who knew mail could be so dangerous? Read it and weep!",
+      "description": "An unsent letter from Marcus to 'Brother Aldric' revealing a larger conspiracy beyond Redstone.",
       "base_cost": 0,
       "category": "items",
       "icon_file": "marcus_letter_to_aldric.png",
@@ -1557,69 +1556,70 @@
       "special_effects": {
         "lore_value": true,
         "description": "Evidence of a cult network spanning multiple kingdoms"
-      }
-    },
-    {
-      "id": "prisoner_final_note",
-      "name": "Prisoner's Final Note",
-      "description": "A final message from someone who stood their ground against the cult. It’s heartbreaking, it’s heroic, and it’s a reminder of what’s at stake.",
-      "base_cost": 0,
-      "category": "items",
-      "icon_file": "prisoner_final_note.png",
-      "rarity": "special",
-      "weight": 1,
-      "special_effects": {
-        "lore_value": true,
-        "description": "Tragic evidence of the cult's transformation experiments"
-      }
-    },
-    {
-      "id": "blessed_weapon_oil",
-      "name": "Blessed Weapon Oil",
-      "description": "Rub this on your blade and watch it glow with the power of 'Go Away!' It’s like a middle finger for ghouls and shadow-creatures. Slather it on!",
-      "base_cost": 150,
-      "category": "consumable",
-      "rarity": "rare",
-      "weight": 1,
-      "stackable": true,
-      "max_stack": 20,
-      "consumable_effects": {
-        "damage_bonus_vs_undead": 3,
-        "damage_bonus_vs_blight": 3,
-        "duration": "3",
-        "description": "Apply to weapon for +3 damage vs undead/blight enemies for 3 combats"
-      }
-    },
-    {
-      "id": "villagers_abandoned_belongings",
-      "name": "Abandoned Belongings",
-      "description": "A child's doll, a ring, and a letter. It’s a collection of lives interrupted by the shadows. Please, give these back to the families in town.",
-      "base_cost": 0,
-      "category": "items",
-      "icon_file": "villagers_abandoned_belongings.png",
-      "consumable": false,
-      "weight": 1,
-      "rarity": "special",
-      "stackable": false,
-      "quest_item": true,
-      "special_effects": {
-        "lore_value": true,
-        "description": "Tragic mementos that deserve to be returned to the victims' families"
-      }
-    },
-    {
-      "id": "blight_ward_charm",
-      "name": "Blight Ward Charm",
-      "description": "A runic amulet designed to keep the shadow-blight from eating your brain. It’s your best friend when things get dark and creepy. Don't leave home without it!",
-      "base_cost": 200,
-      "category": "items",
-      "rarity": "rare",
-      "weight": 1,
-      "special_effects": {
-        "blight_resistance": 2,
-        "psychic_resistance": 2,
-        "description": "Grants +2 to saves vs blight corruption and psychic damage"
-      }
-    }
+        } 
+      },
+      {
+        "id": "prisoner_final_note",
+        "name": "Prisoner's Final Note",
+        "description": "A hastily scrawled note from a villager who resisted the shadow blight until death.",
+        "base_cost": 0,
+        "category": "items",
+        "icon_file": "prisoner_final_note.png",
+        "rarity": "special",
+        "weight": 1,
+        "special_effects": {
+          "lore_value": true,
+          "description": "Tragic evidence of the cult's transformation experiments"
+        }
+      },
+      {
+        "id": "blessed_weapon_oil",
+        "name": "Blessed Weapon Oil",
+        "description": "Sacred oil that can be applied to weapons. Grants bonus damage against undead and shadow-touched enemies.",
+        "base_cost": 150,
+        "category": "consumable",
+        "rarity": "rare",
+        "weight": 1,
+        "stackable": true,
+        "max_stack": 20,
+        "consumable_effects": {
+          "damage_bonus_vs_undead": 3,
+          "damage_bonus_vs_blight": 3,
+          "duration": "3",
+          "description": "Apply to weapon for +3 damage vs undead/blight enemies for 3 combats"
+        }
+      },
+      {
+        "id": "villagers_abandoned_belongings",
+        "name": "Abandoned Belongings",
+        "description": "A heartbreaking collection: a child's doll, a wedding ring, and an unsent letter. Personal effects from villagers who never made it home. These should be returned to their families.",
+        "base_cost": 0,
+        "category": "items",
+        "icon_file": "villagers_abandoned_belongings.png",
+        "consumable": false,
+        "weight": 1.0,
+        "rarity": "special",
+        "stackable": false,
+        "quest_item": true,
+        "special_effects": {
+          "lore_value": true,
+          "description": "Tragic mementos that deserve to be returned to the victims' families"
+        }
+      },
+      {
+        "id": "blight_ward_charm",
+        "name": "Blight Ward Charm",
+        "description": "An ancient charm inscribed with protective runes. Provides resistance to blight corruption and psychic attacks.",
+        "base_cost": 200,
+        "category": "items",
+        "rarity": "rare",
+        "weight": 1,
+        "special_effects": {
+          "blight_resistance": 2,
+          "psychic_resistance": 2,
+          "description": "Grants +2 to saves vs blight corruption and psychic damage"
+        }
+  }
+
   ]
 }
