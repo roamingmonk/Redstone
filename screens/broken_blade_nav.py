@@ -302,27 +302,27 @@ class BrokenBladeNav:
         self.temp_message = message
         self.temp_message_timer = duration
     
-    def render(self, screen, game_state, fonts, images):
+    def render(self, screen, game_state, fonts, images, controller=None):
         """Render tavern navigation screen"""
         screen.fill(BLACK)
-        
+
         # Get player position
         player_x = game_state.tavern_x
         player_y = game_state.tavern_y
-        
+
         # Draw map tiles
         self.renderer.draw_map(screen, fonts, player_x, player_y)
-        
+
         # Draw player sprite
         self.renderer.draw_player(screen, player_x, player_y)
-        
+
         # Draw NPCs
         visible_npcs = get_visible_npcs(game_state)
         for npc_id, npc_data in visible_npcs.items():
             npc_x, npc_y = npc_data['position']
             screen_x = (npc_x * 64) - self.renderer.camera_x
             screen_y = (npc_y * 64) - self.renderer.camera_y
-            
+
             # Only draw if in visible area
             if (-64 <= screen_x <= self.renderer.display_width and
                 -64 <= screen_y <= self.renderer.display_height):
@@ -334,9 +334,32 @@ class BrokenBladeNav:
                     (int(screen_x + 32), int(screen_y + 32)),
                     16
                 )
-        
+
         # Draw party status panel
-        draw_party_status_panel(screen, game_state, fonts)
+        portrait_rects = draw_party_status_panel(screen, game_state, fonts)
+
+        # Register portrait clicks with InputHandler
+        if controller and hasattr(controller, 'input_handler'):
+            input_handler = controller.input_handler
+
+            if 'player' in portrait_rects:
+                input_handler.register_clickable(
+                    'broken_blade_nav',
+                    portrait_rects['player'],
+                    "PORTRAIT_CLICKED",
+                    {"target": "player", "tab": 1},
+                    priority=150
+                )
+
+            for key, rect in portrait_rects.items():
+                if key.startswith('npc_'):
+                    input_handler.register_clickable(
+                        'broken_blade_nav',
+                        rect,
+                        "PORTRAIT_CLICKED",
+                        {"target": "party", "tab": 2},
+                        priority=150
+                    )
         
         # Draw temp message if active
         if self.temp_message and self.temp_message_timer > 0:
@@ -423,4 +446,4 @@ def draw_broken_blade_nav(surface, game_state, fonts, images, controller=None):
         _broken_blade_nav_instance.update(dt, keys, game_state, controller)
     
     # Render
-    return _broken_blade_nav_instance.render(surface, game_state, fonts, images)
+    return _broken_blade_nav_instance.render(surface, game_state, fonts, images, controller)
