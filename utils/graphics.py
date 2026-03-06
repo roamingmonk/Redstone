@@ -112,10 +112,10 @@ def draw_combat_button(surface, x, y, width, height, text, font, button_state="n
     
     return
 
-def draw_button(surface, x, y, width, height, text, font, selected=False, text_color=None):
+def draw_button(surface, x, y, width, height, text, font, selected=False, text_color=None, bg_color=None):
     """
     Draw a retro-style button with authentic 1980s look
-    
+
     Args:
         surface: pygame surface to draw on
         x, y: button position
@@ -124,25 +124,27 @@ def draw_button(surface, x, y, width, height, text, font, selected=False, text_c
         font: font object for text
         selected: if True, draw selected/highlighted appearance
         text_color: optional color override for text (uses defaults if None)
-    
+        bg_color: optional color override for button background (uses defaults if None)
+
     Returns:
         pygame.Rect: clickable area of the button
     """
     # Determine colors based on button state
     if selected:
-        bg_color = BUTTON_SELECTED_BG
+        default_bg_color = BUTTON_SELECTED_BG
         border_color = BUTTON_SELECTED_BORDER
         default_text_color = BUTTON_SELECTED_TEXT
     else:
-        bg_color = BUTTON_NORMAL_BG
+        default_bg_color = BUTTON_NORMAL_BG
         border_color = BUTTON_NORMAL_BORDER
         default_text_color = BUTTON_NORMAL_TEXT
 
-    # Use override if provided, otherwise use default
+    # Use overrides if provided, otherwise use defaults
+    final_bg_color = bg_color if bg_color is not None else default_bg_color
     final_text_color = text_color if text_color is not None else default_text_color
-    
+
     # Draw button background
-    pygame.draw.rect(surface, bg_color, (x, y, width, height))
+    pygame.draw.rect(surface, final_bg_color, (x, y, width, height))
     # Draw button border
     pygame.draw.rect(surface, border_color, (x, y, width, height), 2)
     

@@ -14,7 +14,7 @@ from utils.constants import (LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT,
                            MALE_PORTRAITS_PATH, FEMALE_PORTRAITS_PATH,
                            #Colors
                            WHITE, DARK_GRAY, GRAY, BLACK, SOFT_YELLOW, BROWN,
-                           CYAN, WARNING_RED, TITLE_GREEN, YELLOW,
+                           CYAN, WARNING_RED, TITLE_GREEN, YELLOW, WARM_GOLD,
                            #Buttons
                            BUTTON_SIZES, SCREEN_WIDTH
 )
@@ -342,10 +342,10 @@ def draw_name_screen(surface, game_state, fonts, images=None):
     
     # Action buttons
     action_button_y = 280
-    new_names_button = draw_button(surface, 350, action_button_y, 160, 50, "NEW NAMES", 
-                                  fonts.get('fantasy_small', fonts['normal']))
-    custom_name_button = draw_button(surface, 550, action_button_y, 180, 50, "CUSTOM NAME", 
-                                    fonts.get('fantasy_small', fonts['normal']))
+    new_names_button = draw_button(surface, 350, action_button_y, 160, 50, "NEW NAMES",
+                                  fonts.get('fantasy_small', fonts['normal']), bg_color=WARM_GOLD, text_color=BLACK)
+    custom_name_button = draw_button(surface, 550, action_button_y, 180, 50, "CUSTOM NAME",
+                                    fonts.get('fantasy_small', fonts['normal']), bg_color=WARM_GOLD, text_color=BLACK)
     
     # Instructions
     draw_centered_text(surface, "Choose a name for your character or click New Name/Custom Name for more options", 
