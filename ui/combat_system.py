@@ -1083,9 +1083,14 @@ class CombatEncounter:
                     # Check if character has used their action this turn
                     has_acted = active_char_state.get('has_acted', False)
                     spells_cast = active_char_state.get('spells_cast_this_turn', 0)
-                    
-                    # Disable if already used action OR cast spell
-                    if has_acted or spells_cast >= 1:
+
+                    # Check if there are any usable actions (consumables/class abilities)
+                    has_available_actions = False
+                    if controller and hasattr(controller, 'combat_engine') and active_character_id:
+                        has_available_actions = bool(controller.combat_engine.get_available_actions(active_character_id))
+
+                    # Disable if already used action OR cast spell OR no usable items/abilities
+                    if has_acted or spells_cast >= 1 or not has_available_actions:
                         button_state = "disabled"
                     elif current_mode == "action":
                         button_state = "active"  # Yellow border - action mode active
@@ -1100,12 +1105,13 @@ class CombatEncounter:
                 draw_combat_button(surface, button_rect.x, button_rect.y, button_width, button_height,
                         action_label, button_font, button_state)
 
-                # Register all action buttons as clickable
-                clickable_areas[f"button_{action_id}"] = {
-                    "rect": button_rect,
-                    "action": action_id.upper(),
-                    "button_type": action_id
-                }
+                # Register action buttons as clickable (skip disabled action button)
+                if not (action_id == "action" and button_state == "disabled"):
+                    clickable_areas[f"button_{action_id}"] = {
+                        "rect": button_rect,
+                        "action": action_id.upper(),
+                        "button_type": action_id
+                    }
             except Exception as e:
                 print(f"❌ Error rendering button {i}: {e}")
                 continue
