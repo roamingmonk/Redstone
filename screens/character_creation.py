@@ -207,7 +207,7 @@ def draw_stats_screen(surface, game_state, fonts, images=None):
                                  fonts.get('fantasy_small', fonts['normal']))
     
     # Instructions
-    draw_centered_text(surface, "Roll your character's base attributes", 
+    draw_centered_text(surface, "Roll your character's base attributes for a Fighter", 
                       fonts.get('tnr_small', fonts['small']), 435, WHITE)
     draw_centered_text(surface, "Green stats with * are most important for your class", 
                   fonts.get('tnr_small', fonts['small']), 415, WHITE)
@@ -348,7 +348,7 @@ def draw_name_screen(surface, game_state, fonts, images=None):
                                     fonts.get('fantasy_small', fonts['normal']))
     
     # Instructions
-    draw_centered_text(surface, "Choose a name for your character", 
+    draw_centered_text(surface, "Choose a name for your character or click New Name/Custom Name for more options", 
                       fonts.get('tnr_small', fonts['small']), 435, WHITE)
     
     return name_buttons, new_names_button, custom_name_button
