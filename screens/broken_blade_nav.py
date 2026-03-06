@@ -112,6 +112,7 @@ class BrokenBladeNav:
         self.temp_message = None
         self.temp_message_timer = 0
         self.just_entered_screen = True
+        self._current_game_state = None  # Stored for NPC collision checks
     
     def get_tile_from_layer(self, x, y, layer_name):
         """Get tile type from a specific layer"""
@@ -192,7 +193,14 @@ class BrokenBladeNav:
             if tile_name not in BROKEN_BLADE_WALKABLE:
                 return False
         
-        # All layers are either empty or walkable
+        # Check if a visible NPC occupies this tile
+        if self._current_game_state is not None:
+            visible_npcs = get_visible_npcs(self._current_game_state)
+            for npc_data in visible_npcs.values():
+                if npc_data['position'] == (x, y):
+                    return False
+
+        # All layers are either empty or walkable, no NPC blocking
         return True
 
     
@@ -219,10 +227,13 @@ class BrokenBladeNav:
             if self.temp_message_timer <= 0:
                 self.temp_message = None
         
+        # Store game_state for NPC collision checks in _is_walkable_multi_layer
+        self._current_game_state = game_state
+
         # Handle movement
         old_x = game_state.tavern_x
         old_y = game_state.tavern_y
-        
+
         new_x, new_y = self.renderer.handle_movement(keys, old_x, old_y)
         
         # Update position if moved
