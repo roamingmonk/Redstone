@@ -19,6 +19,7 @@ def initialize_game():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Terror in Redstone")
+    pygame.display.set_icon(pygame.image.load('assets/images/redstone_icon.png'))
     clock = pygame.time.Clock()
     
     # Load all fonts and images

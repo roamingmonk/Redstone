@@ -134,7 +134,7 @@ Please read the files first and show me the gap before making changes.
 
 ## B-01 [VS CODE] — App icon shows Python snake logo, need game icon
 ```
-
+<completed>
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
 TASK: The application taskbar/dock icon shows the default Python snake 
@@ -566,6 +566,7 @@ Show me the current portrait border drawing code first.
 
 ## D-01 [VS CODE] — Action button active when player has no action items
 ```
+<Completed>
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
 BUG: In combat, the "Action" button (for using items like healing 
