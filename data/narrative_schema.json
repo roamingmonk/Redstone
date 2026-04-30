@@ -2,14 +2,15 @@
   "version": "1.0",
   "description": "Canonical narrative identifiers for Terror in Redstone - Single source of truth for all story flags",
   "xp_balance": {
-    "discovery_base": 50,
+    "_design": "XP PACING: L2=~300 (end Act I after mayor+rats+3 recruits+intel). L3=~1000 (mid Act II after 2-3 locations + side quests). Tuning levers: discovery_base (lower if L2 hit before mayor), investigation mult (raise if Act II locations feel unrewarding), secondary mult (raise if side quests feel ignored).",
+    "discovery_base": 5,
     "recruitment_bonus": 20,
-    "base_quest_xp": 50,
+    "base_quest_xp": 15,
     "quest_multipliers": {
-      "main_story": 20.0,
+      "main_story": 4.0,
       "secondary": 3.0,
-      "investigation": 3.0,
-      "side_task": 3.0
+      "investigation": 4.0,
+      "side_task": 2.0
     },
     "level_progression": {
       "comment": "XP requirements for 3-level design: L1=start, L2=end of Act I, L3=mid Act II. Redstone 2 sequel: extend to [0, 300, 1000, 2700, 6500] for levels 4-5",
@@ -761,19 +762,19 @@
         "xp_reward": "recruitment_bonus"
       },
       "elara_recruited": {
-        "quest_objective": "party_building.recruit_mage", 
+        "quest_objective": "party_building.recruit_mage",
         "event_type": "PARTY_MEMBER_RECRUITED",
-        "xp_reward": "quest_multipliers.secondary"
+        "xp_reward": "recruitment_bonus"
       },
       "thorman_recruited": {
         "quest_objective": "party_building.recruit_cleric",
-        "event_type": "PARTY_MEMBER_RECRUITED", 
-        "xp_reward": "quest_multipliers.secondary"
+        "event_type": "PARTY_MEMBER_RECRUITED",
+        "xp_reward": "recruitment_bonus"
       },
       "lyra_recruited": {
         "quest_objective": "party_building.recruit_rogue",
         "event_type": "PARTY_MEMBER_RECRUITED",
-        "xp_reward": "quest_multipliers.secondary"
+        "xp_reward": "recruitment_bonus"
       }
       },
       "swamp_church_details_known": {
@@ -883,13 +884,13 @@
         "dialogue_flag": "casper_redemption_complete",
         "quest_objective": "casper_redemption.casper_redemption_complete",
         "event_type": "QUEST_COMPLETED",
-        "xp_reward": 200
+        "xp_reward": 50
       },
       "meredith_ring_direct_return": {
         "dialogue_flag": "returned_meredith_ring",
         "quest_objective": "meredith_ring_quest.return_ring",
         "event_type": "QUEST_COMPLETED",
-        "xp_reward": 100
+        "xp_reward": 30
       },
 
     "quest_completion_triggers": {

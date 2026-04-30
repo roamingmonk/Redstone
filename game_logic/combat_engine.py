@@ -2745,6 +2745,9 @@ class CombatEngine:
             # Set boss victory flags
             self.game_state.boss_defeated = True
             self.game_state.portal_sealed = True
+
+            # Award honorary Level 4 — cosmetic capstone, not a gameplay level
+            self.game_state.character['level'] = 4
             
             # Check mayor's family status from combat data/flags
             # This should already be set during Level 4 villager rescue
