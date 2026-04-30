@@ -1248,9 +1248,14 @@ class CharacterEngine:
         # Check for level up opportunity
         if self.can_level_up():
             print("🎊 Ready to level up!")
-        
+            if self.event_manager:
+                self.event_manager.emit("LEVEL_UP_AVAILABLE", {
+                    "characters": ["player"],
+                    "source": "xp_award"
+                })
+
         return new_xp
-    
+
     def award_combat_xp(self, enemy_level=1, enemy_count=1):
         """Award XP for combat victories"""
         base_xp = enemy_level * 100
@@ -1403,6 +1408,11 @@ class CharacterEngine:
             # Check for level up
             if self.can_level_up():
                 print("🎊 Ready to level up!")
+                if self.event_manager:
+                    self.event_manager.emit("LEVEL_UP_AVAILABLE", {
+                        "characters": ["player"],
+                        "source": "xp_award"
+                    })
         else:
             # Award to specific party member
             self.award_party_member_xp(character_id, xp_amount, reason)

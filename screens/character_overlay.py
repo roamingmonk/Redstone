@@ -89,9 +89,18 @@ class CharacterOverlay(BaseTabbedOverlay):
             return
 
         calculator = get_stats_calculator()
-         
+
         # Get character data
         character = game_state.character
+
+        # Determine level-up readiness once for use throughout this render
+        _xp_reqs = narrative_schema.schema.get('xp_balance', {}).get('level_progression', {}).get('requirements', [0, 300, 1000])
+        _cur_level = character.get('level', 1)
+        _cur_xp = character.get('experience', 0)
+        _ready_to_level = (
+            _cur_level < len(_xp_reqs)
+            and _cur_xp >= _xp_reqs[_cur_level]
+        )
         character_name = character.get('name', 'Adventurer')
         
         # Layout areas (adjusted for content rect instead of full screen)
@@ -335,9 +344,10 @@ class CharacterOverlay(BaseTabbedOverlay):
             pygame.draw.rect(surface, BRIGHT_GREEN, 
                             (portrait_x, portrait_y, portrait_size, portrait_size))
         
-        # Draw white border around portrait
-        pygame.draw.rect(surface, WHITE, 
-                        (portrait_x, portrait_y, portrait_size, portrait_size), 2)
+        # Draw portrait border — gold when level-up is ready (C-18), white otherwise
+        _portrait_border_color = YELLOW if _ready_to_level else WHITE
+        pygame.draw.rect(surface, _portrait_border_color,
+                        (portrait_x, portrait_y, portrait_size, portrait_size), 3)
         
     def _render_abilities_tab(self, surface: pygame.Surface, content_rect: pygame.Rect, 
                      game_state, fonts, images):

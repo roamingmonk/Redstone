@@ -202,6 +202,7 @@ class GameController:
         self.floating_text_manager = FloatingTextManager()
         self.screen_manager.set_floating_text_manager(self.floating_text_manager)
         self.event_manager.register("SHOW_FLOATING_TEXT", self.floating_text_manager.handle_show_event)
+        self.event_manager.register("LEVEL_UP_AVAILABLE", self._handle_level_up_available)
         self.event_manager.register_service('floating_text_manager', self.floating_text_manager)
 
         # Step 4: Load all game data (no engine dependencies)
@@ -445,6 +446,14 @@ class GameController:
         
         return validation_results
     
+    def _handle_level_up_available(self, event_data):
+        """Show a persistent floating notification when level-up threshold is crossed."""
+        self.floating_text_manager.add_message(
+            "LEVEL UP! Open character sheet.",
+            color=(50, 255, 50),
+            duration=4000,
+        )
+
     def handle_screen_advance(self, event_data):
         """Handle screen advance events from InputHandler"""
         current_screen = event_data.get("current_screen", self.game_state.screen)
