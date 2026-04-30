@@ -1118,11 +1118,12 @@ class CharacterEngine:
         xp_requirements = xp_req_dict
         
         next_level = current_level + 1
-        if next_level <= 5 and current_xp >= xp_requirements.get(next_level, 999999):
+        max_playable_level = len(self._level_requirements)
+        if next_level <= max_playable_level and current_xp >= xp_requirements.get(next_level, 999999):
             return True
-        
+
         return False
-    
+
     def level_up(self):
         """
         Perform level up operation with class-specific progression
@@ -1472,7 +1473,7 @@ class CharacterEngine:
         current_xp = member_data.get('experience', member_data.get('xp', 0))
 
         # Mirror the player's XP table pulled from the narrative schema configuration
-        xp_requirements = self._level_requirements or [0, 300, 900, 2700, 6500]
+        xp_requirements = self._level_requirements or [0, 300, 1000]
         
         next_level = current_level + 1
         # if next_level <= 5 and current_xp >= xp_requirements.get(next_level, 999999):
@@ -1673,7 +1674,8 @@ class CharacterEngine:
         xp_requirements = xp_req_dict
         
         next_level = current_level + 1
-        return (next_level <= 5 and 
+        max_playable_level = len(self._level_requirements)
+        return (next_level <= max_playable_level and
                 current_xp >= xp_requirements.get(next_level, 999999))
 
     def _get_item_display_name(self, item_id):

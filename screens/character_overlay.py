@@ -158,9 +158,10 @@ class CharacterOverlay(BaseTabbedOverlay):
         # XP Progress Bar (ASCII Style)
         current_xp = character.get('experience', 0)
         
-        xp_requirements = narrative_schema.schema.get('xp_balance', {}).get('level_progression', {}).get('requirements', [0, 300, 900, 2700, 6500])
-        
-        if current_level < 5:  # Max level is 5
+        xp_requirements = narrative_schema.schema.get('xp_balance', {}).get('level_progression', {}).get('requirements', [0, 300, 1000])
+        max_playable_level = len(xp_requirements) - 1  # 3 for a [0,300,1000] curve
+
+        if current_level <= max_playable_level:
             next_level_xp = xp_requirements[current_level] if current_level < len(xp_requirements) else xp_requirements[-1]
             current_level_xp = xp_requirements[current_level - 1] if current_level > 1 else 0
             
@@ -202,10 +203,9 @@ class CharacterOverlay(BaseTabbedOverlay):
                 current_y += 35
     
         else:
-            # Max level reached
-            xp_text = normal_font.render("XP Needed: [MAX LEVEL]", True, SOFT_YELLOW)
+            # Post-game cosmetic level 4 — boss has been defeated
+            xp_text = normal_font.render("Champion of Redstone", True, SOFT_YELLOW)
             surface.blit(xp_text, (left_section_x, current_y))
-        
             current_y += 35
         
         # Hit Points (current/max format)
@@ -448,12 +448,12 @@ class CharacterOverlay(BaseTabbedOverlay):
         
         # Use your existing XP detection logic
         
-        xp_requirements = narrative_schema.schema.get('xp_balance', {}).get('level_progression', {}).get('requirements', [0, 300, 900, 2700, 6500])
-        #xp_requirements = self.character_engine.get_level_requirements()
+        xp_requirements = narrative_schema.schema.get('xp_balance', {}).get('level_progression', {}).get('requirements', [0, 300, 1000])
+        max_playable_level = len(xp_requirements) - 1  # 3 for a [0,300,1000] curve
 
-        # Check if ready to level up
+        # Check if ready to level up (post-game level 4 is cosmetic — no further leveling)
         can_level_up = False
-        if current_level < 5:
+        if current_level <= max_playable_level:
             next_level_xp = xp_requirements[current_level] if current_level < len(xp_requirements) else xp_requirements[-1]
             if current_xp >= next_level_xp:
                 can_level_up = True

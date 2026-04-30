@@ -46,12 +46,9 @@
           "description": "Choose +2 to one ability (max 18). Gain Extra Attack - make 2 attacks per round"
         },
         "level_4": {
-          "features": ["Shield Focus"],
-          "description": "Gain Shield Focus - activate once per day for +1 AC during one combat"
-        },
-        "level_5": {
-          "features": ["Second Wind"],
-          "description": "Gain ability to heal during combat for 1d10 + constitution modifier"
+          "features": [],
+          "title": "Champion of Redstone",
+          "description": "You have defeated Vexthar and sealed the portal. Redstone endures."
         }
       },
       "feature_descriptions": {
@@ -162,14 +159,6 @@
           "features": ["Cantrip Formulas"],
           "ability_score_choice": true,
           "description": "Choose +2 to one ability (max 18). Learn additional cantrip versatility"
-        },
-        "level_4": {
-          "features": ["Spell Focus"],
-          "description": "Gain Spell Focus - +1 to spell attack rolls and save DCs"
-        },
-        "level_5": {
-          "features": ["Arcane Ward"],
-          "description": "Gain Arcane Ward - magical protection against damage"
         }
       },
       "feature_descriptions": {
@@ -278,14 +267,6 @@
           "features": ["Roguish Archetype"],
           "ability_score_choice": true,
           "description": "Choose +2 to one ability (max 18). Choose your roguish specialization"
-        },
-        "level_4": {
-          "features": ["Improved Sneak Attack"],
-          "description": "Sneak Attack damage increases to 2d6"
-        },
-        "level_5": {
-          "features": ["Uncanny Dodge"],
-          "description": "Gain Uncanny Dodge - halve damage from one attack per turn"
         }
       },
       "feature_descriptions": {
@@ -395,14 +376,6 @@
           "features": ["Destroy Undead"],
           "ability_score_choice": true,
           "description": "Choose +2 to one ability (max 18). Channel Divinity can destroy undead"
-        },
-        "level_4": {
-          "features": ["Divine Strike"],
-          "description": "Weapon attacks deal additional radiant damage"
-        },
-        "level_5": {
-          "features": ["Blessed Recovery"],
-          "description": "Regain spell slots more efficiently during rest"
         }
       },
       "feature_descriptions": {
