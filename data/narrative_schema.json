@@ -12,8 +12,8 @@
       "side_task": 3.0
     },
     "level_progression": {
-      "comment": "XP requirements for levels 1-5",
-      "requirements": [0, 300, 900, 2700, 6500]
+      "comment": "XP requirements for 3-level design: L1=start, L2=end of Act I, L3=mid Act II. Redstone 2 sequel: extend to [0, 300, 1000, 2700, 6500] for levels 4-5",
+      "requirements": [0, 300, 1000]
     }
   },
   "quest_definitions": {

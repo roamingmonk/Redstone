@@ -35,7 +35,8 @@ class CharacterEngine:
         # cache just once
         xp_cfg = (getattr(narrative_schema, "schema", {}) or {}).get("xp_balance", {}) or {}
         self._level_requirements = (xp_cfg.get("level_progression", {}) or {}).get(
-            "requirements", [0, 300, 900, 2700, 6500]
+            "requirements", [0, 300, 1000]
+            # Redstone 2 sequel: extend to [0, 300, 1000, 2700, 6500] for levels 4-5
         )
 
     # ==========================================
