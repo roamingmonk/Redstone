@@ -1253,6 +1253,11 @@ class CharacterEngine:
                     "characters": ["player"],
                     "source": "xp_award"
                 })
+                self.event_manager.emit("SHOW_FLOATING_TEXT", {
+                    "text": "LEVEL UP! Open character sheet.",
+                    "color": (50, 255, 50),
+                    "duration": 4000,
+                })
 
         return new_xp
 
@@ -1412,6 +1417,11 @@ class CharacterEngine:
                     self.event_manager.emit("LEVEL_UP_AVAILABLE", {
                         "characters": ["player"],
                         "source": "xp_award"
+                    })
+                    self.event_manager.emit("SHOW_FLOATING_TEXT", {
+                        "text": "LEVEL UP! Open character sheet.",
+                        "color": (50, 255, 50),
+                        "duration": 4000,
                     })
         else:
             # Award to specific party member
