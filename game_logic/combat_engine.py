@@ -3013,6 +3013,13 @@ class CombatEngine:
             
             self.game_state.player_statistics['total_gold_earned'] += gold
             self._add_to_combat_log(f"Gained {gold} gold!")
+
+            if self.event_manager:
+                self.event_manager.emit("SHOW_FLOATING_TEXT", {
+                    "text": f"+{gold} Gold",
+                    "color": (218, 165, 32),
+                    "duration": 2200,
+                })
         
         # TODO: Award items from rewards["items"]
     
