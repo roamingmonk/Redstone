@@ -3,7 +3,7 @@
     "garrick": {
       "merchant_id": "garrick",
       "name": "Garrick Ironbrew",
-      "location": "broken_blade", 
+      "location": "broken_blade",
       "greeting": "What can I get for ye, traveler?",
       "merchant_type": "tavern_keeper",
       "price_modifier": 1.0,
@@ -13,7 +13,7 @@
       "buy_categories": ["consumables", "items"],
       "exclude_buy_subcategories": ["trinket", "special"],
       "stock_filter": {
-        "include_ids": ["strong_ale", "trail_rations", "torch", "shortbow"],
+        "include_ids": ["strong_ale", "healing_potion"],
         "max_rarity": "common"
       },
       "default_stock_range": [1,5],
@@ -22,22 +22,19 @@
       },
       "stock_overrides": {
         "strong_ale": 20,
-        "bedroll": 2
+        "healing_potion": 3
       },
       "stock_ranges": {
         "healing_potion": [1, 5],
-        "strong_ale": [15, 25],
-        "trail_rations": [5, 15]
+        "strong_ale": [15, 25]
       },
-      
+
       "guaranteed_items": [
         "strong_ale",
-        "trail_rations"
+        "healing_potion"
       ],
-      
-      "optional_items": {
-        "healing_potion": 0.1        
-            }
+
+      "optional_items": {}
     },
     "bernard": {
       "merchant_id": "bernard",
@@ -52,38 +49,46 @@
       "buy_categories": ["weapons", "armor", "consumables", "items"],
       "exclude_buy_subcategories": ["trinket", "special"],
       "stock_filter": {
+        "include_ids": [
+          "longsword",
+          "leather_armor",
+          "healing_potion",
+          "shield",
+          "chain_mail",
+          "plate_armor",
+          "dagger",
+          "shortbow",
+          "greater_healing_potion"
+        ],
         "max_rarity": "uncommon"
       },
       "default_stock_range": [0, 4],
-      
+
       "price_overrides": {
         "longsword": 45,
         "leather_armor": 35
       },
-      "stock_overrides": {
-        "torch": 15
-      },
-      
+      "stock_overrides": {},
+
       "stock_ranges": {
         "healing_potion": [1, 5],
-        "strong_ale": [5, 25],
-        "torch": [10, 20],
-        "trail_rations": [5, 15]
+        "greater_healing_potion": [1, 3]
       },
-      
+
       "guaranteed_items": [
-        "bedroll",
-        "hemp_rope",
-        "tinderbox",
-        "torch",
-        "trail_rations"
+        "longsword",
+        "leather_armor",
+        "healing_potion",
+        "shield"
       ],
-      
+
       "optional_items": {
-        "healing_potion": 0.8,        
-        "shield_plus_1": 0.1         
-                   
-            }
+        "chain_mail": 0.7,
+        "plate_armor": 0.4,
+        "dagger": 0.8,
+        "shortbow": 0.6,
+        "greater_healing_potion": 0.5
+      }
     },
     "cassia": {
     "merchant_id": "cassia",
@@ -110,11 +115,7 @@
         "healing_potion",
         "greater_healing_potion",
         "antidote",
-        "restoration_draught",
-        "elixir_of_vigor",
-        "potion_of_clarity",
-        "alchemist_fire",
-        "holy_water"
+        "restoration_draught"
       ],
       "max_rarity": "rare"
     },
@@ -133,23 +134,15 @@
       "healing_potion": [5,10],
       "greater_healing_potion": [2,5],
       "antidote": [3,8],
-      "restoration_draught": [1,3],
-      "elixir_of_vigor": [2,4],
-      "potion_of_clarity": [1,3],
-      "alchemist_fire": [2,5],
-      "holy_water": [2,4]
+      "restoration_draught": [1,3]
     },
     "guaranteed_items": [
       "healing_potion",
+      "greater_healing_potion",
       "antidote"
     ],
     "optional_items": {
-      "greater_healing_potion": 0.9,
-      "restoration_draught": 0.6,
-      "elixir_of_vigor": 0.7,
-      "potion_of_clarity": 0.5,
-      "alchemist_fire": 0.6,
-      "holy_water": 0.3
+      "restoration_draught": 0.6
     },
     "special_inventory": {
       "NOTE": "After completing recipe quest, add marcus_masterwork_elixir to stock",
