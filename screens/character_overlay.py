@@ -478,19 +478,20 @@ class CharacterOverlay(BaseTabbedOverlay):
             current_y += 30
             
             class_file = os.path.join("data", "player", "character_classes.json")
+            class_data = {}
             try:
                 with open(class_file, 'r') as f:
                     json_data = json.load(f)
                 class_data = json_data["character_classes"].get(character_class, {})
-                
+
                 hit_die = class_data.get('hit_die', 8)
-                draw_text(surface, f"• Hit Points: +1d{hit_die} + CON modifier", normal_font, 
+                draw_text(surface, f"• Hit Points: +1d{hit_die} + CON modifier", normal_font,
                           content_rect.x + 60, current_y, WHITE)
             except:
-                draw_text(surface, f"• Hit Points: +1d8 + CON modifier", normal_font, 
+                draw_text(surface, f"• Hit Points: +1d8 + CON modifier", normal_font,
                           content_rect.x + 60, current_y, WHITE)
             current_y += 25
-            
+
             # Show features gained from JSON
             if 'level_progression' in class_data:
                 level_key = f"level_{next_level}"

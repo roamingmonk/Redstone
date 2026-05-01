@@ -27,6 +27,7 @@ class DebugManager:
         self.event_manager.register("NPC_DEBUG", self.handle_npc_debug)
         self.event_manager.register("COMBAT_DEBUG", self.handle_combat_debug)  
         self.event_manager.register("BUFF_DEBUG", self.handle_buff_debug)
+        self.event_manager.register("DEBUG_AWARD_XP", self.handle_award_xp_debug)
 
         self.event_manager.register("TIME_ADVANCED", self.handle_time_advanced)
         self.event_manager.register("PARTY_RESTED", self.handle_party_rested)
@@ -72,6 +73,20 @@ class DebugManager:
         else:
             self._debug_out_of_combat_status()
     
+    def handle_award_xp_debug(self, data):
+        """Handle F8 - Award XP for level-up testing. Each press adds 400 XP."""
+        if not hasattr(self.game_state, 'character'):
+            print("⚠️ F8 - No character to award XP to")
+            return
+        current_xp = self.game_state.character.get('experience', 0)
+        award = 400
+        self.game_state.character['experience'] = current_xp + award
+        new_xp = self.game_state.character['experience']
+        level = self.game_state.character.get('level', 1)
+        print(f"🎯 F8 - Debug XP awarded: +{award} XP ({current_xp} → {new_xp}) | Level {level}")
+        print(f"   L2 threshold: 300 XP | L3 threshold: 1000 XP")
+        self.event_manager.emit("XP_AWARDED", {"amount": award, "reason": "debug", "new_total": new_xp})
+
     def _debug_combat_resistances(self):
         """Show resistance/buff info during combat"""
         print("\n" + "="*60)
