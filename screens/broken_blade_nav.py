@@ -6,7 +6,7 @@ Scrollable tile-based interior exploration
 
 import pygame
 from ui.base_location_navigation import NavigationRenderer
-from utils.constants import (BLACK, WHITE, YELLOW, CYAN, RED,
+from utils.constants import (BLACK, WHITE, YELLOW, CYAN, RED, GRAY,
                              DARK_BROWN, WARM_GOLD, FIRE_BRICK_RED,
                              PURPLE_BLUE, AUBURN_BROWN, VERY_DARK_GRAY,
                              LIGHTEST_GRAY, LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
@@ -235,7 +235,7 @@ class BrokenBladeNav:
         old_y = game_state.tavern_y
 
         new_x, new_y = self.renderer.handle_movement(keys, old_x, old_y)
-        
+
         # Update position if moved
         if new_x != old_x or new_y != old_y:
             game_state.tavern_x = new_x
@@ -287,8 +287,10 @@ class BrokenBladeNav:
                     if controller:
                         target_screen = interaction['target_screen']
                         game_state.previous_screen = 'broken_blade_nav'
+                        # Dismiss controls hint when player leaves the tavern
+                        game_state.controls_hint_dismissed = True
                         self.renderer.start_transition_cooldown()
-                        self.just_entered_screen = True 
+                        self.just_entered_screen = True
                         controller.event_manager.emit("SCREEN_CHANGE", {
                             'target_screen': target_screen,
                             'source_screen': 'broken_blade_nav'
@@ -433,8 +435,13 @@ class BrokenBladeNav:
                 action = interaction.get('action', 'Interact')
                 self.renderer.draw_interaction_prompt(screen, fonts, action, True)
         else:
-            # No interaction available - clear the prompt
-            self.renderer.draw_interaction_prompt(screen, fonts, None, False)
+            # No interaction available — show controls hint until dismissed
+            if not getattr(game_state, 'controls_hint_dismissed', False):
+                hint = "WASD: Move  |  E: Interact  |  B: Back  |  I: Inventory  |  Q: Quests  |  C: Character  |  H: Help"
+                hint_font = fonts.get('fantasy_small', fonts.get('small', fonts['normal']))
+                draw_centered_text(screen, hint, hint_font, LAYOUT_DIALOG_Y + 18, GRAY)
+            else:
+                self.renderer.draw_interaction_prompt(screen, fonts, None, False)
 
 # === SCREEN INTERFACE FUNCTIONS ===
 

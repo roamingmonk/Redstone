@@ -17,6 +17,12 @@
       "requirements": [0, 300, 1000]
     }
   },
+  "ui_flags": {
+    "controls_hint_dismissed": {
+      "default": false,
+      "description": "Set to true on first WASD or E keypress in Broken Blade; hides the new-player controls hint permanently for that save"
+    }
+  },
   "quest_definitions": {
     "main_story": {
       "title": "Terror in Redstone",
@@ -75,55 +81,55 @@
   },
 
   "objective_descriptions": {
-    "talk_to_npcs": "Gather information from tavern patrons",
-    "meet_mayor": "Speak with Mayor about the crisis", 
-    "recruit_party": "Recruit at least one companion",
-    "learn_swamp_church": "Learn about the Swamp Church",
-    "learn_hill_ruins": "Learn about the Hill Ruins",
-    "learn_refugee_camp": "Learn about the Refugee Camp",
-    "swamp_detailed_intel": "Gather detailed info about Swamp Church",
-    "ruins_detailed_intel": "Gather detailed info about Hill Ruins", 
-    "refugee_detailed_intel": "Gather detailed info about Refugee Camp",
-    
-    "explore_swamp_church": "Explore the Swamp Church",
-    "explore_hill_ruins": "Explore the Hill Ruins",
-    "explore_refugee_camp": "Explore the Refugee Camp",
-    "recruit_warrior": "Recruit a warrior (Gareth)",
-    "recruit_mage": "Recruit a mage (Elara)",
-    "recruit_cleric": "Recruit a cleric (Thorman)", 
-    "recruit_rogue": "Recruit a rogue (Lyra)",
-    "accept_challenge": "Accept Garrick's basement job",
-    "clear_basement": "Defeat all rats in the basement",
-    "report_success": "Report success to Garrick",
+    "talk_to_npcs": "Speak with the patrons in the Broken Blade Tavern.",
+    "meet_mayor": "Find and speak to Mayor Aldwin in the Broken Blade Tavern.",
+    "recruit_party": "Recruit at least one companion before leaving the tavern.",
+    "learn_swamp_church": "Ask around town about the Swamp Church.",
+    "learn_hill_ruins": "Ask around town about the Hill Ruins.",
+    "learn_refugee_camp": "Ask around town about the Refugee Camp.",
+    "swamp_detailed_intel": "Gather more information about the Swamp Church.",
+    "ruins_detailed_intel": "Gather more information about the Hill Ruins.",
+    "refugee_detailed_intel": "Gather more information about the Refugee Camp.",
 
-    "find_old_mine": "Locate the sealed mining shaft",
-    
-    "recover_ring": "Find Meredith's lost ring",
-    "return_to_henrik": "Report findings to Henrik",
-    "ore_samples_found": "Discover Aethel Ore samples",
-    "find_henrik_square": "Find out where to find Henrik (town square)",
-    "talk_to_henrik": "Speak with Henrik about the tremors",
+    "explore_swamp_church": "Travel to and explore the Swamp Church.",
+    "explore_hill_ruins": "Travel to and explore the Hill Ruins.",
+    "explore_refugee_camp": "Travel to and explore the Refugee Camp.",
+    "recruit_warrior": "Speak with Gareth at the bar to recruit him.",
+    "recruit_mage": "Speak with Elara near the fireplace to recruit her.",
+    "recruit_cleric": "Speak with Thorman at the corner table to recruit him.",
+    "recruit_rogue": "Speak with Lyra near the door to recruit her.",
+    "accept_challenge": "Agree to help Garrick clear his rat-infested basement.",
+    "clear_basement": "Descend to Garrick's basement and defeat all the rats.",
+    "report_success": "Return upstairs and report your success to Garrick.",
 
-    "find_glowcap_mushrooms": "Gather Glowcap Mushrooms from the swamp",
-    "return_mushrooms_to_cassia": "Return the mushrooms to Cassia",
-    "read_marcus_journals": "Study Marcus's journals for cult information",
-    "confront_marcus": "Face Marcus Nightshade at the Hill Ruins",
+    "find_old_mine": "Locate the sealed mining shaft in the Red Hollow area.",
 
-    "clear_kobolds": "Clear the kobolds from Red Hollow Mine",
-    "retrieve_lantern": "Retrieve Henrik's lantern from the mine",
-    "find_ring": "Find Meredith's lost ring in the mine",
-    "return_ring": "Return the ring to Meredith (or give to Casper)",
-    "meet_beggar": "Encounter the beggar near the alley",
-    "learn_beggar_name": "Learn the beggar's true name",
-    "learn_casper_backstory": "Discover Casper's tragic past",
-    "casper_redemption_choice": "Decide who should return the ring",
-    "casper_redemption_complete": "Witness Casper's redemption",
-    "defend_refugee_camp": "Help Elder Marta defend the refugee camp",
+    "recover_ring": "Search for Meredith's lost ring.",
+    "return_to_henrik": "Return to Henrik and share what you have found.",
+    "ore_samples_found": "Examine the strange ore samples in the mine.",
+    "find_henrik_square": "Ask around Redstone Town for Old Henrik — he lives on the outskirts.",
+    "talk_to_henrik": "Speak with Henrik about the tremors and what he knows.",
 
-    "act_i_setup": "Meet with Mayor Aldwin and begin recruiting your party",
-    "act_ii_investigation": "Investigate the three mysterious locations",
-    "act_iii_finale": "Enter the dungeon and stop Vexthar's ritual",
-    "epilogue_resolution": "Return to Redstone after defeating Vexthar"
+    "find_glowcap_mushrooms": "Gather Glowcap Mushrooms from the depths of the swamp.",
+    "return_mushrooms_to_cassia": "Return the mushrooms to Cassia at the Swamp Church.",
+    "read_marcus_journals": "Study Marcus's journals for information on the cult.",
+    "confront_marcus": "Confront Marcus Nightshade at the Hill Ruins.",
+
+    "clear_kobolds": "Clear the kobolds from Red Hollow Mine.",
+    "retrieve_lantern": "Retrieve Henrik's lantern from somewhere inside the mine.",
+    "find_ring": "Search the mine for Meredith's lost ring.",
+    "return_ring": "Return the ring to Meredith in the tavern, or give it to Casper.",
+    "meet_beggar": "Speak to the beggar you noticed near the alley.",
+    "learn_beggar_name": "Ask the beggar his name.",
+    "learn_casper_backstory": "Learn more about Casper's past.",
+    "casper_redemption_choice": "Decide whether Casper should return the ring himself.",
+    "casper_redemption_complete": "See Casper's act of redemption through to the end.",
+    "defend_refugee_camp": "Help Elder Marta and the refugees defend their camp.",
+
+    "act_i_setup": "Speak to Mayor Aldwin and recruit your party before leaving the tavern.",
+    "act_ii_investigation": "Investigate the Hill Ruins, Red Hollow Mine, and Swamp Church.",
+    "act_iii_finale": "Enter the dungeon beneath the ruins and stop Vexthar's ritual.",
+    "epilogue_resolution": "Return to Redstone Town after defeating Vexthar."
   },
 
   "npcs": {

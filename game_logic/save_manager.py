@@ -158,7 +158,10 @@ class SaveManager:
                 'house_money': getattr(self.game_state, 'house_money', 50),
                 'gambling_wins': getattr(self.game_state, 'gambling_wins', 0),
                 'gambling_losses': getattr(self.game_state, 'gambling_losses', 0),
-                
+
+                # UI state flags
+                'controls_hint_dismissed': getattr(self.game_state, 'controls_hint_dismissed', False),
+
             }
             
             # *** Save all narrative schema flags dynamically ***
@@ -454,6 +457,7 @@ class SaveManager:
             self.game_state.pete_showing_comedy = save_data.get('pete_showing_comedy', False)
             self.game_state.showing_meredith_response = save_data.get('showing_meredith_response', False)
             self.game_state.showing_garrick_response = save_data.get('showing_garrick_response', False)
+            self.game_state.controls_hint_dismissed = save_data.get('controls_hint_dismissed', False)
 
             # *** Load all narrative schema flags dynamically ***
             narrative_flags = save_data.get('narrative_flags', {})
