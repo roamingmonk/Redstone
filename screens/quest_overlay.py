@@ -344,17 +344,31 @@ class QuestOverlay(BaseTabbedOverlay):
         font = fonts.get('normal', fonts['header'])
         small_font = fonts.get('small', font)
         
-        # Quest title
+        # Quest title — word-wrap to fit within panel width
         title_y = y + 20
-        title_surface = small_font.render(quest_data['title'], True, BRIGHT_GREEN)
-        surface.blit(title_surface, (x + 20, title_y))
-        
+        max_width = width - 40
+        words = quest_data['title'].split(' ')
+        title_render_lines = []
+        current_line = ''
+        for word in words:
+            test = (current_line + ' ' + word).strip()
+            if small_font.size(test)[0] <= max_width:
+                current_line = test
+            else:
+                if current_line:
+                    title_render_lines.append(current_line)
+                current_line = word
+        if current_line:
+            title_render_lines.append(current_line)
+
+        current_title_y = title_y
+        for line in title_render_lines:
+            surf = small_font.render(line, True, BRIGHT_GREEN)
+            surface.blit(surf, (x + 20, current_title_y))
+            current_title_y += small_font.get_linesize()
+
         # Quest description with word wrapping
-        desc_y = title_y + 40
-        description = quest_data['description']
-        
-        # Quest description with professional word wrapping using constants.py utility
-        desc_y = title_y + 40
+        desc_y = current_title_y + 10
         description = quest_data['description']
 
         # Use the established wrap_text function from constants.py
