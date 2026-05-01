@@ -11,7 +11,8 @@ This replaces ALL NPC-specific dialogue functions with a single universal system
 import pygame
 from utils.constants import (DIALOGUE_BG_COLOR, DIALOGUE_BORDER_COLOR, DIALOGUE_OPTION_COLOR,
                              DIALOGUE_TITLE_COLOR, DIALOGUE_TEXT_COLOR,
-                             WHITE, BLACK, DIALOGUE_AREA_HEIGHT, wrap_text)
+                             WHITE, BLACK, DIALOGUE_AREA_HEIGHT, wrap_text,
+                             YELLOW, GRAY)
 from utils.graphics import draw_border, draw_button
 from utils.npc_display import draw_npc_portrait
 from utils.object_display import draw_object_icon
@@ -202,9 +203,16 @@ def render_dialogue_screen_directly(surface, npc_id, conversation_data, game_sta
         y_pos += 20  # Continue from where intro text ended
         
         for i, choice in enumerate(options):
-            choice_text = f"{i+1}. {choice.get('text', 'No text')}"
-            choice_surface = choice_font.render(choice_text, True, DIALOGUE_OPTION_COLOR)
-            surface.blit(choice_surface, (200, y_pos))
+            style = choice.get('style', '')
+            text_color = (YELLOW if style == 'quest'
+                          else GRAY if style == 'exit'
+                          else DIALOGUE_OPTION_COLOR)
+
+            prefix = f"{i+1}. "
+            prefix_surface = choice_font.render(prefix, True, text_color)
+            text_surface = choice_font.render(choice.get('text', 'No text'), True, text_color)
+            surface.blit(prefix_surface, (200, y_pos))
+            surface.blit(text_surface, (200 + prefix_surface.get_width(), y_pos))
             y_pos += 30
         
         # Keyboard hints

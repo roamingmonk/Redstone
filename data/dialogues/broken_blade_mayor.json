@@ -13,6 +13,7 @@
         {
           "id": "accept_help",
           "text": "I'll help. Tell me what you know.",
+          "style": "quest",
           "effects": [
             { "type": "set_flag", "flag": "mayor_mentioned_family", "value": true },
             { "type": "set_flag", "flag": "quest_active", "value": true }
@@ -20,7 +21,7 @@
           "next_state": "quest_given"
         },
         { "id": "ask_details", "text": "Start from the beginning.", "next_state": "story_details" },
-        { "id": "bye", "text": "Not now, goodbye.", "next_state": "exit" }
+        { "id": "bye", "text": "Not now, goodbye.", "style": "exit", "next_state": "exit" }
       ]
     },
 
@@ -33,13 +34,14 @@
         {
           "id": "begin_quest",
           "text": "Give me leads and I'll start searching.",
+          "style": "quest",
           "effects": [
             { "type": "set_flag", "flag": "mayor_mentioned_family", "value": true },
             { "type": "set_flag", "flag": "quest_active", "value": true }
           ],
           "next_state": "quest_given"
         },
-        { "id": "bye2", "text": "I can't take this on.", "next_state": "exit" }
+        { "id": "bye2", "text": "I can't take this on.", "style": "exit", "next_state": "exit" }
       ]
     },
 
@@ -54,7 +56,7 @@
         { "id": "lead_swamp", "text": "What do you know about the Swamp Church?", "next_state": "brief_swamp" },
         { "id": "lead_ruins", "text": "What about the Hill Ruins?",  "next_state": "brief_ruins" },
         { "id": "lead_refugees", "text": "Tell me about the Refugee Camp.", "next_state": "brief_refugees" },
-        { "id": "done", "text": "I'll start investigating.", "next_state": "exit" }
+        { "id": "done", "text": "I'll start investigating.", "style": "quest", "next_state": "exit" }
       ]
     },
 
