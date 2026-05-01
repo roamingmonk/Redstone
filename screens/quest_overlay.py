@@ -149,7 +149,7 @@ class QuestOverlay(BaseTabbedOverlay):
                         # Create a quest-like entry for completed objectives
                         objective_data = {
                             'id': f"{quest.id}.{obj.id}",
-                            'title': f"✅ {obj.description}",
+                            'title': obj.description,
                             'description': f"Discovered from: {quest.title}",
                             'completed': True,
                             'progress': "COMPLETE",
