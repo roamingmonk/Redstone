@@ -11,26 +11,28 @@ from utils.constants import (YELLOW, WHITE, BRIGHT_GREEN, BROWN, DARK_GRAY, CORN
 from utils.graphics import draw_text
 
 class QuestOverlay(BaseTabbedOverlay):
-    """Professional 2-tab quest log overlay (Active | Completed)"""
+    """3-tab quest log overlay (Main | Side | Completed)"""
     
     def __init__(self, screen_manager=None):
         super().__init__("quest_key", "QUEST LOG", screen_manager)
         
         # Add tabs following the established pattern
-        self.add_tab("active_quests", "Active", pygame.K_1)
-        self.add_tab("completed_quests", "Completed", pygame.K_2)
+        self.add_tab("main_quests", "Main", pygame.K_1)
+        self.add_tab("side_quests", "Side", pygame.K_2)
+        self.add_tab("completed_quests", "Completed", pygame.K_3)
         
         # Quest selection state
         self.selected_quest = None
         self.quest_rects = []
 
-         #PAGINATION VARIABLES:
-        self.active_page = 0
+        #PAGINATION VARIABLES:
+        self.main_page = 0
+        self.side_page = 0
         self.completed_page = 0
-        self.quests_per_page = 7  # Show Number of quests per page 
+        self.quests_per_page = 7  # Show Number of quests per page
         
         
-        print("🗒️ QuestOverlay initialized with 2 tabs")
+        print("🗒️ QuestOverlay initialized with 3 tabs")
     
     def render_tab_content(self, surface: pygame.Surface, active_tab, game_state, fonts, images):
         """
@@ -42,8 +44,10 @@ class QuestOverlay(BaseTabbedOverlay):
         tab_id = active_tab.tab_id if hasattr(active_tab, 'tab_id') else active_tab
         
         try:
-            if tab_id == "active_quests":
-                self._render_active_quests(surface, content_rect, game_state, fonts)
+            if tab_id == "main_quests":
+                self._render_main_quests(surface, content_rect, game_state, fonts)
+            elif tab_id == "side_quests":
+                self._render_side_quests(surface, content_rect, game_state, fonts)
             elif tab_id == "completed_quests":
                 self._render_completed_quests(surface, content_rect, game_state, fonts)
             else:
@@ -53,17 +57,21 @@ class QuestOverlay(BaseTabbedOverlay):
             print(f"❌ Error rendering quest tab {tab_id}: {e}")
             self._render_fallback_content(surface, content_rect, fonts, "Error loading quest data")
     
-    def _render_active_quests(self, surface, content_rect, game_state, fonts):
-        """Render active quests tab content"""
-        # Get quest data from quest system
-        active_quests = self._get_active_quests(game_state)
-        
-        if not active_quests:
-            self._render_empty_quest_list(surface, content_rect, fonts, "No active quests")
+    def _render_main_quests(self, surface, content_rect, game_state, fonts):
+        """Render main quests tab (type == primary, display_in_log != false, active)"""
+        quests = self._get_quests_by_type(game_state, ["primary"])
+        if not quests:
+            self._render_empty_quest_list(surface, content_rect, fonts, "No active main quests.")
             return
-        
-        # Render quest list and details using existing layout
-        self._render_quest_content(surface, content_rect, active_quests, game_state, fonts, "Active Quests")
+        self._render_quest_content(surface, content_rect, quests, game_state, fonts, "Main Quests")
+
+    def _render_side_quests(self, surface, content_rect, game_state, fonts):
+        """Render side quests tab (type secondary/side_task, display_in_log != false, active)"""
+        quests = self._get_quests_by_type(game_state, ["secondary", "side_task"])
+        if not quests:
+            self._render_empty_quest_list(surface, content_rect, fonts, "No active side quests.")
+            return
+        self._render_quest_content(surface, content_rect, quests, game_state, fonts, "Side Quests")
     
     def _render_completed_quests(self, surface, content_rect, game_state, fonts):
         """Render completed quests tab content"""
@@ -77,36 +85,35 @@ class QuestOverlay(BaseTabbedOverlay):
         # Render quest list and details using existing layout
         self._render_quest_content(surface, content_rect, completed_quests, game_state, fonts, "Completed Quests")
     
-    def _get_active_quests(self, game_state):
-        """Get active quests from quest system"""
-        if hasattr(game_state, 'quest_manager'):
-            quest_manager = game_state.quest_manager
-            active_quests = quest_manager.get_active_quests()
-            
-            # Convert to display format
-            quest_list = []
-            for quest in active_quests:
-                completed, total = quest.get_progress()
-                quest_data = {
-                    'id': quest.id,
-                    'title': quest.title,
-                    'description': quest.description,
-                    'completed': False,
-                    'progress': f"{completed}/{total}",
-                    'objectives': [
-                        {
-                            'description': obj.description,
-                            'completed': obj.completed
-                        }
-                        for obj in quest.objectives if not getattr(obj, 'hidden', False)
-                    ]
-                }
-                quest_list.append(quest_data)
-            
-            return quest_list
-        
-        print("⚠️ Quest manager not found in game state")
-        return []
+    def _get_quests_by_type(self, game_state, types):
+        """Get active quests filtered by type list, skipping display_in_log: false entries."""
+        if not hasattr(game_state, 'quest_manager'):
+            print("⚠️ Quest manager not found in game state")
+            return []
+
+        from utils.narrative_schema import narrative_schema
+        quest_definitions = narrative_schema.schema.get("quest_definitions", {})
+
+        quest_list = []
+        for quest in game_state.quest_manager.get_active_quests():
+            quest_def = quest_definitions.get(quest.id, {})
+            if not quest_def.get("display_in_log", True):
+                continue
+            if quest_def.get("type", "secondary") not in types:
+                continue
+            completed, total = quest.get_progress()
+            quest_list.append({
+                'id': quest.id,
+                'title': quest.title,
+                'description': quest.description,
+                'completed': False,
+                'progress': f"{completed}/{total}",
+                'objectives': [
+                    {'description': obj.description, 'completed': obj.completed}
+                    for obj in quest.objectives if not getattr(obj, 'hidden', False)
+                ]
+            })
+        return quest_list
     
     def _get_completed_quests(self, game_state):
         """Get completed quests AND completed objectives from quest system"""
@@ -222,17 +229,24 @@ class QuestOverlay(BaseTabbedOverlay):
         # PAGINATION CALCULATIONS:
         total_quests = len(quests)
         active_tab = self.get_active_tab()
-        current_page = self.active_page if active_tab.tab_id == "active_quests" else self.completed_page
+        tab_id = active_tab.tab_id if hasattr(active_tab, 'tab_id') else ""
+        if tab_id == "main_quests":
+            current_page = self.main_page
+        elif tab_id == "side_quests":
+            current_page = self.side_page
+        else:
+            current_page = self.completed_page
         total_pages = max(1, (total_quests + self.quests_per_page - 1) // self.quests_per_page)
 
         # Ensure current page is valid (clamp page numbers)
         if current_page >= total_pages:
-            if active_tab.tab_id == "active_quests":
-                self.active_page = total_pages - 1
-                current_page = self.active_page
+            current_page = total_pages - 1
+            if tab_id == "main_quests":
+                self.main_page = current_page
+            elif tab_id == "side_quests":
+                self.side_page = current_page
             else:
-                self.completed_page = total_pages - 1
-                current_page = self.completed_page
+                self.completed_page = current_page
 
         # Get quests for current page
         start_idx = current_page * self.quests_per_page
@@ -405,17 +419,23 @@ class QuestOverlay(BaseTabbedOverlay):
     def previous_page(self):
         """Navigate to previous page (called by BaseTabbedOverlay)"""
         active_tab = self.get_active_tab()
-        if active_tab.tab_id == "active_quests" and self.active_page > 0:
-            self.active_page -= 1
-        elif active_tab.tab_id == "completed_quests" and self.completed_page > 0:
+        tab_id = active_tab.tab_id if hasattr(active_tab, 'tab_id') else ""
+        if tab_id == "main_quests" and self.main_page > 0:
+            self.main_page -= 1
+        elif tab_id == "side_quests" and self.side_page > 0:
+            self.side_page -= 1
+        elif tab_id == "completed_quests" and self.completed_page > 0:
             self.completed_page -= 1
 
     def next_page(self):
         """Navigate to next page (called by BaseTabbedOverlay)"""
         active_tab = self.get_active_tab()
-        if active_tab.tab_id == "active_quests":
-            self.active_page += 1
-        elif active_tab.tab_id == "completed_quests":
+        tab_id = active_tab.tab_id if hasattr(active_tab, 'tab_id') else ""
+        if tab_id == "main_quests":
+            self.main_page += 1
+        elif tab_id == "side_quests":
+            self.side_page += 1
+        elif tab_id == "completed_quests":
             self.completed_page += 1
 
     def _render_empty_quest_list(self, surface, content_rect, fonts, message):

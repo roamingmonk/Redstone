@@ -47,12 +47,14 @@
     "marcus_last_recipe": {
       "title": "The Last Recipe",
       "description": "Help Cassia complete Marcus's unfinished masterwork formula",
-      "type": "secondary"
+      "type": "secondary",
+      "display_in_log": false
     },
     "marcus_journals": {
       "title": "His Last Words",
       "description": "Cassia has entrusted you with Marcus's journals",
-      "type": "secondary"
+      "type": "secondary",
+      "display_in_log": false
     },
     "find_henrik": {
       "title": "Seek Old Henrik",
