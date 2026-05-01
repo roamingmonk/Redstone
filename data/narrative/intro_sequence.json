@@ -6,25 +6,25 @@
         "id": "intro_scene_1",
         "title": "The Road to Redstone",
         "content": [
-          "You have walked the trade roads long enough to hear the name Redstone. A mining town carved into the valley's edge, known for its iron veins and crimson-hued stone. Once prosperous, now whispered about in markets and along campfires. Merchants speak of goods arriving late, caravans avoiding the valley, and travelers vanishing on the roads. Still, coin is coin, and Redstone needs hands—steady ones, brave ones, foolish ones."
+          "You have heard the name Redstone spoken in low voices — at waystation fires, in market stalls, by merchants who turned their carts the other direction. An iron town carved into the valley's edge, once rich, now something else. Caravans go missing. The roads grow quiet. But the posting boards still carry coin, and coin does not ask for courage."
         ],
         "next_scene": "intro_scene_2",
         "background_style": "road_dusk"
       },
       {
-        "id": "intro_scene_2", 
+        "id": "intro_scene_2",
         "title": "Shadows on the Edge of Town",
         "content": [
-          "The settlement lies before you: timber homes, smoke rising from chimneys, the outline of a crooked church in the distant swamp. Lanterns flicker faintly in the streets, but there's an unease in the air. The people you pass avert their eyes, doors shut quickly at dusk, and guards look stretched thin. Redstone feels lived-in, yet hollow—like laughter was chased away seasons ago."
+          "Redstone lies below — smoke from chimneys, lanterns dim in the early dark, a crooked church steeple rising from the swamp beyond the south wall. A man pulls his door shut before you reach the end of his street. The gate guards wave you through without a word. No questions. No greeting. Just eyes that look past you, searching the treeline for something they do not name."
         ],
         "next_scene": "intro_scene_3",
         "background_style": "town_overlook"
       },
       {
         "id": "intro_scene_3",
-        "title": "Arrival at the Tavern", 
+        "title": "Arrival at the Tavern",
         "content": [
-          "Every town has a heart, and Redstone's beats within the Broken Blade Tavern. Music once spilled from its door, but tonight the sound is muted—just hushed voices, the clink of mugs, and the watchful eyes of patrons sizing you up. This is where adventurers make their start. If Redstone has secrets, the Broken Blade will whisper them first."
+          "The Broken Blade sits at the center of town like a coal that has not gone cold. Inside: low voices, tallow smoke, the smell of ale gone warm. Heads turn when you push through the door, then turn away. Somewhere beneath the silence, Redstone has a story — and stories always find their start at a tavern table. You have made worse beginnings."
         ],
         "next_scene": "broken_blade_nav",
         "background_style": "tavern_approach"
