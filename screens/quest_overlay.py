@@ -397,7 +397,7 @@ class QuestOverlay(BaseTabbedOverlay):
                     break
                 
                 # Draw objective with manual wrapping and proper colors
-                status_char = "✓" if objective['completed'] else "○"
+                status_char = "[x]" if objective['completed'] else "[ ]"
                 status_color = BRIGHT_GREEN if objective['completed'] else WHITE
                 
                 # Use smaller font
