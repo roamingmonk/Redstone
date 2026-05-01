@@ -292,7 +292,9 @@
           "text": "Thanks for the work.",
           "effects": [
             { "type": "set_flag", "flag": "reported_basement_victory", "value": true },
-            { "type": "set_flag", "flag": "garrick_paid", "value": true }
+            { "type": "set_flag", "flag": "garrick_paid", "value": true },
+            { "type": "add_gold", "amount": 50, "tracking_flag": "garrick_basement_gold_awarded" },
+            { "type": "award_xp", "amount": 50, "reason": "Cleared Garrick's basement", "tracking_flag": "garrick_basement_xp_awarded" }
           ],
           "next_state": "post_payment_idle"
         },
@@ -300,7 +302,9 @@
           "id": "ask_ruins_after_job",
           "text": "Now about those ruins…",
           "effects": [
-            { "type": "set_flag", "flag": "reported_basement_victory", "value": true }
+            { "type": "set_flag", "flag": "reported_basement_victory", "value": true },
+            { "type": "add_gold", "amount": 50, "tracking_flag": "garrick_basement_gold_awarded" },
+            { "type": "award_xp", "amount": 50, "reason": "Cleared Garrick's basement", "tracking_flag": "garrick_basement_xp_awarded" }
           ],
           "next_state": "knows_about_ruins"
         }
