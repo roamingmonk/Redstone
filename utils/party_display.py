@@ -2,13 +2,29 @@
 import pygame
 import os
 from utils.constants import (
-    WHITE, BRIGHT_GREEN, GRAY, SOFT_YELLOW, RED,
+    WHITE, BRIGHT_GREEN, GRAY, SOFT_YELLOW, RED, YELLOW,
     NPC_PORTRAITS_PATH, PLAYER_PORTRAITS_PATH,
-    PARTY_PANEL_WIDTH, PARTY_PANEL_X,  
-    PORTRAIT_SIZE, PORTRAIT_SPACING,   
-    FRAME_THICKNESS, MALE_PORTRAITS_PATH          
+    PARTY_PANEL_WIDTH, PARTY_PANEL_X,
+    PORTRAIT_SIZE, PORTRAIT_SPACING,
+    FRAME_THICKNESS, MALE_PORTRAITS_PATH
 )
 from utils.graphics import draw_centered_text
+from utils.narrative_schema import narrative_schema
+
+
+def _can_character_level_up(char_data):
+    """Pure XP check — no side effects. Returns True if char has enough XP to level up."""
+    xp_reqs = (narrative_schema.schema
+               .get('xp_balance', {})
+               .get('level_progression', {})
+               .get('requirements', [0, 300, 1000]))
+    max_level = len(xp_reqs)
+    level = char_data.get('level', 1)
+    xp = char_data.get('experience', 0)
+    next_level = level + 1
+    if next_level > max_level:
+        return False
+    return xp >= xp_reqs[next_level - 1]
 
 # # Party display constants
 # PARTY_PANEL_WIDTH = 138
@@ -61,10 +77,10 @@ def draw_party_status_panel(surface, game_state, fonts):
 
 def draw_party_portrait(surface, x, y, character_name, game_state, fonts, is_player=False):
     """Draw individual party member portrait with HP bar"""
-    
+
     # Try to load portrait
     portrait = load_portrait(character_name, is_player)
-    
+
     if portrait:
         # Scale portrait to fit
         portrait = pygame.transform.scale(portrait, (PORTRAIT_SIZE, PORTRAIT_SIZE))
@@ -73,10 +89,15 @@ def draw_party_portrait(surface, x, y, character_name, game_state, fonts, is_pla
         # Fallback colored rectangle
         color = get_character_color(character_name, is_player)
         pygame.draw.rect(surface, color, (x, y, PORTRAIT_SIZE, PORTRAIT_SIZE))
-    
-    # Draw frame
-    pygame.draw.rect(surface, WHITE, (x, y, PORTRAIT_SIZE, PORTRAIT_SIZE), FRAME_THICKNESS)
-    
+
+    # Level-up indicator: yellow border if character has enough XP to advance
+    if is_player:
+        char_data = game_state.character
+    else:
+        char_data = next((m for m in game_state.party_member_data if m.get('id') == character_name), {})
+    border_color = YELLOW if _can_character_level_up(char_data) else WHITE
+    pygame.draw.rect(surface, border_color, (x, y, PORTRAIT_SIZE, PORTRAIT_SIZE), FRAME_THICKNESS)
+
     # Draw HP bar below portrait
     _draw_hp_bar_under_portrait(surface, x, y, character_name, game_state, is_player)
 
@@ -221,12 +242,18 @@ def draw_compact_party_panel(surface, game_state, panel_x, panel_y,
             _draw_compact_hp_bar(surface, panel_x, portrait_y, portrait_size, 
                                member_id, game_state, is_player)
             
-            # Selection highlight (yellow border if selected)
-            if selected_member == member_id:
-                pygame.draw.rect(surface, (255, 255, 0), 
-                               (panel_x - 2, portrait_y - 2, portrait_size + 4, portrait_size + 4), 3)
+            # Border: selection highlight takes priority, then level-up yellow, then normal white
+            if is_player:
+                char_data = game_state.character
             else:
-                # Normal white border
+                char_data = next((m for m in game_state.party_member_data if m.get('id') == member_id), {})
+
+            if selected_member == member_id:
+                pygame.draw.rect(surface, YELLOW,
+                               (panel_x - 2, portrait_y - 2, portrait_size + 4, portrait_size + 4), 3)
+            elif _can_character_level_up(char_data):
+                pygame.draw.rect(surface, YELLOW, (panel_x, portrait_y, portrait_size, portrait_size), 2)
+            else:
                 pygame.draw.rect(surface, WHITE, (panel_x, portrait_y, portrait_size, portrait_size), 2)
             
             # Store clickable rect
