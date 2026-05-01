@@ -86,29 +86,14 @@ class CharacterEngine:
         print("✅ Character creation initialized with default fighter class")
 
     def roll_stats(self, reroll_ones=True):
-        """
-        Roll character stats with optional reroll-ones mechanism
-        Updates GameState character stats directly
-        
-        Args:
-            reroll_ones: If True, reroll any 1s rolled on dice
-            
-        Returns:
-            dict: The rolled stats
-        """
+        """Roll character stats using 4d6-drop-lowest. Updates GameState directly."""
         stats = {}
         stat_names = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']
         
         for stat in stat_names:
-            # Roll 3d6 for each stat
-            rolls = []
-            for _ in range(3):
-                roll = random.randint(1, 6)
-                # Reroll 1s if enabled (your proven mechanic)
-                if reroll_ones and roll == 1:
-                    roll = random.randint(1, 6)
-                rolls.append(roll)
-            
+            # Roll 4d6, drop lowest — average ~12.2 vs 3d6's ~10.5
+            rolls = [random.randint(1, 6) for _ in range(4)]
+            rolls.remove(min(rolls))
             stats[stat] = sum(rolls)
         
         # Update GameState directly (Single Data Authority)
