@@ -13,9 +13,9 @@
         "description": "5d6 × 10 gold pieces"
       },
       "combat_progression": {
-        "base_attack_bonus": [0, 1, 2, 3, 4],
-        "attacks_per_round": [1, 1, 2, 2, 2],
-        "proficiency_bonus": [2, 2, 2, 2, 3]
+        "base_attack_bonus": [0, 1, 2],
+        "attacks_per_round": [1, 1, 2],
+        "proficiency_bonus": [2, 2, 2]
       },
       "armor_class_bonus": 0,
       "stat_adjustments": {
@@ -44,11 +44,6 @@
           "features": ["Extra Attack"],
           "ability_score_choice": true,
           "description": "Choose +2 to one ability (max 18). Gain Extra Attack - make 2 attacks per round"
-        },
-        "level_4": {
-          "features": [],
-          "title": "Champion of Redstone",
-          "description": "You have defeated Vexthar and sealed the portal. Redstone endures."
         }
       },
       "feature_descriptions": {
