@@ -34,7 +34,17 @@
         "healing_potion"
       ],
 
-      "optional_items": {}
+      "optional_items": {},
+
+      "lore": [
+        "Garrick has kept the Broken Blade stocked",
+        "since before the last mine strike.",
+        "Sells what travelers actually need —",
+        "provisions and something to dull the edge."
+      ],
+      "charisma_threshold": 14,
+      "charisma_note_high": "Your easy manner has not gone unnoticed. Prices may be agreeable.",
+      "charisma_note_low": "Not unfriendly. Just businesslike."
     },
     "bernard": {
       "merchant_id": "bernard",
@@ -88,7 +98,16 @@
         "dagger": 0.8,
         "shortbow": 0.6,
         "greater_healing_potion": 0.5
-      }
+      },
+
+      "lore": [
+        "Redstone's only general store.",
+        "If it can be swung, worn, or carried,",
+        "Bernard likely has it — or knows who does."
+      ],
+      "charisma_threshold": 14,
+      "charisma_note_high": "He warms to people who carry themselves well.",
+      "charisma_note_low": "Fair prices. No haggling."
     },
     "cassia": {
     "merchant_id": "cassia",
@@ -155,7 +174,16 @@
         }
       }
     },
-    "shop_description": "Cassia's shop is immaculately organized with labeled bottles arranged by effect and potency. The air smells of herbs and alchemical reagents. Everything is spotlessly clean - almost obsessively so."
+    "shop_description": "Cassia's shop is immaculately organized with labeled bottles arranged by effect and potency. The air smells of herbs and alchemical reagents. Everything is spotlessly clean - almost obsessively so.",
+
+    "lore": [
+      "Every bottle labeled. Every shelf ordered.",
+      "Cassia has brewed out of the Violet Mortar",
+      "for eleven years. She does not improvise."
+    ],
+    "charisma_threshold": 14,
+    "charisma_note_high": "She values competence over charm — but she noticed.",
+    "charisma_note_low": "She values precision over pleasantries."
   }
   }
 }

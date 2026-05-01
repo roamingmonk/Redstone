@@ -489,52 +489,54 @@ class ShoppingOverlay(BaseTabbedOverlay):
         return next((item for item in sellable_items if item['name'] == item_name), None)
     
     def _render_info_tab(self, surface, content_rect, game_state, fonts, images):
-        """
-        INFO tab - Merchant details and lore
-        """
+        """INFO tab — merchant flavour, charisma note, and buy/sell rate."""
         merchant_data = getattr(game_state, 'current_merchant_data', None)
         if not merchant_data:
             return
-        
-        # Title - Merchant Name
-        title_y = content_rect.y + 20
-        draw_centered_text(surface, merchant_data['merchant_name'],
-                          fonts.get('fantasy_medium', fonts['normal']), title_y, SOFT_YELLOW)
-        
-        # Greeting
-        greeting_y = content_rect.y + 70
-        greeting = merchant_data.get('greeting', 'Welcome!')
-        draw_centered_text(surface, f'"{greeting}"',
-                          fonts['normal'], greeting_y, WHITE)
-        
-        # Merchant details
-        info_y = content_rect.y + 120
-        
+
         merchant_id = merchant_data.get('merchant_id')
         merchant_config = game_state.item_manager.merchant_data.get('merchants', {}).get(merchant_id, {})
-        
-        # Greeting
-        greeting = merchant_config.get('greeting', [])
-        if greeting:
-            draw_centered_text(surface, f"' {' '.join(greeting)}",
-                              fonts['small'], info_y, WHITE)
 
-        # Stock categories
-        categories = merchant_config.get('stock_categories', [])
-        if categories:
-            draw_centered_text(surface, f"Specializes in: {', '.join(categories)}",
-                              fonts['small'], info_y, DARK_GRAY)
-        
-        # Buy/sell rates
+        small_font = fonts.get('fantasy_small', fonts['small'])
+        medium_font = fonts.get('fantasy_medium', fonts['normal'])
+
+        y = content_rect.y + 20
+
+        # Merchant name
+        name = merchant_config.get('name', merchant_id.title() if merchant_id else 'Merchant')
+        draw_centered_text(surface, name, medium_font, y, SOFT_YELLOW)
+        y += 40
+
+        # Greeting in quotes
+        greeting = merchant_config.get('greeting', '')
+        if greeting:
+            draw_centered_text(surface, f'"{greeting}"', small_font, y, WHITE)
+            y += 30
+
+        # Lore lines
+        lore_lines = merchant_config.get('lore', [])
+        y += 10
+        for line in lore_lines:
+            draw_centered_text(surface, line, small_font, y, DARK_GRAY)
+            y += 22
+        y += 10
+
+        # Charisma note
+        cha = game_state.character.get('charisma', 10)
+        threshold = merchant_config.get('charisma_threshold', 14)
+        if cha >= threshold:
+            cha_note = merchant_config.get('charisma_note_high', '')
+        else:
+            cha_note = merchant_config.get('charisma_note_low', '')
+        if cha_note:
+            draw_centered_text(surface, cha_note, small_font, y, SOFT_YELLOW if cha >= threshold else DARK_GRAY)
+            y += 30
+
+        # Buy/sell rate
+        y += 10
         sell_mult = merchant_config.get('sell_multiplier', 0.4)
-        rate_y = info_y + 40
-        draw_centered_text(surface, f"Buys items at {int(sell_mult * 100)}% of value",
-                          fonts['small'], rate_y, DARK_GRAY)
-        
-        # Location info (future enhancement)
-        location_y = rate_y + 40
-        draw_centered_text(surface, "More merchant lore coming soon!",
-                          fonts['small'], location_y, DARKEST_GRAY)  
+        draw_centered_text(surface, f"Buys your items at {int(sell_mult * 100)}% of value",
+                           small_font, y, DARKEST_GRAY)
         
     
     def handle_keyboard_input(self, key: int) -> bool:
