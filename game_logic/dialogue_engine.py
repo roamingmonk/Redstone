@@ -1256,10 +1256,19 @@ class DialogueEngine:
         # Check flag requirements
         flag_requirements = requirements.get('flags', {})
         for flag_name, required_value in flag_requirements.items():
-            current_value = getattr(self.game_state, flag_name, False)
+            character = getattr(self.game_state, 'character', {})
+            current_value = getattr(self.game_state, flag_name,
+                                    character.get(flag_name, False))
             if current_value != required_value:
                 return False
-        
+
+        # Check race requirement (e.g., "race": "cavia")
+        if 'race' in requirements:
+            required_race = requirements['race']
+            character = getattr(self.game_state, 'character', {})
+            if required_race == 'cavia' and not character.get('is_cavia', False):
+                return False
+
         # Check single flag requirement (e.g., "flag": "some_flag_name")
         if 'flag' in requirements:
             flag_name = requirements['flag']

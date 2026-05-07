@@ -34,7 +34,11 @@
             "text": "[Leave the study]",
             "next_state": "exit",
             "effects": [
-              {"type": "set_flag", "flag": "dungeon_l4_study_examined", "value": true}
+              {
+                "type": "set_flag",
+                "flag": "dungeon_l4_study_examined",
+                "value": true
+              }
             ]
           }
         ]
@@ -47,7 +51,7 @@
           "",
           "'But the price... Cassia wouldn't understand. She clings to the old ways, to compassion and mercy. She doesn't see that those virtues are chains, holding us back from our true potential.'",
           "",
-          "'I've made my choice. The ritual will proceed. If she tries to stop me... I'll do what must be done. High Cultist Vexthar has shown me the path.'"
+          "'I've made my choice. The ritual will proceed. If she tries to stop me... I'll do what must be done. High Cultist Taborex has shown me the path.'"
         ],
         "options": [
           {
@@ -65,8 +69,16 @@
             "text": "[Close the journal]",
             "next_state": "exit",
             "effects": [
-              {"type": "set_flag", "flag": "read_marcus_journal", "value": true},
-              {"type": "set_flag", "flag": "dungeon_l4_study_examined", "value": true}
+              {
+                "type": "set_flag",
+                "flag": "read_marcus_journal",
+                "value": true
+              },
+              {
+                "type": "set_flag",
+                "flag": "dungeon_l4_study_examined",
+                "value": true
+              }
             ]
           }
         ]
@@ -75,7 +87,7 @@
         "introduction": [
           "The letter is addressed to someone named 'Brother Aldric' in a distant city:",
           "",
-          "'The final phase begins tonight. The sacrifices are complete, the barrier weakened. My family's bloodline - the key Vexthar needed - will open the portal.'",
+          "'The final phase begins tonight. The sacrifices are complete, the barrier weakened. My family's bloodline - the key Taborex needed - will open the portal.'",
           "",
           "'Once the Shadow Blight flows through fully, our organization will control power beyond mortal comprehension. The kingdoms will fall. The corrupted shall inherit the earth.'",
           "",
@@ -91,8 +103,16 @@
             "text": "[Leave the letter]",
             "next_state": "exit",
             "effects": [
-              {"type": "set_flag", "flag": "read_marcus_letter", "value": true},
-              {"type": "set_flag", "flag": "dungeon_l4_study_examined", "value": true}
+              {
+                "type": "set_flag",
+                "flag": "read_marcus_letter",
+                "value": true
+              },
+              {
+                "type": "set_flag",
+                "flag": "dungeon_l4_study_examined",
+                "value": true
+              }
             ]
           }
         ]
@@ -110,19 +130,42 @@
           "",
           "Original text: 'The Old Blood carries the resonance. Those descended from the First Kings of the pre-Collapse era can attune to dormant nexus points. Their bloodline acts as a living key to the portal-stones.'",
           "",
-          "Marcus's note: 'The Nightshade line traces back to the Aethel nobility. Vexthar was right - I am the key. My blood can awaken the portal. But do I sacrifice myself... or bind myself to the Blight as its vessel? Power beyond imagining...'",
+          "Marcus's note: 'The Nightshade line traces back to the Aethel nobility. Taborex was right - I am the key. My blood can awaken the portal. But do I sacrifice myself... or bind myself to the Blight as its vessel? Power beyond imagining...'",
           "",
           "A chill runs down your spine. Marcus isn't just a cultist - he's a necessary component of the ritual itself. His bloodline is the key to opening the ancient Aethel portal and releasing the Shadow Blight."
         ],
         "options": [
           {
+            "id": "cavia_revelation",
+            "text": "[Something in the Aethel records makes your blood run cold...]",
+            "requirements": {
+              "race": "cavia",
+              "flags": {
+                "cavia_lexicon_revelation_seen": false
+              }
+            },
+            "next_state": "elara_cavia_revelation"
+          },
+          {
             "id": "leave",
             "text": "[Step away from the forbidden knowledge]",
             "next_state": "exit",
             "effects": [
-              {"type": "set_flag", "flag": "examined_marcus_books", "value": true},
-              {"type": "set_flag", "flag": "knows_marcus_is_vessel", "value": true},
-              {"type": "set_flag", "flag": "dungeon_l4_study_examined", "value": true}
+              {
+                "type": "set_flag",
+                "flag": "examined_marcus_books",
+                "value": true
+              },
+              {
+                "type": "set_flag",
+                "flag": "knows_marcus_is_vessel",
+                "value": true
+              },
+              {
+                "type": "set_flag",
+                "flag": "dungeon_l4_study_examined",
+                "value": true
+              }
             ]
           }
         ]
@@ -130,6 +173,85 @@
       "exit": {
         "introduction": [],
         "options": []
+      },
+      "elara_cavia_revelation": {
+        "introduction": [
+          "You find a secondary passage near the back of the Aethel tome \u2014 unmarked, unread by Marcus.",
+          "",
+          "Elara steps close, her voice low.",
+          "",
+          "'Wait. Look at this section. 'Cavia subject cohorts \u2014 resonance attuned through iterative exposure. First generation loss acceptable.'",
+          "",
+          "She closes her eyes for a moment.",
+          "",
+          "'Your ancestors... they were test subjects for the Aethel dimensional experiments. The Cavia did not just live through the Collapse \u2014 they were used to cause it. I found the records. I'm so sorry.'"
+        ],
+        "options": [
+          {
+            "id": "cavia_defiant",
+            "text": "[Defiant] 'Then we end this here. No one else gets used.'",
+            "next_state": "exit",
+            "effects": [
+              {
+                "type": "set_flag",
+                "flag": "cavia_lexicon_revelation_seen",
+                "value": true
+              },
+              {
+                "type": "set_flag",
+                "flag": "examined_marcus_books",
+                "value": true
+              },
+              {
+                "type": "set_flag",
+                "flag": "knows_marcus_is_vessel",
+                "value": true
+              },
+              {
+                "type": "set_flag",
+                "flag": "dungeon_l4_study_examined",
+                "value": true
+              },
+              {
+                "type": "xp_award",
+                "amount": 50,
+                "reason": "Uncovered Cavia ancestral truth"
+              }
+            ]
+          },
+          {
+            "id": "cavia_resigned",
+            "text": "[Resigned] 'I always wondered why we were different. Now I know.'",
+            "next_state": "exit",
+            "effects": [
+              {
+                "type": "set_flag",
+                "flag": "cavia_lexicon_revelation_seen",
+                "value": true
+              },
+              {
+                "type": "set_flag",
+                "flag": "examined_marcus_books",
+                "value": true
+              },
+              {
+                "type": "set_flag",
+                "flag": "knows_marcus_is_vessel",
+                "value": true
+              },
+              {
+                "type": "set_flag",
+                "flag": "dungeon_l4_study_examined",
+                "value": true
+              },
+              {
+                "type": "xp_award",
+                "amount": 50,
+                "reason": "Uncovered Cavia ancestral truth"
+              }
+            ]
+          }
+        ]
       }
     }
   }

@@ -33,6 +33,10 @@
     "cavia_swamp_reaction_shown": {
       "default": false,
       "description": "Cavia-only. Set after the carrot-storage reaction fires at swamp_church_cultdocuments; prevents repeat."
+    },
+    "cavia_lexicon_revelation_seen": {
+      "default": false,
+      "description": "Cavia-only. Set after Elara's ancestor revelation fires in dungeon_level_4_marcus_study; prevents repeat."
     }
   },
   "quest_definitions": {
@@ -140,8 +144,8 @@
 
     "act_i_setup": "Speak to Mayor Aldwin and recruit your party before leaving the tavern.",
     "act_ii_investigation": "Investigate the Hill Ruins, Red Hollow Mine, and Swamp Church.",
-    "act_iii_finale": "Enter the dungeon beneath the ruins and stop Vexthar's ritual.",
-    "epilogue_resolution": "Return to Redstone Town after defeating Vexthar."
+    "act_iii_finale": "Enter the dungeon beneath the ruins and stop Taborex's ritual.",
+    "epilogue_resolution": "Return to Redstone Town after defeating Taborex."
   },
 
   "npcs": {
@@ -486,20 +490,20 @@
         "marcus_saved_family": "post_victory_marcus_saved_mayor_family"
       }
     },
-    "vexthar": {
-      "system_id": "vexthar",
-      "full_name": "High Cultist Vexthar the Consumed",
-      "dialogue_file": "dungeon_level_5_vexthar",
-      "conversation_flag": "vexthar_encountered",
+    "taborex": {
+      "system_id": "taborex",
+      "full_name": "High Cultist Taborex the Consumed",
+      "dialogue_file": "dungeon_level_5_taborex",
+      "conversation_flag": "taborex_encountered",
       "location": "dungeon_level_5",
       "role": "final_boss",
       "species": "human",
       "story_flags": {
-        "encountered": "vexthar_encountered",
+        "encountered": "taborex_encountered",
         "defeated": "final_boss_defeated",
         "boss_fight_started": "boss_fight_started",
-        "cavia_challenged": "cavia_challenged_vexthar",
-        "vexthar_ritual": "vexthar_ritual_ended"
+        "cavia_challenged": "cavia_challenged_taborex",
+        "taborex_ritual": "taborex_ritual_ended"
       }
     }
   },
@@ -1193,9 +1197,9 @@
         "first_meeting": "!refugee_group_talked",
         "return_visits": "refugee_group_talked"
       },
-      "vexthar": {
-      "first_meeting": "!vexthar_encountered && marcus_confrontation_complete",
-      "exit": "vexthar_encountered"
+      "taborex": {
+      "first_meeting": "!taborex_encountered && marcus_confrontation_complete",
+      "exit": "taborex_encountered"
     },
     "cassia": {
       "victory_marcus_redeemed_arrival": "act_three_complete && marcus_redeemed && !cassia_post_victory_complete",
