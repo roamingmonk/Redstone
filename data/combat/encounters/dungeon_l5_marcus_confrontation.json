@@ -49,7 +49,7 @@
         },
         "marcus_defeated_in_combat": {
           "value": true,
-          "display_message": "Marcus falls to his knees, shadow corruption dissipating from his body. 'Cassia... I'm sorry...' he whispers before collapsing. You've defeated him, but there's no time to mourn. The portal behind him pulses with terrible energy - Vexthar awaits."
+          "display_message": "Marcus falls to his knees, shadow corruption dissipating from his body. 'Cassia... I'm sorry...' he whispers before collapsing. You've defeated him, but there's no time to mourn. The portal behind him pulses with terrible energy - Taborex awaits."
         }
       }
     }
@@ -77,8 +77,8 @@
   ],
   "escape_allowed": false,
   "turn_limit": null,
-  "ambient_description": "As you approach, a figure steps from the shadows. Marcus Nightshade - once a respected mage, now twisted by shadow corruption. His eyes are haunted and ringed with darkness, black veins visible under pale skin. Behind him, the ritual circle pulses with malevolent light. 'I knew you would come,' he says, his voice hollow and distant. 'Cassia sent you, didn't she? It doesn't matter. You're too late. High Cultist Vexthar has shown me the truth. The Blight promises power beyond imagining. Stand aside, or be destroyed.'",
-  "victory_description": "Marcus collapses, the shadow corruption leaving his body in wisps of dark smoke. For a moment, his eyes clear - they're brown again, human again. 'What... what have I done?' he gasps. 'The things I've seen... the things I've become...' He looks at you with desperate clarity. 'Stop it. Stop Vexthar. Don't let the Blight through. Promise me...' He shudders and goes still. Whether he's dead or merely unconscious, you can't tell. But the portal chamber beckons - your work here isn't finished.",
+  "ambient_description": "As you approach, a figure steps from the shadows. Marcus Nightshade - once a respected mage, now twisted by shadow corruption. His eyes are haunted and ringed with darkness, black veins visible under pale skin. Behind him, the ritual circle pulses with malevolent light. 'I knew you would come,' he says, his voice hollow and distant. 'Cassia sent you, didn't she? It doesn't matter. You're too late. High Cultist Taborex has shown me the truth. The Blight promises power beyond imagining. Stand aside, or be destroyed.'",
+  "victory_description": "Marcus collapses, the shadow corruption leaving his body in wisps of dark smoke. For a moment, his eyes clear - they're brown again, human again. 'What... what have I done?' he gasps. 'The things I've seen... the things I've become...' He looks at you with desperate clarity. 'Stop it. Stop Taborex. Don't let the Blight through. Promise me...' He shudders and goes still. Whether he's dead or merely unconscious, you can't tell. But the portal chamber beckons - your work here isn't finished.",
   "defeat_description": "Marcus's shadow magic overwhelms you. As darkness claims your vision, you hear him speak: 'You fought well. But you cannot stop destiny. The Shadow Blight rises, and a new age begins.' He turns back toward the portal, leaving you broken on the chamber floor.",
   "alternate_outcomes": {
     "marcus_redeemed": {
@@ -86,7 +86,7 @@
       "xp": 500,
       "gold": 100,
       "items": ["marcus_nightshade_staff"],
-      "victory_description": "As the battle turns against him, Marcus's shadow-corrupted confidence wavers. 'This... this wasn't supposed to happen!' he shouts. With a gesture, he tears open a rift and stumbles through it. 'Vexthar will complete the ritual without me!' The rift closes behind him. Marcus has escaped, but you've disrupted his plans. The portal ahead pulses angrily - Vexthar awaits in the chamber beyond.",
+      "victory_description": "As the battle turns against him, Marcus's shadow-corrupted confidence wavers. 'This... this wasn't supposed to happen!' he shouts. With a gesture, he tears open a rift and stumbles through it. 'Taborex will complete the ritual without me!' The rift closes behind him. Marcus has escaped, but you've disrupted his plans. The portal ahead pulses angrily - Taborex awaits in the chamber beyond.",
       "story_flags": {
         "marcus_redeemed": true,
         "marcus_sacrificed_himself": true,

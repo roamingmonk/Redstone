@@ -1,7 +1,7 @@
 {
-  "dialogue_id": "dungeon_level_5_vexthar",
-  "title": "High Cultist Vexthar the Consumed",
-  "npc_id": "vexthar",
+  "dialogue_id": "dungeon_level_5_taborex",
+  "title": "High Cultist Taborex the Consumed",
+  "npc_id": "taborex",
   "is_object": false,
     
   "states": {
@@ -11,7 +11,7 @@
         "",
         "A figure stands before the portal, arms raised in ritual supplication. His robes are black silk adorned with silver Aethel glyphs. Shadow corruption visibly courses through his veins like black lightning.",
         "",
-        "This is High Cultist Vexthar the Consumed - the architect of Redstone's nightmare. The man who corrupted Marcus. The vessel through which the Shadow Blight seeks to return.",
+        "This is High Cultist Taborex the Consumed - the architect of Redstone's nightmare. The man who corrupted Marcus. The vessel through which the Shadow Blight seeks to return.",
         "",
         "He lowers his arms and turns to face you. His eyes are completely black, reflecting nothing. When he speaks, multiple voices echo from his throat - his own, and the whispers of the Blight itself.",
         "",
@@ -21,13 +21,13 @@
         {
           "id": "continue",
           "text": "[Prepare yourself]",
-          "next_state": "vexthar_speaks"
+          "next_state": "taborex_speaks"
         }
       ]
     },
-    "vexthar_speaks": {
+    "taborex_speaks": {
       "introduction": [
-        "Vexthar regards you with those terrible black eyes, a smile playing on lips too pale to be living.",
+        "Taborex regards you with those terrible black eyes, a smile playing on lips too pale to be living.",
         "",
         "'You stopped my cultists. You disrupted our supply lines. You even turned Marcus against me - though that is... disappointing. He showed such promise.'",
         "",
@@ -39,24 +39,24 @@
         {
           "id": "defiance",
           "text": "'We destroyed your cult. We'll destroy you too.'",
-          "next_state": "vexthar_defiant_response"
+          "next_state": "taborex_defiant_response"
         },
         {
           "id": "reason",
           "text": "'The Blight is using you! You'll be consumed like everyone else!'",
-          "next_state": "vexthar_reason_response"
+          "next_state": "taborex_reason_response"
         },
         {
           "id": "marcus_redeemed",
           "text": "'Marcus broke free. You're alone now.'",
           "requirements": {"flag": "marcus_redeemed"},
-          "next_state": "vexthar_marcus_response"
+          "next_state": "taborex_marcus_response"
         }
       ]
     },
-    "vexthar_defiant_response": {
+    "taborex_defiant_response": {
       "introduction": [
-        "Vexthar's smile widens, revealing teeth stained black.",
+        "Taborex's smile widens, revealing teeth stained black.",
         "",
         "'Defiance. How predictable. Do you know how many have said those exact words before they died screaming?'",
         "",
@@ -72,7 +72,7 @@
         }
       ]
     },
-    "vexthar_reason_response": {
+    "taborex_reason_response": {
       "introduction": [
         "'Consumed? You still don't understand.'",
         "",
@@ -89,7 +89,7 @@
           "id": "cavia_challenge",
           "text": "'The Aethel failed. The Cavia were their test subjects. You'll fail too.'",
           "requirements": {"race": "cavia"},
-          "next_state": "vexthar_cavia_recognition"
+          "next_state": "taborex_cavia_recognition"
         },
         {
           "id": "delusional",
@@ -98,15 +98,15 @@
         }
       ]
     },
-    "vexthar_marcus_response": {
+    "taborex_marcus_response": {
       "introduction": [
-        "Vexthar's smile vanishes. His face twists with rage.",
+        "Taborex's smile vanishes. His face twists with rage.",
         "",
         "'Marcus was WEAK! Sentimental! He clung to memories of a life he willingly abandoned! I should have let the Blight consume him completely instead of nurturing his pathetic remnant of conscience!'",
         "",
         "'But it matters not. I have the Blight itself at my command. You, Marcus, and every living soul in this region will feed the ascension!'",
         "",
-        "Shadow corruption erupts from the portal. Vexthar raises his hands, and tendrils of pure darkness coalesce into forms - Blight Horrors, summoned from the corrupted depths.",
+        "Shadow corruption erupts from the portal. Taborex raises his hands, and tendrils of pure darkness coalesce into forms - Blight Horrors, summoned from the corrupted depths.",
         "",
         "'Come then! Let me show you what TRUE power looks like!'"
       ],
@@ -118,9 +118,9 @@
         }
       ]
     },
-    "vexthar_cavia_recognition": {
+    "taborex_cavia_recognition": {
       "introduction": [
-        "Vexthar's black eyes fixate on you with sudden intensity.",
+        "Taborex's black eyes fixate on you with sudden intensity.",
         "",
         "'Fascinating. A Cavia. One of the Aethel's earliest test subjects. Your ancestors were the first to touch the dimensional energies - the experiments that eventually led to the Arcane Collapse.'",
         "",
@@ -132,11 +132,11 @@
         {
           "id": "cavia_defiance",
           "text": "'My ancestors SURVIVED your precious Aethel. I'll survive you too.'",
-          "next_state": "vexthar_impressed"
+          "next_state": "taborex_impressed"
         }
       ]
     },
-    "vexthar_impressed": {
+    "taborex_impressed": {
       "introduction": [
         "'Spirit! I admire that. Futile, but admirable.'",
         "",
@@ -152,14 +152,14 @@
           "text": "[Accept the challenge]",
           "next_state": "combat_begins",
           "effects": [
-            {"type": "set_flag", "flag": "cavia_challenged_vexthar", "value": true}
+            {"type": "set_flag", "flag": "cavia_challenged_taborex", "value": true}
           ]
         }
       ]
     },
     "combat_begins": {
       "introduction": [
-        "High Cultist Vexthar the Consumed raises his arms. Shadow corruption erupts from the portal behind him, coalescing into writhing tendrils of pure darkness.",
+        "High Cultist Taborex the Consumed raises his arms. Shadow corruption erupts from the portal behind him, coalescing into writhing tendrils of pure darkness.",
         "",
         "The temperature in the chamber plummets. Frost forms on the ancient stones. You can see your breath, and in it, you swear you see whispers made manifest.",
         "",
@@ -173,7 +173,7 @@
         "",
         "You raise your weapons. Your companions stand beside you, ready.",
         "",
-        "Vexthar attacks."
+        "Taborex attacks."
       ],
       "options": [
         {

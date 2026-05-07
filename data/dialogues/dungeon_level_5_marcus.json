@@ -75,7 +75,7 @@
         "*The shadow corruption flickers around him, dimming slightly*",
         "'Knowledge serves life, not power.' I wrote that.",
         "*His voice breaks*",
-        "Before Vexthar showed me the 'truth.' Before the Blight called to me.",
+        "Before Taborex showed me the 'truth.' Before the Blight called to me.",
         "*He clutches his head*",
         "No. No, the High Cultist is right. The old ways were weakness. The Blight is strength."
       ],
@@ -93,7 +93,7 @@
         },
         {
           "id": "youre_weak",
-          "text": "Vexthar made you weak, Marcus. Not strong.",
+          "text": "Taborex made you weak, Marcus. Not strong.",
           "next_state": "wrong_approach"
         }
       ]
@@ -106,7 +106,7 @@
         "*The shadow corruption wavers*",
         "Cure diseases. Ease suffering. That's why I studied the ore.",
         "*His eyes meet yours, lucid for a moment*",
-        "But Vexthar said the Aethel had the answer. That the Blight was the KEY.",
+        "But Taborex said the Aethel had the answer. That the Blight was the KEY.",
         "He said sacrifice was necessary. That the worthy would understand.",
         "*He looks at his corrupted hands*",
         "How many have died because I believed him?"
@@ -139,19 +139,19 @@
         "*Tears cut tracks through the grime on his face*",
         "She... she still loves me? After what I've become?",
         "*His voice is barely a whisper*",
-        "I became a monster. I helped Vexthar hurt innocent people.",
+        "I became a monster. I helped Taborex hurt innocent people.",
         "The mayor's family... the refugees... the townspeople...",
         "*He falls to his knees*",
         "I told myself it was for the greater good. That the Blight's power was worth it.",
         "*Shadow corruption pulses around him painfully*",
-        "But it's all lies, isn't it? Vexthar lied. The Blight corrupts. There is no ascension.",
+        "But it's all lies, isn't it? Taborex lied. The Blight corrupts. There is no ascension.",
         "*He looks up at you*",
         "I can't undo what I've done. But maybe... maybe I can stop it getting worse."
       ],
       "options": [
         {
           "id": "help_us",
-          "text": "Then help me stop Vexthar. Stop the ritual.",
+          "text": "Then help me stop Taborex. Stop the ritual.",
           "next_state": "redemption_path"
         },
         {
@@ -174,7 +174,7 @@
         "Instead I helped bring darkness into it.",
         "*From deeper in the chamber, a voice shouts*",
         "MARCUS! What are you doing? Kill them NOW!",
-        "*Marcus flinches at Vexthar's voice but doesn't move*"
+        "*Marcus flinches at Taborex's voice but doesn't move*"
       ],
       "options": [
         {
@@ -184,7 +184,7 @@
         },
         {
           "id": "fight_with_us",
-          "text": "Fight with us. Help us stop Vexthar.",
+          "text": "Fight with us. Help us stop Taborex.",
           "next_state": "marcus_ally_confirmed"
         },
         {
@@ -198,12 +198,12 @@
     "redemption_path": {
       "introduction": [
         "*He struggles to his feet*",
-        "Vexthar... he's powerful. The Blight has given him strength.",
+        "Taborex... he's powerful. The Blight has given him strength.",
         "But I know his wards. The ritual's weak points.",
         "*Shadow corruption pulses through him painfully*",
         "The Blight won't let me go easily. It's... it's in my blood now.",
         "*He takes a ragged breath*",
-        "I can disrupt the portal stabilizers. Weaken Vexthar's connection.",
+        "I can disrupt the portal stabilizers. Weaken Taborex's connection.",
         "But once I do, he'll know. He'll kill me.",
         "*He meets your eyes*",
         "Tell Cassia... tell her I tried to come back. At the end."
@@ -221,7 +221,7 @@
         },
         {
           "id": "just_weaken_him",
-          "text": "Just weaken the portal and get out. We'll handle Vexthar.",
+          "text": "Just weaken the portal and get out. We'll handle Taborex.",
           "effects": [
             {"type": "set_flag", "flag": "marcus_redeemed", "value": true},
             {"type": "set_flag", "flag": "portal_weakened", "value": true},
@@ -238,19 +238,19 @@
         "Run. Yes. I... I should have run years ago.",
         "*He pockets the locket carefully*",
         "There's a passage. Behind the statue. Leads to the old mine tunnels.",
-        "*Vexthar's voice grows closer: 'MARCUS! Betrayer!'*",
+        "*Taborex's voice grows closer: 'MARCUS! Betrayer!'*",
         "I'll tell Cassia... I'll tell her I'm sorry. That I remembered. At the end.",
         "*He turns to go, then pauses*",
-        "Vexthar keeps ritual focuses on the altar. Destroy them. It will weaken the portal.",
+        "Taborex keeps ritual focuses on the altar. Destroy them. It will weaken the portal.",
         "*He disappears into the shadows*",
-        "*Vexthar emerges, rage twisting his corrupted features*",
+        "*Taborex emerges, rage twisting his corrupted features*",
         "'Coward! You were MY lieutenant! My chosen vessel!'",
         "*He turns his fury on you*",
         "'No matter. You will all die. And the Blight will FEAST!'"
       ],
       "options": [
         {
-          "id": "face_vexthar",
+          "id": "face_taborex",
           "text": "[Prepare for battle]",
           "effects": [
             {"type": "set_flag", "flag": "marcus_redeemed", "value": true},
@@ -272,7 +272,7 @@
         "*Shadow energy arcs as he manipulates the Aethel glyphs*",
         "There! The primary stabilizer is disrupted!",
         "*The portal flickers, contracts slightly*",
-        "*Vexthar's roar echoes from the inner chamber*",
+        "*Taborex's roar echoes from the inner chamber*",
         "'WHAT HAVE YOU DONE?!'",
         "*Marcus turns, exhausted but determined*",
         "He's coming. And he is NOT happy."
@@ -293,18 +293,18 @@
         "*He moves to the ritual apparatus*",
         "The locket... I'll hold onto it. Try to remember who I was.",
         "*Shadow energy crackles as he works*",
-        "When you face Vexthar, watch for the portal surges. He draws power from it.",
+        "When you face Taborex, watch for the portal surges. He draws power from it.",
         "*A critical glyph shatters under his touch*",
         "There! Portal integrity at 60%. He won't be able to summon his full strength.",
         "*He looks at you one last time*",
         "Thank you. For giving me a chance to choose.",
         "*He disappears into the shadows*",
-        "*Vexthar emerges, less powerful but still formidable*",
+        "*Taborex emerges, less powerful but still formidable*",
         "'You'll pay for that betrayal! All of you!'"
       ],
       "options": [
         {
-          "id": "face_weakened_vexthar",
+          "id": "face_weakened_taborex",
           "text": "[Prepare for battle]",
           "effects": [
             {"type": "set_flag", "flag": "boss_fight_easier", "value": true}
@@ -320,7 +320,7 @@
         "Cassia...",
         "*Shadow corruption wavers*",
         "She... she shouldn't believe in me. I left her. Abandoned her.",
-        "For this. For the Blight. For Vexthar's promises.",
+        "For this. For the Blight. For Taborex's promises.",
         "*His voice breaks*",
         "I became exactly what she feared."
       ],
@@ -344,7 +344,7 @@
         "Slavery? You understand NOTHING!",
         "The Blight offers power beyond mortal comprehension!",
         "*But his voice wavers*",
-        "Vexthar said... he said the sacrifices were necessary.",
+        "Taborex said... he said the sacrifices were necessary.",
         "That I would understand when the ascension was complete.",
         "*He looks uncertain*",
         "But the screams... why do they never stop echoing?"
@@ -356,8 +356,8 @@
           "next_state": "guilt_realization"
         },
         {
-          "id": "vexthar_lied",
-          "text": "Because Vexthar lied to you. There is no ascension.",
+          "id": "taborex_lied",
+          "text": "Because Taborex lied to you. There is no ascension.",
           "next_state": "cult_lies"
         }
       ]
@@ -389,7 +389,7 @@
     "wrong_approach": {
       "introduction": [
         "*Rage flashes across his face*",
-        "WEAK? Vexthar made me POWERFUL!",
+        "WEAK? Taborex made me POWERFUL!",
         "*Shadow corruption explodes outward*",
         "You know nothing! NOTHING!",
         "*He's beyond reason now*",
@@ -413,7 +413,7 @@
     "redemption_offer": {
       "introduction": [
         "*He wavers*",
-        "Help you? Against Vexthar?",
+        "Help you? Against Taborex?",
         "*Fear crosses his face*",
         "He'll kill me. The Blight will tear me apart from the inside.",
         "*But he's considering it*",
@@ -445,7 +445,7 @@
         "*His face hardens*",
         "Of course. Who could trust a monster?",
         "*Shadow corruption surges*",
-        "Vexthar was right. There is no redemption. Only power.",
+        "Taborex was right. There is no redemption. Only power.",
         "*He raises his hands*",
         "And you just rejected your only chance at mercy."
       ],
@@ -469,7 +469,7 @@
         "*He crumples*",
         "The refugees... the townspeople... the Mayor's family...",
         "*His voice is hollow*",
-        "I helped Vexthar take them. Process them. Feed them to the portal.",
+        "I helped Taborex take them. Process them. Feed them to the portal.",
         "*Tears stream down his face*",
         "I told myself they were sacrifices for a greater purpose.",
         "But they were just people. Frightened people.",
@@ -479,7 +479,7 @@
       "options": [
         {
           "id": "help_make_it_right",
-          "text": "Help me make it right. Stop Vexthar.",
+          "text": "Help me make it right. Stop Taborex.",
           "next_state": "redemption_offer"
         },
         {
@@ -497,7 +497,7 @@
         "*Doubt creeps into his voice*",
         "Isn't it?",
         "*He looks at the pulsing portal*",
-        "Vexthar said the Aethel discovered transcendence. That the Blight was the path.",
+        "Taborex said the Aethel discovered transcendence. That the Blight was the path.",
         "But if it's lies... if it's all lies...",
         "*His voice hardens with sudden clarity*",
         "Then what have I done?"
@@ -523,7 +523,7 @@
         "*Shadow corruption pulses painfully*",
         "You're right. Look at me.",
         "*He spreads his corrupted hands*",
-        "Vexthar's lieutenant. The Blight's vessel.",
+        "Taborex's lieutenant. The Blight's vessel.",
         "*His voice goes cold*",
         "Then I have nothing left to lose."
       ],
@@ -548,7 +548,7 @@
         "*Shadow corruption writhes around him*",
         "The Blight is too deep. I can feel it eating away at what's left.",
         "*He raises his hands*",
-        "Maybe... maybe dying fighting Vexthar's enemies is the closest I'll get to redemption.",
+        "Maybe... maybe dying fighting Taborex's enemies is the closest I'll get to redemption.",
         "*Sadness and resignation in his voice*",
         "Tell Cassia... tell her I'm sorry. And that I loved her. Always."
       ],
@@ -602,15 +602,15 @@
         "'Thank you... tell Cassia...'",
         "*He's gone*",
         "",
-        "*From deeper in the chamber, Vexthar's enraged voice*",
+        "*From deeper in the chamber, Taborex's enraged voice*",
         "'You KILLED my lieutenant?! You will suffer for that betrayal!'",
         "*Heavy footsteps approach*",
         "*The final confrontation begins*"
       ],
       "options": [
         {
-          "id": "face_vexthar",
-          "text": "[Prepare to face Vexthar]",
+          "id": "face_taborex",
+          "text": "[Prepare to face Taborex]",
           "next_state": "exit"
         }
       ]
@@ -619,7 +619,7 @@
     "combat_begins": {
       "introduction": [
         "*Marcus raises his hands, shadow corruption surging*",
-        "So be it. Vexthar will feast on your corpses!",
+        "So be it. Taborex will feast on your corpses!",
         "*Combat begins*"
       ],
       "options": [

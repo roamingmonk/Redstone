@@ -96,7 +96,7 @@ SEARCHABLE_OBJECTS = {
             'flag_set': 'dungeon_l5_portal_postboss_examined',
             'one_time': False,
             'requires_flag': 'final_boss_defeated',
-            'blocked_message': 'The portal is too dangerous to approach while Vexthar still lives.',
+            'blocked_message': 'The portal is too dangerous to approach while Taborex still lives.',
             'blocked_by_flag': 'portal_destroyed',
             'blocked_message_after': 'The portal is sealed. Only rubble and broken stone remain.'
         }
@@ -112,11 +112,11 @@ AUTO_DIALOGUE_TRIGGERS = {
         'flag_check': 'marcus_encountered_level_5',
         'one_time': True
     },
-    'vexthar_confrontration': {
+    'taborex_confrontration': {
         'trigger_tiles': [(6, 11),(7, 11),(8, 11), (9, 11), (10, 11), (11, 11), (12, 11), (13,11), (14,11), (15, 11), (16, 11)],
-        'dialogue_id': 'dungeon_level_5_vexthar',
-        'npc_id': 'vexthar',
-        'flag_check': 'vexthar_encountered',
+        'dialogue_id': 'dungeon_level_5_taborex',
+        'npc_id': 'taborex',
+        'flag_check': 'taborex_encountered',
         'requires_flag': 'marcus_confrontation_complete'
     }
 }

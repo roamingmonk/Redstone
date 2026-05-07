@@ -1,7 +1,7 @@
 {
   "enemy_id": "lesser_blight_spawn",
   "name": "Lesser Blight Spawn",
-  "description": "A writhing mass of shadow corruption given semi-physical form. It looks like living darkness with too many limbs and mouths that open in impossible directions. Manifested by Vexthar from the portal's corruption.",
+  "description": "A writhing mass of shadow corruption given semi-physical form. It looks like living darkness with too many limbs and mouths that open in impossible directions. Manifested by Taborex from the portal's corruption.",
   "stats": {
     "hp": 1,
     "max_hp": 18,

@@ -1,6 +1,6 @@
 {
-  "enemy_id": "high_cultist_vexthar",
-  "name": "High Cultist Vexthar the Consumed",
+  "enemy_id": "high_cultist_taborex",
+  "name": "High Cultist Taborex the Consumed",
   "description": "A gaunt figure in black robes adorned with silver Aethel glyphs. Shadow corruption visibly courses through his veins like black lightning. His eyes are completely black abysses. Once a scholar like Marcus, he has gone far deeper into the Blight's embrace - willingly, eagerly. He is the true architect of the ritual, and the Shadow Blight's chosen vessel.",
   "stats": {
     "hp": 1,
@@ -68,7 +68,7 @@
       "spell_id": "life_siphon",
       "spell_cost": 3,
       "attack_bonus": 10,
-      "description": "Drains life force from target, healing Vexthar for half the damage dealt",
+      "description": "Drains life force from target, healing Taborex for half the damage dealt",
       "damage_type": "necrotic"
     }
   ],
@@ -86,7 +86,7 @@
     },
     {
       "name": "Blight Empowerment",
-      "description": "When standing adjacent to the portal, Vexthar gains +2 to all damage rolls and +10 temporary HP per turn",
+      "description": "When standing adjacent to the portal, Taborex gains +2 to all damage rolls and +10 temporary HP per turn",
       "effect_type": "buff",
       "trigger": "position_based"
     },
@@ -114,7 +114,7 @@
     },
     {
       "name": "Scholar's Cunning",
-      "description": "Vexthar prioritizes high-threat targets and uses tactical positioning",
+      "description": "Taborex prioritizes high-threat targets and uses tactical positioning",
       "effect_type": "tactical",
       "trigger": "combat_ai"
     }
@@ -123,7 +123,7 @@
     "xp_value": 1500,
     "gold_range": [400, 600],
     "item_drops": [
-      {"item_id": "vexthars_corrupted_tome", "drop_chance": 1.0, "quantity_range": [1, 1]},
+      {"item_id": "taborexs_corrupted_tome", "drop_chance": 1.0, "quantity_range": [1, 1]},
       {"item_id": "aethel_ritual_crown", "drop_chance": 1.0, "quantity_range": [1, 1]},
       {"item_id": "ancient_kings_blade", "drop_chance": 0.8, "quantity_range": [1, 1]},
       {"item_id": "shadow_essence", "drop_chance": 1.0, "quantity_range": [3, 5]},

@@ -7,9 +7,9 @@
     "states": {
       "examine_unstable": {
         "introduction": [
-          "With High Cultist Vexthar dead, the portal has become violently unstable. The Shadow Blight writhes and pulses behind the barrier, its anchor in this world severed.",
+          "With High Cultist Taborex dead, the portal has become violently unstable. The Shadow Blight writhes and pulses behind the barrier, its anchor in this world severed.",
           "",
-          "Vexthar's will was the only thing holding this nexus open. Without him channeling the Blight's power, the ritual structure is collapsing.",
+          "Taborex's will was the only thing holding this nexus open. Without him channeling the Blight's power, the ritual structure is collapsing.",
           "",
           "The ritual anchors - the skull, the shadow crystal, and the corrupted tablet - still pulse with residual energy. But they're failing, the corruption leaking away like blood from a mortal wound.",
           "",
@@ -42,13 +42,13 @@
       },
       "anchor_examination": {
         "introduction": [
-            "You carefully examine each of the three remaining anchors - the keystones of Vexthar's ritual:",
+            "You carefully examine each of the three remaining anchors - the keystones of Taborex's ritual:",
             "",
-            "The SKULL - one of Vexthar's most devoted cultists, sacrificed willingly. Shadow corruption still oozes from the eye sockets, but it's weakening.",
+            "The SKULL - one of Taborex's most devoted cultists, sacrificed willingly. Shadow corruption still oozes from the eye sockets, but it's weakening.",
             "",
-            "The CRYSTAL - pure solidified darkness, harvested from the Blight itself. It thrums with fading power. Vexthar used this to channel the portal's energy.",
+            "The CRYSTAL - pure solidified darkness, harvested from the Blight itself. It thrums with fading power. Taborex used this to channel the portal's energy.",
             "",
-            "The TABLET - ancient Aethel script, rewritten and corrupted by Vexthar's decades of study. The glyphs flicker, unstable without their master.",
+            "The TABLET - ancient Aethel script, rewritten and corrupted by Taborex's decades of study. The glyphs flicker, unstable without their master.",
             "",
             "Two other anchor positions stand empty..."
         ],
@@ -75,9 +75,9 @@
 
         "anchors_marcus_sabotaged": {
         "introduction": [
-            "You see scorch marks and signs of deliberate sabotage around the empty positions. Marcus did this. In his final act of defiance against Vexthar, he destroyed two of the five anchors before fleeing.",
+            "You see scorch marks and signs of deliberate sabotage around the empty positions. Marcus did this. In his final act of defiance against Taborex, he destroyed two of the five anchors before fleeing.",
             "",
-            "His sabotage weakened the ritual significantly. Vexthar tried to compensate with raw power, but without the full anchor array, the portal could never fully stabilize.",
+            "His sabotage weakened the ritual significantly. Taborex tried to compensate with raw power, but without the full anchor array, the portal could never fully stabilize.",
             "",
             "Marcus saved countless lives with that choice. Perhaps there was still good in him after all.",
             "",
@@ -96,7 +96,7 @@
         "introduction": [
             "The ritual objects were never placed. You stopped Marcus before he could complete the anchor array. He was carrying them when you fought - two more keystones that would have made the portal far more stable.",
             "",
-            "If you'd arrived even minutes later... if Marcus had finished setting up all five anchors... Vexthar's ritual would have been far more powerful.",
+            "If you'd arrived even minutes later... if Marcus had finished setting up all five anchors... Taborex's ritual would have been far more powerful.",
             "",
             "You prevented the worst outcome by stopping Marcus when you did.",
             "",
@@ -116,7 +116,7 @@
           "",
           "But destroying the anchors while the portal is this unstable... there's no telling how violent the collapse will be.",
           "",
-          "The entire chamber could come down. The ancient Aethel architecture has stood for millennia, but Vexthar's ritual has weakened the very fabric of reality here.",
+          "The entire chamber could come down. The ancient Aethel architecture has stood for millennia, but Taborex's ritual has weakened the very fabric of reality here.",
           "",
           "Are you certain you're ready?"
         ],
@@ -143,7 +143,7 @@
     "",
     "The portal ROARS. The chamber shakes. Reality itself buckles.",
     "",
-    "You move to the crystal - Vexthar's focus, his channel to the Blight. One strike of your weapon.",
+    "You move to the crystal - Taborex's focus, his channel to the Blight. One strike of your weapon.",
     "",
     "The crystal SHATTERS into a thousand fragments of frozen darkness that evaporate into nothingness."
   ],
@@ -159,13 +159,13 @@
   "introduction": [
     "The portal convulses violently. Massive cracks spread across its surface. The Shadow Blight beyond howls in impotent rage, sensing its gateway closing.",
     "",
-    "The tablet. You tear the corrupted Aethel stone apart with your bare hands. Vexthar's life's work - his obsession - crumbles to dust.",
+    "The tablet. You tear the corrupted Aethel stone apart with your bare hands. Taborex's life's work - his obsession - crumbles to dust.",
     "",
     "The portal IMPLODES.",
     "",
     "Shadow energy detonates outward in a shockwave of pure force. The chamber quakes. Stone cracks and falls.",
     "",
-    "The portal-stone itself - the massive obsidian monolith Vexthar died trying to open - cracks down the center with a sound like breaking thunder."
+    "The portal-stone itself - the massive obsidian monolith Taborex died trying to open - cracks down the center with a sound like breaking thunder."
   ],
   "options": [
     {
@@ -179,7 +179,7 @@
   "introduction": [
     "Light pours from the fissure in the portal-stone. Not shadow. Real light. Sunlight from the surface above.",
     "",
-    "The portal is sealed. The Shadow Blight is trapped. Vexthar's decades of work are undone in moments.",
+    "The portal is sealed. The Shadow Blight is trapped. Taborex's decades of work are undone in moments.",
     "",
     "But the entire chamber is collapsing around you! Stone pillars crack and topple. The floor heaves.",
     "",
@@ -203,7 +203,7 @@
         },
         {
           "type": "set_flag",
-          "flag": "vexthar_ritual_ended",
+          "flag": "taborex_ritual_ended",
           "value": true
         },
         
@@ -234,13 +234,13 @@
 
       "leave_unsealed_warning": {
         "introduction": [
-          "You stare at the unstable portal. Without Vexthar's will holding it open, it's collapsing on its own. Slowly. Chaotically.",
+          "You stare at the unstable portal. Without Taborex's will holding it open, it's collapsing on its own. Slowly. Chaotically.",
           "",
           "Perhaps you don't need to destroy it. Perhaps nature - or whatever passes for nature in dimensional mechanics - will seal it eventually.",
           "",
           "Or perhaps it will stabilize. Find a new equilibrium. Remain open just enough for the Shadow Blight to seep through. Slowly at first. Then faster.",
           "",
-          "You defeated the cultists. You killed Vexthar. Surely that's enough?",
+          "You defeated the cultists. You killed Taborex. Surely that's enough?",
           "",
           "But a voice in the back of your mind whispers: is it? Will this portal truly close on its own? Or are you leaving the door cracked open for something ancient and hungry to exploit?",
           "",
@@ -261,7 +261,7 @@
       },
       "portal_left_unsealed": {
         "introduction": [
-          "You turn your back on the portal. You've done enough. Vexthar is dead. The cult is broken. That will have to be sufficient.",
+          "You turn your back on the portal. You've done enough. Taborex is dead. The cult is broken. That will have to be sufficient.",
           "",
           "As you walk away, the portal continues to pulse behind you. Unstable. Dying. But not dead.",
           "",

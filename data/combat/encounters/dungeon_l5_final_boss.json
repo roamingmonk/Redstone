@@ -1,13 +1,13 @@
 {
   "encounter_id": "dungeon_l5_final_boss",
-  "name": "High Cultist Vexthar the Consumed",
+  "name": "High Cultist Taborex the Consumed",
   "description": "The corrupted priest stands before the portal, shadow energy swirling around him!",
   "battlefield_id": "portal_chamber",
   "difficulty": "extreme",
   "pre_combat_dialogue": null,
   "enemies": [
     {
-      "enemy_id": "high_cultist_vexthar",
+      "enemy_id": "high_cultist_taborex",
       "position": [9, 8],
       "facing": "north",
       "boss": true,
@@ -41,7 +41,7 @@
           "facing": "west"
         }
       ],
-      "message": "Vexthar channels the portal's power, manifesting more Blight horrors to his defense!"
+      "message": "Taborex channels the portal's power, manifesting more Blight horrors to his defense!"
     }
   ],
   "player_party": {
@@ -59,7 +59,7 @@
   "rewards": {
     "xp": 1500,
     "gold": 500,
-    "items": ["blight_crystal", "vexthars_corrupted_tome", "ancient_kings_blade"],
+    "items": ["blight_crystal", "taborexs_corrupted_tome", "ancient_kings_blade"],
     "flags": {
       "final_boss_defeated": true
       
@@ -68,32 +68,32 @@
   "special_rules": [
     {
       "rule_type": "epic_boss_encounter",
-      "description": "Vexthar is a legendary-tier threat empowered by the Shadow Blight"
+      "description": "Taborex is a legendary-tier threat empowered by the Shadow Blight"
     },
     {
       "rule_type": "shadow_aura",
-      "description": "All characters take 1d4 necrotic damage at the start of each turn while near Vexthar"
+      "description": "All characters take 1d4 necrotic damage at the start of each turn while near Taborex"
     },
     {
       "rule_type": "portal_empowerment",
-      "description": "Vexthar gains bonus damage and temp HP when standing near the portal"
+      "description": "Taborex gains bonus damage and temp HP when standing near the portal"
     },
     {
       "rule_type": "weakened_if_marcus_redeemed",
-      "description": "If marcus_redeemed flag is set, Vexthar has reduced max HP and damage (Marcus's sabotage weakened the portal)"
+      "description": "If marcus_redeemed flag is set, Taborex has reduced max HP and damage (Marcus's sabotage weakened the portal)"
     },
     {
       "rule_type": "enraged_if_marcus_fled",
-      "description": "If marcus_fled flag is set, Vexthar is enraged and more dangerous (his lieutenant betrayed him)"
+      "description": "If marcus_fled flag is set, Taborex is enraged and more dangerous (his lieutenant betrayed him)"
     },
     {
       "rule_type": "summon_minions",
-      "description": "Vexthar can summon Blight spawn reinforcements during combat"
+      "description": "Taborex can summon Blight spawn reinforcements during combat"
     }
   ],
   "escape_allowed": false,
   "turn_limit": null,
-  "ambient_description": "High Cultist Vexthar stands before the massive portal, arms raised. Shadow corruption oozes from the Aethel portal-stone, and the air itself feels wrong - reality warping under the Blight's presence. Vexthar's eyes are completely black, his veins visible as dark lines under pale skin. When he speaks, multiple voices echo from his throat - his own, and the whispers of the Shadow Blight itself. 'Ah. The meddlers have arrived. How fortuitous. The ritual requires blood sacrifice, and you will serve admirably.' The final battle begins.",
-  "victory_description": "High Cultist Vexthar the Consumed falls to his knees, shadow corruption leaving his body in wisps of dark smoke. For just a moment, his eyes clear - they're blue again, human again. 'What... have I... become?' he gasps. Then he's gone. The portal behind him shudders violently. Without Vexthar to anchor it, the ancient Aethel mechanism begins to fail. Cracks spread across the portal-stone's surface like breaking glass. Then, with a sound like reality healing, it seals completely. Silence falls over the chamber. The oppressive shadow energy is gone. Sunlight - actual sunlight - begins to filter down from cracks in the ceiling above. You've done it. Against all odds, you've defeated the High Cultist and closed the portal. Redstone is safe. The world is safe. For now.",
-  "defeat_description": "Vexthar's Blight-enhanced power is too great. His shadow magic tears through your defenses, and one by one, your party members fall. As darkness claims you, the last thing you hear is Vexthar's triumphant laughter: 'The Shadow Blight rises. Your world falls. This is only the beginning.' The portal expands, shadow corruption pouring out like a flood. You have failed. Redstone - and perhaps the entire world - is doomed."
+  "ambient_description": "High Cultist Taborex stands before the massive portal, arms raised. Shadow corruption oozes from the Aethel portal-stone, and the air itself feels wrong - reality warping under the Blight's presence. Taborex's eyes are completely black, his veins visible as dark lines under pale skin. When he speaks, multiple voices echo from his throat - his own, and the whispers of the Shadow Blight itself. 'Ah. The meddlers have arrived. How fortuitous. The ritual requires blood sacrifice, and you will serve admirably.' The final battle begins.",
+  "victory_description": "High Cultist Taborex the Consumed falls to his knees, shadow corruption leaving his body in wisps of dark smoke. For just a moment, his eyes clear - they're blue again, human again. 'What... have I... become?' he gasps. Then he's gone. The portal behind him shudders violently. Without Taborex to anchor it, the ancient Aethel mechanism begins to fail. Cracks spread across the portal-stone's surface like breaking glass. Then, with a sound like reality healing, it seals completely. Silence falls over the chamber. The oppressive shadow energy is gone. Sunlight - actual sunlight - begins to filter down from cracks in the ceiling above. You've done it. Against all odds, you've defeated the High Cultist and closed the portal. Redstone is safe. The world is safe. For now.",
+  "defeat_description": "Taborex's Blight-enhanced power is too great. His shadow magic tears through your defenses, and one by one, your party members fall. As darkness claims you, the last thing you hear is Taborex's triumphant laughter: 'The Shadow Blight rises. Your world falls. This is only the beginning.' The portal expands, shadow corruption pouring out like a flood. You have failed. Redstone - and perhaps the entire world - is doomed."
 }

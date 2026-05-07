@@ -148,7 +148,7 @@ Redstone
 │       │   │   │   ├── pete_portrait.jpg
 │       │   │   │   ├── swamp_church_altar.aseprite
 │       │   │   │   ├── thorman_portrait.jpg
-│       │   │   │   └── vexthar_portrait.jpg
+│       │   │   │   └── taborex_portrait.jpg
 │       │   │   ├── object_examination.png
 │       │   │   ├── player_portraits
 │       │   │   │   ├── active
@@ -341,7 +341,7 @@ Redstone
 │   │       ├── giant_rat.json
 │   │       ├── giant_spider.json
 │   │       ├── goblin.json
-│   │       ├── high_cultist_vexthar.json
+│   │       ├── high_cultist_taborex.json
 │   │       ├── kobold.json
 │   │       ├── kobold_scout.json
 │   │       ├── kobold_shaman.json
@@ -379,7 +379,7 @@ Redstone
 │   │   ├── dungeon_level_5_marcus.json
 │   │   ├── dungeon_level_5_portal_postboss.json
 │   │   ├── dungeon_level_5_ritual.json
-│   │   ├── dungeon_level_5_vexthar.json
+│   │   ├── dungeon_level_5_taborex.json
 │   │   ├── hill_ruins_carved_stones.json
 │   │   ├── hill_ruins_forcedoor.json
 │   │   ├── hill_ruins_ground_level_rubble.json

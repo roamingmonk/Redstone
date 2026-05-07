@@ -2852,7 +2852,7 @@ class CombatEngine:
     def _is_boss_encounter(self) -> bool:
         """
         Check if current encounter is the final boss fight
-        Returns True if encounter contains high_cultist_vexthar
+        Returns True if encounter contains high_cultist_taborex
         """
         enemy_instances = self.combat_data.get("enemy_instances", [])
         
@@ -2861,7 +2861,7 @@ class CombatEngine:
             enemy_name = enemy.get("name", "")
             
             # Check for boss by enemy_id or name
-            if enemy_id == "high_cultist_vexthar" or "vexthar" in enemy_name.lower():
+            if enemy_id == "high_cultist_taborex" or "taborex" in enemy_name.lower():
                 print(f"🎯 Boss encounter detected: {enemy_name} ({enemy_id})")
                 return True
         

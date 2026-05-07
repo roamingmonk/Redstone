@@ -160,7 +160,7 @@
       "Bandit": 3,
       "Brigand Leader": 1,
       "Lesser Blight Spawn": 2,
-      "High Cultist Vexthar the Consumed": 1
+      "High Cultist Taborex the Consumed": 1
     },
     "total_damage_dealt": 42,
     "times_saved": 7,
@@ -182,7 +182,7 @@
     "thorman",
     "elara",
     "bernard",
-    "vexthar",
+    "taborex",
     "jenna"
   ],
   "quest_system": {
@@ -769,11 +769,11 @@
     "cassia_wants_marcus_saved": true,
     "cassia_gave_locket": true,
     "post_victory_marcus_saved_mayor_family": false,
-    "vexthar_encountered": true,
+    "taborex_encountered": true,
     "final_boss_defeated": true,
     "boss_fight_started": true,
-    "cavia_challenged_vexthar": false,
-    "vexthar_ritual_ended": false,
+    "cavia_challenged_taborex": false,
+    "taborex_ritual_ended": false,
     "learned_about_swamp_church": true,
     "swamp_church_complete": true,
     "explored_swamp_church": false,

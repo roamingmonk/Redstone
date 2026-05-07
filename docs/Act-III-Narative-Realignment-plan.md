@@ -148,7 +148,7 @@ Husband relationship has different stakes than sibling relationship:
 | **WRONG (Void)** | **CORRECT (Blight)** |
 |-----------------|---------------------|
 | "Void Prince" | "The Shadow Blight" / "The Consuming Darkness" |
-| "Archon of the Void" | "The Blight Priest" / "High Cultist Vexthar" |
+| "Archon of the Void" | "The Blight Priest" / "High Cultist Taborex" |
 | "void energy" | "shadow corruption" / "Blight essence" |
 | "Void corruption" | "Blight corruption" / "Shadow infection" |
 | "dimensional horror" | "consuming entity" / "corrupted force" |
@@ -166,7 +166,7 @@ Husband relationship has different stakes than sibling relationship:
 
 ### PHASE 3: Boss Character Creation
 
-#### NEW Boss Character: High Cultist Vexthar the Consumed
+#### NEW Boss Character: High Cultist Taborex the Consumed
 
 **Background:**
 - Former scholar turned cult leader (parallel to Marcus)
@@ -190,7 +190,7 @@ Husband relationship has different stakes than sibling relationship:
 
 **Rename/Repurpose:**
 ```
-Malachar the Archon → High Cultist Vexthar the Consumed
+Malachar the Archon → High Cultist Taborex the Consumed
 
 Stats remain similar but themed differently:
 - "Void Lance" → "Blight Bolt" (3d8+4 necrotic, same mechanics)
@@ -256,7 +256,7 @@ Lair Actions (Portal Chamber):
 **Key Thematic Changes:**
 1. Remove "chosen vessel" language → Replace with "corrupted scholar"
 2. Change motivation: "power/ascension" → "escape from mundane life/research obsession"
-3. Vexthar is his superior, not his subordinate
+3. Taborex is his superior, not his subordinate
 4. Shadow Blight corruption is addiction/infection, not voluntary transformation
 
 **Example Redemption Branch:**
@@ -273,7 +273,7 @@ Lair Actions (Portal Chamber):
 ```json
 {
   "text": "The shadows showed me truths beyond mortal comprehension! 
-           Vexthar promised me understanding!",
+           Taborex promised me understanding!",
   "next_state": "marcus_defiant"
 }
 ```
@@ -282,9 +282,9 @@ Lair Actions (Portal Chamber):
 
 **Add dialogue establishing hierarchy:**
 ```json
-"marcus_about_vexthar": {
+"marcus_about_taborex": {
   "introduction": [
-    "Vexthar? He is the High Cultist, the one who truly understands the Blight.",
+    "Taborex? He is the High Cultist, the one who truly understands the Blight.",
     "",
     "I... I enforce his will. Guard the ritual chamber. Deal with intruders.",
     "He says I'm not ready for the inner mysteries yet. That the corruption 
@@ -303,13 +303,13 @@ Lair Actions (Portal Chamber):
 
 **Complete Rewrite Required**
 
-**New Opening State: `vexthar_arrival`**
+**New Opening State: `taborex_arrival`**
 ```json
 {
   "dialogue_id": "dungeon_level_5_final_boss_intro",
   "title": "The Blight Priest",
   "states": {
-    "vexthar_arrival": {
+    "taborex_arrival": {
       "npc_name": "Narrator",
       "introduction": [
         "The portal chamber thrums with malevolent energy. Shadow corruption 
@@ -320,7 +320,7 @@ Lair Actions (Portal Chamber):
         His robes are black silk adorned with silver Aethel glyphs. Shadow 
         corruption visibly courses through his veins like black lightning.",
         "",
-        "This is High Cultist Vexthar the Consumed - the architect of Redstone's 
+        "This is High Cultist Taborex the Consumed - the architect of Redstone's 
         nightmare. The man who corrupted Marcus. The vessel through which the 
         Shadow Blight seeks to return.",
         "",
@@ -335,7 +335,7 @@ Lair Actions (Portal Chamber):
         {
           "id": "continue",
           "text": "[Prepare yourself]",
-          "next_state": "vexthar_speaks"
+          "next_state": "taborex_speaks"
         }
       ]
     }
@@ -343,12 +343,12 @@ Lair Actions (Portal Chamber):
 }
 ```
 
-**Vexthar Monologue (State: `vexthar_speaks`)**
+**Taborex Monologue (State: `taborex_speaks`)**
 ```json
-"vexthar_speaks": {
-  "npc_name": "High Cultist Vexthar",
+"taborex_speaks": {
+  "npc_name": "High Cultist Taborex",
   "introduction": [
-    "Vexthar regards you with those terrible black eyes, a smile playing on 
+    "Taborex regards you with those terrible black eyes, a smile playing on 
     lips too pale to be living.",
     "",
     "'You stopped my cultists. You disrupted our supply lines. You even turned 
@@ -366,29 +366,29 @@ Lair Actions (Portal Chamber):
     {
       "id": "defiance",
       "text": "'We destroyed your cult. We'll destroy you too.'",
-      "next_state": "vexthar_defiant_response"
+      "next_state": "taborex_defiant_response"
     },
     {
       "id": "reason",
       "text": "'The Blight is using you! You'll be consumed like everyone else!'",
-      "next_state": "vexthar_reason_response"
+      "next_state": "taborex_reason_response"
     },
     {
       "id": "marcus_redeemed",
       "text": "'Marcus broke free. You're alone now.'",
       "requirements": {"flag": "marcus_redeemed"},
-      "next_state": "vexthar_marcus_response"
+      "next_state": "taborex_marcus_response"
     }
   ]
 }
 ```
 
-**Vexthar Response to Marcus Redemption:**
+**Taborex Response to Marcus Redemption:**
 ```json
-"vexthar_marcus_response": {
-  "npc_name": "High Cultist Vexthar",
+"taborex_marcus_response": {
+  "npc_name": "High Cultist Taborex",
   "introduction": [
-    "Vexthar's smile vanishes. His face twists with rage.",
+    "Taborex's smile vanishes. His face twists with rage.",
     "",
     "'Marcus was WEAK! Sentimental! He clung to memories of a life he willingly 
     abandoned! I should have let the Blight consume him completely instead of 
@@ -397,7 +397,7 @@ Lair Actions (Portal Chamber):
     "'But it matters not. I have the Blight itself at my command. You, Marcus, 
     and every living soul in this region will feed the ascension!'",
     "",
-    "Shadow corruption erupts from the portal. Vexthar raises his hands, and 
+    "Shadow corruption erupts from the portal. Taborex raises his hands, and 
     tendrils of pure darkness coalesce into forms - Blight Horrors, summoned 
     from the corrupted depths.",
     "",
@@ -410,7 +410,7 @@ Lair Actions (Portal Chamber):
       "next_state": "exit",
       "effects": [
         {"type": "set_flag", "flag": "boss_fight_started", "value": true},
-        {"type": "start_combat", "encounter_id": "final_boss_vexthar_solo"}
+        {"type": "start_combat", "encounter_id": "final_boss_taborex_solo"}
       ]
     }
   ]
@@ -423,11 +423,11 @@ Lair Actions (Portal Chamber):
 
 #### Restore Cavia-Specific Content
 
-**Vexthar Recognition of Cavia Player:**
+**Taborex Recognition of Cavia Player:**
 ```json
-"vexthar_cavia_recognition": {
+"taborex_cavia_recognition": {
   "introduction": [
-    "Vexthar's black eyes fixate on you with sudden intensity.",
+    "Taborex's black eyes fixate on you with sudden intensity.",
     "",
     "'Fascinating. A Cavia. One of the Aethel's earliest test subjects. 
     Your ancestors were the first to touch the dimensional energies - 
@@ -448,7 +448,7 @@ Lair Actions (Portal Chamber):
   "id": "cavia_defiance",
   "text": "'My ancestors SURVIVED your precious Aethel. I'll survive you too.'",
   "requirements": {"race": "cavia"},
-  "next_state": "vexthar_impressed"
+  "next_state": "taborex_impressed"
 }
 ```
 
@@ -477,7 +477,7 @@ archon_summoned → blight_horror_manifested
 ```
 WRONG → CORRECT
 
-malachar_defeated → vexthar_defeated
+malachar_defeated → taborex_defeated
 archon_phase_two → blight_manifestation
 void_prince_mentioned → shadow_blight_revealed
 ```
@@ -614,17 +614,17 @@ it does not die."
 ### SESSION 3: Boss Character Replacement (4-5 hours)
 
 **Goals:**
-- Create High Cultist Vexthar character
+- Create High Cultist Taborex character
 - Rewrite boss introduction scene
 - Update boss dialogue and taunts
 
 **Files to Create/Modify:**
 1. `dungeon_level_5_final_boss_intro.json` (MAJOR REWRITE)
 2. `dungeon_level_5_boss_taunts.json` (if exists)
-3. Boss combat encounter stats (rename Malachar → Vexthar)
+3. Boss combat encounter stats (rename Malachar → Taborex)
 
 **Boss Design Notes:**
-- Vexthar is Marcus's superior (establish hierarchy)
+- Taborex is Marcus's superior (establish hierarchy)
 - Shadow Blight corruption visible and horrific
 - Scholarly background corrupted to madness
 - References Aethel experiments and Cavia origins
@@ -634,7 +634,7 @@ it does not die."
 - Relationship to Marcus clear
 - Shadow Blight theme consistent
 
-**ADR:** "High Cultist Vexthar - Final Boss Design"
+**ADR:** "High Cultist Taborex - Final Boss Design"
 
 ---
 
@@ -652,8 +652,8 @@ it does not die."
 
 **Key Changes:**
 - Marcus guards portal, doesn't conduct ritual
-- Redemption = Marcus flees + warns about Vexthar's tactics
-- Combat = Marcus fights alongside Vexthar if hostile
+- Redemption = Marcus flees + warns about Taborex's tactics
+- Combat = Marcus fights alongside Taborex if hostile
 - Establish Marcus's internal conflict (Blight addiction vs love for Cassia)
 
 **Testing:**
@@ -668,7 +668,7 @@ it does not die."
 ### SESSION 5: Cavia Integration & Lore Consistency (3-4 hours)
 
 **Goals:**
-- Add Cavia-specific dialogue with Vexthar
+- Add Cavia-specific dialogue with Taborex
 - Restore Cavia/Aethel/Blight narrative links
 - Special epilogue content for Cavia players
 
@@ -678,7 +678,7 @@ it does not die."
 3. Marcus dialogue (optional Cavia reference)
 
 **Content to Add:**
-- Vexthar recognizes Cavia as "test subjects"
+- Taborex recognizes Cavia as "test subjects"
 - Cavia player has unique defiance option
 - Epilogue reveals "High Cavia Contamination Zones" on map
 - Hints at future expansion content
@@ -711,7 +711,7 @@ def migrate_act_three_flags(save_data):
     """Migrate old Void flags to new Blight flags"""
     flag_mapping = {
         'marcus_void_corrupted': 'marcus_blight_corrupted',
-        'malachar_defeated': 'vexthar_defeated',
+        'malachar_defeated': 'taborex_defeated',
         # ... etc
     }
     for old_flag, new_flag in flag_mapping.items():
@@ -743,7 +743,7 @@ After implementation, verify:
 - [ ] Shadow Blight is consistent threat throughout
 - [ ] Marcus is consistently Cassia's husband (not brother)
 - [ ] Marcus is lieutenant, not cult leader
-- [ ] Vexthar exists as separate boss character
+- [ ] Taborex exists as separate boss character
 - [ ] Aethel → Blight → Cavia connection clear
 - [ ] Portal purpose is unleashing Blight (not summoning entity)
 
@@ -751,7 +751,7 @@ After implementation, verify:
 
 - [ ] Cassia mourns lost husband (romantic loss)
 - [ ] Marcus's corruption is tragic fall (not power grab)
-- [ ] Vexthar is Marcus's superior/corruptor
+- [ ] Taborex is Marcus's superior/corruptor
 - [ ] Mayor's family caught in Blight corruption
 - [ ] Cavia player recognizes ancient experiments
 
@@ -809,7 +809,7 @@ AUTO_DIALOGUE_TRIGGERS = {
 2. **Marcus is Cassia's HUSBAND** - emotional weight matters
 3. **Shadow Blight, NOT Void** - stay consistent with established lore
 4. **Cavia connection essential** - they're test subjects of Aethel experiments
-5. **Vexthar leads, Marcus enforces** - hierarchy is important
+5. **Taborex leads, Marcus enforces** - hierarchy is important
 6. **Technical systems are GOOD** - preserve auto-triggers and state management
 
 ### Red Flags to Watch For:
@@ -834,7 +834,7 @@ Restored original Shadow Blight narrative from Oct 29 Narrative Summary.
 
 - Marcus relationship corrected: husband not brother
 - Cosmology restored: Shadow Blight not Void Prince
-- Boss character: Vexthar replaces Archon
+- Boss character: Taborex replaces Archon
 - Cavia narrative links preserved
 - Technical systems preserved: [list systems]
 
@@ -890,7 +890,7 @@ When picking up Act III work, ALWAYS:
 ✓ CORRECT                    ✗ WRONG
 ────────────────            ────────────────
 Shadow Blight               Void Prince
-High Cultist Vexthar        Archon / Malachar
+High Cultist Taborex        Archon / Malachar
 Marcus (husband)            Marcus (brother)
 Lieutenant / 2nd-in-command Cult Leader
 Blight corruption           Void transformation
