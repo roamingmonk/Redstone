@@ -21,6 +21,18 @@
     "controls_hint_dismissed": {
       "default": false,
       "description": "Set to true on first WASD or E keypress in Broken Blade; hides the new-player controls hint permanently for that save"
+    },
+    "cavia_mine_reaction_shown": {
+      "default": false,
+      "description": "Cavia-only. Set after the tunnel-structure observation fires at mine_warning_signs; prevents repeat."
+    },
+    "cavia_portal_reaction_shown": {
+      "default": false,
+      "description": "Cavia-only. Set after the portal size/fur reaction fires at hill_ruins_portal; prevents repeat."
+    },
+    "cavia_swamp_reaction_shown": {
+      "default": false,
+      "description": "Cavia-only. Set after the carrot-storage reaction fires at swamp_church_cultdocuments; prevents repeat."
     }
   },
   "quest_definitions": {

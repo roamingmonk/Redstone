@@ -19,6 +19,24 @@
         ],
         "options": [
           {
+            "id": "cavia_react",
+            "text": "[Your fur stands on end. Something about this place speaks to your Cavia senses...]",
+            "requirements": {
+              "flags": {
+                "is_cavia": true,
+                "cavia_portal_reaction_shown": false
+              }
+            },
+            "effects": [
+              {"type": "set_flag", "flag": "cavia_portal_reaction_shown", "value": true},
+              {"type": "set_flag", "flag": "hill_ruins_portal_examined", "value": true},
+              {"type": "set_flag", "flag": "hill_ruins_portal_chamber_seen", "value": true},
+              {"type": "check_location_completion", "location_id": "hill_ruins"},
+              {"type": "xp_award", "amount": 25, "reason": "Discovered the portal chamber"}
+            ],
+            "next_state": "cavia_portal_reaction"
+          },
+          {
             "id": "understood",
             "text": "[Step back from the portal]",
             "next_state": "exit",
@@ -28,6 +46,26 @@
               {"type": "check_location_completion", "location_id": "hill_ruins"},
               {"type": "xp_award", "amount": 25, "reason": "Discovered the portal chamber"}
             ]
+          }
+        ]
+      },
+
+      "cavia_portal_reaction": {
+        "introduction": [
+          "So. This is the Nexus Point.",
+          "I expected... more. It's barely three times my height.",
+          "Though I'll admit — my fur has been standing on end since we crossed the threshold. Size isn't everything."
+        ],
+        "options": [
+          {
+            "id": "examine_further",
+            "text": "[Study it more carefully.]",
+            "next_state": "exit"
+          },
+          {
+            "id": "step_back",
+            "text": "[Keep a respectful distance.]",
+            "next_state": "exit"
           }
         ]
       }

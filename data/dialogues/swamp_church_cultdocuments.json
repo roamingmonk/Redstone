@@ -21,6 +21,24 @@
         ],
         "options": [
           {
+            "id": "cavia_read",
+            "text": "[You read it with Cavia pragmatism. The horror is there — but so is something else...]",
+            "requirements": {
+              "flags": {
+                "is_cavia": true,
+                "cavia_swamp_reaction_shown": false
+              }
+            },
+            "effects": [
+              {"type": "set_flag", "flag": "cavia_swamp_reaction_shown", "value": true},
+              {"type": "set_flag", "flag": "read_cult_documents", "value": true},
+              {"type": "set_flag", "flag": "learned_sacrifice_plan", "value": true},
+              {"type": "add_item", "item_id": "cult_documents", "quantity": 1, "category": "items"},
+              {"type": "xp_award", "amount": 50, "reason": "Discovered cult plans"}
+            ],
+            "next_state": "cavia_cult_documents"
+          },
+          {
             "id": "understood",
             "text": "[Take the documents]",
             "next_state": "exit",
@@ -30,6 +48,26 @@
               {"type": "add_item", "item_id": "cult_documents", "quantity": 1, "category": "items"},
               {"type": "xp_award", "amount": 50, "reason": "Discovered cult plans"}
             ]
+          }
+        ]
+      },
+
+      "cavia_cult_documents": {
+        "introduction": [
+          "Flesh as a binding ingredient. I see.",
+          "Setting aside the obvious theological concerns — the cross-contamination alone would be catastrophic. You cannot store ritual components next to organic matter.",
+          "These people have never once thought about proper carrot storage. It shows."
+        ],
+        "options": [
+          {
+            "id": "take_notes",
+            "text": "[Note the ritual details.]",
+            "next_state": "exit"
+          },
+          {
+            "id": "close_it",
+            "text": "[Close the documents. You've seen enough.]",
+            "next_state": "exit"
           }
         ]
       }

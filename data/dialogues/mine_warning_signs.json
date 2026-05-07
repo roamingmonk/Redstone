@@ -17,12 +17,42 @@
         ],
         "options": [
           {
+            "id": "cavia_observe",
+            "text": "[Your builder's eye reads the tunnel construction beyond the signs...]",
+            "requirements": {
+              "flags": {
+                "is_cavia": true,
+                "cavia_mine_reaction_shown": false
+              }
+            },
+            "effects": [
+              {"type": "set_flag", "flag": "cavia_mine_reaction_shown", "value": true},
+              {"type": "set_flag", "flag": "examined_mine_warnings", "value": true}
+            ],
+            "next_state": "cavia_mine_observation"
+          },
+          {
             "id": "understood",
             "text": "[Note the warnings]",
             "next_state": "exit",
             "effects": [
               {"type": "set_flag", "flag": "examined_mine_warnings", "value": true}
             ]
+          }
+        ]
+      },
+
+      "cavia_mine_observation": {
+        "introduction": [
+          "Kobold tunnels. Of course.",
+          "No load-bearing supports on the left passage. No secondary exit. The whole eastern shaft will collapse within a decade — probably sooner.",
+          "I won't say anything. They wouldn't understand."
+        ],
+        "options": [
+          {
+            "id": "proceed",
+            "text": "[Press on regardless.]",
+            "next_state": "exit"
           }
         ]
       }
