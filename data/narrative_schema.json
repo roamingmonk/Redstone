@@ -14,7 +14,11 @@
     },
     "level_progression": {
       "comment": "XP requirements for 3-level design: L1=start, L2=end of Act I, L3=mid Act II. Redstone 2 sequel: extend to [0, 300, 1000, 2700, 6500] for levels 4-5",
-      "requirements": [0, 300, 1000]
+      "requirements": [
+        0,
+        300,
+        1000
+      ]
     }
   },
   "ui_flags": {
@@ -47,7 +51,7 @@
     },
     "party_building": {
       "title": "Assemble Your Party",
-      "description": "Build a capable adventuring party for dangerous missions", 
+      "description": "Build a capable adventuring party for dangerous missions",
       "type": "secondary"
     },
     "basement_rat_combat": {
@@ -56,11 +60,11 @@
       "type": "secondary"
     },
     "intelligence_gathering": {
-      "title": "Local Intelligence", 
+      "title": "Local Intelligence",
       "description": "Gather detailed information about the mysterious locations",
       "type": "secondary",
       "display_in_log": false
-   },
+    },
     "kobold_mine_investigation": {
       "title": "The Sealed Shaft",
       "description": "Investigate the old mining shaft at the Red Hollow Mine, where strange noises have been heard",
@@ -95,7 +99,6 @@
       "type": "secondary"
     }
   },
-
   "objective_descriptions": {
     "talk_to_npcs": "Speak with the patrons in the Broken Blade Tavern.",
     "meet_mayor": "Find and speak to Mayor Aldwin in the Broken Blade Tavern.",
@@ -106,7 +109,6 @@
     "swamp_detailed_intel": "Gather more information about the Swamp Church.",
     "ruins_detailed_intel": "Gather more information about the Hill Ruins.",
     "refugee_detailed_intel": "Gather more information about the Refugee Camp.",
-
     "explore_swamp_church": "Travel to and explore the Swamp Church.",
     "explore_hill_ruins": "Travel to and explore the Hill Ruins.",
     "explore_refugee_camp": "Travel to and explore the Refugee Camp.",
@@ -117,20 +119,16 @@
     "accept_challenge": "Agree to help Garrick clear his rat-infested basement.",
     "clear_basement": "Descend to Garrick's basement and defeat all the rats.",
     "report_success": "Return upstairs and report your success to Garrick.",
-
     "find_old_mine": "Locate the sealed mining shaft in the Red Hollow area.",
-
     "recover_ring": "Search for Meredith's lost ring.",
     "return_to_henrik": "Return to Henrik and share what you have found.",
     "ore_samples_found": "Examine the strange ore samples in the mine.",
-    "find_henrik_square": "Ask around Redstone Town for Old Henrik — he lives on the outskirts.",
+    "find_henrik_square": "Ask around Redstone Town for Old Henrik \u2014 he lives on the outskirts.",
     "talk_to_henrik": "Speak with Henrik about the tremors and what he knows.",
-
     "find_glowcap_mushrooms": "Gather Glowcap Mushrooms from the depths of the swamp.",
     "return_mushrooms_to_cassia": "Return the mushrooms to Cassia at the Swamp Church.",
     "read_marcus_journals": "Study Marcus's journals for information on the cult.",
     "confront_marcus": "Confront Marcus Nightshade at the Hill Ruins.",
-
     "clear_kobolds": "Clear the kobolds from Red Hollow Mine.",
     "retrieve_lantern": "Retrieve Henrik's lantern from somewhere inside the mine.",
     "find_ring": "Search the mine for Meredith's lost ring.",
@@ -141,13 +139,11 @@
     "casper_redemption_choice": "Decide whether Casper should return the ring himself.",
     "casper_redemption_complete": "See Casper's act of redemption through to the end.",
     "defend_refugee_camp": "Help Elder Marta and the refugees defend their camp.",
-
     "act_i_setup": "Speak to Mayor Aldwin and recruit your party before leaving the tavern.",
     "act_ii_investigation": "Investigate the Hill Ruins, Red Hollow Mine, and Swamp Church.",
     "act_iii_finale": "Enter the dungeon beneath the ruins and stop Taborex's ritual.",
     "epilogue_resolution": "Return to Redstone Town after defeating Taborex."
   },
-
   "npcs": {
     "meredith": {
       "system_id": "meredith",
@@ -191,7 +187,9 @@
         "returned_ring_to_meredith": "casper_returned_ring_to_meredith",
         "redemption_complete": "casper_redemption_complete",
         "recovery_visible": "casper_recovery_visible",
-        "epilogue_active": "casper_epilogue_active"
+        "epilogue_active": "casper_epilogue_active",
+        "aware_has_ring": "casper_aware_player_has_ring",
+        "meredith_post_victory_complete": "casper_meredith_post_victory_complete"
       }
     },
     "casper_and_meredith_epilogue": {
@@ -205,30 +203,33 @@
       "story_flags": {
         "first_meeting": "epilogue_couple_talked",
         "wedding_invited": "invited_to_casper_meredith_wedding",
-        "romance_acknowledged": "meredith_casper_romance"
+        "romance_acknowledged": "meredith_casper_romance",
+        "epilogue_talked": "epilogue_couple_talked"
       }
     },
     "garrick": {
-    "system_id": "garrick",
-    "full_name": "Garrick Ironbrew",
-    "dialogue_file": "broken_blade_garrick", 
-    "conversation_flag": "garrick_talked",
-    "location": "broken_blade",
-    "role": "bartender",
-    "species": "human",
-    "story_flags": {
-      "gave_ruins_location": "garrick_gave_ruins_info",
-      "offered_basement_quest": "garrick_offered_basement",
-      "mentioned_mayor": "garrick_mentioned_mayor",
-      "basement_quest_accepted": "accepted_basement_quest",
-      "basement_quest_completed": "completed_basement_combat",
-      "basement_victory_reported": "reported_basement_victory",
-      "garrick_paid_flag": "garrick_paid",
-      "post_payment_ack": "post_payment_acknowledged",
-      "mentioned_tremors": "garrick_mentioned_tremors",
-      "connected_tremors_to_ruins": "garrick_linked_tremors_ruins"
-    }
-  },
+      "system_id": "garrick",
+      "full_name": "Garrick Ironbrew",
+      "dialogue_file": "broken_blade_garrick",
+      "conversation_flag": "garrick_talked",
+      "location": "broken_blade",
+      "role": "bartender",
+      "species": "human",
+      "story_flags": {
+        "gave_ruins_location": "garrick_gave_ruins_info",
+        "offered_basement_quest": "garrick_offered_basement",
+        "mentioned_mayor": "garrick_mentioned_mayor",
+        "basement_quest_accepted": "accepted_basement_quest",
+        "basement_quest_completed": "completed_basement_combat",
+        "basement_victory_reported": "reported_basement_victory",
+        "garrick_paid_flag": "garrick_paid",
+        "post_payment_ack": "post_payment_acknowledged",
+        "mentioned_tremors": "garrick_mentioned_tremors",
+        "connected_tremors_to_ruins": "garrick_linked_tremors_ruins",
+        "post_victory_complete": "garrick_post_victory_complete",
+        "mentioned_henrik": "garrick_mentioned_henrik"
+      }
+    },
     "pete": {
       "system_id": "pete",
       "full_name": "Pete Stumblefoot",
@@ -247,7 +248,11 @@
         "attempted_recruitment": "pete_attempted_recruitment",
         "showed_comedy": "pete_showing_comedy",
         "comedy_complete": "pete_comedy_complete",
-        "gave_refugee_hints": "pete_gave_refugee_info"
+        "gave_refugee_hints": "pete_gave_refugee_info",
+        "post_victory_complete": "pete_post_victory_complete",
+        "comedy_sequence": "pete_comedy_complete",
+        "gave_refugee_info": "pete_gave_refugee_info",
+        "attempted_rec": "pete_attempted_recruitment"
       }
     },
     "mayor": {
@@ -275,7 +280,13 @@
         "main_quest_paid": "mayor_paid_main_quest",
         "expressed_tremor_urgency": "mayor_worried_tremors",
         "requested_ore_investigation": "mayor_wants_ore_info",
-        "ore_samples_examined": "mayor_examined_ore_samples"
+        "ore_samples_examined": "mayor_examined_ore_samples",
+        "post_victory_complete": "mayor_post_victory_complete",
+        "discussed_family_recovery": "mayor_discussed_family_recovery",
+        "discussed_ore": "mayor_discussed_ore",
+        "discussed_refugees": "mayor_discussed_refugees",
+        "discussed_town_future": "mayor_discussed_town_future",
+        "confirmed_family_taken": "confirmed_mayors_family_taken"
       }
     },
     "gareth": {
@@ -292,7 +303,7 @@
       }
     },
     "elara": {
-      "system_id": "elara", 
+      "system_id": "elara",
       "full_name": "Elara Moonwhisper",
       "dialogue_file": "broken_blade_elara",
       "conversation_flag": "elara_talked",
@@ -300,13 +311,13 @@
       "role": "recruitable_mage",
       "species": "human",
       "story_flags": {
-        "recruitment_completed": "elara_recruited", 
+        "recruitment_completed": "elara_recruited",
         "shared_magic_knowledge": "elara_shared_magic"
       }
     },
     "thorman": {
       "system_id": "thorman",
-      "full_name": "Thorman Stormhammer", 
+      "full_name": "Thorman Stormhammer",
       "dialogue_file": "broken_blade_thorman",
       "conversation_flag": "thorman_talked",
       "location": "broken_blade",
@@ -320,7 +331,7 @@
     "lyra": {
       "system_id": "lyra",
       "full_name": "Lyra Quickfingers",
-      "dialogue_file": "broken_blade_lyra", 
+      "dialogue_file": "broken_blade_lyra",
       "conversation_flag": "lyra_talked",
       "location": "broken_blade",
       "role": "recruitable_rogue",
@@ -334,7 +345,7 @@
       "system_id": "bernard",
       "full_name": "Bernard Mugsworth",
       "dialogue_file": "redstone_town_bernard",
-      "conversation_flag": "bernard_talked", 
+      "conversation_flag": "bernard_talked",
       "location": "redstone_town",
       "role": "merchant_general",
       "species": "human",
@@ -343,7 +354,10 @@
         "gave_ruins_location": "bernard_gave_ruins_info",
         "gave_refugee_location": "bernard_gave_refugee_info",
         "heard_rumors": "bernard_shared_rumors",
-        "gave_supplies_discount": "bernard_gave_discount"
+        "gave_supplies_discount": "bernard_gave_discount",
+        "post_victory_complete": "bernard_post_victory_complete",
+        "gave_swamp_info": "bernard_gave_swamp_info",
+        "shared_rumors": "bernard_shared_rumors"
       }
     },
     "jenna": {
@@ -356,7 +370,8 @@
       "role": "innkeeper",
       "story_flags": {
         "gave_discount": "jenna_gave_discount",
-        "gave_refugee_location": "jenna_gave_refugee_info"
+        "gave_refugee_location": "jenna_gave_refugee_info",
+        "post_victory_complete": "jenna_post_victory_complete"
       }
     },
     "henrik": {
@@ -406,7 +421,11 @@
         "henrik_mine_route": "henrik_discussed_mine_route",
         "act_three_warnings_given": "henrik_gave_act_three_warnings",
         "act_three_resolved": "henrik_act_three_complete",
-        "completed_victory_dialogue": "just_completed_victory_dialogue"
+        "completed_victory_dialogue": "just_completed_victory_dialogue",
+        "post_victory_complete": "henrik_post_victory_complete",
+        "gave_lantern": "henrik_gave_lantern",
+        "kept_lantern": "kept_henriks_lantern",
+        "gave_act3_warnings": "henrik_gave_act_three_warnings"
       }
     },
     "marta": {
@@ -422,7 +441,12 @@
         "talked_to_leader": "talked_to_refugee_leader",
         "camp_defended": "refugee_camp_defended",
         "agreed_to_defend": "agreed_to_defend_camp",
-        "combat_rewarded": "refugee_combat_rewarded"
+        "combat_rewarded": "refugee_combat_rewarded",
+        "post_victory_complete": "marta_post_victory_complete",
+        "discussed_defense": "marta_discussed_defense",
+        "discussed_future": "marta_discussed_future",
+        "discussed_return": "marta_discussed_return",
+        "ready_for_defense": "ready_for_night_defense"
       }
     },
     "refugee_camp_refugees": {
@@ -453,7 +477,16 @@
         "sacrificed": "marcus_sacrificed_himself",
         "betrayed": "betrayed_marcus_trust",
         "confrontation_complete": "marcus_confrontation_complete",
-        "portal_weakened": "portal_weakened"
+        "portal_weakened": "portal_weakened",
+        "fled": "marcus_fled",
+        "hostile": "marcus_hostile",
+        "saved_some_prisoners": "marcus_saved_some_prisoners",
+        "desperate": "marcus_desperate",
+        "enraged": "marcus_enraged",
+        "mercy_killed": "marcus_mercy_killed",
+        "mercy_promised": "mercy_promised",
+        "ally_in_boss_fight": "marcus_ally_in_boss_fight",
+        "defeated_in_combat": "marcus_defeated_in_combat"
       }
     },
     "cassia": {
@@ -487,7 +520,16 @@
         "wants_marcus_saved": "cassia_wants_marcus_saved",
         "gave_locket": "cassia_gave_locket",
         "marcus_redeemed": "marcus_redeemed",
-        "marcus_saved_family": "post_victory_marcus_saved_mayor_family"
+        "marcus_saved_family": "post_victory_marcus_saved_mayor_family",
+        "post_victory_complete": "cassia_post_victory_complete",
+        "first_met": "cassia_met",
+        "gave_locket_to_player": "has_cassia_locket",
+        "discussed_battle": "cassia_discussed_battle",
+        "discussed_emotions": "cassia_discussed_emotions",
+        "discussed_family_save": "cassia_discussed_family_save",
+        "discussed_grief": "cassia_discussed_grief",
+        "discussed_memories": "cassia_discussed_memories",
+        "discussed_peace": "cassia_discussed_peace"
       }
     },
     "taborex": {
@@ -507,8 +549,6 @@
       }
     }
   },
-  
-
   "locations": {
     "swamp_church": {
       "display_name": "The Church in the Swamp",
@@ -524,11 +564,9 @@
         "read_cult_documents": "read_cult_documents",
         "learned_sacrifice_plan": "learned_sacrifice_plan"
       }
-      
-      
     },
     "hill_ruins": {
-      "display_name": "Hill Ruins", 
+      "display_name": "Hill Ruins",
       "system_id": "hill_ruins",
       "discovery_flag": "learned_about_ruins",
       "completion_flag": "hill_ruins_complete",
@@ -549,7 +587,7 @@
     },
     "refugee_camp": {
       "display_name": "Refugee Camp",
-      "system_id": "refugee_camp", 
+      "system_id": "refugee_camp",
       "discovery_flag": "learned_about_refugees",
       "completion_flag": "refugee_camp_complete",
       "explored_flag": "explored_refugee_camp",
@@ -580,7 +618,8 @@
       "system_id": "dungeon_level_1",
       "location_type": "dungeon_combat",
       "story_flags": {
-        "altar_examined": "dungeon_level_1_altar_examined"
+        "altar_examined": "dungeon_level_1_altar_examined",
+        "altar_used": "dungeon_level_1_altar_used"
       }
     },
     "dungeon_level_2": {
@@ -664,7 +703,7 @@
     "general_store": {
       "display_name": "General Store",
       "system_id": "redstone_town",
-      "discovery_flag": "visited_general_store", 
+      "discovery_flag": "visited_general_store",
       "quest_id": null,
       "source_npc": "bernard",
       "location_type": "merchant"
@@ -678,11 +717,15 @@
       "location_type": "authority"
     }
   },
-
   "recruitment_system": {
     "max_party_size": 4,
     "max_recruitable": 3,
-    "recruitment_flags": ["gareth_recruited", "elara_recruited", "thorman_recruited", "lyra_recruited"],
+    "recruitment_flags": [
+      "gareth_recruited",
+      "elara_recruited",
+      "thorman_recruited",
+      "lyra_recruited"
+    ],
     "recruitment_logic": {
       "available_when": "mayor_talked && recruited_count < 3",
       "blocked_when": "recruited_count >= 3",
@@ -695,13 +738,13 @@
         "conversation_required": "gareth_talked"
       },
       "elara": {
-        "class": "Mage", 
+        "class": "Mage",
         "recruitment_flag": "elara_recruited",
         "conversation_required": "elara_talked"
       },
       "thorman": {
         "class": "Cleric",
-        "recruitment_flag": "thorman_recruited", 
+        "recruitment_flag": "thorman_recruited",
         "conversation_required": "thorman_talked"
       },
       "lyra": {
@@ -711,7 +754,6 @@
       }
     }
   },
-
   "quest_triggers": {
     "swamp_church_discovered": {
       "dialogue_flag": "learned_about_swamp_church",
@@ -733,7 +775,7 @@
     },
     "mayor_main_quest": {
       "dialogue_flag": "quest_active",
-      "quest_objective": "main_story.meet_mayor", 
+      "quest_objective": "main_story.meet_mayor",
       "event_type": "QUEST_ACTIVATED",
       "xp_reward": "quest_multipliers.main_story"
     },
@@ -744,13 +786,13 @@
       "xp_reward": "discovery_base"
     },
     "basement_combat_complete": {
-      "dialogue_flag": "completed_basement_combat", 
+      "dialogue_flag": "completed_basement_combat",
       "quest_objective": "basement_rat_combat.clear_basement",
       "event_type": "COMBAT_VICTORY",
       "xp_reward": "quest_multipliers.side_task"
     },
     "basement_quest_complete": {
-      "dialogue_flag": "reported_basement_victory", 
+      "dialogue_flag": "reported_basement_victory",
       "quest_objective": "basement_rat_combat.report_success",
       "event_type": "QUEST_COMPLETED",
       "xp_reward": "quest_multipliers.side_task"
@@ -800,123 +842,121 @@
         "event_type": "PARTY_MEMBER_RECRUITED",
         "xp_reward": "recruitment_bonus"
       }
-      },
-      "swamp_church_details_known": {
-        "dialogue_flag": "swamp_church_details_known",
-        "quest_objective": "intelligence_gathering.swamp_detailed_intel",
-        "event_type": "DETAILED_INFORMATION",
-        "xp_reward": "discovery_base"
-      },
-      "hill_ruins_details_known": {
-        "dialogue_flag": "hill_ruins_details_known",
-        "quest_objective": "intelligence_gathering.ruins_detailed_intel",
-        "event_type": "DETAILED_INFORMATION", 
-        "xp_reward": "discovery_base"
-      },
-      "refugee_camp_details_known": {
-        "dialogue_flag": "refugee_camp_details_known",
-        "quest_objective": "intelligence_gathering.refugee_detailed_intel",
-        "event_type": "DETAILED_INFORMATION",
-        "xp_reward": "discovery_base"
-      },
-      "henrik_ore_story": {
+    },
+    "swamp_church_details_known": {
+      "dialogue_flag": "swamp_church_details_known",
+      "quest_objective": "intelligence_gathering.swamp_detailed_intel",
+      "event_type": "DETAILED_INFORMATION",
+      "xp_reward": "discovery_base"
+    },
+    "hill_ruins_details_known": {
+      "dialogue_flag": "hill_ruins_details_known",
+      "quest_objective": "intelligence_gathering.ruins_detailed_intel",
+      "event_type": "DETAILED_INFORMATION",
+      "xp_reward": "discovery_base"
+    },
+    "refugee_camp_details_known": {
+      "dialogue_flag": "refugee_camp_details_known",
+      "quest_objective": "intelligence_gathering.refugee_detailed_intel",
+      "event_type": "DETAILED_INFORMATION",
+      "xp_reward": "discovery_base"
+    },
+    "henrik_ore_story": {
       "dialogue_flag": "henrik_told_ore_story",
       "quest_objective": "henrik_lantern_quest.clear_kobolds",
       "event_type": "INFORMATION_DISCOVERED",
       "xp_reward": "discovery_base"
-      },
-      "henrik_shaft_quest": {
-        "dialogue_flag": "henrik_gave_shaft_quest",
-        "quest_objective": "henrik_lantern_quest.clear_kobolds",
-        "event_type": "QUEST_ACCEPTED",
-        "xp_reward": "discovery_base"
-      },
-      "meredith_ring_quest": {
-        "dialogue_flag": "meredith_gave_ring_quest",
-        "quest_objective": "meredith_ring_quest.return_ring",
-        "event_type": "QUEST_ACCEPTED",
-        "xp_reward": "discovery_base"
-      },
-      "kobolds_defeated": {
-        "dialogue_flag": "cleared_kobold_mine",
-        "quest_objective": "henrik_lantern_quest.clear_kobolds",
-        "event_type": "COMBAT_VICTORY",
-        "xp_reward": "quest_multipliers.side_task"
-      },
-      "ore_samples_discovered": {
-        "dialogue_flag": "retrieved_ore_samples",
-        "quest_objective": "henrik_lantern_quest.retrieve_lantern",
-        "event_type": "DISCOVERY",
-        "xp_reward": "discovery_base"
-      },
-      "ring_returned": {
-        "dialogue_flag": "returned_meredith_ring",
-        "quest_objective": "meredith_ring_quest.return_ring",
-        "event_type": "QUEST_COMPLETED",
-        "xp_reward": "quest_multipliers.side_task"
-      },
-      "henrik_quest_complete": {
+    },
+    "henrik_shaft_quest": {
+      "dialogue_flag": "henrik_gave_shaft_quest",
+      "quest_objective": "henrik_lantern_quest.clear_kobolds",
+      "event_type": "QUEST_ACCEPTED",
+      "xp_reward": "discovery_base"
+    },
+    "meredith_ring_quest": {
+      "dialogue_flag": "meredith_gave_ring_quest",
+      "quest_objective": "meredith_ring_quest.return_ring",
+      "event_type": "QUEST_ACCEPTED",
+      "xp_reward": "discovery_base"
+    },
+    "kobolds_defeated": {
+      "dialogue_flag": "cleared_kobold_mine",
+      "quest_objective": "henrik_lantern_quest.clear_kobolds",
+      "event_type": "COMBAT_VICTORY",
+      "xp_reward": "quest_multipliers.side_task"
+    },
+    "ore_samples_discovered": {
+      "dialogue_flag": "retrieved_ore_samples",
+      "quest_objective": "henrik_lantern_quest.retrieve_lantern",
+      "event_type": "DISCOVERY",
+      "xp_reward": "discovery_base"
+    },
+    "ring_returned": {
+      "dialogue_flag": "returned_meredith_ring",
+      "quest_objective": "meredith_ring_quest.return_ring",
+      "event_type": "QUEST_COMPLETED",
+      "xp_reward": "quest_multipliers.side_task"
+    },
+    "henrik_quest_complete": {
       "dialogue_flag": "reported_shaft_to_henrik",
       "quest_objective": "henrik_lantern_quest.return_to_henrik",
       "event_type": "QUEST_COMPLETED",
       "xp_reward": "quest_multipliers.side_task"
-      },
-      "mayor_ore_samples_shown": {
-        "dialogue_flag": "mayor_examined_ore_samples",
-        "quest_objective": "henrik_lantern_quest.retrieve_lantern",
-        "event_type": "QUEST_BONUS_COMPLETE",
-        "xp_reward": "quest_multipliers.side_task"
-      },
-    
-      "garrick_directs_to_henrik": {
-        "dialogue_flag": "garrick_mentioned_henrik",
-        "quest_objective": "find_henrik.find_henrik_square",
-        "event_type": "QUEST_ACCEPTED",
-        "xp_reward": "discovery_base"
-      },
-      "henrik_first_contact": {
-        "dialogue_flag": "henrik_talked",
-        "quest_objective": "find_henrik.talk_to_henrik",
-        "event_type": "QUEST_COMPLETED",
-        "xp_reward": "quest_multipliers.side_task"
-      },
-      "casper_met": {
-        "dialogue_flag": "beggar_talked",
-        "quest_objective": "casper_redemption.meet_beggar",
-        "event_type": "QUEST_ACCEPTED",
-        "xp_reward": "discovery_base"
-      },
-      "casper_name_learned": {
-        "dialogue_flag": "beggar_name_revealed",
-        "quest_objective": "casper_redemption.learn_beggar_name",
-        "event_type": "DISCOVERY",
-        "xp_reward": "discovery_base"
-      },
-      "casper_backstory_learned": {
-        "dialogue_flag": "casper_backstory_known",
-        "quest_objective": "casper_redemption.learn_casper_backstory",
-        "event_type": "DISCOVERY",
-        "xp_reward": "discovery_base"
-      },
-      "casper_given_ring_choice": {
-        "dialogue_flag": "casper_given_ring",
-        "quest_objective": "casper_redemption.casper_redemption_choice",
-        "event_type": "QUEST_PROGRESS",
-        "xp_reward": "quest_multipliers.side_task"
-      },
-      "casper_redemption_complete": {
-        "dialogue_flag": "casper_redemption_complete",
-        "quest_objective": "casper_redemption.casper_redemption_complete",
-        "event_type": "QUEST_COMPLETED",
-        "xp_reward": 50
-      },
-      "meredith_ring_direct_return": {
-        "dialogue_flag": "returned_meredith_ring",
-        "quest_objective": "meredith_ring_quest.return_ring",
-        "event_type": "QUEST_COMPLETED",
-        "xp_reward": 30
-      },
-
+    },
+    "mayor_ore_samples_shown": {
+      "dialogue_flag": "mayor_examined_ore_samples",
+      "quest_objective": "henrik_lantern_quest.retrieve_lantern",
+      "event_type": "QUEST_BONUS_COMPLETE",
+      "xp_reward": "quest_multipliers.side_task"
+    },
+    "garrick_directs_to_henrik": {
+      "dialogue_flag": "garrick_mentioned_henrik",
+      "quest_objective": "find_henrik.find_henrik_square",
+      "event_type": "QUEST_ACCEPTED",
+      "xp_reward": "discovery_base"
+    },
+    "henrik_first_contact": {
+      "dialogue_flag": "henrik_talked",
+      "quest_objective": "find_henrik.talk_to_henrik",
+      "event_type": "QUEST_COMPLETED",
+      "xp_reward": "quest_multipliers.side_task"
+    },
+    "casper_met": {
+      "dialogue_flag": "beggar_talked",
+      "quest_objective": "casper_redemption.meet_beggar",
+      "event_type": "QUEST_ACCEPTED",
+      "xp_reward": "discovery_base"
+    },
+    "casper_name_learned": {
+      "dialogue_flag": "beggar_name_revealed",
+      "quest_objective": "casper_redemption.learn_beggar_name",
+      "event_type": "DISCOVERY",
+      "xp_reward": "discovery_base"
+    },
+    "casper_backstory_learned": {
+      "dialogue_flag": "casper_backstory_known",
+      "quest_objective": "casper_redemption.learn_casper_backstory",
+      "event_type": "DISCOVERY",
+      "xp_reward": "discovery_base"
+    },
+    "casper_given_ring_choice": {
+      "dialogue_flag": "casper_given_ring",
+      "quest_objective": "casper_redemption.casper_redemption_choice",
+      "event_type": "QUEST_PROGRESS",
+      "xp_reward": "quest_multipliers.side_task"
+    },
+    "casper_redemption_complete": {
+      "dialogue_flag": "casper_redemption_complete",
+      "quest_objective": "casper_redemption.casper_redemption_complete",
+      "event_type": "QUEST_COMPLETED",
+      "xp_reward": 50
+    },
+    "meredith_ring_direct_return": {
+      "dialogue_flag": "returned_meredith_ring",
+      "quest_objective": "meredith_ring_quest.return_ring",
+      "event_type": "QUEST_COMPLETED",
+      "xp_reward": 30
+    },
     "quest_completion_triggers": {
       "party_building_complete": {
         "quest_id": "party_building",
@@ -924,31 +964,25 @@
         "xp_reward": "quest_multipliers.secondary"
       },
       "main_story_complete": {
-        "quest_id": "main_story", 
+        "quest_id": "main_story",
         "event_type": "QUEST_COMPLETED",
         "xp_reward": "quest_multipliers.main_story"
       }
     }
   },
-
   "quest_mappings": {
     "main_story": {
       "type": "primary",
       "objectives": {
-        
-        
         "act_i_setup": [
           "quest_active && recruited_count >= 1"
         ],
-        
         "act_ii_investigation": [
           "(explored_swamp_church || swamp_church_complete) && (explored_hill_ruins || hill_ruins_complete) && (gathered_refugee_info || refugee_camp_complete)"
         ],
-        
         "act_iii_finale": [
           "portal_chamber_reached && final_boss_defeated"
         ],
-        
         "epilogue_resolution": [
           "returned_to_redstone_victorious"
         ]
@@ -958,94 +992,145 @@
       "type": "secondary",
       "activation_flag": "quest_active",
       "objectives": {
-        "recruit_warrior": ["gareth_recruited"],
-        "recruit_mage": ["elara_recruited"], 
-        "recruit_cleric": ["thorman_recruited"],
-        "recruit_rogue": ["lyra_recruited"]
+        "recruit_warrior": [
+          "gareth_recruited"
+        ],
+        "recruit_mage": [
+          "elara_recruited"
+        ],
+        "recruit_cleric": [
+          "thorman_recruited"
+        ],
+        "recruit_rogue": [
+          "lyra_recruited"
+        ]
       }
     },
     "basement_rat_combat": {
       "type": "secondary",
       "activation_flag": "garrick_offered_basement",
       "objectives": {
-        "accept_challenge": ["accepted_basement_quest"],
-        "clear_basement": ["completed_basement_combat"],
-        "report_success": ["reported_basement_victory"]
+        "accept_challenge": [
+          "accepted_basement_quest"
+        ],
+        "clear_basement": [
+          "completed_basement_combat"
+        ],
+        "report_success": [
+          "reported_basement_victory"
+        ]
       }
     },
     "intelligence_gathering": {
-      "type": "secondary", 
+      "type": "secondary",
       "activation_flag": "quest_active",
       "objectives": {
-        "swamp_detailed_intel": ["swamp_church_details_known"],
-        "ruins_detailed_intel": ["hill_ruins_details_known"],
-        "refugee_detailed_intel": ["refugee_camp_details_known"]
+        "swamp_detailed_intel": [
+          "swamp_church_details_known"
+        ],
+        "ruins_detailed_intel": [
+          "hill_ruins_details_known"
+        ],
+        "refugee_detailed_intel": [
+          "refugee_camp_details_known"
+        ]
       }
     },
     "find_henrik": {
       "type": "side_task",
       "activation_flag": "garrick_mentioned_henrik",
       "objectives": {
-        "find_henrik_square": ["garrick_mentioned_henrik"],
-        "talk_to_henrik": ["henrik_talked"]
+        "find_henrik_square": [
+          "garrick_mentioned_henrik"
+        ],
+        "talk_to_henrik": [
+          "henrik_talked"
+        ]
       }
     },
     "marcus_last_recipe": {
       "type": "secondary",
       "activation_flag": "cassia_gave_recipe_quest",
       "objectives": {
-        "find_glowcap_mushrooms": ["recipe_quest_active && !completed_marcus_recipe"],
-        "return_mushrooms_to_cassia": ["completed_marcus_recipe"]
+        "find_glowcap_mushrooms": [
+          "recipe_quest_active && !completed_marcus_recipe"
+        ],
+        "return_mushrooms_to_cassia": [
+          "completed_marcus_recipe"
+        ]
       }
     },
     "marcus_journals": {
       "type": "secondary",
       "activation_flag": "cassia_gave_journals",
       "objectives": {
-        "read_marcus_journals": ["cassia_gave_journals"],
-        "confront_marcus": ["confronted_marcus_ruins"],
-        "report_to_cassia": ["cassia_story_complete"]
+        "read_marcus_journals": [
+          "cassia_gave_journals"
+        ],
+        "confront_marcus": [
+          "confronted_marcus_ruins"
+        ],
+        "report_to_cassia": [
+          "cassia_story_complete"
+        ]
       }
     },
     "casper_redemption": {
       "type": "secondary",
       "activation_flag": "beggar_talked",
       "objectives": {
-        "meet_beggar": ["beggar_talked"],
-        "learn_beggar_name": ["beggar_name_revealed"],
-        "learn_casper_backstory": ["casper_backstory_known"],
-        "casper_redemption_choice": ["casper_given_ring || casper_declined_redemption"],
-        "casper_redemption_complete": ["casper_redemption_complete"]
+        "meet_beggar": [
+          "beggar_talked"
+        ],
+        "learn_beggar_name": [
+          "beggar_name_revealed"
+        ],
+        "learn_casper_backstory": [
+          "casper_backstory_known"
+        ],
+        "casper_redemption_choice": [
+          "casper_given_ring || casper_declined_redemption"
+        ],
+        "casper_redemption_complete": [
+          "casper_redemption_complete"
+        ]
       }
     },
     "henrik_lantern_quest": {
       "type": "secondary",
       "activation_flag": "henrik_gave_shaft_quest",
       "objectives": {
-        "clear_kobolds": ["cleared_kobold_mine"],
-        "return_to_henrik": ["reported_shaft_to_henrik"],
-        "retrieve_lantern": ["henrik_lantern_obtained"]
+        "clear_kobolds": [
+          "cleared_kobold_mine"
+        ],
+        "return_to_henrik": [
+          "reported_shaft_to_henrik"
+        ],
+        "retrieve_lantern": [
+          "henrik_lantern_obtained"
+        ]
       }
     },
     "meredith_ring_quest": {
       "type": "minor",
       "activation_flag": "meredith_gave_ring_quest",
       "objectives": {
-        "find_ring": ["ring_found_in_mine"],
-        "return_ring": ["returned_meredith_ring || casper_given_ring"]
+        "find_ring": [
+          "ring_found_in_mine"
+        ],
+        "return_ring": [
+          "returned_meredith_ring || casper_given_ring"
+        ]
       }
     }
   },
-
   "dialogue_state_mapping": {
-    "_comment0": "//// Determines dialoguge entry point based on states known. order is very important///", 
+    "_comment0": "//// Determines dialoguge entry point based on states known. order is very important///",
     "_comment1": "//// as the first true item is what is selected.  /////////////////////////////////////",
     "_comment2": "//// Only levels or key entry points, not all dialogue states should be used.  ////////",
     "_comment3": "////  Note:  ! = false,  && = AND ,  || = OR //////////////////////////////////////////",
-    
     "meredith": {
       "victory_ring_returned": "act_three_complete && returned_meredith_ring && !casper_given_ring && !meredith_post_victory_complete",
-      
       "first_meeting": "!meredith_talked",
       "meredith_after_casper_returned_ring": "casper_returned_ring_to_meredith && meredith_talked",
       "ring_returned_thanks": "returned_meredith_ring && !casper_returned_ring_to_meredith",
@@ -1068,7 +1153,6 @@
     "garrick": {
       "victory_with_basement": "act_three_complete && reported_basement_victory && !garrick_post_victory_complete",
       "victory_simple": "act_three_complete && garrick_talked && !garrick_post_victory_complete",
-      
       "first_meeting": "!garrick_talked",
       "casual_chat": "(garrick_talked && garrick_mentioned_mayor && !mayor_talked) || (garrick_talked && mayor_talked && reported_basement_victory && post_payment_acknowledged)",
       "knows_about_ruins": "garrick_talked && !mayor_talked && learned_about_ruins",
@@ -1081,22 +1165,19 @@
     },
     "pete": {
       "victory_simple": "act_three_complete && pete_talked && !pete_post_victory_complete",
-
       "first_meeting": "!pete_talked",
       "comedy_sequence": "pete_attempted_recruitment && !pete_comedy_complete",
       "post_info_comedy": "pete_comedy_complete && pete_gave_refugee_info",
       "post_comedy": "pete_comedy_complete && !pete_gave_refugee_info",
       "pre_recruitment_comedy": "pete_talked && !pete_attempted_recruitment"
     },
-   "mayor": {
+    "mayor": {
       "victory_family_saved_arrival": "act_three_complete && mayor_family_status == 'all_saved' && !mayor_post_victory_complete",
       "victory_family_partial_arrival": "act_three_complete && mayor_family_status == 'partial' && !mayor_post_victory_complete",
       "victory_family_lost_arrival": "act_three_complete && mayor_family_status == 'none' && !mayor_post_victory_complete",
-      
       "_comment_victory": "=== ACT II OFFICE STATES (redstone_town_mayor.json) - Most specific first ===",
       "post_victory_celebration": "act_three_complete && !mayor_post_victory_complete",
       "post_victory_idle": "act_three_complete && mayor_post_victory_complete",
-      
       "_comment_act2": "=== ACT II OFFICE STATES (redstone_town_mayor.json) - Most specific first ===",
       "swamp_complete_first_time": "act_two_started && swamp_church_complete && !mayor_acknowledged_swamp_complete",
       "ruins_complete_first_time": "act_two_started && hill_ruins_complete && !mayor_acknowledged_ruins_complete",
@@ -1105,7 +1186,6 @@
       "ready_for_act_three": "act_two_started && swamp_church_complete && hill_ruins_complete && refugee_camp_complete && mayor_acknowledged_swamp_complete && mayor_acknowledged_ruins_complete && mayor_acknowledged_refugee_complete",
       "multiple_progress": "act_two_started && (mayor_acknowledged_swamp_complete || mayor_acknowledged_ruins_complete || mayor_acknowledged_refugee_complete || mayor_acknowledged_mine_complete)",
       "no_progress": "act_two_started && mayor_talked",
-      
       "_comment_act1": "=== ACT I TAVERN STATES (patron_selection_mayor.json) ===",
       "first_meeting": "!quest_active && !act_two_started",
       "post_completion_reward": "!act_two_started && quest_active && main_quest_completed && !reported_main_quest",
@@ -1113,7 +1193,6 @@
       "post_completion_idle": "!act_two_started && quest_active && main_quest_completed && reported_main_quest",
       "quest_given": "!act_two_started && quest_active && !main_quest_completed && !(learned_about_swamp_church || learned_about_ruins || learned_about_refugees)",
       "progress_updates": "!act_two_started && mayor_talked && quest_active && (learned_about_swamp_church || learned_about_ruins || learned_about_refugees) && !main_quest_completed",
-
       "_comment_fallback": "=== FALLBACK - Office closed before Act II ===",
       "office_closed": "!act_two_started"
     },
@@ -1127,7 +1206,7 @@
     },
     "elara": {
       "first_meeting_post_mayor": "!elara_talked && mayor_talked",
-      "first_meeting": "!elara_talked", 
+      "first_meeting": "!elara_talked",
       "already_recruited": "elara_recruited",
       "recruitment_blocked": "elara_talked && mayor_talked && !elara_recruited && recruited_count >= 3",
       "recruitment_available": "elara_talked && mayor_talked && !elara_recruited && recruited_count < 3",
@@ -1151,21 +1230,18 @@
     },
     "bernard": {
       "victory_simple": "act_three_complete && bernard_talked && !bernard_post_victory_complete",
-
       "first_meeting": "!bernard_talked",
       "regular_customer": "bernard_talked",
       "bulk_discounts": "bernard_talked && recruited_count >= 2"
     },
     "jenna": {
       "victory_simple": "act_three_complete && jenna_talked && !jenna_post_victory_complete",
-
       "first_meeting": "!jenna_talked",
       "returning_discount_customer": "jenna_talked && jenna_gave_discount",
       "returning_customer": "jenna_talked && !jenna_gave_discount"
     },
     "henrik": {
       "victory_mine_arrival": "act_three_complete && reported_shaft_to_henrik && !henrik_post_victory_complete",
-      
       "act_three_mine_tunnel_assistance": "act_three_started && red_hollow_mine_secret_entrance_found && !henrik_helped_act_three",
       "post_act_three_victory": "act_three_complete && henrik_helped_act_three && !henrik_act_three_complete",
       "cavia_first_meeting": "!henrik_talked && is_cavia",
@@ -1177,39 +1253,35 @@
       "shaft_complete": "cleared_kobold_mine && !reported_shaft_to_henrik",
       "post_quest_idle": "reported_shaft_to_henrik",
       "ruins_deflection": "henrik_talked && (learned_about_ruins || garrick_gave_ruins_info)"
-     },
-     "refugee_camp_leader": {
-        "first_meeting": "!refugee_leader_talked"  ,
-        "post_combat_thanks": "refugee_camp_defended && !refugee_combat_rewarded",
-        "return_visits": "refugee_combat_rewarded",
-        "waiting_for_defense": "agreed_to_defend_camp && !refugee_camp_defended"
-        
-      },
-      "marta": {
-        "victory_arrival": "act_three_complete && refugee_leader_talked && !marta_post_victory_complete",
-        
-        "post_combat_thanks": "refugee_camp_defended && !refugee_combat_rewarded",
-        "return_visits": "refugee_combat_rewarded",
-        "waiting_for_defense": "agreed_to_defend_camp && !refugee_camp_defended",
-        "first_meeting": "!refugee_leader_talked"
-      },   
-      "refugee_camp_refugees": {
-        "first_meeting": "!refugee_group_talked",
-        "return_visits": "refugee_group_talked"
-      },
-      "taborex": {
+    },
+    "refugee_camp_leader": {
+      "first_meeting": "!refugee_leader_talked",
+      "post_combat_thanks": "refugee_camp_defended && !refugee_combat_rewarded",
+      "return_visits": "refugee_combat_rewarded",
+      "waiting_for_defense": "agreed_to_defend_camp && !refugee_camp_defended"
+    },
+    "marta": {
+      "victory_arrival": "act_three_complete && refugee_leader_talked && !marta_post_victory_complete",
+      "post_combat_thanks": "refugee_camp_defended && !refugee_combat_rewarded",
+      "return_visits": "refugee_combat_rewarded",
+      "waiting_for_defense": "agreed_to_defend_camp && !refugee_camp_defended",
+      "first_meeting": "!refugee_leader_talked"
+    },
+    "refugee_camp_refugees": {
+      "first_meeting": "!refugee_group_talked",
+      "return_visits": "refugee_group_talked"
+    },
+    "taborex": {
       "first_meeting": "!taborex_encountered && marcus_confrontation_complete",
       "exit": "taborex_encountered"
     },
     "cassia": {
       "victory_marcus_redeemed_arrival": "act_three_complete && marcus_redeemed && !cassia_post_victory_complete",
       "victory_marcus_died_arrival": "act_three_complete && marcus_died_in_battle && !cassia_post_victory_complete",
-
       "post_victory_marcus_redeemed": "act_three_complete && cassia_gave_journals && marcus_redeemed && !cassia_post_victory_complete",
       "post_victory_marcus_died": "act_three_complete && cassia_gave_journals && (marcus_died_in_battle || marcus_fled_battle) && !cassia_post_victory_complete",
       "post_victory_no_marcus_interaction": "act_three_complete && cassia_gave_journals && !marcus_redeemed && !marcus_died_in_battle && !marcus_fled_battle && !cassia_post_victory_complete",
       "post_victory_idle": "act_three_complete && cassia_post_victory_complete",
-
       "act_three_marcus_warning": "act_three_started && !cassia_discussed_marcus && cassia_told_marcus_story",
       "bernard_referral": "bernard_mentioned_cassia && !cassia_talked",
       "garrick_referral": "garrick_mentioned_cassia && !cassia_talked",
@@ -1227,42 +1299,82 @@
     "marcus": {
       "marcus_encounter": "!marcus_encountered_level_5",
       "redemption_offer": "marcus_encountered_level_5 && cassia_wants_marcus_saved && has_cassia_locket"
-      
     }
-    },
-    "act_progression": {
+  },
+  "act_progression": {
     "act_one": {
-      "name": "The Gathering Storm",  
+      "name": "The Gathering Storm",
       "start_flag": null,
       "completion_flag": "act_one_complete",
-      "key_milestones": ["mayor_talked", "quest_active", "recruited_count >= 1"]
+      "key_milestones": [
+        "mayor_talked",
+        "quest_active",
+        "recruited_count >= 1"
+      ]
     },
     "act_two": {
       "name": "The Investigation",
       "start_flag": "act_two_started",
       "completion_flag": "act_two_complete",
-      "key_milestones": ["swamp_church_complete", "hill_ruins_complete", "refugee_camp_complete"]
+      "key_milestones": [
+        "swamp_church_complete",
+        "hill_ruins_complete",
+        "refugee_camp_complete"
+      ],
+      "location_completed_flag": "act_two_location_completed"
     },
     "act_three": {
       "name": "The Final Confrontation",
       "start_flag": "act_three_started",
       "act_three_complete": "act_three_complete",
       "completion_flag": "main_quest_completed",
-      "key_milestones": ["entered_final_dungeon", "defeated_cult_leader", "rescued_mayors_family"],
+      "key_milestones": [
+        "entered_final_dungeon",
+        "defeated_cult_leader",
+        "rescued_mayors_family"
+      ],
       "dungeon_flags": {
-        
         "entrance_choice": "act_three_entrance_choice",
         "dungeon_unlocked": "hill_ruins_dungeon_unlocked",
         "cassia_blessing_obtained": "cassia_discussed_marcus",
-        "marcus_outcome": ["marcus_redeemed", "marcus_fled_battle", "marcus_died_in_battle"],
+        "marcus_outcome": [
+          "marcus_redeemed",
+          "marcus_fled_battle",
+          "marcus_died_in_battle"
+        ],
         "blight_whisper_debuff": {
-            "description": "Player gazed into the Shadow Blight and is mentally weakened. Should apply -1 to attack rolls or -2 to concentration checks in next combat. Cleared after one combat encounter.",
-            "type": "combat_debuff",
-            "default": false
-          }
-      }
+          "description": "Player gazed into the Shadow Blight and is mentally weakened. Should apply -1 to attack rolls or -2 to concentration checks in next combat. Cleared after one combat encounter.",
+          "type": "combat_debuff",
+          "default": false
+        }
+      },
+      "act_three_complete_flag": "act_three_complete"
+    }
+  },
+  "game_state_flags": {
+    "act_three_complete": {
+      "description": "Set when Act III final boss is defeated and the portal closed.",
+      "default": false
+    },
+    "act_two_location_completed": {
+      "description": "Set when the first Act II location (swamp/ruins/mine/refugees) is fully explored.",
+      "default": false
+    },
+    "can_recruit_more": {
+      "description": "Computed attribute (recruited_count < max_party_size). NOT a stored flag \u2014 excluded from condition parsing.",
+      "is_computed": true
+    },
+    "is_cavia": {
+      "description": "Character species attribute stored in character dict, not game_state. NOT a narrative flag.",
+      "is_character_attribute": true
+    },
+    "mayor_family_status": {
+      "description": "String attribute on game_state set during Act III (\"all_saved\"/\"partial\"/\"none\"). NOT a boolean flag.",
+      "is_character_attribute": true
+    },
+    "hill_ruins_complete": {
+      "description": "Set when hill_ruins location completion requirements met. Declared in locations section.",
+      "declared_in": "locations.hill_ruins.completion_flag"
     }
   }
-
 }
-

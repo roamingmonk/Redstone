@@ -20,6 +20,10 @@ _CONDITION_NON_FLAG_TOKENS = {
     # Character / game attributes used as expressions (not boolean flags)
     "recruited_count",
     "mayor_family_status",
+    # Species / character-dict attributes (not stored as game_state flags)
+    "is_cavia",
+    # Computed attributes derived at runtime (not stored flags)
+    "can_recruit_more",
 }
 
 _CONDITION_TOKEN_RE = re.compile(r"\b([a-z_][a-zA-Z0-9_]*)\b")
@@ -248,10 +252,17 @@ class NarrativeSchema:
                     declared.add(v)
 
         for act_data in self.schema.get("act_progression", {}).values():
-            for key in ("start_flag", "completion_flag"):
+            for key in ("start_flag", "completion_flag", "act_three_complete_flag",
+                        "location_completed_flag"):
                 f = act_data.get(key)
                 if f:
                     declared.add(f)
+
+        # game_state_flags: add non-computed entries
+        for flag_key, flag_data in self.schema.get("game_state_flags", {}).items():
+            if isinstance(flag_data, dict) and (flag_data.get("is_computed") or flag_data.get("is_character_attribute")):
+                continue  # skip computed/attribute entries
+            declared.add(flag_key)
 
         for trigger_data in self.schema.get("quest_triggers", {}).values():
             f = trigger_data.get("dialogue_flag")
