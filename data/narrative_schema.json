@@ -128,7 +128,7 @@
     "recover_ring": "Search for Meredith's lost ring.",
     "return_to_henrik": "Return to Henrik and share what you have found.",
     "ore_samples_found": "Examine the strange ore samples in the mine.",
-    "find_henrik_square": "Ask around Redstone Town for Old Henrik \u2014 he lives on the outskirts.",
+    "find_henrik_square": "Ask around Redstone Town for Old Henrik — he lives on the outskirts.",
     "talk_to_henrik": "Speak with Henrik about the tremors and what he knows.",
     "find_glowcap_mushrooms": "Gather Glowcap Mushrooms from the depths of the swamp.",
     "return_mushrooms_to_cassia": "Return the mushrooms to Cassia at the Swamp Church.",
@@ -216,6 +216,7 @@
       "system_id": "garrick",
       "full_name": "Garrick Ironbrew",
       "dialogue_file": "broken_blade_garrick",
+      "victory_dialogue_file": "redstone_town_garrick",
       "conversation_flag": "garrick_talked",
       "location": "broken_blade",
       "role": "bartender",
@@ -239,6 +240,7 @@
       "system_id": "pete",
       "full_name": "Pete Stumblefoot",
       "dialogue_file": "broken_blade_pete",
+      "victory_dialogue_file": "redstone_town_pete",
       "conversation_flag": "pete_talked",
       "location": "broken_blade",
       "role": "comedy_relief",
@@ -263,7 +265,7 @@
     "mayor": {
       "system_id": "mayor",
       "full_name": "Mayor Aldwin Goldenbottom",
-      "dialogue_file": "patron_selection_mayor",
+      "dialogue_file": "broken_blade_mayor",
       "act_two_dialogue_file": "redstone_town_mayor",
       "conversation_flag": "mayor_talked",
       "location": "broken_blade",
@@ -1236,8 +1238,7 @@
     "bernard": {
       "victory_simple": "act_three_complete && bernard_talked && !bernard_post_victory_complete",
       "first_meeting": "!bernard_talked",
-      "regular_customer": "bernard_talked",
-      "bulk_discounts": "bernard_talked && recruited_count >= 2"
+      "regular_customer": "bernard_talked"
     },
     "jenna": {
       "victory_simple": "act_three_complete && jenna_talked && !jenna_post_victory_complete",
@@ -1246,7 +1247,7 @@
       "returning_customer": "jenna_talked && !jenna_gave_discount"
     },
     "henrik": {
-      "victory_mine_arrival": "act_three_complete && reported_shaft_to_henrik && !henrik_post_victory_complete",
+      "victory_mine_route_arrival": "act_three_complete && reported_shaft_to_henrik && !henrik_post_victory_complete",
       "act_three_mine_tunnel_assistance": "act_three_started && red_hollow_mine_secret_entrance_found && !henrik_helped_act_three",
       "post_act_three_victory": "act_three_complete && henrik_helped_act_three && !henrik_act_three_complete",
       "cavia_first_meeting": "!henrik_talked && is_cavia",
@@ -1266,7 +1267,6 @@
       "waiting_for_defense": "agreed_to_defend_camp && !refugee_camp_defended"
     },
     "marta": {
-      "victory_arrival": "act_three_complete && refugee_leader_talked && !marta_post_victory_complete",
       "post_combat_thanks": "refugee_camp_defended && !refugee_combat_rewarded",
       "return_visits": "refugee_combat_rewarded",
       "waiting_for_defense": "agreed_to_defend_camp && !refugee_camp_defended",
@@ -1282,12 +1282,10 @@
     },
     "cassia": {
       "victory_marcus_redeemed_arrival": "act_three_complete && marcus_redeemed && !cassia_post_victory_complete",
-      "victory_marcus_died_arrival": "act_three_complete && marcus_died_in_battle && !cassia_post_victory_complete",
-      "post_victory_marcus_redeemed": "act_three_complete && cassia_gave_journals && marcus_redeemed && !cassia_post_victory_complete",
-      "post_victory_marcus_died": "act_three_complete && cassia_gave_journals && (marcus_died_in_battle || marcus_fled_battle) && !cassia_post_victory_complete",
-      "post_victory_no_marcus_interaction": "act_three_complete && cassia_gave_journals && !marcus_redeemed && !marcus_died_in_battle && !marcus_fled_battle && !cassia_post_victory_complete",
-      "post_victory_idle": "act_three_complete && cassia_post_victory_complete",
-      "act_three_marcus_warning": "act_three_started && !cassia_discussed_marcus && cassia_told_marcus_story",
+      "victory_marcus_died_arrival": "act_three_complete && (marcus_died_in_battle || marcus_fled_battle) && !cassia_post_victory_complete",
+      "returning_customer": "act_three_complete && cassia_post_victory_complete",
+      "final_blessing": "act_three_started && cassia_told_marcus_story && !cassia_discussed_marcus",
+      "after_journal_handoff": "cassia_gave_journals && !act_three_complete",
       "bernard_referral": "bernard_mentioned_cassia && !cassia_talked",
       "garrick_referral": "garrick_mentioned_cassia && !cassia_talked",
       "first_meeting": "!cassia_talked && !cassia_met",
@@ -1295,11 +1293,7 @@
       "quest_in_progress": "recipe_quest_active && !completed_marcus_recipe",
       "glowcap_offer_pending": "cassia_told_marcus_story && quest_active && !recipe_quest_active && !completed_marcus_recipe",
       "journal_transition": "completed_marcus_recipe && !cassia_gave_journals && act_two_location_completed",
-      "return_visit": "cassia_talked || cassia_met",
-      "has_journals": "cassia_gave_journals && !cassia_story_complete",
-      "marcus_fled_ending": "cassia_gave_journals && marcus_fled_battle && !cassia_story_complete",
-      "marcus_died_ending": "cassia_gave_journals && marcus_died_in_battle && !cassia_story_complete",
-      "post_resolution": "cassia_story_complete"
+      "return_visit": "cassia_talked || cassia_met"
     },
     "marcus": {
       "marcus_encounter": "!marcus_encountered_level_5",
@@ -1366,7 +1360,7 @@
       "default": false
     },
     "can_recruit_more": {
-      "description": "Computed attribute (recruited_count < max_party_size). NOT a stored flag \u2014 excluded from condition parsing.",
+      "description": "Computed attribute (recruited_count < max_party_size). NOT a stored flag — excluded from condition parsing.",
       "is_computed": true
     },
     "is_cavia": {
