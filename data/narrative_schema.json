@@ -128,7 +128,7 @@
     "recover_ring": "Search for Meredith's lost ring.",
     "return_to_henrik": "Return to Henrik and share what you have found.",
     "ore_samples_found": "Examine the strange ore samples in the mine.",
-    "find_henrik_square": "Ask around Redstone Town for Old Henrik — he lives on the outskirts.",
+    "find_henrik_square": "Ask around Redstone Town for Old Henrik \u2014 he lives on the outskirts.",
     "talk_to_henrik": "Speak with Henrik about the tremors and what he knows.",
     "find_glowcap_mushrooms": "Gather Glowcap Mushrooms from the depths of the swamp.",
     "return_mushrooms_to_cassia": "Return the mushrooms to Cassia at the Swamp Church.",
@@ -439,6 +439,7 @@
       "system_id": "marta",
       "full_name": "Marta",
       "dialogue_file": "refugee_camp_marta",
+      "victory_dialogue_file": "redstone_town_marta",
       "conversation_flag": "refugee_leader_talked",
       "location": "refugee_camp",
       "role": "camp_leader",
@@ -1267,6 +1268,7 @@
       "waiting_for_defense": "agreed_to_defend_camp && !refugee_camp_defended"
     },
     "marta": {
+      "victory_arrival": "act_three_complete && refugee_leader_talked && !marta_post_victory_complete",
       "post_combat_thanks": "refugee_camp_defended && !refugee_combat_rewarded",
       "return_visits": "refugee_combat_rewarded",
       "waiting_for_defense": "agreed_to_defend_camp && !refugee_camp_defended",
@@ -1360,7 +1362,7 @@
       "default": false
     },
     "can_recruit_more": {
-      "description": "Computed attribute (recruited_count < max_party_size). NOT a stored flag — excluded from condition parsing.",
+      "description": "Computed attribute (recruited_count < max_party_size). NOT a stored flag \u2014 excluded from condition parsing.",
       "is_computed": true
     },
     "is_cavia": {
