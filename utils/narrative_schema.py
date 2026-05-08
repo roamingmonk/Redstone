@@ -6,7 +6,23 @@ Professional game development pattern for maintaining consistency across systems
 
 import json
 import os
+import re
 from typing import Dict, List, Optional, Any
+
+# ---------------------------------------------------------------------------
+# Tokens that appear in condition strings but are NOT flags.
+# Add to this set if new non-flag identifiers appear in conditions.
+# ---------------------------------------------------------------------------
+_CONDITION_NON_FLAG_TOKENS = {
+    # Language keywords (condition strings use Python-style after substitution)
+    "and", "or", "not", "true", "false", "if", "else", "in",
+    "True", "False", "None",
+    # Character / game attributes used as expressions (not boolean flags)
+    "recruited_count",
+    "mayor_family_status",
+}
+
+_CONDITION_TOKEN_RE = re.compile(r"\b([a-z_][a-zA-Z0-9_]*)\b")
 
 class NarrativeSchema:
     """
@@ -199,6 +215,124 @@ class NarrativeSchema:
         
         return issues
     
+    # ------------------------------------------------------------------
+    # Startup flag validation
+    # ------------------------------------------------------------------
+    def _get_declared_flags(self) -> set:
+        """
+        Return the full set of flag names that are officially declared in the
+        schema: NPC conversation flags, story_flags values, interaction_flags
+        values, location flags, act_progression flags, quest_trigger flags,
+        and ui_flags keys.
+        """
+        declared = set()
+
+        for npc_data in self.schema.get("npcs", {}).values():
+            cf = npc_data.get("conversation_flag")
+            if cf:
+                declared.add(cf)
+            for v in npc_data.get("story_flags", {}).values():
+                if isinstance(v, str):
+                    declared.add(v)
+            for v in npc_data.get("interaction_flags", {}).values():
+                if isinstance(v, str):
+                    declared.add(v)
+
+        for loc_data in self.schema.get("locations", {}).values():
+            for key in ("discovery_flag", "completion_flag", "explored_flag"):
+                f = loc_data.get(key)
+                if f:
+                    declared.add(f)
+            for v in loc_data.get("story_flags", {}).values():
+                if isinstance(v, str):
+                    declared.add(v)
+
+        for act_data in self.schema.get("act_progression", {}).values():
+            for key in ("start_flag", "completion_flag"):
+                f = act_data.get(key)
+                if f:
+                    declared.add(f)
+
+        for trigger_data in self.schema.get("quest_triggers", {}).values():
+            f = trigger_data.get("dialogue_flag")
+            if f:
+                declared.add(f)
+
+        for key in self.schema.get("ui_flags", {}).keys():
+            declared.add(key)
+
+        return declared
+
+    @staticmethod
+    def _extract_condition_flags(condition: str) -> set:
+        """Extract flag-like identifier tokens from a condition string."""
+        if not isinstance(condition, str):
+            return set()
+        # Strip quoted string literals before tokenising
+        cleaned = re.sub(r"'[^']*'", "", condition)
+        cleaned = re.sub(r'"[^"]*"', "", cleaned)
+        tokens = _CONDITION_TOKEN_RE.findall(cleaned)
+        result = set()
+        for tok in tokens:
+            if tok in _CONDITION_NON_FLAG_TOKENS:
+                continue
+            try:
+                int(tok)
+                continue
+            except ValueError:
+                pass
+            result.add(tok)
+        return result
+
+    def validate_flags(self) -> int:
+        """
+        Validate all flag references in dialogue_state_mapping and
+        quest_triggers against the declared flag set.
+
+        Logs a WARNING for every undeclared flag found. Never raises.
+        Returns the total number of warnings emitted.
+        """
+        if not self.schema:
+            return 0
+
+        declared = self._get_declared_flags()
+        warnings = 0
+
+        # --- 1. dialogue_state_mapping conditions ---
+        dsm = self.schema.get("dialogue_state_mapping", {})
+        for npc_key, states in dsm.items():
+            if npc_key.startswith("_comment") or not isinstance(states, dict):
+                continue
+            for state_name, condition in states.items():
+                if state_name.startswith("_comment"):
+                    continue
+                for flag in sorted(self._extract_condition_flags(condition)):
+                    if flag not in declared:
+                        print(
+                            f"⚠️  Undeclared flag in dialogue_state_mapping: "
+                            f"'{flag}'  (NPC: {npc_key}, state: {state_name})"
+                        )
+                        warnings += 1
+
+        # --- 2. quest_triggers dialogue_flag values ---
+        for trigger_key, trigger_data in self.schema.get("quest_triggers", {}).items():
+            if not isinstance(trigger_data, dict):
+                continue
+            df = trigger_data.get("dialogue_flag")
+            if df and df not in declared:
+                print(
+                    f"⚠️  Undeclared flag in quest_triggers: "
+                    f"'{df}'  (trigger: {trigger_key})"
+                )
+                warnings += 1
+
+        if warnings:
+            print(f"⚠️  Flag validation: {warnings} undeclared flag reference(s) found.")
+        else:
+            print("✅ Flag validation passed — all condition flags are declared.")
+
+        return warnings
+
     def get_all_flags(self) -> List[str]:
         """Get complete list of all narrative flags for GameState initialization"""
         flags = []

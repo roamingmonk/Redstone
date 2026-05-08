@@ -436,13 +436,20 @@ class GameController:
             self.data_manager.item_manager.items_data is not None
         )
         
+        # Narrative flag validation (warnings only — never blocks startup)
+        try:
+            from utils.narrative_schema import narrative_schema
+            narrative_schema.validate_flags()
+        except Exception as e:
+            print(f"⚠️ Flag validation skipped: {e}")
+
         # Report validation results
         failed_validations = [k for k, v in validation_results.items() if not v]
         if failed_validations:
             print(f"⚠️ Failed validations: {failed_validations}")
         else:
             print("✅ All system validations passed")
-        
+
         return validation_results
     
     def handle_screen_advance(self, event_data):
