@@ -4,6 +4,8 @@ Broken Blade Tavern Interior Map
 20x20 tile layout for navigation-based tavern exploration
 """
 
+from utils.flags import FLAGS
+
 # === MAP CONSTANTS ===
 BROKEN_BLADE_WIDTH = 20
 BROKEN_BLADE_HEIGHT = 20
@@ -115,7 +117,7 @@ TAVERN_NPCS = {
         'interaction_tiles': [(1, 10), (1, 12), (2, 11)],  # Adjacent tiles
         'display_name': 'Gareth',
         'dialogue_id': 'broken_blade_gareth',
-        'conditions': {'not_recruited': 'gareth_recruited'}
+        'conditions': {'not_recruited': FLAGS.GARETH_RECRUITED}
     },
     'elara': {
         'sprite_type': 'mage',
@@ -123,7 +125,7 @@ TAVERN_NPCS = {
         'interaction_tiles': [(2, 13), (3, 14), (1,14)],  # Adjacent tiles
         'display_name': 'Elara',
         'dialogue_id': 'broken_blade_elara',
-        'conditions': {'not_recruited': 'elara_recruited'}
+        'conditions': {'not_recruited': FLAGS.ELARA_RECRUITED}
     },
     'thorman': {
         'sprite_type': 'dwarf',
@@ -131,7 +133,7 @@ TAVERN_NPCS = {
         'interaction_tiles': [(16, 13), (18, 13), (17, 12)],  
         'display_name': 'Thorman',
         'dialogue_id': 'broken_blade_thorman',
-        'conditions': {'not_recruited': 'thorman_recruited'}
+        'conditions': {'not_recruited': FLAGS.THORMAN_RECRUITED}
     },
     'lyra': {
         'sprite_type': 'rogue',
@@ -139,7 +141,7 @@ TAVERN_NPCS = {
         'interaction_tiles': [(3, 10), (5, 10), (4, 11)],  # Adjacent tiles
         'display_name': 'Lyra',
         'dialogue_id': 'broken_blade_lyra',
-        'conditions': {'not_recruited': 'lyra_recruited'}
+        'conditions': {'not_recruited': FLAGS.LYRA_RECRUITED}
     },
     'pete': {
         'sprite_type': 'commoner',

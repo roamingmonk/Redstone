@@ -7,6 +7,7 @@ import pygame
 from utils.world_npc_spawner import get_world_npc_spawner
 from screens.redstone_town import _town_navigation_instance
 from utils.narrative_schema import narrative_schema
+from utils.flags import FLAGS
 
 class DebugManager:
     """
@@ -486,21 +487,21 @@ class DebugManager:
         # Key game state flags
         #lines.append("=== KEY FLAGS ===")
         
-        #lines.append(f"Mayor Talked: {getattr(self.game_state, 'mayor_talked', False)}")
+        #lines.append(f"Mayor Talked: {getattr(self.game_state, FLAGS.MAYOR_TALKED, False)}")
         #lines.append(f"Party Size: {len(getattr(self.game_state, 'party_members', []))}")
         
         # Recruitment flags
-        #recruitment_flags = ['gareth_recruited', 'elara_recruited', 'thorman_recruited', 'lyra_recruited']
+        #recruitment_flags = [FLAGS.GARETH_RECRUITED, FLAGS.ELARA_RECRUITED, FLAGS.THORMAN_RECRUITED, FLAGS.LYRA_RECRUITED]
         #recruited = [flag for flag in recruitment_flags if getattr(self.game_state, flag, False)]
         #lines.append(f"Recruited: {', '.join(recruited) if recruited else 'none'}")
 
         lines.append("")  # Blank line
         lines.append("=== INVESTIGATION SITES ===")
         investigations = {
-            'Swamp Church': getattr(self.game_state, 'learned_about_swamp_church', False),
-            'Hill Ruins': getattr(self.game_state, 'learned_about_ruins', False),
-            'Refugee Camp': getattr(self.game_state, 'learned_about_refugees', False),
-            'Detail Refugee': getattr(self.game_state, 'refugee_detailed_intel', False)
+            'Swamp Church': getattr(self.game_state, FLAGS.LEARNED_ABOUT_SWAMP_CHURCH, False),
+            'Hill Ruins': getattr(self.game_state, FLAGS.LEARNED_ABOUT_RUINS, False),
+            'Refugee Camp': getattr(self.game_state, FLAGS.LEARNED_ABOUT_REFUGEES, False),
+            'Detail Refugee': getattr(self.game_state, FLAGS.REFUGEE_DETAILED_INTEL, False)
         }
         completed_investigations = [name for name, completed in investigations.items() if completed]
         lines.append(f"Discovered: {', '.join(completed_investigations) if completed_investigations else 'none'}")
@@ -558,27 +559,27 @@ class DebugManager:
         print("="*50)
 
         # Core conversation flags
-        print(f"mayor_talked: {getattr(self.game_state, 'mayor_talked', False)}")
-        print(f"meredith_talked: {getattr(self.game_state, 'meredith_talked', False)}")
-        print(f"garrick_talked: {getattr(self.game_state, 'garrick_talked', False)}")
-        print(f"quest_active: {getattr(self.game_state, 'quest_active', False)}")
+        print(f"mayor_talked: {getattr(self.game_state, FLAGS.MAYOR_TALKED, False)}")
+        print(f"meredith_talked: {getattr(self.game_state, FLAGS.MEREDITH_TALKED, False)}")
+        print(f"garrick_talked: {getattr(self.game_state, FLAGS.GARRICK_TALKED, False)}")
+        print(f"quest_active: {getattr(self.game_state, FLAGS.QUEST_ACTIVE, False)}")
 
-        print(f"learned_about_swamp_church: {getattr(self.game_state, 'learned_about_swamp_church', False)}")
-        print(f"learned_about_ruins: {getattr(self.game_state, 'learned_about_ruins', False)}")
-        print(f"learned_about_refugees: {getattr(self.game_state, 'learned_about_refugees', False)}")
+        print(f"learned_about_swamp_church: {getattr(self.game_state, FLAGS.LEARNED_ABOUT_SWAMP_CHURCH, False)}")
+        print(f"learned_about_ruins: {getattr(self.game_state, FLAGS.LEARNED_ABOUT_RUINS, False)}")
+        print(f"learned_about_refugees: {getattr(self.game_state, FLAGS.LEARNED_ABOUT_REFUGEES, False)}")
         
-        print(f"refugee_camp_details_known: {getattr(self.game_state, 'refugee_camp_details_known', False)}")
-        print(f"refugee_detailed_intel: {getattr(self.game_state, 'refugee_detailed_intel', False)}")
-        print(f"hill_ruins_details_known: {getattr(self.game_state, 'hill_ruins_details_known', False)}")
-        print(f"swamp_church_details_known: {getattr(self.game_state, 'swamp_church_details_known', False)}")
+        print(f"refugee_camp_details_known: {getattr(self.game_state, FLAGS.REFUGEE_CAMP_DETAILS_KNOWN, False)}")
+        print(f"refugee_detailed_intel: {getattr(self.game_state, FLAGS.REFUGEE_DETAILED_INTEL, False)}")
+        print(f"hill_ruins_details_known: {getattr(self.game_state, FLAGS.HILL_RUINS_DETAILS_KNOWN, False)}")
+        print(f"swamp_church_details_known: {getattr(self.game_state, FLAGS.SWAMP_CHURCH_DETAILS_KNOWN, False)}")
 
 
         # Recruitment flags (narrative schema style)
         print(f"\n🎯 RECRUITMENT FLAGS:")
-        print(f"gareth_recruited: {getattr(self.game_state, 'gareth_recruited', False)}")
-        print(f"elara_recruited: {getattr(self.game_state, 'elara_recruited', False)}")
-        print(f"thorman_recruited: {getattr(self.game_state, 'thorman_recruited', False)}")
-        print(f"lyra_recruited: {getattr(self.game_state, 'lyra_recruited', False)}")
+        print(f"gareth_recruited: {getattr(self.game_state, FLAGS.GARETH_RECRUITED, False)}")
+        print(f"elara_recruited: {getattr(self.game_state, FLAGS.ELARA_RECRUITED, False)}")
+        print(f"thorman_recruited: {getattr(self.game_state, FLAGS.THORMAN_RECRUITED, False)}")
+        print(f"lyra_recruited: {getattr(self.game_state, FLAGS.LYRA_RECRUITED, False)}")
         
         # Party members list (old system)
         print(f"\n👥 PARTY MEMBERS LIST:")
@@ -612,57 +613,57 @@ class DebugManager:
 
          #Refugee Camp
         print(f"\n Refugee Camp:")
-        print(f"Refugee Leader Talked: {getattr(self.game_state, 'refugee_leader_talked', False)}")
-        print(f"Agreed to Defend Camp: {getattr(self.game_state, 'agreed_to_defend_camp', False)}")
-        print(f"Refugee Camp Defended: {getattr(self.game_state, 'refugee_camp_defended', False)}")
-        print(f"Refugee Combat Rewarded: {getattr(self.game_state, 'refugee_combat_rewarded', False)}")
+        print(f"Refugee Leader Talked: {getattr(self.game_state, FLAGS.REFUGEE_LEADER_TALKED, False)}")
+        print(f"Agreed to Defend Camp: {getattr(self.game_state, FLAGS.AGREED_TO_DEFEND_CAMP, False)}")
+        print(f"Refugee Camp Defended: {getattr(self.game_state, FLAGS.REFUGEE_CAMP_DEFENDED, False)}")
+        print(f"Refugee Combat Rewarded: {getattr(self.game_state, FLAGS.REFUGEE_COMBAT_REWARDED, False)}")
 
     #explore and completion flags
         print(f"\n Main Story explore and completion flags:")
-        print(f"explore refugee camp: {getattr(self.game_state, 'explore_refugee_camp', False)}")
-        print(f"explore hill ruins: {getattr(self.game_state, 'explore_hill_ruins', False)}")
-        print(f"explore swamp church: {getattr(self.game_state, 'explore_swamp_church', False)}")
-        print(f"Refugee Combat Rewarded: {getattr(self.game_state, 'refugee_combat_rewarded', False)}")
+        print(f"explore refugee camp: {getattr(self.game_state, FLAGS.EXPLORE_REFUGEE_CAMP, False)}")
+        print(f"explore hill ruins: {getattr(self.game_state, FLAGS.EXPLORE_HILL_RUINS, False)}")
+        print(f"explore swamp church: {getattr(self.game_state, FLAGS.EXPLORE_SWAMP_CHURCH, False)}")
+        print(f"Refugee Combat Rewarded: {getattr(self.game_state, FLAGS.REFUGEE_COMBAT_REWARDED, False)}")
         print(f"\n ========================================")
-        print(f"red_hollow_mine_complete: {getattr(self.game_state, 'red_hollow_mine_complete', False)}")
-        print(f"swamp_church_complete: {getattr(self.game_state, 'swamp_church_complete', False)}")
-        print(f"refugee_camp_complete: {getattr(self.game_state, 'refugee_camp_complete', False)}")
-        print(f"hill_ruins_complete: {getattr(self.game_state, 'hill_ruins_complete', False)}")
+        print(f"red_hollow_mine_complete: {getattr(self.game_state, FLAGS.RED_HOLLOW_MINE_COMPLETE, False)}")
+        print(f"swamp_church_complete: {getattr(self.game_state, FLAGS.SWAMP_CHURCH_COMPLETE, False)}")
+        print(f"refugee_camp_complete: {getattr(self.game_state, FLAGS.REFUGEE_CAMP_COMPLETE, False)}")
+        print(f"hill_ruins_complete: {getattr(self.game_state, FLAGS.HILL_RUINS_COMPLETE, False)}")
         print(f"\n =========================================")
         print(f"\n ====Hill Ruin completion requirements====")
-        print(f"hill_ruins_carved_searched: {getattr(self.game_state, 'hill_ruins_carved_searched', False)}")
-        print(f"hill_ruins_portal_examined: {getattr(self.game_state, 'hill_ruins_portal_examined', False)}")
-        print(f"hill_ruins_mechanisms_searched: {getattr(self.game_state, 'hill_ruins_mechanisms_searched', False)}")
-        print(f"hill_ruins_locked_door_found: {getattr(self.game_state, 'hill_ruins_locked_door_found', False)}")
+        print(f"hill_ruins_carved_searched: {getattr(self.game_state, FLAGS.HILL_RUINS_CARVED_SEARCHED, False)}")
+        print(f"hill_ruins_portal_examined: {getattr(self.game_state, FLAGS.HILL_RUINS_PORTAL_EXAMINED, False)}")
+        print(f"hill_ruins_mechanisms_searched: {getattr(self.game_state, FLAGS.HILL_RUINS_MECHANISMS_SEARCHED, False)}")
+        print(f"hill_ruins_locked_door_found: {getattr(self.game_state, FLAGS.HILL_RUINS_LOCKED_DOOR_FOUND, False)}")
         print(f"\n =========================================")
         print(f"\n ====Refugee Camp completion requirements====")
-        print(f"refugee_camp_main_explored: {getattr(self.game_state, 'refugee_camp_main_explored', False)}")
-        print(f"refugee_camp_brigands_defeated: {getattr(self.game_state, 'refugee_camp_brigands_defeated', False)}")
+        print(f"refugee_camp_main_explored: {getattr(self.game_state, FLAGS.REFUGEE_CAMP_MAIN_EXPLORED, False)}")
+        print(f"refugee_camp_brigands_defeated: {getattr(self.game_state, FLAGS.REFUGEE_CAMP_BRIGANDS_DEFEATED, False)}")
 
         print(f"\n =========================================")
         print(f"\n ====Swamp Church Story flags====")
-        print(f"found_cult_documents: {getattr(self.game_state, 'found_cult_documents', False)}")
-        print(f"read_cult_documents: {getattr(self.game_state, 'read_cult_documents', False)}")
-        print(f"learned_sacrifice_plan: {getattr(self.game_state, 'learned_sacrifice_plan', False)}")
+        print(f"found_cult_documents: {getattr(self.game_state, FLAGS.FOUND_CULT_DOCUMENTS, False)}")
+        print(f"read_cult_documents: {getattr(self.game_state, FLAGS.READ_CULT_DOCUMENTS, False)}")
+        print(f"learned_sacrifice_plan: {getattr(self.game_state, FLAGS.LEARNED_SACRIFICE_PLAN, False)}")
 
         print(f"\n =========================================")
         print(f"\n ====Red Hollow Mine Completion Requirements====")
-        print(f"red_hollow_ore_found: {getattr(self.game_state, 'red_hollow_ore_found', False)}")
-        print(f"returned_ore_to_henrik: {getattr(self.game_state, 'returned_ore_to_henrik', False)}")
+        print(f"red_hollow_ore_found: {getattr(self.game_state, FLAGS.RED_HOLLOW_ORE_FOUND, False)}")
+        print(f"returned_ore_to_henrik: {getattr(self.game_state, FLAGS.RETURNED_ORE_TO_HENRIK, False)}")
         
         print(f"\n =========================================")
         print(f"\n ====Mayor Acknowledge====")
-        print(f"mayor_acknowledged_swamp_complete: {getattr(self.game_state, 'mayor_acknowledged_swamp_complete', False)}")
+        print(f"mayor_acknowledged_swamp_complete: {getattr(self.game_state, FLAGS.MAYOR_ACKNOWLEDGED_SWAMP_COMPLETE, False)}")
         print(f": {getattr(self.game_state, '', False)}")
         print(f": {getattr(self.game_state, '', False)}")
 
 
         print(f"\n ====MAIN QUEST ====")
-        print(f"main_quest_completed: {getattr(self.game_state, 'main_quest_completed', False)}")
-        print(f"mayor_acknowledged_ruins_complete: {getattr(self.game_state, 'mayor_acknowledged_ruins_complete', ' ')}")
-        print(f"mayor_acknowledged_swamp_complete: {getattr(self.game_state, 'mayor_acknowledged_swamp_complete', ' ')}")
-        print(f"mayor_acknowledged_refugee_complete: {getattr(self.game_state, 'mayor_acknowledged_refugee_complete', ' ')}")
-        print(f"mayor_acknowledged_mine_complete: {getattr(self.game_state, 'mayor_acknowledged_mine_complete', ' ')}")
+        print(f"main_quest_completed: {getattr(self.game_state, FLAGS.MAIN_QUEST_COMPLETED, False)}")
+        print(f"mayor_acknowledged_ruins_complete: {getattr(self.game_state, FLAGS.MAYOR_ACKNOWLEDGED_RUINS_COMPLETE, ' ')}")
+        print(f"mayor_acknowledged_swamp_complete: {getattr(self.game_state, FLAGS.MAYOR_ACKNOWLEDGED_SWAMP_COMPLETE, ' ')}")
+        print(f"mayor_acknowledged_refugee_complete: {getattr(self.game_state, FLAGS.MAYOR_ACKNOWLEDGED_REFUGEE_COMPLETE, ' ')}")
+        print(f"mayor_acknowledged_mine_complete: {getattr(self.game_state, FLAGS.MAYOR_ACKNOWLEDGED_MINE_COMPLETE, ' ')}")
         
     
     
@@ -733,13 +734,13 @@ class DebugManager:
         
         # Get current recruitment flags
         recruited = []
-        if getattr(self.game_state, 'gareth_recruited', False):
+        if getattr(self.game_state, FLAGS.GARETH_RECRUITED, False):
             recruited.append('gareth')
-        if getattr(self.game_state, 'elara_recruited', False):
+        if getattr(self.game_state, FLAGS.ELARA_RECRUITED, False):
             recruited.append('elara')
-        if getattr(self.game_state, 'thorman_recruited', False):
+        if getattr(self.game_state, FLAGS.THORMAN_RECRUITED, False):
             recruited.append('thorman')
-        if getattr(self.game_state, 'lyra_recruited', False):
+        if getattr(self.game_state, FLAGS.LYRA_RECRUITED, False):
             recruited.append('lyra')
         
         # Update party_members list to match flags

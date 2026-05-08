@@ -11,6 +11,7 @@ from game_logic.data_manager import get_data_manager
 from game_logic.character_engine import get_character_engine
 from utils.overlay_utils import OverlayState
 from utils.narrative_schema import narrative_schema
+from utils.flags import FLAGS
 
 class GameState:
     """
@@ -197,7 +198,7 @@ class GameState:
         print(f"🏗️ Initialized {len(valid_flags)} narrative schema flags")
         
         # Debug: Show some key flags that were initialized
-        key_flags = ['mayor_talked', 'quest_active', 'gareth_recruited']
+        key_flags = [FLAGS.MAYOR_TALKED, FLAGS.QUEST_ACTIVE, FLAGS.GARETH_RECRUITED]
         for flag in key_flags:
             if flag in valid_flags:
                 print(f"   ✓ {flag}: {getattr(self, flag)}")
