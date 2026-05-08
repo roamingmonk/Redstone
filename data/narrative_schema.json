@@ -97,6 +97,11 @@
       "title": "Aid the Refugees",
       "description": "Help Elder Marta defend the refugee camp from attack",
       "type": "secondary"
+    },
+    "meredith_ring_quest": {
+      "title": "The Lost Ring",
+      "description": "Meredith has lost her family's ring somewhere in the old mine. Find it and decide who should return it.",
+      "type": "secondary"
     }
   },
   "objective_descriptions": {
@@ -816,8 +821,8 @@
       "xp_reward": "discovery_base"
     },
     "marcus_confrontation_resolved": {
-      "dialogue_flag": "cassia_story_complete",
-      "quest_objective": "marcus_journals.report_to_cassia",
+      "dialogue_flag": "cassia_post_victory_complete",
+      "quest_objective": "marcus_journals.confront_marcus",
       "event_type": "QUEST_COMPLETED",
       "xp_reward": "quest_multipliers.investigation"
     },
@@ -863,13 +868,13 @@
     },
     "henrik_ore_story": {
       "dialogue_flag": "henrik_told_ore_story",
-      "quest_objective": "henrik_lantern_quest.clear_kobolds",
+      "quest_objective": "kobold_mine_investigation.clear_kobolds",
       "event_type": "INFORMATION_DISCOVERED",
       "xp_reward": "discovery_base"
     },
     "henrik_shaft_quest": {
       "dialogue_flag": "henrik_gave_shaft_quest",
-      "quest_objective": "henrik_lantern_quest.clear_kobolds",
+      "quest_objective": "kobold_mine_investigation.clear_kobolds",
       "event_type": "QUEST_ACCEPTED",
       "xp_reward": "discovery_base"
     },
@@ -881,13 +886,13 @@
     },
     "kobolds_defeated": {
       "dialogue_flag": "cleared_kobold_mine",
-      "quest_objective": "henrik_lantern_quest.clear_kobolds",
+      "quest_objective": "kobold_mine_investigation.clear_kobolds",
       "event_type": "COMBAT_VICTORY",
       "xp_reward": "quest_multipliers.side_task"
     },
     "ore_samples_discovered": {
       "dialogue_flag": "retrieved_ore_samples",
-      "quest_objective": "henrik_lantern_quest.retrieve_lantern",
+      "quest_objective": "kobold_mine_investigation.retrieve_lantern",
       "event_type": "DISCOVERY",
       "xp_reward": "discovery_base"
     },
@@ -899,13 +904,13 @@
     },
     "henrik_quest_complete": {
       "dialogue_flag": "reported_shaft_to_henrik",
-      "quest_objective": "henrik_lantern_quest.return_to_henrik",
+      "quest_objective": "kobold_mine_investigation.return_to_henrik",
       "event_type": "QUEST_COMPLETED",
       "xp_reward": "quest_multipliers.side_task"
     },
     "mayor_ore_samples_shown": {
       "dialogue_flag": "mayor_examined_ore_samples",
-      "quest_objective": "henrik_lantern_quest.retrieve_lantern",
+      "quest_objective": "kobold_mine_investigation.retrieve_lantern",
       "event_type": "QUEST_BONUS_COMPLETE",
       "xp_reward": "quest_multipliers.side_task"
     },
