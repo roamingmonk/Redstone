@@ -388,9 +388,11 @@ class BaseTabbedOverlay:
         
         # Build instruction text based on available tabs
         instructions = []
+        instructions.append("UP/DOWN: Select")
         if len(self.tabs) > 1:
-            instructions.append("N/P: Page up/down")
-            instructions.append("1-9: Select Tab")           
+            instructions.append("LEFT/RIGHT: Tab")
+            instructions.append("1-9: Tab")
+        instructions.append("P/N: Page")
         instructions.append("ESC: Close")
         
         instruction_text = " | ".join(instructions)

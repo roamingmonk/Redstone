@@ -458,8 +458,9 @@ def draw_dungeon_level_2_nav(surface, game_state, fonts, images, controller=None
         _dungeon_level_2_instance = DungeonLevel2Nav()
 
     if hasattr(pygame, 'key') and pygame.get_init():
-        keys = pygame.key.get_pressed()
-        dt = 16
-        _dungeon_level_2_instance.update(dt, keys, game_state, controller)
+        if not game_state.overlay_state.has_any_overlay_open():
+            keys = pygame.key.get_pressed()
+            dt = 16
+            _dungeon_level_2_instance.update(dt, keys, game_state, controller)
 
     return _dungeon_level_2_instance.render(surface, fonts, images, game_state)

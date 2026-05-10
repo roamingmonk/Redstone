@@ -436,9 +436,10 @@ def draw_refugee_camp_main_nav(surface, game_state, fonts, images, controller=No
     
     # Handle input
     if hasattr(pygame, 'key') and pygame.get_init():
-        keys = pygame.key.get_pressed()
-        dt = 16
-        _refugee_camp_main_nav_instance.update(dt, keys, game_state, controller)
+        if not game_state.overlay_state.has_any_overlay_open():
+            keys = pygame.key.get_pressed()
+            dt = 16
+            _refugee_camp_main_nav_instance.update(dt, keys, game_state, controller)
     
     # Render
     return _refugee_camp_main_nav_instance.render(surface, fonts, images, game_state)

@@ -338,9 +338,10 @@ def draw_swamp_church_exterior_nav(surface, game_state, fonts, images, controlle
     
     # Handle input
     if hasattr(pygame, 'key') and pygame.get_init():
-        keys = pygame.key.get_pressed()
-        dt = 16
-        _swamp_church_exterior_nav_instance.update(dt, keys, game_state, controller)
+        if not game_state.overlay_state.has_any_overlay_open():
+            keys = pygame.key.get_pressed()
+            dt = 16
+            _swamp_church_exterior_nav_instance.update(dt, keys, game_state, controller)
     
     # Render
     return _swamp_church_exterior_nav_instance.render(surface, fonts, images, game_state)

@@ -459,9 +459,10 @@ def draw_broken_blade_nav(surface, game_state, fonts, images, controller=None):
     
     # Handle input
     if hasattr(pygame, 'key') and pygame.get_init():
-        keys = pygame.key.get_pressed()
-        dt = 16  # Approximate milliseconds per frame (60 FPS)
-        _broken_blade_nav_instance.update(dt, keys, game_state, controller)
+        if not game_state.overlay_state.has_any_overlay_open():
+            keys = pygame.key.get_pressed()
+            dt = 16  # Approximate milliseconds per frame (60 FPS)
+            _broken_blade_nav_instance.update(dt, keys, game_state, controller)
     
     # Render
     return _broken_blade_nav_instance.render(surface, game_state, fonts, images, controller)

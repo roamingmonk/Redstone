@@ -284,8 +284,9 @@ def draw_red_hollow_mine_level_2b_nav(surface, game_state, fonts, images, contro
         _mine_level_2b_instance = RedHollowMineLevel2BNav()
 
     if hasattr(pygame, 'key') and pygame.get_init():
-        keys = pygame.key.get_pressed()
-        dt = 16
-        _mine_level_2b_instance.update(dt, keys, game_state, controller)
+        if not game_state.overlay_state.has_any_overlay_open():
+            keys = pygame.key.get_pressed()
+            dt = 16
+            _mine_level_2b_instance.update(dt, keys, game_state, controller)
 
     return _mine_level_2b_instance.render(surface, fonts, images, game_state)

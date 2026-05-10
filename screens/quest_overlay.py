@@ -25,6 +25,9 @@ class QuestOverlay(BaseTabbedOverlay):
         self.selected_quest = None
         self.quest_rects = []
 
+        # Keyboard cursor state
+        self.cursor_index = 0  # index within the current page's quest list
+
         #PAGINATION VARIABLES:
         self.main_page = 0
         self.side_page = 0
@@ -37,9 +40,10 @@ class QuestOverlay(BaseTabbedOverlay):
     def render_tab_content(self, surface: pygame.Surface, active_tab, game_state, fonts, images):
         """
         Render tab-specific content based on active tab
-        DESIGN PRINCIPLE: 
+        DESIGN PRINCIPLE:
         Each tab handles its own content rendering while framework manages tabs
         """
+        self._last_game_state = game_state  # cache for keyboard handler
         content_rect = self.get_content_area_rect()
         tab_id = active_tab.tab_id if hasattr(active_tab, 'tab_id') else active_tab
         
@@ -252,7 +256,13 @@ class QuestOverlay(BaseTabbedOverlay):
         start_idx = current_page * self.quests_per_page
         end_idx = min(start_idx + self.quests_per_page, total_quests)
         page_quests = quests[start_idx:end_idx]
-        
+
+        # Clamp cursor and auto-select if nothing is selected
+        if page_quests:
+            self.cursor_index = max(0, min(self.cursor_index, len(page_quests) - 1))
+            if self.selected_quest is None or not any(q['id'] == self.selected_quest for q in page_quests):
+                self.selected_quest = page_quests[self.cursor_index]['id']
+
         # Draw quest rows
         current_y = header_line_y + 10
         
@@ -320,7 +330,7 @@ class QuestOverlay(BaseTabbedOverlay):
             
             # Add navigation hint
             hint_y = page_y + 25
-            hint_text = "UP/DOWN or P/N to navigate pages"
+            hint_text = "UP/DOWN: select quest  P/N: page"
             hint_font = fonts.get('fantasy_tiny', fonts['small'])
             hint_surface = hint_font.render(hint_text, True, WHITE)
             hint_x = quest_list_x + (quest_list_width - hint_surface.get_width()) // 2
@@ -429,6 +439,102 @@ class QuestOverlay(BaseTabbedOverlay):
                     line_surface = tiny_font.render(line, True, status_color)
                     surface.blit(line_surface, (x + 40, current_y))
                     current_y += 20
+
+    def on_tab_changed(self, old_index: int, new_index: int):
+        """Reset cursor and selection when switching tabs."""
+        self.cursor_index = 0
+        self.selected_quest = None
+
+    def _get_current_page_and_quests(self, game_state):
+        """Return (page, quests_for_tab) for the active tab."""
+        active_tab = self.get_active_tab()
+        tab_id = active_tab.tab_id if hasattr(active_tab, 'tab_id') else ""
+        if tab_id == "main_quests":
+            quests = self._get_quests_by_type(game_state, ["primary"])
+            page = self.main_page
+        elif tab_id == "side_quests":
+            quests = self._get_quests_by_type(game_state, ["secondary", "side_task"])
+            page = self.side_page
+        else:
+            quests = self._get_completed_quests(game_state)
+            page = self.completed_page
+        return page, quests
+
+    def handle_keyboard_input(self, key: int, game_state=None) -> bool:
+        """UP/DOWN move cursor through quest list (auto-paging); LEFT/RIGHT switch tabs; ENTER selects."""
+        if game_state is None:
+            game_state = getattr(self, '_last_game_state', None)
+
+        # Tab switching
+        if key == pygame.K_LEFT:
+            new_index = (self.active_tab_index - 1) % len(self.tabs)
+            return self.switch_to_tab(new_index)
+        elif key == pygame.K_RIGHT:
+            new_index = (self.active_tab_index + 1) % len(self.tabs)
+            return self.switch_to_tab(new_index)
+        elif pygame.K_1 <= key <= pygame.K_9:
+            tab_index = key - pygame.K_1
+            return self.switch_to_tab(tab_index)
+
+        # Cursor navigation
+        if game_state is not None and key in (pygame.K_UP, pygame.K_DOWN):
+            page, quests = self._get_current_page_and_quests(game_state)
+            if not quests:
+                return False
+            total_pages = max(1, (len(quests) + self.quests_per_page - 1) // self.quests_per_page)
+            page = min(page, total_pages - 1)
+            page_start = page * self.quests_per_page
+            page_end = min(page_start + self.quests_per_page, len(quests))
+            page_count = page_end - page_start
+
+            if key == pygame.K_UP:
+                if self.cursor_index > 0:
+                    self.cursor_index -= 1
+                else:
+                    # Wrap to previous page
+                    if page > 0:
+                        self._set_page(page - 1)
+                        new_page_count = min(self.quests_per_page, len(quests) - (page - 1) * self.quests_per_page)
+                        self.cursor_index = new_page_count - 1
+                    else:
+                        return False
+            else:  # K_DOWN
+                if self.cursor_index < page_count - 1:
+                    self.cursor_index += 1
+                else:
+                    # Wrap to next page
+                    if page < total_pages - 1:
+                        self._set_page(page + 1)
+                        self.cursor_index = 0
+                    else:
+                        return False
+
+            # Sync selected_quest with cursor
+            page, quests = self._get_current_page_and_quests(game_state)
+            page_start = page * self.quests_per_page
+            idx = page_start + self.cursor_index
+            if 0 <= idx < len(quests):
+                self.selected_quest = quests[idx]['id']
+            return True
+
+        # Legacy page navigation (P/N keys still work)
+        elif key in (pygame.K_p, pygame.K_PAGEUP):
+            return self.previous_page()
+        elif key in (pygame.K_n, pygame.K_PAGEDOWN):
+            return self.next_page()
+
+        return False
+
+    def _set_page(self, page: int):
+        """Set the page counter for the active tab."""
+        active_tab = self.get_active_tab()
+        tab_id = active_tab.tab_id if hasattr(active_tab, 'tab_id') else ""
+        if tab_id == "main_quests":
+            self.main_page = page
+        elif tab_id == "side_quests":
+            self.side_page = page
+        else:
+            self.completed_page = page
 
     def previous_page(self):
         """Navigate to previous page (called by BaseTabbedOverlay)"""
