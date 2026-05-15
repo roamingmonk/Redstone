@@ -480,6 +480,45 @@ def draw_gold_screen(surface, game_state, fonts, images=None):
     
     return roll_button
 
+_TRINKET_EFFECT_LABELS = {
+    'ac_bonus':           lambda v: f"+{v} Armor Class",
+    'morale_bonus':       lambda v: f"+{v} Morale",
+    'charisma_bonus':     lambda v: f"+{v} Charisma",
+    'constitution_bonus': lambda v: f"+{v} Constitution",
+    'navigation_bonus':   lambda v: f"+{v} Navigation",
+    'gambling_luck':      lambda v: f"+{v} Gambling Luck",
+    'magic_detection':    lambda v: "Detects nearby magic",
+    'resistance_sleep':   lambda v: "Resistance to sleep effects",
+    'lore_value':         lambda v: "Has lore value",
+}
+
+def get_trinket_effect_text(trinket_id):
+    """
+    Read trinket effect description and stat bonuses directly from items.json.
+    Does NOT use BuffManager or any engine — safe during character creation.
+    Returns (description, stat_line) strings; either may be empty.
+    """
+    try:
+        items_path = os.path.join("data", "items.json")
+        with open(items_path, 'r') as f:
+            items_data = json.load(f)
+        for item in items_data.get('merchant_items', []):
+            if item.get('id') == trinket_id and item.get('subcategory') == 'trinket':
+                effects = item.get('special_effects', {})
+                description = effects.get('description', '')
+                stat_parts = []
+                for key, val in effects.items():
+                    if key == 'description':
+                        continue
+                    formatter = _TRINKET_EFFECT_LABELS.get(key)
+                    if formatter:
+                        stat_parts.append(formatter(val))
+                stat_line = "  |  ".join(stat_parts)
+                return description, stat_line
+    except Exception as e:
+        print(f"Warning: Could not load trinket effect text: {e}")
+    return '', ''
+
 def draw_trinket_screen(surface, game_state, fonts, images=None):
     """Draw the trinket rolling screen"""
     surface.fill(BLACK)
@@ -513,6 +552,16 @@ def draw_trinket_screen(surface, game_state, fonts, images=None):
 
         draw_centered_text(surface, trinket_display,
                         fonts.get('fantasy_medium', fonts['normal']), 200, CYAN)
+
+        # Show mechanical effect text from items.json
+        description, stat_line = get_trinket_effect_text(trinket_id)
+        if description:
+            draw_centered_text(surface, description,
+                            fonts.get('fantasy_small', fonts['normal']), 235, SOFT_YELLOW)
+        if stat_line:
+            draw_centered_text(surface, stat_line,
+                            fonts.get('fantasy_small', fonts['normal']), 262, CYAN)
+
         button_text = "Continue"
 
     else:
@@ -523,14 +572,14 @@ def draw_trinket_screen(surface, game_state, fonts, images=None):
     # Button - centered using constants
     button_width = BUTTON_SIZES['medium'][0]  # 160
     button_height = BUTTON_SIZES['medium'][1]  # 50
-    button_y = 280
+    button_y = 310                             # moved down from 280 to clear effect text
     button_x = (SCREEN_WIDTH - button_width) // 2  # 432 (perfectly centered!)
-    
-    roll_button = draw_button(surface, button_x, button_y, button_width, button_height, 
+
+    roll_button = draw_button(surface, button_x, button_y, button_width, button_height,
                              button_text, fonts.get('fantasy_small', fonts['normal']))
-    
+
     # Instructions
-    draw_centered_text(surface, "Every adventurer carries something special", 
+    draw_centered_text(surface, "Every adventurer carries something special",
                       fonts.get('tnr_small', fonts['small']), 435, WHITE)
     
     return roll_button

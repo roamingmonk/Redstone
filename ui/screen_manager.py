@@ -625,8 +625,8 @@ class ScreenManager:
         """Register trinket screen clickables when entering trinket screen"""
         if hasattr(self, 'input_handler') and self.input_handler:
             
-            # Button coordinates from draw_trinket_screen - centered at (432, 280, 160, 50)
-            button_rect = pygame.Rect(432, 280, 160, 50)
+            # Button coordinates from draw_trinket_screen - centered at (432, 310, 160, 50)
+            button_rect = pygame.Rect(432, 310, 160, 50)
  
             # Register the button - CharacterEngine will determine if it's ROLL or CONTINUE
             self.input_handler.register_clickable('trinket', button_rect, 'TRINKET_BUTTON_CLICK', {'action': 'TRINKET_BUTTON_CLICK'})
