@@ -14,12 +14,14 @@ DEFAULT_OBJECT_ICON = "object_examination.png"
 
 # Optional: Custom icons for specific object types (extensible)
 OBJECT_ICON_MAPPING = {
-    'altar': 'object_examination.png',      # Use default for now
-    'symbols': 'object_examination.png',    # Use default for now
-    'ritual': 'object_examination.png',     # Use default for now
-    'book': 'object_examination.png',       # Future: book_icon.png
-    'chest': 'object_examination.png',      # Future: chest_icon.png
-    'door': 'object_examination.png',       # Future: door_icon.png
+    'altar': 'altar_shrine.png',
+    'altar_corrupted': 'altar_corrupted.png',
+    'symbols': 'symbols.png',
+    'ritual': 'ritual.png',
+    'book': 'book.png',
+    'chest': 'chest.png',
+    'chest_angled': 'chest_angled.png',
+    'door': 'door.png',
 }
 
 def get_object_icon_filename(object_id):
