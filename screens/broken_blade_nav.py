@@ -302,6 +302,7 @@ class BrokenBladeNav:
                     if controller:
                         combat_encounter = interaction.get('combat_encounter')
                         game_state.previous_screen = 'broken_blade_nav'
+                        game_state.pre_combat_location = 'broken_blade_nav'
                         game_state.current_combat_encounter = combat_encounter
                         self.renderer.start_transition_cooldown()
                         controller.event_manager.emit("SCREEN_CHANGE", {

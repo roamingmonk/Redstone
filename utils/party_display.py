@@ -171,10 +171,14 @@ def load_portrait(character_name, is_player=False):
             
             if os.path.exists(active_path):
                 return pygame.image.load(active_path)
-            else:
-                # Active portrait missing - this should trigger recovery in game_state
-                print(f"Warning: Active player portrait missing at {active_path}")
-                return None
+
+            # Active portrait missing (e.g. never regenerated after a save load) -
+            # fall back to the generic placeholder rather than a flat color rect.
+            print(f"Warning: Active player portrait missing at {active_path}")
+            default_path = os.path.join(NPC_PORTRAITS_PATH, "default_portrait.jpg")
+            if os.path.exists(default_path):
+                return pygame.image.load(default_path)
+            return None
         else:
             # Load NPC portrait
             filename = f"{character_name}_portrait.jpg"

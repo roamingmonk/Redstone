@@ -165,6 +165,7 @@ class RefugeeCampMainNav:
                     print(f"⚔️ Starting combat with {combat_trigger['encounter_id']}")
                     if controller:
                         game_state.previous_screen = 'refugee_camp_main_nav'
+                        game_state.pre_combat_location = 'refugee_camp_main_nav'
                         game_state.current_combat_encounter = combat_trigger['encounter_id']
                         print(f"🎯 Starting combat encounter: {combat_trigger['encounter_id']}")
                         

@@ -268,26 +268,24 @@ class CombatLootOverlay(BaseTabbedOverlay):
         
         game_state.in_combat = False
         
-        if hasattr(game_state, 'pre_combat_location'):
-            return_location = game_state.pre_combat_location
-            game_state.pre_combat_location = None
-            
-            # Use screen_manager's event manager, not game_state's
-            if self.screen_manager and hasattr(self.screen_manager, 'event_manager'):
-                self.screen_manager.event_manager.emit("SCREEN_CHANGE", {
-                    'target_screen': return_location,
-                    'source_screen': 'combat_loot'
-                })
-                print(f"🎯 Loot overlay navigating to: {return_location}")
-            else:
-                print("❌ No event manager available for navigation!")
+        # pre_combat_location is the intended return screen, but some combat triggers
+        # forget to set it (a real, recurring bug class - see the handoff's conventions
+        # list). Fall back to previous_screen (set by every trigger site) before falling
+        # all the way back to a hardcoded screen, and treat a falsy/None value the same
+        # as a missing attribute so we never emit a SCREEN_CHANGE with no real target.
+        return_location = (getattr(game_state, 'pre_combat_location', None)
+                            or getattr(game_state, 'previous_screen', None)
+                            or 'broken_blade_nav')
+        game_state.pre_combat_location = None
+
+        if self.screen_manager and hasattr(self.screen_manager, 'event_manager'):
+            self.screen_manager.event_manager.emit("SCREEN_CHANGE", {
+                'target_screen': return_location,
+                'source_screen': 'combat_loot'
+            })
+            print(f"🎯 Loot overlay navigating to: {return_location}")
         else:
-            # Fallback if no pre_combat_location set
-            if self.screen_manager and hasattr(self.screen_manager, 'event_manager'):
-                self.screen_manager.event_manager.emit("SCREEN_CHANGE", {
-                    'target_screen': 'broken_blade_nav',
-                    'source_screen': 'combat_loot'
-                })
+            print("❌ No event manager available for navigation!")
 
 
 # ========================================

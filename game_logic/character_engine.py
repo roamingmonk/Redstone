@@ -628,7 +628,7 @@ class CharacterEngine:
 
     def activate_character_portrait(self, game_state):
         """Ensure correct portrait is active for current character"""
-        if hasattr(self, 'character') and 'selected_portrait_gender' in self.character:
+        if 'selected_portrait_gender' in game_state.character:
             # Character has portrait selection data - ensure active portrait matches
             self.ensure_active_portrait(game_state)
         else:

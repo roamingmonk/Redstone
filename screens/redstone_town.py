@@ -601,6 +601,7 @@ class RedstoneTownNavigation:
                         # Store combat data in game state (BaseLocation pattern)
                         print(f"🗡️ Starting combat: {combat_encounter}")
                         game_state.previous_screen = game_state.screen
+                        game_state.pre_combat_location = game_state.screen
                         game_state.current_combat_encounter = combat_encounter
                         if combat_context:
                             game_state.combat_context = combat_context
