@@ -150,7 +150,12 @@
             "type": "combat",
             "label": "Confront Cultists",
             "combat_encounter": "swamp_church_cultists",
-            "requires_flag": "investigated_ritual_site"
+            "requirements": {
+              "flags": {
+                "investigated_ritual_site": true,
+                "swamp_church_complete": false
+              }
+            }
           },
           "return_upstairs": {
             "type": "navigate",
