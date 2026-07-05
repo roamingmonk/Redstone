@@ -193,6 +193,13 @@ Rules:
   renders exactly as before.
 - Commit as: feat(assets): add procedural combat tilesets, floor tiles, and
   NPC world sprites
+
+After installing and verifying the assets, dispose of the pack folder:
+move generated_assets/_generator_script.py to scripts/generate_placeholder_assets.py
+(committed — it can regenerate all these placeholders), then delete the entire
+"Terror in Redstone an Old style RPG Game/" folder including the spare player
+sheets and previews. Include the script move in the same commit; confirm
+git status is clean afterward.
 ```
 
 **Objective:** drop in the asset pack generated alongside this handoff (see §5 manifest). All target paths and filenames match what the engine already loads — **only the floor-tile additions require a code touch, listed in Phase 3.**
@@ -202,7 +209,8 @@ Rules:
 3. Copy `generated_assets/npcs/*` → `assets/images/tiles/characters/npcs/` (create the dir)
 4. Do **not** install `generated_assets/player/*` — the game already has better 9-frame player sheets at `assets/images/sprites/player/`. The generated 4-frame sheets are spare alternates only.
 5. Boot the game; console should report wall/floor/sprite loads instead of fallback messages.
-6. Commit: `feat(assets): add procedural combat tilesets, floor tiles, NPC and player world sprites`.
+6. Dispose of the spent pack: preserve the generator as `scripts/generate_placeholder_assets.py`, then delete the `Terror in Redstone an Old style RPG Game/` folder (spare player sheets and previews are regenerable from the script).
+7. Commit: `feat(assets): add procedural combat tilesets, floor tiles, and NPC world sprites`.
 
 **Acceptance:** boot log shows the new assets loading; combat in the cellar still renders correctly (regression check).
 
@@ -460,3 +468,11 @@ Deviations: kept `assets/borders/gold_frame_64_ugly.png` per Dennis's direction 
 Blockers/Open: none.
 Commits: 199dcad chore(repo) hygiene pass; 46fa328 feat(macos) launcher + quicksave-indicator fix + doc updates. Both pushed to origin/main.
 Next: Phase 2 — install the generated asset pack per `generated_assets/INSTALL.md`.
+
+### Session 2 — Phase 2 — 2026-07-05
+Status: COMPLETE
+Done: Installed the generated asset pack — 7 combat wall tilesets (56 files, `assets/images/sprites/walls/`), 6 terrain floor tiles (`assets/images/tiles/terrain/`), 5 NPC world sprites (`assets/images/tiles/characters/npcs/`, dir created). Skipped `player/*` per instructions (existing 9-frame sheets are better). Verified via a headless loader script (`CombatSpriteManager.load_wall_tileset`/`load_floor_tiles`, `tile_graphics.load_character_sprites`, SDL dummy driver) that every new tileset/floor/NPC now loads (✅) instead of falling back (🎨); `dirt_floor_16x16` flipped from fallback to loaded since the file was previously missing. `cellar_*` wall set (8 files) untouched — confirmed by file count (64 = 56 new + 8 existing) and by the fact no code paths were touched, so `small_cellar` battlefield (tileset `cellar`, terrain `stone_floor`) renders identically. Booted full `main.py` twice (venv/bin/python) — clean init, no errors/tracebacks, 266 flags validated both times. Preserved the pack generator as `scripts/generate_placeholder_assets.py` and deleted the spent `Terror in Redstone an Old style RPG Game/` folder (spare player sheets + previews included).
+Deviations: none. Floor tiles for grass/cobblestone/swamp/ritual/dungeon still report fallback — expected, `combat_sprite_manager.load_floor_tiles()`'s `floor_map` only knows `stone_floor_16x16`/`dirt_floor_16x16`/`cobblestone_street_16x16` today; wiring the rest is Phase 3 (F-01) per the handoff.
+Blockers/Open: none.
+Commits: d4a1595 feat(assets) combat tilesets/floor tiles/NPC sprites + generator script move + pack folder removal.
+Next: Phase 3 — F-01 combat tileset wiring (extend `floor_map` and `_get_floor_type()`, fix `swamp_exterior.json`).
