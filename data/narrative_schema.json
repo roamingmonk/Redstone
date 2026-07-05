@@ -467,7 +467,8 @@
       "species": "human",
       "story_flags": {
         "learned_cult_info": "learned_cult_rituals_from_refugees",
-        "confirmed_family": "confirmed_mayors_family_taken"
+        "confirmed_family": "confirmed_mayors_family_taken",
+        "comforted": "comforted_refugees"
       }
     },
     "marcus": {
@@ -1275,8 +1276,8 @@
       "first_meeting": "!refugee_leader_talked"
     },
     "refugees": {
-      "first_meeting": "!refugee_group_talked",
-      "return_visits": "refugee_group_talked"
+      "first_meeting": "!(learned_cult_rituals_from_refugees && comforted_refugees && (confirmed_mayors_family_taken || !quest_active))",
+      "return_visits": "learned_cult_rituals_from_refugees && comforted_refugees && (confirmed_mayors_family_taken || !quest_active)"
     },
     "taborex": {
       "first_meeting": "!taborex_encountered && marcus_confrontation_complete",

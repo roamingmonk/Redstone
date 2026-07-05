@@ -19,21 +19,28 @@
           {
             "id": "ask_about_cult",
             "text": "Tell me more about these robed figures.",
-            "next_state": "cult_info"
+            "next_state": "cult_info",
+            "requirements": {
+              "flags": {"learned_cult_rituals_from_refugees": false}
+            }
           },
           {
             "id": "ask_about_mayor",
             "text": "Did you see the mayor's family?",
             "next_state": "mayor_family",
             "requirements": {
-              "flags": {"quest_active": true}
+              "flags": {"quest_active": true, "confirmed_mayors_family_taken": false}
             }
           },
           {
             "id": "comfort",
             "text": "Stay strong. We'll stop them.",
             "next_state": "exit",
+            "requirements": {
+              "flags": {"comforted_refugees": false}
+            },
             "effects": [
+              {"type": "set_flag", "flag": "comforted_refugees", "value": true},
               {"type": "set_flag", "flag": "refugee_group_talked", "value": true}
             ]
           }
