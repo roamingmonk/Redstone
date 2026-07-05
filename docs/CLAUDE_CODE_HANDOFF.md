@@ -500,5 +500,5 @@ Blockers/Open: `data/combat/battlefields/redstone_town_alley - gaunlet.json` is 
 battlefield file (different layout, never loaded — `combat_loader` looks up files by exact
 `{battlefield_id}.json` name) found while auditing battlefields. Left untouched, out of F-01
 scope; candidate for a future hygiene pass.
-Commits: <pending — see this session's commit>
+Commits: 07d3f03 feat(combat) floor-tile mapping extension + swamp_exterior battlefield fix (F-01).
 Next: Phase 4 — F-02 portrait rendering consistency.
