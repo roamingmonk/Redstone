@@ -33,6 +33,13 @@ SEARCHABLE_OBJECT_MARKERS = {
     'refugees': ('R', PURPLE_BLUE),
 }
 
+# Marker draw position, when the object's own object_pos overlaps other art
+# (e.g. camp_leader's object_pos sits right on top of the campfire tile in
+# the actual Tiled map) - defaults to object_pos if not listed here.
+SEARCHABLE_OBJECT_MARKER_POS_OVERRIDE = {
+    'camp_leader': [(11, 7)],
+}
+
 
 class RefugeeCampMainNav:
     """Navigation screen for refugee camp main area exploration"""
@@ -381,7 +388,11 @@ class RefugeeCampMainNav:
             if not search_data:
                 continue
 
-            for map_x, map_y in search_data.get('object_pos', []):
+            marker_positions = SEARCHABLE_OBJECT_MARKER_POS_OVERRIDE.get(
+                search_id, search_data.get('object_pos', [])
+            )
+
+            for map_x, map_y in marker_positions:
                 screen_x = (map_x * tile_size) - renderer.camera_x
                 screen_y = (map_y * tile_size) - renderer.camera_y
 
