@@ -1279,6 +1279,10 @@
       "first_meeting": "!(learned_cult_rituals_from_refugees && comforted_refugees && (confirmed_mayors_family_taken || !quest_active))",
       "return_visits": "learned_cult_rituals_from_refugees && comforted_refugees && (confirmed_mayors_family_taken || !quest_active)"
     },
+    "ritual": {
+      "investigate": "!swamp_church_complete",
+      "post_combat": "swamp_church_complete"
+    },
     "taborex": {
       "first_meeting": "!taborex_encountered && marcus_confrontation_complete",
       "exit": "taborex_encountered"

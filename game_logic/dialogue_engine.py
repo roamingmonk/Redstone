@@ -161,6 +161,21 @@ class DialogueEngine:
         print("❌ DE: No match found, defaulting to first_meeting")
         return 'first_meeting'
 
+    def _resolve_object_initial_state(self, npc_id: str, dialogue_tree: Dict[str, Any]) -> str:
+        """
+        Determine the starting state for an object examination (is_object: true).
+
+        Objects normally just use their JSON's fixed `initial_state` (e.g. "examine").
+        But if this object's npc_id has an entry in dialogue_state_mapping (the same
+        schema NPC dialogues use), reuse that flag-driven logic instead - this lets an
+        object's intro text change after something in the world changes (e.g. after a
+        related combat is won), without needing a whole new mechanism.
+        """
+        dialogue_states = narrative_schema.schema.get('dialogue_state_mapping', {})
+        if npc_id in dialogue_states:
+            return self.get_current_dialogue_state(npc_id)
+        return dialogue_tree.get('initial_state', 'examine')
+
     def _evaluate_condition(self, condition: str, context: dict) -> bool:
         """Evaluate dialogue state condition string"""
         try:
@@ -288,8 +303,9 @@ class DialogueEngine:
         
         # For object examinations, use initial_state from JSON instead of narrative schema
         if dialogue_tree.get('is_object', False):
-            # Objects use initial_state from their JSON (e.g., "examine")
-            current_state = forced_state or dialogue_tree.get('initial_state', 'examine')
+            # Objects use initial_state from their JSON (e.g., "examine"), unless this
+            # object has its own dialogue_state_mapping entry (see _resolve_object_initial_state)
+            current_state = forced_state or self._resolve_object_initial_state(npc_id, dialogue_tree)
         else:
             # NPCs use narrative schema state mapping
             current_state = forced_state or self.get_current_dialogue_state(npc_id)
@@ -366,7 +382,7 @@ class DialogueEngine:
                     current_state = stored_state  # Use the stored state for subsequent choices
                     print(f"🎯 DEBUG: Using stored state for object: {current_state}")
                 else:
-                    current_state = dialogue_tree.get('initial_state', 'examine')
+                    current_state = self._resolve_object_initial_state(npc_id, dialogue_tree)
                     print(f"🎯 DEBUG: Using initial state for object: {current_state}")
             else:
                 current_state = self.get_current_dialogue_state(npc_id)

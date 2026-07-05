@@ -26,6 +26,19 @@
             ]
           }
         ]
+      },
+      "post_combat": {
+        "introduction": [
+          "The ritual chamber is quiet now. The cultists who were here have been dealt with.",
+          "The burnt offerings and disturbing drawings remain, grim evidence of what took place, but there's no more movement in the dark - and no one left to prepare for."
+        ],
+        "options": [
+          {
+            "id": "leave",
+            "text": "[Leave the ritual site]",
+            "next_state": "exit"
+          }
+        ]
       }
     }
   }
