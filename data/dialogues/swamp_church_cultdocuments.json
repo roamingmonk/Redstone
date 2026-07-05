@@ -42,6 +42,11 @@
             "id": "understood",
             "text": "[Take the documents]",
             "next_state": "exit",
+            "requirements": {
+              "flags": {
+                "is_cavia": false
+              }
+            },
             "effects": [
               {"type": "set_flag", "flag": "read_cult_documents", "value": true},
               {"type": "set_flag", "flag": "learned_sacrifice_plan", "value": true},
@@ -67,6 +72,19 @@
           {
             "id": "close_it",
             "text": "[Close the documents. You've seen enough.]",
+            "next_state": "exit"
+          }
+        ]
+      },
+
+      "already_read": {
+        "introduction": [
+          "You've already gathered everything useful from the scattered papers. The cult documents are safely stored among your evidence, ready for the Mayor to see."
+        ],
+        "options": [
+          {
+            "id": "leave",
+            "text": "[Leave the documents where they lie.]",
             "next_state": "exit"
           }
         ]

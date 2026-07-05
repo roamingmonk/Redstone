@@ -1283,6 +1283,10 @@
       "investigate": "!swamp_church_complete",
       "post_combat": "swamp_church_complete"
     },
+    "cultdocuments": {
+      "examine": "!read_cult_documents",
+      "already_read": "read_cult_documents"
+    },
     "taborex": {
       "first_meeting": "!taborex_encountered && marcus_confrontation_complete",
       "exit": "taborex_encountered"

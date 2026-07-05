@@ -201,7 +201,8 @@ def render_dialogue_screen_directly(surface, npc_id, conversation_data, game_sta
         # Render options
         choice_font = fonts.get('fantasy_small', fonts['normal'])
         y_pos += 20  # Continue from where intro text ended
-        
+        option_max_width = 680  # matches intro text's max_text_width
+
         for i, choice in enumerate(options):
             style = choice.get('style', '')
             text_color = (YELLOW if style == 'quest'
@@ -210,10 +211,15 @@ def render_dialogue_screen_directly(surface, npc_id, conversation_data, game_sta
 
             prefix = f"{i+1}. "
             prefix_surface = choice_font.render(prefix, True, text_color)
-            text_surface = choice_font.render(choice.get('text', 'No text'), True, text_color)
+            prefix_width = prefix_surface.get_width()
             surface.blit(prefix_surface, (200, y_pos))
-            surface.blit(text_surface, (200 + prefix_surface.get_width(), y_pos))
-            y_pos += 30
+
+            # Wrap long option text so it doesn't overflow past the dialogue box
+            wrapped_lines = wrap_text(choice.get('text', 'No text'), choice_font,
+                                       option_max_width - prefix_width, text_color)
+            for line_index, line_surface in enumerate(wrapped_lines):
+                surface.blit(line_surface, (200 + prefix_width, y_pos + line_index * 25))
+            y_pos += max(len(wrapped_lines), 1) * 25 + 5
         
         # Keyboard hints
         hint_font = fonts.get('fantasy_small', fonts['normal'])
