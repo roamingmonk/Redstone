@@ -1832,6 +1832,13 @@ full approach before implementing.
 ---
 
 ## I-06 [PLAN FIRST] — Opportunity attacks when moving away from adjacent enemy
+<DEFERRED TO SEQUEL — see ADR-144 in docs/decisions.md. Movement resolves as an animated
+multi-tile path with asynchronous position updates (game_logic/combat_engine.py::
+execute_player_move() hands off to movement_system rather than updating position
+synchronously), so a correct implementation requires per-tile-transition interrupts, mid-animation
+attack resolution, and symmetric handling for enemy movement — real surgery inside the
+frozen-pre-release 4,449-line combat_engine.py, for a mechanic that would also need rebalancing
+across most existing encounters at the 3-level cap. Decision recorded 2026-07-05.>
 ```
 ⚠️  PLANNING SESSION REQUIRED BEFORE CODING  ⚠️
 

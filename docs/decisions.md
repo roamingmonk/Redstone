@@ -2398,9 +2398,12 @@ Negative: Requires manual tile index mapping file for each map (one-time setup),
 **Implementation** Added load_tileset_from_grid() to TileGraphicsManager for grid-based sprite sheet slicing with 2× upscaling. Added utils/tiled_loader.py with auto-detection for .tmj/.json formats. Each Tiled-based location creates tile mapping file defining index→name relationships and walkability. NavigationRenderer default stays 64×64 for compatibility; new maps explicitly set tile_size in config. 
 **Related** Extends ADR-081 (Singleton TileGraphicsManager), ADR-122 (Regional Map Graphics), ADR-123 (Tile Graphics Architecture). First implementation: Refugee Camp (refugee_camp_main_nav.py), still will need to apply additional maps (17+ maps)
 
-
-
-```
+# ADR-144: Defer Opportunity Attacks (I-06) to the Sequel
+- **Status:** Accepted
+- **Date:** Jul 5, 2026
+- **Context:** I-06 proposed opportunity attacks — a character moving away from an adjacent enemy takes one free melee attack — to discourage costless repositioning in combat.
+- **Decision:** Defer to the sequel; do not implement pre-release. Movement resolves as an animated multi-tile path where position updates asynchronously inside `movement_system` rather than synchronously in `combat_engine.py::execute_player_move()`, so a correct implementation means intercepting every tile transition in that path (not just start/end), triggering an out-of-turn attack mid-animation, handling the retreating character dying mid-move, and doing all of this symmetrically for enemy movement too. That's real surgery inside the 4,449-line `combat_engine.py`, which the project already treats as frozen pre-release ("works; do NOT refactor"). At the 3-level cap, encounters are short and already lean on free repositioning as a core tactic, so shipping this would also force a rebalance pass across most existing encounters, not just new code.
+- **Consequences:** Combat retains its current low-friction repositioning for this release. Revisit for the sequel, where a full combat-engine refactor is already on the table and there's room to design the interrupt mechanism properly rather than bolt it onto the existing animation pipeline.
 ## ADR-XXX: <Short title>
 - **Status:** Proposed | Accepted | Superseded | Rejected
 - **Date:** YYYY-MM-DD

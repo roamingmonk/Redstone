@@ -51,14 +51,12 @@ Authoritative companion documents inside the repo:
 
 ### Sprint scoreboard (`docs/Redstone_CopyPaste_Prompts_Apr30.md`)
 
-**Done (verified against git history):** A-01–A-04, B-01, B-02, C-01–C-04, D-01–D-08, E-01–E-03, F-01, F-02, F-03, H-01–H-08, I-01–I-04, J-01, J-02.
+**Done (verified against git history):** A-01–A-04, B-01, B-02, C-01–C-04, D-01–D-08, E-01–E-03, F-01, F-02, F-03, H-01–H-08, I-01–I-05, J-01, J-02. **Deferred to sequel:** I-06 (see ADR-144 in `docs/decisions.md`).
 
 **Remaining — this is the work queue:**
 
 | Task | What | Phase below |
 |---|---|---|
-| I-05 | Combat exit button should require an exit tile | Phase 5 |
-| I-06 | Opportunity attacks (design decision needed — optional) | Phase 5 |
 | G-01–G-04 | Entire audio system (manager, assets, music wiring, SFX) | Phase 7 |
 
 **Stale markers to fix in the sprint doc (Phase 0):** C-03 carries both a deviation note and a completed marker — confirm formatting; D-08 has a stray `]rewards` line above its status; Section E's `<Completed>` sits on the section header rather than E-01 itself.
@@ -619,3 +617,32 @@ Blockers/Open: none.
 Commits: 580337e fix(ui) unify dialogue portrait fallback position + drop dead garrick.png (F-02).
 Next: Phase 5 — I-05 (combat exit button should require an exit tile) and I-06 (opportunity
 attacks design decision).
+
+### Session 6 — Phase 5 (I-05, I-06) — 2026-07-05
+Status: COMPLETE
+Done: I-05 — every battlefield JSON already had `spawn_zones.exit_point` (step 4's "add exit tile
+to rat basement as proof of concept" was already satisfied project-wide), so this was a pure
+`ui/combat_system.py` change: renamed the always-visible "EXIT" button to "LEAVE COMBAT" and
+gated it on the active character's position matching the battlefield's `exit_point` exactly.
+Bonus fix found while there: also gated it on `encounter.escape_allowed`, present in every
+encounter JSON (13 of 26 set `false` — final boss, Marcus confrontation, refugee camp night
+defense, most dungeon ambushes) but never read anywhere in the codebase, so those "you can't
+leave" fights always silently allowed fleeing before this. Confirmed victory/defeat both use
+separate auto-triggered flows (loot overlay / death overlay) that never touch this button, so
+gating it can't soft-lock the player. Verified headlessly across three cases (on exit tile +
+escape allowed → shows; off exit tile → hidden; on exit tile + escape_allowed: false → still
+hidden) and via a full game boot.
+I-06 — gave a recommendation to defer to the sequel (movement resolves as an animated
+multi-tile path with asynchronous position updates in `movement_system`, so a correct
+implementation needs per-tile-transition interrupts, mid-animation attack resolution, and
+symmetric enemy-side handling — real surgery in the frozen-pre-release 4,449-line
+`combat_engine.py`, plus a rebalance pass across most existing encounters at the 3-level cap).
+Dennis confirmed defer. Recorded as ADR-144 in `docs/decisions.md`.
+Deviations: none. Both task markers updated in the sprint doc (I-05 `<COMPLETED — DEVIATION>`,
+I-06 `<DEFERRED TO SEQUEL>`).
+Blockers/Open: none.
+Commits: cd495e4 feat(combat) gate Leave Combat button on exit tile + escape_allowed (I-05).
+Next: Phase 6 — full playtest pass #1 (Human Fighter, title → epilogue → credits). Model
+recommendation per the handoff's own guidance: switch to Opus for this session — it's live
+debugging of unknown bugs across systems during actual play, which is exactly the
+unpredictable-work case Opus is reserved for.
