@@ -239,6 +239,7 @@ AREA_TRANSITIONS = {
             'interaction_type': 'blocked',
             'action': 'Visit Basement',
             'message': "The basement is quiet now - you already cleared out the rats.",
+            'message_tone': 'info',
             'requirements': {
                 'flags': {
                     'completed_basement_combat': True

@@ -6,7 +6,7 @@ Scrollable tile-based interior exploration
 
 import pygame
 from ui.base_location_navigation import NavigationRenderer
-from utils.constants import (BLACK, WHITE, YELLOW, CYAN, RED, GRAY,
+from utils.constants import (BLACK, WHITE, YELLOW, CYAN, RED, GREEN, GRAY,
                              DARK_BROWN, WARM_GOLD, FIRE_BRICK_RED,
                              PURPLE_BLUE, AUBURN_BROWN, VERY_DARK_GRAY,
                              LIGHTEST_GRAY, LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT,
@@ -427,9 +427,10 @@ class BrokenBladeNav:
         if interaction:
             if interaction.get('interaction_type') == 'blocked':
                 # Blocked interaction - show as temp message style
-                prompt_text = f"🚫 {interaction.get('message', 'Blocked')}"
+                prompt_text = interaction.get('message', 'Blocked')
                 prompt_font = fonts.get('fantasy_medium', fonts['normal'])
-                draw_centered_text(screen, prompt_text, prompt_font, LAYOUT_DIALOG_Y + 15, RED)
+                prompt_color = GREEN if interaction.get('message_tone') == 'info' else RED
+                draw_centered_text(screen, prompt_text, prompt_font, LAYOUT_DIALOG_Y + 15, prompt_color)
             else:
                 # Available interaction - use renderer's boxed prompt
                 action = interaction.get('action', 'Interact')
