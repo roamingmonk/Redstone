@@ -89,6 +89,10 @@ data/                       # JSON content: narrative_schema.json (master), dial
 scripts/                    # flag_audit.py + report, dialogue_tester.py, repo-structure generators
 assets/images/              # 45 MB: backgrounds, icons, portraits, tiles, sprites
 saves/                      # 5 slots + quicksave + autosave (currently tracked in git — fix in Phase 0)
+Redstone.app                # macOS launcher (Session 1, Phase 1) — opens Terminal, runs venv/bin/python main.py.
+                            #   Compiled AppleScript app (osacompile), not a shell-script executable — a raw shell
+                            #   script as CFBundleExecutable triggers a bogus Rosetta prompt on Apple Silicon even
+                            #   though nothing here is Intel code. Icon: assets/images/redstone_icon.png → .icns.
 ```
 
 ### Conventions and gotchas (learned from the project's own bug history)
@@ -419,6 +423,7 @@ Location: `generated_assets/` (delivered alongside this document). All PNG, with
 - Flag duplication between `narrative_flags`/`exploration_flags` ships as-is.
 - Villain is **Taborex** everywhere (renamed from Vexthar, J-01).
 - Trinkets are flavor + minor stat display (I-04 done).
+- **F-key bindings kept as-is** (F1–F4 debug, F5 quicksave, F7 save menu, F8 debug XP, F10 load) — not remapped off macOS's system-reserved F-key range. macOS intercepts F1–F3 and F7–F12 system-wide (brightness/Mission Control/media/volume) before the app ever sees the keydown; on a Mac, players must hold **Fn** with those keys, or enable "Use F1, F2, etc. keys as standard function keys" in System Settings → Keyboard. This is an OS-level behavior the app cannot override. Documented in `docs/project_context.md` §8; revisit only if playtesting shows this blocks non-technical players — the fallback is remapping saves/debug off the reserved range or exposing them via on-screen menu buttons (Save/Load already have overlay equivalents; debug keys do not).
 - Expansive ideas (world-map tile movement, more spells, formation tactics, per-NPC animated sprites) → Godot sequel wishlist, not this release.
 
 ## 7. Suggested Post-Release Backlog (carry into a new doc after v1.0.0)
@@ -448,4 +453,10 @@ Commits: <hashes + one-word description>
 Next: <confirm next phase, or flag if plan needs review>
 ```
 
-*(no entries yet)*
+### Session 1 — Phase 0/1 — 2026-07-05
+Status: PARTIAL
+Done: Phase 0 hygiene pass (gitignore fixes, untracked pycache/saves, requirements.txt, pruned 3 clean worktrees + deleted 6 merged claude/* branches, fixed stale sprint-doc markers, moved this handoff doc into docs/, committed pending Cavia/asset content); verified `python main.py` boots clean (266 flags, validation passed). Pushed to origin/main (199dcad). Built `Redstone.app` macOS launcher (compiled AppleScript app, custom icon from `assets/images/redstone_icon.png`) so the game can run outside VS Code / be pinned to the Dock. Found and fixed a real bug during Phase 1 F-key testing: F5 quicksave had no player-visible confirmation — added a "Game Saved"/"Save Failed" floating-text indicator in `game_logic/save_manager.py::_handle_quicksave_request`, reusing the existing `SHOW_FLOATING_TEXT` system.
+Deviations: kept `assets/borders/gold_frame_64_ugly.png` per Dennis's direction rather than dropping it (§7 backlog item 8). Decided to keep F1–F10 bindings as-is rather than remap off macOS's reserved F-key range — see §6 decision log and `docs/project_context.md` §8 for the Fn-key note to players.
+Blockers/Open: Phase 1's character-creation → tavern → combat → quicksave/load checklist has not been run yet (session got diverted into launcher setup and F-key/Rosetta troubleshooting first). Resume there next.
+Commits: 199dcad chore(repo) hygiene pass (pushed). Quicksave-indicator fix not yet committed.
+Next: run the Phase 1 manual verification checklist (character creation, Mayor quest, rat-basement combat, F5/F10 save-load round trip) before moving to Phase 2.

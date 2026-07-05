@@ -235,6 +235,11 @@ redstone/
 - Examine `game_logic/quest_engine.py`
 - Check `data/narrative_schema.json` for quest definitions
 
+### Running the Game
+
+- From a terminal: `venv/bin/python main.py` (or `.venv`, depending on which environment has pygame installed) from the repo root.
+- On macOS, `Redstone.app` in the repo root is a standalone launcher (double-click, or drag to the Dock) that opens Terminal and runs the same command — no VS Code required. It's a compiled AppleScript app using `assets/images/redstone_icon.png` as its icon. (Built as a compiled app rather than a raw shell-script executable deliberately — a shell-script `CFBundleExecutable` triggers a false "install Rosetta" prompt on Apple Silicon.)
+
 ### Common Development Tasks
 
 **Debug Game State:**
@@ -245,6 +250,8 @@ redstone/
 - F5 = Quick Save
 - F7 = Manual Save Menu
 - F10 = Load Game Menu
+
+**macOS note on F-keys:** macOS reserves F1–F3 and F7–F12 system-wide for brightness/Mission Control/media/volume and intercepts them before the game ever receives the keypress. Mac players need to hold **Fn** with these keys, or enable "Use F1, F2, etc. keys as standard function keys" in System Settings → Keyboard. This is an OS setting, not something the game can override. Decision recorded in the handoff doc's Known Issues log (`docs/CLAUDE_CODE_HANDOFF.md` §6) — F-keys are being kept as-is rather than remapped.
 
 **Hotkeys (In-Game):**
 - I = Inventory Overlay

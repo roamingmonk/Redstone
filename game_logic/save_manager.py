@@ -988,8 +988,20 @@ class SaveManager:
         
         # Perform quicksave (slot 99)
         success = self.save_game(save_slot=99)
-        
+
         if success:
             print("✅ F5 Quicksave completed successfully")
+            if self.event_manager:
+                self.event_manager.emit("SHOW_FLOATING_TEXT", {
+                    "text": "Game Saved",
+                    "color": (255, 215, 0),
+                    "duration": 1800,
+                })
         else:
             print("❌ F5 Quicksave failed")
+            if self.event_manager:
+                self.event_manager.emit("SHOW_FLOATING_TEXT", {
+                    "text": "Save Failed",
+                    "color": (220, 60, 60),
+                    "duration": 2200,
+                })
