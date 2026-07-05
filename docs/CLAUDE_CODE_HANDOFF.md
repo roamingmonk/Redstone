@@ -564,11 +564,23 @@ phase. Seven fixes, in the order found:
    `confront_cultists`'s `requirements` alongside its existing `investigated_ritual_site` gate.
    Verified against the real `ActionHubLocation.render()` path: button present before combat,
    gone after `swamp_church_complete` flips true, other three crypt buttons unaffected.
-Deviations: none of this was planned work; all nine were organic discoveries from Dennis playing
+10. `29ab04d` — with fix #9's button gone, re-examining "Investigate Ritual Site" still showed the
+    original pre-fight text ("fresh footprints... they're still here... [Prepare for
+    confrontation]"), which no longer made sense. Object examinations (`is_object: true`) always
+    used the JSON's fixed `initial_state` with no way to branch on flags, unlike NPC dialogues
+    (`dialogue_state_mapping`). Extended `game_logic/dialogue_engine.py` (new
+    `_resolve_object_initial_state()` helper, used at both call sites that previously hardcoded
+    `initial_state` for objects) so an object consults `dialogue_state_mapping` when its npc_id
+    has an entry there, falling back to `initial_state` exactly as before otherwise — verified an
+    unrelated object with no schema entry (the altar) is unaffected. Added a `"ritual"` mapping
+    entry (`investigate` / `post_combat`, gated on `swamp_church_complete`) and a new
+    `post_combat` state in `swamp_church_ritual.json` with updated flavor text and a plain "leave"
+    option.
+Deviations: none of this was planned work; all ten were organic discoveries from Dennis playing
 the game live after Phase 3. Phase 4 (F-02) is unaffected and still next.
 Blockers/Open: none.
 Commits: 73d9668, 25cfe43, b845bb1, 746d8e2, ead5182, 76c679f, c6ecd19, a7caa3d, 9799b8c, 1ecf9d3,
-dc4752e, d7f75fb.
+dc4752e, d7f75fb, 29ab04d.
 Next: Phase 4 — F-02 portrait rendering consistency (note: general portrait-fallback plumbing is
 now in place per fix #4 above — F-02's remaining scope is cross-screen sizing/border consistency
 and the garrick_portrait.jpg vs .png duplicate).
