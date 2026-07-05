@@ -616,6 +616,6 @@ portrait renders correctly) and via a full game boot. Marked F-02 `<COMPLETED �
 the sprint doc and moved it to Done in the handoff's scoreboard.
 Deviations: see F-02's completion note in the sprint doc — summarized above.
 Blockers/Open: none.
-Commits: (this session's commit — see below).
+Commits: 580337e fix(ui) unify dialogue portrait fallback position + drop dead garrick.png (F-02).
 Next: Phase 5 — I-05 (combat exit button should require an exit tile) and I-06 (opportunity
 attacks design decision).
