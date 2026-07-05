@@ -179,7 +179,16 @@ def load_portrait(character_name, is_player=False):
             # Load NPC portrait
             filename = f"{character_name}_portrait.jpg"
             filepath = os.path.join(NPC_PORTRAITS_PATH, filename)
-            return pygame.image.load(filepath)
+            if os.path.exists(filepath):
+                return pygame.image.load(filepath)
+
+            # No portrait for this NPC yet - fall back to the generic placeholder
+            default_path = os.path.join(NPC_PORTRAITS_PATH, "default_portrait.jpg")
+            if os.path.exists(default_path):
+                return pygame.image.load(default_path)
+
+            print(f"Warning: No portrait for '{character_name}' and no default_portrait.jpg found")
+            return None
     except Exception as e:
         print(f"Error loading portrait: {e}")
         return None

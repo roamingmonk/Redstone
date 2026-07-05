@@ -6,7 +6,7 @@ Scrollable tile-based exploration screen
 import pygame
 import random
 from ui.base_location_navigation import NavigationRenderer
-from utils.constants import BLACK, WHITE, YELLOW, LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT, TILESETS_PATH
+from utils.constants import BLACK, WHITE, YELLOW, PURPLE, PURPLE_BLUE, LAYOUT_DIALOG_Y, LAYOUT_DIALOG_HEIGHT, TILESETS_PATH
 from utils.graphics import draw_centered_text, draw_border
 from utils.party_display import draw_party_status_panel
 from utils.tile_graphics import get_tile_graphics_manager
@@ -20,10 +20,18 @@ from data.maps.refugee_camp_main_map import (
     #get_tile_color,
     get_transition_info,
     get_searchable_at_position,
-    get_combat_trigger
+    get_combat_trigger,
+    SEARCHABLE_OBJECTS
 )
 from utils.tiled_loader import (load_tiled_map_with_names,get_tile_type,is_walkable_tile)
 from data.maps.refugee_camp_tiles import (REFUGEE_CAMP_TILE_MAP, REFUGEE_CAMP_WALKABLE)
+
+# Searchable objects that sit on plain ground tiles with no distinguishing
+# art in the Tiled tileset - give them a simple marker so they're visible.
+SEARCHABLE_OBJECT_MARKERS = {
+    'camp_leader': ('M', PURPLE),
+    'refugees': ('R', PURPLE_BLUE),
+}
 
 
 class RefugeeCampMainNav:
@@ -362,6 +370,35 @@ class RefugeeCampMainNav:
         
         print(f"🔍 Search loot overlay opened: {len(items_list)} item types found")
 
+    def _draw_searchable_object_markers(self, surface):
+        """Draw a simple colored marker over searchable objects that have no
+        distinguishing tile art (e.g. camp leader, refugees on plain ground)."""
+        renderer = self.renderer
+        tile_size = renderer.tile_size
+
+        for search_id, (letter, color) in SEARCHABLE_OBJECT_MARKERS.items():
+            search_data = SEARCHABLE_OBJECTS.get(search_id)
+            if not search_data:
+                continue
+
+            for map_x, map_y in search_data.get('object_pos', []):
+                screen_x = (map_x * tile_size) - renderer.camera_x
+                screen_y = (map_y * tile_size) - renderer.camera_y
+
+                if not (-tile_size <= screen_x <= renderer.display_width and
+                        -tile_size <= screen_y <= renderer.display_height):
+                    continue
+
+                center = (screen_x + tile_size // 2, screen_y + tile_size // 2)
+                radius = 14
+                pygame.draw.circle(surface, color, center, radius)
+                pygame.draw.circle(surface, WHITE, center, radius, 2)
+
+                letter_font = pygame.font.Font(None, 20)
+                letter_surface = letter_font.render(letter, True, WHITE)
+                letter_rect = letter_surface.get_rect(center=center)
+                surface.blit(letter_surface, letter_rect)
+
     def render(self, surface, fonts, images, game_state):
         """Render the navigation screen"""
         surface.fill(BLACK)
@@ -373,9 +410,12 @@ class RefugeeCampMainNav:
         # Draw map tiles
         self.renderer.draw_map(surface, fonts, player_x, player_y)
         
+        # Draw markers for searchable objects with no distinguishing tile art
+        self._draw_searchable_object_markers(surface)
+
         # Draw player sprite
         self.renderer.draw_player(surface, player_x, player_y)
-        
+
         # Draw party status panel (right side)
         draw_party_status_panel(surface, game_state, fonts)
         
