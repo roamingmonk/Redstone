@@ -654,10 +654,28 @@ a one-tile gap in both the north and south wall segments at column 3, and extend
 battlefields with more than one valid exit, falling back to the single `exit_point` everywhere
 else. Verified against the real `MovementSystem._is_wall_tile`/`_is_obstacle_tile` (not a
 reimplementation) that every fixed tile is genuinely walkable.
+Second follow-up (same alley playtest): Dennis hit two more bugs. (1) After looting, landed in
+the tavern instead of back in `redstone_town` - `redstone_town.py`'s combat trigger set
+`previous_screen` but never `pre_combat_location` (exactly the gotcha already in this doc's own
+conventions list). `combat_loot_overlay.py` fell through to a hardcoded `'broken_blade_nav'`
+fallback, which only ever looked correct because the *original* tavern-basement trigger
+(`broken_blade_nav.py`) had the identical gap and coincidentally matched its own fallback.
+`refugee_camp_main_nav.py` had the same gap too (every other trigger site already set it
+correctly). Fixed all three, and made the loot overlay's fallback chain sane
+(`pre_combat_location` → `previous_screen` → hardcoded default), treating a falsy/None value the
+same as a missing attribute — a stale `None` left over from a prior combat was likely why
+Dennis's second playthrough got stuck entirely on the loot overlay (clicks kept landing on an
+overlay that never closed because the screen transition silently failed on a `None` target). (2)
+Player portrait rendered as a flat green rectangle — traced to
+`CharacterEngine.activate_character_portrait()` checking `self.character`, an attribute that
+doesn't exist on `CharacterEngine` (only `game_state.character` does), so the check was always
+False and silently skipped portrait activation. Fixed to check `game_state.character` directly,
+and gave the player portrait the same `default_portrait.jpg` fallback NPCs already have, so a
+missing active-portrait copy shows a silhouette instead of a flat color rect.
 Blockers/Open: none.
 Commits: cd495e4 feat(combat) gate Leave Combat button on exit tile + escape_allowed (I-05);
 f4f2838 fix(combat) fix unreachable exit tiles across 6 battlefields + give the alley two real
-openings.
+openings; b497092 fix(combat) fix wrong post-combat return location + green player portrait.
 Next: Phase 6 — full playtest pass #1 (Human Fighter, title → epilogue → credits). Model
 recommendation per the handoff's own guidance: switch to Opus for this session — it's live
 debugging of unknown bugs across systems during actual play, which is exactly the
