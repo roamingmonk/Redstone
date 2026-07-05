@@ -554,10 +554,21 @@ phase. Seven fixes, in the order found:
    `red_hollow_mine_level_*` maps have the same repeatable-`COMBAT_TRIGGERS`-with-no-cooldown
    pattern; only the swamp was reported as a problem so only the swamp was fixed, but the same
    fix would likely help there too if it comes up.
-Deviations: none of this was planned work; all eight were organic discoveries from Dennis playing
+9. `d7f75fb` — the crypt's "Confront Cultists" `action_hub` button (in `data/locations/
+   swamp_church.json`) had no completion gate at all, so it stayed clickable forever after the
+   fight was already won — same bug class as fix #1 (tavern basement), but for a combat-type
+   action_hub button rather than a navigation target. `combat`-type actions in
+   `ui/base_location.py` have no built-in `one_time_flag` support (unlike `loot_check`), so this
+   was a data-only fix: the `swamp_church_cultists` encounter already sets
+   `swamp_church_complete: true` on victory, so added `"swamp_church_complete": false` to
+   `confront_cultists`'s `requirements` alongside its existing `investigated_ritual_site` gate.
+   Verified against the real `ActionHubLocation.render()` path: button present before combat,
+   gone after `swamp_church_complete` flips true, other three crypt buttons unaffected.
+Deviations: none of this was planned work; all nine were organic discoveries from Dennis playing
 the game live after Phase 3. Phase 4 (F-02) is unaffected and still next.
 Blockers/Open: none.
-Commits: 73d9668, 25cfe43, b845bb1, 746d8e2, ead5182, 76c679f, c6ecd19, a7caa3d, 9799b8c, 1ecf9d3.
+Commits: 73d9668, 25cfe43, b845bb1, 746d8e2, ead5182, 76c679f, c6ecd19, a7caa3d, 9799b8c, 1ecf9d3,
+dc4752e, d7f75fb.
 Next: Phase 4 — F-02 portrait rendering consistency (note: general portrait-fallback plumbing is
 now in place per fix #4 above — F-02's remaining scope is cross-screen sizing/border consistency
 and the garrick_portrait.jpg vs .png duplicate).
