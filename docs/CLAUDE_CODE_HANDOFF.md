@@ -673,9 +673,22 @@ False and silently skipped portrait activation. Fixed to check `game_state.chara
 and gave the player portrait the same `default_portrait.jpg` fallback NPCs already have, so a
 missing active-portrait copy shows a silhouette instead of a flat color rect.
 Blockers/Open: none.
+Third follow-up: Dennis found the player could walk straight through the tavern's exit door
+(row 19, the last valid row of the 20x20 map) into undefined space beyond the map edge, ending up
+visually inside the dialogue box. `_is_walkable_multi_layer()` in `broken_blade_nav.py` treated
+an out-of-bounds position as walkable - `get_tile_type()` correctly returns `None` for
+coordinates outside the tilemap, but the per-layer loop's "skip empty tiles" rule (`None` means
+no tile placed on *that layer*, not a wall) fell through to `return True` when every layer was
+`None`. Added an explicit bounds check against the tilemap's own width/height before the
+per-layer loop - the door tile itself stays walkable (so pressing ENTER there still works), one
+step further is now hard-blocked. Confirmed this was unique to broken_blade_nav.py's bespoke
+check; the shared `is_walkable_tile()` utility used by the dungeon levels and refugee camp
+already treats `None` as not-walkable, and redstone_town_map.py's `is_walkable()` defaults
+out-of-bounds tiles to `'wall'`.
 Commits: cd495e4 feat(combat) gate Leave Combat button on exit tile + escape_allowed (I-05);
 f4f2838 fix(combat) fix unreachable exit tiles across 6 battlefields + give the alley two real
-openings; b497092 fix(combat) fix wrong post-combat return location + green player portrait.
+openings; b497092 fix(combat) fix wrong post-combat return location + green player portrait;
+3f83843 fix(tavern) hard stop at the map edge past the exit door.
 Next: Phase 6 — full playtest pass #1 (Human Fighter, title → epilogue → credits). Model
 recommendation per the handoff's own guidance: switch to Opus for this session — it's live
 debugging of unknown bugs across systems during actual play, which is exactly the
