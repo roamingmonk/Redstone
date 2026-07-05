@@ -236,9 +236,9 @@ AREA_TRANSITIONS = {
         'building_pos': [(1, 1)],
         'info': {
             'name': 'Basement',
-            'interaction_type': 'navigation',
-            'target_screen': 'broken_blade.basement_cleared',
+            'interaction_type': 'blocked',
             'action': 'Visit Basement',
+            'message': "The basement is quiet now - you already cleared out the rats.",
             'requirements': {
                 'flags': {
                     'completed_basement_combat': True
