@@ -1292,16 +1292,27 @@ class CombatEncounter:
                 surface.blit(line_surface, (680, log_y))
                 log_y += 18  # Line spacing
         
-        # Exit button
-        exit_y = 710
-        exit_rect = pygame.Rect(self.grid_offset_x, exit_y, 80, 40)
-        
-        draw_combat_button(surface, exit_rect.x, exit_rect.y, 80, 40, "EXIT", button_font)
-        clickable_areas["back_button"] = {
-            "rect": exit_rect,
-            "action": "COMBAT_BACK"
-        }
-        
+        # Leave Combat button - only available while standing on the battlefield's exit tile
+        # (Gold Box style: retreat requires reaching the door/stairs, not a free bail-out).
+        # Also respects the encounter's escape_allowed flag (e.g. boss fights), which was
+        # already present in every encounter JSON but never actually enforced anywhere.
+        battlefield = combat_data.get('battlefield', {})
+        encounter = combat_data.get('encounter', {})
+        exit_point = battlefield.get('spawn_zones', {}).get('exit_point')
+        active_char_position = active_char_state.get('position')
+        escape_allowed = encounter.get('escape_allowed', True)
+
+        if (escape_allowed and exit_point and active_char_position
+                and list(active_char_position) == list(exit_point)):
+            exit_y = 710
+            exit_rect = pygame.Rect(self.grid_offset_x, exit_y, 140, 40)
+
+            draw_combat_button(surface, exit_rect.x, exit_rect.y, 140, 40, "LEAVE COMBAT", button_font)
+            clickable_areas["back_button"] = {
+                "rect": exit_rect,
+                "action": "COMBAT_BACK"
+            }
+
         return clickable_areas
     
     # ==========================================

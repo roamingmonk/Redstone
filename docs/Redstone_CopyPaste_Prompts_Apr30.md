@@ -1793,6 +1793,20 @@ For the Mysterious Trinket: "??? Effects unknown — examine to reveal"
 ---
 
 ## I-05 [CLAUDE CODE] — Combat exit button: require exit tile
+<COMPLETED — DEVIATION: step 4 (add exit tile coordinates to the rat basement battlefield as a
+proof of concept) turned out to already be done — every single battlefield JSON in
+data/combat/battlefields/ already has spawn_zones.exit_point (small_cellar's is [1, 6]), so no
+data changes were needed anywhere. Renamed the always-visible "EXIT" button in
+ui/combat_system.py::_render_combat_ui_panel() to "LEAVE COMBAT" and gated it on the active
+character's position matching the battlefield's exit_point exactly, plus a bonus fix: also gated
+it on the encounter's escape_allowed flag, which is present in every encounter JSON (13 of 26 set
+it to false - final boss, Marcus confrontation, refugee camp night defense, most dungeon ambush
+fights) but was never read anywhere in the codebase, so fleeing those "you can't leave" fights was
+always silently allowed before this fix. Confirmed victory/defeat both use separate auto-triggered
+flows (loot overlay / death overlay) that never depend on this button, so gating it can't
+soft-lock the player. Verified headlessly across three cases: on the exit tile with escape
+allowed (button shows), off the exit tile (hidden), on the exit tile with escape_allowed: false
+(still hidden). Full game boot clean.>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
