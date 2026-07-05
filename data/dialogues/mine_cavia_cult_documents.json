@@ -1,0 +1,11 @@
+"cavia_cult_documents": {
+  "introduction": [
+    "Flesh as a binding ingredient. I see.",
+    "Setting aside the obvious theological concerns — the cross-contamination alone would be catastrophic. You cannot store ritual components next to organic matter.",
+    "These people have never once thought about proper carrot storage. It shows."
+  ],
+  "options": [
+    { "id": "take_notes", "text": "Note the ritual details.", "next_state": "exit" },
+    { "id": "close_it", "text": "Close the documents. You've seen enough.", "next_state": "exit" }
+  ]
+}

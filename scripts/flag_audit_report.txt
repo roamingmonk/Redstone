@@ -1,0 +1,724 @@
+========================================================================
+TERROR IN REDSTONE — FLAG AUDIT REPORT
+========================================================================
+
+=== A) FLAGS READ BUT NEVER SET (24 flags) ===
+    These conditions can never become true — possible typos or missing
+    set_flag effects.
+
+  act_two_location_completed
+    Read in: narrative_schema.dialogue_state_mapping[cassia][journal_transition]
+    Read in: dialogues/redstone_town_cassia.json (requirements.not_flag)
+    Read in: dialogues/redstone_town_cassia.json (requirements.flags)
+
+  act_two_started
+    Read in: narrative_schema.dialogue_state_mapping[mayor][swamp_complete_first_time]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][ruins_complete_first_time]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][refugee_complete_first_time]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][mine_complete_first_time]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][ready_for_act_three]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][multiple_progress]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][no_progress]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][first_meeting]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][post_completion_reward]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][ore_sample_discussion]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][post_completion_idle]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][quest_given]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][progress_updates]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][office_closed]
+
+  beggar_talked
+    Read in: narrative_schema.dialogue_state_mapping[beggar][first_meeting]
+    Read in: narrative_schema.dialogue_state_mapping[beggar][return_visits]
+    Read in: narrative_schema.quest_triggers[casper_met].dialogue_flag
+
+  can_recruit_more
+    Read in: dialogues/broken_blade_elara.json (requirements.flags)
+    Read in: dialogues/broken_blade_gareth.json (requirements.flags)
+    Read in: dialogues/broken_blade_lyra.json (requirements.flags)
+    Read in: dialogues/broken_blade_thorman.json (requirements.flags)
+
+  casper_disappeared
+    Read in: narrative_schema.dialogue_state_mapping[beggar][redemption_pending]
+
+  casper_returned_ring_to_meredith
+    Read in: narrative_schema.dialogue_state_mapping[meredith][meredith_after_casper_returned_ring]
+    Read in: narrative_schema.dialogue_state_mapping[meredith][ring_returned_thanks]
+    Read in: narrative_schema.dialogue_state_mapping[meredith][ring_quest_active]
+    Read in: narrative_schema.dialogue_state_mapping[meredith][ring_quest_offer]
+
+  elara_talked
+    Read in: narrative_schema.dialogue_state_mapping[elara][first_meeting_post_mayor]
+    Read in: narrative_schema.dialogue_state_mapping[elara][first_meeting]
+    Read in: narrative_schema.dialogue_state_mapping[elara][recruitment_blocked]
+    Read in: narrative_schema.dialogue_state_mapping[elara][recruitment_available]
+    Read in: narrative_schema.dialogue_state_mapping[elara][casual_chat]
+
+  epilogue_couple_talked
+    Read in: narrative_schema.dialogue_state_mapping[casper_and_meredith_epilogue][first_meeting]
+    Read in: narrative_schema.dialogue_state_mapping[casper_and_meredith_epilogue][return_visit]
+
+  first_party_member_recruited
+    Read in: narrative_schema.quest_triggers[first_recruitment_complete].dialogue_flag
+
+  gareth_talked
+    Read in: narrative_schema.dialogue_state_mapping[gareth][first_meeting_post_mayor]
+    Read in: narrative_schema.dialogue_state_mapping[gareth][first_meeting]
+    Read in: narrative_schema.dialogue_state_mapping[gareth][recruitment_blocked]
+    Read in: narrative_schema.dialogue_state_mapping[gareth][recruitment_available]
+    Read in: narrative_schema.dialogue_state_mapping[gareth][casual_chat]
+
+  garrick_talked
+    Read in: narrative_schema.dialogue_state_mapping[garrick][victory_simple]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][first_meeting]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][casual_chat]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][knows_about_ruins]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][after_first_talk]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][post_payment_idle]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][post_mayor_basement_complete]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][post_mayor_basement_accepted]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][post_mayor_basement_offered]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][post_mayor_no_basement]
+
+  has_cassia_locket
+    Read in: narrative_schema.dialogue_state_mapping[marcus][redemption_offer]
+
+  hill_ruins_complete
+    Read in: narrative_schema.dialogue_state_mapping[mayor][ruins_complete_first_time]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][ready_for_act_three]
+    Read in: dialogues/redstone_town_mayor.json (requirements.flags)
+
+  is_cavia
+    Read in: dialogues/hill_ruins_portal.json (requirements.flags)
+    Read in: dialogues/mine_warning_signs.json (requirements.flags)
+    Read in: dialogues/swamp_church_cultdocuments.json (requirements.flags)
+
+  lyra_talked
+    Read in: narrative_schema.dialogue_state_mapping[lyra][first_meeting_post_mayor]
+    Read in: narrative_schema.dialogue_state_mapping[lyra][first_meeting]
+    Read in: narrative_schema.dialogue_state_mapping[lyra][recruitment_blocked]
+    Read in: narrative_schema.dialogue_state_mapping[lyra][recruitment_available]
+    Read in: narrative_schema.dialogue_state_mapping[lyra][casual_chat]
+
+  marcus_died_in_battle
+    Read in: narrative_schema.dialogue_state_mapping[cassia][victory_marcus_died_arrival]
+
+  marcus_encountered_level_5
+    Read in: narrative_schema.dialogue_state_mapping[marcus][marcus_encounter]
+    Read in: narrative_schema.dialogue_state_mapping[marcus][redemption_offer]
+
+  mayor_family_status
+    Read in: dialogues/redstone_town_cassia.json (requirements.flags)
+
+  mayor_talked
+    Read in: narrative_schema.dialogue_state_mapping[meredith][ring_quest_offer]
+    Read in: narrative_schema.dialogue_state_mapping[meredith][knows_about_swamp]
+    Read in: narrative_schema.dialogue_state_mapping[meredith][post_mayor]
+    Read in: narrative_schema.dialogue_state_mapping[meredith][return_visits]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][casual_chat]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][knows_about_ruins]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][after_first_talk]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][post_payment_idle]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][post_mayor_basement_complete]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][post_mayor_basement_accepted]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][post_mayor_basement_offered]
+    Read in: narrative_schema.dialogue_state_mapping[garrick][post_mayor_no_basement]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][no_progress]
+    Read in: narrative_schema.dialogue_state_mapping[mayor][progress_updates]
+    Read in: narrative_schema.dialogue_state_mapping[gareth][first_meeting_post_mayor]
+    Read in: narrative_schema.dialogue_state_mapping[gareth][recruitment_blocked]
+    Read in: narrative_schema.dialogue_state_mapping[gareth][recruitment_available]
+    Read in: narrative_schema.dialogue_state_mapping[gareth][casual_chat]
+    Read in: narrative_schema.dialogue_state_mapping[elara][first_meeting_post_mayor]
+    Read in: narrative_schema.dialogue_state_mapping[elara][recruitment_blocked]
+    Read in: narrative_schema.dialogue_state_mapping[elara][recruitment_available]
+    Read in: narrative_schema.dialogue_state_mapping[elara][casual_chat]
+    Read in: narrative_schema.dialogue_state_mapping[thorman][first_meeting_post_mayor]
+    Read in: narrative_schema.dialogue_state_mapping[thorman][recruitment_blocked]
+    Read in: narrative_schema.dialogue_state_mapping[thorman][recruitment_available]
+    Read in: narrative_schema.dialogue_state_mapping[thorman][casual_chat]
+    Read in: narrative_schema.dialogue_state_mapping[lyra][first_meeting_post_mayor]
+    Read in: narrative_schema.dialogue_state_mapping[lyra][recruitment_blocked]
+    Read in: narrative_schema.dialogue_state_mapping[lyra][recruitment_available]
+    Read in: narrative_schema.dialogue_state_mapping[lyra][casual_chat]
+    Read in: dialogues/broken_blade_meredith.json (requirements.flags)
+
+  meredith_talked
+    Read in: narrative_schema.dialogue_state_mapping[meredith][first_meeting]
+    Read in: narrative_schema.dialogue_state_mapping[meredith][meredith_after_casper_returned_ring]
+    Read in: narrative_schema.dialogue_state_mapping[meredith][ring_quest_offer]
+    Read in: narrative_schema.dialogue_state_mapping[meredith][knows_about_swamp]
+    Read in: narrative_schema.dialogue_state_mapping[meredith][post_mayor]
+    Read in: narrative_schema.dialogue_state_mapping[meredith][return_visits]
+    Read in: dialogues/broken_blade_meredith.json (requirements.flags)
+
+  pete_talked
+    Read in: narrative_schema.dialogue_state_mapping[pete][victory_simple]
+    Read in: narrative_schema.dialogue_state_mapping[pete][first_meeting]
+    Read in: narrative_schema.dialogue_state_mapping[pete][pre_recruitment_comedy]
+
+  red_hollow_mine_complete
+    Read in: narrative_schema.dialogue_state_mapping[mayor][mine_complete_first_time]
+    Read in: dialogues/redstone_town_mayor.json (requirements.flags)
+
+  taborex_encountered
+    Read in: narrative_schema.dialogue_state_mapping[taborex][first_meeting]
+    Read in: narrative_schema.dialogue_state_mapping[taborex][exit]
+
+  thorman_talked
+    Read in: narrative_schema.dialogue_state_mapping[thorman][first_meeting_post_mayor]
+    Read in: narrative_schema.dialogue_state_mapping[thorman][first_meeting]
+    Read in: narrative_schema.dialogue_state_mapping[thorman][recruitment_blocked]
+    Read in: narrative_schema.dialogue_state_mapping[thorman][recruitment_available]
+    Read in: narrative_schema.dialogue_state_mapping[thorman][casual_chat]
+
+=== B) FLAGS SET BUT NEVER READ (159 flags) ===
+    These flags are written but nothing checks them — dead flags or
+    features not yet wired up.
+
+  act_three_entrance_choice
+    Set in:  dialogues/hill_ruins_lockeddoor.json (set_flag effect, value=front_door)
+    Set in:  dialogues/hill_ruins_unlockdoor.json (set_flag effect, value=front_door)
+
+  act_three_ready
+    Set in:  dialogues/redstone_town_mayor.json (set_flag effect, value=True)
+
+  alley_test_complete
+    Set in:  encounters/alley_fight.json (combat quest_flag)
+    Set in:  encounters/alley_fight3.json (combat quest_flag)
+    Set in:  encounters/alley_fight_2.json (combat quest_flag)
+
+  attempted_force_dungeon_door
+    Set in:  dialogues/hill_ruins_forcedoor.json (set_flag effect, value=True)
+
+  bad_ending_triggered
+    Set in:  dialogues/dungeon_level_5_portal_postboss.json (set_flag effect, value=False)
+    Set in:  dialogues/dungeon_level_5_portal_postboss.json (set_flag effect, value=True)
+
+  bernard_gave_discount
+    Set in:  dialogues/redstone_town_bernard.json (set_flag effect, value=True)
+
+  bernard_gave_refugee_info
+    Set in:  dialogues/redstone_town_bernard.json (set_flag effect, value=True)
+
+  bernard_gave_ruins_info
+    Set in:  dialogues/redstone_town_bernard.json (set_flag effect, value=True)
+
+  bernard_shared_rumors
+    Set in:  dialogues/redstone_town_bernard.json (set_flag effect, value=True)
+
+  boss_fight_easier
+    Set in:  dialogues/dungeon_level_5_marcus.json (set_flag effect, value=True)
+
+  boss_fight_started
+    Set in:  dialogues/dungeon_level_5_taborex.json (set_flag effect, value=True)
+
+  casper_aware_player_has_ring
+    Set in:  dialogues/redstone_town_beggar.json (set_flag effect, value=True)
+
+  casper_meredith_post_victory_complete
+    Set in:  dialogues/redstone_town_casperandmeredith.json (set_flag effect, value=True)
+
+  casper_offered_ring
+    Set in:  dialogues/redstone_town_beggar.json (set_flag effect, value=True)
+
+  cassia_gave_recipe_quest
+    Set in:  dialogues/redstone_town_cassia.json (set_flag effect, value=True)
+
+  cassia_offered_help
+    Set in:  dialogues/redstone_town_cassia.json (set_flag effect, value=True)
+
+  cavia_challenged_taborex
+    Set in:  dialogues/dungeon_level_5_taborex.json (set_flag effect, value=True)
+
+  chamber_collapsing
+    Set in:  dialogues/dungeon_level_5_portal_postboss.json (set_flag effect, value=True)
+
+  confirmed_mayors_family_taken
+    Set in:  dialogues/refugee_camp_refugees.json (set_flag effect, value=True)
+
+  confronted_marcus_ruins
+    Set in:  dialogues/hill_ruins_marcus.json (set_flag effect, value=True)
+
+  cult_leader_encountered
+    Set in:  encounters/swamp_church_cultists.json (combat quest_flag)
+
+  desecrated_blight_shrine
+    Set in:  dialogues/dungeon_level_4_shrine.json (set_flag effect, value=True)
+
+  dungeon_l1_chest_opened
+    Set in:  dialogues/dungeon_level_1_chest.json (set_flag effect, value=True)
+
+  dungeon_l1_encounter_1_complete
+    Set in:  encounters/dungeon_l1_skeleton_patrol.json (combat quest_flag)
+
+  dungeon_l1_encounter_2_complete
+    Set in:  encounters/dungeon_l1_animated_armor.json (combat quest_flag)
+
+  dungeon_l1_encounter_3_complete
+    Set in:  encounters/dungeon_l1_shadow_wraith.json (combat quest_flag)
+
+  dungeon_l2_encounter_1_complete
+    Set in:  encounters/dungeon_l2_skeleton_archers.json (combat quest_flag)
+
+  dungeon_l2_encounter_2_complete
+    Set in:  encounters/dungeon_l2_animated_patrol.json (combat quest_flag)
+
+  dungeon_l2_encounter_3_complete
+    Set in:  encounters/dungeon_l2_trap_ambush.json (combat quest_flag)
+
+  dungeon_l3_altar_journal_read
+    Set in:  dialogues/dungeon_level_3_altar.json (set_flag effect, value=True)
+
+  dungeon_l3_blight_symbols_examined
+    Set in:  dialogues/dungeon_level_3_altar.json (set_flag effect, value=True)
+
+  dungeon_l3_encounter_1_complete
+    Set in:  encounters/dungeon_l3_mixed_forces.json (combat quest_flag)
+
+  dungeon_l3_encounter_2_complete
+    Set in:  encounters/dungeon_l3_cult_guards.json (combat quest_flag)
+
+  dungeon_l3_ritual_names_read
+    Set in:  dialogues/dungeon_level_3_ritual.json (set_flag effect, value=True)
+
+  dungeon_l4_cells_examined
+    Set in:  dialogues/dungeon_level_4_villager_cells.json (set_flag effect, value=True)
+
+  dungeon_l4_chest_opened
+    Set in:  dialogues/dungeon_level_4_chest.json (set_flag effect, value=True)
+
+  dungeon_l4_encounter_1_complete
+    Set in:  encounters/dungeon_l4_cult_patrol.json (combat quest_flag)
+
+  dungeon_l4_encounter_2_complete
+    Set in:  encounters/dungeon_l4_possessed_villagers.json (combat quest_flag)
+
+  dungeon_l4_encounter_3_complete
+    Set in:  encounters/dungeon_l4_elite_guards.json (combat quest_flag)
+
+  dungeon_l4_planning_examined
+    Set in:  dialogues/dungeon_level_4_planning.json (set_flag effect, value=True)
+
+  dungeon_l4_shrine_examined
+    Set in:  dialogues/dungeon_level_4_shrine.json (set_flag effect, value=True)
+
+  dungeon_l4_study_examined
+    Set in:  dialogues/dungeon_level_4_marcus_study.json (set_flag effect, value=True)
+
+  dungeon_l5_ritual_examined
+    Set in:  dialogues/dungeon_level_5_ritual.json (set_flag effect, value=True)
+
+  dungeon_level_1_complete
+    Set in:  encounters/dungeon_l1_shadow_wraith.json (combat quest_flag)
+
+  dungeon_level_2_bones_examined
+    Set in:  dialogues/dungeon_level_2_bones.json (set_flag effect, value=True)
+
+  dungeon_level_2_chest_looted
+    Set in:  dialogues/dungeon_level_2_chest.json (set_flag effect, value=True)
+
+  dungeon_level_2_complete
+    Set in:  encounters/dungeon_l2_trap_ambush.json (combat quest_flag)
+
+  dungeon_level_3_altar_examined
+    Set in:  dialogues/dungeon_level_3_altar.json (set_flag effect, value=True)
+
+  dungeon_level_3_brazier_examined
+    Set in:  dialogues/dungeon_level_3_brazier.json (set_flag effect, value=True)
+
+  dungeon_level_3_chest_looted
+    Set in:  dialogues/dungeon_level_3_chest.json (set_flag effect, value=True)
+
+  dungeon_level_3_complete
+    Set in:  encounters/dungeon_l3_cult_guards.json (combat quest_flag)
+
+  dungeon_level_3_ritual_examined
+    Set in:  dialogues/dungeon_level_3_ritual.json (set_flag effect, value=True)
+
+  dungeon_level_4_complete
+    Set in:  encounters/dungeon_l4_elite_guards.json (combat quest_flag)
+
+  elara_shared_magic
+    Set in:  dialogues/broken_blade_elara.json (set_flag effect, value=True)
+
+  examined_altar
+    Set in:  dialogues/swamp_church_altar.json (set_flag effect, value=True)
+
+  examined_blight_offerings
+    Set in:  dialogues/dungeon_level_4_shrine.json (set_flag effect, value=True)
+
+  examined_collapse
+    Set in:  dialogues/mine_collapse.json (set_flag effect, value=True)
+
+  examined_dungeon_locked_door
+    Set in:  dialogues/hill_ruins_lockeddoor.json (set_flag effect, value=True)
+
+  examined_henrik_seal
+    Set in:  dialogues/mine_henrik_seal.json (set_flag effect, value=True)
+
+  examined_marcus_books
+    Set in:  dialogues/dungeon_level_4_marcus_study.json (set_flag effect, value=True)
+
+  examined_mine_warnings
+    Set in:  dialogues/mine_warning_signs.json (set_flag effect, value=True)
+
+  examined_refugee_campfire
+    Set in:  dialogues/refugee_camp_campfire.json (set_flag effect, value=True)
+
+  examined_ritual_chamber
+    Set in:  dialogues/mine_ritual_chamber.json (set_flag effect, value=True)
+
+  examined_swamp_symbols
+    Set in:  dialogues/swamp_church_symbols.json (set_flag effect, value=True)
+
+  examined_unstable_warning
+    Set in:  dialogues/mine_unstable_tunnels.json (set_flag effect, value=True)
+
+  found_cult_battle_plans
+    Set in:  dialogues/dungeon_level_4_planning.json (set_flag effect, value=True)
+
+  found_cult_documents
+    Set in:  encounters/swamp_church_cultists.json (combat quest_flag)
+
+  found_cult_ledger
+    Set in:  dialogues/dungeon_level_4_planning.json (set_flag effect, value=True)
+
+  found_marcus_pendant
+    Set in:  dialogues/dungeon_level_3_ritual.json (set_flag effect, value=True)
+
+  found_prisoner_note
+    Set in:  dialogues/dungeon_level_4_villager_cells.json (set_flag effect, value=True)
+
+  found_shadow_essence
+    Set in:  dialogues/dungeon_level_5_ritual.json (set_flag effect, value=True)
+
+  gareth_shared_story
+    Set in:  dialogues/broken_blade_gareth.json (set_flag effect, value=True)
+
+  garrick_linked_tremors_ruins
+    Set in:  dialogues/broken_blade_garrick.json (set_flag effect, value=True)
+
+  garrick_mentioned_tremors
+    Set in:  dialogues/broken_blade_garrick.json (set_flag effect, value=True)
+
+  garrick_paid
+    Set in:  dialogues/broken_blade_garrick.json (set_flag effect, value=True)
+
+  garrick_told_cassia_story
+    Set in:  dialogues/broken_blade_garrick.json (set_flag effect, value=True)
+
+  henrik_gave_act_three_warnings
+    Set in:  dialogues/redstone_town_henrik.json (set_flag effect, value=True)
+
+  henrik_gave_lantern
+    Set in:  dialogues/redstone_town_henrik.json (set_flag effect, value=True)
+
+  henrik_mentioned_old_shaft
+    Set in:  dialogues/redstone_town_henrik.json (set_flag effect, value=True)
+
+  henrik_noticed_cavia_sensitivity
+    Set in:  dialogues/redstone_town_henrik.json (set_flag effect, value=True)
+
+  hill_ruins_carved_searched
+    Set in:  dialogues/hill_ruins_carved_stones.json (set_flag effect, value=True)
+
+  hill_ruins_dungeon_unlocked
+    Set in:  dialogues/hill_ruins_lockeddoor.json (set_flag effect, value=True)
+    Set in:  dialogues/hill_ruins_unlockdoor.json (set_flag effect, value=True)
+
+  hill_ruins_ground_level_rubble_searched
+    Set in:  dialogues/hill_ruins_ground_level_rubble.json (set_flag effect, value=True)
+
+  hill_ruins_locked_door_found
+    Set in:  dialogues/hill_ruins_lockeddoor.json (set_flag effect, value=True)
+
+  hill_ruins_lore_discovered
+    Set in:  dialogues/hill_ruins_carved_stones.json (set_flag effect, value=True)
+
+  hill_ruins_mechanisms_searched
+    Set in:  dialogues/hill_ruins_mechanisms.json (set_flag effect, value=True)
+
+  hill_ruins_portal_chamber_seen
+    Set in:  dialogues/hill_ruins_portal.json (set_flag effect, value=True)
+
+  hill_ruins_portal_examined
+    Set in:  dialogues/hill_ruins_portal.json (set_flag effect, value=True)
+
+  hill_ruins_rubble_searched
+    Set in:  dialogues/hill_ruins_rubble.json (set_flag effect, value=True)
+
+  investigated_ritual_site
+    Set in:  dialogues/swamp_church_ritual.json (set_flag effect, value=True)
+
+  jenna_gave_refugee_info
+    Set in:  dialogues/redstone_town_jenna.json (set_flag effect, value=True)
+
+  just_completed_victory_dialogue
+    Set in:  dialogues/redstone_town_bernard.json (set_flag effect, value=True)
+    Set in:  dialogues/redstone_town_casperandmeredith.json (set_flag effect, value=True)
+    Set in:  dialogues/redstone_town_cassia.json (set_flag effect, value=True)
+    Set in:  dialogues/redstone_town_garrick.json (set_flag effect, value=True)
+    Set in:  dialogues/redstone_town_henrik.json (set_flag effect, value=True)
+    Set in:  dialogues/redstone_town_jenna.json (set_flag effect, value=True)
+    Set in:  dialogues/redstone_town_marta.json (set_flag effect, value=True)
+    Set in:  dialogues/redstone_town_mayor.json (set_flag effect, value=True)
+    Set in:  dialogues/redstone_town_meredith.json (set_flag effect, value=True)
+    Set in:  dialogues/redstone_town_pete.json (set_flag effect, value=True)
+
+  kept_henriks_lantern
+    Set in:  dialogues/redstone_town_henrik.json (set_flag effect, value=True)
+
+  killed_possessed_villagers
+    Set in:  encounters/dungeon_l4_possessed_villagers.json (combat quest_flag)
+
+  knows_circle_age
+    Set in:  dialogues/dungeon_level_5_ritual.json (set_flag effect, value=True)
+
+  knows_cult_scope
+    Set in:  dialogues/dungeon_level_4_planning.json (set_flag effect, value=True)
+
+  knows_marcus_is_vessel
+    Set in:  dialogues/dungeon_level_4_marcus_study.json (set_flag effect, value=True)
+
+  knows_vessel_plan
+    Set in:  dialogues/dungeon_level_5_ritual.json (set_flag effect, value=True)
+
+  learned_about_mine
+    Set in:  dialogues/redstone_town_henrik.json (set_flag effect, value=True)
+
+  learned_about_violet_mortar
+    Set in:  dialogues/broken_blade_garrick.json (set_flag effect, value=True)
+    Set in:  dialogues/redstone_town_bernard.json (set_flag effect, value=True)
+
+  learned_cult_rituals_from_refugees
+    Set in:  dialogues/refugee_camp_refugees.json (set_flag effect, value=True)
+
+  learned_mayors_family_location
+    Set in:  dialogues/refugee_camp_marta.json (set_flag effect, value=True)
+
+  learned_sacrifice_plan
+    Set in:  dialogues/swamp_church_cultdocuments.json (set_flag effect, value=True)
+
+  lyra_shared_tricks
+    Set in:  dialogues/broken_blade_lyra.json (set_flag effect, value=True)
+
+  marcus_ally_in_boss_fight
+    Set in:  dialogues/dungeon_level_5_marcus.json (set_flag effect, value=True)
+
+  marcus_defeated_in_combat
+    Set in:  encounters/dungeon_l5_marcus_confrontation.json (combat quest_flag)
+
+  marcus_desperate
+    Set in:  dialogues/hill_ruins_marcus.json (set_flag effect, value=True)
+
+  marcus_enraged
+    Set in:  dialogues/dungeon_level_5_marcus.json (set_flag effect, value=True)
+    Set in:  dialogues/hill_ruins_marcus.json (set_flag effect, value=True)
+
+  marcus_mercy_killed
+    Set in:  dialogues/dungeon_level_5_marcus.json (set_flag effect, value=True)
+
+  marcus_saved_some_prisoners
+    Set in:  dialogues/dungeon_level_4_villager_cells.json (set_flag effect, value=True)
+
+  mayor_gave_refugee_info
+    Set in:  dialogues/broken_blade_mayor.json (set_flag effect, value=True)
+
+  mayor_gave_ruins_info
+    Set in:  dialogues/broken_blade_mayor.json (set_flag effect, value=True)
+
+  mayor_gave_swamp_info
+    Set in:  dialogues/broken_blade_mayor.json (set_flag effect, value=True)
+
+  mayor_mentioned_family
+    Set in:  dialogues/broken_blade_mayor.json (set_flag effect, value=True)
+
+  mayor_paid_main_quest
+    Set in:  dialogues/broken_blade_mayor.json (set_flag effect, value=True)
+
+  mayor_wants_ore_info
+    Set in:  dialogues/broken_blade_mayor.json (set_flag effect, value=True)
+
+  mayor_worried_tremors
+    Set in:  dialogues/broken_blade_mayor.json (set_flag effect, value=True)
+
+  mayors_family_rescued
+    Set in:  dialogues/dungeon_level_4_villager_cells.json (set_flag effect, value=True)
+
+  mercy_promised
+    Set in:  dialogues/dungeon_level_5_marcus.json (set_flag effect, value=True)
+
+  meredith_awaits_casper
+    Set in:  dialogues/broken_blade_meredith.json (set_flag effect, value=True)
+
+  meredith_casper_reconciliation
+    Set in:  dialogues/broken_blade_meredith.json (set_flag effect, value=True)
+
+  meredith_casper_romance
+    Set in:  dialogues/redstone_town_casperandmeredith.json (set_flag effect, value=True)
+
+  meredith_directed_to_mayor
+    Set in:  dialogues/broken_blade_meredith.json (set_flag effect, value=True)
+
+  meredith_gave_swamp_info
+    Set in:  dialogues/broken_blade_meredith.json (set_flag effect, value=True)
+
+  meredith_mentioned_mayor
+    Set in:  dialogues/broken_blade_meredith.json (set_flag effect, value=True)
+
+  meredith_mentioned_old_mine
+    Set in:  dialogues/broken_blade_meredith.json (set_flag effect, value=True)
+
+  meredith_sent_message_to_casper
+    Set in:  dialogues/broken_blade_meredith.json (set_flag effect, value=True)
+
+  meredith_worried_tremors
+    Set in:  dialogues/broken_blade_meredith.json (set_flag effect, value=True)
+
+  mine_seal_broken
+    Set in:  dialogues/mine_henrik_seal.json (set_flag effect, value=True)
+
+  pete_mentioned_refugees
+    Set in:  dialogues/broken_blade_pete.json (set_flag effect, value=True)
+
+  portal_destroyed
+    Set in:  dialogues/dungeon_level_5_portal_postboss.json (set_flag effect, value=True)
+    Set in:  dialogues/dungeon_level_5_portal_postboss.json (set_flag effect, value=False)
+
+  portal_left_unsealed
+    Set in:  dialogues/dungeon_level_5_portal_postboss.json (set_flag effect, value=False)
+    Set in:  dialogues/dungeon_level_5_portal_postboss.json (set_flag effect, value=True)
+
+  portal_weakened
+    Set in:  dialogues/dungeon_level_5_marcus.json (set_flag effect, value=True)
+
+  read_cult_documents
+    Set in:  dialogues/swamp_church_cultdocuments.json (set_flag effect, value=True)
+
+  read_marcus_journal
+    Set in:  dialogues/dungeon_level_4_marcus_study.json (set_flag effect, value=True)
+
+  read_marcus_letter
+    Set in:  dialogues/dungeon_level_4_marcus_study.json (set_flag effect, value=True)
+
+  read_prisoner_messages
+    Set in:  dialogues/dungeon_level_4_villager_cells.json (set_flag effect, value=True)
+
+  ready_for_night_defense
+    Set in:  dialogues/refugee_camp_marta.json (set_flag effect, value=True)
+
+  received_redstone_key
+    Set in:  dialogues/redstone_town_mayor.json (set_flag effect, value=True)
+
+  redemption_rejected
+    Set in:  dialogues/dungeon_level_5_marcus.json (set_flag effect, value=True)
+
+  saw_aethel_ore
+    Set in:  dialogues/mine_aethel_ore.json (set_flag effect, value=True)
+
+  saw_ritual_prophecy
+    Set in:  dialogues/dungeon_level_3_brazier.json (set_flag effect, value=True)
+
+  searched_church_pews
+    Set in:  dialogues/swamp_church_pews.json (set_flag effect, value=True)
+
+  searched_deep_ore_chamber
+    Set in:  dialogues/mine_deep_ore.json (set_flag effect, value=True)
+
+  searched_kobold_nest
+    Set in:  dialogues/mine_kobold_supplies.json (set_flag effect, value=True)
+
+  searched_level_1_ore
+    Set in:  dialogues/mine_ore_deposits.json (set_flag effect, value=True)
+
+  searched_mine_equipment
+    Set in:  dialogues/mine_equipment.json (set_flag effect, value=True)
+
+  searched_mining_carts
+    Set in:  dialogues/mine_carts.json (set_flag effect, value=True)
+
+  searched_prison_cells
+    Set in:  dialogues/dungeon_level_4_villager_cells.json (set_flag effect, value=True)
+
+  searched_red_hollow_mine_rubble
+    Set in:  dialogues/mine_rubble.json (set_flag effect, value=True)
+
+  searched_refugee_supplies
+    Set in:  dialogues/refugee_camp_supplies.json (set_flag effect, value=True)
+
+  searched_swamp_graves
+    Set in:  dialogues/swamp_church_graves.json (set_flag effect, value=True)
+
+  shadow_blight_noticed
+    Set in:  dialogues/dungeon_level_4_shrine.json (set_flag effect, value=True)
+
+  taborex_ritual_ended
+    Set in:  dialogues/dungeon_level_5_portal_postboss.json (set_flag effect, value=True)
+
+  talked_to_refugee_leader
+    Set in:  dialogues/refugee_camp_marta.json (set_flag effect, value=True)
+
+  thorman_shared_faith
+    Set in:  dialogues/broken_blade_thorman.json (set_flag effect, value=True)
+
+  trigger_loot_check
+    Set in:  dialogues/dungeon_level_1_chest.json (set_flag effect, value=dungeon_level_1_chest_loot)
+    Set in:  dialogues/dungeon_level_2_bones.json (set_flag effect, value=dungeon_level_2_bones_loot)
+    Set in:  dialogues/dungeon_level_2_chest.json (set_flag effect, value=dungeon_level_2_chest_loot)
+    Set in:  dialogues/dungeon_level_3_chest.json (set_flag effect, value=dungeon_level_3_chest_loot)
+    Set in:  dialogues/dungeon_level_4_chest.json (set_flag effect, value=dungeon_level_4_chest_loot)
+    Set in:  dialogues/hill_ruins_ground_level_rubble.json (set_flag effect, value=hill_ruins_rubble_loot)
+    Set in:  dialogues/hill_ruins_mechanisms.json (set_flag effect, value=hill_ruins_mechanism_loot)
+    Set in:  dialogues/hill_ruins_rubble.json (set_flag effect, value=hill_ruins_rubble_loot)
+    Set in:  dialogues/mine_aethel_ore.json (set_flag effect, value=mine_ore_deposits_loot)
+    Set in:  dialogues/mine_carts.json (set_flag effect, value=mine_carts_loot)
+    Set in:  dialogues/mine_deep_ore.json (set_flag effect, value=mine_deep_ore_loot)
+    Set in:  dialogues/mine_equipment.json (set_flag effect, value=mine_equipment_loot)
+    Set in:  dialogues/mine_kobold_supplies.json (set_flag effect, value=mine_kobold_supplies_loot)
+    Set in:  dialogues/mine_ore_deposits.json (set_flag effect, value=mine_ore_deposits_loot)
+    Set in:  dialogues/mine_rubble.json (set_flag effect, value=mine_rubble_loot)
+    Set in:  dialogues/refugee_camp_supplies.json (set_flag effect, value=refugee_supplies_loot)
+    Set in:  dialogues/swamp_church_graves.json (set_flag effect, value=swamp_grave_loot)
+    Set in:  dialogues/swamp_church_pews.json (set_flag effect, value=swamp_pew_loot)
+
+  understood_marcus_plan
+    Set in:  dialogues/dungeon_level_5_ritual.json (set_flag effect, value=True)
+
+  using_mine_tunnel_entrance
+    Set in:  dialogues/hill_ruins_mine.json (set_flag effect, value=True)
+
+=== C) FLAGS READ BUT NOT DECLARED IN SCHEMA (3 flags) ===
+    No canonical definition exists. Risky: no schema validation,
+    default value assumptions may be wrong.
+
+  can_recruit_more
+      [NEVER SET either — double orphan]
+    Read in: dialogues/broken_blade_elara.json (requirements.flags)
+    Read in: dialogues/broken_blade_gareth.json (requirements.flags)
+    ... and 10 more locations
+
+  is_cavia
+      [NEVER SET either — double orphan]
+    Read in: dialogues/hill_ruins_portal.json (requirements.flags)
+    Read in: dialogues/mine_warning_signs.json (requirements.flags)
+    Read in: dialogues/swamp_church_cultdocuments.json (requirements.flags)
+
+  mayor_family_status
+      [NEVER SET either — double orphan]
+    Read in: dialogues/redstone_town_cassia.json (requirements.flags)
+
+=== D) SUMMARY ===
+
+  Total unique flags SET:       271
+  Total unique flags READ:      136
+  Total flags DECLARED:         273
+
+  A) Read but never set:        24
+  B) Set but never read:        159
+  C) Read but not declared:     3
+
+  Flags set AND read (healthy):  112
+  Flags declared but not read:   140
+
+========================================================================

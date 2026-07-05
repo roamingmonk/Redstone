@@ -1,0 +1,11 @@
+"cavia_portal_reaction": {
+  "introduction": [
+    "So. This is the Nexus Point.",
+    "I expected... more. It's barely three times my height.",
+    "Though I'll admit — my fur has been standing on end since we crossed the threshold. Size isn't everything."
+  ],
+  "options": [
+    { "id": "examine_further", "text": "Study it more carefully.", "next_state": "exit" },
+    { "id": "step_back", "text": "Keep a respectful distance.", "next_state": "exit" }
+  ]
+}

@@ -1,0 +1,10 @@
+"cavia_mine_observation": {
+  "introduction": [
+    "Kobold tunnels. Of course.",
+    "No load-bearing supports on the left passage. No secondary exit. The whole eastern shaft will collapse within a decade — probably sooner.",
+    "I won't say anything. They wouldn't understand."
+  ],
+  "options": [
+    { "id": "proceed", "text": "Press on regardless.", "next_state": "exit" }
+  ]
+}

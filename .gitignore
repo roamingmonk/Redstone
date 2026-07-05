@@ -1,5 +1,4 @@
 # Python bytecode and caches
-git config --global core.excludesfile ~/.gitignore_global
 __pycache__/
 *.py[cod]
 *.pyo
@@ -8,5 +7,9 @@ __pycache__/
 .venv/
 venv/
 .DS_Store
-Thumbs.dbscripts/venv_virtualenvirn
-.claude/worktrees
+Thumbs.db
+
+# Local runtime state (not repo content)
+saves/*.json
+.claude/
+assets/images/icons/characters/player_portraits/active/

@@ -845,7 +845,6 @@ BRINGING THIS TO CLAUDE.AI]
 ---
 
 ## D-08 [CLAUDE CODE] — Gold floating indicator after non-combat
-]rewards
 <Completed>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
@@ -878,8 +877,8 @@ Show me what you find before making changes.
 # ═══════════════════════════════════════════════════════════════
 # SECTION E — CAVIA NARRATIVE CONTENT
 # ═══════════════════════════════════════════════════════════════
-<Completed>
 ## E-01 [CLAUDE.AI] — Write Cavia Act II flavor dialogue  ⚠️ NARRATIVE
+<Completed>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
@@ -1072,6 +1071,7 @@ system, then check each screen. Report findings before fixing.
 ---
 
 ## F-03 [VS CODE] — NPC portrait images for leader and Taborex
+<Complete>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
@@ -1281,6 +1281,7 @@ implementing.
 # ═══════════════════════════════════════════════════════════════
 
 ## H-01 [CLAUDE CODE] — Flag audit: build a cross-reference report  ⚠️ DO FIRST
+<Completed>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
@@ -1340,6 +1341,7 @@ this report is the basis for H-02 and H-03.
 ---
 
 ## H-02 [CLAUDE CODE] — Add startup flag validation to narrative_schema loader
+<Completed>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
@@ -1383,6 +1385,7 @@ validator as an additive, non-breaking change.
 ---
 
 ## H-03 [CLAUDE CODE] — Declare missing flags in narrative_schema npcs section
+<Completed>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
@@ -1425,6 +1428,7 @@ so the new entries follow the same format.
 ---
 
 ## H-04 [CLAUDE CODE] — Quest trigger audit: verify each trigger fires correctly
+<Completed>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
@@ -1469,6 +1473,7 @@ how triggers are evaluated before auditing the data.
 ---
 
 ## H-05 [CLAUDE CODE] — Dialogue state mapping: order validation and dead-state check
+<Completed>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
@@ -1517,6 +1522,7 @@ how conditions are evaluated before making changes.
 ---
 
 ## H-06 [CLAUDE.AI] — Quest/dialogue system: best practice review
+<Completed -diviation:  added H-07 and 8 based on this output>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone built
 in Python/Pygame. I want a best practice review of our narrative flag
@@ -1554,6 +1560,96 @@ is the goal.
 ```
 
 
+## H-07 [CLAUDE CODE] — Add FLAGS constants module for Python-side flag references
+<completed>
+I'm working on a Python/Pygame CRPG called Terror in Redstone.
+
+CONTEXT: H-06 best-practice review recommended adding a FLAGS constants
+module so that flag names used in Python engine code are never raw strings.
+Currently flags like "garrick_talked", "marcus_confrontation_resolved" etc.
+are typed as literals in Python files. A typo fails silently at runtime.
+The narrative_schema.json and dialogue JSON files will continue using raw
+strings (those are caught by the H-02 startup validator). This task covers
+only the Python-side references.
+
+TASK:
+1. Grep for all raw flag string literals used in Python files (*.py):
+   - set_flag / get_flag / has_flag calls
+   - Any direct game_state attribute assignments that correspond to flags
+   - quest_engine.py and dialogue_engine.py are the primary suspects
+   List every unique flag string found.
+
+2. Create utils/flags.py with a FLAGS class (NOT an enum — plain class
+   with string constants). Group by category with comments:
+     class FLAGS:
+         # NPC conversations
+         GARRICK_TALKED = "garrick_talked"
+         # Quest progression
+         MARCUS_CONFRONTATION_RESOLVED = "marcus_confrontation_resolved"
+         # etc.
+   Only include flags that appear in Python code — not the full schema list.
+
+3. Replace each raw string literal in Python files with FLAGS.<CONSTANT>.
+   Add the import at the top of each file changed.
+
+4. Verify: run the game to startup and confirm no AttributeError or
+   import errors. The H-02 validator should still report 0 warnings.
+
+5. Commit: "feat(flags): add FLAGS constants module; replace raw flag
+   strings in engine code"
+
+Do NOT touch narrative_schema.json or any dialogue JSON files.
+Do NOT add flags that only appear in JSON — those stay as raw strings.
+
+
+## H-08 [CLAUDE CODE] — Dead flag review: 160 set-but-never-read flags
+<completed>
+I'm working on a Python/Pygame CRPG called Terror in Redstone.
+
+CONTEXT: H-01 flag audit found 160 flags that are SET but never READ in
+any condition. Most are expected (loot flags, exploration markers, one-shot
+XP guards). However H-06 review flagged that some quest progression flags
+in this list may represent logic holes — a flag is set to record an event
+but nothing ever gates on it, meaning the game never reacts to that event.
+
+The flag audit report is at scripts/flag_audit_report.txt (Section B).
+
+TASK:
+1. Read Section B of the audit report (set but never read flags).
+
+2. Categorize each flag into one of these buckets:
+   A) EXPECTED DEAD — loot flags (trigger_loot_check, *_loot), one-shot
+      XP guards (xp_awarded__*), pure exploration markers (searched_*)
+   B) QUEST PROGRESSION — flags whose name suggests they record a story
+      event (e.g., marcus_journals_found, understood_marcus_plan,
+      taborex_ritual_ended, shadow_blight_noticed). These MIGHT be logic
+      holes if no condition ever checks them.
+   C) AMBIGUOUS — anything else
+
+3. For each flag in bucket B, check whether any dialogue state or quest
+   trigger SHOULD logically gate on it but doesn't. Look at the relevant
+   NPC's dialogue_state_mapping and their dialogue JSON file.
+   Example: if marcus_journals_found is set but no DSM condition checks it,
+   does Marcus have a state for "player found the journals"? If that state
+   exists in the dialogue JSON but isn't wired in the DSM, that's a bug.
+
+4. Report findings grouped by quest (main quest / side quests):
+   - Confirmed logic holes (flag set, state exists in JSON, DSM not wired)
+   - Suspected holes (flag set, no corresponding dialogue state found)
+   - Confirmed expected dead (safe to ignore)
+
+5. For any confirmed logic holes: fix the DSM wiring in narrative_schema.json
+   to add the missing condition. Do NOT add new dialogue states — only wire
+   existing ones that were missed.
+
+6. Commit fixes with: "fix(narrative): wire missing DSM conditions for
+   orphaned quest flags"
+
+Focus on main quest flags first: marcus_*, dungeon_level_*, taborex_*,
+understood_*, shadow_blight_*. Side quest flags (casper_*, meredith_*,
+henrik_*) are lower priority.
+
+
 # ═══════════════════════════════════════════════════════════════
 # SECTION I — CARRIED OVER FROM FEB 26 (not yet completed)
 # These were open in the Feb 26 doc and not absorbed into Sections A–H.
@@ -1561,6 +1657,7 @@ is the goal.
 # ═══════════════════════════════════════════════════════════════
 
 ## I-01 [VS CODE] — Stat roll: change to 4d6 drop lowest
+<Completed>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
@@ -1580,6 +1677,7 @@ Show me the current roll code first, then implement the change.
 ---
 
 ## I-02 [CLAUDE CODE] — Dialogue option color coding (quest items + exits)
+<Completed>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
@@ -1612,6 +1710,7 @@ me the current option draw loop, then propose the minimal change.
 
 ## I-03 [CLAUDE CODE] — Garrick INFO tab has wrong/mixed content
 ```
+<Completed>
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
 BUG: The INFO tab in Garrick's shop screen shows incorrect content.
@@ -1638,6 +1737,7 @@ Show me the current INFO tab rendering code first.
 ---
 
 ## I-04 [PLAN FIRST] — Trinket screen buff/debuff details
+<complete>
 ```
 ⚠️  READ THIS PLANNING NOTE BEFORE CODING  ⚠️
 
@@ -1710,6 +1810,9 @@ ONLY AFTER planning: implement with Claude Code using the agreed approach.
 # SECTION J — New Items(s) discovered during this fix
 #
 # ═══════════════════════════════════════════════════════════════
+
+J-01-  Change the villian name to Taborex
+<Complete>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
@@ -1735,3 +1838,16 @@ Only after I approve, make all changes. Report each file modified with a count o
 STEP 5 - VERIFY:
 After changes are complete, do a final search to confirm zero remaining instances of "taborex" in any form exist in the project.
 ```
+
+
+J-02
+
+[COMPLETE] Overlay Input Freeze & Quest Keyboard Navigation
+Commit: 638cbc2
+
+All 17 nav screens now block pygame.key.get_pressed() when any overlay is open — player cannot move behind an overlay using arrow keys
+Quest log auto-selects the first quest on open and on tab switch (detail panel always populated, no mouse click required)
+UP/DOWN arrows move a keyboard cursor through the quest list; hitting the edge auto-advances to the next/previous page
+LEFT/RIGHT arrows switch tabs; 1-9 select tabs directly
+P/N keys still page-scroll as before
+Footer and inline hint text updated to reflect new controls,
