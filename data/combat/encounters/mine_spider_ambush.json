@@ -7,7 +7,7 @@
   "enemies": [
     {
       "enemy_id": "giant_spider",
-      "position": [7, 3],
+      "position": [7, 2],
       "facing": "west"
     },
     {
