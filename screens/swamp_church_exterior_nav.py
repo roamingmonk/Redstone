@@ -81,23 +81,32 @@ class SwampChurchExteriorNav:
                 print(f"🎲 DEBUG: Combat trigger detected at ({new_x}, {new_y})")
                 print(f"   Encounter: {combat_trigger.get('encounter_id')}, Chance: {combat_trigger.get('chance')}")
             
-            if combat_trigger and combat_trigger.get('repeatable'):
+            # Suppress random encounter rolls for the rest of this visit once one has
+            # fired - re-enabled when the player actually leaves the exterior (door or
+            # exit-to-region), not just when returning from the combat screen itself.
+            combat_on_cooldown = getattr(game_state, 'swamp_church_ext_combat_cooldown', False)
+
+            if combat_trigger and combat_trigger.get('repeatable') and not combat_on_cooldown:
                 # Random encounter - check chance
                 chance = combat_trigger.get('chance', 1.0)
                 roll = random.random()
                 print(f"🎲 DEBUG: Rolling for combat - rolled {roll:.2f}, need < {chance}")
-                
+
                 if roll < chance:
                     print(f"⚔️ Starting combat with {combat_trigger['encounter_id']}")
                     # Trigger combat using the standard pattern
                     if controller:
+                        # Random encounters won't roll again here until the player leaves
+                        # this screen entirely (see the area-transition handler below)
+                        game_state.swamp_church_ext_combat_cooldown = True
+
                         # Save current screen for return after combat
                         game_state.previous_screen = 'swamp_church_exterior_nav'
-                        game_state.pre_combat_location = 'swamp_church_exterior_nav' 
+                        game_state.pre_combat_location = 'swamp_church_exterior_nav'
                         # Set combat encounter
                         game_state.current_combat_encounter = combat_trigger['encounter_id']
                         print(f"🎯 Starting combat encounter: {combat_trigger['encounter_id']}")
-                        
+
                         # Navigate to combat screen
                         controller.event_manager.emit("SCREEN_CHANGE", {
                             "target_screen": "combat",
@@ -131,6 +140,8 @@ class SwampChurchExteriorNav:
                 if controller:
                     target = transition_info[0]['target_screen']
                     self.renderer.start_transition_cooldown()
+                    # Leaving the exterior for real (door or exit) - re-arm random encounters
+                    game_state.swamp_church_ext_combat_cooldown = False
                     controller.event_manager.emit("SCREEN_CHANGE", {
                         'target_screen': target,
                         'source_screen': 'swamp_church_exterior_nav'
