@@ -502,3 +502,51 @@ battlefield file (different layout, never loaded — `combat_loader` looks up fi
 scope; candidate for a future hygiene pass.
 Commits: 07d3f03 feat(combat) floor-tile mapping extension + swamp_exterior battlefield fix (F-01).
 Next: Phase 4 — F-02 portrait rendering consistency.
+
+### Session 4 — Live playtest bug fixes (off-plan, between Phase 3 and Phase 4) — 2026-07-05
+Status: COMPLETE
+Done: Dennis playtested the Phase 3 combat work live and reported bugs as he hit them; each was
+diagnosed and fixed in the same session rather than deferred, since none were part of a planned
+phase. Seven fixes, in the order found:
+1. `73d9668` — tavern's post-combat "Visit Basement" pointed `target_screen` at a screen that was
+   never built (`broken_blade.basement_cleared`); now shows a flavor message instead (no
+   basement-interior screen exists to send the player to).
+2. `25cfe43` — that flavor message rendered a 🚫 emoji as a box glyph (font is ASCII-only per
+   project convention) and was hardcoded red for an informational message; dropped the emoji,
+   added a `message_tone: 'info'` flag so non-warning blocked-messages render green.
+3. `b845bb1` — systemic combat spawn bug: the standard 4-person party formation
+   (`[0,3],[0,4],[1,3],[1,4]`) put two party members on the left wall column on every battlefield
+   except cellar/mine/alley/camp (whose walkable area starts further right); fixed across 18
+   encounter files (one needed a different shape — `prison_cells` has an obstacle where the shift
+   would've landed) plus 5 enemies that spawned inside obstacles. Re-audited to zero remaining
+   collisions across every battlefield.
+4. `746d8e2` — `load_portrait()` never fell back to the already-existing
+   `default_portrait.jpg` when an NPC had no dedicated portrait file, so dialogue with any
+   portrait-less NPC (e.g. the refugees) showed a gray box + truncated name and spammed
+   "Error loading portrait" every frame. Also added simple colored markers for the refugee camp's
+   `camp_leader`/`refugees` searchable objects, which sit on plain ground tiles with zero
+   distinguishing art in the actual Tiled tileset.
+5. `ead5182` — the new camp_leader marker sat directly on the campfire tile (object_pos in the
+   old data doesn't match where the campfire actually renders in the Tiled map); moved the
+   marker's draw position one tile north via a separate override, independent of the interaction
+   data.
+6. `76c679f` — the marker's own tile is unwalkable (it's the campfire), so most approach angles
+   still couldn't trigger "Press ENTER to examine Camp Leader"; extended `search_tiles` to cover
+   the tiles actually surrounding the visible marker (confirmed walkable in the real Tiled map).
+7. `c6ecd19` + `a7caa3d` — refugees dialogue was stuck replaying `first_meeting` forever: their
+   entry in `narrative_schema.json`'s `npcs`/`dialogue_state_mapping` was keyed by the full
+   dialogue-file id (`refugee_camp_refugees`) instead of the bare npc_id (`refugees`) the engine
+   looks up by — same bug class as Issue #3 in `Dialogue_issues_-_what_to_review_-Nov_5.md`, but
+   in the schema keys rather than the filename. Fixing the key lookup then exposed a second,
+   deeper content bug: all three first-meeting topics (cult info, mayor's family, comfort) set the
+   *same* shared flag, so answering any one locked out the other two forever. Gave each topic its
+   own completion flag and per-option requirements so all three stay available across separate
+   visits until genuinely exhausted. Both bug classes documented as new Issue #5/#6 in
+   `Dialogue_issues_-_what_to_review_-Nov_5.md` for future sessions.
+Deviations: none of this was planned work; all seven were organic discoveries from Dennis playing
+the game live after Phase 3. Phase 4 (F-02) is unaffected and still next.
+Blockers/Open: none.
+Commits: 73d9668, 25cfe43, b845bb1, 746d8e2, ead5182, 76c679f, c6ecd19, a7caa3d.
+Next: Phase 4 — F-02 portrait rendering consistency (note: general portrait-fallback plumbing is
+now in place per fix #4 above — F-02's remaining scope is cross-screen sizing/border consistency
+and the garrick_portrait.jpg vs .png duplicate).

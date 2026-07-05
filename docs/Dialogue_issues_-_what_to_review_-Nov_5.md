@@ -53,6 +53,53 @@ be registered** in either the NPC\'s story_flags or the global flag
 registry, otherwise they\'ll be missing from context and cause condition
 evaluation to fail
 
+**Issue #5: Schema Key Mismatch (not a file-naming problem this time)**
+
+**Problem**: Refugee camp\'s "Displaced Refugees" dialogue always showed
+first_meeting\'s 3 options, forever, no matter how many times you talked to
+them or which flags were set\
+**Cause**: `refugee_camp_refugees.json` was named correctly (parses fine as
+location=refugee_camp, npc=refugees per the rsplit rule), but
+`narrative_schema.json` registered this NPC\'s entries in **both** the
+`npcs` dict and `dialogue_state_mapping` dict under the key
+`"refugee_camp_refugees"` (the full dialogue-file id) instead of the bare
+`npc_id` `"refugees"` that `get_current_dialogue_state()` and
+`get_npc_conversation_flag()` actually look up by. The lookup silently
+returned `{}`, so the code always fell back to `first_meeting`, AND
+`get_npc_conversation_flag()` missed the registered `"conversation_flag"`
+and silently invented a phantom flag (`refugees_talked`) that nothing else
+read\
+**Solution**: Renamed both schema keys to `"refugees"` (the `dialogue_file`
+field inside the entry, which holds the real filename, was left alone)\
+**Lesson**: **The dialogue filename convention and the narrative_schema.json
+dict keys are two independent things that both have to match npc_id.**
+Getting the filename right (Issue #3) does not guarantee the schema keys
+are right too - check both. Compare an NPC that works (e.g. `"marta"`,
+keyed by her bare id in both dicts) against a new entry before assuming the
+schema is correct.
+
+**Issue #6: One Shared "Talked" Flag Gating Multiple Independent Topics**
+
+**Problem**: Refugees offered 3 topics on first visit (cult info, mayor\'s
+family, comfort). Picking any ONE of them permanently removed all 3 on every
+future visit - the design intent was to let the player work through all
+three across separate visits\
+**Cause**: All three options\' effects set the same single flag
+(`refugee_group_talked`), and the state mapping\'s `return_visits` condition
+gated on that same flag. The first option picked flipped the flag, and the
+schema had no way to distinguish "talked once" from "exhausted every topic"\
+**Solution**: Gave each topic its own completion flag (existing
+`learned_cult_rituals_from_refugees` / `confirmed_mayors_family_taken` plus a
+new `comforted_refugees`), added a `requirements` block to each
+`first_meeting` option so an already-answered topic drops out of the option
+list, and rewrote `return_visits`\'s condition to require all *applicable*
+topics done (a topic gated behind another flag, like `quest_active`, doesn\'t
+count against exhaustion if it was never actually offered)\
+**Lesson**: **If a dialogue state has multiple options meant to be visited
+independently across separate sessions, each option needs its own tracking
+flag.** A single shared "talked" flag can only distinguish "never talked" from
+"talked at all" - it cannot represent "some but not all topics covered."
+
 **How to Avoid These Issues in the Future**
 
 **1. Dialogue File Naming Convention**
