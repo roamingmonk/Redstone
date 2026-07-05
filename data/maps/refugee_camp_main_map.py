@@ -115,7 +115,7 @@ def get_transition_info(player_x, player_y):
 # Searchable objects (examine/loot)
 SEARCHABLE_OBJECTS = {
     'camp_leader': {
-        'search_tiles': [(11, 7), (12, 8), (10,8)],  # Just around leader position
+        'search_tiles': [(11, 7), (12, 8), (10, 8), (11, 6), (10, 7), (12, 7)],  # Around leader marker + old position
         'object_pos': [(11, 8)],
         'info': {
             'name': 'Camp Leader',
