@@ -34,7 +34,7 @@
     "enemy_spawns": [
       [7, 4], [5, 3], [7, 6]
     ],
-    "exit_point": [0, 4]
+    "exit_point": [1, 4]
   },
   "lighting": "dim_purple",
   "environmental_effects": [

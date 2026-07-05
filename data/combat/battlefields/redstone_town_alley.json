@@ -11,8 +11,10 @@
   "terrain": {
     "default": "cobblestone",
     "walls": [
-      [0, 0, 6, 0],
-      [0, 11, 6, 11],
+      [0, 0, 2, 0],
+      [4, 0, 6, 0],
+      [0, 11, 2, 11],
+      [4, 11, 6, 11],
       [0, 0, 0, 11],
       [6, 0, 6, 11]
     ],
@@ -33,7 +35,8 @@
     "enemy_spawns": [
       [4, 1]
     ],
-    "exit_point": [1, 7]
+    "exit_point": [3, 11],
+    "exit_points": [[3, 0], [3, 11]]
   },
   "lighting": "dark",
   "environmental_effects": [
