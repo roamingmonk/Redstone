@@ -138,7 +138,11 @@ class CombatSpriteManager:
         floor_map = {
             'cobblestone_street_16x16': 'cobblestone_street_16x16.png',
             'stone_floor_16x16': 'stone_floor_16x16.png',
-            'dirt_floor_16x16': 'dirt_floor_16x16.png'
+            'dirt_floor_16x16': 'dirt_floor_16x16.png',
+            'grass_floor_16x16': 'grass_floor_16x16.png',
+            'ritual_floor_16x16': 'ritual_floor_16x16.png',
+            'dungeon_floor_16x16': 'dungeon_floor_16x16.png',
+            'swamp_floor_16x16': 'swamp_floor_16x16.png'
         }
         
         for floor_type, filename in floor_map.items():

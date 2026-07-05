@@ -993,6 +993,19 @@ implementing.
 # ═══════════════════════════════════════════════════════════════
 
 ## F-01 [CLAUDE CODE] — Verify and populate combat tileset assets per location
+<COMPLETED — DEVIATION: all 16 battlefield JSONs already had a `tileset` field set (a prior
+pass must have done this); the actual gaps were (1) `swamp_exterior.json` being a byte-for-byte
+copy of `small_cellar.json` — wrong battlefield_id/tileset/layout — replaced with a real swamp
+layout matching the swamp_ghost/swamp_skeleton encounters, tileset `swamp`, terrain `swamp_floor`;
+(2) `ui/combat_system.py::_get_floor_type()`'s floor_tile_map was missing `ritual_floor`,
+`dungeon_floor`, `swamp_floor` (mapped to their exact generated art) and `corrupted_floor`/
+`dark_stone` (no dedicated art exists — mapped to the nearest available tile, ritual/dungeon
+respectively); (3) `combat_sprite_manager.py::load_floor_tiles()`'s floor_map only loaded 3 of 7
+needed keys, so even correctly-mapped floors fell back — extended to load all 7. Verified via a
+headless render of one encounter per tileset (cellar/mine/ruins/alley/camp/dungeon/dungeon_crypt/
+swamp): all resolve real wall + floor art, zero fallback warnings, zero render errors. Full
+`main.py` boot also clean. Noted but out of scope: `redstone_town_alley - gaunlet.json` is a
+dead duplicate battlefield file never loaded by battlefield_id lookup — left alone.>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 

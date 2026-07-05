@@ -1,38 +1,46 @@
 {
-  "battlefield_id": "small_cellar",
-  "name": "Tavern Basement",
-  "tileset": "cellar",
-  "description": "A cramped stone cellar with wooden support beams and scattered barrels.",
+  "battlefield_id": "swamp_exterior",
+  "name": "Swamp Church Grounds",
+  "tileset": "swamp",
+  "description": "Fog clings low over rotting timber and slick, waterlogged stone outside the ruined swamp church.",
   "dimensions": {
-    "width": 12,
+    "width": 10,
     "height": 8
   },
   "tile_size": 48,
   "terrain": {
-    "default": "stone_floor",
+    "default": "swamp_floor",
     "walls": [
-      [0, 0, 11, 0],
-      [0, 7, 11, 7], 
+      [0, 0, 9, 0],
+      [0, 7, 9, 7],
       [0, 0, 0, 7],
-      [11, 0, 11, 7]
+      [9, 0, 9, 7]
     ],
     "obstacles": [
-      {"type": "barrel", "position": [2, 2], "blocks_movement": true, "blocks_sight": false},
-      {"type": "barrel", "position": [9, 5], "blocks_movement": true, "blocks_sight": false},
-      {"type": "support_beam", "position": [5, 3], "blocks_movement": true, "blocks_sight": true}
+      {"type": "dead_tree", "position": [3, 2], "blocks_movement": true, "blocks_sight": true, "cover_value": 2},
+      {"type": "dead_tree", "position": [6, 5], "blocks_movement": true, "blocks_sight": true, "cover_value": 2},
+      {"type": "debris", "position": [5, 3], "blocks_movement": true, "blocks_sight": false, "cover_value": 1},
+      {"type": "reeds", "position": [2, 5], "blocks_movement": false, "blocks_sight": true, "cover_value": 1},
+      {"type": "reeds", "position": [7, 2], "blocks_movement": false, "blocks_sight": true, "cover_value": 1}
+    ],
+    "special_tiles": [
+      {"type": "murky_water", "position": [4, 4], "effect": "none", "description": "Stagnant water pools between the reeds"}
     ]
   },
   "spawn_zones": {
     "player_start": [
-      [1, 6], [2, 6], [3, 6]
+      [0, 3], [0, 4], [1, 3], [1, 4]
     ],
     "enemy_spawns": [
-      [8, 2], [10, 4], [7, 6]
+      [4, 3], [6, 2], [7, 4]
     ],
-    "exit_point": [1, 6]  
+    "exit_point": [0, 3]
   },
-  "lighting": "dim",
+  "lighting": "foggy",
   "environmental_effects": [
+    {"type": "low_fog", "effect": "atmosphere", "description": "Thick fog rolls across the ground"},
     {"type": "musty_air", "effect": "none"}
-  ]
+  ],
+  "background_music": "combat_outdoor",
+  "ambient_sound": "swamp_ambience"
 }

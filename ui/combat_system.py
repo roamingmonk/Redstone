@@ -156,7 +156,13 @@ class CombatEncounter:
             'cobblestone': 'cobblestone_street_16x16',
             'dirt': 'dirt_floor_16x16',
             'grass': 'grass_floor_16x16',
-            'wood': 'wood_floor_16x16'
+            'wood': 'wood_floor_16x16',
+            'ritual_floor': 'ritual_floor_16x16',
+            'dungeon_floor': 'dungeon_floor_16x16',
+            'swamp_floor': 'swamp_floor_16x16',
+            # No dedicated art for these yet - map to the nearest existing tile
+            'corrupted_floor': 'ritual_floor_16x16',
+            'dark_stone': 'dungeon_floor_16x16'
         }
         
         return floor_tile_map.get(default_floor, 'stone_floor_16x16')

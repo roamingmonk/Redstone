@@ -51,13 +51,12 @@ Authoritative companion documents inside the repo:
 
 ### Sprint scoreboard (`docs/Redstone_CopyPaste_Prompts_Apr30.md`)
 
-**Done (verified against git history):** A-01–A-04, B-01, B-02, C-01–C-04, D-01–D-08, E-01–E-03, F-03, H-01–H-08, I-01–I-04, J-01, J-02.
+**Done (verified against git history):** A-01–A-04, B-01, B-02, C-01–C-04, D-01–D-08, E-01–E-03, F-01, F-03, H-01–H-08, I-01–I-04, J-01, J-02.
 
 **Remaining — this is the work queue:**
 
 | Task | What | Phase below |
 |---|---|---|
-| F-01 | Wire combat tileset fields in battlefield JSONs + missing wall/floor art | Phase 3 |
 | F-02 | Portrait rendering consistency across screens | Phase 4 |
 | I-05 | Combat exit button should require an exit tile | Phase 5 |
 | I-06 | Opportunity attacks (design decision needed — optional) | Phase 5 |
@@ -476,3 +475,30 @@ Deviations: none. Floor tiles for grass/cobblestone/swamp/ritual/dungeon still r
 Blockers/Open: none.
 Commits: d4a1595 feat(assets) combat tilesets/floor tiles/NPC sprites + generator script move + pack folder removal.
 Next: Phase 3 — F-01 combat tileset wiring (extend `floor_map` and `_get_floor_type()`, fix `swamp_exterior.json`).
+
+### Session 3 — Phase 3 (F-01) — 2026-07-05
+Status: COMPLETE
+Done: Ran the F-01 gap report first — found all 16 battlefield JSONs already carry a `tileset`
+field (no missing-field work needed, contrary to the sprint doc's framing), so the real gaps
+were: (1) `data/combat/battlefields/swamp_exterior.json` was a byte-for-byte copy of
+`small_cellar.json` (wrong battlefield_id/tileset/dimensions/obstacles) — replaced with an actual
+swamp layout (tileset `swamp`, terrain `swamp_floor`, obstacles dead_tree/debris/reeds) sized to
+match the `swamp_ghost`/`swamp_skeleton` encounters' start/spawn positions; (2) extended
+`ui/combat_system.py::_get_floor_type()`'s `floor_tile_map` with `ritual_floor`, `dungeon_floor`,
+`swamp_floor` (exact art) and `corrupted_floor`→ritual/`dark_stone`→dungeon (no dedicated art
+generated for those two, mapped to nearest); (3) extended
+`combat_sprite_manager.py::load_floor_tiles()`'s `floor_map` from 3 to 7 keys so the newly-mapped
+floors actually load instead of falling back. Verified with a headless script (SDL dummy driver)
+that renders one full encounter per tileset — cellar, mine (underground_tunnel), ruins_outdoor,
+urban_alley, camp_clearing, dungeon, dungeon_crypt, swamp — confirming real wall + floor art
+loads for all 16 battlefields with zero fallback warnings and zero render exceptions. Full
+`main.py` boot clean (no new errors; pre-existing unrelated `hill_ruins missing field: areas`
+warning confirmed present before this session too). Marked F-01 `<COMPLETED — DEVIATION>` in the
+sprint doc.
+Deviations: see F-01's completion note in the sprint doc — summarized above.
+Blockers/Open: `data/combat/battlefields/redstone_town_alley - gaunlet.json` is a dead duplicate
+battlefield file (different layout, never loaded — `combat_loader` looks up files by exact
+`{battlefield_id}.json` name) found while auditing battlefields. Left untouched, out of F-01
+scope; candidate for a future hygiene pass.
+Commits: <pending — see this session's commit>
+Next: Phase 4 — F-02 portrait rendering consistency.
