@@ -576,11 +576,21 @@ phase. Seven fixes, in the order found:
     entry (`investigate` / `post_combat`, gated on `swamp_church_complete`) and a new
     `post_combat` state in `swamp_church_ritual.json` with updated flavor text and a plain "leave"
     option.
-Deviations: none of this was planned work; all ten were organic discoveries from Dennis playing
+11. `6bad9d6` — two separate bugs found together on the cult documents examine screen: (a)
+    `ui/generic_dialogue_handler.py` rendered option text as a single unwrapped line (unlike
+    introduction text, which already used `wrap_text`), so any long option overflowed past the
+    dialogue box's right border — fixed generically for all dialogues, with a hanging indent
+    under the "N. " prefix; verified a short-option dialogue (refugees) renders identically to
+    before. (b) the cult documents dialogue showed two redundant "take the documents" choices side
+    by side for Cavia characters (the race-flavor option and the plain option do the exact same
+    thing — add the item, set the same flags, award the same XP) — made them mutually exclusive by
+    `is_cavia`, and added an `already_read` state (same pattern as fixes #9/#10) so re-examining
+    the documents doesn't duplicate the item/XP award.
+Deviations: none of this was planned work; all eleven were organic discoveries from Dennis playing
 the game live after Phase 3. Phase 4 (F-02) is unaffected and still next.
 Blockers/Open: none.
 Commits: 73d9668, 25cfe43, b845bb1, 746d8e2, ead5182, 76c679f, c6ecd19, a7caa3d, 9799b8c, 1ecf9d3,
-dc4752e, d7f75fb, 29ab04d.
+dc4752e, d7f75fb, 29ab04d, e11eda9, 6bad9d6.
 Next: Phase 4 — F-02 portrait rendering consistency (note: general portrait-fallback plumbing is
 now in place per fix #4 above — F-02's remaining scope is cross-screen sizing/border consistency
 and the garrick_portrait.jpg vs .png duplicate).
