@@ -640,8 +640,24 @@ symmetric enemy-side handling — real surgery in the frozen-pre-release 4,449-l
 Dennis confirmed defer. Recorded as ADR-144 in `docs/decisions.md`.
 Deviations: none. Both task markers updated in the sprint doc (I-05 `<COMPLETED — DEVIATION>`,
 I-06 `<DEFERRED TO SEQUEL>`).
+Follow-up (same session, found via live testing of I-05 right after landing it): Dennis hit the
+alley combat encounter and asked how the player is even supposed to know where the exit tile is —
+investigating turned up that `exit_point` had never been audited against wall/obstacle data the
+way `player_start`/`enemy_spawns` were earlier this project. 7 of 16 battlefields had it
+unreachable: `crypt_chamber`, `hill_ruins_exterior`, `portal_chamber_approach`, `prison_cells`,
+`sanctum_antechamber`, `swamp_exterior` all had it sitting on the border wall (same `[0,y]`
+template bug as the earlier spawn-position fix); `redstone_town_alley`'s sat on a barrel obstacle.
+Moved the first six to `[1,y]`. The alley also had the real design gap Dennis flagged — a fully
+walled box with an arbitrary interior "exit" and no visual cue — so gave it real openings: carved
+a one-tile gap in both the north and south wall segments at column 3, and extended
+`ui/combat_system.py`'s exit check to support an optional `exit_points` (plural) list for
+battlefields with more than one valid exit, falling back to the single `exit_point` everywhere
+else. Verified against the real `MovementSystem._is_wall_tile`/`_is_obstacle_tile` (not a
+reimplementation) that every fixed tile is genuinely walkable.
 Blockers/Open: none.
-Commits: cd495e4 feat(combat) gate Leave Combat button on exit tile + escape_allowed (I-05).
+Commits: cd495e4 feat(combat) gate Leave Combat button on exit tile + escape_allowed (I-05);
+f4f2838 fix(combat) fix unreachable exit tiles across 6 battlefields + give the alley two real
+openings.
 Next: Phase 6 — full playtest pass #1 (Human Fighter, title → epilogue → credits). Model
 recommendation per the handoff's own guidance: switch to Opus for this session — it's live
 debugging of unknown bugs across systems during actual play, which is exactly the
