@@ -176,7 +176,17 @@ class BrokenBladeNav:
         """
         if not self.tilemap or not self.layer_names:
             return False
-        
+
+        # Hard stop at the map edge - a position outside the tilemap has no tile data
+        # on any layer, so get_tile_type() returns None for every layer and the loop
+        # below would otherwise treat it as walkable, letting the player wander off
+        # the map (e.g. straight through the exit door into empty space).
+        width = self.tilemap.get('width')
+        height = self.tilemap.get('height')
+        if width is not None and height is not None:
+            if not (0 <= x < width and 0 <= y < height):
+                return False
+
         # Check each layer in order
         for layer_name in self.layer_names:
             if layer_name not in self.tilemap.get('layers', {}):
