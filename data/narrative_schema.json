@@ -457,8 +457,8 @@
         "ready_for_defense": "ready_for_night_defense"
       }
     },
-    "refugee_camp_refugees": {
-      "system_id": "refugee_camp_refugees",
+    "refugees": {
+      "system_id": "refugees",
       "full_name": "Displaced Refugees",
       "dialogue_file": "refugee_camp_refugees",
       "conversation_flag": "refugee_group_talked",
@@ -1274,7 +1274,7 @@
       "waiting_for_defense": "agreed_to_defend_camp && !refugee_camp_defended",
       "first_meeting": "!refugee_leader_talked"
     },
-    "refugee_camp_refugees": {
+    "refugees": {
       "first_meeting": "!refugee_group_talked",
       "return_visits": "refugee_group_talked"
     },
