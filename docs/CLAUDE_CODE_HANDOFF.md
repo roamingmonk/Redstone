@@ -51,13 +51,12 @@ Authoritative companion documents inside the repo:
 
 ### Sprint scoreboard (`docs/Redstone_CopyPaste_Prompts_Apr30.md`)
 
-**Done (verified against git history):** A-01–A-04, B-01, B-02, C-01–C-04, D-01–D-08, E-01–E-03, F-01, F-03, H-01–H-08, I-01–I-04, J-01, J-02.
+**Done (verified against git history):** A-01–A-04, B-01, B-02, C-01–C-04, D-01–D-08, E-01–E-03, F-01, F-02, F-03, H-01–H-08, I-01–I-04, J-01, J-02.
 
 **Remaining — this is the work queue:**
 
 | Task | What | Phase below |
 |---|---|---|
-| F-02 | Portrait rendering consistency across screens | Phase 4 |
 | I-05 | Combat exit button should require an exit tile | Phase 5 |
 | I-06 | Opportunity attacks (design decision needed — optional) | Phase 5 |
 | G-01–G-04 | Entire audio system (manager, assets, music wiring, SFX) | Phase 7 |
@@ -594,3 +593,29 @@ dc4752e, d7f75fb, 29ab04d, e11eda9, 6bad9d6.
 Next: Phase 4 — F-02 portrait rendering consistency (note: general portrait-fallback plumbing is
 now in place per fix #4 above — F-02's remaining scope is cross-screen sizing/border consistency
 and the garrick_portrait.jpg vs .png duplicate).
+
+### Session 5 — Phase 4 (F-02) — 2026-07-05
+Status: COMPLETE
+Done: Audited all 6 screens listed in F-02. All of them call the same shared
+`draw_party_status_panel()` (`utils/party_display.py`), so the party panel was already
+structurally consistent — a fix to the shared function reaches every screen by construction.
+Combined with Session 4's `load_portrait()` default_portrait.jpg fallback, "missing portrait
+shows a placeholder circle" was already resolved for the party panel; verified with a synthetic
+party member that has no dedicated portrait file — it now renders the actual silhouette image,
+not a colored rect. Found one real remaining inconsistency, in the *dialogue* portrait
+(`utils/npc_display.py`, separate code path from the party panel): the loaded-portrait success
+branch and the total-fallback branch (gray box + name, only reachable if default_portrait.jpg is
+also missing) drew at two different Y coordinates, so the layout would visibly jump depending on
+which path fired. Fixed both to the same position, removed a stale unused import
+(`LAYOUT_IMAGE_Y`/`LAYOUT_IMAGE_HEIGHT`) and commented-out dead code left over from the
+inconsistency. Resolved the garrick_portrait.jpg/.png duplicate: `load_portrait()` always builds
+the filename as `{name}_portrait.jpg` (never checks for `.png`), so the `.jpg` was unconditionally
+the one in use; confirmed no code referenced the `.png` anywhere and deleted it (2MB). Verified
+headlessly (both npc_display fallback branches render at the same position; garrick's actual
+portrait renders correctly) and via a full game boot. Marked F-02 `<COMPLETED — DEVIATION>` in
+the sprint doc and moved it to Done in the handoff's scoreboard.
+Deviations: see F-02's completion note in the sprint doc — summarized above.
+Blockers/Open: none.
+Commits: (this session's commit — see below).
+Next: Phase 5 — I-05 (combat exit button should require an exit tile) and I-06 (opportunity
+attacks design decision).

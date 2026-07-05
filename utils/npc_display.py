@@ -1,5 +1,5 @@
 import pygame
-from utils.constants import LAYOUT_IMAGE_Y, LAYOUT_IMAGE_HEIGHT, SPACING
+from utils.constants import SPACING
 from utils.party_display import load_portrait
 from utils.graphics import draw_border, draw_text_with_shadow
 
@@ -22,11 +22,9 @@ def draw_npc_portrait(surface, character_name):
         # Scale the image to the standard size
         scaled_portrait = pygame.transform.scale(npc_portrait, PORTRAIT_SIZE)
         
-        # Calculate the position using layout constants  (X -left +right, Y=  -up and +down)
         portrait_x = SPACING['margin'] - 10
-        portrait_y = 100 #LAYOUT_IMAGE_Y + LAYOUT_IMAGE_HEIGHT - PORTRAIT_SIZE[1]# - SPACING['margin']
+        portrait_y = 100
         portrait_rect = scaled_portrait.get_rect(topleft=(portrait_x, portrait_y))
-        
 
         # Draw the scaled portrait and a border
         surface.blit(scaled_portrait, portrait_rect)
@@ -34,9 +32,11 @@ def draw_npc_portrait(surface, character_name):
     
     else:
         # Fallback: Draw a gray rectangle and character name
+        # Same position as the loaded-portrait case above, so the layout doesn't jump
+        # around depending on whether load_portrait() succeeded.
         portrait_rect = pygame.Rect(
-            SPACING['margin'],
-            LAYOUT_IMAGE_Y + LAYOUT_IMAGE_HEIGHT - PORTRAIT_SIZE[1] - SPACING['margin'],
+            SPACING['margin'] - 10,
+            100,
             PORTRAIT_SIZE[0],
             PORTRAIT_SIZE[1]
         )

@@ -1054,6 +1054,23 @@ convention before touching any JSON files.
 ---
 
 ## F-02 [CLAUDE CODE] — Portrait rendering consistency across all screens
+<COMPLETED — DEVIATION: audited all 6 listed screens — every one calls the same shared
+`draw_party_status_panel()` from `utils/party_display.py`, so the party panel was already
+structurally consistent (a fix to the shared function propagates everywhere by construction).
+Combined with the `load_portrait()` default_portrait.jpg fallback added during Session 4's
+live-playtest fixes, "missing portrait falls back to a placeholder circle" was already resolved
+for the party panel specifically — confirmed via a synthetic party member with no dedicated
+portrait file: it now renders the actual default_portrait.jpg silhouette, not a colored rect.
+The real remaining inconsistency was in the *dialogue* portrait (`utils/npc_display.py`,
+separate from the party panel): the loaded-portrait success path and the total-fallback path
+(gray box + name, only reachable if default_portrait.jpg itself is also missing) drew at two
+different Y coordinates, so the layout would visibly jump depending on which path fired. Fixed
+both to the same position and removed a stale, unused import + commented-out dead code left over
+from that inconsistency. Also resolved the garrick_portrait.jpg/.png duplicate: `load_portrait()`
+always builds the filename as `{name}_portrait.jpg` (never checks for `.png`), so the `.jpg` was
+unconditionally the one in use and the 2MB `.png` was pure dead weight — deleted, no code
+referenced it. Verified headlessly (both branches of npc_display's fallback render at the same
+position/size) and via a full game boot.>
 ```
 I'm working on a Python/Pygame CRPG called Terror in Redstone.
 
