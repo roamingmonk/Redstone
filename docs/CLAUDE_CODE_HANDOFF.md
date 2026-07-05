@@ -543,10 +543,21 @@ phase. Seven fixes, in the order found:
    own completion flag and per-option requirements so all three stay available across separate
    visits until genuinely exhausted. Both bug classes documented as new Issue #5/#6 in
    `Dialogue_issues_-_what_to_review_-Nov_5.md` for future sessions.
-Deviations: none of this was planned work; all seven were organic discoveries from Dennis playing
+8. `1ecf9d3` — swamp church exterior's 4 random-encounter tiles rolled independently on every
+   single step with no memory of a recent fight; since combat doesn't advance the player's
+   position and the loot overlay returns to this same screen, players could walk straight back
+   into the same encounter two or three times in a row. Added a per-visit cooldown
+   (`game_state.swamp_church_ext_combat_cooldown`): set when an encounter fires, checked before
+   any further rolls, cleared only when the player leaves the exterior through a real area
+   transition (church door or exit to region) — not on the ephemeral round-trip through the
+   combat screen itself. **Note for later:** `hill_ruins_ground_level_map.py` and the
+   `red_hollow_mine_level_*` maps have the same repeatable-`COMBAT_TRIGGERS`-with-no-cooldown
+   pattern; only the swamp was reported as a problem so only the swamp was fixed, but the same
+   fix would likely help there too if it comes up.
+Deviations: none of this was planned work; all eight were organic discoveries from Dennis playing
 the game live after Phase 3. Phase 4 (F-02) is unaffected and still next.
 Blockers/Open: none.
-Commits: 73d9668, 25cfe43, b845bb1, 746d8e2, ead5182, 76c679f, c6ecd19, a7caa3d.
+Commits: 73d9668, 25cfe43, b845bb1, 746d8e2, ead5182, 76c679f, c6ecd19, a7caa3d, 9799b8c, 1ecf9d3.
 Next: Phase 4 — F-02 portrait rendering consistency (note: general portrait-fallback plumbing is
 now in place per fix #4 above — F-02's remaining scope is cross-screen sizing/border consistency
 and the garrick_portrait.jpg vs .png duplicate).
